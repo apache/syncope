@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.chartjs;
 
 import com.fasterxml.jackson.annotation.JsonRawValue;
-
 import java.io.Serializable;
 
 /**

@@ -24,14 +24,28 @@ import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.util.Collection;
-import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
+import org.apache.syncope.client.console.commons.ExternalResourceProvider;
+import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
+import org.apache.syncope.client.console.commons.PolicyTabProvider;
+import org.apache.syncope.client.console.commons.StatusProvider;
+import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
+import org.apache.syncope.client.console.pages.MustChangePassword;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
+import org.apache.syncope.client.ui.commons.annotations.Resource;
+import org.apache.syncope.client.ui.commons.themes.AdminLTE;
+import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
@@ -39,32 +53,18 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.servlet.XForwardedRequestWrapperFactory;
+import org.apache.wicket.protocol.ws.WebSocketAwareResourceIsolationRequestCycleListener;
 import org.apache.wicket.protocol.ws.api.WebSocketResponse;
+import org.apache.wicket.request.component.IRequestablePage;
+import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.client.console.commons.ExternalResourceProvider;
-import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
-import org.apache.syncope.client.console.commons.PolicyTabProvider;
-import org.apache.syncope.client.console.commons.StatusProvider;
-import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
-import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.pages.MustChangePassword;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
-import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.client.ui.commons.themes.AdminLTE;
-import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.keymaster.client.api.ServiceOps;
-import org.apache.wicket.protocol.ws.WebSocketAwareResourceIsolationRequestCycleListener;
-import org.apache.wicket.request.component.IRequestablePage;
-import org.apache.wicket.request.cycle.IRequestCycleListener;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -259,6 +259,10 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     public String getDefaultAnyPanelClass() {
         return props.getDefaultAnyPanelClass();
+    }
+
+    public String getAdminUser() {
+        return props.getAdminUser();
     }
 
     public String getAnonymousUser() {

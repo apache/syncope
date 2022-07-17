@@ -259,18 +259,18 @@ public class KeymasterITCase extends AbstractITCase {
         assumeTrue(domainOps instanceof SelfKeymasterDomainOps);
 
         // 3. work with new domain - create user
-        clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain(key);
-        adminClient = clientFactory.create(ADMIN_UNAME, "password");
+        CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain(key);
+        ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, "password");
 
-        userService = adminClient.getService(UserService.class);
+        USER_SERVICE = ADMIN_CLIENT.getService(UserService.class);
 
-        PagedResult<UserTO> users = userService.search(
+        PagedResult<UserTO> users = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(1).build());
         assertNotNull(users);
         assertTrue(users.getResult().isEmpty());
         assertEquals(0, users.getTotalCount());
 
-        Response response = userService.create(
+        Response response = USER_SERVICE.create(
                 new UserCR.Builder(SyncopeConstants.ROOT_REALM, "monteverdi").
                         password("password123").
                         plainAttr(attr("email", "monteverdi@syncope.apache.org")).
@@ -282,7 +282,7 @@ public class KeymasterITCase extends AbstractITCase {
         assertNotNull(user);
         assertEquals("monteverdi", user.getUsername());
 
-        if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
+        if (ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform())) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -290,7 +290,7 @@ public class KeymasterITCase extends AbstractITCase {
             }
         }
 
-        users = userService.search(
+        users = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(1).build());
         assertNotNull(users);
         assertFalse(users.getResult().isEmpty());
@@ -337,7 +337,7 @@ public class KeymasterITCase extends AbstractITCase {
             // 2. attempt to access with old pwd -> fail
             try {
                 new SyncopeClientFactoryBean().
-                        setAddress(ADDRESS).setDomain(two.getKey()).setContentType(clientFactory.getContentType()).
+                        setAddress(ADDRESS).setDomain(two.getKey()).setContentType(CLIENT_FACTORY.getContentType()).
                         create(ADMIN_UNAME, "password2").self();
             } catch (AccessControlException e) {
                 assertNotNull(e);
@@ -345,7 +345,7 @@ public class KeymasterITCase extends AbstractITCase {
 
             // 3. access with new pwd -> succeed
             new SyncopeClientFactoryBean().
-                    setAddress(ADDRESS).setDomain(two.getKey()).setContentType(clientFactory.getContentType()).
+                    setAddress(ADDRESS).setDomain(two.getKey()).setContentType(CLIENT_FACTORY.getContentType()).
                     create(ADMIN_UNAME, "password3").self();
         } finally {
             domainOps.changeAdminPassword(two.getKey(), origPasswowrd, origCipherAlgo);

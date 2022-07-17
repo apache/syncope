@@ -32,27 +32,30 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.to.AuditConfTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.logic.init.AuditLoader;
+import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.AuditManager;
-import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
+import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -64,9 +67,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.SystemPropertyUtils;
-import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
-import org.apache.syncope.core.persistence.api.entity.AuditConf;
-import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 
 public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
@@ -113,22 +113,14 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
                 orElseThrow(() -> new NotFoundException("Audit " + key));
     }
 
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_CREATE + "')")
-    public void create(final AuditConfTO auditTO) {
-        AuditConf audit = entityFactory.newEntity(AuditConf.class);
-        audit.setKey(auditTO.getKey());
-        audit.setActive(auditTO.isActive());
-        audit = auditConfDAO.save(audit);
-
-        if (audit.isActive()) {
-            setLevel(audit.getKey(), Level.DEBUG);
-        }
-    }
-
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_UPDATE + "')")
-    public void update(final AuditConfTO auditTO) {
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_SET + "')")
+    public void set(final AuditConfTO auditTO) {
         AuditConf audit = Optional.ofNullable(auditConfDAO.find(auditTO.getKey())).
-                orElseThrow(() -> new NotFoundException("Audit " + auditTO.getKey()));
+                orElseGet(() -> {
+                    AuditConf a = entityFactory.newEntity(AuditConf.class);
+                    a.setKey(auditTO.getKey());
+                    return a;
+                });
         audit.setActive(auditTO.isActive());
         audit = auditConfDAO.save(audit);
 
@@ -289,7 +281,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
     @PreAuthorize("isAuthenticated()")
     public void create(final AuditEntry auditEntry) {
         boolean authorized =
-                AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.AUDIT_CREATE)
+                AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.AUDIT_SET)
                 || AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.ANONYMOUS)
                 && AuditElements.EventCategoryType.WA == auditEntry.getLogger().getType();
         if (authorized) {

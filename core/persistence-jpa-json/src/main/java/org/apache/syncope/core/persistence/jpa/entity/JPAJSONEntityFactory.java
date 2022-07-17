@@ -47,10 +47,10 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONLAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONLAPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONLAPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONLinkedAccount;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUser;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUser;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 public abstract class JPAJSONEntityFactory extends JPAEntityFactory {

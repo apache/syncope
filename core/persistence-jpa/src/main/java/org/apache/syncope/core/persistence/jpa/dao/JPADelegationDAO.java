@@ -105,12 +105,17 @@ public class JPADelegationDAO extends AbstractDAO<Delegation> implements Delegat
     }
 
     @Override
+    public void delete(final Delegation delegation) {
+        entityManager().remove(delegation);
+    }
+
+    @Override
     public void delete(final String key) {
         Delegation delegation = find(key);
         if (delegation == null) {
             return;
         }
 
-        entityManager().remove(delegation);
+        delete(delegation);
     }
 }

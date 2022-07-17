@@ -18,17 +18,22 @@
  */
 package org.apache.syncope.core.provisioning.java.data.wa;
 
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
-import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
+import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
+import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
+import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
+import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
+import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
+import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
+import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
 
 public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
 
@@ -38,16 +43,24 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
 
     protected final PolicyDataBinder policyDataBinder;
 
+    protected final AuthModuleDataBinder authModuleDataBinder;
+
     protected final AuthModuleDAO authModuleDAO;
+
+    protected final AttrRepoDAO attrRepoDAO;
 
     public WAClientAppDataBinderImpl(
             final ClientAppDataBinder clientAppDataBinder,
             final PolicyDataBinder policyDataBinder,
-            final AuthModuleDAO authModuleDAO) {
+            final AuthModuleDataBinder authModuleDataBinder,
+            final AuthModuleDAO authModuleDAO,
+            final AttrRepoDAO attrRepoDAO) {
 
         this.clientAppDataBinder = clientAppDataBinder;
         this.policyDataBinder = policyDataBinder;
+        this.authModuleDataBinder = authModuleDataBinder;
         this.authModuleDAO = authModuleDAO;
+        this.attrRepoDAO = attrRepoDAO;
     }
 
     @Override
@@ -70,6 +83,8 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
                     if (authModule == null) {
                         LOG.warn("AuthModule " + authModule + " not found");
                     } else {
+                        waClientApp.getAuthModules().add(authModuleDataBinder.getAuthModuleTO(authModule));
+
                         authModule.getItems().
                                 forEach(item -> waClientApp.getReleaseAttrs().put(
                                 item.getIntAttrName(), item.getExtAttrName()));
@@ -83,22 +98,30 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
                 waClientApp.setAccessPolicy(policyDataBinder.getPolicyTO(clientApp.getRealm().getAccessPolicy()));
             }
 
+            AttrReleasePolicyConf attrReleasePolicyConf = null;
             if (clientApp.getAttrReleasePolicy() != null) {
+                attrReleasePolicyConf = clientApp.getAttrReleasePolicy().getConf();
                 waClientApp.setAttrReleasePolicy(
                         policyDataBinder.getPolicyTO(clientApp.getAttrReleasePolicy()));
             } else if (clientApp.getRealm() != null && clientApp.getRealm().getAttrReleasePolicy() != null) {
+                attrReleasePolicyConf = clientApp.getRealm().getAttrReleasePolicy().getConf();
                 waClientApp.setAttrReleasePolicy(
                         policyDataBinder.getPolicyTO(clientApp.getRealm().getAttrReleasePolicy()));
             }
+            if (attrReleasePolicyConf instanceof DefaultAttrReleasePolicyConf
+                    && ((DefaultAttrReleasePolicyConf) attrReleasePolicyConf).getPrincipalAttrRepoConf() != null) {
 
-            if (waClientApp.getReleaseAttrs().isEmpty()) {
-                if (clientApp.getAttrReleasePolicy() != null) {
-                    waClientApp.setAttrReleasePolicy(
-                            policyDataBinder.getPolicyTO(clientApp.getAttrReleasePolicy()));
-                } else if (clientApp.getRealm() != null && clientApp.getRealm().getAttrReleasePolicy() != null) {
-                    waClientApp.setAttrReleasePolicy(
-                            policyDataBinder.getPolicyTO(clientApp.getRealm().getAttrReleasePolicy()));
-                }
+                (((DefaultAttrReleasePolicyConf) attrReleasePolicyConf).getPrincipalAttrRepoConf()).
+                        getAttrRepos().forEach(key -> {
+                            AttrRepo attrRepo = attrRepoDAO.find(key);
+                            if (attrRepo == null) {
+                                LOG.warn("AttrRepo " + attrRepo + " not found");
+                            } else {
+                                attrRepo.getItems().
+                                        forEach(item -> waClientApp.getReleaseAttrs().put(
+                                        item.getIntAttrName(), item.getExtAttrName()));
+                            }
+                        });
             }
         } catch (Exception e) {
             LOG.error("While building the configuration from an application's policy ", e);

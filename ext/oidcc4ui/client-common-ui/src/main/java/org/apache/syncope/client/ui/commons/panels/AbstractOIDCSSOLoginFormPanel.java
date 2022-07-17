@@ -25,6 +25,7 @@ import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
+import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -35,7 +36,6 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 
 public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPanel {
 

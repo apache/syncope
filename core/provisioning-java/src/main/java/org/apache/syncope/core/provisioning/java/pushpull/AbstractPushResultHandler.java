@@ -31,28 +31,28 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.ExecStatus;
-import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
-import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.common.lib.to.ProvisioningReport;
-import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
+import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
@@ -212,7 +212,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         try {
             any = getAnyUtils().dao().authFind(anyKey);
 
-            Provision provision = profile.getTask().getResource().getProvision(any.getType()).orElse(null);
+            Provision provision = profile.getTask().getResource().getProvision(any.getType().getKey()).orElse(null);
             if (provision == null) {
                 throw new JobExecutionException("No provision found on " + profile.getTask().getResource() + " for "
                         + any.getType().getKey());
@@ -258,9 +258,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
         // Try to read remote object BEFORE any actual operation
         Set<String> moreAttrsToGet = new HashSet<>();
-        profile.getActions().forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
+        profile.getActions().forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, any)));
         List<ConnectorObject> connObjs = outboundMatcher.match(
-                profile.getConnector(), any, provision, Optional.of(moreAttrsToGet.toArray(String[]::new)));
+                profile.getConnector(),
+                any,
+                profile.getTask().getResource(),
+                provision,
+                Optional.of(moreAttrsToGet.toArray(String[]::new)));
         LOG.debug("Match(es) found for {} as {}: {}", any, provision.getObjectClass(), connObjs);
 
         if (connObjs.size() > 1) {
@@ -454,7 +458,11 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 if (notificationsAvailable || auditRequested) {
                     resultStatus = AuditElements.Result.SUCCESS;
                     output = outboundMatcher.match(
-                            profile.getConnector(), any, provision, Optional.of(moreAttrsToGet.toArray(String[]::new)));
+                            profile.getConnector(),
+                            any,
+                            profile.getTask().getResource(),
+                            provision,
+                            Optional.of(moreAttrsToGet.toArray(String[]::new)));
                 }
             } catch (IgnoreProvisionException e) {
                 throw e;

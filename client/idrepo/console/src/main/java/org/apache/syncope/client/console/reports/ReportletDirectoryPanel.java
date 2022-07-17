@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
@@ -37,14 +35,16 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
-import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.wicket.PageReference;
@@ -97,7 +97,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected List<IColumn<ReportletWrapper, String>> getColumns() {
-        final List<IColumn<ReportletWrapper, String>> columns = new ArrayList<>();
+        List<IColumn<ReportletWrapper, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("reportlet", this), "implementationKey", "implementationKey"));
@@ -126,7 +126,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
     @Override
     public ActionsPanel<ReportletWrapper> getActions(final IModel<ReportletWrapper> model) {
-        final ActionsPanel<ReportletWrapper> panel = super.getActions(model);
+        ActionsPanel<ReportletWrapper> panel = super.getActions(model);
 
         panel.add(new ActionLink<>() {
 
@@ -151,7 +151,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
                 final ReportletConf reportlet = model.getObject().getConf();
                 try {
-                    final ReportTO actual = ReportRestClient.read(report);
+                    ReportTO actual = ReportRestClient.read(report);
                     actual.getReportlets().remove(model.getObject().getImplementationKey());
                     ReportRestClient.update(actual);
 
@@ -198,7 +198,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected String paginatorRowsKey() {
-        return IdRepoConstants.PREF_REPORTLET_TASKS_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_REPORTLET_PAGINATOR_ROWS;
     }
 
     protected class ReportDataProvider extends DirectoryDataProvider<ReportletWrapper> {
@@ -237,7 +237,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<ReportletWrapper> iterator(final long first, final long count) {
-            final ReportTO actual = ReportRestClient.read(report);
+            ReportTO actual = ReportRestClient.read(report);
 
             List<ReportletWrapper> reportlets = getReportletWrappers(actual);
 

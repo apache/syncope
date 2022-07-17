@@ -35,6 +35,8 @@ import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.FIQLQuery;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -50,6 +52,16 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
+import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
+import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
+import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2SPEntity;
+import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
@@ -57,16 +69,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUnique
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCJWKS;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPEntity;
-import org.apache.syncope.core.persistence.api.entity.auth.WAConfigEntry;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
@@ -82,12 +84,6 @@ import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRule
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -110,6 +106,16 @@ import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAAttrRepo;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthModule;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthProfile;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPACASSPClientApp;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCJWKS;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCRPClientApp;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2IdPEntity;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2SPClientApp;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2SPEntity;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAWAConfigEntry;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
@@ -117,16 +123,6 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUni
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModule;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthModuleItem;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthProfile;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPACASSPClientApp;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCJWKS;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAOIDCRPClientApp;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2IdPEntity;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPClientApp;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPASAML2SPEntity;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAWAConfigEntry;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
@@ -142,12 +138,6 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationR
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnitItem;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplatePullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
@@ -236,14 +226,10 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAMailTemplate();
         } else if (reference.equals(Notification.class)) {
             result = (E) new JPANotification();
-        } else if (reference.equals(ExternalResource.class)) {
-            result = (E) new JPAExternalResource();
-        } else if (reference.equals(Provision.class)) {
-            result = (E) new JPAProvision();
-        } else if (reference.equals(OrgUnit.class)) {
-            result = (E) new JPAOrgUnit();
         } else if (reference.equals(ConnInstance.class)) {
             result = (E) new JPAConnInstance();
+        } else if (reference.equals(ExternalResource.class)) {
+            result = (E) new JPAExternalResource();
         } else if (reference.equals(SchemaLabel.class)) {
             result = (E) new JPASchemaLabel();
         } else if (reference.equals(PlainSchema.class)) {
@@ -270,12 +256,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPADerSchema();
         } else if (reference.equals(VirSchema.class)) {
             result = (E) new JPAVirSchema();
-        } else if (reference.equals(Mapping.class)) {
-            result = (E) new JPAMapping();
-        } else if (reference.equals(MappingItem.class)) {
-            result = (E) new JPAMappingItem();
-        } else if (reference.equals(OrgUnitItem.class)) {
-            result = (E) new JPAOrgUnitItem();
         } else if (reference.equals(GPlainAttr.class)) {
             result = (E) new JPAGPlainAttr();
         } else if (reference.equals(GPlainAttrValue.class)) {
@@ -324,12 +304,14 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPABatch();
         } else if (reference.equals(Delegation.class)) {
             result = (E) new JPADelegation();
+        } else if (reference.equals(FIQLQuery.class)) {
+            result = (E) new JPAFIQLQuery();
         } else if (reference.equals(SRARoute.class)) {
             result = (E) new JPASRARoute();
         } else if (reference.equals(AuthModule.class)) {
             result = (E) new JPAAuthModule();
-        } else if (reference.equals(AuthModuleItem.class)) {
-            result = (E) new JPAAuthModuleItem();
+        } else if (reference.equals(AttrRepo.class)) {
+            result = (E) new JPAAttrRepo();
         } else if (reference.equals(AuthPolicy.class)) {
             result = (E) new JPAAuthPolicy();
         } else if (reference.equals(AccessPolicy.class)) {

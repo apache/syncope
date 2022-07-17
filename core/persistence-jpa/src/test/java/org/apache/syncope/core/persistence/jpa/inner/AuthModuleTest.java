@@ -39,13 +39,14 @@ import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthModuleDAO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.types.AuthModuleState;
+import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
+import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModule;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthModuleItem;
 
 @Transactional("Master")
 public class AuthModuleTest extends AbstractTest {
@@ -244,7 +245,7 @@ public class AuthModuleTest extends AbstractTest {
         conf.setTimeToKillInSeconds(120);
         saveAuthModule("SimpleMfaAuthModuleConf", conf);
     }
-    
+
     @Test
     public void saveWithU2FModule() {
         U2FAuthModuleConf conf = new U2FAuthModuleConf();
@@ -434,21 +435,22 @@ public class AuthModuleTest extends AbstractTest {
         AuthModule module = entityFactory.newEntity(AuthModule.class);
         module.setKey(key);
         module.setDescription("An authentication module");
+        module.setState(AuthModuleState.ACTIVE);
         module.setConf(conf);
 
-        AuthModuleItem keyMapping = entityFactory.newEntity(AuthModuleItem.class);
+        Item keyMapping = new Item();
         keyMapping.setIntAttrName("uid");
         keyMapping.setExtAttrName("username");
-        keyMapping.setAuthModule(module);
-        module.add(keyMapping);
+        module.getItems().add(keyMapping);
 
-        AuthModuleItem fullnameMapping = entityFactory.newEntity(AuthModuleItem.class);
+        Item fullnameMapping = new Item();
         fullnameMapping.setIntAttrName("cn");
         fullnameMapping.setExtAttrName("fullname");
-        fullnameMapping.setAuthModule(module);
-        module.add(fullnameMapping);
+        module.getItems().add(fullnameMapping);
 
         module = authModuleDAO.save(module);
+        entityManager().flush();
+
         assertNotNull(module);
         assertNotNull(module.getKey());
         assertEquals(module, authModuleDAO.find(module.getKey()));

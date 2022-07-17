@@ -18,9 +18,32 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-public class GoogleMfaAuthModuleConf implements AuthModuleConf {
+import java.io.Serializable;
+import java.util.Map;
+import org.apache.syncope.common.lib.AbstractLDAPConf;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
+
+public class GoogleMfaAuthModuleConf implements MFAAuthModuleConf {
 
     private static final long serialVersionUID = -7883257599139312426L;
+
+    public static class LDAP extends AbstractLDAPConf implements Serializable {
+
+        private static final long serialVersionUID = -7274446267090678730L;
+
+        /**
+         * Name of LDAP attribute that holds GAuth account/credential as JSON.
+         */
+        private String accountAttributeName = "casGAuthRecord";
+
+        public String getAccountAttributeName() {
+            return accountAttributeName;
+        }
+
+        public void setAccountAttributeName(final String accountAttributeName) {
+            this.accountAttributeName = accountAttributeName;
+        }
+    }
 
     /**
      * Issuer used in the barcode when dealing with device registration events.
@@ -51,6 +74,13 @@ public class GoogleMfaAuthModuleConf implements AuthModuleConf {
      * the tolerance defined here as the window size.
      */
     private int windowSize = 3;
+
+    private LDAP ldap;
+
+    @Override
+    public String getFriendlyName() {
+        return "Google Authenticator";
+    }
 
     public String getIssuer() {
         return issuer;
@@ -90,5 +120,18 @@ public class GoogleMfaAuthModuleConf implements AuthModuleConf {
 
     public void setWindowSize(final int windowSize) {
         this.windowSize = windowSize;
+    }
+
+    public LDAP getLdap() {
+        return ldap;
+    }
+
+    public void setLdap(final LDAP ldap) {
+        this.ldap = ldap;
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
+        return mapper.map(authModule, this);
     }
 }

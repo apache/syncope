@@ -27,6 +27,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -35,18 +38,12 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,9 +69,6 @@ public class ResourceTest extends AbstractTest {
 
     @Autowired
     private PolicyDAO policyDAO;
-
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
 
     @Test
     public void createWithPasswordPolicy() {
@@ -113,46 +107,42 @@ public class ResourceTest extends AbstractTest {
 
         resource.setConnector(connector);
 
-        Provision provision = entityFactory.newEntity(Provision.class);
-        provision.setAnyType(anyTypeDAO.findUser());
-        provision.setObjectClass(ObjectClass.ACCOUNT);
-        provision.setResource(resource);
-        resource.add(provision);
+        Provision provision = new Provision();
+        provision.setAnyType(anyTypeDAO.findUser().getKey());
+        provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resource.getProvisions().add(provision);
 
-        Mapping mapping = entityFactory.newEntity(Mapping.class);
-        mapping.setProvision(provision);
+        Mapping mapping = new Mapping();
         provision.setMapping(mapping);
 
         // specify mappings
         for (int i = 0; i < 3; i++) {
-            MappingItem item = entityFactory.newEntity(MappingItem.class);
+            Item item = new Item();
             item.setExtAttrName("test" + i);
             item.setIntAttrName("nonexistent" + i);
             item.setMandatoryCondition("false");
             item.setPurpose(MappingPurpose.PULL);
             mapping.add(item);
-            item.setMapping(mapping);
         }
-        MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
+        Item connObjectKey = new Item();
         connObjectKey.setExtAttrName("username");
         connObjectKey.setIntAttrName("username");
         connObjectKey.setPurpose(MappingPurpose.PROPAGATION);
         mapping.setConnObjectKeyItem(connObjectKey);
-        connObjectKey.setMapping(mapping);
 
         // map a derived attribute
-        MappingItem derived = entityFactory.newEntity(MappingItem.class);
+        Item derived = new Item();
         derived.setConnObjectKey(false);
         derived.setExtAttrName("fullname");
         derived.setIntAttrName("cn");
         derived.setPurpose(MappingPurpose.PROPAGATION);
         mapping.add(derived);
-        derived.setMapping(mapping);
 
         // save the resource
         ExternalResource actual = resourceDAO.save(resource);
+        entityManager().flush();
         assertNotNull(actual);
-        assertNotNull(actual.getProvision(anyTypeDAO.findUser()).get().getMapping());
+        assertNotNull(actual.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping());
 
         entityManager().flush();
         resourceDAO.detach(actual);
@@ -180,7 +170,8 @@ public class ResourceTest extends AbstractTest {
         assertTrue(resource.getConnector().equals(connector));
 
         // check mappings
-        List<? extends MappingItem> items = resource.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems();
+        List<Item> items = resource.getProvision(
+                anyTypeDAO.findUser().getKey()).get().getMapping().getItems();
         assertNotNull(items);
         assertEquals(5, items.size());
 
@@ -245,70 +236,25 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void emptyMapping() {
-        ExternalResource ldap = resourceDAO.find("resource-ldap");
-        assertNotNull(ldap);
-        assertNotNull(ldap.getProvision(anyTypeDAO.findUser()).get().getMapping());
-        assertNotNull(ldap.getProvision(anyTypeDAO.findGroup()).get().getMapping());
-
-        // need to avoid any class not defined in this Maven module
-        ldap.getPropagationActions().clear();
-
-        List<? extends MappingItem> items = ldap.getProvision(anyTypeDAO.findGroup()).get().getMapping().getItems();
-        assertNotNull(items);
-        assertFalse(items.isEmpty());
-        List<String> itemKeys = items.stream().map(MappingItem::getKey).collect(Collectors.toList());
-
-        Provision groupProvision = ldap.getProvision(anyTypeDAO.findGroup()).get();
-        virSchemaDAO.findByProvision(groupProvision).
-                forEach(schema -> virSchemaDAO.delete(schema.getKey()));
-        ldap.getProvisions().remove(groupProvision);
-
-        resourceDAO.save(ldap);
-        entityManager().flush();
-
-        itemKeys.forEach(itemKey -> assertNull(entityManager().find(JPAMappingItem.class, itemKey)));
-    }
-
-    @Test
-    public void updateRemoveOrgUnit() {
-        ExternalResource resource = resourceDAO.find("resource-ldap-orgunit");
-        assertNotNull(resource);
-        assertNotNull(resource.getOrgUnit());
-
-        String orgUnitKey = resource.getOrgUnit().getKey();
-        assertNotNull(entityManager().find(JPAOrgUnit.class, orgUnitKey));
-
-        resource.getOrgUnit().setResource(null);
-        resource.setOrgUnit(null);
-
-        resourceDAO.save(resource);
-        entityManager().flush();
-
-        resource = resourceDAO.find("resource-ldap-orgunit");
-        assertNull(resource.getOrgUnit());
-
-        assertNull(entityManager().find(JPAOrgUnit.class, orgUnitKey));
-    }
-
-    @Test
     public void issue243() {
         ExternalResource csv = resourceDAO.find("resource-csv");
         assertNotNull(csv);
 
-        int origMapItems = csv.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size();
+        int origMapItems = csv.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems().size();
 
-        MappingItem newMapItem = entityFactory.newEntity(MappingItem.class);
+        Item newMapItem = new Item();
         newMapItem.setIntAttrName("TEST");
         newMapItem.setExtAttrName("TEST");
         newMapItem.setPurpose(MappingPurpose.PROPAGATION);
-        csv.getProvision(anyTypeDAO.findUser()).get().getMapping().add(newMapItem);
+        csv.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().add(newMapItem);
 
         resourceDAO.save(csv);
         entityManager().flush();
 
         csv = resourceDAO.find("resource-csv");
         assertNotNull(csv);
-        assertEquals(origMapItems + 1, csv.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size());
+        assertEquals(
+                origMapItems + 1,
+                csv.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems().size());
     }
 }

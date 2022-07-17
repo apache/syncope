@@ -48,25 +48,25 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
 
     @BeforeEach
     public void setup() {
-        googleMfaAuthAccountService.deleteAll();
+        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.deleteAll();
     }
 
     @Test
     public void create() {
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        assertDoesNotThrow(() -> googleMfaAuthAccountService.create(UUID.randomUUID().toString(), acct));
+        assertDoesNotThrow(() -> GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.create(UUID.randomUUID().toString(), acct));
     }
 
     @Test
     public void count() {
         String owner = UUID.randomUUID().toString();
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        googleMfaAuthAccountService.create(owner, acct);
-        PagedResult<GoogleMfaAuthAccount> list = googleMfaAuthAccountService.list();
+        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.create(owner, acct);
+        PagedResult<GoogleMfaAuthAccount> list = GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.list();
         assertFalse(list.getResult().isEmpty());
         assertEquals(1, list.getTotalCount());
 
-        PagedResult<GoogleMfaAuthAccount> read = googleMfaAuthAccountService.read(owner);
+        PagedResult<GoogleMfaAuthAccount> read = GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.read(owner);
         assertEquals(1, read.getTotalCount());
         assertFalse(read.getResult().isEmpty());
     }
@@ -75,23 +75,23 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
     public void delete() {
         String owner = UUID.randomUUID().toString();
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        googleMfaAuthAccountService.create(owner, acct);
-        googleMfaAuthAccountService.delete(owner);
-        assertThrows(SyncopeClientException.class, () -> googleMfaAuthAccountService.read(owner));
+        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.create(owner, acct);
+        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.delete(owner);
+        assertThrows(SyncopeClientException.class, () -> GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.read(owner));
     }
 
     @Test
     public void update() {
         String owner = UUID.randomUUID().toString();
         GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        googleMfaAuthAccountService.create(owner, acct);
-        acct = googleMfaAuthAccountService.read(acct.getId());
+        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.create(owner, acct);
+        acct = GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.read(acct.getId());
         acct.setSecretKey("NewSecret");
         acct.setScratchCodes(List.of(9, 8, 7, 6, 5));
-        googleMfaAuthAccountService.update(owner, acct);
-        assertEquals(1, googleMfaAuthAccountService.list().getTotalCount());
-        acct = googleMfaAuthAccountService.read(owner).getResult().get(0);
+        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.update(owner, acct);
+        assertEquals(1, GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.list().getTotalCount());
+        acct = GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.read(owner).getResult().get(0);
         assertEquals(acct.getSecretKey(), acct.getSecretKey());
-        googleMfaAuthAccountService.delete(owner);
+        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.delete(owner);
     }
 }

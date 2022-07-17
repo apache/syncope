@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 
 public abstract class RemoteObjectPanel extends MultilevelPanel.SecondLevel {
 
@@ -27,5 +27,5 @@ public abstract class RemoteObjectPanel extends MultilevelPanel.SecondLevel {
 
     protected static final String REMOTE_OBJECT_PANEL_ID = "remoteObject";
 
-    protected abstract Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs();
+    protected abstract Pair<ConnObject, ConnObject> getConnObjectTOs();
 }

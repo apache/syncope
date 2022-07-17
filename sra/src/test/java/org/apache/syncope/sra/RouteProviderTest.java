@@ -38,12 +38,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.ZonedDateTime;
 import org.apache.syncope.common.lib.to.SRARouteTO;
-import org.apache.syncope.common.lib.types.SRARouteFilterFactory;
 import org.apache.syncope.common.lib.types.SRARouteFilter;
+import org.apache.syncope.common.lib.types.SRARouteFilterFactory;
 import org.apache.syncope.common.lib.types.SRARoutePredicate;
 import org.apache.syncope.common.lib.types.SRARoutePredicateCond;
-import org.apache.syncope.common.lib.types.SRARouteType;
 import org.apache.syncope.common.lib.types.SRARoutePredicateFactory;
+import org.apache.syncope.common.lib.types.SRARouteType;
 import org.apache.syncope.sra.filters.BodyPropertyAddingGatewayFilterFactory;
 import org.apache.syncope.sra.filters.PrincipalToRequestHeaderFilterFactory;
 import org.apache.syncope.sra.predicates.BodyPropertyMatchingRoutePredicateFactory;
@@ -437,7 +437,8 @@ public class RouteProviderTest extends AbstractTest {
                 factory(SRARoutePredicateFactory.HOST).args("host").cond(SRARoutePredicateCond.AND).build());
         route.getPredicates().add(new SRARoutePredicate.Builder().
                 factory(SRARoutePredicateFactory.HEADER).args("Hello,World").cond(SRARoutePredicateCond.AND).build());
-        route.getFilters().add(new SRARouteFilter.Builder().factory(SRARouteFilterFactory.PRESERVE_HOST_HEADER).build());
+        route.getFilters().add(new SRARouteFilter.Builder().
+                factory(SRARouteFilterFactory.PRESERVE_HOST_HEADER).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();

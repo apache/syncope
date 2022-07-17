@@ -20,15 +20,13 @@ package org.apache.syncope.common.lib.auth;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import org.apache.syncope.common.lib.AbstractJDBCConf;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
 
-public class JDBCAuthModuleConf implements AuthModuleConf {
+public class JDBCAuthModuleConf extends AbstractJDBCConf implements AuthModuleConf {
 
     private static final long serialVersionUID = 8383233437907219385L;
-
-    /**
-     * SQL query to execute. Example: {@code SELECT * FROM table WHERE name=?}.
-     */
-    private String sql;
 
     /**
      * Password field/column name to retrieve.
@@ -46,46 +44,9 @@ public class JDBCAuthModuleConf implements AuthModuleConf {
     private String fieldDisabled;
 
     /**
-     * The database dialect is a configuration setting for platform independent software (JPA, Hibernate, etc)
-     * which allows such software to translate its generic SQL statements into vendor specific DDL, DML.
-     */
-    private String dialect = "org.hibernate.dialect.H2Dialect";
-
-    /**
-     * The JDBC driver used to connect to the database.
-     */
-    private String driverClass = "org.h2.Driver";
-
-    /**
-     * The database connection URL.
-     */
-    private String url = "jdbc:h2:tcp://localhost:9092/mem:authdb;DB_CLOSE_DELAY=-1";
-
-    /**
-     * The database user.
-     * <p>
-     * The database user must have sufficient permissions to be able to handle
-     * schema changes and updates, when needed.
-     */
-    private String user = "sa";
-
-    /**
-     * The database connection password.
-     */
-    private String password = "sa";
-
-    /**
      * List of column names to fetch as user attributes.
      */
     private final List<String> principalAttributeList = new ArrayList<>();
-
-    public String getSql() {
-        return sql;
-    }
-
-    public void setSql(final String sql) {
-        this.sql = sql;
-    }
 
     public String getFieldPassword() {
         return fieldPassword;
@@ -115,43 +76,8 @@ public class JDBCAuthModuleConf implements AuthModuleConf {
         return principalAttributeList;
     }
 
-    public String getDialect() {
-        return dialect;
-    }
-
-    public void setDialect(final String dialect) {
-        this.dialect = dialect;
-    }
-
-    public String getDriverClass() {
-        return driverClass;
-    }
-
-    public void setDriverClass(final String driverClass) {
-        this.driverClass = driverClass;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(final String url) {
-        this.url = url;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(final String user) {
-        this.user = user;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(final String password) {
-        this.password = password;
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
+        return mapper.map(authModule, this);
     }
 }

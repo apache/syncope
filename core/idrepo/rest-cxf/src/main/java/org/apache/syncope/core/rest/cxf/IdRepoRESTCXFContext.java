@@ -54,6 +54,7 @@ import org.apache.syncope.common.rest.api.service.ApplicationService;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.DelegationService;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
+import org.apache.syncope.common.rest.api.service.FIQLQueryService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
@@ -78,6 +79,7 @@ import org.apache.syncope.core.logic.ApplicationLogic;
 import org.apache.syncope.core.logic.AuditLogic;
 import org.apache.syncope.core.logic.DelegationLogic;
 import org.apache.syncope.core.logic.DynRealmLogic;
+import org.apache.syncope.core.logic.FIQLQueryLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.ImplementationLogic;
 import org.apache.syncope.core.logic.MailTemplateLogic;
@@ -108,6 +110,7 @@ import org.apache.syncope.core.rest.cxf.service.ApplicationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AuditServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.DelegationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.DynRealmServiceImpl;
+import org.apache.syncope.core.rest.cxf.service.FIQLQueryServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.GroupServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ImplementationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.MailTemplateServiceImpl;
@@ -370,6 +373,12 @@ public class IdRepoRESTCXFContext {
     @Bean
     public AuditService auditService(final AuditLogic auditLogic) {
         return new AuditServiceImpl(auditLogic);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public FIQLQueryService fiqlQueryService(final FIQLQueryLogic fiqlQueryLogic) {
+        return new FIQLQueryServiceImpl(fiqlQueryLogic);
     }
 
     @ConditionalOnMissingBean

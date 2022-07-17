@@ -19,62 +19,38 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
+import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implements ExternalResourceDAO {
-
-    protected static StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
-        StringBuilder query = new StringBuilder("SELECT e FROM ").
-                append(JPAExternalResource.class.getSimpleName()).
-                append(" e WHERE e.");
-
-        if (AccountPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("accountPolicy");
-        } else if (PasswordPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("passwordPolicy");
-        } else if (PropagationPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("propagationPolicy");
-        } else if (PullPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("pullPolicy");
-        } else if (PushPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("pushPolicy");
-        }
-
-        return query;
-    }
 
     protected final TaskDAO taskDAO;
 
@@ -144,22 +120,19 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
 
     @Override
     public List<Provision> findProvisionsByAuxClass(final AnyTypeClass anyTypeClass) {
-        TypedQuery<Provision> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAProvision.class.getSimpleName()
-                + " e WHERE :anyTypeClass MEMBER OF e.auxClasses", Provision.class);
-        query.setParameter("anyTypeClass", anyTypeClass);
-
-        return query.getResultList();
+        return findAll().stream().
+                flatMap(resource -> resource.getProvisions().stream()).
+                filter(provision -> provision.getAuxClasses().contains(anyTypeClass.getKey())).
+                collect(Collectors.toList());
     }
 
     @Override
-    public List<MappingItem> findByTransformer(final Implementation transformer) {
-        TypedQuery<MappingItem> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAMappingItem.class.getSimpleName()
-                + " e WHERE :transformer MEMBER OF e.transformers", MappingItem.class);
-        query.setParameter("transformer", transformer);
-
-        return query.getResultList();
+    public boolean anyItemHaving(final Implementation transformer) {
+        return findAll().stream().
+                flatMap(resource -> resource.getProvisions().stream()).
+                flatMap(provision -> provision.getMapping().getItems().stream()).
+                filter(item -> item.getTransformers().contains(transformer.getKey())).
+                count() > 0;
     }
 
     @Override
@@ -170,6 +143,26 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         query.setParameter("propagationActions", propagationActions);
 
         return query.getResultList();
+    }
+
+    protected StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
+        StringBuilder query = new StringBuilder("SELECT e FROM ").
+                append(JPAExternalResource.class.getSimpleName()).
+                append(" e WHERE e.");
+
+        if (AccountPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("accountPolicy");
+        } else if (PasswordPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("passwordPolicy");
+        } else if (PropagationPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("propagationPolicy");
+        } else if (PullPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("pullPolicy");
+        } else if (PushPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("pushPolicy");
+        }
+
+        return query;
     }
 
     @Override
@@ -184,7 +177,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     @Override
     public List<ExternalResource> findAll() {
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_LIST);
-        if (authRealms == null || authRealms.isEmpty()) {
+        if (CollectionUtils.isEmpty(authRealms)) {
             return List.of();
         }
 
@@ -200,29 +193,24 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public ExternalResource save(final ExternalResource resource) {
+        ((JPAExternalResource) resource).list2json();
         return entityManager().merge(resource);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public void deleteMapping(final String intAttrName) {
-        TypedQuery<MappingItem> query = entityManager().createQuery(
-                "SELECT m FROM " + JPAMappingItem.class.getSimpleName()
-                + " m WHERE m.intAttrName=:intAttrName", MappingItem.class);
-        query.setParameter("intAttrName", intAttrName);
+        findAll().forEach(resource -> {
+            AtomicBoolean removed = new AtomicBoolean(false);
 
-        query.getResultList().stream().
-                map(Entity::getKey).
-                map(itemKey -> entityManager().find(JPAMappingItem.class, itemKey)).filter(Objects::nonNull).
-                forEach(item -> {
-                    item.getMapping().getItems().remove(item);
-                    item.setMapping(null);
-                    entityManager().remove(item);
-                });
+            resource.getProvisions().forEach(provision -> removed.set(
+                    removed.get()
+                    || (provision.getMapping() != null
+                    && provision.getMapping().getItems().removeIf(item -> intAttrName.equals(item.getIntAttrName())))));
 
-        // Make empty query cache for *MappingItem and related *Mapping
-        entityManager().getEntityManagerFactory().getCache().evict(JPAMappingItem.class);
-        entityManager().getEntityManagerFactory().getCache().evict(JPAMapping.class);
+            if (removed.get()) {
+                entityManager().merge(resource);
+            }
+        });
     }
 
     @Override
@@ -251,20 +239,10 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         policyDAO.findByResource(resource).
                 forEach(policy -> policy.getResources().remove(resource));
 
-        resource.getProvisions().stream().
-                peek(provision -> {
-                    provision.setUidOnCreate(null);
-                    if (provision.getMapping() != null) {
-                        provision.getMapping().getItems().forEach(item -> item.setMapping(null));
-                        provision.getMapping().getItems().clear();
-                    }
-                    provision.setMapping(null);
-                    provision.setResource(null);
-                }).
-                forEach(provision -> virSchemaDAO.findByProvision(provision).
-                forEach(schema -> virSchemaDAO.delete(schema.getKey())));
+        virSchemaDAO.find(resource).forEach(virSchemaDAO::delete);
 
-        if (resource.getConnector() != null && resource.getConnector().getResources() != null
+        if (resource.getConnector() != null
+                && resource.getConnector().getResources() != null
                 && !resource.getConnector().getResources().isEmpty()) {
 
             resource.getConnector().getResources().remove(resource);

@@ -24,21 +24,21 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.UUID;
-import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
+import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
 
 @Transactional("Master")
 public class SAML2SPTest extends AbstractClientAppTest {
 
     @Autowired
-    private SAML2SPDAO saml2spDAO;
+    private SAML2SPClientAppDAO saml2spDAO;
 
     @Test
     public void find() {

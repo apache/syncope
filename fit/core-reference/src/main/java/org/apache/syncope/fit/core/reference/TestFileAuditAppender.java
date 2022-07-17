@@ -30,8 +30,8 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.logic.ConnectorLogic;
-import org.apache.syncope.core.logic.audit.DefaultAuditAppender;
 import org.apache.syncope.core.logic.ResourceLogic;
+import org.apache.syncope.core.logic.audit.DefaultAuditAppender;
 
 public class TestFileAuditAppender extends DefaultAuditAppender {
 

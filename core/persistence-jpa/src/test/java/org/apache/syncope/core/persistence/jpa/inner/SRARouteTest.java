@@ -26,17 +26,17 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.HttpMethod;
-import org.apache.syncope.common.lib.types.SRARouteFilterFactory;
 import org.apache.syncope.common.lib.types.SRARouteFilter;
+import org.apache.syncope.common.lib.types.SRARouteFilterFactory;
 import org.apache.syncope.common.lib.types.SRARoutePredicate;
-import org.apache.syncope.common.lib.types.SRARouteType;
 import org.apache.syncope.common.lib.types.SRARoutePredicateFactory;
+import org.apache.syncope.common.lib.types.SRARouteType;
+import org.apache.syncope.core.persistence.api.dao.SRARouteDAO;
+import org.apache.syncope.core.persistence.api.entity.SRARoute;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.SRARoute;
-import org.apache.syncope.core.persistence.api.dao.SRARouteDAO;
 
 @Transactional("Master")
 public class SRARouteTest extends AbstractTest {

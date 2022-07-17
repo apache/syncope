@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.flowable.impl;
 
-import org.apache.syncope.core.flowable.api.BpmnProcessManager;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -30,6 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.types.BpmnProcessFormat;
+import org.apache.syncope.core.flowable.api.BpmnProcessManager;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.flowable.support.DropdownAwareJsonConverter;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;

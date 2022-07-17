@@ -34,11 +34,11 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
-import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.junit.jupiter.api.Test;
@@ -59,9 +59,8 @@ public class ReconciliationLogicTest extends AbstractTest {
         CSVPullSpec spec = new CSVPullSpec.Builder(AnyTypeKind.USER.name(), "username").build();
         InputStream csv = getClass().getResourceAsStream("/test1.csv");
 
-        List<ProvisioningReport> results = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
-            return reconciliationLogic.pull(spec, csv);
-        });
+        List<ProvisioningReport> results =
+                AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> reconciliationLogic.pull(spec, csv));
         assertEquals(2, results.size());
 
         assertEquals(AnyTypeKind.USER.name(), results.get(0).getAnyType());

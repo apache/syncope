@@ -29,6 +29,7 @@ import java.util.Optional;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -37,23 +38,22 @@ import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
@@ -77,7 +77,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // 2. check for virtual attribute value
-        userTO = userService.read(userTO.getKey());
+        userTO = USER_SERVICE.read(userTO.getKey());
         assertNotNull(userTO);
         assertEquals("virtualvalue", userTO.getVirAttr("virtualdata").get().getValues().get(0));
 
@@ -90,7 +90,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // 4. check for virtual attribute value
-        userTO = userService.read(userTO.getKey());
+        userTO = USER_SERVICE.read(userTO.getKey());
         assertNotNull(userTO);
         assertEquals("virtualupdated", userTO.getVirAttr("virtualdata").get().getValues().get(0));
     }
@@ -98,8 +98,8 @@ public class VirAttrITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE260() {
         // create new virtual schema for the resource below
-        ResourceTO ws2 = resourceService.read(RESOURCE_NAME_WS2);
-        ProvisionTO provision = ws2.getProvision(AnyTypeKind.USER.name()).get();
+        ResourceTO ws2 = RESOURCE_SERVICE.read(RESOURCE_NAME_WS2);
+        Provision provision = ws2.getProvision(AnyTypeKind.USER.name()).get();
         assertNotNull(provision);
 
         VirSchemaTO virSchema = new VirSchemaTO();
@@ -113,7 +113,7 @@ public class VirAttrITCase extends AbstractITCase {
         AnyTypeClassTO newClass = new AnyTypeClassTO();
         newClass.setKey("syncope260" + getUUIDString());
         newClass.getVirSchemas().add(virSchema.getKey());
-        Response response = anyTypeClassService.create(newClass);
+        Response response = ANY_TYPE_CLASS_SERVICE.create(newClass);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
         newClass = getObject(response.getLocation(), AnyTypeClassService.class, AnyTypeClassTO.class);
 
@@ -132,8 +132,8 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         UserTO userTO = result.getEntity();
 
-        ConnObjectTO connObjectTO =
-                resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
+        ConnObject connObjectTO =
+                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertEquals("virtualvalue", connObjectTO.getAttr("COMPANYNAME").get().getValues().get(0));
         // ----------------------------------
 
@@ -151,7 +151,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         userTO = result.getEntity();
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
+        connObjectTO = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertEquals("virtualvalue2", connObjectTO.getAttr("COMPANYNAME").get().getValues().get(0));
         // ----------------------------------
 
@@ -159,20 +159,20 @@ public class VirAttrITCase extends AbstractITCase {
         // suspend/reactivate user and check virtual attribute value (unchanged)
         // ----------------------------------
         StatusR statusR = new StatusR.Builder().key(userTO.getKey()).type(StatusRType.SUSPEND).build();
-        userTO = userService.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        userTO = USER_SERVICE.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
+        connObjectTO = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertEquals("virtualvalue2", connObjectTO.getAttr("COMPANYNAME").get().getValues().get(0));
 
         statusR = new StatusR.Builder().key(userTO.getKey()).
                 type(StatusRType.REACTIVATE).build();
-        userTO = userService.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+        userTO = USER_SERVICE.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
+        connObjectTO = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertEquals("virtualvalue2", connObjectTO.getAttr("COMPANYNAME").get().getValues().get(0));
         // ----------------------------------
 
@@ -190,7 +190,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         userTO = result.getEntity();
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
+        connObjectTO = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertEquals("Surname2", connObjectTO.getAttr("SURNAME").get().getValues().get(0));
 
         // virtual attribute value did not change
@@ -218,7 +218,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertNotNull(actual);
 
         // 2. check for virtual attribute value
-        actual = userService.read(actual.getKey());
+        actual = USER_SERVICE.read(actual.getKey());
         assertEquals("virattrcache", actual.getVirAttr("virtualdata").get().getValues().get(0));
 
         // 3. update virtual attribute directly
@@ -234,7 +234,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals("virattrcache2", value);
 
         // 4. check for cached attribute value
-        actual = userService.read(actual.getKey());
+        actual = USER_SERVICE.read(actual.getKey());
         assertEquals("virattrcache", actual.getVirAttr("virtualdata").get().getValues().get(0));
 
         UserUR userUR = new UserUR();
@@ -246,31 +246,31 @@ public class VirAttrITCase extends AbstractITCase {
         assertNotNull(actual);
 
         // 6. check for virtual attribute value
-        actual = userService.read(actual.getKey());
+        actual = USER_SERVICE.read(actual.getKey());
         assertNotNull(actual);
         assertEquals("virtualupdated", actual.getVirAttr("virtualdata").get().getValues().get(0));
     }
 
     @Test
     public void issueSYNCOPE397() {
-        ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
+        ResourceTO csv = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
 
         // change mapping of resource-csv
-        MappingTO origMapping = SerializationUtils.clone(csv.getProvisions().get(0).getMapping());
+        Mapping origMapping = SerializationUtils.clone(csv.getProvisions().get(0).getMapping());
         try {
             // remove this mapping
-            Optional<ItemTO> email = csv.getProvisions().get(0).getMapping().getItems().stream().
+            Optional<Item> email = csv.getProvisions().get(0).getMapping().getItems().stream().
                     filter(item -> "email".equals(item.getIntAttrName())).findFirst();
             if (email.isPresent()) {
                 csv.getProvisions().get(0).getMapping().getItems().remove(email.get());
             }
 
-            resourceService.update(csv);
-            csv = resourceService.read(RESOURCE_NAME_CSV);
+            RESOURCE_SERVICE.update(csv);
+            csv = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
             assertNotNull(csv.getProvisions().get(0).getMapping());
 
             // create new virtual schema for the resource below
-            ProvisionTO provision = csv.getProvision(AnyTypeKind.USER.name()).get();
+            Provision provision = csv.getProvision(AnyTypeKind.USER.name()).get();
             assertNotNull(provision);
 
             VirSchemaTO virSchema = new VirSchemaTO();
@@ -284,7 +284,7 @@ public class VirAttrITCase extends AbstractITCase {
             AnyTypeClassTO newClass = new AnyTypeClassTO();
             newClass.setKey("syncope397" + getUUIDString());
             newClass.getVirSchemas().add(virSchema.getKey());
-            Response response = anyTypeClassService.create(newClass);
+            Response response = ANY_TYPE_CLASS_SERVICE.create(newClass);
             assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
             newClass = getObject(response.getLocation(), AnyTypeClassService.class, AnyTypeClassTO.class);
 
@@ -307,7 +307,7 @@ public class VirAttrITCase extends AbstractITCase {
             assertEquals("test@testone.org", userTO.getVirAttrs().iterator().next().getValues().get(0));
 
             // update user
-            UserTO toBeUpdated = userService.read(userTO.getKey());
+            UserTO toBeUpdated = USER_SERVICE.read(userTO.getKey());
             UserUR userUR = new UserUR();
             userUR.setKey(toBeUpdated.getKey());
             userUR.setPassword(new PasswordPatch.Builder().value("password234").build());
@@ -333,7 +333,7 @@ public class VirAttrITCase extends AbstractITCase {
         } finally {
             // restore mapping of resource-csv
             csv.getProvisions().get(0).setMapping(origMapping);
-            resourceService.update(csv);
+            RESOURCE_SERVICE.update(csv);
         }
     }
 
@@ -356,14 +356,14 @@ public class VirAttrITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // 2. check for virtual attribute value
-        userTO = userService.read(userTO.getKey());
+        userTO = USER_SERVICE.read(userTO.getKey());
         assertEquals("virattrcache", userTO.getVirAttr("virtualdata").get().getValues().get(0));
 
         // ----------------------------------------
         // 3. change connector URL so that we are sure that any provided value will come from virtual cache
         // ----------------------------------------
         String jdbcURL = null;
-        ConnInstanceTO connInstanceTO = connectorService.readByResource(
+        ConnInstanceTO connInstanceTO = CONNECTOR_SERVICE.readByResource(
                 RESOURCE_NAME_DBVIRATTR, Locale.ENGLISH.getLanguage());
         for (ConnConfProperty prop : connInstanceTO.getConf()) {
             if ("jdbcUrlTemplate".equals(prop.getSchema().getName())) {
@@ -373,7 +373,7 @@ public class VirAttrITCase extends AbstractITCase {
             }
         }
 
-        connectorService.update(connInstanceTO);
+        CONNECTOR_SERVICE.update(connInstanceTO);
         // ----------------------------------------
 
         // ----------------------------------------
@@ -392,7 +392,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals("virattrcache2", value);
         // ----------------------------------------
 
-        userTO = userService.read(userTO.getKey());
+        userTO = USER_SERVICE.read(userTO.getKey());
         assertEquals("virattrcache", userTO.getVirAttr("virtualdata").get().getValues().get(0));
 
         // ----------------------------------------
@@ -405,11 +405,11 @@ public class VirAttrITCase extends AbstractITCase {
             }
         }
 
-        connectorService.update(connInstanceTO);
+        CONNECTOR_SERVICE.update(connInstanceTO);
         // ----------------------------------------
 
         // cached value still in place...
-        userTO = userService.read(userTO.getKey());
+        userTO = USER_SERVICE.read(userTO.getKey());
         assertEquals("virattrcache", userTO.getVirAttr("virtualdata").get().getValues().get(0));
 
         // force cache update by adding a resource which has virtualdata mapped for propagation
@@ -420,7 +420,7 @@ public class VirAttrITCase extends AbstractITCase {
         userTO = updateUser(userUR).getEntity();
         assertNotNull(userTO);
 
-        userTO = userService.read(userTO.getKey());
+        userTO = USER_SERVICE.read(userTO.getKey());
         assertEquals("virattrcache2", userTO.getVirAttr("virtualdata").get().getValues().get(0));
     }
 
@@ -448,7 +448,7 @@ public class VirAttrITCase extends AbstractITCase {
             // -------------------------------------------
             VirSchemaTO rvirtualdata;
             try {
-                rvirtualdata = schemaService.read(SchemaType.VIRTUAL, "rvirtualdata");
+                rvirtualdata = SCHEMA_SERVICE.read(SchemaType.VIRTUAL, "rvirtualdata");
             } catch (SyncopeClientException e) {
                 LOG.warn("rvirtualdata not found, re-creating", e);
 
@@ -465,11 +465,11 @@ public class VirAttrITCase extends AbstractITCase {
             if (!"minimal group".equals(rvirtualdata.getAnyTypeClass())) {
                 LOG.warn("rvirtualdata not in minimal group, restoring");
 
-                AnyTypeClassTO minimalGroup = anyTypeClassService.read("minimal group");
+                AnyTypeClassTO minimalGroup = ANY_TYPE_CLASS_SERVICE.read("minimal group");
                 minimalGroup.getVirSchemas().add(rvirtualdata.getKey());
-                anyTypeClassService.update(minimalGroup);
+                ANY_TYPE_CLASS_SERVICE.update(minimalGroup);
 
-                rvirtualdata = schemaService.read(SchemaType.VIRTUAL, rvirtualdata.getKey());
+                rvirtualdata = SCHEMA_SERVICE.read(SchemaType.VIRTUAL, rvirtualdata.getKey());
                 assertEquals("minimal group", rvirtualdata.getAnyTypeClass());
             }
 
@@ -481,35 +481,35 @@ public class VirAttrITCase extends AbstractITCase {
             resourceTO.setKey(resourceName);
             resourceTO.setConnector("be24b061-019d-4e3e-baf0-0a6d0a45cb9c");
 
-            ProvisionTO provisionTO = new ProvisionTO();
+            Provision provisionTO = new Provision();
             provisionTO.setAnyType(AnyTypeKind.USER.name());
             provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resourceTO.getProvisions().add(provisionTO);
 
-            MappingTO mapping = new MappingTO();
+            Mapping mapping = new Mapping();
             provisionTO.setMapping(mapping);
 
-            ItemTO item = new ItemTO();
+            Item item = new Item();
             item.setIntAttrName("fullname");
             item.setExtAttrName("ID");
             item.setPurpose(MappingPurpose.PROPAGATION);
             item.setConnObjectKey(true);
             mapping.setConnObjectKeyItem(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("username");
             item.setExtAttrName("USERNAME");
             item.setPurpose(MappingPurpose.PROPAGATION);
             mapping.getItems().add(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("groups[" + groupName + "].rvirtualdata");
             item.setExtAttrName("EMAIL");
             item.setPurpose(MappingPurpose.PROPAGATION);
             mapping.getItems().add(item);
 
             assertNotNull(getObject(
-                    resourceService.create(resourceTO).getLocation(), ResourceService.class, ResourceTO.class));
+                    RESOURCE_SERVICE.create(resourceTO).getLocation(), ResourceService.class, ResourceTO.class));
             // -------------------------------------------
 
             GroupCR groupCR = new GroupCR();
@@ -556,9 +556,9 @@ public class VirAttrITCase extends AbstractITCase {
             // -------------------------------------------
             // Delete resource and group ad-hoc
             // -------------------------------------------
-            resourceService.delete(resourceName);
+            RESOURCE_SERVICE.delete(resourceName);
             if (groupKey != null) {
-                groupService.delete(groupKey);
+                GROUP_SERVICE.delete(groupKey);
             }
             // -------------------------------------------
         }
@@ -611,9 +611,9 @@ public class VirAttrITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE691() {
-        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         try {
-            ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
+            Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
             assertNotNull(provision);
             provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
             provision.getVirSchemas().clear();
@@ -621,9 +621,9 @@ public class VirAttrITCase extends AbstractITCase {
             ldap.getProvisions().clear();
             ldap.getProvisions().add(provision);
             ldap.setKey(RESOURCE_NAME_LDAP + "691" + getUUIDString());
-            resourceService.create(ldap);
+            RESOURCE_SERVICE.create(ldap);
 
-            ldap = resourceService.read(ldap.getKey());
+            ldap = RESOURCE_SERVICE.read(ldap.getKey());
             provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
             assertNotNull(provision);
 
@@ -639,7 +639,7 @@ public class VirAttrITCase extends AbstractITCase {
             AnyTypeClassTO newClass = new AnyTypeClassTO();
             newClass.setKey("syncope691" + getUUIDString());
             newClass.getVirSchemas().add(virSchema.getKey());
-            Response response = anyTypeClassService.create(newClass);
+            Response response = ANY_TYPE_CLASS_SERVICE.create(newClass);
             assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
             newClass = getObject(response.getLocation(), AnyTypeClassService.class, AnyTypeClassTO.class);
 
@@ -684,7 +684,7 @@ public class VirAttrITCase extends AbstractITCase {
             assertTrue(updated.getVirAttrs().iterator().next().getValues().contains("test@issue691.dom4.org"));
         } finally {
             try {
-                resourceService.delete(ldap.getKey());
+                RESOURCE_SERVICE.delete(ldap.getKey());
             } catch (Exception ignore) {
                 // ignore
             }

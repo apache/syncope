@@ -21,11 +21,11 @@ package org.apache.syncope.core.provisioning.java.pushpull.stream;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
@@ -44,10 +44,10 @@ public class StreamUserPushResultHandler extends DefaultUserPushResultHandler {
     protected void provision(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
         Provision provision = profile.getTask().getResource().getProvisions().get(0);
 
-        Stream<? extends Item> items = MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
+        Stream<Item> items = MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
 
         Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromAny(
-                any, null, false, enabled, provision);
+                any, null, false, enabled, profile.getTask().getResource(), provision);
 
         PropagationTaskInfo propagationTask = propagationManager.newTask(
                 derAttrHandler,

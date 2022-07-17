@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Optional;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
@@ -25,25 +26,34 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.ClientApp;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
 public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     protected final PolicyDAO policyDAO;
 
+    protected final RealmDAO realmDAO;
+
     protected final EntityFactory entityFactory;
 
-    public ClientAppDataBinderImpl(final PolicyDAO policyDAO, final EntityFactory entityFactory) {
+    public ClientAppDataBinderImpl(
+            final PolicyDAO policyDAO,
+            final RealmDAO realmDAO,
+            final EntityFactory entityFactory) {
+
         this.policyDAO = policyDAO;
+        this.realmDAO = realmDAO;
         this.entityFactory = entityFactory;
     }
 
@@ -140,27 +150,25 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
                 clientAppTO.getEncryptionBlackListedAlgorithms());
     }
 
-    protected static void copyToTO(final ClientApp clientApp, final ClientAppTO clientAppTO) {
-        clientAppTO.setName(clientApp.getName());
+    protected void copyToTO(final ClientApp clientApp, final ClientAppTO clientAppTO) {
         clientAppTO.setKey(clientApp.getKey());
+        clientAppTO.setRealm(Optional.ofNullable(clientApp.getRealm()).map(Realm::getFullPath).orElse(null));
+        clientAppTO.setName(clientApp.getName());
         clientAppTO.setDescription(clientApp.getDescription());
         clientAppTO.setClientAppId(clientApp.getClientAppId());
         clientAppTO.setTheme(clientApp.getTheme());
 
-        if (clientApp.getAuthPolicy() != null) {
-            clientAppTO.setAuthPolicy(clientApp.getAuthPolicy().getKey());
-        }
-        if (clientApp.getAccessPolicy() != null) {
-            clientAppTO.setAccessPolicy(clientApp.getAccessPolicy().getKey());
-        }
-        if (clientApp.getAttrReleasePolicy() != null) {
-            clientAppTO.setAttrReleasePolicy(clientApp.getAttrReleasePolicy().getKey());
-        }
+        clientAppTO.setAuthPolicy(
+                Optional.ofNullable(clientApp.getAuthPolicy()).map(AuthPolicy::getKey).orElse(null));
+        clientAppTO.setAccessPolicy(
+                Optional.ofNullable(clientApp.getAccessPolicy()).map(AccessPolicy::getKey).orElse(null));
+        clientAppTO.setAttrReleasePolicy(
+                Optional.ofNullable(clientApp.getAttrReleasePolicy()).map(AttrReleasePolicy::getKey).orElse(null));
 
         clientAppTO.getProperties().addAll(clientApp.getProperties());
     }
 
-    protected static SAML2SPClientAppTO getSAMLClientAppTO(final SAML2SPClientApp clientApp) {
+    protected SAML2SPClientAppTO getSAMLClientAppTO(final SAML2SPClientApp clientApp) {
         SAML2SPClientAppTO clientAppTO = new SAML2SPClientAppTO();
         copyToTO(clientApp, clientAppTO);
 
@@ -208,6 +216,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setClientId(clientAppTO.getClientId());
         clientApp.setSignIdToken(clientAppTO.isSignIdToken());
         clientApp.setJwtAccessToken(clientAppTO.isJwtAccessToken());
+        clientApp.setBypassApprovalPrompt(clientAppTO.isBypassApprovalPrompt());
         clientApp.setSubjectType(clientAppTO.getSubjectType());
         clientApp.getRedirectUris().clear();
         clientApp.getRedirectUris().addAll(clientAppTO.getRedirectUris());
@@ -215,11 +224,10 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.getSupportedGrantTypes().addAll(clientAppTO.getSupportedGrantTypes());
         clientApp.getSupportedResponseTypes().clear();
         clientApp.getSupportedResponseTypes().addAll(clientAppTO.getSupportedResponseTypes());
-
         clientApp.setLogoutUri(clientAppTO.getLogoutUri());
     }
 
-    protected static OIDCRPClientAppTO getOIDCClientAppTO(final OIDCRPClientApp clientApp) {
+    protected OIDCRPClientAppTO getOIDCClientAppTO(final OIDCRPClientApp clientApp) {
         OIDCRPClientAppTO clientAppTO = new OIDCRPClientAppTO();
         copyToTO(clientApp, clientAppTO);
 
@@ -232,6 +240,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.getSupportedResponseTypes().addAll(clientApp.getSupportedResponseTypes());
         clientAppTO.setLogoutUri(clientApp.getLogoutUri());
         clientAppTO.setJwtAccessToken(clientApp.isJwtAccessToken());
+        clientAppTO.setBypassApprovalPrompt(clientApp.isBypassApprovalPrompt());
+
         return clientAppTO;
     }
 
@@ -241,7 +251,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setServiceId(clientAppTO.getServiceId());
     }
 
-    protected static CASSPClientAppTO getCASClientAppTO(final CASSPClientApp clientApp) {
+    protected CASSPClientAppTO getCASClientAppTO(final CASSPClientApp clientApp) {
         CASSPClientAppTO clientAppTO = new CASSPClientAppTO();
         copyToTO(clientApp, clientAppTO);
         clientAppTO.setServiceId(clientApp.getServiceId());
@@ -249,6 +259,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     }
 
     protected void copyToEntity(final ClientApp clientApp, final ClientAppTO clientAppTO) {
+        if (clientAppTO.getRealm() == null) {
+            clientApp.setRealm(null);
+        } else {
+            clientApp.setRealm((realmDAO.findByFullPath(clientAppTO.getRealm())));
+        }
+
         clientApp.setName(clientAppTO.getName());
         clientApp.setClientAppId(clientAppTO.getClientAppId());
         clientApp.setDescription(clientAppTO.getDescription());

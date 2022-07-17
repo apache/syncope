@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull.stream;
 
-import org.apache.syncope.common.lib.to.ProvisioningReport;
 import java.util.List;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.api.entity.AnyType;

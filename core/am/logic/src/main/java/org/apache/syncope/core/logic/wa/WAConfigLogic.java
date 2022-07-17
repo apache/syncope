@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic.wa;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -27,7 +26,6 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
@@ -41,7 +39,7 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.logic.AbstractTransactionalLogic;
 import org.apache.syncope.core.logic.UnresolvedReferenceException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.auth.WAConfigDAO;
+import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -95,19 +93,19 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_PUSH + "')")
     public void pushToWA() {
+        HttpClient client = HttpClient.newHttpClient();
         try {
-            NetworkService wa = serviceOps.get(NetworkService.Type.WA);
-            HttpClient.newBuilder().build().send(
+            serviceOps.list(NetworkService.Type.WA).forEach(wa -> client.sendAsync(
                     HttpRequest.newBuilder(URI.create(
                             StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/refresh")).
                             header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
                                     securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
                             POST(HttpRequest.BodyPublishers.noBody()).build(),
-                    HttpResponse.BodyHandlers.discarding());
+                    HttpResponse.BodyHandlers.discarding()).
+                    thenAcceptAsync(response -> LOG.info(
+                    "Pushed to WA instance {} with HTTP status: {}", wa.getAddress(), response.statusCode())));
         } catch (KeymasterException e) {
             throw new NotFoundException("Could not find any WA instance", e);
-        } catch (IOException | InterruptedException e) {
-            throw new InternalServerErrorException("Errors while communicating with WA instance", e);
         }
     }
 

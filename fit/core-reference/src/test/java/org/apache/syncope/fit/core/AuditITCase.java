@@ -97,7 +97,7 @@ public class AuditITCase extends AbstractITCase {
         List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
 
-        PagedResult<UserTO> usersTOs = userService.search(
+        PagedResult<UserTO> usersTOs = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getUserSearchConditionBuilder().
                                 is("username").equalTo(userTO.getUsername()).query()).
@@ -118,7 +118,7 @@ public class AuditITCase extends AbstractITCase {
                 page(1).size(1).build();
         AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
-        userService.delete(userTO.getKey());
+        USER_SERVICE.delete(userTO.getKey());
     }
 
     @Test
@@ -138,7 +138,7 @@ public class AuditITCase extends AbstractITCase {
                 build();
         AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
-        userService.delete(userTO.getKey());
+        USER_SERVICE.delete(userTO.getKey());
     }
 
     @Test
@@ -150,7 +150,7 @@ public class AuditITCase extends AbstractITCase {
                 page(1).size(1).build();
         AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
-        groupService.delete(groupTO.getKey());
+        GROUP_SERVICE.delete(groupTO.getKey());
     }
 
     @Test
@@ -162,7 +162,7 @@ public class AuditITCase extends AbstractITCase {
         List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
 
-        PagedResult<GroupTO> groups = groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<GroupTO> groups = GROUP_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo(groupTO.getName()).query()).
                 build());
         assertNotNull(groups);
@@ -180,7 +180,7 @@ public class AuditITCase extends AbstractITCase {
                 orderBy("event_date desc").page(1).size(1).build();
         AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
-        anyObjectService.delete(anyObjectTO.getKey());
+        ANY_OBJECT_SERVICE.delete(anyObjectTO.getKey());
     }
 
     @Test
@@ -192,7 +192,7 @@ public class AuditITCase extends AbstractITCase {
         List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(1, entries.size());
 
-        PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
+        PagedResult<AnyObjectTO> anyObjects = ANY_OBJECT_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectTO.getType()).query()).
                         build());
@@ -215,10 +215,10 @@ public class AuditITCase extends AbstractITCase {
                 event("update").
                 result(AuditElements.Result.SUCCESS).
                 build();
-        List<AuditEntry> entries = auditService.search(query).getResult();
+        List<AuditEntry> entries = AUDIT_SERVICE.search(query).getResult();
         int pre = entries.size();
 
-        ConnInstanceTO ldapConn = connectorService.read(connectorKey, null);
+        ConnInstanceTO ldapConn = CONNECTOR_SERVICE.read(connectorKey, null);
         String originalDisplayName = ldapConn.getDisplayName();
         Set<ConnectorCapability> originalCapabilities = new HashSet<>(ldapConn.getCapabilities());
         ConnConfProperty originalConfProp = SerializationUtils.clone(
@@ -229,9 +229,9 @@ public class AuditITCase extends AbstractITCase {
         ldapConn.setDisplayName(originalDisplayName + " modified");
         ldapConn.getCapabilities().clear();
         ldapConn.getConf("maintainPosixGroupMembership").get().getValues().set(0, "true");
-        connectorService.update(ldapConn);
+        CONNECTOR_SERVICE.update(ldapConn);
 
-        ldapConn = connectorService.read(connectorKey, null);
+        ldapConn = CONNECTOR_SERVICE.read(connectorKey, null);
         assertNotEquals(originalDisplayName, ldapConn.getDisplayName());
         assertNotEquals(originalCapabilities, ldapConn.getCapabilities());
         assertNotEquals(originalConfProp, ldapConn.getConf("maintainPosixGroupMembership"));
@@ -240,9 +240,9 @@ public class AuditITCase extends AbstractITCase {
         assertEquals(pre + 1, entries.size());
 
         ConnInstanceTO restore = JSON_MAPPER.readValue(entries.get(0).getBefore(), ConnInstanceTO.class);
-        connectorService.update(restore);
+        CONNECTOR_SERVICE.update(restore);
 
-        ldapConn = connectorService.read(connectorKey, null);
+        ldapConn = CONNECTOR_SERVICE.read(connectorKey, null);
         assertEquals(originalDisplayName, ldapConn.getDisplayName());
         assertEquals(originalCapabilities, ldapConn.getCapabilities());
         assertEquals(originalConfProp, ldapConn.getConf("maintainPosixGroupMembership").get());
@@ -257,26 +257,26 @@ public class AuditITCase extends AbstractITCase {
                 "deleteExecution",
                 AuditElements.Result.FAILURE);
 
-        List<AuditConfTO> audits = auditService.list();
+        List<AuditConfTO> audits = AUDIT_SERVICE.list();
         assertFalse(audits.stream().anyMatch(a -> a.getKey().equals(auditLoggerName.toAuditKey())));
 
         AuditConfTO audit = new AuditConfTO();
         audit.setKey(auditLoggerName.toAuditKey());
         audit.setActive(true);
-        auditService.create(audit);
+        AUDIT_SERVICE.set(audit);
 
-        audits = auditService.list();
+        audits = AUDIT_SERVICE.list();
         assertTrue(audits.stream().anyMatch(a -> a.getKey().equals(auditLoggerName.toAuditKey())));
 
-        auditService.delete(audit.getKey());
+        AUDIT_SERVICE.delete(audit.getKey());
 
-        audits = auditService.list();
+        audits = AUDIT_SERVICE.list();
         assertFalse(audits.stream().anyMatch(a -> a.getKey().equals(auditLoggerName.toAuditKey())));
     }
 
     @Test
     public void listAuditEvents() {
-        List<EventCategory> events = auditService.events();
+        List<EventCategory> events = AUDIT_SERVICE.events();
 
         boolean found = false;
 
@@ -384,9 +384,9 @@ public class AuditITCase extends AbstractITCase {
         auditEntry.setDate(OffsetDateTime.now());
         auditEntry.setBefore(UUID.randomUUID().toString());
         auditEntry.setOutput(UUID.randomUUID().toString());
-        assertDoesNotThrow(() -> auditService.create(auditEntry));
+        assertDoesNotThrow(() -> AUDIT_SERVICE.create(auditEntry));
 
-        PagedResult<AuditEntry> events = auditService.search(new AuditQuery.Builder().
+        PagedResult<AuditEntry> events = AUDIT_SERVICE.search(new AuditQuery.Builder().
                 size(1).
                 type(auditEntry.getLogger().getType()).
                 category(auditEntry.getLogger().getCategory()).
@@ -411,9 +411,9 @@ public class AuditITCase extends AbstractITCase {
         auditEntry.setDate(OffsetDateTime.now());
         auditEntry.setBefore(UUID.randomUUID().toString());
         auditEntry.setOutput(UUID.randomUUID().toString());
-        assertDoesNotThrow(() -> auditService.create(auditEntry));
+        assertDoesNotThrow(() -> AUDIT_SERVICE.create(auditEntry));
 
-        PagedResult<AuditEntry> events = auditService.search(new AuditQuery.Builder().
+        PagedResult<AuditEntry> events = AUDIT_SERVICE.search(new AuditQuery.Builder().
                 size(1).
                 type(auditEntry.getLogger().getType()).
                 category(auditEntry.getLogger().getCategory()).
@@ -440,15 +440,15 @@ public class AuditITCase extends AbstractITCase {
             Files.write(auditNoRewriteFilePath, new byte[0], StandardOpenOption.TRUNCATE_EXISTING);
 
             // check that resource update is transformed and logged onto an audit file.
-            ResourceTO resource = resourceService.read(RESOURCE_NAME_CSV);
+            ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
             assertNotNull(resource);
             resource.setPropagationPriority(100);
-            resourceService.update(resource);
+            RESOURCE_SERVICE.update(resource);
 
-            ConnInstanceTO connector = connectorService.readByResource(RESOURCE_NAME_CSV, null);
+            ConnInstanceTO connector = CONNECTOR_SERVICE.readByResource(RESOURCE_NAME_CSV, null);
             assertNotNull(connector);
             connector.setPoolConf(new ConnPoolConfTO());
-            connectorService.update(connector);
+            CONNECTOR_SERVICE.update(connector);
 
             // check audit_for_Master_file.log, it should contain only a static message
             checkLogFileFor(
@@ -472,7 +472,7 @@ public class AuditITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE976() {
-        List<EventCategory> events = auditService.events();
+        List<EventCategory> events = AUDIT_SERVICE.events();
         assertNotNull(events);
 
         EventCategory userLogic = events.stream().
@@ -512,16 +512,16 @@ public class AuditITCase extends AbstractITCase {
             AuditConfTO audit = new AuditConfTO();
             audit.setKey(createSuccess.toAuditKey());
             audit.setActive(true);
-            auditService.create(audit);
+            AUDIT_SERVICE.set(audit);
 
             audit.setKey(createFailure.toAuditKey());
-            auditService.create(audit);
+            AUDIT_SERVICE.set(audit);
 
             audit.setKey(updateSuccess.toAuditKey());
-            auditService.create(audit);
+            AUDIT_SERVICE.set(audit);
 
             audit.setKey(updateFailure.toAuditKey());
-            auditService.create(audit);
+            AUDIT_SERVICE.set(audit);
 
             // 2. push on resource
             PushTaskTO pushTask = new PushTaskTO();
@@ -529,29 +529,29 @@ public class AuditITCase extends AbstractITCase {
             pushTask.setPerformUpdate(true);
             pushTask.setUnmatchingRule(UnmatchingRule.PROVISION);
             pushTask.setMatchingRule(MatchingRule.UPDATE);
-            reconciliationService.push(new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).
+            RECONCILIATION_SERVICE.push(new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).
                     anyKey("fc6dbc3a-6c07-4965-8781-921e7401a4a5").build(), pushTask);
         } catch (Exception e) {
             LOG.error("Unexpected exception", e);
             fail(e::getMessage);
         } finally {
             try {
-                auditService.delete(createSuccess.toAuditKey());
+                AUDIT_SERVICE.delete(createSuccess.toAuditKey());
             } catch (Exception e) {
                 // ignore
             }
             try {
-                auditService.delete(createFailure.toAuditKey());
+                AUDIT_SERVICE.delete(createFailure.toAuditKey());
             } catch (Exception e) {
                 // ignore
             }
             try {
-                auditService.delete(updateSuccess.toAuditKey());
+                AUDIT_SERVICE.delete(updateSuccess.toAuditKey());
             } catch (Exception e) {
                 // ignore
             }
             try {
-                auditService.delete(updateFailure.toAuditKey());
+                AUDIT_SERVICE.delete(updateFailure.toAuditKey());
             } catch (Exception e) {
                 // ignore
             }

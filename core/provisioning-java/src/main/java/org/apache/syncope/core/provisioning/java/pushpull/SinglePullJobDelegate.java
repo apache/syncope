@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -33,11 +35,10 @@ import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -50,19 +51,21 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecut
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSinglePullExecutor {
 
     @Autowired
-    private ImplementationDAO implementationDAO;
+    protected ImplementationDAO implementationDAO;
 
     @Autowired
-    private RealmDAO realmDAO;
+    protected RealmDAO realmDAO;
 
     @Override
     public List<ProvisioningReport> pull(
+            final ExternalResource resource,
             final Provision provision,
             final Connector connector,
             final ReconFilterBuilder reconFilterBuilder,
@@ -70,7 +73,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             final PullTaskTO pullTaskTO,
             final String executor) throws JobExecutionException {
 
-        LOG.debug("Executing pull on {}", provision.getResource());
+        LOG.debug("Executing pull on {}", resource);
 
         List<PullActions> actions = new ArrayList<>();
         pullTaskTO.getActions().forEach(key -> {
@@ -88,7 +91,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
 
         try {
             PullTask pullTask = entityFactory.newEntity(PullTask.class);
-            pullTask.setResource(provision.getResource());
+            pullTask.setResource(resource);
             pullTask.setMatchingRule(pullTaskTO.getMatchingRule() == null
                     ? MatchingRule.UPDATE : pullTaskTO.getMatchingRule());
             pullTask.setUnmatchingRule(pullTaskTO.getUnmatchingRule() == null
@@ -107,7 +110,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                 if (anyType == null) {
                     LOG.debug("Invalid AnyType {} specified, ignoring...", type);
                 } else {
-                    AnyTemplatePullTask anyTemplate = pullTask.getTemplate(anyType).orElse(null);
+                    AnyTemplatePullTask anyTemplate = pullTask.getTemplate(anyType.getKey()).orElse(null);
                     if (anyTemplate == null) {
                         anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
                         anyTemplate.setAnyType(anyType);
@@ -129,9 +132,11 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                 action.beforeAll(profile);
             }
 
+            AnyType anyType = anyTypeDAO.find(provision.getAnyType());
+
             SyncopePullResultHandler handler;
             GroupPullResultHandler ghandler = buildGroupHandler();
-            switch (provision.getAnyType().getKind()) {
+            switch (anyType.getKind()) {
                 case USER:
                     handler = buildUserHandler();
                     break;
@@ -151,12 +156,13 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             Set<String> matg = new HashSet<>(moreAttrsToGet);
             actions.forEach(action -> matg.addAll(action.moreAttrsToGet(profile, provision)));
 
-            Stream<? extends Item> mapItems = Stream.concat(
+            Stream<Item> mapItems = Stream.concat(
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
-                    virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
+                    virSchemaDAO.find(pullTask.getResource().getKey(), anyType.getKey()).stream().
+                            map(VirSchema::asLinkingMappingItem));
 
             connector.filteredReconciliation(
-                    provision.getObjectClass(),
+                    new ObjectClass(provision.getObjectClass()),
                     reconFilterBuilder,
                     handler,
                     MappingUtils.buildOperationOptions(mapItems, matg.toArray(String[]::new)));

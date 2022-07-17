@@ -52,8 +52,8 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
 
     @Test
     public void mustChangePassword() {
-        UserTO mustchangepassword = userService.read("mustchangepassword");
-        userService.update(new UserUR.Builder(mustchangepassword.getKey()).
+        UserTO mustchangepassword = USER_SERVICE.read("mustchangepassword");
+        USER_SERVICE.update(new UserUR.Builder(mustchangepassword.getKey()).
                 mustChangePassword(new BooleanReplacePatchItem.Builder().value(Boolean.TRUE).build()).build());
 
         TESTER.startPage(Login.class);
@@ -112,9 +112,9 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
 
         TESTER.assertRenderedPage(SelfResult.class);
 
-        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform())
-                ? "active" : "created", userService.read(username).getStatus());
-        assertEquals(newEmail, userService.read(username).getPlainAttr("email").get().getValues().get(0));
+        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform())
+                ? "active" : "created", USER_SERVICE.read(username).getStatus());
+        assertEquals(newEmail, USER_SERVICE.read(username).getPlainAttr("email").get().getValues().get(0));
 
         TESTER.cleanupFeedbackMessages();
     }

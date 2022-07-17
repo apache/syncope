@@ -30,9 +30,11 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import javax.ws.rs.core.Response;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.MembershipUR;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -47,8 +49,6 @@ import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.apache.cxf.helpers.IOUtils;
-import org.apache.syncope.common.lib.request.UserCR;
 
 public class PlainSchemaITCase extends AbstractITCase {
 
@@ -195,7 +195,7 @@ public class PlainSchemaITCase extends AbstractITCase {
                     build());
 
             updateUser(userUR);
-            assertNotNull(userService.read(userTO.getKey()).getPlainAttr("BinaryPDF"));
+            assertNotNull(USER_SERVICE.read(userTO.getKey()).getPlainAttr("BinaryPDF"));
 
             userUR = new UserUR();
             userUR.setKey(userTO.getKey());
@@ -223,7 +223,7 @@ public class PlainSchemaITCase extends AbstractITCase {
                     build());
 
             updateUser(userUR);
-            assertNotNull(userService.read(userTO.getKey()).getPlainAttr("BinaryJSON"));
+            assertNotNull(USER_SERVICE.read(userTO.getKey()).getPlainAttr("BinaryJSON"));
 
             userUR = new UserUR();
             userUR.setKey(userTO.getKey());
@@ -235,13 +235,13 @@ public class PlainSchemaITCase extends AbstractITCase {
                     build());
 
             updateUser(userUR);
-            assertNotNull(userService.read(userTO.getKey()).getPlainAttr("BinaryJSON2"));
+            assertNotNull(USER_SERVICE.read(userTO.getKey()).getPlainAttr("BinaryJSON2"));
         } finally {
-            userService.delete(userTO.getKey());
+            USER_SERVICE.delete(userTO.getKey());
 
-            schemaService.delete(SchemaType.PLAIN, schemaTOpdf.getKey());
-            schemaService.delete(SchemaType.PLAIN, schemaTOjson.getKey());
-            schemaService.delete(SchemaType.PLAIN, schemaTOjson2.getKey());
+            SCHEMA_SERVICE.delete(SchemaType.PLAIN, schemaTOpdf.getKey());
+            SCHEMA_SERVICE.delete(SchemaType.PLAIN, schemaTOjson.getKey());
+            SCHEMA_SERVICE.delete(SchemaType.PLAIN, schemaTOjson2.getKey());
         }
     }
 
@@ -251,10 +251,10 @@ public class PlainSchemaITCase extends AbstractITCase {
         schemaTO.setMandatoryCondition("false");
         createSchema(SchemaType.PLAIN, schemaTO);
 
-        schemaService.delete(SchemaType.PLAIN, schemaTO.getKey());
+        SCHEMA_SERVICE.delete(SchemaType.PLAIN, schemaTO.getKey());
         PlainSchemaTO firstname = null;
         try {
-            firstname = schemaService.read(SchemaType.PLAIN, schemaTO.getKey());
+            firstname = SCHEMA_SERVICE.read(SchemaType.PLAIN, schemaTO.getKey());
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -263,18 +263,18 @@ public class PlainSchemaITCase extends AbstractITCase {
 
     @Test
     public void search() {
-        List<PlainSchemaTO> schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
+        List<PlainSchemaTO> schemas = SCHEMA_SERVICE.search(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
         assertFalse(schemas.isEmpty());
         schemas.forEach(Assertions::assertNotNull);
 
-        schemas = schemaService.search(new SchemaQuery.Builder().type(SchemaType.PLAIN).keyword("fullna*").build());
+        schemas = SCHEMA_SERVICE.search(new SchemaQuery.Builder().type(SchemaType.PLAIN).keyword("fullna*").build());
         assertFalse(schemas.isEmpty());
         schemas.forEach(Assertions::assertNotNull);
     }
 
     @Test
     public void searchByAnyTypeClass() {
-        List<PlainSchemaTO> userSchemas = schemaService.search(
+        List<PlainSchemaTO> userSchemas = SCHEMA_SERVICE.search(
                 new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClass("minimal user").build());
 
         assertTrue(userSchemas.stream().anyMatch(object -> "fullname".equals(object.getKey())));
@@ -288,16 +288,16 @@ public class PlainSchemaITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        PlainSchemaTO schemaTO = schemaService.read(SchemaType.PLAIN, "icon");
+        PlainSchemaTO schemaTO = SCHEMA_SERVICE.read(SchemaType.PLAIN, "icon");
         assertNotNull(schemaTO);
 
-        schemaService.update(SchemaType.PLAIN, schemaTO);
-        PlainSchemaTO updatedTO = schemaService.read(SchemaType.PLAIN, "icon");
+        SCHEMA_SERVICE.update(SchemaType.PLAIN, schemaTO);
+        PlainSchemaTO updatedTO = SCHEMA_SERVICE.read(SchemaType.PLAIN, "icon");
         assertEquals(schemaTO, updatedTO);
 
         updatedTO.setType(AttrSchemaType.Date);
         try {
-            schemaService.update(SchemaType.PLAIN, updatedTO);
+            SCHEMA_SERVICE.update(SchemaType.PLAIN, updatedTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
@@ -316,7 +316,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         AnyTypeClassTO typeClass = new AnyTypeClassTO();
         typeClass.setKey("issue258");
         typeClass.getPlainSchemas().add(schemaTO.getKey());
-        anyTypeClassService.create(typeClass);
+        ANY_TYPE_CLASS_SERVICE.create(typeClass);
 
         UserCR userCR = UserITCase.getUniqueSample("issue258@syncope.apache.org");
         userCR.getAuxClasses().add(typeClass.getKey());
@@ -327,7 +327,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         schemaTO.setType(AttrSchemaType.Long);
         try {
-            schemaService.update(SchemaType.PLAIN, schemaTO);
+            SCHEMA_SERVICE.update(SchemaType.PLAIN, schemaTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
@@ -345,7 +345,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         AnyTypeClassTO typeClass = new AnyTypeClassTO();
         typeClass.setKey("issue259");
         typeClass.getPlainSchemas().add(schemaTO.getKey());
-        anyTypeClassService.create(typeClass);
+        ANY_TYPE_CLASS_SERVICE.create(typeClass);
 
         UserCR userCR = UserITCase.getUniqueSample("issue259@syncope.apache.org");
         userCR.getAuxClasses().add(typeClass.getKey());
@@ -371,7 +371,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         AnyTypeClassTO typeClass = new AnyTypeClassTO();
         typeClass.setKey("issue260");
         typeClass.getPlainSchemas().add(schemaTO.getKey());
-        anyTypeClassService.create(typeClass);
+        ANY_TYPE_CLASS_SERVICE.create(typeClass);
 
         UserCR userCR = UserITCase.getUniqueSample("issue260@syncope.apache.org");
         userCR.getAuxClasses().add(typeClass.getKey());
@@ -381,7 +381,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         schemaTO.setUniqueConstraint(false);
         try {
-            schemaService.update(SchemaType.PLAIN, schemaTO);
+            SCHEMA_SERVICE.update(SchemaType.PLAIN, schemaTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
@@ -390,7 +390,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE323() {
-        PlainSchemaTO actual = schemaService.read(SchemaType.PLAIN, "icon");
+        PlainSchemaTO actual = SCHEMA_SERVICE.read(SchemaType.PLAIN, "icon");
         assertNotNull(actual);
 
         try {

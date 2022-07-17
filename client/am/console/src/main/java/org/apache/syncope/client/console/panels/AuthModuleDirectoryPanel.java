@@ -56,7 +56,7 @@ import org.apache.wicket.model.StringResourceModel;
 public class AuthModuleDirectoryPanel
         extends DirectoryPanel<AuthModuleTO, AuthModuleTO, AuthModuleProvider, AuthModuleRestClient> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1005345990563741296L;
 
     public AuthModuleDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);
@@ -100,16 +100,18 @@ public class AuthModuleDirectoryPanel
 
             @Override
             public void populateItem(
-                final Item<ICellPopulator<AuthModuleTO>> item,
-                final String componentId,
-                final IModel<AuthModuleTO> rowModel) {
+                    final Item<ICellPopulator<AuthModuleTO>> item,
+                    final String componentId,
+                    final IModel<AuthModuleTO> rowModel) {
 
                 item.add(new Label(componentId, rowModel.getObject().getConf() == null
-                    ? StringUtils.EMPTY
-                    : StringUtils.substringBefore(
-                    rowModel.getObject().getConf().getClass().getSimpleName(), "AuthModuleConf")));
+                        ? StringUtils.EMPTY
+                        : StringUtils.substringBefore(
+                                rowModel.getObject().getConf().getClass().getSimpleName(), "AuthModuleConf")));
             }
         });
+        columns.add(new PropertyColumn<>(new ResourceModel("state"), "state", "state"));
+        columns.add(new PropertyColumn<>(new ResourceModel("order"), "order", "order"));
         return columns;
     }
 
@@ -124,7 +126,7 @@ public class AuthModuleDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final AuthModuleTO ignore) {
                 send(AuthModuleDirectoryPanel.this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<>(
-                    AuthModuleRestClient.read(model.getObject().getKey()), target));
+                        AuthModuleRestClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.AUTH_MODULE_UPDATE);
 

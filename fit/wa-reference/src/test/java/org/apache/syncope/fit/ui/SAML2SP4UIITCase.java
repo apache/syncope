@@ -19,8 +19,8 @@
 package org.apache.syncope.fit.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -48,7 +48,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
@@ -60,7 +60,7 @@ import org.junit.jupiter.api.Test;
 public class SAML2SP4UIITCase extends AbstractUIITCase {
 
     private static void clientAppSetup(final String appName, final String entityId, final long appId) {
-        SAML2SPClientAppTO clientApp = clientAppService.list(ClientAppType.SAML2SP).stream().
+        SAML2SPClientAppTO clientApp = CLIENT_APP_SERVICE.list(ClientAppType.SAML2SP).stream().
                 filter(app -> appName.equals(app.getName())).
                 map(SAML2SPClientAppTO.class::cast).
                 findFirst().
@@ -71,12 +71,12 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
                     app.setEntityId(entityId);
                     app.setMetadataLocation(entityId + SAML2SP4UIConstants.URL_CONTEXT + "/metadata");
 
-                    Response response = clientAppService.create(ClientAppType.SAML2SP, app);
+                    Response response = CLIENT_APP_SERVICE.create(ClientAppType.SAML2SP, app);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
                         fail("Could not create SAML2 Client App");
                     }
 
-                    return clientAppService.read(
+                    return CLIENT_APP_SERVICE.read(
                             ClientAppType.SAML2SP, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
 
@@ -84,9 +84,10 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         clientApp.setSignResponses(true);
         clientApp.setRequiredNameIdFormat(SAML2SPNameId.PERSISTENT);
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
+        clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
 
-        clientAppService.update(ClientAppType.SAML2SP, clientApp);
-        clientAppService.pushToWA();
+        CLIENT_APP_SERVICE.update(ClientAppType.SAML2SP, clientApp);
+        CLIENT_APP_SERVICE.pushToWA();
     }
 
     @BeforeAll
@@ -101,21 +102,21 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
     @BeforeAll
     public static void idpSetup() {
-        WebClient.client(saml2sp4UIIdPService).
+        WebClient.client(SAML2SP4UI_IDP_SERVICE).
                 accept(MediaType.APPLICATION_XML_TYPE).
                 type(MediaType.APPLICATION_XML_TYPE);
         try {
-            saml2sp4UIIdPService.importFromMetadata(
+            SAML2SP4UI_IDP_SERVICE.importFromMetadata(
                     (InputStream) WebClient.create(WA_ADDRESS + "/idp/metadata").get().getEntity());
         } catch (SyncopeClientException e) {
             // nothing bad if already imported
         } finally {
-            WebClient.client(saml2sp4UIIdPService).
-                    accept(clientFactory.getContentType().getMediaType()).
-                    type(clientFactory.getContentType().getMediaType());
+            WebClient.client(SAML2SP4UI_IDP_SERVICE).
+                    accept(CLIENT_FACTORY.getContentType().getMediaType()).
+                    type(CLIENT_FACTORY.getContentType().getMediaType());
         }
 
-        List<SAML2SP4UIIdPTO> idps = saml2sp4UIIdPService.list();
+        List<SAML2SP4UIIdPTO> idps = SAML2SP4UI_IDP_SERVICE.list();
         assertEquals(1, idps.size());
 
         SAML2SP4UIIdPTO cas = idps.get(0);
@@ -125,38 +126,38 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         cas.setSelfRegUnmatching(false);
         cas.getItems().clear();
 
-        ItemTO item = new ItemTO();
+        Item item = new Item();
         item.setIntAttrName("username");
         item.setExtAttrName("NameID");
         item.setConnObjectKey(true);
         cas.setConnObjectKeyItem(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setIntAttrName("email");
         item.setExtAttrName("mail");
         cas.add(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setIntAttrName("userId");
         item.setExtAttrName("mail");
         cas.add(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setIntAttrName("firstname");
         item.setExtAttrName("givenName");
         cas.add(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setIntAttrName("surname");
         item.setExtAttrName("sn");
         cas.add(item);
 
-        item = new ItemTO();
+        item = new Item();
         item.setIntAttrName("fullname");
         item.setExtAttrName("cn");
         cas.add(item);
 
-        saml2sp4UIIdPService.update(cas);
+        SAML2SP4UI_IDP_SERVICE.update(cas);
     }
 
     @Test
@@ -237,6 +238,10 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
         // 2c. WA attribute consent screen
         if (isOk) {
+            // check attribute repository
+            assertTrue(responseBody.contains("identifier"));
+            assertTrue(responseBody.contains("[value1]"));
+
             String execution = extractWAExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();
@@ -252,7 +257,8 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
             post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
             try (CloseableHttpResponse response = httpclient.execute(post, context)) {
                 assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
-                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue().
+                        replace("http://", "https://").replace(":8080", ":9443");
             }
         }
 
@@ -288,20 +294,20 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
     @Override
     protected void doSelfReg(final Runnable runnable) {
-        List<SAML2SP4UIIdPTO> idps = saml2sp4UIIdPService.list();
+        List<SAML2SP4UIIdPTO> idps = SAML2SP4UI_IDP_SERVICE.list();
         assertEquals(1, idps.size());
 
         SAML2SP4UIIdPTO cas = idps.get(0);
         cas.setCreateUnmatching(false);
         cas.setSelfRegUnmatching(true);
-        saml2sp4UIIdPService.update(cas);
+        SAML2SP4UI_IDP_SERVICE.update(cas);
 
         try {
             runnable.run();
         } finally {
             cas.setCreateUnmatching(true);
             cas.setSelfRegUnmatching(false);
-            saml2sp4UIIdPService.update(cas);
+            SAML2SP4UI_IDP_SERVICE.update(cas);
         }
     }
 }

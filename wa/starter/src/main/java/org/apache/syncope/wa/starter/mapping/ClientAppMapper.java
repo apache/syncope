@@ -23,13 +23,17 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
+import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @FunctionalInterface
 public interface ClientAppMapper {
 
     RegisteredService map(
+            ConfigurableApplicationContext ctx,
             WAClientApp clientApp,
             RegisteredServiceAuthenticationPolicy authPolicy,
+            RegisteredServiceMultifactorPolicy mfaPolicy,
             RegisteredServiceAccessStrategy accessStrategy,
             RegisteredServiceAttributeReleasePolicy attributeReleasePolicy);
 }

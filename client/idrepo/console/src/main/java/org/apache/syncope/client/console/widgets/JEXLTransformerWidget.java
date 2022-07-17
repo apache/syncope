@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wizards.mapping.JEXLTransformersTogglePanel;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.link.AbstractLink;
@@ -35,13 +35,13 @@ public class JEXLTransformerWidget extends AlertWidget<String> {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
-    private final ItemTO item;
+    private final Item item;
 
     private final JEXLTransformersTogglePanel transformers;
 
     public JEXLTransformerWidget(
             final String id,
-            final ItemTO item,
+            final Item item,
             final JEXLTransformersTogglePanel transformers) {
 
         super(id);

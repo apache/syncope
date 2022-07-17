@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.init;
 
 import java.util.Optional;
+import org.apache.syncope.common.lib.attr.AttrRepoConf;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
@@ -28,12 +29,16 @@ public class AMClassPathScanImplementationContributor implements ClassPathScanIm
     @Override
     public void extend(final ClassPathScanningCandidateComponentProvider scanner) {
         scanner.addIncludeFilter(new AssignableTypeFilter(AuthModuleConf.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(AttrRepoConf.class));
     }
 
     @Override
     public Optional<String> getLabel(final Class<?> clazz) {
         if (AuthModuleConf.class.isAssignableFrom(clazz)) {
             return Optional.of(AuthModuleConf.class.getName());
+        }
+        if (AttrRepoConf.class.isAssignableFrom(clazz)) {
+            return Optional.of(AttrRepoConf.class.getName());
         }
         return Optional.empty();
     }

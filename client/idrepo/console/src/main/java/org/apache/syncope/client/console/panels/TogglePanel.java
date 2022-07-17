@@ -20,13 +20,12 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.console.policies.PolicyRuleWrapper;
 import org.apache.syncope.client.console.reports.ReportletWrapper;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.Attr;
@@ -97,7 +96,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
     public TogglePanel(final String id, final String markupId, final PageReference pageRef) {
         super(id, true);
         this.activeId = markupId;
-        final String containerID = StringUtils.isBlank(markupId) ? id : markupId;
+        String containerID = StringUtils.isBlank(markupId) ? id : markupId;
 
         setRenderBodyOnly(true);
         setOutputMarkupId(true);
@@ -150,8 +149,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
     }
 
     protected void setHeader(final AjaxRequestTarget target, final String header) {
-        this.header.setDefaultModelObject(Optional.ofNullable(header).map(s -> s.length() >= 40
-                ? (s.substring(0, 30) + " ... ") : s).orElse(StringUtils.EMPTY));
+        this.header.setDefaultModelObject(Optional.ofNullable(header).
+                map(s -> StringUtils.abbreviate(s, HEADER_FIRST_ABBREVIATION)).orElse(StringUtils.EMPTY));
         target.add(this.header);
     }
 
@@ -192,7 +191,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
         return key;
     }
 
-    private void updateLabelKeyValue(final Serializable modelObject) {
+    protected void updateLabelKeyValue(final Serializable modelObject) {
         header.add(new AttributeModifier(LABEL_DATA_VALUE, getTargetKey(modelObject)));
     }
 

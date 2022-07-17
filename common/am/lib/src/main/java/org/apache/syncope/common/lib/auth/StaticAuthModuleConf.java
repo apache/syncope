@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.auth;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
 
 public class StaticAuthModuleConf implements AuthModuleConf {
 
@@ -29,5 +30,10 @@ public class StaticAuthModuleConf implements AuthModuleConf {
 
     public Map<String, String> getUsers() {
         return users;
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
+        return mapper.map(authModule, this);
     }
 }

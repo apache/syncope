@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -39,30 +39,30 @@ import org.junit.jupiter.api.Test;
 
 public class BpmnProcessITCase extends AbstractITCase {
 
-    private static String userWorkflowKey = null;
+    private static String USER_WORKFLOW_KEY = null;
 
     @BeforeAll
     public static void findDefault() {
-        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
+        assumeFalse(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform()));
 
-        bpmnProcessService.list().stream().
+        BPMN_PROCESS_SERVICE.list().stream().
                 filter(BpmnProcess::isUserWorkflow).findAny().
-                ifPresent(process -> userWorkflowKey = process.getKey());
-        assertNotNull(userWorkflowKey);
+                ifPresent(process -> USER_WORKFLOW_KEY = process.getKey());
+        assertNotNull(USER_WORKFLOW_KEY);
     }
 
     @BeforeEach
     public void check() {
-        assumeFalse(clientFactory.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(adminClient.platform()));
+        assumeFalse(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
+        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform()));
     }
 
     @Test
     public void exportUserWorkflowProcess() throws IOException {
-        Response response = bpmnProcessService.get(userWorkflowKey);
+        Response response = BPMN_PROCESS_SERVICE.get(USER_WORKFLOW_KEY);
         assertTrue(response.getMediaType().toString().
-                startsWith(clientFactory.getContentType().getMediaType().toString()));
+                startsWith(CLIENT_FACTORY.getContentType().getMediaType().toString()));
         assertTrue(response.getEntity() instanceof InputStream);
         String definition = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
         assertNotNull(definition);
@@ -71,9 +71,9 @@ public class BpmnProcessITCase extends AbstractITCase {
 
     @Test
     public void updateUserWorkflowProcess() throws IOException {
-        Response response = bpmnProcessService.get(userWorkflowKey);
+        Response response = BPMN_PROCESS_SERVICE.get(USER_WORKFLOW_KEY);
         String definition = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
 
-        bpmnProcessService.set(userWorkflowKey, definition);
+        BPMN_PROCESS_SERVICE.set(USER_WORKFLOW_KEY, definition);
     }
 }

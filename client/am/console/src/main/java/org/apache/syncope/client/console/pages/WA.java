@@ -33,12 +33,13 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.console.authprofiles.AuthProfileDirectoryPanel;
-import org.apache.syncope.client.console.panels.AuthModuleDirectoryPanel;
 import org.apache.syncope.client.console.clientapps.ClientApps;
+import org.apache.syncope.client.console.panels.AMSessionPanel;
+import org.apache.syncope.client.console.panels.AttrRepoDirectoryPanel;
+import org.apache.syncope.client.console.panels.AuthModuleDirectoryPanel;
 import org.apache.syncope.client.console.panels.OIDC;
 import org.apache.syncope.client.console.panels.SAML2;
 import org.apache.syncope.client.console.panels.WAConfigDirectoryPanel;
-import org.apache.syncope.client.console.panels.AMSessionPanel;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.console.rest.WASessionRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -62,12 +63,12 @@ public class WA extends BasePage {
 
     private static final long serialVersionUID = 9200112197134882164L;
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     @SpringBean
-    private ServiceOps serviceOps;
+    protected ServiceOps serviceOps;
 
-    private String waPrefix = "";
+    protected String waPrefix = "";
 
     public WA(final PageParameters parameters) {
         super(parameters);
@@ -78,6 +79,8 @@ public class WA extends BasePage {
         List<NetworkService> instances = serviceOps.list(NetworkService.Type.WA);
 
         AjaxLink<?> push = new AjaxLink<>("push") {
+
+            private static final long serialVersionUID = -817438685948164787L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
@@ -130,10 +133,14 @@ public class WA extends BasePage {
             } catch (Exception e) {
                 LOG.error("While contacting {}", actuatorEndpoint, e);
             }
+
+            if (StringUtils.isBlank(waPrefix)) {
+                waPrefix = StringUtils.removeEnd(instances.get(0).getAddress(), "/");
+            }
         }
     }
 
-    private List<ITab> buildTabList(final List<NetworkService> instances) {
+    protected List<ITab> buildTabList(final List<NetworkService> instances) {
         List<ITab> tabs = new ArrayList<>();
 
         if (SyncopeConsoleSession.get().owns(AMEntitlement.AUTH_MODULE_LIST)) {
@@ -144,6 +151,18 @@ public class WA extends BasePage {
                 @Override
                 public Panel getPanel(final String panelId) {
                     return new AuthModuleDirectoryPanel(panelId, getPageReference());
+                }
+            });
+        }
+
+        if (SyncopeConsoleSession.get().owns(AMEntitlement.ATTR_REPO_LIST)) {
+            tabs.add(new AbstractTab(new ResourceModel("attrRepos")) {
+
+                private static final long serialVersionUID = 5211692813425391144L;
+
+                @Override
+                public Panel getPanel(final String panelId) {
+                    return new AttrRepoDirectoryPanel(panelId, getPageReference());
                 }
             });
         }

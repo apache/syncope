@@ -27,44 +27,45 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TraceLevel;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
+import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
+import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
+import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
-import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
-import org.apache.syncope.core.provisioning.api.AuditManager;
-import org.apache.syncope.core.provisioning.api.ConnectorManager;
-import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
-import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
+import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -108,6 +109,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     protected final ExternalResourceDAO resourceDAO;
 
+    protected final PlainSchemaDAO plainSchemaDAO;
+
     protected final NotificationManager notificationManager;
 
     protected final AuditManager auditManager;
@@ -130,6 +133,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final AnyObjectDAO anyObjectDAO,
             final TaskDAO taskDAO,
             final ExternalResourceDAO resourceDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final NotificationManager notificationManager,
             final AuditManager auditManager,
             final TaskDataBinder taskDataBinder,
@@ -145,6 +149,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         this.anyObjectDAO = anyObjectDAO;
         this.taskDAO = taskDAO;
         this.resourceDAO = resourceDAO;
+        this.plainSchemaDAO = plainSchemaDAO;
         this.notificationManager = notificationManager;
         this.auditManager = auditManager;
         this.taskDataBinder = taskDataBinder;
@@ -212,8 +217,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             task.getResource().getProvision(task.getAnyType()).ifPresent(provision -> {
                 if (provision.getUidOnCreate() != null) {
-                    anyUtilsFactory.getInstance(task.getAnyTypeKind()).
-                            addAttr(task.getEntityKey(), provision.getUidOnCreate(), result.getUidValue());
+                    anyUtilsFactory.getInstance(task.getAnyTypeKind()).addAttr(
+                            task.getEntityKey(), plainSchemaDAO.find(provision.getUidOnCreate()), result.getUidValue());
                 }
             });
         } else {
@@ -562,9 +567,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             String fiql = provision == null
                     ? null
                     : afterObj != null
-                            ? outboundMatcher.getFIQL(afterObj, provision)
+                            ? outboundMatcher.getFIQL(afterObj, task.getResource(), provision)
                             : beforeObj != null
-                                    ? outboundMatcher.getFIQL(beforeObj, provision)
+                                    ? outboundMatcher.getFIQL(beforeObj, task.getResource(), provision)
                                     : null;
             reporter.onSuccessOrNonPriorityResourceFailures(taskInfo,
                     ExecStatus.valueOf(exec.getStatus()),
@@ -705,6 +710,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final List<PropagationActions> actions,
             final boolean latest) {
 
+        if (task.getResource().getPropagationPolicy() != null
+                && !task.getResource().getPropagationPolicy().isPrefetch()) {
+
+            LOG.debug("Skipping because of configured PropagationPolicy");
+            return null;
+        }
+
         String connObjectKeyValue = latest || task.getOldConnObjectKey() == null
                 ? task.getConnObjectKey()
                 : task.getOldConnObjectKey();
@@ -732,6 +744,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final List<PropagationActions> actions,
             final boolean latest) {
 
+        if (task.getResource().getPropagationPolicy() != null
+                && !task.getResource().getPropagationPolicy().isPrefetch()) {
+
+            LOG.debug("Skipping because of configured PropagationPolicy");
+            return null;
+        }
+
         String connObjectKey = latest || task.getOldConnObjectKey() == null
                 ? task.getConnObjectKey()
                 : task.getOldConnObjectKey();
@@ -740,7 +759,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(Optional.of(task), orgUnit)));
 
         ConnectorObject obj = null;
-        Optional<? extends OrgUnitItem> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+        Optional<Item> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
         if (connObjectKeyItem.isPresent()) {
             try {
                 obj = connector.getObject(

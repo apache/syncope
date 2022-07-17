@@ -24,18 +24,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
-import org.apache.syncope.fit.AbstractITCase;
-import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JDBCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JaasAuthModuleConf;
@@ -46,7 +45,10 @@ import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.rest.api.service.AuthModuleService;
+import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.Test;
 
 public class AuthModuleITCase extends AbstractITCase {
 
@@ -63,6 +65,17 @@ public class AuthModuleITCase extends AbstractITCase {
         OIDC;
 
     };
+
+    private static AuthModuleTO createAuthModule(final AuthModuleTO authModule) {
+        Response response = AUTH_MODULE_SERVICE.create(authModule);
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+        return getObject(response.getLocation(), AuthModuleService.class, authModule.getClass());
+    }
 
     private static AuthModuleTO buildAuthModuleTO(final AuthModuleSupportedType type) {
         AuthModuleTO authModuleTO = new AuthModuleTO();
@@ -150,15 +163,15 @@ public class AuthModuleITCase extends AbstractITCase {
         }
         authModuleTO.setConf(conf);
 
-        ItemTO keyMapping = new ItemTO();
+        Item keyMapping = new Item();
         keyMapping.setIntAttrName("uid");
         keyMapping.setExtAttrName("username");
-        authModuleTO.add(keyMapping);
+        authModuleTO.getItems().add(keyMapping);
 
-        ItemTO fullnameMapping = new ItemTO();
+        Item fullnameMapping = new Item();
         fullnameMapping.setIntAttrName("cn");
         fullnameMapping.setExtAttrName("fullname");
-        authModuleTO.add(fullnameMapping);
+        authModuleTO.getItems().add(fullnameMapping);
 
         return authModuleTO;
     }
@@ -169,7 +182,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<AuthModuleTO> authModuleTOs = authModuleService.list();
+        List<AuthModuleTO> authModuleTOs = AUTH_MODULE_SERVICE.list();
         assertNotNull(authModuleTOs);
         assertFalse(authModuleTOs.isEmpty());
 
@@ -207,7 +220,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getLDAPAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultLDAPAuthModule");
+        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read("DefaultLDAPAuthModule");
 
         assertNotNull(authModuleTO);
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
@@ -217,7 +230,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getJDBCAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultJDBCAuthModule");
+        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read("DefaultJDBCAuthModule");
 
         assertNotNull(authModuleTO);
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
@@ -227,7 +240,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getGoogleMfaAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultGoogleMfaAuthModule");
+        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read("DefaultGoogleMfaAuthModule");
 
         assertNotNull(authModuleTO);
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
@@ -237,7 +250,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getDuoMfaAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultDuoMfaAuthModule");
+        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read("DefaultDuoMfaAuthModule");
 
         assertNotNull(authModuleTO);
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
@@ -246,7 +259,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getOIDCAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultOIDCAuthModule");
+        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read("DefaultOIDCAuthModule");
 
         assertNotNull(authModuleTO);
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
@@ -256,7 +269,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getSAML2IdPAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultSAML2IdPAuthModule");
+        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read("DefaultSAML2IdPAuthModule");
 
         assertNotNull(authModuleTO);
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
@@ -266,7 +279,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getJaasAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultJaasAuthModule");
+        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read("DefaultJaasAuthModule");
 
         assertNotNull(authModuleTO);
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
@@ -276,7 +289,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getStaticAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultStaticAuthModule");
+        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read("DefaultStaticAuthModule");
 
         assertNotNull(authModuleTO);
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
@@ -286,7 +299,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getSyncopeAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultSyncopeAuthModule");
+        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read("DefaultSyncopeAuthModule");
 
         assertNotNull(authModuleTO);
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
@@ -296,7 +309,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void getU2FAuthModule() {
-        AuthModuleTO authModuleTO = authModuleService.read("DefaultU2FAuthModule");
+        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read("DefaultU2FAuthModule");
 
         assertNotNull(authModuleTO);
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
@@ -316,7 +329,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateGoogleMfaAuthModule() {
-        AuthModuleTO googleMfaAuthModuleTO = authModuleService.read("DefaultGoogleMfaAuthModule");
+        AuthModuleTO googleMfaAuthModuleTO = AUTH_MODULE_SERVICE.read("DefaultGoogleMfaAuthModule");
         assertNotNull(googleMfaAuthModuleTO);
 
         AuthModuleTO newGoogleMfaAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.GOOGLE_MFA);
@@ -329,8 +342,8 @@ public class AuthModuleITCase extends AbstractITCase {
         newGoogleMfaAuthModuleTO.setConf(conf);
 
         // update new auth module
-        authModuleService.update(newGoogleMfaAuthModuleTO);
-        newGoogleMfaAuthModuleTO = authModuleService.read(newGoogleMfaAuthModuleTO.getKey());
+        AUTH_MODULE_SERVICE.update(newGoogleMfaAuthModuleTO);
+        newGoogleMfaAuthModuleTO = AUTH_MODULE_SERVICE.read(newGoogleMfaAuthModuleTO.getKey());
         assertNotNull(newGoogleMfaAuthModuleTO);
 
         conf = newGoogleMfaAuthModuleTO.getConf();
@@ -339,7 +352,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateDuoMfaAuthModule() {
-        AuthModuleTO duoMfaAuthModuleTO = authModuleService.read("DefaultDuoMfaAuthModule");
+        AuthModuleTO duoMfaAuthModuleTO = AUTH_MODULE_SERVICE.read("DefaultDuoMfaAuthModule");
         assertNotNull(duoMfaAuthModuleTO);
 
         AuthModuleTO newDuoMfaAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.DUO);
@@ -353,8 +366,8 @@ public class AuthModuleITCase extends AbstractITCase {
         newDuoMfaAuthModuleTO.setConf(conf);
 
         // update new auth module
-        authModuleService.update(newDuoMfaAuthModuleTO);
-        newDuoMfaAuthModuleTO = authModuleService.read(newDuoMfaAuthModuleTO.getKey());
+        AUTH_MODULE_SERVICE.update(newDuoMfaAuthModuleTO);
+        newDuoMfaAuthModuleTO = AUTH_MODULE_SERVICE.read(newDuoMfaAuthModuleTO.getKey());
         assertNotNull(newDuoMfaAuthModuleTO);
 
         conf = newDuoMfaAuthModuleTO.getConf();
@@ -363,7 +376,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateLDAPAuthModule() {
-        AuthModuleTO ldapAuthModuleTO = authModuleService.read("DefaultLDAPAuthModule");
+        AuthModuleTO ldapAuthModuleTO = AUTH_MODULE_SERVICE.read("DefaultLDAPAuthModule");
         assertNotNull(ldapAuthModuleTO);
 
         AuthModuleTO newLdapAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.LDAP);
@@ -376,8 +389,8 @@ public class AuthModuleITCase extends AbstractITCase {
         newLdapAuthModuleTO.setConf(conf);
 
         // update new auth module
-        authModuleService.update(newLdapAuthModuleTO);
-        newLdapAuthModuleTO = authModuleService.read(newLdapAuthModuleTO.getKey());
+        AUTH_MODULE_SERVICE.update(newLdapAuthModuleTO);
+        newLdapAuthModuleTO = AUTH_MODULE_SERVICE.read(newLdapAuthModuleTO.getKey());
         assertNotNull(newLdapAuthModuleTO);
 
         conf = newLdapAuthModuleTO.getConf();
@@ -386,7 +399,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateSAML2IdPAuthModule() {
-        AuthModuleTO saml2IdpAuthModuleTO = authModuleService.read("DefaultSAML2IdPAuthModule");
+        AuthModuleTO saml2IdpAuthModuleTO = AUTH_MODULE_SERVICE.read("DefaultSAML2IdPAuthModule");
         assertNotNull(saml2IdpAuthModuleTO);
 
         AuthModuleTO newsaml2IdpAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.SAML2_IDP);
@@ -399,8 +412,8 @@ public class AuthModuleITCase extends AbstractITCase {
         newsaml2IdpAuthModuleTO.setConf(conf);
 
         // update new auth module
-        authModuleService.update(newsaml2IdpAuthModuleTO);
-        newsaml2IdpAuthModuleTO = authModuleService.read(newsaml2IdpAuthModuleTO.getKey());
+        AUTH_MODULE_SERVICE.update(newsaml2IdpAuthModuleTO);
+        newsaml2IdpAuthModuleTO = AUTH_MODULE_SERVICE.read(newsaml2IdpAuthModuleTO.getKey());
         assertNotNull(newsaml2IdpAuthModuleTO);
 
         conf = newsaml2IdpAuthModuleTO.getConf();
@@ -409,7 +422,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateOIDCAuthModule() {
-        AuthModuleTO oidcAuthModuleTO = authModuleService.read("DefaultOIDCAuthModule");
+        AuthModuleTO oidcAuthModuleTO = AUTH_MODULE_SERVICE.read("DefaultOIDCAuthModule");
         assertNotNull(oidcAuthModuleTO);
 
         AuthModuleTO newOIDCAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.OIDC);
@@ -422,8 +435,8 @@ public class AuthModuleITCase extends AbstractITCase {
         newOIDCAuthModuleTO.setConf(conf);
 
         // update new auth module
-        authModuleService.update(newOIDCAuthModuleTO);
-        newOIDCAuthModuleTO = authModuleService.read(newOIDCAuthModuleTO.getKey());
+        AUTH_MODULE_SERVICE.update(newOIDCAuthModuleTO);
+        newOIDCAuthModuleTO = AUTH_MODULE_SERVICE.read(newOIDCAuthModuleTO.getKey());
         assertNotNull(newOIDCAuthModuleTO);
 
         conf = newOIDCAuthModuleTO.getConf();
@@ -432,7 +445,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateJDBCAuthModule() {
-        AuthModuleTO jdbcAuthModuleTO = authModuleService.read("DefaultJDBCAuthModule");
+        AuthModuleTO jdbcAuthModuleTO = AUTH_MODULE_SERVICE.read("DefaultJDBCAuthModule");
         assertNotNull(jdbcAuthModuleTO);
 
         AuthModuleTO newJDBCAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.JDBC);
@@ -445,8 +458,8 @@ public class AuthModuleITCase extends AbstractITCase {
         newJDBCAuthModuleTO.setConf(conf);
 
         // update new auth module
-        authModuleService.update(newJDBCAuthModuleTO);
-        newJDBCAuthModuleTO = authModuleService.read(newJDBCAuthModuleTO.getKey());
+        AUTH_MODULE_SERVICE.update(newJDBCAuthModuleTO);
+        newJDBCAuthModuleTO = AUTH_MODULE_SERVICE.read(newJDBCAuthModuleTO.getKey());
         assertNotNull(newJDBCAuthModuleTO);
 
         conf = newJDBCAuthModuleTO.getConf();
@@ -455,7 +468,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateJaasAuthModule() {
-        AuthModuleTO jaasAuthModuleTO = authModuleService.read("DefaultJaasAuthModule");
+        AuthModuleTO jaasAuthModuleTO = AUTH_MODULE_SERVICE.read("DefaultJaasAuthModule");
         assertNotNull(jaasAuthModuleTO);
 
         AuthModuleTO newJaasAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.JAAS);
@@ -468,8 +481,8 @@ public class AuthModuleITCase extends AbstractITCase {
         newJaasAuthModuleTO.setConf(conf);
 
         // update new auth module
-        authModuleService.update(newJaasAuthModuleTO);
-        newJaasAuthModuleTO = authModuleService.read(newJaasAuthModuleTO.getKey());
+        AUTH_MODULE_SERVICE.update(newJaasAuthModuleTO);
+        newJaasAuthModuleTO = AUTH_MODULE_SERVICE.read(newJaasAuthModuleTO.getKey());
         assertNotNull(newJaasAuthModuleTO);
 
         conf = newJaasAuthModuleTO.getConf();
@@ -478,7 +491,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateStaticAuthModule() {
-        AuthModuleTO staticAuthModuleTO = authModuleService.read("DefaultStaticAuthModule");
+        AuthModuleTO staticAuthModuleTO = AUTH_MODULE_SERVICE.read("DefaultStaticAuthModule");
         assertNotNull(staticAuthModuleTO);
 
         AuthModuleTO newStaticAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.STATIC);
@@ -492,8 +505,8 @@ public class AuthModuleITCase extends AbstractITCase {
         newStaticAuthModuleTO.setConf(conf);
 
         // update new auth module
-        authModuleService.update(newStaticAuthModuleTO);
-        newStaticAuthModuleTO = authModuleService.read(newStaticAuthModuleTO.getKey());
+        AUTH_MODULE_SERVICE.update(newStaticAuthModuleTO);
+        newStaticAuthModuleTO = AUTH_MODULE_SERVICE.read(newStaticAuthModuleTO.getKey());
         assertNotNull(newStaticAuthModuleTO);
 
         conf = newStaticAuthModuleTO.getConf();
@@ -502,7 +515,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateU2fAuthModule() {
-        AuthModuleTO u2fAuthModuleTO = authModuleService.read("DefaultU2FAuthModule");
+        AuthModuleTO u2fAuthModuleTO = AUTH_MODULE_SERVICE.read("DefaultU2FAuthModule");
         assertNotNull(u2fAuthModuleTO);
 
         AuthModuleTO newU2fAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.U2F);
@@ -515,8 +528,8 @@ public class AuthModuleITCase extends AbstractITCase {
         newU2fAuthModuleTO.setConf(conf);
 
         // update new auth module
-        authModuleService.update(newU2fAuthModuleTO);
-        newU2fAuthModuleTO = authModuleService.read(newU2fAuthModuleTO.getKey());
+        AUTH_MODULE_SERVICE.update(newU2fAuthModuleTO);
+        newU2fAuthModuleTO = AUTH_MODULE_SERVICE.read(newU2fAuthModuleTO.getKey());
         assertNotNull(newU2fAuthModuleTO);
 
         conf = newU2fAuthModuleTO.getConf();
@@ -525,7 +538,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
     @Test
     public void updateSyncopeAuthModule() {
-        AuthModuleTO syncopeAuthModuleTO = authModuleService.read("DefaultSyncopeAuthModule");
+        AuthModuleTO syncopeAuthModuleTO = AUTH_MODULE_SERVICE.read("DefaultSyncopeAuthModule");
         assertNotNull(syncopeAuthModuleTO);
 
         AuthModuleTO newSyncopeAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.SYNCOPE);
@@ -538,8 +551,8 @@ public class AuthModuleITCase extends AbstractITCase {
         newSyncopeAuthModuleTO.setConf(conf);
 
         // update new auth module
-        authModuleService.update(newSyncopeAuthModuleTO);
-        newSyncopeAuthModuleTO = authModuleService.read(newSyncopeAuthModuleTO.getKey());
+        AUTH_MODULE_SERVICE.update(newSyncopeAuthModuleTO);
+        newSyncopeAuthModuleTO = AUTH_MODULE_SERVICE.read(newSyncopeAuthModuleTO.getKey());
         assertNotNull(newSyncopeAuthModuleTO);
 
         conf = newSyncopeAuthModuleTO.getConf();
@@ -552,10 +565,10 @@ public class AuthModuleITCase extends AbstractITCase {
             AuthModuleTO read = createAuthModule(buildAuthModuleTO(type));
             assertNotNull(read);
 
-            authModuleService.delete(read.getKey());
+            AUTH_MODULE_SERVICE.delete(read.getKey());
 
             try {
-                authModuleService.read(read.getKey());
+                AUTH_MODULE_SERVICE.read(read.getKey());
                 fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertNotNull(e);

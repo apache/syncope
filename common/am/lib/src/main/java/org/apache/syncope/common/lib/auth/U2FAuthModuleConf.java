@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-public class U2FAuthModuleConf implements AuthModuleConf {
+import java.util.Map;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
+
+public class U2FAuthModuleConf implements MFAAuthModuleConf {
 
     private static final long serialVersionUID = -1235771400318503131L;
 
@@ -29,6 +32,11 @@ public class U2FAuthModuleConf implements AuthModuleConf {
     private long expireDevices = 30;
 
     private String expireDevicesTimeUnit = "DAYS";
+
+    @Override
+    public String getFriendlyName() {
+        return "FIDO U2F";
+    }
 
     public long getExpireRegistrations() {
         return expireRegistrations;
@@ -60,5 +68,10 @@ public class U2FAuthModuleConf implements AuthModuleConf {
 
     public void setExpireDevicesTimeUnit(final String expireDevicesTimeUnit) {
         this.expireDevicesTimeUnit = expireDevicesTimeUnit;
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
+        return mapper.map(authModule, this);
     }
 }

@@ -42,13 +42,13 @@ public class MailTemplateITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        MailTemplateTO mailTemplateTO = mailTemplateService.read("optin");
+        MailTemplateTO mailTemplateTO = MAIL_TEMPLATE_SERVICE.read("optin");
         assertNotNull(mailTemplateTO);
     }
 
     @Test
     public void list() {
-        List<MailTemplateTO> mailTemplateTOs = mailTemplateService.list();
+        List<MailTemplateTO> mailTemplateTOs = MAIL_TEMPLATE_SERVICE.list();
         assertNotNull(mailTemplateTOs);
         assertFalse(mailTemplateTOs.isEmpty());
         for (MailTemplateTO instance : mailTemplateTOs) {
@@ -64,18 +64,18 @@ public class MailTemplateITCase extends AbstractITCase {
         MailTemplateTO mailTemplateTO = new MailTemplateTO();
         mailTemplateTO.setKey(key);
 
-        Response response = mailTemplateService.create(mailTemplateTO);
+        Response response = MAIL_TEMPLATE_SERVICE.create(mailTemplateTO);
         assertEquals(201, response.getStatus());
 
         // 2. attempt to read HTML and TEXT -> fail
         try {
-            mailTemplateService.getFormat(key, MailTemplateFormat.HTML);
+            MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.HTML);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
         try {
-            mailTemplateService.getFormat(key, MailTemplateFormat.TEXT);
+            MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.TEXT);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -83,10 +83,10 @@ public class MailTemplateITCase extends AbstractITCase {
 
         // 3. set TEXT
         String textTemplate = "Hi there, I am ${username}.";
-        mailTemplateService.setFormat(
+        MAIL_TEMPLATE_SERVICE.setFormat(
                 key, MailTemplateFormat.TEXT, IOUtils.toInputStream(textTemplate, StandardCharsets.UTF_8));
 
-        response = mailTemplateService.getFormat(key, MailTemplateFormat.TEXT);
+        response = MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.TEXT);
         assertEquals(200, response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_PLAIN));
         assertTrue(response.getEntity() instanceof InputStream);
@@ -96,10 +96,10 @@ public class MailTemplateITCase extends AbstractITCase {
 
         // 3. set HTML
         String htmlTemplate = "<html><body>Hi there, I am ${username}.</body></html>";
-        mailTemplateService.setFormat(
+        MAIL_TEMPLATE_SERVICE.setFormat(
                 key, MailTemplateFormat.HTML, IOUtils.toInputStream(htmlTemplate, StandardCharsets.UTF_8));
 
-        response = mailTemplateService.getFormat(key, MailTemplateFormat.HTML);
+        response = MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.HTML);
         assertEquals(200, response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_HTML));
         assertTrue(response.getEntity() instanceof InputStream);
@@ -108,16 +108,16 @@ public class MailTemplateITCase extends AbstractITCase {
                 IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
         // 4. remove HTML
-        mailTemplateService.removeFormat(key, MailTemplateFormat.HTML);
+        MAIL_TEMPLATE_SERVICE.removeFormat(key, MailTemplateFormat.HTML);
 
         try {
-            mailTemplateService.getFormat(key, MailTemplateFormat.HTML);
+            MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.HTML);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
-        response = mailTemplateService.getFormat(key, MailTemplateFormat.TEXT);
+        response = MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.TEXT);
         assertEquals(200, response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_PLAIN));
         assertTrue(response.getEntity() instanceof InputStream);
@@ -126,22 +126,22 @@ public class MailTemplateITCase extends AbstractITCase {
                 IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
         // 5. remove mail template
-        mailTemplateService.delete(key);
+        MAIL_TEMPLATE_SERVICE.delete(key);
 
         try {
-            mailTemplateService.read(key);
+            MAIL_TEMPLATE_SERVICE.read(key);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
         try {
-            mailTemplateService.getFormat(key, MailTemplateFormat.HTML);
+            MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.HTML);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
         try {
-            mailTemplateService.getFormat(key, MailTemplateFormat.TEXT);
+            MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.TEXT);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -153,7 +153,7 @@ public class MailTemplateITCase extends AbstractITCase {
         MailTemplateTO mailTemplateTO = new MailTemplateTO();
         mailTemplateTO.setKey("optin");
         try {
-            mailTemplateService.create(mailTemplateTO);
+            MAIL_TEMPLATE_SERVICE.create(mailTemplateTO);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());

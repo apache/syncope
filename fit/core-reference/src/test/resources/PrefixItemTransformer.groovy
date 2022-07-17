@@ -22,10 +22,10 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair
 import org.apache.syncope.common.lib.to.EntityTO
+import org.apache.syncope.common.lib.to.Item
 import org.apache.syncope.common.lib.types.AttrSchemaType
-import org.apache.syncope.core.persistence.api.entity.Entity
+import org.apache.syncope.core.persistence.api.entity.Any
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue
-import org.apache.syncope.core.persistence.api.entity.resource.Item
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 @CompileStatic
@@ -36,18 +36,18 @@ class PrefixItemTransformer implements ItemTransformer {
   @Override
   Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
     Item item,
-    Entity entity,
+    Any<?> any,
     AttrSchemaType schemaType,
     List<PlainAttrValue> values) {
 
     if (values == null || values.isEmpty() || values.get(0).getStringValue() == null) {
       return Pair.of(schemaType, values);
-    } else {
-      String value = values.get(0).getStringValue();
-      values.get(0).setStringValue(PREFIX + value);
-
-      return Pair.of(schemaType, values);
     }
+
+    String value = values.get(0).getStringValue();
+    values.get(0).setStringValue(PREFIX + value);
+
+    return Pair.of(schemaType, values);
   }
 
   @Override
@@ -58,12 +58,11 @@ class PrefixItemTransformer implements ItemTransformer {
 
     if (values == null || values.isEmpty() || values.get(0) == null) {
       return values;
-    } else {
-      List<Object> newValues = new ArrayList<>(values);
-      newValues.set(0, StringUtils.substringAfter(values.get(0).toString(), PREFIX));
-
-      return newValues;
     }
+    
+    List<Object> newValues = new ArrayList<>(values);
+    newValues.set(0, StringUtils.substringAfter(values.get(0).toString(), PREFIX));
+
+    return newValues;
   }
 }
-

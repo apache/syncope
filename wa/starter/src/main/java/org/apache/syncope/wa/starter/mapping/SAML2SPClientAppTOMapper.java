@@ -26,16 +26,20 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
+import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.util.model.TriStateBoolean;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @ClientAppMapFor(clientAppClass = SAML2SPClientAppTO.class)
 public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
 
     @Override
     public RegisteredService map(
+            final ConfigurableApplicationContext ctx,
             final WAClientApp clientApp,
-            final RegisteredServiceAuthenticationPolicy authenticationPolicy,
+            final RegisteredServiceAuthenticationPolicy authPolicy,
+            final RegisteredServiceMultifactorPolicy mfaPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
             final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
 
@@ -60,7 +64,7 @@ public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
         }
         service.setServiceProviderNameIdQualifier(sp.getServiceProviderNameIdQualifier());
 
-        setPolicies(service, authenticationPolicy, accessStrategy, attributeReleasePolicy);
+        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy);
 
         return service;
     }

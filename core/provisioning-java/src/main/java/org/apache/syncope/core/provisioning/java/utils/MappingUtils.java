@@ -26,13 +26,16 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
@@ -41,15 +44,12 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
-import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
-import org.apache.syncope.core.spring.ImplementationManager;
 
 public final class MappingUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingUtils.class);
 
-    public static Optional<? extends MappingItem> getConnObjectKeyItem(final Provision provision) {
+    public static Optional<Item> getConnObjectKeyItem(final Provision provision) {
         Mapping mapping = null;
         if (provision != null) {
             mapping = provision.getMapping();
@@ -60,17 +60,20 @@ public final class MappingUtils {
                 : mapping.getConnObjectKeyItem();
     }
 
-    public static Stream<? extends Item> getPropagationItems(final Stream<? extends Item> items) {
+    public static Stream<Item> getPropagationItems(final Stream<Item> items) {
         return items.filter(
                 item -> item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH);
     }
 
-    public static Stream<? extends Item> getPullItems(final Stream<? extends Item> items) {
+    public static Stream<Item> getPullItems(final Stream<Item> items) {
         return items.filter(
                 item -> item.getPurpose() == MappingPurpose.PULL || item.getPurpose() == MappingPurpose.BOTH);
     }
 
-    public static List<ItemTransformer> getItemTransformers(final Item item) {
+    public static List<ItemTransformer> getItemTransformers(
+            final Item item,
+            final List<Implementation> transformers) {
+
         List<ItemTransformer> result = new ArrayList<>();
 
         // First consider the JEXL transformation expressions
@@ -86,7 +89,7 @@ public final class MappingUtils {
         }
 
         // Then other custom transformers
-        item.getTransformers().forEach(impl -> {
+        transformers.forEach(impl -> {
             try {
                 result.add(ImplementationManager.build(impl));
             } catch (Exception e) {
@@ -106,7 +109,7 @@ public final class MappingUtils {
      * @see OperationOptions
      */
     public static OperationOptions buildOperationOptions(
-            final Stream<? extends Item> items,
+            final Stream<Item> items,
             final String... moreAttrsToGet) {
 
         OperationOptionsBuilder builder = new OperationOptionsBuilder();

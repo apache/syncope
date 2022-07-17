@@ -18,6 +18,13 @@
  */
 package org.apache.syncope.client.enduser.panels.any;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.syncope.client.enduser.layout.CustomizationOption;
@@ -36,13 +43,6 @@ import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 

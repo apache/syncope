@@ -60,6 +60,16 @@ public final class AMEntitlement {
 
     public static final String AUTH_MODULE_DELETE = "AUTH_MODULE_DELETE";
 
+    public static final String ATTR_REPO_LIST = "ATTR_REPO_LIST";
+
+    public static final String ATTR_REPO_CREATE = "ATTR_REPO_CREATE";
+
+    public static final String ATTR_REPO_READ = "ATTR_REPO_READ";
+
+    public static final String ATTR_REPO_UPDATE = "ATTR_REPO_UPDATE";
+
+    public static final String ATTR_REPO_DELETE = "ATTR_REPO_DELETE";
+
     public static final String SAML2_IDP_ENTITY_SET = "SAML2_IDP_ENTITY_SET";
 
     public static final String SAML2_IDP_ENTITY_LIST = "SAML2_IDP_ENTITY_LIST";

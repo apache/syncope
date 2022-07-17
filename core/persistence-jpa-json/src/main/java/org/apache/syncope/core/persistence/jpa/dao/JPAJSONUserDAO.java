@@ -27,10 +27,8 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUser;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -38,7 +36,10 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUser;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 
@@ -56,6 +57,7 @@ public class JPAJSONUserDAO extends JPAUserDAO {
             final RealmDAO realmDAO,
             final GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
+            final FIQLQueryDAO fiqlQueryDAO,
             final SecurityProperties securityProperties,
             final JPAJSONAnyDAO anyDAO) {
 
@@ -68,6 +70,7 @@ public class JPAJSONUserDAO extends JPAUserDAO {
                 realmDAO,
                 groupDAO,
                 delegationDAO,
+                fiqlQueryDAO,
                 securityProperties);
         this.anyDAO = anyDAO;
     }

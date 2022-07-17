@@ -18,11 +18,15 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-public class SimpleMfaAuthModuleConf implements AuthModuleConf {
+import java.util.Map;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
+
+public class SimpleMfaAuthModuleConf implements MFAAuthModuleConf {
+
     private static final long serialVersionUID = -7663257599139312426L;
 
     private long timeToKillInSeconds = 30L;
-    
+
     private int tokenLength = 6;
 
     private String bypassGroovyScript;
@@ -34,6 +38,11 @@ public class SimpleMfaAuthModuleConf implements AuthModuleConf {
     private String emailSubject;
 
     private String emailText;
+
+    @Override
+    public String getFriendlyName() {
+        return "CAS Simple Multifactor Authentication";
+    }
 
     public String getEmailFrom() {
         return emailFrom;
@@ -89,5 +98,10 @@ public class SimpleMfaAuthModuleConf implements AuthModuleConf {
 
     public void setTokenLength(final int tokenLength) {
         this.tokenLength = tokenLength;
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
+        return mapper.map(authModule, this);
     }
 }

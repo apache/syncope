@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.rest.cxf.service.wa;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
@@ -37,7 +37,7 @@ public class GoogleMfaAuthTokenServiceImpl extends AbstractService implements Go
     }
 
     @Override
-    public void delete(final OffsetDateTime expirationDate) {
+    public void delete(final LocalDateTime expirationDate) {
         if (expirationDate == null) {
             logic.deleteAll();
         } else {

@@ -39,13 +39,14 @@ public class GuardedStringSerializerTest extends AbstractTest {
     private static final String ENCRYPTED_BYTES = "encryptedBytes";
 
     private static final String BASE64_SHA1_HASH = "base64SHA1Hash";
-    
+
     private final GuardedStringSerializer serializer = new GuardedStringSerializer();
-    
+
     @Test
     public void serialize(
-            @Mock JsonGenerator jgen, 
-            @Mock SerializerProvider sp) throws IOException {
+            final @Mock JsonGenerator jgen,
+            final @Mock SerializerProvider sp) throws IOException {
+
         serializer.serialize(new GuardedString(), jgen, sp);
         verify(jgen).writeBooleanField(READONLY, false);
         verify(jgen).writeBooleanField(DISPOSED, false);

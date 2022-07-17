@@ -23,10 +23,13 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.to.ConnIdObjectClass;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
@@ -52,9 +55,10 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
                 final ResourceTO resource,
                 final AnyTypeKind anyType,
                 final String type,
-                final IModel<List<SearchClause>> model) {
+                final IModel<List<SearchClause>> model,
+                final PageReference pageRef) {
 
-            super(model);
+            super(model, pageRef);
             this.resource = resource;
             this.anyType = anyType;
             this.typeName = type;
@@ -74,6 +78,16 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
     protected ConnObjectSearchPanel(final String id, final AnyTypeKind kind, final String type, final Builder builder) {
         super(id, kind, type, builder);
         this.resource = builder.resource;
+    }
+
+    @Override
+    protected AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
+        return SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder();
+    }
+
+    @Override
+    protected String getFIQLQueryTarget() {
+        return "CONN_OBJ";
     }
 
     @Override
@@ -105,11 +119,11 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
             @Override
             protected Map<String, PlainSchemaTO> load() {
                 return connectorRestClient.buildObjectClassInfo(
-                    connectorRestClient.read(resource.getConnector()), false).stream().
-                    map(ConnIdObjectClassTO::getAttributes).
-                    flatMap(List::stream).
-                    collect(Collectors.toMap(PlainSchemaTO::getKey, Function.identity(),
-                        (schema1, schema2) -> schema1));
+                        connectorRestClient.read(resource.getConnector()), false).stream().
+                        map(ConnIdObjectClass::getAttributes).
+                        flatMap(List::stream).
+                        collect(Collectors.toMap(PlainSchemaTO::getKey, Function.identity(),
+                                (schema1, schema2) -> schema1));
             }
         };
     }

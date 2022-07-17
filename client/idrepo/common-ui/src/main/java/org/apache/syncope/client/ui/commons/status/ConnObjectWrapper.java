@@ -20,7 +20,7 @@ package org.apache.syncope.client.ui.commons.status;
 
 import java.io.Serializable;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 
 public class ConnObjectWrapper implements Serializable {
 
@@ -30,9 +30,9 @@ public class ConnObjectWrapper implements Serializable {
 
     private final String resource;
 
-    private final ConnObjectTO connObjectTO;
+    private final ConnObject connObjectTO;
 
-    public ConnObjectWrapper(final AnyTO any, final String resource, final ConnObjectTO connObjectTO) {
+    public ConnObjectWrapper(final AnyTO any, final String resource, final ConnObject connObjectTO) {
         this.any = any;
         this.resource = resource;
         this.connObjectTO = connObjectTO;
@@ -46,7 +46,7 @@ public class ConnObjectWrapper implements Serializable {
         return resource;
     }
 
-    public ConnObjectTO getConnObjectTO() {
+    public ConnObject getConnObjectTO() {
         return connObjectTO;
     }
 

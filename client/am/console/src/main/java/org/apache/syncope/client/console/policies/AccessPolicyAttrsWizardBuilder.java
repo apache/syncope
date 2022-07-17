@@ -19,12 +19,15 @@
 package org.apache.syncope.client.console.policies;
 
 import java.io.Serializable;
+import java.util.List;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wizards.AttrWizardBuilder;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
+import org.danekja.java.util.function.serializable.SerializableFunction;
 
 public class AccessPolicyAttrsWizardBuilder extends AttrWizardBuilder {
 
@@ -32,11 +35,11 @@ public class AccessPolicyAttrsWizardBuilder extends AttrWizardBuilder {
 
     private final AccessPolicyTO accessPolicy;
 
-    private final AccessPolicyAttrsDirectoryPanel.AttrsAccessor attrsAccessor;
+    private final SerializableFunction<AccessPolicyConf, List<Attr>> attrsAccessor;
 
     public AccessPolicyAttrsWizardBuilder(
             final AccessPolicyTO accessPolicy,
-            final AccessPolicyAttrsDirectoryPanel.AttrsAccessor attrsAccessor,
+            final SerializableFunction<AccessPolicyConf, List<Attr>> attrsAccessor,
             final Attr attr,
             final PageReference pageRef) {
 

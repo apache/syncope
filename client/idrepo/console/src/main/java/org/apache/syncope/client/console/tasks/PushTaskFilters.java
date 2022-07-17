@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.panels.search.MapOfListModel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -38,7 +39,7 @@ public class PushTaskFilters extends WizardStep {
 
     private static final long serialVersionUID = 855618618337931784L;
 
-    public PushTaskFilters(final PushTaskWrapper pushTaskWrapper) {
+    public PushTaskFilters(final PushTaskWrapper pushTaskWrapper, final PageReference pageRef) {
         super();
 
         final LoadableDetachableModel<List<AnyTypeTO>> types = new LoadableDetachableModel<>() {
@@ -59,19 +60,19 @@ public class PushTaskFilters extends WizardStep {
             protected void populateItem(final ListItem<AnyTypeTO> item) {
                 final String key = item.getModelObject().getKey();
                 item.add(new Accordion("filters", List.of(
-                    new AbstractTab(new StringResourceModel(
-                        "filters", this, new Model<>(item.getModelObject()))) {
+                        new AbstractTab(new StringResourceModel(
+                                "filters", this, new Model<>(item.getModelObject()))) {
 
-                        private static final long serialVersionUID = 1037272333056449378L;
+                    private static final long serialVersionUID = 1037272333056449378L;
 
-                        @Override
-                        public Panel getPanel(final String panelId) {
-                            return new AnyObjectSearchPanel.Builder(
-                                key, new MapOfListModel<>(pushTaskWrapper, "filterClauses", key)).
+                    @Override
+                    public Panel getPanel(final String panelId) {
+                        return new AnyObjectSearchPanel.Builder(
+                                key, new MapOfListModel<>(pushTaskWrapper, "filterClauses", key), pageRef).
                                 required(false).build(panelId);
-                        }
-                    }), Model.of(StringUtils.isBlank(pushTaskWrapper.getFilters().get(key)) ? -1 : 0))
-                    .setOutputMarkupId(true));
+                    }
+                }), Model.of(StringUtils.isBlank(pushTaskWrapper.getFilters().get(key)) ? -1 : 0))
+                        .setOutputMarkupId(true));
             }
         });
     }

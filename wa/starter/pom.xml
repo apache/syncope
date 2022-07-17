@@ -140,6 +140,10 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-jpa-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-ldap</artifactId>
     </dependency>
     <dependency>
@@ -157,6 +161,10 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-person-directory</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-person-directory-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
@@ -238,6 +246,14 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-gauth</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-gauth-ldap</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-ldap-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
@@ -420,6 +436,11 @@ under the License.
           <artifactId>syncope-common-keymaster-client-self</artifactId>
           <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </dependency>        
       </dependencies>
 
       <build>
@@ -431,6 +452,7 @@ under the License.
             <artifactId>spring-boot-maven-plugin</artifactId>
             <configuration>
               <jvmArguments>
+                -Djavax.net.ssl.trustStore=${basedir}/../../fit/wa-reference/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password
                 -Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n
               </jvmArguments>
               <profiles>

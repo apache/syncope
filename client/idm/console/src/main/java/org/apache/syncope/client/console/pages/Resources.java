@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.ResourceDirectoryPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -32,7 +33,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import java.io.Serializable;
 
 public class Resources extends Panel {
 

@@ -22,6 +22,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
@@ -32,14 +33,20 @@ import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.saml2.SAML2LoginResponse;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.SAML2SP4UIIdPActions;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -51,9 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
-import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
-import org.apache.syncope.core.provisioning.api.SAML2SP4UIIdPActions;
 
 public class SAML2SP4UIUserManager {
 
@@ -67,6 +71,8 @@ public class SAML2SP4UIUserManager {
 
     protected final UserDAO userDAO;
 
+    protected final ImplementationDAO implementationDAO;
+
     protected final IntAttrNameParser intAttrNameParser;
 
     protected final TemplateUtils templateUtils;
@@ -79,6 +85,7 @@ public class SAML2SP4UIUserManager {
             final SAML2SP4UIIdPDAO idpDAO,
             final InboundMatcher inboundMatcher,
             final UserDAO userDAO,
+            final ImplementationDAO implementationDAO,
             final IntAttrNameParser intAttrNameParser,
             final TemplateUtils templateUtils,
             final UserProvisioningManager provisioningManager,
@@ -87,6 +94,7 @@ public class SAML2SP4UIUserManager {
         this.idpDAO = idpDAO;
         this.inboundMatcher = inboundMatcher;
         this.userDAO = userDAO;
+        this.implementationDAO = implementationDAO;
         this.intAttrNameParser = intAttrNameParser;
         this.templateUtils = templateUtils;
         this.provisioningManager = provisioningManager;
@@ -111,7 +119,7 @@ public class SAML2SP4UIUserManager {
                 collect(Collectors.toList());
     }
 
-    private List<SAML2SP4UIIdPActions> getActions(final SAML2SP4UIIdP idp) {
+    protected List<SAML2SP4UIIdPActions> getActions(final SAML2SP4UIIdP idp) {
         List<SAML2SP4UIIdPActions> actions = new ArrayList<>();
         idp.getActions().forEach(impl -> {
             try {
@@ -122,6 +130,13 @@ public class SAML2SP4UIUserManager {
         });
 
         return actions;
+    }
+
+    protected List<Implementation> getTransformers(final Item item) {
+        return item.getTransformers().stream().
+                map(implementationDAO::find).
+                filter(Objects::nonNull).
+                collect(Collectors.toList());
     }
 
     public void fill(final String idpKey, final SAML2LoginResponse loginResponse, final UserTO userTO) {
@@ -138,7 +153,7 @@ public class SAML2SP4UIUserManager {
                 values = samlAttr.get().getValues();
 
                 List<Object> transformed = new ArrayList<>(values);
-                for (ItemTransformer transformer : MappingUtils.getItemTransformers(item)) {
+                for (ItemTransformer transformer : MappingUtils.getItemTransformers(item, getTransformers(item))) {
                     transformed = transformer.beforePull(null, userTO, transformed);
                 }
                 values.clear();

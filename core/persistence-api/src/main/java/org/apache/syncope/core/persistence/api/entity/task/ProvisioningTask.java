@@ -21,8 +21,8 @@ package org.apache.syncope.core.persistence.api.entity.task;
 import java.util.List;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface ProvisioningTask extends SchedTask {
 

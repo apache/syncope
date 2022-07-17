@@ -18,12 +18,17 @@
  */
 package org.apache.syncope.common.lib.wa;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 
 public class WAClientApp implements BaseBean {
@@ -33,6 +38,8 @@ public class WAClientApp implements BaseBean {
     private ClientAppTO clientAppTO;
 
     private AccessPolicyTO accessPolicy;
+
+    private final List<AuthModuleTO> authModules = new ArrayList<>();
 
     private AuthPolicyTO authPolicy;
 
@@ -54,6 +61,12 @@ public class WAClientApp implements BaseBean {
 
     public void setAccessPolicy(final AccessPolicyTO accessPolicy) {
         this.accessPolicy = accessPolicy;
+    }
+
+    @JacksonXmlElementWrapper(localName = "authModules")
+    @JacksonXmlProperty(localName = "authModule")
+    public List<AuthModuleTO> getAuthModules() {
+        return authModules;
     }
 
     public AuthPolicyTO getAuthPolicy() {

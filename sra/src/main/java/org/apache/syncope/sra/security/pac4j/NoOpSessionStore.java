@@ -19,7 +19,6 @@
 package org.apache.syncope.sra.security.pac4j;
 
 import java.util.Optional;
-
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 

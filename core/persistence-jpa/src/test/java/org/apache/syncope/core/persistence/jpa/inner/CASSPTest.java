@@ -18,26 +18,24 @@
  */
 package org.apache.syncope.core.persistence.jpa.inner;
 
-import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import java.util.UUID;
+import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
+import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
-
 @Transactional("Master")
 public class CASSPTest extends AbstractClientAppTest {
 
     @Autowired
-    private CASSPDAO casspDAO;
+    private CASSPClientAppDAO casspDAO;
 
     @Test
     public void find() {
@@ -63,10 +61,9 @@ public class CASSPTest extends AbstractClientAppTest {
         int afterCount = casspDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
 
-
         rp = casspDAO.findByName("CAS");
         assertNotNull(rp);
-        
+
         rp = casspDAO.findByClientAppId(rp.getClientAppId());
         assertNotNull(rp);
 

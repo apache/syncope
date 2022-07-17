@@ -25,17 +25,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.client.console.PreferenceManager;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.ui.commons.rest.RestClient;
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
+import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -66,7 +66,7 @@ public abstract class DirectoryPanel<
     /**
      * Number of rows per page.
      */
-    protected int rows;
+    protected Integer rows;
 
     /**
      * Container used to refresh table.
@@ -184,6 +184,7 @@ public abstract class DirectoryPanel<
 
             send(DirectoryPanel.this, Broadcast.EXACT, data);
 
+            displayAttributeModal.size(Modal.Size.Default);
             modal.show(false);
         });
         displayAttributeModal.size(Modal.Size.Default);
@@ -273,8 +274,8 @@ public abstract class DirectoryPanel<
     protected void updateResultTable(final boolean create, final int rows) {
         dataProvider = dataProvider();
 
-        final int currentPage = Optional.ofNullable(resultTable)
-                .map(table -> (create ? (int) table.getPageCount() - 1 : (int) table.getCurrentPage())).orElse(0);
+        int currentPage = Optional.ofNullable(resultTable).
+                map(table -> (create ? (int) table.getPageCount() - 1 : (int) table.getCurrentPage())).orElse(0);
 
         // take care of restClient handle: maybe not useful to keep into
         AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<>(
@@ -325,7 +326,7 @@ public abstract class DirectoryPanel<
     @Override
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof EventDataWrapper) {
-            final EventDataWrapper data = (EventDataWrapper) event.getPayload();
+            EventDataWrapper data = (EventDataWrapper) event.getPayload();
 
             if (data.getRows() < 1) {
                 updateResultTable(data.isCreate());
@@ -342,7 +343,7 @@ public abstract class DirectoryPanel<
 
     @Override
     protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
-        final EventDataWrapper data = new EventDataWrapper();
+        EventDataWrapper data = new EventDataWrapper();
         data.setTarget(target);
         data.setRows(rows);
         send(getParent(), Broadcast.BREADTH, data);

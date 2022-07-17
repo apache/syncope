@@ -42,9 +42,9 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.DelegationCheck
 @DelegationCheck
 public class JPADelegation extends AbstractGeneratedKeyEntity implements Delegation {
 
-    public static final String TABLE = "Delegation";
-
     private static final long serialVersionUID = 17988340419552L;
+
+    public static final String TABLE = "Delegation";
 
     @ManyToOne(optional = false)
     private JPAUser delegating;

@@ -21,7 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
+import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 
 public abstract class AbstractAuthProfileLogic extends AbstractTransactionalLogic<AuthProfileTO> {

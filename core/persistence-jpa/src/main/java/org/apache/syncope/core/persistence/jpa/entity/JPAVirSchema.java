@@ -26,12 +26,10 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.LinkingMappingItem;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
 
 @Entity
 @Table(name = JPAVirSchema.TABLE)
@@ -49,7 +47,11 @@ public class JPAVirSchema extends AbstractSchema implements VirSchema {
 
     @NotNull
     @ManyToOne
-    private JPAProvision provision;
+    private JPAExternalResource resource;
+
+    @NotNull
+    @ManyToOne
+    private JPAAnyType anyType;
 
     @NotNull
     private String extAttrName;
@@ -96,14 +98,25 @@ public class JPAVirSchema extends AbstractSchema implements VirSchema {
     }
 
     @Override
-    public Provision getProvision() {
-        return provision;
+    public ExternalResource getResource() {
+        return resource;
     }
 
     @Override
-    public void setProvision(final Provision provision) {
-        checkType(provision, JPAProvision.class);
-        this.provision = (JPAProvision) provision;
+    public void setResource(final ExternalResource resource) {
+        checkType(resource, JPAExternalResource.class);
+        this.resource = (JPAExternalResource) resource;
+    }
+
+    @Override
+    public AnyType getAnyType() {
+        return anyType;
+    }
+
+    @Override
+    public void setAnyType(final AnyType anyType) {
+        checkType(anyType, JPAAnyType.class);
+        this.anyType = (JPAAnyType) anyType;
     }
 
     @Override
@@ -115,10 +128,4 @@ public class JPAVirSchema extends AbstractSchema implements VirSchema {
     public void setExtAttrName(final String extAttrName) {
         this.extAttrName = extAttrName;
     }
-
-    @Override
-    public MappingItem asLinkingMappingItem() {
-        return new LinkingMappingItem(this);
-    }
-
 }

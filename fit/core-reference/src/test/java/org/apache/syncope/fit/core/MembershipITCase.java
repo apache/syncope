@@ -26,20 +26,20 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.request.AttrPatch;
-import org.apache.syncope.common.lib.request.GroupCR;
-import org.apache.syncope.common.lib.request.ResourceDR;
-import org.apache.syncope.common.lib.request.MembershipUR;
-import org.apache.syncope.common.lib.request.UserCR;
-import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.MembershipUR;
+import org.apache.syncope.common.lib.request.ResourceDR;
+import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -48,9 +48,9 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -151,7 +151,7 @@ public class MembershipITCase extends AbstractITCase {
             assertTrue(userTO.getMemberships().isEmpty());
         } finally {
             if (userTO != null) {
-                userService.delete(userTO.getKey());
+                USER_SERVICE.delete(userTO.getKey());
             }
         }
     }
@@ -169,7 +169,7 @@ public class MembershipITCase extends AbstractITCase {
         UserTO user = createUser(userCR).getEntity();
         assertNotNull(user.getKey());
 
-        userService.delete(user.getKey());
+        USER_SERVICE.delete(user.getKey());
     }
 
     @Test
@@ -206,20 +206,20 @@ public class MembershipITCase extends AbstractITCase {
         assertFalse(membership.getDerAttr("noschema").get().getValues().isEmpty());
 
         // now remove the group -> all related memberships should have been removed as well
-        groupService.delete(groupTO.getKey());
+        GROUP_SERVICE.delete(groupTO.getKey());
 
         // re-read user and verify that no memberships are available any more
-        user = userService.read(user.getKey());
+        user = USER_SERVICE.read(user.getKey());
         assertTrue(user.getMemberships().isEmpty());
     }
 
     @Test
     public void pull() {
         // 0. create ad-hoc resource, with adequate mapping
-        ResourceTO newResource = resourceService.read(RESOURCE_NAME_DBPULL);
+        ResourceTO newResource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBPULL);
         newResource.setKey(getUUIDString());
 
-        ItemTO item = newResource.getProvision("USER").get().getMapping().getItems().stream().
+        Item item = newResource.getProvision("USER").get().getMapping().getItems().stream().
                 filter(object -> "firstname".equals(object.getIntAttrName())).findFirst().get();
         assertNotNull(item);
         assertEquals("ID", item.getExtAttrName());
@@ -261,32 +261,32 @@ public class MembershipITCase extends AbstractITCase {
             req.setKey(user.getKey());
             req.setAction(ResourceDeassociationAction.UNLINK);
             req.getResources().add(newResource.getKey());
-            assertNotNull(parseBatchResponse(userService.deassociate(req)));
+            assertNotNull(parseBatchResponse(USER_SERVICE.deassociate(req)));
 
-            userService.delete(user.getKey());
+            USER_SERVICE.delete(user.getKey());
 
             // 4. create pull task and execute
-            newTask = taskService.read(TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", true);
+            newTask = TASK_SERVICE.read(TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", true);
             newTask.setResource(newResource.getKey());
             newTask.setDestinationRealm("/even/two");
 
-            Response response = taskService.create(TaskType.PULL, newTask);
+            Response response = TASK_SERVICE.create(TaskType.PULL, newTask);
             newTask = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
             assertNotNull(newTask);
 
             ExecTO execution = AbstractTaskITCase.execProvisioningTask(
-                    taskService, TaskType.PULL, newTask.getKey(), MAX_WAIT_SECONDS, false);
+                    TASK_SERVICE, TaskType.PULL, newTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             // 5. verify that pulled user has
-            if (ElasticsearchDetector.isElasticSearchEnabled(adminClient.platform())) {
+            if (ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform())) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
                     // ignore
                 }
             }
-            PagedResult<UserTO> users = userService.search(new AnyQuery.Builder().
+            PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().
                     realm("/").
                     fiql(SyncopeClient.getUserSearchConditionBuilder().
                             is("username").equalTo(user.getUsername()).query()).build());
@@ -299,9 +299,9 @@ public class MembershipITCase extends AbstractITCase {
             fail(e::getMessage);
         } finally {
             if (newTask != null && !"83f7e85d-9774-43fe-adba-ccd856312994".equals(newTask.getKey())) {
-                taskService.delete(TaskType.PULL, newTask.getKey());
+                TASK_SERVICE.delete(TaskType.PULL, newTask.getKey());
             }
-            resourceService.delete(newResource.getKey());
+            RESOURCE_SERVICE.delete(newResource.getKey());
         }
     }
 

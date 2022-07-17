@@ -22,25 +22,25 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmsUtils;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
+import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
-import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -93,7 +93,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
         wizardModel.add(new Profile(modelObject));
         if (modelObject instanceof PushTaskTO) {
             wrapper = new PushTaskWrapper(PushTaskTO.class.cast(modelObject));
-            wizardModel.add(new PushTaskFilters(wrapper));
+            wizardModel.add(new PushTaskFilters(wrapper, pageRef));
         }
         wizardModel.add(new Schedule(modelObject));
         return wizardModel;
@@ -197,7 +197,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
             final AjaxSearchFieldPanel destinationRealm =
                     new AjaxSearchFieldPanel("destinationRealm", "destinationRealm",
-                        new PropertyModel<>(taskTO, "destinationRealm"), settings) {
+                            new PropertyModel<>(taskTO, "destinationRealm"), settings) {
 
                 private static final long serialVersionUID = -6390474600233486704L;
 
@@ -233,7 +233,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             }
 
             final AjaxSearchFieldPanel sourceRealm = new AjaxSearchFieldPanel("sourceRealm", "sourceRealm",
-                new PropertyModel<>(taskTO, "sourceRealm"), settings) {
+                    new PropertyModel<>(taskTO, "sourceRealm"), settings) {
 
                 private static final long serialVersionUID = -6390474600233486704L;
 
@@ -265,7 +265,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().
                     setAllowMoveAll(true).setAllowOrder(true).
                     build("actions",
-                        new PropertyModel<>(taskTO, "actions"),
+                            new PropertyModel<>(taskTO, "actions"),
                             new ListModel<>(taskTO instanceof PushTaskTO
                                     ? pushActions.getObject() : pullActions.getObject()));
             actions.setOutputMarkupId(true);

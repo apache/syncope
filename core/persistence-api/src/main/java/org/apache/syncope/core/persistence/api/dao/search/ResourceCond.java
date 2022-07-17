@@ -29,25 +29,25 @@ public class ResourceCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = 466054166309460002L;
 
-    private String resourceKey;
+    private String resource;
 
-    public String getResourceKey() {
-        return resourceKey;
+    public String getResource() {
+        return resource;
     }
 
-    public void setResourceKey(final String resourceKey) {
-        this.resourceKey = resourceKey;
+    public void setResource(final String resource) {
+        this.resource = resource;
     }
 
     @Override
     public final boolean isValid() {
-        return resourceKey != null;
+        return resource != null;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                append(resourceKey).
+                append(resource).
                 build();
     }
 
@@ -64,14 +64,14 @@ public class ResourceCond extends AbstractSearchCond {
         }
         final ResourceCond other = (ResourceCond) obj;
         return new EqualsBuilder().
-                append(resourceKey, other.resourceKey).
+                append(resource, other.resource).
                 build();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this).
-                append(resourceKey).
+                append(resource).
                 build();
     }
 }

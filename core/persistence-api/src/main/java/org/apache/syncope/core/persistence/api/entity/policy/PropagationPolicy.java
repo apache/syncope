@@ -22,6 +22,10 @@ import org.apache.syncope.common.lib.types.BackOffStrategy;
 
 public interface PropagationPolicy extends Policy {
 
+    boolean isPrefetch();
+
+    void setPrefetch(boolean prefetch);
+
     BackOffStrategy getBackOffStrategy();
 
     void setBackOffStrategy(BackOffStrategy backOffStrategy);

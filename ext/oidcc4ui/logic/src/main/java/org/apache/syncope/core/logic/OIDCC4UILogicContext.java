@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import org.apache.syncope.core.logic.init.OIDCC4UILoader;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
@@ -55,6 +56,7 @@ public class OIDCC4UILogicContext {
     public OIDCUserManager oidcUserManager(
             final InboundMatcher inboundMatcher,
             final UserDAO userDAO,
+            final ImplementationDAO implementationDAO,
             final IntAttrNameParser intAttrNameParser,
             final TemplateUtils templateUtils,
             final UserProvisioningManager provisioningManager,
@@ -63,6 +65,7 @@ public class OIDCC4UILogicContext {
         return new OIDCUserManager(
                 inboundMatcher,
                 userDAO,
+                implementationDAO,
                 intAttrNameParser,
                 templateUtils,
                 provisioningManager,
@@ -79,7 +82,7 @@ public class OIDCC4UILogicContext {
             final OIDCUserManager userManager) {
 
         return new OIDCC4UILogic(oidcClientCache, authDataAccessor,
-            accessTokenDataBinder, opDAO, userManager);
+                accessTokenDataBinder, opDAO, userManager);
     }
 
     @ConditionalOnMissingBean

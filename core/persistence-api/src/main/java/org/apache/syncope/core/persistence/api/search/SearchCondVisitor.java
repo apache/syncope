@@ -33,10 +33,6 @@ import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
 import org.apache.syncope.common.lib.search.SyncopeFiqlSearchCondition;
-import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
-import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
@@ -44,9 +40,13 @@ import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
+import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
+import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
+import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 
 /**
  * Visits CXF's {@link SearchBean} and produces {@link SearchCond}.
@@ -157,10 +157,10 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             auxClassCond.setAuxClass(value);
                             leaf = SearchCond.getLeaf(auxClassCond);
                             break;
-                            
+
                         case RESOURCES:
                             ResourceCond resourceCond = new ResourceCond();
-                            resourceCond.setResourceKey(value);
+                            resourceCond.setResource(value);
                             leaf = SearchCond.getLeaf(resourceCond);
                             break;
 

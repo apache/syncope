@@ -52,7 +52,7 @@ import org.mockito.Mock;
 public class JexlUtilsTest extends AbstractTest {
 
     @Mock
-    JexlContext context;
+    private JexlContext context;
 
     private String expression;
 
@@ -73,20 +73,20 @@ public class JexlUtilsTest extends AbstractTest {
 
     @Test
     public void evaluate() {
-        String result = StringUtils.EMPTY;
-        assertEquals(result, JexlUtils.evaluate(expression, context));
+        assertEquals(StringUtils.EMPTY, JexlUtils.evaluate(expression, context));
 
         expression = "6 * 12 + 5 / 2.6";
-        result = "73.92307692307692";
+        double result = 73.92307692307692;
         assertEquals(result, JexlUtils.evaluate(expression, context));
     }
 
     @Test
     public void addFieldsToContext(
-            @Mock Any<?> any,
-            @Mock AnyTO anyTO,
-            @Mock Realm realm,
-            @Mock RealmTO realmTO) {
+            final @Mock Any<?> any,
+            final @Mock AnyTO anyTO,
+            final @Mock Realm realm,
+            final @Mock RealmTO realmTO) {
+
         JexlUtils.addFieldsToContext(new Exception(), context);
         verify(context, times(2)).set(eq("cause"), any());
 
@@ -132,16 +132,17 @@ public class JexlUtilsTest extends AbstractTest {
     }
 
     @Test
-    public void addPlainAttrsToContext(@Mock Collection<? extends PlainAttr<?>> attrs) {
+    public void addPlainAttrsToContext(final @Mock Collection<? extends PlainAttr<?>> attrs) {
         JexlUtils.addPlainAttrsToContext(attrs, context);
         verify(context, times(0)).set(anyString(), any());
     }
 
     @Test
     public void addDerAttrsToContext(
-            @Mock DerAttrHandler derAttrHandler,
-            @Mock Any<?> any,
-            @Mock DerSchema derSchema) {
+            final @Mock DerAttrHandler derAttrHandler,
+            final @Mock Any<?> any,
+            final @Mock DerSchema derSchema) {
+
         Map<DerSchema, String> derAttrs = new HashMap<>();
         derAttrs.put(derSchema, expression);
 
@@ -152,10 +153,11 @@ public class JexlUtilsTest extends AbstractTest {
 
     @Test
     public void evaluateMandatoryCondition(
-            @Mock DerAttrHandler derAttrHandler,
-            @Mock Any<?> any,
-            @Mock DerSchema derSchema,
-            @Mock Collection<? extends PlainAttr<?>> plainAttrs) {
+            final @Mock DerAttrHandler derAttrHandler,
+            final @Mock Any<?> any,
+            final @Mock DerSchema derSchema,
+            final @Mock Collection<? extends PlainAttr<?>> plainAttrs) {
+
         Map<DerSchema, String> derAttrs = new HashMap<>();
         derAttrs.put(derSchema, expression);
 

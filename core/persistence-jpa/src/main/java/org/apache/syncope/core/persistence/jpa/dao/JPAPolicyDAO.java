@@ -20,9 +20,13 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -33,7 +37,6 @@ import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.policy.AbstractPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
@@ -72,9 +75,24 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
     protected final ExternalResourceDAO resourceDAO;
 
-    public JPAPolicyDAO(final RealmDAO realmDAO, final ExternalResourceDAO resourceDAO) {
+    protected final CASSPClientAppDAO casSPClientAppDAO;
+
+    protected final OIDCRPClientAppDAO oidcRPClientAppDAO;
+
+    protected final SAML2SPClientAppDAO saml2SPClientAppDAO;
+
+    public JPAPolicyDAO(
+            final RealmDAO realmDAO,
+            final ExternalResourceDAO resourceDAO,
+            final CASSPClientAppDAO casSPClientAppDAO,
+            final OIDCRPClientAppDAO oidcRPClientAppDAO,
+            final SAML2SPClientAppDAO saml2SPClientAppDAO) {
+
         this.realmDAO = realmDAO;
         this.resourceDAO = resourceDAO;
+        this.casSPClientAppDAO = casSPClientAppDAO;
+        this.oidcRPClientAppDAO = oidcRPClientAppDAO;
+        this.saml2SPClientAppDAO = saml2SPClientAppDAO;
     }
 
     @SuppressWarnings("unchecked")
@@ -155,37 +173,33 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
     @Override
     public <T extends Policy> void delete(final T policy) {
-        realmDAO.findByPolicy(policy).forEach(realm -> {
-            if (policy instanceof AccountPolicy) {
-                realm.setAccountPolicy(null);
-            } else if (policy instanceof PasswordPolicy) {
-                realm.setPasswordPolicy(null);
-            } else if (policy instanceof AuthPolicy) {
-                realm.setAuthPolicy(null);
-            } else if (policy instanceof AccessPolicy) {
-                realm.setAccessPolicy(null);
-            } else if (policy instanceof AttrReleasePolicy) {
-                realm.setAttrReleasePolicy(null);
-            }
-        });
-
-        if (!(policy instanceof AuthPolicy)
-                && !(policy instanceof AttrReleasePolicy)
-                && !(policy instanceof AccessPolicy)) {
-
-            resourceDAO.findByPolicy(policy).forEach(resource -> {
-                if (policy instanceof AccountPolicy) {
-                    resource.setAccountPolicy(null);
-                } else if (policy instanceof PasswordPolicy) {
-                    resource.setPasswordPolicy(null);
-                } else if (policy instanceof PropagationPolicy) {
-                    resource.setPropagationPolicy(null);
-                } else if (policy instanceof PullPolicy) {
-                    resource.setPullPolicy(null);
-                } else if (policy instanceof PushPolicy) {
-                    resource.setPushPolicy(null);
-                }
-            });
+        if (policy instanceof AccountPolicy) {
+            realmDAO.findByPolicy(policy).forEach(realm -> realm.setAccountPolicy(null));
+            resourceDAO.findByPolicy(policy).forEach(resource -> resource.setAccountPolicy(null));
+        } else if (policy instanceof PasswordPolicy) {
+            realmDAO.findByPolicy(policy).forEach(realm -> realm.setPasswordPolicy(null));
+            resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPasswordPolicy(null));
+        } else if (policy instanceof PropagationPolicy) {
+            resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPropagationPolicy(null));
+        } else if (policy instanceof PullPolicy) {
+            resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPullPolicy(null));
+        } else if (policy instanceof PushPolicy) {
+            resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPushPolicy(null));
+        } else if (policy instanceof AuthPolicy) {
+            realmDAO.findByPolicy(policy).forEach(realm -> realm.setAuthPolicy(null));
+            casSPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setAuthPolicy(null));
+            oidcRPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setAuthPolicy(null));
+            saml2SPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setAuthPolicy(null));
+        } else if (policy instanceof AccessPolicy) {
+            realmDAO.findByPolicy(policy).forEach(realm -> realm.setAccessPolicy(null));
+            casSPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setAccessPolicy(null));
+            oidcRPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setAccessPolicy(null));
+            saml2SPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setAccessPolicy(null));
+        } else if (policy instanceof AttrReleasePolicy) {
+            realmDAO.findByPolicy(policy).forEach(realm -> realm.setAttrReleasePolicy(null));
+            casSPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setAttrReleasePolicy(null));
+            oidcRPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setAttrReleasePolicy(null));
+            saml2SPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setAttrReleasePolicy(null));
         }
 
         entityManager().remove(policy);

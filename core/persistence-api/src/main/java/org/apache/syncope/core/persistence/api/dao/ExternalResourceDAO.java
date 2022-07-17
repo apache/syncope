@@ -19,12 +19,11 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 
 public interface ExternalResourceDAO extends DAO<ExternalResource> {
 
@@ -36,7 +35,7 @@ public interface ExternalResourceDAO extends DAO<ExternalResource> {
 
     List<Provision> findProvisionsByAuxClass(AnyTypeClass anyTypeClass);
 
-    List<MappingItem> findByTransformer(Implementation transformer);
+    boolean anyItemHaving(Implementation transformer);
 
     List<ExternalResource> findByPropagationActions(Implementation propagationActions);
 
@@ -49,5 +48,4 @@ public interface ExternalResourceDAO extends DAO<ExternalResource> {
     void deleteMapping(String schemaName);
 
     void delete(String key);
-
 }

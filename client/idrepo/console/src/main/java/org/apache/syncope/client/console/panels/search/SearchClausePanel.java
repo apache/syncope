@@ -35,21 +35,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.search.SearchClause.Comparator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Operator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Type;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxEventBehavior;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.SchemaUtils;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
-import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.client.ui.commons.SchemaUtils;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -57,7 +57,6 @@ import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
@@ -291,12 +290,14 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         return groupInfo.getLeft().getObject();
 
                     case ROLE_MEMBERSHIP:
-                        return roleNames.getObject().stream().
-                                sorted().collect(Collectors.toList());
+                        return Optional.ofNullable(roleNames).
+                                map(r -> r.getObject().stream().sorted().collect(Collectors.toList())).
+                                orElse(List.of());
 
                     case PRIVILEGE:
-                        return privilegeNames.getObject().stream().
-                                sorted().collect(Collectors.toList());
+                        return Optional.ofNullable(privilegeNames).
+                                map(p -> p.getObject().stream().sorted().collect(Collectors.toList())).
+                                orElse(List.of());
 
                     case AUX_CLASS:
                         return auxClassNames.getObject().stream().
@@ -369,11 +370,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     public FieldPanel<SearchClause> setNewModel(final IModel<SearchClause> model) {
         clause = model;
         return super.setNewModel(model);
-    }
-
-    @Override
-    public final MarkupContainer add(final Component... childs) {
-        return super.add(childs);
     }
 
     @Override
@@ -901,7 +897,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         if (plainSchema == null) {
             PlainSchemaTO defaultPlainTO = new PlainSchemaTO();
             defaultPlainTO.setType(AttrSchemaType.String);
-            plainSchema = dnames.getObject().getOrDefault(property.getModelObject(), defaultPlainTO);
+            plainSchema = property.getModelObject() == null ? defaultPlainTO
+                    : dnames.getObject().getOrDefault(property.getModelObject(), defaultPlainTO);
         }
 
         switch (plainSchema.getType()) {

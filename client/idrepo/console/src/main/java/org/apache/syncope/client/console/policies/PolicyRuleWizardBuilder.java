@@ -23,14 +23,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.ComposablePolicy;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.RuleConf;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -171,7 +171,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
         }
     }
 
-    public static class Configuration extends WizardStep {
+    public class Configuration extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 
@@ -185,7 +185,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
                     return rule.getConf();
                 }
             };
-            add(new BeanPanel<>("bean", bean).setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", bean, pageRef).setRenderBodyOnly(true));
         }
     }
 }

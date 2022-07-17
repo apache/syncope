@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
 import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
@@ -30,9 +29,10 @@ import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.DynRealmWrapper;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -89,33 +89,33 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
             protected void populateItem(final ListItem<AnyTypeTO> item) {
                 final String key = item.getModelObject().getKey();
                 item.add(new Accordion("dynMembershipCond", List.of(
-                    new AbstractTab(Model.of(key + " Dynamic Condition")) {
+                        new AbstractTab(Model.of(key + " Dynamic Condition")) {
 
-                        private static final long serialVersionUID = 1037272333056449378L;
+                    private static final long serialVersionUID = 1037272333056449378L;
 
-                        @Override
-                        public Panel getPanel(final String panelId) {
-                            switch (item.getModelObject().getKind()) {
-                                case USER:
-                                    return new UserSearchPanel.Builder(
-                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key)).
+                    @Override
+                    public Panel getPanel(final String panelId) {
+                        switch (item.getModelObject().getKind()) {
+                            case USER:
+                                return new UserSearchPanel.Builder(
+                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key), pageRef).
                                         required(false).build(panelId);
 
-                                case GROUP:
-                                    return new GroupSearchPanel.Builder(
-                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key)).
+                            case GROUP:
+                                return new GroupSearchPanel.Builder(
+                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key), pageRef).
                                         required(false).build(panelId);
 
-                                case ANY_OBJECT:
-                                default:
-                                    return new AnyObjectSearchPanel.Builder(
+                            case ANY_OBJECT:
+                            default:
+                                return new AnyObjectSearchPanel.Builder(
                                         key,
-                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key)).
+                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key), pageRef).
                                         required(false).build(panelId);
-                            }
                         }
-                    }), Model.of(StringUtils.isBlank(dynRealmWrapper.getDynMembershipConds().get(key)) ? -1 : 0)).
-                    setOutputMarkupId(true));
+                    }
+                }), Model.of(StringUtils.isBlank(dynRealmWrapper.getDynMembershipConds().get(key)) ? -1 : 0)).
+                        setOutputMarkupId(true));
             }
         });
     }

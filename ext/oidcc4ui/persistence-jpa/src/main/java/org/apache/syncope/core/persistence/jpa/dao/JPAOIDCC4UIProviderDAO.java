@@ -21,10 +21,10 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
+import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.jpa.entity.JPAOIDCC4UIProvider;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
-import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 
 public class JPAOIDCC4UIProviderDAO extends AbstractDAO<OIDCC4UIProvider> implements OIDCC4UIProviderDAO {
 
@@ -62,6 +62,7 @@ public class JPAOIDCC4UIProviderDAO extends AbstractDAO<OIDCC4UIProvider> implem
 
     @Override
     public OIDCC4UIProvider save(final OIDCC4UIProvider op) {
+        ((JPAOIDCC4UIProvider) op).list2json();
         return entityManager().merge(op);
     }
 

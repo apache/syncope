@@ -26,11 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.Query;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -41,8 +39,8 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
-import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -121,7 +119,7 @@ public class RoleTest extends AbstractTest {
         role.add(realmDAO.getRoot());
         role.add(realmDAO.findByFullPath("/even/two"));
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
-        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 
         DynRoleMembership dynMembership = entityFactory.newEntity(DynRoleMembership.class);
         dynMembership.setFIQLCond("cool==true");
@@ -144,9 +142,7 @@ public class RoleTest extends AbstractTest {
         // 3. verify that expected users have the created role dynamically assigned
         List<String> members = roleDAO.findDynMembers(actual);
         assertEquals(2, members.size());
-        assertEquals(
-                Set.of("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey),
-                new HashSet<>(members));
+        assertEquals(Set.of("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey), new HashSet<>(members));
 
         user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
         assertNotNull(user);
@@ -185,7 +181,7 @@ public class RoleTest extends AbstractTest {
         role.add(realmDAO.getRoot());
         role.add(realmDAO.findByFullPath("/even/two"));
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
-        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 
         role = roleDAO.save(role);
         assertNotNull(role);
@@ -228,7 +224,7 @@ public class RoleTest extends AbstractTest {
 
         delegation = delegationDAO.find(delegation.getKey());
 
-        assertEquals(Collections.singletonList(delegation), delegationDAO.findByRole(reviewer));
+        assertEquals(List.of(delegation), delegationDAO.findByRole(reviewer));
 
         roleDAO.delete(reviewer.getKey());
 

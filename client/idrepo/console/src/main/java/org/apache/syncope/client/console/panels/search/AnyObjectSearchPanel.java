@@ -25,13 +25,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -46,8 +49,8 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
         private final String type;
 
-        public Builder(final String type, final IModel<List<SearchClause>> model) {
-            super(model);
+        public Builder(final String type, final IModel<List<SearchClause>> model, final PageReference pageRef) {
+            super(model, pageRef);
             this.type = type;
         }
 
@@ -63,6 +66,16 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
     protected AnyObjectSearchPanel(final String id, final AnyTypeKind kind, final String type, final Builder builder) {
         super(id, kind, type, builder);
+    }
+
+    @Override
+    protected AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
+        return SyncopeClient.getAnyObjectSearchConditionBuilder(type);
+    }
+
+    @Override
+    protected String getFIQLQueryTarget() {
+        return type;
     }
 
     @Override

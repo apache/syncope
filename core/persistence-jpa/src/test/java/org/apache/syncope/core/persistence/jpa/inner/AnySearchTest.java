@@ -37,25 +37,25 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
-import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
-import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
+import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
+import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
+import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -65,12 +65,12 @@ import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -168,7 +168,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchWithNotCondition_AttrCond() {
+    public void searchWithNotAttrCond() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.EQ);
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("Giuseppe Verdi");
@@ -186,7 +186,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchWithNotCondition_AnyCond() {
+    public void searchWithNotAnyCond() {
         AnyCond usernameLeafCond = new AnyCond(AttrCond.Type.EQ);
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("verdi");
@@ -375,10 +375,10 @@ public class AnySearchTest extends AbstractTest {
     @Test
     public void searchByResource() {
         ResourceCond ws2 = new ResourceCond();
-        ws2.setResourceKey("ws-target-resource-2");
+        ws2.setResource("ws-target-resource-2");
 
         ResourceCond ws1 = new ResourceCond();
-        ws1.setResourceKey("ws-target-resource-list-mappings-2");
+        ws1.setResource("ws-target-resource-list-mappings-2");
 
         SearchCond searchCondition = SearchCond.getAnd(SearchCond.getNotLeaf(ws2), SearchCond.getLeaf(ws1));
         assertTrue(searchCondition.isValid());
@@ -712,10 +712,10 @@ public class AnySearchTest extends AbstractTest {
     @Test
     public void issue202() {
         ResourceCond ws2 = new ResourceCond();
-        ws2.setResourceKey("ws-target-resource-2");
+        ws2.setResource("ws-target-resource-2");
 
         ResourceCond ws1 = new ResourceCond();
-        ws1.setResourceKey("ws-target-resource-list-mappings-1");
+        ws1.setResource("ws-target-resource-list-mappings-1");
 
         SearchCond searchCondition =
                 SearchCond.getAnd(SearchCond.getNotLeaf(ws2), SearchCond.getNotLeaf(ws1));

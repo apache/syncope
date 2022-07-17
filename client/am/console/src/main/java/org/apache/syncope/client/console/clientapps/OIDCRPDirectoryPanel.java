@@ -33,7 +33,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 public class OIDCRPDirectoryPanel extends ClientAppDirectoryPanel<OIDCRPClientAppTO> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -9182884609300468766L;
 
     public OIDCRPDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, ClientAppType.OIDCRP, pageRef);
@@ -53,6 +53,8 @@ public class OIDCRPDirectoryPanel extends ClientAppDirectoryPanel<OIDCRPClientAp
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("redirectUris", this), "redirectUris", "redirectUris"));
         columns.add(new BooleanConditionColumn<>(new StringResourceModel("logout")) {
+
+            private static final long serialVersionUID = -8236820422411536323L;
 
             @Override
             protected boolean isCondition(final IModel<OIDCRPClientAppTO> rowModel) {

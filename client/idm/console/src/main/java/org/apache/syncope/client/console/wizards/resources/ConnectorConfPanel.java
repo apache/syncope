@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.syncope.common.lib.to.ConnBundleTO;
+import org.apache.syncope.common.lib.to.ConnIdBundle;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -29,9 +29,9 @@ public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInsta
 
     private static final long serialVersionUID = -2025535531121434050L;
 
-    private final List<ConnBundleTO> bundles;
+    private final List<ConnIdBundle> bundles;
 
-    public ConnectorConfPanel(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
+    public ConnectorConfPanel(final ConnInstanceTO connInstanceTO, final List<ConnIdBundle> bundles) {
         super(connInstanceTO);
         this.bundles = bundles;
 

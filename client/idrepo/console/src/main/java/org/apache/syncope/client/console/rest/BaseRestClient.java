@@ -20,12 +20,11 @@ package org.apache.syncope.client.console.rest;
 
 import java.net.URI;
 import java.util.Optional;
-
 import javax.ws.rs.core.HttpHeaders;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.types.ExecStatus;

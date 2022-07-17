@@ -20,10 +20,10 @@ package org.apache.syncope.fit.core.reference;
 
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 public class DateToLongItemTransformer implements ItemTransformer {
@@ -31,21 +31,21 @@ public class DateToLongItemTransformer implements ItemTransformer {
     @Override
     public Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
             final Item item,
-            final Entity entity,
+            final Any<?> any,
             final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
 
         if (values == null || values.isEmpty() || values.get(0).getDateValue() == null) {
-            return ItemTransformer.super.beforePropagation(item, entity, schemaType, values);
-        } else {
-            values.get(0).setLongValue(values.get(0).getDateValue().toInstant().toEpochMilli());
-            values.get(0).setBinaryValue(null);
-            values.get(0).setBooleanValue(null);
-            values.get(0).setDateValue(null);
-            values.get(0).setDoubleValue(null);
-            values.get(0).setStringValue(null);
-
-            return Pair.of(AttrSchemaType.Long, values);
+            return ItemTransformer.super.beforePropagation(item, any, schemaType, values);
         }
+
+        values.get(0).setLongValue(values.get(0).getDateValue().toInstant().toEpochMilli());
+        values.get(0).setBinaryValue(null);
+        values.get(0).setBooleanValue(null);
+        values.get(0).setDateValue(null);
+        values.get(0).setDoubleValue(null);
+        values.get(0).setStringValue(null);
+
+        return Pair.of(AttrSchemaType.Long, values);
     }
 }

@@ -26,15 +26,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ConnBundleTO;
+import org.apache.syncope.common.lib.to.ConnIdBundle;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -48,13 +48,13 @@ public class ConnectorDetailsPanel extends WizardStep {
 
     private static final long serialVersionUID = -2435937897614232137L;
 
-    public ConnectorDetailsPanel(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
+    public ConnectorDetailsPanel(final ConnInstanceTO connInstanceTO, final List<ConnIdBundle> bundles) {
         super();
         setOutputMarkupId(true);
 
         boolean isSearchEnabled = RealmsUtils.isSearchEnabled();
 
-        final AutoCompleteSettings settings = new AutoCompleteSettings();
+        AutoCompleteSettings settings = new AutoCompleteSettings();
         settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
         settings.setShowListOnEmptyInput(!isSearchEnabled);
 
@@ -73,10 +73,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                         map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
             }
         };
-
-        realm.setOutputMarkupId(true);
-        realm.addRequiredLabel();
-        add(realm);
+        add(realm.addRequiredLabel().setOutputMarkupId(true));
 
         AjaxTextFieldPanel displayName = new AjaxTextFieldPanel(
                 "displayName", "displayName", new PropertyModel<>(connInstanceTO, "displayName"), false);
@@ -114,7 +111,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                     ((DropDownChoice<String>) location.getField()).setNullValid(false);
                     bundleName.setEnabled(true);
 
-                    List<ConnBundleTO> bundles = ConnectorRestClient.getAllBundles().stream().
+                    List<ConnIdBundle> bundles = ConnectorRestClient.getAllBundles().stream().
                             filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
                             collect(Collectors.toList());
 
@@ -164,7 +161,7 @@ public class ConnectorDetailsPanel extends WizardStep {
 
                 List<String> versions;
                 if (bundles.isEmpty()) {
-                    List<ConnBundleTO> bundles = ConnectorRestClient.getAllBundles().stream().
+                    List<ConnIdBundle> bundles = ConnectorRestClient.getAllBundles().stream().
                             filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
                             collect(Collectors.toList());
                     versions = getVersions(connInstanceTO, bundles);
@@ -210,14 +207,14 @@ public class ConnectorDetailsPanel extends WizardStep {
                 new PropertyModel<>(connInstanceTO.getPoolConf(), "minEvictableIdleTimeMillis")));
     }
 
-    private static List<String> getVersions(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
+    private static List<String> getVersions(final ConnInstanceTO connInstanceTO, final List<ConnIdBundle> bundles) {
         return bundles.stream().filter(object -> object.getLocation().equals(connInstanceTO.getLocation())
                 && object.getBundleName().equals(connInstanceTO.getBundleName())).
-                map(ConnBundleTO::getVersion).collect(Collectors.toList());
+                map(ConnIdBundle::getVersion).collect(Collectors.toList());
     }
 
-    private List<String> getBundles(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
+    private List<String> getBundles(final ConnInstanceTO connInstanceTO, final List<ConnIdBundle> bundles) {
         return bundles.stream().filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
-                map(ConnBundleTO::getBundleName).collect(Collectors.toList());
+                map(ConnIdBundle::getBundleName).collect(Collectors.toList());
     }
 }

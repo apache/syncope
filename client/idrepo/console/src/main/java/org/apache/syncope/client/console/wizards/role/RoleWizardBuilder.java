@@ -28,11 +28,11 @@ import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -98,7 +98,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         return wizardModel;
     }
 
-    public static class Details extends WizardStep {
+    public class Details extends WizardStep {
 
         private static final long serialVersionUID = 5514523040031722255L;
 
@@ -120,7 +120,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
                 @Override
                 public Panel getPanel(final String panelId) {
                     return new UserSearchPanel.Builder(
-                            new PropertyModel<>(modelObject, "dynClauses")).
+                            new PropertyModel<>(modelObject, "dynClauses"), pageRef).
                             required(true).build(panelId);
                 }
             }), Model.of(StringUtils.isBlank(modelObject.getDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
@@ -135,21 +135,21 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         public Entitlements(final RoleTO modelObject) {
             setTitleModel(new ResourceModel("entitlements"));
             add(new AjaxPalettePanel.Builder<String>().build("entitlements",
-                new PropertyModel<>(modelObject, "entitlements") {
+                    new PropertyModel<>(modelObject, "entitlements") {
 
-                    private static final long serialVersionUID = -7809699384012595307L;
+                private static final long serialVersionUID = -7809699384012595307L;
 
-                    @Override
-                    public List<String> getObject() {
-                        return new ArrayList<>(modelObject.getEntitlements());
-                    }
+                @Override
+                public List<String> getObject() {
+                    return new ArrayList<>(modelObject.getEntitlements());
+                }
 
-                    @Override
-                    public void setObject(final List<String> object) {
-                        modelObject.getEntitlements().clear();
-                        modelObject.getEntitlements().addAll(object);
-                    }
-                }, new ListModel<>(RoleRestClient.getAllAvailableEntitlements())).
+                @Override
+                public void setObject(final List<String> object) {
+                    modelObject.getEntitlements().clear();
+                    modelObject.getEntitlements().addAll(object);
+                }
+            }, new ListModel<>(RoleRestClient.getAllAvailableEntitlements())).
                     hideLabel().setOutputMarkupId(true));
         }
     }

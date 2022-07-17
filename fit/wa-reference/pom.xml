@@ -52,6 +52,12 @@ under the License.
       <version>${project.version}</version>
     </dependency>
 
+    <!-- required by JDBC attribute repository -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+    </dependency>
+
     <!-- TEST -->
     <dependency>
       <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
@@ -70,6 +76,12 @@ under the License.
       <artifactId>syncope-sra</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>spring-cloud-starter</artifactId>
+          <groupId>org.springframework.cloud</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.syncope.fit</groupId>

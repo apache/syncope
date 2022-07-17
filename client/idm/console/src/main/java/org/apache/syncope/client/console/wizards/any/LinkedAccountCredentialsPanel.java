@@ -22,7 +22,6 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.boot
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.client.console.commons.LinkedAccountPlainAttrProperty;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -30,6 +29,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPa
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.EntityWrapper;
+import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.ComponentTag;

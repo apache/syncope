@@ -20,12 +20,90 @@ package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
 
     private static final long serialVersionUID = -1969836661359025380L;
+
+    public enum PrincipalAttrRepoMergingStrategy {
+        /**
+         * Replace attributes. Overwrites existing attribute values, if any.
+         */
+        REPLACE,
+        /**
+         * Add attributes.
+         * Retains existing attribute values if any, and ignores values from subsequent sources in the resolution chain.
+         */
+        ADD,
+        /**
+         * No merging.
+         * Doesn't merge attributes, ignores attributes from non-authentication attribute repositories.
+         */
+        NONE,
+        /**
+         * Multivalued attributes.
+         * Combines all values into a single attribute, essentially creating a multi-valued attribute.
+         */
+        MULTIVALUED;
+
+    }
+
+    public static class PrincipalAttrRepoConf implements Serializable {
+
+        private static final long serialVersionUID = 6369987956789092057L;
+
+        private PrincipalAttrRepoMergingStrategy mergingStrategy = PrincipalAttrRepoMergingStrategy.MULTIVALUED;
+
+        private boolean ignoreResolvedAttributes;
+
+        private long expiration;
+
+        private TimeUnit timeUnit = TimeUnit.HOURS;
+
+        private final List<String> attrRepos = new ArrayList<>();
+
+        public PrincipalAttrRepoMergingStrategy getMergingStrategy() {
+            return mergingStrategy;
+        }
+
+        public void setMergingStrategy(final PrincipalAttrRepoMergingStrategy mergingStrategy) {
+            this.mergingStrategy = mergingStrategy;
+        }
+
+        public boolean isIgnoreResolvedAttributes() {
+            return ignoreResolvedAttributes;
+        }
+
+        public void setIgnoreResolvedAttributes(final boolean ignoreResolvedAttributes) {
+            this.ignoreResolvedAttributes = ignoreResolvedAttributes;
+        }
+
+        public long getExpiration() {
+            return expiration;
+        }
+
+        public void setExpiration(final long expiration) {
+            this.expiration = expiration;
+        }
+
+        public TimeUnit getTimeUnit() {
+            return timeUnit;
+        }
+
+        public void setTimeUnit(final TimeUnit timeUnit) {
+            this.timeUnit = timeUnit;
+        }
+
+        @JacksonXmlElementWrapper(localName = "attrRepos")
+        @JacksonXmlProperty(localName = "attrRepo")
+        public List<String> getAttrRepos() {
+            return attrRepos;
+        }
+    }
 
     /**
      * Specify the list of allowed attribute to release.
@@ -36,6 +114,10 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
     private final List<String> excludedAttrs = new ArrayList<>();
 
     private final List<String> includeOnlyAttrs = new ArrayList<>();
+
+    private String principalIdAttr;
+
+    private final PrincipalAttrRepoConf principalAttrRepoConf = new PrincipalAttrRepoConf();
 
     @JacksonXmlElementWrapper(localName = "allowedAttrs")
     @JacksonXmlProperty(localName = "allowedAttr")
@@ -53,5 +135,17 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
     @JacksonXmlProperty(localName = "includeOnlyAttr")
     public List<String> getIncludeOnlyAttrs() {
         return includeOnlyAttrs;
+    }
+
+    public String getPrincipalIdAttr() {
+        return principalIdAttr;
+    }
+
+    public void setPrincipalIdAttr(final String principalIdAttr) {
+        this.principalIdAttr = principalIdAttr;
+    }
+
+    public PrincipalAttrRepoConf getPrincipalAttrRepoConf() {
+        return principalAttrRepoConf;
     }
 }

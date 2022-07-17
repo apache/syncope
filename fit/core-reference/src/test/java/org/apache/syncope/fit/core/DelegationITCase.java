@@ -56,7 +56,7 @@ public class DelegationITCase extends AbstractITCase {
     private DelegationTO create(final DelegationService ds, final DelegationTO delegation) {
         Response response = ds.create(delegation);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
@@ -82,7 +82,7 @@ public class DelegationITCase extends AbstractITCase {
 
         // no dates set -> FAIL
         try {
-            delegationService.create(delegation);
+            DELEGATION_SERVICE.create(delegation);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidEntity, e.getType());
@@ -93,7 +93,7 @@ public class DelegationITCase extends AbstractITCase {
 
         // end before start -> FAIL
         try {
-            delegationService.create(delegation);
+            DELEGATION_SERVICE.create(delegation);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidEntity, e.getType());
@@ -102,42 +102,42 @@ public class DelegationITCase extends AbstractITCase {
         delegation.setEnd(OffsetDateTime.now());
 
         // 2. create delegation
-        delegation = create(delegationService, delegation);
+        delegation = create(DELEGATION_SERVICE, delegation);
         assertNotNull(delegation.getKey());
         assertNotNull(delegation.getEnd());
 
         // 3. verify delegation is reported for users
-        delegating = userService.read(delegating.getKey());
+        delegating = USER_SERVICE.read(delegating.getKey());
         assertEquals(List.of(delegation.getKey()), delegating.getDelegatingDelegations());
         assertEquals(List.of(), delegating.getDelegatedDelegations());
 
-        delegated = userService.read(delegated.getKey());
+        delegated = USER_SERVICE.read(delegated.getKey());
         assertEquals(List.of(), delegated.getDelegatingDelegations());
         assertEquals(List.of(delegation.getKey()), delegated.getDelegatedDelegations());
 
         // 4. update and read delegation
         delegation.setEnd(null);
-        delegationService.update(delegation);
+        DELEGATION_SERVICE.update(delegation);
 
-        delegation = delegationService.read(delegation.getKey());
+        delegation = DELEGATION_SERVICE.read(delegation.getKey());
         assertNull(delegation.getEnd());
 
         // 5. delete delegation
-        delegationService.delete(delegation.getKey());
+        DELEGATION_SERVICE.delete(delegation.getKey());
 
         try {
-            delegationService.read(delegation.getKey());
+            DELEGATION_SERVICE.read(delegation.getKey());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
         // 6. verify delegation is not reported for users
-        delegating = userService.read(delegating.getKey());
+        delegating = USER_SERVICE.read(delegating.getKey());
         assertEquals(List.of(), delegating.getDelegatingDelegations());
         assertEquals(List.of(), delegating.getDelegatedDelegations());
 
-        delegated = userService.read(delegated.getKey());
+        delegated = USER_SERVICE.read(delegated.getKey());
         assertEquals(List.of(), delegated.getDelegatingDelegations());
         assertEquals(List.of(), delegated.getDelegatedDelegations());
     }
@@ -159,7 +159,7 @@ public class DelegationITCase extends AbstractITCase {
         delegation.setDelegated(delegated.getKey());
         delegation.setStart(OffsetDateTime.now());
 
-        DelegationService uds = clientFactory.create(delegating.getUsername(), "password123").
+        DelegationService uds = CLIENT_FACTORY.create(delegating.getUsername(), "password123").
                 getService(DelegationService.class);
 
         // delegating user is not requesting user -> FAIL
@@ -207,22 +207,22 @@ public class DelegationITCase extends AbstractITCase {
         AuditConfTO authLogin = new AuditConfTO();
         authLogin.setKey(authLoginSuccess.toAuditKey());
         authLogin.setActive(true);
-        auditService.create(authLogin);
+        AUDIT_SERVICE.set(authLogin);
 
         // 1. bellini delegates rossini
         DelegationTO delegation = new DelegationTO();
         delegation.setDelegating("bellini");
         delegation.setDelegated("rossini");
         delegation.setStart(OffsetDateTime.now());
-        delegation = create(delegationService, delegation);
+        delegation = create(DELEGATION_SERVICE, delegation);
         assertNotNull(delegation.getKey());
 
         // 2. search users as bellini
-        SyncopeClient bellini = clientFactory.create("bellini", "password");
+        SyncopeClient bellini = CLIENT_FACTORY.create("bellini", "password");
         int forBellini = bellini.getService(UserService.class).search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).getTotalCount();
 
-        SyncopeClient rossini = clientFactory.create("rossini", "password");
+        SyncopeClient rossini = CLIENT_FACTORY.create("rossini", "password");
 
         // 3. search users as rossini
         Triple<Map<String, Set<String>>, List<String>, UserTO> self = rossini.self();
@@ -243,7 +243,7 @@ public class DelegationITCase extends AbstractITCase {
         assertEquals(forBellini, forRossini);
 
         // 4. delete delegation: searching users as rossini does not work, even with delegation
-        delegationService.delete(delegation.getKey());
+        DELEGATION_SERVICE.delete(delegation.getKey());
 
         try {
             rossini.getService(UserService.class).search(
@@ -265,6 +265,6 @@ public class DelegationITCase extends AbstractITCase {
 
         // 6. disable audit
         authLogin.setActive(false);
-        auditService.update(authLogin);
+        AUDIT_SERVICE.set(authLogin);
     }
 }

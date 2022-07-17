@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
@@ -28,14 +28,14 @@ public class ConnObjectDetails extends MultilevelPanel.SecondLevel {
 
     private static final long serialVersionUID = -6532127408741991806L;
 
-    public ConnObjectDetails(final ConnObjectTO connObjectTO) {
+    public ConnObjectDetails(final ConnObject connObjectTO) {
         super();
 
         MultilevelPanel mlp = new MultilevelPanel("details");
         mlp.setFirstLevel(new ConnObjectPanel(
                 MultilevelPanel.FIRST_LEVEL_ID,
                 Pair.<IModel<?>, IModel<?>>of(Model.of(), Model.of()),
-                Pair.of((ConnObjectTO) null, connObjectTO),
+                Pair.of((ConnObject) null, connObjectTO),
                 true));
         add(mlp);
     }

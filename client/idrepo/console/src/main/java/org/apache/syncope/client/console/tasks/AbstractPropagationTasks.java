@@ -25,5 +25,4 @@ public abstract class AbstractPropagationTasks extends AbstractTasks {
     public AbstractPropagationTasks(final String id) {
         super(id);
     }
-
 }

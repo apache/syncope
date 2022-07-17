@@ -49,13 +49,8 @@ public class AuditServiceImpl extends AbstractService implements AuditService {
     }
 
     @Override
-    public void create(final AuditConfTO auditTO) {
-        logic.create(auditTO);
-    }
-
-    @Override
-    public void update(final AuditConfTO auditTO) {
-        logic.update(auditTO);
+    public void set(final AuditConfTO auditTO) {
+        logic.set(auditTO);
     }
 
     @Override

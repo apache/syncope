@@ -24,18 +24,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
@@ -377,10 +376,11 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         }
 
         // Summary, also to be included for FAILURE and ALL, so create it anyway.
-        boolean includeUser = resource.getProvision(anyTypeDAO.findUser()) != null;
-        boolean includeGroup = resource.getProvision(anyTypeDAO.findGroup()) != null;
+        boolean includeUser = resource.getProvision(anyTypeDAO.findUser().getKey()).isPresent();
+        boolean includeGroup = resource.getProvision(anyTypeDAO.findGroup().getKey()).isPresent();
         boolean includeAnyObject = resource.getProvisions().stream().anyMatch(
-                provision -> provision.getAnyType().getKind() == AnyTypeKind.ANY_OBJECT);
+                provision -> !provision.getAnyType().equals(anyTypeDAO.findUser().getKey())
+                && !provision.getAnyType().equals(anyTypeDAO.findGroup().getKey()));
         boolean includeRealm = resource.getOrgUnit() != null;
 
         if (includeUser) {

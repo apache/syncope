@@ -33,12 +33,12 @@ public class PropagationStatus implements BaseBean {
     /**
      * Object before propagation.
      */
-    private ConnObjectTO beforeObj;
+    private ConnObject beforeObj;
 
     /**
      * Object after propagation.
      */
-    private ConnObjectTO afterObj;
+    private ConnObject afterObj;
 
     /**
      * Propagated resource name.
@@ -55,19 +55,19 @@ public class PropagationStatus implements BaseBean {
      */
     private String failureReason;
 
-    public ConnObjectTO getAfterObj() {
+    public ConnObject getAfterObj() {
         return afterObj;
     }
 
-    public void setAfterObj(final ConnObjectTO afterObj) {
+    public void setAfterObj(final ConnObject afterObj) {
         this.afterObj = afterObj;
     }
 
-    public ConnObjectTO getBeforeObj() {
+    public ConnObject getBeforeObj() {
         return beforeObj;
     }
 
-    public void setBeforeObj(final ConnObjectTO beforeObj) {
+    public void setBeforeObj(final ConnObject beforeObj) {
         this.beforeObj = beforeObj;
     }
 

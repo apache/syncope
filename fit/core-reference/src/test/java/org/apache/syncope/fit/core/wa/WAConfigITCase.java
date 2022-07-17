@@ -35,24 +35,24 @@ public class WAConfigITCase extends AbstractITCase {
 
     private static Attr runTest(final List<String> initialValue, final List<String> updatedValue) {
         Attr config = new Attr.Builder(UUID.randomUUID().toString()).values(initialValue).build();
-        waConfigService.set(config);
+        WA_CONFIG_SERVICE.set(config);
 
-        assertFalse(waConfigService.list().isEmpty());
+        assertFalse(WA_CONFIG_SERVICE.list().isEmpty());
 
-        config = waConfigService.get(config.getSchema());
+        config = WA_CONFIG_SERVICE.get(config.getSchema());
         assertNotNull(config);
 
         config = new Attr.Builder(config.getSchema()).values(updatedValue).build();
-        waConfigService.set(config);
+        WA_CONFIG_SERVICE.set(config);
 
-        Attr updatedTO = waConfigService.get(config.getSchema());
+        Attr updatedTO = WA_CONFIG_SERVICE.get(config.getSchema());
         updatedTO.getValues().stream().allMatch(((Collection) updatedValue)::contains);
         return updatedTO;
     }
 
     private static <T extends Serializable> void deleteEntry(final Attr configTO) {
-        waConfigService.delete(configTO.getSchema());
-        assertThrows(SyncopeClientException.class, () -> waConfigService.get(configTO.getSchema()));
+        WA_CONFIG_SERVICE.delete(configTO.getSchema());
+        assertThrows(SyncopeClientException.class, () -> WA_CONFIG_SERVICE.get(configTO.getSchema()));
     }
 
     @Test

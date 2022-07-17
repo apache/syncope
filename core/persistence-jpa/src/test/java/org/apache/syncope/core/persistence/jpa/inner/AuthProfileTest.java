@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -32,10 +33,10 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
+import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
+import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.persistence.jpa.entity.auth.JPAAuthProfile;
+import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthProfile;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -184,7 +185,7 @@ public class AuthProfileTest extends AbstractTest {
     private AuthProfile createAuthProfileWithToken(final String owner, final Integer otp) {
         AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
         profile.setOwner(owner);
-        GoogleMfaAuthToken token = new GoogleMfaAuthToken.Builder().issueDate(OffsetDateTime.now()).token(otp).build();
+        GoogleMfaAuthToken token = new GoogleMfaAuthToken.Builder().issueDate(LocalDateTime.now()).token(otp).build();
         profile.setGoogleMfaAuthTokens(List.of(token));
         return authProfileDAO.save(profile);
     }

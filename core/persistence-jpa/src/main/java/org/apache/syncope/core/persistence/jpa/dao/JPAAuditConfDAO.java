@@ -28,12 +28,12 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.entity.AuditConf;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAuditConf;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAuditConf;
-import org.apache.syncope.core.persistence.api.entity.AuditConf;
-import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 
 public class JPAAuditConfDAO extends AbstractDAO<AuditConf> implements AuditConfDAO {
 

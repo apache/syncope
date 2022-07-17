@@ -22,10 +22,9 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.ws.rs.PathParam;
 
-public class OIDCC4UIProviderTO implements EntityTO, ItemContainerTO {
+public class OIDCC4UIProviderTO extends ItemContainer implements EntityTO {
 
     private static final long serialVersionUID = -1229802774546135794L;
 
@@ -58,8 +57,6 @@ public class OIDCC4UIProviderTO implements EntityTO, ItemContainerTO {
     private boolean updateMatching;
 
     private boolean selfRegUnmatching;
-
-    private final List<ItemTO> items = new ArrayList<>();
 
     private final List<String> actions = new ArrayList<>();
 
@@ -184,41 +181,6 @@ public class OIDCC4UIProviderTO implements EntityTO, ItemContainerTO {
 
     public void setSelfRegUnmatching(final boolean selfRegUnmatching) {
         this.selfRegUnmatching = selfRegUnmatching;
-    }
-
-    @Override
-    public ItemTO getConnObjectKeyItem() {
-        return getItems().stream().filter(ItemTO::isConnObjectKey).findFirst().orElse(null);
-    }
-
-    protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {
-        connObjectItem.setMandatoryCondition("true");
-        connObjectItem.setConnObjectKey(true);
-
-        return this.add(connObjectItem);
-    }
-
-    @Override
-    public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
-        return Optional.ofNullable(connObjectKeyItem).
-                map(this::addConnObjectKeyItem).orElseGet(() -> remove(getConnObjectKeyItem()));
-    }
-
-    @JacksonXmlElementWrapper(localName = "items")
-    @JacksonXmlProperty(localName = "item")
-    @Override
-    public List<ItemTO> getItems() {
-        return items;
-    }
-
-    @Override
-    public boolean add(final ItemTO item) {
-        return Optional.ofNullable(item).
-                filter(itemTO -> this.items.contains(itemTO) || this.items.add(itemTO)).isPresent();
-    }
-
-    public boolean remove(final ItemTO item) {
-        return this.items.remove(item);
     }
 
     @JacksonXmlElementWrapper(localName = "actions")

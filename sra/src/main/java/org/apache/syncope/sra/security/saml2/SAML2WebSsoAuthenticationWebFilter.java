@@ -19,7 +19,6 @@
 package org.apache.syncope.sra.security.saml2;
 
 import java.net.URI;
-
 import org.apache.syncope.sra.security.pac4j.NoOpSessionStore;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import org.apache.syncope.sra.security.web.server.DoNothingIfCommittedServerRedirectStrategy;

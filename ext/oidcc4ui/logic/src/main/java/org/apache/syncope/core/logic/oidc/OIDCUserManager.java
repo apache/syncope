@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic.oidc;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
@@ -29,16 +30,21 @@ import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.OIDCC4UIProviderActions;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -50,9 +56,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.provisioning.api.OIDCC4UIProviderActions;
-import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
-import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProviderItem;
 
 public class OIDCUserManager {
 
@@ -63,6 +66,8 @@ public class OIDCUserManager {
     protected final InboundMatcher inboundMatcher;
 
     protected final UserDAO userDAO;
+
+    protected final ImplementationDAO implementationDAO;
 
     protected final IntAttrNameParser intAttrNameParser;
 
@@ -75,6 +80,7 @@ public class OIDCUserManager {
     public OIDCUserManager(
             final InboundMatcher inboundMatcher,
             final UserDAO userDAO,
+            final ImplementationDAO implementationDAO,
             final IntAttrNameParser intAttrNameParser,
             final TemplateUtils templateUtils,
             final UserProvisioningManager provisioningManager,
@@ -82,6 +88,7 @@ public class OIDCUserManager {
 
         this.inboundMatcher = inboundMatcher;
         this.userDAO = userDAO;
+        this.implementationDAO = implementationDAO;
         this.intAttrNameParser = intAttrNameParser;
         this.templateUtils = templateUtils;
         this.provisioningManager = provisioningManager;
@@ -91,7 +98,7 @@ public class OIDCUserManager {
     @Transactional(readOnly = true)
     public List<String> findMatchingUser(
             final String connObjectKeyValue,
-            final OIDCC4UIProviderItem connObjectKeyItem) {
+            final Item connObjectKeyItem) {
 
         return inboundMatcher.matchByConnObjectKeyValue(
                 connObjectKeyItem, connObjectKeyValue, AnyTypeKind.USER, false, null).stream().
@@ -113,6 +120,13 @@ public class OIDCUserManager {
         return actions;
     }
 
+    protected List<Implementation> getTransformers(final Item item) {
+        return item.getTransformers().stream().
+                map(implementationDAO::find).
+                filter(Objects::nonNull).
+                collect(Collectors.toList());
+    }
+
     public void fill(final OIDCC4UIProvider op, final OIDCLoginResponse loginResponse, final UserTO userTO) {
         op.getItems().forEach(item -> {
             List<String> values = new ArrayList<>();
@@ -121,7 +135,7 @@ public class OIDCUserManager {
                 values.addAll(oidcAttr.get().getValues());
 
                 List<Object> transformed = new ArrayList<>(values);
-                for (ItemTransformer transformer : MappingUtils.getItemTransformers(item)) {
+                for (ItemTransformer transformer : MappingUtils.getItemTransformers(item, getTransformers(item))) {
                     transformed = transformer.beforePull(null, userTO, transformed);
                 }
                 values.clear();

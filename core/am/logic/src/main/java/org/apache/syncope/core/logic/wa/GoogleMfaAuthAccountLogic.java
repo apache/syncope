@@ -21,13 +21,13 @@ package org.apache.syncope.core.logic.wa;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.core.logic.AbstractAuthProfileLogic;
+import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.auth.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.auth.AuthProfile;
+import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,11 +74,12 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
                 stream().
                 allMatch(acct -> acct.getId() == id)).
                 findFirst().
-                ifPresentOrElse(profile -> {
-                    if (profile.getGoogleMfaAuthAccounts().removeIf(acct -> acct.getId() == id)) {
-                        authProfileDAO.save(profile);
-                    }
-                },
+                ifPresentOrElse(
+                        profile -> {
+                            if (profile.getGoogleMfaAuthAccounts().removeIf(acct -> acct.getId() == id)) {
+                                authProfileDAO.save(profile);
+                            }
+                        },
                         () -> {
                             throw new NotFoundException("Could not find account for id " + id);
                         });

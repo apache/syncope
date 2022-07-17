@@ -23,7 +23,7 @@ import java.util.Base64;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -32,19 +32,18 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIEntityFactory;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.api.data.SAML2SP4UIIdPDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdPItem;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIEntityFactory;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
-import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
-import org.apache.syncope.core.provisioning.api.data.SAML2SP4UIIdPDataBinder;
 
 public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
 
@@ -88,8 +87,8 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
 
         idpTO.getItems().forEach(itemTO -> {
             if (itemTO == null) {
-                LOG.error("Null {}", ItemTO.class.getSimpleName());
-                invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
+                LOG.error("Null {}", Item.class.getSimpleName());
+                invalidMapping.getElements().add("Null " + Item.class.getSimpleName());
             } else if (itemTO.getIntAttrName() == null) {
                 requiredValuesMissing.getElements().add("intAttrName");
                 scce.addException(requiredValuesMissing);
@@ -115,7 +114,7 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
                         scce.addException(invalidMandatoryCondition);
                     }
 
-                    SAML2SP4UIIdPItem item = entityFactory.newEntity(SAML2SP4UIIdPItem.class);
+                    Item item = new Item();
                     item.setIntAttrName(itemTO.getIntAttrName());
                     item.setExtAttrName(itemTO.getExtAttrName());
                     item.setMandatoryCondition(itemTO.getMandatoryCondition());
@@ -123,8 +122,21 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
                     item.setPassword(itemTO.isPassword());
                     item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
                     item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
-                    item.setIdP(idp);
                     item.setPurpose(MappingPurpose.NONE);
+
+                    itemTO.getTransformers().forEach(transformerKey -> {
+                        Implementation transformer = implementationDAO.find(transformerKey);
+                        if (transformer == null) {
+                            LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                                    transformerKey);
+                        } else {
+                            item.getTransformers().add(transformer.getKey());
+                        }
+                        // remove all implementations not contained in the TO
+                        item.getTransformers().
+                                removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
+                    });
+
                     if (item.isConnObjectKey()) {
                         if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
                             invalidMapping.getElements().
@@ -137,7 +149,7 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
 
                         idp.setConnObjectKeyItem(item);
                     } else {
-                        idp.add(item);
+                        idp.getItems().add(item);
                     }
                 }
             }
@@ -204,10 +216,9 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
         return idapDAO.save(idp);
     }
 
-    protected static void populateItems(final SAML2SP4UIIdP idp, final SAML2SP4UIIdPTO idpTO) {
+    protected void populateItems(final SAML2SP4UIIdP idp, final SAML2SP4UIIdPTO idpTO) {
         idp.getItems().forEach(item -> {
-            ItemTO itemTO = new ItemTO();
-            itemTO.setKey(item.getKey());
+            Item itemTO = new Item();
             itemTO.setIntAttrName(item.getIntAttrName());
             itemTO.setExtAttrName(item.getExtAttrName());
             itemTO.setMandatoryCondition(item.getMandatoryCondition());
@@ -215,6 +226,7 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
             itemTO.setPassword(item.isPassword());
             itemTO.setPropagationJEXLTransformer(item.getPropagationJEXLTransformer());
             itemTO.setPullJEXLTransformer(item.getPullJEXLTransformer());
+            itemTO.getTransformers().addAll(item.getTransformers());
             itemTO.setPurpose(MappingPurpose.NONE);
 
             if (itemTO.isConnObjectKey()) {

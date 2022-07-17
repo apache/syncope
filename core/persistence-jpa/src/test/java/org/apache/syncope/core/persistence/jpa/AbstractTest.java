@@ -19,19 +19,21 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import javax.persistence.EntityManager;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(classes = { PersistenceTestContext.class })
+@DirtiesContext
 public abstract class AbstractTest {
 
     @Autowired

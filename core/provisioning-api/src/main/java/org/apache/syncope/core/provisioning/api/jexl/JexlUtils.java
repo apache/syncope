@@ -41,15 +41,15 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
@@ -103,16 +103,13 @@ public final class JexlUtils {
         return result;
     }
 
-    public static String evaluate(final String expression, final JexlContext jexlContext) {
-        String result = StringUtils.EMPTY;
+    public static Object evaluate(final String expression, final JexlContext jexlContext) {
+        Object result = null;
 
         if (StringUtils.isNotBlank(expression) && jexlContext != null) {
             try {
                 JexlExpression jexlExpression = getEngine().createExpression(expression);
-                Object evaluated = jexlExpression.evaluate(jexlContext);
-                if (evaluated != null) {
-                    result = evaluated.toString();
-                }
+                result = jexlExpression.evaluate(jexlContext);
             } catch (Exception e) {
                 LOG.error("Error while evaluating JEXL expression: " + expression, e);
             }
@@ -120,7 +117,7 @@ public final class JexlUtils {
             LOG.debug("Expression not provided or invalid context");
         }
 
-        return result;
+        return result == null ? StringUtils.EMPTY : result;
     }
 
     public static void addFieldsToContext(final Object object, final JexlContext jexlContext) {
@@ -254,7 +251,7 @@ public final class JexlUtils {
         addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
         addDerAttrsToContext(any, derAttrHandler, jexlContext);
 
-        return Boolean.parseBoolean(evaluate(mandatoryCondition, jexlContext));
+        return Boolean.parseBoolean(evaluate(mandatoryCondition, jexlContext).toString());
     }
 
     /**

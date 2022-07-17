@@ -46,12 +46,12 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
@@ -79,21 +79,23 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
     private static final long serialVersionUID = 4986172040062752781L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConnObjectListViewPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ConnObjectListViewPanel.class);
 
-    private static final int SIZE = 10;
+    protected static final int SIZE = 10;
 
-    private static final String STATUS = "Status";
+    protected static final String STATUS = "Status";
 
-    private String nextPageCookie;
+    protected String nextPageCookie;
 
-    private AbstractSearchPanel searchPanel;
+    protected AbstractSearchPanel searchPanel;
 
-    private WebMarkupContainer arrows;
+    protected WebMarkupContainer arrows;
 
-    private String anyType;
+    protected String anyType;
 
-    private ResourceTO resource;
+    protected ResourceTO resource;
+
+    protected final PageReference pageRef;
 
     protected ConnObjectListViewPanel(
             final String id,
@@ -105,6 +107,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
         this.anyType = anyType;
         this.resource = resource;
+        this.pageRef = pageRef;
 
         final Model<Integer> model = Model.of(-1);
         final StringResourceModel res = new StringResourceModel("search.result", this, new Model<>(anyType));
@@ -145,58 +148,58 @@ public abstract class ConnObjectListViewPanel extends Panel {
         accordion.setOutputMarkupId(true);
         add(accordion.setEnabled(true).setVisible(true));
 
-        List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, null, null);
+        List<ConnObject> listOfItems = reloadItems(resource.getKey(), anyType, null, null);
 
-        ListViewPanel.Builder<ConnObjectTO> builder = new ListViewPanel.Builder<>(
-            ConnObjectTO.class, pageRef) {
+        ListViewPanel.Builder<ConnObject> builder = new ListViewPanel.Builder<>(
+                ConnObject.class, pageRef) {
 
             private static final long serialVersionUID = -8251750413385566738L;
 
             @Override
-            protected Component getValueComponent(final String key, final ConnObjectTO bean) {
+            protected Component getValueComponent(final String key, final ConnObject bean) {
                 if (StringUtils.equals(key, STATUS)) {
                     ReconStatus status;
                     try {
                         status = ReconciliationRestClient.status(
-                            new ReconQuery.Builder(anyType, resource.getKey()).fiql(bean.getFiql()).build());
+                                new ReconQuery.Builder(anyType, resource.getKey()).fiql(bean.getFiql()).build());
                     } catch (Exception e) {
                         LOG.error("While requesting for reconciliation status of {} {} with FIQL '{}'",
-                            anyType, resource.getKey(), bean.getFiql(), e);
+                                anyType, resource.getKey(), bean.getFiql(), e);
 
                         status = new ReconStatus();
                     }
 
                     return status.getOnSyncope() == null
-                        ? StatusUtils.getLabel("field", "notfound icon", "Not found", Constants.NOT_FOUND_ICON)
-                        : new Label("field", Model.of()).add(new PopoverBehavior(
-                        Model.of(),
-                        Model.of(status.getAnyKey()),
-                        new PopoverConfig().
-                            withTitle(status.getMatchType() == MatchType.LINKED_ACCOUNT
-                                ? MatchType.LINKED_ACCOUNT.name() + ", " + AnyTypeKind.USER
-                                : status.getAnyTypeKind().name()).
-                            withPlacement(TooltipConfig.Placement.left)) {
+                            ? StatusUtils.getLabel("field", "notfound icon", "Not found", Constants.NOT_FOUND_ICON)
+                            : new Label("field", Model.of()).add(new PopoverBehavior(
+                                    Model.of(),
+                                    Model.of(status.getAnyKey()),
+                                    new PopoverConfig().
+                                            withTitle(status.getMatchType() == MatchType.LINKED_ACCOUNT
+                                                    ? MatchType.LINKED_ACCOUNT.name() + ", " + AnyTypeKind.USER
+                                                    : status.getAnyTypeKind().name()).
+                                            withPlacement(TooltipConfig.Placement.left)) {
 
-                        private static final long serialVersionUID = -7867802555691605021L;
+                                private static final long serialVersionUID = -7867802555691605021L;
 
-                        @Override
-                        protected String createRelAttribute() {
-                            return "field";
-                        }
+                                @Override
+                                protected String createRelAttribute() {
+                                    return "field";
+                                }
 
-                        @Override
-                        public void onComponentTag(final Component component, final ComponentTag tag) {
-                            super.onComponentTag(component, tag);
-                            tag.put("class", Constants.ACTIVE_ICON);
-                        }
-                    });
+                                @Override
+                                public void onComponentTag(final Component component, final ComponentTag tag) {
+                                    super.onComponentTag(component, tag);
+                                    tag.put("class", Constants.ACTIVE_ICON);
+                                }
+                            });
                 } else {
                     Optional<Attr> attr =
-                        bean.getAttrs().stream().filter(object -> object.getSchema().equals(key)).findAny();
+                            bean.getAttrs().stream().filter(object -> object.getSchema().equals(key)).findAny();
 
                     return attr.isEmpty() || attr.get().getValues().isEmpty()
-                        ? new Label("field", StringUtils.EMPTY)
-                        : new CollectionPanel("field", attr.get().getValues());
+                            ? new Label("field", StringUtils.EMPTY)
+                            : new CollectionPanel("field", attr.get().getValues());
                 }
             }
 
@@ -208,7 +211,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
             private static final long serialVersionUID = 7511002881490248598L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final ConnObjectTO modelObject) {
+            public void onClick(final AjaxRequestTarget target, final ConnObject modelObject) {
                 viewConnObject(modelObject, target);
             }
         }, ActionLink.ActionType.VIEW, IdMEntitlement.RESOURCE_GET_CONNOBJECT).
@@ -225,22 +228,22 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 private static final long serialVersionUID = 6377238742125L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target, final ConnObjectTO modelObject) {
+                public void onClick(final AjaxRequestTarget target, final ConnObject modelObject) {
                     try {
                         ReconStatus status = ReconciliationRestClient.status(
-                            new ReconQuery.Builder(anyType, resource.getKey()).fiql(modelObject.getFiql()).build());
+                                new ReconQuery.Builder(anyType, resource.getKey()).fiql(modelObject.getFiql()).build());
 
                         pullConnObject(
-                            modelObject.getFiql(),
-                            target,
-                            resource.getKey(),
-                            anyType,
-                            status.getRealm(),
-                            StringUtils.isNotBlank(status.getAnyKey()),
-                            pageRef);
+                                modelObject.getFiql(),
+                                target,
+                                resource.getKey(),
+                                anyType,
+                                status.getRealm(),
+                                StringUtils.isNotBlank(status.getAnyKey()),
+                                pageRef);
                     } catch (Exception e) {
                         LOG.error("While puling single object {} {} with FIQL '{}'",
-                            anyType, resource.getKey(), modelObject.getFiql(), e);
+                                anyType, resource.getKey(), modelObject.getFiql(), e);
 
                         SyncopeConsoleSession.get().onException(e);
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -262,7 +265,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, nextPageCookie, getFiql());
+                List<ConnObject> listOfItems = reloadItems(resource.getKey(), anyType, nextPageCookie, getFiql());
                 target.add(arrows);
                 send(ConnObjectListViewPanel.this, Broadcast.DEPTH, new ListViewReload<>(listOfItems, target));
             }
@@ -279,7 +282,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
         if (event.getPayload() instanceof SearchClausePanel.SearchEvent) {
             this.nextPageCookie = null;
             AjaxRequestTarget target = SearchClausePanel.SearchEvent.class.cast(event.getPayload()).getTarget();
-            List<ConnObjectTO> listOfItems = reloadItems(resource.getKey(), anyType, null, getFiql());
+            List<ConnObject> listOfItems = reloadItems(resource.getKey(), anyType, null, getFiql());
             target.add(arrows);
             send(ConnObjectListViewPanel.this, Broadcast.DEPTH, new ListViewReload<>(listOfItems, target));
         } else {
@@ -287,7 +290,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
         }
     }
 
-    protected abstract void viewConnObject(ConnObjectTO connObjectTO, AjaxRequestTarget target);
+    protected abstract void viewConnObject(ConnObject connObjectTO, AjaxRequestTarget target);
 
     protected abstract void pullConnObject(
             String fiql,
@@ -298,13 +301,14 @@ public abstract class ConnObjectListViewPanel extends Panel {
             boolean isOnSyncope,
             PageReference pageRef);
 
-    private List<ConnObjectTO> reloadItems(
+    protected List<ConnObject> reloadItems(
             final String resource,
             final String anyType,
             final String cookie,
             final String fiql) {
 
-        Pair<String, List<ConnObjectTO>> items = new ResourceRestClient().searchConnObjects(resource,
+        Pair<String, List<ConnObject>> items = new ResourceRestClient().searchConnObjects(
+                resource,
                 anyType,
                 new ConnObjectTOQuery.Builder().
                         size(SIZE).
@@ -316,7 +320,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
         return items.getRight();
     }
 
-    private AbstractSearchPanel getSearchPanel(final String id, final String anyType) {
+    protected AbstractSearchPanel getSearchPanel(final String id, final String anyType) {
         final List<SearchClause> clauses = new ArrayList<>();
         final SearchClause clause = new SearchClause();
         clauses.add(clause);
@@ -331,10 +335,10 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 : AnyTypeRestClient.read(anyType).getKind();
 
         return new ConnObjectSearchPanel.Builder(resource, anyTypeKind, anyType,
-                new ListModel<>(clauses)).required(true).enableSearch().build(id);
+                new ListModel<>(clauses), pageRef).required(true).enableSearch().build(id);
     }
 
-    private String getFiql() {
+    protected String getFiql() {
         return SearchUtils.buildFIQL(
                 searchPanel.getModel().getObject(),
                 SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder(),

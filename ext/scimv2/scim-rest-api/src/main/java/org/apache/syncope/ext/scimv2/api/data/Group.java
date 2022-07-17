@@ -22,9 +22,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.syncope.ext.scimv2.api.type.Function;
-
 import java.util.Optional;
+import org.apache.syncope.ext.scimv2.api.type.Function;
 
 @JsonPropertyOrder({ "value", "$ref", "display", "type" })
 public class Group extends Reference {

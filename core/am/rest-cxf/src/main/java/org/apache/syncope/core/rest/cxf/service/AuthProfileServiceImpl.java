@@ -19,16 +19,15 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
-import org.apache.syncope.common.lib.to.AuthProfileTO;
-import org.apache.syncope.common.rest.api.service.AuthProfileService;
-import org.apache.syncope.core.logic.AuthProfileLogic;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.AuthProfileService;
+import org.apache.syncope.core.logic.AuthProfileLogic;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AuthProfileServiceImpl extends AbstractService implements AuthProfileService {

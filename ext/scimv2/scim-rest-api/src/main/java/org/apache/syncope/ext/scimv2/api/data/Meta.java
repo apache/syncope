@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
 import java.util.Optional;
-
 import javax.ws.rs.core.EntityTag;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 

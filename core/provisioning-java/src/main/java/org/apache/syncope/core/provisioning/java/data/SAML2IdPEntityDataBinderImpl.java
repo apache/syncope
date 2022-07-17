@@ -19,9 +19,9 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Base64;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2IdPEntity;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPEntityDataBinder;
 
 public class SAML2IdPEntityDataBinderImpl implements SAML2IdPEntityDataBinder {

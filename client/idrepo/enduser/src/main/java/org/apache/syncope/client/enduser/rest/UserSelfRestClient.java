@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.client.enduser.rest;
 
+import javax.ws.rs.core.GenericType;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
-import javax.ws.rs.core.GenericType;
 
 public class UserSelfRestClient extends BaseRestClient {
 

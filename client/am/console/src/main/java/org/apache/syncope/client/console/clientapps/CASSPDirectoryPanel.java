@@ -30,7 +30,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 public class CASSPDirectoryPanel extends ClientAppDirectoryPanel<CASSPClientAppTO> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1099982287259118170L;
 
     public CASSPDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, ClientAppType.CASSP, pageRef);

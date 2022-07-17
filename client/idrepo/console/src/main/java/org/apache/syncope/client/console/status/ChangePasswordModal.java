@@ -22,15 +22,15 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wizards.any.StatusPanel;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
-import org.apache.syncope.client.console.wizards.any.StatusPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -58,7 +58,7 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
 
         this.wrapper = wrapper;
 
-        final PasswordPanel passwordPanel = new PasswordPanel("passwordPanel", wrapper, false, false);
+        PasswordPanel passwordPanel = new PasswordPanel("passwordPanel", wrapper, false, false);
         passwordPanel.setOutputMarkupId(true);
         add(passwordPanel);
 
@@ -70,13 +70,13 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
 
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
-        final UserTO inner = wrapper.getInnerObject();
+        UserTO inner = wrapper.getInnerObject();
 
         try {
             if (StringUtils.isBlank(inner.getPassword()) || statusModel.getObject().isEmpty()) {
                 SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
             } else {
-                final List<String> resources = new ArrayList<>();
+                List<String> resources = new ArrayList<>();
                 boolean isOnSyncope = false;
                 for (StatusBean sb : statusModel.getObject()) {
                     if (sb.getResource().equals(Constants.SYNCOPE)) {

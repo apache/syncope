@@ -26,26 +26,25 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
-import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ExecStatus;
-import org.apache.syncope.core.provisioning.api.PropagationByResource;
+import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
-import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
@@ -177,7 +176,7 @@ public class DefaultRealmPushResultHandler
             final String connObjectKey,
             final String connObjectKeyValue,
             final boolean ignoreCaseMatch,
-            final Stream<? extends Item> mapItems) {
+            final Stream<Item> mapItems) {
 
         ConnectorObject obj = null;
         try {
@@ -211,13 +210,13 @@ public class DefaultRealmPushResultHandler
 
         // Try to read remote object BEFORE any actual operation
         OrgUnit orgUnit = profile.getTask().getResource().getOrgUnit();
-        Optional<? extends OrgUnitItem> connObjectKey = orgUnit.getConnObjectKeyItem();
+        Optional<Item> connObjectKey = orgUnit.getConnObjectKeyItem();
         Optional<String> connObjecKeyValue = mappingManager.getConnObjectKeyValue(realm, orgUnit);
 
         ConnectorObject beforeObj = null;
         if (connObjectKey.isPresent() && connObjecKeyValue.isPresent()) {
             beforeObj = getRemoteObject(
-                    orgUnit.getObjectClass(),
+                    new ObjectClass(orgUnit.getObjectClass()),
                     connObjectKey.get().getExtAttrName(),
                     connObjecKeyValue.get(),
                     orgUnit.isIgnoreCaseMatch(),
@@ -399,7 +398,7 @@ public class DefaultRealmPushResultHandler
                     resultStatus = AuditElements.Result.SUCCESS;
                     if (connObjectKey.isPresent() && connObjecKeyValue.isPresent()) {
                         output = getRemoteObject(
-                                orgUnit.getObjectClass(),
+                                new ObjectClass(orgUnit.getObjectClass()),
                                 connObjectKey.get().getExtAttrName(),
                                 connObjecKeyValue.get(),
                                 orgUnit.isIgnoreCaseMatch(),

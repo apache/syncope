@@ -21,37 +21,44 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
 import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxGridFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
-import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.client.ui.commons.DateOps;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxGridFieldPanel;
 import org.apache.syncope.common.lib.Schema;
 import org.apache.syncope.common.lib.report.SearchCondition;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.core.util.lang.PropertyResolver;
+import org.apache.wicket.core.util.lang.PropertyResolverConverter;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -78,14 +85,15 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
     private final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper;
 
-    public BeanPanel(final String id, final IModel<T> bean, final String... excluded) {
-        this(id, bean, null, excluded);
+    public BeanPanel(final String id, final IModel<T> bean, final PageReference pageRef, final String... excluded) {
+        this(id, bean, null, pageRef, excluded);
     }
 
     public BeanPanel(
             final String id,
             final IModel<T> bean,
             final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper,
+            final PageReference pageRef,
             final String... excluded) {
 
         super(id, bean);
@@ -147,32 +155,30 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     switch (scondAnnot.type()) {
                         case "USER":
                             panel = new UserSearchPanel.Builder(
-                                    new ListModel<>(clauses)).required(false).build("value");
+                                    new ListModel<>(clauses), pageRef).required(false).build("value");
                             builder = SyncopeClient.getUserSearchConditionBuilder();
                             break;
 
                         case "GROUP":
                             panel = new GroupSearchPanel.Builder(
-                                    new ListModel<>(clauses)).required(false).build("value");
+                                    new ListModel<>(clauses), pageRef).required(false).build("value");
                             builder = SyncopeClient.getGroupSearchConditionBuilder();
                             break;
 
                         default:
                             panel = new AnyObjectSearchPanel.Builder(
                                     scondAnnot.type(),
-                                    new ListModel<>(clauses)).required(false).build("value");
-                            builder = SyncopeClient.getAnyObjectSearchConditionBuilder(null);
+                                    new ListModel<>(clauses), pageRef).required(false).build("value");
+                            builder = SyncopeClient.getAnyObjectSearchConditionBuilder(scondAnnot.type());
                     }
 
                     if (BeanPanel.this.sCondWrapper != null) {
                         BeanPanel.this.sCondWrapper.put(fieldName, Pair.of(builder, clauses));
                     }
                 } else if (List.class.equals(field.getType())) {
-                    Class<?> listItemType = String.class;
-                    if (field.getGenericType() instanceof ParameterizedType) {
-                        listItemType = (Class<?>) ((ParameterizedType) field.getGenericType()).
-                                getActualTypeArguments()[0];
-                    }
+                    Class<?> listItemType = field.getGenericType() instanceof ParameterizedType
+                            ? (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]
+                            : String.class;
 
                     if (listItemType.equals(String.class) && schemaAnnot != null) {
                         List<SchemaTO> choices = new ArrayList<>();
@@ -247,6 +253,25 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
         } else if (type.isEnum()) {
             result = new AjaxDropDownChoicePanel(id, fieldName, model).setChoices(List.of(type.getEnumConstants()));
+        } else if (Duration.class.equals(type)) {
+            result = new AjaxTextFieldPanel(id, fieldName, new IModel<>() {
+
+                private static final long serialVersionUID = 807008909842554829L;
+
+                @Override
+                public String getObject() {
+                    return Optional.ofNullable(PropertyResolver.getValue(fieldName, bean)).
+                            map(Object::toString).orElse(null);
+                }
+
+                @Override
+                public void setObject(final String object) {
+                    PropertyResolverConverter prc = new PropertyResolverConverter(
+                            SyncopeWebApplication.get().getConverterLocator(),
+                            SyncopeConsoleSession.get().getLocale());
+                    PropertyResolver.setValue(fieldName, bean, Duration.parse(object), prc);
+                }
+            });
         } else {
             // treat as String if nothing matched above
             result = new AjaxTextFieldPanel(id, fieldName, model);

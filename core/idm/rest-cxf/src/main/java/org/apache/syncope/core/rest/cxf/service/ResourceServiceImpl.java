@@ -33,8 +33,8 @@ import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
+import org.apache.syncope.common.lib.to.ConnObject;
+import org.apache.syncope.common.lib.to.PagedConnObjectResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -101,14 +101,14 @@ public class ResourceServiceImpl extends AbstractService implements ResourceServ
     }
 
     @Override
-    public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final String value) {
+    public ConnObject readConnObject(final String key, final String anyTypeKey, final String value) {
         return SyncopeConstants.UUID_PATTERN.matcher(value).matches()
                 ? logic.readConnObjectByAnyKey(key, anyTypeKey, value)
                 : logic.readConnObjectByConnObjectKeyValue(key, anyTypeKey, value);
     }
 
     @Override
-    public PagedConnObjectTOResult searchConnObjects(
+    public PagedConnObjectResult searchConnObjects(
             final String key, final String anyTypeKey, final ConnObjectTOQuery query) {
 
         Filter filter = null;
@@ -134,7 +134,7 @@ public class ResourceServiceImpl extends AbstractService implements ResourceServ
             }
         }
 
-        Pair<SearchResult, List<ConnObjectTO>> list = logic.searchConnObjects(
+        Pair<SearchResult, List<ConnObject>> list = logic.searchConnObjects(
                 filter,
                 moreAttrsToGet,
                 key,
@@ -143,7 +143,7 @@ public class ResourceServiceImpl extends AbstractService implements ResourceServ
                 query.getPagedResultsCookie(),
                 getOrderByClauses(query.getOrderBy()));
 
-        PagedConnObjectTOResult result = new PagedConnObjectTOResult();
+        PagedConnObjectResult result = new PagedConnObjectResult();
         if (list.getLeft() != null) {
             result.setAllResultsReturned(list.getLeft().isAllResultsReturned());
             result.setPagedResultsCookie(list.getLeft().getPagedResultsCookie());

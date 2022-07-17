@@ -19,38 +19,38 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.stream.Collectors;
-import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -356,14 +356,15 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             sce.getElements().add("AnyType " + schemaTO.getAnyType() + " not found");
             throw sce;
         }
-        Provision provision = resource.getProvision(anyType).orElse(null);
+        Provision provision = resource.getProvision(anyType.getKey()).orElse(null);
         if (provision == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSchemaDefinition);
             sce.getElements().add("Provision for AnyType" + schemaTO.getAnyType()
                     + " not found in " + schemaTO.getResource());
             throw sce;
         }
-        schema.setProvision(provision);
+        schema.setResource(resource);
+        schema.setAnyType(anyType);
 
         return virSchemaDAO.save(schema);
     }
@@ -393,8 +394,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         labels(schema, schemaTO);
 
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
-        schemaTO.setResource(schema.getProvision().getResource().getKey());
-        schemaTO.setAnyType(schema.getProvision().getAnyType().getKey());
+        schemaTO.setResource(schema.getResource().getKey());
+        schemaTO.setAnyType(schema.getAnyType().getKey());
 
         return schemaTO;
     }

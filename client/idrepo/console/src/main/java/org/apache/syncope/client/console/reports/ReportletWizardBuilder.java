@@ -21,12 +21,12 @@ package org.apache.syncope.client.console.reports;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.Serializable;
 import java.util.stream.Collectors;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -40,8 +40,8 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.PropertyModel;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 
@@ -62,9 +62,8 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
     protected Serializable onApplyInternal(final ReportletWrapper modelObject) {
         if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
             BeanWrapper confWrapper = PropertyAccessorFactory.forBeanPropertyAccess(modelObject.getConf());
-            modelObject.getSCondWrapper().forEach((fieldName, pair) -> {
-                confWrapper.setPropertyValue(fieldName, SearchUtils.buildFIQL(pair.getRight(), pair.getLeft()));
-            });
+            modelObject.getSCondWrapper().forEach((fieldName, pair) -> confWrapper.setPropertyValue(
+                    fieldName, SearchUtils.buildFIQL(pair.getRight(), pair.getLeft())));
             ImplementationTO reportlet = ImplementationRestClient.read(
                     IdRepoImplementationType.REPORTLET, modelObject.getImplementationKey());
             try {
@@ -127,7 +126,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
         }
     }
 
-    public static class Configuration extends WizardStep {
+    public class Configuration extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 
@@ -141,7 +140,8 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
                     return reportlet.getConf();
                 }
             };
-            add(new BeanPanel<>("bean", bean, reportlet.getSCondWrapper(), Constants.NAME_FIELD_NAME, "reportlet").
+            add(new BeanPanel<>(
+                    "bean", bean, reportlet.getSCondWrapper(), pageRef, Constants.NAME_FIELD_NAME, "reportlet").
                     setRenderBodyOnly(true));
         }
     }

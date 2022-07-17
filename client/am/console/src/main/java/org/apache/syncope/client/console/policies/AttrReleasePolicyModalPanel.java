@@ -18,25 +18,46 @@
  */
 package org.apache.syncope.client.console.policies;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
+import org.apache.syncope.client.console.rest.AttrRepoRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf.PrincipalAttrRepoMergingStrategy;
+import org.apache.syncope.common.lib.to.AttrRepoTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
 public class AttrReleasePolicyModalPanel extends AbstractModalPanel<AttrReleasePolicyTO> {
 
     private static final long serialVersionUID = 1L;
+
+    private final IModel<List<String>> allAttrRepos = new LoadableDetachableModel<>() {
+
+        private static final long serialVersionUID = -2012833443695917883L;
+
+        @Override
+        protected List<String> load() {
+            return AttrRepoRestClient.list().stream().map(AttrRepoTO::getKey).sorted().collect(Collectors.toList());
+        }
+    };
 
     private final IModel<AttrReleasePolicyTO> model;
 
@@ -68,6 +89,43 @@ public class AttrReleasePolicyModalPanel extends AbstractModalPanel<AttrReleaseP
                 "includeOnlyAttrs",
                 "includeOnlyAttrs",
                 includeOnlyAttr));
+
+        add(new AjaxTextFieldPanel(
+                "principalIdAttr", "principalIdAttr",
+                new PropertyModel<>(model.getObject().getConf(), "principalIdAttr")));
+
+        AjaxDropDownChoicePanel<PrincipalAttrRepoMergingStrategy> mergingStrategy = new AjaxDropDownChoicePanel<>(
+                "mergingStrategy", "mergingStrategy",
+                new PropertyModel<>(model.getObject().getConf(), "principalAttrRepoConf.mergingStrategy"));
+        mergingStrategy.setChoices(List.of(PrincipalAttrRepoMergingStrategy.values()));
+        mergingStrategy.addRequiredLabel();
+        mergingStrategy.setNullValid(false);
+        add(mergingStrategy);
+
+        add(new AjaxCheckBoxPanel(
+                "ignoreResolvedAttributes",
+                "ignoreResolvedAttributes",
+                new PropertyModel<>(model.getObject().getConf(), "principalAttrRepoConf.ignoreResolvedAttributes"),
+                false));
+
+        add(new AjaxSpinnerFieldPanel.Builder<Long>().build(
+                "expiration",
+                "expiration",
+                Long.class,
+                new PropertyModel<>(model.getObject().getConf(), "principalAttrRepoConf.expiration")));
+
+        AjaxDropDownChoicePanel<TimeUnit> timeUnit = new AjaxDropDownChoicePanel<>(
+                "timeUnit", "timeUnit",
+                new PropertyModel<>(model.getObject().getConf(), "principalAttrRepoConf.timeUnit"));
+        timeUnit.setChoices(List.of(TimeUnit.values()));
+        timeUnit.addRequiredLabel();
+        timeUnit.setNullValid(false);
+        add(timeUnit);
+
+        add(new AjaxPalettePanel.Builder<String>().setName("attrRepos").build(
+                "attrRepos",
+                new PropertyModel<>(model.getObject().getConf(), "principalAttrRepoConf.attrRepos"),
+                allAttrRepos));
     }
 
     @Override

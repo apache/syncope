@@ -21,9 +21,9 @@ package org.apache.syncope.client.console.wizards.resources;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.list.ConnConfPropertyListView;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -76,7 +76,7 @@ public abstract class AbstractConnConfPanel<T extends EntityTO> extends WizardSt
     }
 
     protected void setConfPropertyListView(final IModel<List<ConnConfProperty>> model, final boolean withOverridable) {
-        propertiesContainer.add(new ConnConfPropertyListView(
+        propertiesContainer.addOrReplace(new ConnConfPropertyListView(
                 "connectorProperties", model, withOverridable).setOutputMarkupId(true));
     }
 

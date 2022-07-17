@@ -78,17 +78,17 @@ public class AnonymousITCase extends AbstractEnduserITCase {
 
             TESTER.assertRenderedPage(SelfResult.class);
 
-            assertFalse(userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+            assertFalse(USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo(username).query()).
                     build()).getResult().isEmpty());
 
-            assertNotNull(userService.read(username));
+            assertNotNull(USER_SERVICE.read(username));
 
             TESTER.cleanupFeedbackMessages();
         } finally {
             // cleanup
             try {
-                userService.delete(username);
+                USER_SERVICE.delete(username);
             } catch (Exception e) {
                 // ignore
             }
@@ -97,10 +97,10 @@ public class AnonymousITCase extends AbstractEnduserITCase {
 
     @Test
     public void selfPasswordReset() {
-        SecurityQuestionTO question = securityQuestionService.read("887028ea-66fc-41e7-b397-620d7ea6dfbb");
+        SecurityQuestionTO question = SECURITY_QUESTION_SERVICE.read("887028ea-66fc-41e7-b397-620d7ea6dfbb");
 
-        UserTO selfpwdreset = userService.read("selfpwdreset");
-        userService.update(new UserUR.Builder(selfpwdreset.getKey()).
+        UserTO selfpwdreset = USER_SERVICE.read("selfpwdreset");
+        USER_SERVICE.update(new UserUR.Builder(selfpwdreset.getKey()).
                 securityQuestion(new StringReplacePatchItem.Builder().value(question.getKey()).build()).
                 securityAnswer(new StringReplacePatchItem.Builder().value("ananswer").build()).
                 build());

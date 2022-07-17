@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.lib.auth;
 
+import java.util.Map;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
+
 public class JaasAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -7775771400318503131L;
@@ -79,5 +82,10 @@ public class JaasAuthModuleConf implements AuthModuleConf {
 
     public void setLoginConfigurationFile(final String loginConfigurationFile) {
         this.loginConfigurationFile = loginConfigurationFile;
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
+        return mapper.map(authModule, this);
     }
 }

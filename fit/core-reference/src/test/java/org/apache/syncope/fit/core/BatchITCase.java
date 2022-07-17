@@ -194,7 +194,7 @@ public class BatchITCase extends AbstractITCase {
         String boundary = "--batch_" + UUID.randomUUID().toString();
 
         Response response = WebClient.create(ADDRESS).path("batch").
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT()).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT()).
                 type(RESTHeaders.multipartMixedWith(boundary.substring(2))).
                 post(requestBody(boundary));
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -216,7 +216,7 @@ public class BatchITCase extends AbstractITCase {
 
         // request async processing
         Response response = WebClient.create(ADDRESS).path("batch").
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT()).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT()).
                 header(RESTHeaders.PREFER, Preference.RESPOND_ASYNC).
                 type(RESTHeaders.multipartMixedWith(boundary.substring(2))).
                 post(requestBody(boundary));
@@ -228,7 +228,7 @@ public class BatchITCase extends AbstractITCase {
         assertNotNull(monitor);
 
         WebClient client = WebClient.create(monitor).
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT()).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT()).
                 type(RESTHeaders.multipartMixedWith(boundary.substring(2)));
 
         AtomicReference<Response> holder = new AtomicReference<>();
@@ -255,13 +255,13 @@ public class BatchITCase extends AbstractITCase {
 
         // check results again: removed since they were returned above
         response = WebClient.create(monitor).
-                header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT()).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT()).
                 type(RESTHeaders.multipartMixedWith(boundary.substring(2))).get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
     private static BatchRequest batchRequest() {
-        BatchRequest batchRequest = adminClient.batch();
+        BatchRequest batchRequest = ADMIN_CLIENT.batch();
 
         // 1. create user as YAML
         UserService batchUserService = batchRequest.getService(UserService.class);

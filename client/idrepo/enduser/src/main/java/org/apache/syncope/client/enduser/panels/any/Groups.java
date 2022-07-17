@@ -18,31 +18,30 @@
  */
 package org.apache.syncope.client.enduser.panels.any;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.rest.GroupRestClient;
+import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroupsModel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.util.ListModel;
-import java.io.Serializable;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import org.apache.commons.collections4.ListUtils;
-import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.util.ListModel;
+import org.danekja.java.util.function.serializable.SerializableFunction;
 
 public class Groups extends Panel {
 
@@ -50,7 +49,7 @@ public class Groups extends Panel {
 
     protected static final int MAX_GROUP_LIST_CARDINALITY = 30;
 
-    private final EnduserGroupsModel groupsModel;
+    protected final EnduserGroupsModel groupsModel;
 
     protected final AnyTO anyTO;
 
@@ -94,8 +93,8 @@ public class Groups extends Panel {
         addDynamicRealmsContainer();
     }
 
-    private Function<AjaxRequestTarget, Boolean> getEventFunction() {
-        return (Function<AjaxRequestTarget, Boolean> & Serializable) (target) -> {
+    protected SerializableFunction<AjaxRequestTarget, Boolean> getEventFunction() {
+        return target -> {
             send(Groups.this.getPage(), Broadcast.BREADTH,
                     new AjaxPalettePanel.UpdateActionEvent((UserTO) anyTO, target));
             return true;
@@ -230,8 +229,5 @@ public class Groups extends Panel {
                 reloadMemberships();
             }
         }
-    }
-
-    public interface SerializableFunction extends Function<AjaxRequestTarget, Boolean>, Serializable {
     }
 }

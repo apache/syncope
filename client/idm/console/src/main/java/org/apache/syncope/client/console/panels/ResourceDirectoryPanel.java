@@ -19,11 +19,16 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.ResourceDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
@@ -35,10 +40,11 @@ import org.apache.syncope.client.console.tasks.PushTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;
 import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -56,12 +62,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import java.io.Serializable;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 public class ResourceDirectoryPanel extends
         DirectoryPanel<Serializable, Serializable, ResourceDataProvider, ResourceRestClient> {
@@ -346,14 +346,8 @@ public class ResourceDirectoryPanel extends
                     ResourceTO resource = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
                     resource.setKey("Copy of " + resource.getKey());
                     // reset some resource objects keys
-                    if (resource.getOrgUnit() != null) {
-                        resource.getOrgUnit().setKey(null);
-                        resource.getOrgUnit().getItems().forEach(item -> item.setKey(null));
-                    }
                     resource.getProvisions().forEach(provision -> {
-                        provision.setKey(null);
                         if (provision.getMapping() != null) {
-                            provision.getMapping().getItems().forEach(item -> item.setKey(null));
                             provision.getMapping().getLinkingItems().clear();
                         }
                         provision.getVirSchemas().clear();

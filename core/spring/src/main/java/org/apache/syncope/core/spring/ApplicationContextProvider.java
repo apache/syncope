@@ -18,12 +18,11 @@
  */
 package org.apache.syncope.core.spring;
 
+import java.util.Optional;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
-
-import java.util.Optional;
 
 public class ApplicationContextProvider implements ApplicationContextAware {
 

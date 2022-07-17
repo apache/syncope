@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wizards.any;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -30,7 +31,7 @@ import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -47,7 +48,6 @@ import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class LinkedAccountDetailsPanel extends WizardStep {
 
@@ -158,7 +158,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
         AtomicReference<String> resourceRemoteKey = new AtomicReference<>(ConnIdSpecialName.NAME);
         try {
             resourceRemoteKey.set(ResourceRestClient.read(resource).getProvision(AnyTypeKind.USER.name()).get().
-                    getMapping().getConnObjectKeyItem().getExtAttrName());
+                    getMapping().getConnObjectKeyItem().get().getExtAttrName());
         } catch (Exception ex) {
             LOG.error("While reading mapping for resource {}", resource, ex);
         }
@@ -168,7 +168,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
             builder.fiql(SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                     is(resourceRemoteKey.get()).equalTo(searchTerm + "*").query()).build();
         }
-        Pair<String, List<ConnObjectTO>> items = ResourceRestClient.searchConnObjects(
+        Pair<String, List<ConnObject>> items = ResourceRestClient.searchConnObjects(
                 resource,
                 AnyTypeKind.USER.name(),
                 builder,

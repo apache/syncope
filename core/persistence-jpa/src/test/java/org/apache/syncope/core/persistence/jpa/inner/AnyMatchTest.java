@@ -22,9 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
@@ -36,11 +38,9 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.junit.jupiter.api.Test;
 
 @Transactional("Master")
 public class AnyMatchTest extends AbstractTest {
@@ -63,10 +63,10 @@ public class AnyMatchTest extends AbstractTest {
         assertNotNull(user);
 
         ResourceCond resourceCond = new ResourceCond();
-        resourceCond.setResourceKey("resource-testdb2");
+        resourceCond.setResource("resource-testdb2");
         assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(resourceCond)));
 
-        resourceCond.setResourceKey("ws-target-resource-delete");
+        resourceCond.setResource("ws-target-resource-delete");
         assertFalse(anyMatcher.matches(user, SearchCond.getLeaf(resourceCond)));
     }
 

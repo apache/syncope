@@ -18,11 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-import org.apache.syncope.common.lib.to.ProvisioningReport;
 import java.util.List;
+import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.quartz.JobExecutionException;
@@ -30,6 +31,7 @@ import org.quartz.JobExecutionException;
 public interface SyncopeSinglePushExecutor {
 
     List<ProvisioningReport> push(
+            ExternalResource resource,
             Provision provision,
             Connector connector,
             Any<?> any,
@@ -37,6 +39,7 @@ public interface SyncopeSinglePushExecutor {
             String executor) throws JobExecutionException;
 
     ProvisioningReport push(
+            ExternalResource resource,
             Provision provision,
             Connector connector,
             LinkedAccount account,

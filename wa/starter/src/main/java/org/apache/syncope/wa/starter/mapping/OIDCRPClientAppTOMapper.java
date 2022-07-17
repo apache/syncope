@@ -40,23 +40,20 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
-import org.apereo.cas.services.ReturnMappedAttributeReleasePolicy;
-import org.apereo.cas.util.spring.ApplicationContextProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
+import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @ClientAppMapFor(clientAppClass = OIDCRPClientAppTO.class)
 public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
-
-    private static final Logger LOG = LoggerFactory.getLogger(OIDCRPClientAppTOMapper.class);
 
     private static final String CUSTOM_SCOPE = "syncope";
 
     @Override
     public RegisteredService map(
+            final ConfigurableApplicationContext ctx,
             final WAClientApp clientApp,
-            final RegisteredServiceAuthenticationPolicy authenticationPolicy,
+            final RegisteredServiceAuthenticationPolicy authPolicy,
+            final RegisteredServiceMultifactorPolicy mfaPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
             final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
 
@@ -74,6 +71,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             service.setIdTokenSigningAlg("none");
         }
         service.setJwtAccessToken(rp.isJwtAccessToken());
+        service.setBypassApprovalPrompt(rp.isBypassApprovalPrompt());
         service.setSupportedGrantTypes(rp.getSupportedGrantTypes().stream().
                 map(OIDCGrantType::name).collect(Collectors.toCollection(HashSet::new)));
         service.setSupportedResponseTypes(rp.getSupportedResponseTypes().stream().
@@ -83,13 +81,12 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         }
         service.setLogoutUrl(rp.getLogoutUri());
 
-        setPolicies(service, authenticationPolicy, accessStrategy, attributeReleasePolicy);
-        if (attributeReleasePolicy != null) {
-            ChainingAttributeReleasePolicy chain = new ChainingAttributeReleasePolicy();
-            if (attributeReleasePolicy instanceof ReturnMappedAttributeReleasePolicy) {
-                chain.addPolicy(attributeReleasePolicy);
-            } else {
-                chain.addPolicy(new ReturnMappedAttributeReleasePolicy(clientApp.getReleaseAttrs()));
+        ChainingAttributeReleasePolicy chain;
+        if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy) {
+            chain = (ChainingAttributeReleasePolicy) attributeReleasePolicy;
+        } else {
+            chain = new ChainingAttributeReleasePolicy();
+            if (attributeReleasePolicy != null) {
                 chain.addPolicy(attributeReleasePolicy);
             }
 
@@ -105,25 +102,20 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             customClaims.removeAll(OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
             customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
             if (!customClaims.isEmpty()) {
-                ApplicationContext ctx = ApplicationContextProvider.getApplicationContext();
-                if (ctx == null) {
-                    LOG.warn("Could not locate the application context to add custom claims {}", customClaims);
-                } else {
-                    CasConfigurationProperties properties = ctx.getBean(CasConfigurationProperties.class);
-                    List<String> supportedClaims = properties.getAuthn().getOidc().getDiscovery().getClaims();
-                    if (!supportedClaims.containsAll(customClaims)) {
-                        properties.getAuthn().getOidc().getDiscovery().setClaims(
-                                Stream.concat(supportedClaims.stream(), customClaims.stream()).
-                                        distinct().collect(Collectors.toList()));
-                    }
-
-                    chain.addPolicy(new OidcCustomScopeAttributeReleasePolicy(
-                            CUSTOM_SCOPE, customClaims.stream().collect(Collectors.toList())));
+                CasConfigurationProperties properties = ctx.getBean(CasConfigurationProperties.class);
+                List<String> supportedClaims = properties.getAuthn().getOidc().getDiscovery().getClaims();
+                if (!supportedClaims.containsAll(customClaims)) {
+                    properties.getAuthn().getOidc().getDiscovery().setClaims(
+                            Stream.concat(supportedClaims.stream(), customClaims.stream()).
+                                    distinct().collect(Collectors.toList()));
                 }
-            }
 
-            service.setAttributeReleasePolicy(chain);
+                chain.addPolicy(new OidcCustomScopeAttributeReleasePolicy(
+                        CUSTOM_SCOPE, customClaims.stream().collect(Collectors.toList())));
+            }
         }
+
+        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, chain);
 
         return service;
     }

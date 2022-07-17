@@ -17,9 +17,10 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.common.lib.request.AnyCR;
-import org.apache.syncope.common.lib.request.AnyUR;
-import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.request.AnyCR
+import org.apache.syncope.common.lib.request.AnyUR
+import org.apache.syncope.common.lib.to.AnyTO
+import org.apache.syncope.common.lib.to.PropagationStatus
 import org.apache.syncope.core.provisioning.api.LogicActions
 
 @CompileStatic
@@ -31,7 +32,7 @@ class MyLogicActions implements LogicActions {
   }
 
   @Override
-  <A extends AnyTO> A afterCreate(A input) {
+  <A extends AnyTO> A afterCreate(A input, List<PropagationStatus> statuses) {
     return input;
   }
 
@@ -41,7 +42,7 @@ class MyLogicActions implements LogicActions {
   }
 
   @Override
-  <A extends AnyTO> A afterUpdate(A input) {
+  <A extends AnyTO> A afterUpdate(A input, List<PropagationStatus> statuses) {
     return input;
   }
 
@@ -51,7 +52,7 @@ class MyLogicActions implements LogicActions {
   }
 
   @Override
-  <A extends AnyTO> A afterDelete(A input) {
+  <A extends AnyTO> A afterDelete(A input, List<PropagationStatus> statuses) {
     return input;
   }
 }

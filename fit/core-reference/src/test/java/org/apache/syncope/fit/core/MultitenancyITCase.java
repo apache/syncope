@@ -37,21 +37,21 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.PullTaskTO;
-import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -83,26 +83,26 @@ public class MultitenancyITCase extends AbstractITCase {
         assertNotNull(initial);
         assumeTrue(initial.stream().anyMatch(domain -> "Two".equals(domain.getKey())));
 
-        clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
+        CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
 
         String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
         if (StringUtils.isNotBlank(envContentType)) {
-            clientFactory.setContentType(envContentType);
+            CLIENT_FACTORY.setContentType(envContentType);
         }
-        LOG.info("Performing IT with content type {}", clientFactory.getContentType().getMediaType());
+        LOG.info("Performing IT with content type {}", CLIENT_FACTORY.getContentType().getMediaType());
 
-        adminClient = clientFactory.create(ADMIN_UNAME, "password2");
+        ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, "password2");
     }
 
     @Test
     public void readPlainSchemas() {
-        assertEquals(1, adminClient.getService(SchemaService.class).
+        assertEquals(1, ADMIN_CLIENT.getService(SchemaService.class).
                 search(new SchemaQuery.Builder().type(SchemaType.PLAIN).build()).size());
     }
 
     @Test
     public void readRealm() {
-        PagedResult<RealmTO> realms = adminClient.getService(RealmService.class).
+        PagedResult<RealmTO> realms = ADMIN_CLIENT.getService(RealmService.class).
                 search(new RealmQuery.Builder().keyword("*").build());
         assertEquals(1, realms.getTotalCount());
         assertEquals(1, realms.getResult().size());
@@ -111,7 +111,7 @@ public class MultitenancyITCase extends AbstractITCase {
 
     @Test
     public void createUser() {
-        assertNull(adminClient.getService(RealmService.class).
+        assertNull(ADMIN_CLIENT.getService(RealmService.class).
                 search(new RealmQuery.Builder().keyword("*").build()).getResult().get(0).getPasswordPolicy());
 
         UserCR userCR = new UserCR();
@@ -119,7 +119,7 @@ public class MultitenancyITCase extends AbstractITCase {
         userCR.setUsername(getUUIDString());
         userCR.setPassword("password");
 
-        Response response = adminClient.getService(UserService.class).create(userCR);
+        Response response = ADMIN_CLIENT.getService(UserService.class).create(userCR);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
         UserTO user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
@@ -130,7 +130,7 @@ public class MultitenancyITCase extends AbstractITCase {
     @Test
     public void createResourceAndPull() {
         // read connector
-        ConnInstanceTO conn = adminClient.getService(ConnectorService.class).
+        ConnInstanceTO conn = ADMIN_CLIENT.getService(ConnectorService.class).
                 read("b7ea96c3-c633-488b-98a0-b52ac35850f7", Locale.ENGLISH.getLanguage());
         assertNotNull(conn);
         assertEquals("LDAP", conn.getDisplayName());
@@ -141,22 +141,22 @@ public class MultitenancyITCase extends AbstractITCase {
         resource.setConnector(conn.getKey());
 
         try {
-            ProvisionTO provisionTO = new ProvisionTO();
+            Provision provisionTO = new Provision();
             provisionTO.setAnyType(AnyTypeKind.USER.name());
             provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provisionTO);
 
-            MappingTO mapping = new MappingTO();
+            Mapping mapping = new Mapping();
             mapping.setConnObjectLink("'uid=' + username + ',ou=people,o=isp'");
             provisionTO.setMapping(mapping);
 
-            ItemTO item = new ItemTO();
+            Item item = new Item();
             item.setIntAttrName("username");
             item.setExtAttrName("cn");
             item.setPurpose(MappingPurpose.BOTH);
             mapping.setConnObjectKeyItem(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setPassword(true);
             item.setIntAttrName("password");
             item.setExtAttrName("userPassword");
@@ -164,23 +164,23 @@ public class MultitenancyITCase extends AbstractITCase {
             item.setMandatoryCondition("true");
             mapping.add(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("key");
             item.setPurpose(MappingPurpose.BOTH);
             item.setExtAttrName("sn");
             item.setMandatoryCondition("true");
             mapping.add(item);
 
-            item = new ItemTO();
+            item = new Item();
             item.setIntAttrName("email");
             item.setPurpose(MappingPurpose.BOTH);
             item.setExtAttrName("mail");
             mapping.add(item);
 
             // create resource
-            Response response = adminClient.getService(ResourceService.class).create(resource);
+            Response response = ADMIN_CLIENT.getService(ResourceService.class).create(resource);
             assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-            resource = adminClient.getService(ResourceService.class).read(resource.getKey());
+            resource = ADMIN_CLIENT.getService(ResourceService.class).read(resource.getKey());
             assertNotNull(resource);
 
             // create pull task
@@ -192,15 +192,15 @@ public class MultitenancyITCase extends AbstractITCase {
             task.setPullMode(PullMode.FULL_RECONCILIATION);
             task.setPerformCreate(true);
 
-            response = adminClient.getService(TaskService.class).create(TaskType.PULL, task);
+            response = ADMIN_CLIENT.getService(TaskService.class).create(TaskType.PULL, task);
             assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-            task = adminClient.getService(TaskService.class).read(TaskType.PULL,
+            task = ADMIN_CLIENT.getService(TaskService.class).read(TaskType.PULL,
                     StringUtils.substringAfterLast(response.getLocation().toASCIIString(), "/"), true);
             assertNotNull(resource);
 
             // pull
             ExecTO execution = AbstractTaskITCase.execProvisioningTask(
-                    adminClient.getService(TaskService.class), TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
+                    ADMIN_CLIENT.getService(TaskService.class), TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
 
             // verify execution status
             String status = execution.getStatus();
@@ -208,39 +208,41 @@ public class MultitenancyITCase extends AbstractITCase {
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(status));
 
             // verify that pulled user is found
-            if (ElasticsearchDetector.isElasticSearchEnabled(anonymusClient.platform())) {
+            if (ElasticsearchDetector.isElasticSearchEnabled(ANONYMOUS_CLIENT.platform())) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
                     // ignore
                 }
             }
-            PagedResult<UserTO> matchingUsers = adminClient.getService(UserService.class).search(new AnyQuery.Builder().
-                    realm(SyncopeConstants.ROOT_REALM).
-                    fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
-                    build());
+            PagedResult<UserTO> matchingUsers = ADMIN_CLIENT.getService(UserService.class).
+                    search(new AnyQuery.Builder().
+                            realm(SyncopeConstants.ROOT_REALM).
+                            fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                    is("username").equalTo("pullFromLDAP").query()).
+                            build());
             assertNotNull(matchingUsers);
             assertEquals(1, matchingUsers.getResult().size());
 
             // SYNCOPE-1374
             String pullFromLDAPKey = matchingUsers.getResult().get(0).getKey();
 
-            assertEquals(0, adminClient.getService(TaskService.class).
+            assertEquals(0, ADMIN_CLIENT.getService(TaskService.class).
                     search(new TaskQuery.Builder(TaskType.PROPAGATION).
                             anyTypeKind(AnyTypeKind.USER).entityKey(pullFromLDAPKey).build()).getSize());
 
             PushTaskTO pushTask = new PushTaskTO();
             pushTask.setPerformUpdate(true);
             pushTask.setMatchingRule(MatchingRule.UPDATE);
-            adminClient.getService(ReconciliationService.class).
+            ADMIN_CLIENT.getService(ReconciliationService.class).
                     push(new ReconQuery.Builder(AnyTypeKind.USER.name(), resource.getKey()).
                             anyKey(pullFromLDAPKey).build(), pushTask);
 
-            assertEquals(1, adminClient.getService(TaskService.class).
+            assertEquals(1, ADMIN_CLIENT.getService(TaskService.class).
                     search(new TaskQuery.Builder(TaskType.PROPAGATION).
                             anyTypeKind(AnyTypeKind.USER).entityKey(pullFromLDAPKey).build()).getSize());
         } finally {
-            adminClient.getService(ResourceService.class).delete(resource.getKey());
+            ADMIN_CLIENT.getService(ResourceService.class).delete(resource.getKey());
         }
     }
 

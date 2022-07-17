@@ -35,7 +35,6 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.Client;
-import org.apache.syncope.client.console.AbstractTest.TestSyncopeWebApplication.SyncopeServiceClient;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
@@ -62,17 +61,18 @@ import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
+import org.apache.syncope.common.rest.api.service.FIQLQueryService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.util.tester.WicketTester;
@@ -212,6 +212,9 @@ public abstract class AbstractTest {
         public interface SchemaServiceClient extends SchemaService, Client {
         }
 
+        public interface FIQLQueryServiceClient extends FIQLQueryService, Client {
+        }
+
         private SyncopeService getSyncopeService() {
             SyncopeServiceClient service = mock(SyncopeServiceClient.class);
             when(service.type(anyString())).thenReturn(service);
@@ -246,6 +249,15 @@ public abstract class AbstractTest {
             anyTypeTO.setKind(AnyTypeKind.USER);
 
             when(service.read(anyString())).thenReturn(anyTypeTO);
+            return service;
+        }
+
+        private FIQLQueryService getFIQLQueryService() {
+            FIQLQueryServiceClient service = mock(FIQLQueryServiceClient.class);
+
+            when(service.type(anyString())).thenReturn(service);
+            when(service.accept(anyString())).thenReturn(service);
+
             return service;
         }
 
@@ -298,6 +310,9 @@ public abstract class AbstractTest {
 
             AnyTypeService anyTypeService = getAnyTypeService();
             when(client.getService(AnyTypeService.class)).thenReturn(anyTypeService);
+
+            FIQLQueryService fiqlQueryService = getFIQLQueryService();
+            when(client.getService(FIQLQueryService.class)).thenReturn(fiqlQueryService);
 
             SyncopeClientFactoryBean clientFactory = mock(SyncopeClientFactoryBean.class);
             when(clientFactory.setDomain(any())).thenReturn(clientFactory);

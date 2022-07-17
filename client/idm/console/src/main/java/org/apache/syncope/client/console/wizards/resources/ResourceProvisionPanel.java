@@ -25,7 +25,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
@@ -34,12 +33,13 @@ import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
-import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.PageReference;
@@ -257,8 +257,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         add(objectTypeTogglePanel);
     }
 
-    private void checkConnObjectKeyCount(final String anyType, final List<ItemTO> items) {
-        long connObjectKeyCount = items.stream().filter(ItemTO::isConnObjectKey).count();
+    private void checkConnObjectKeyCount(final String anyType, final List<Item> items) {
+        long connObjectKeyCount = items.stream().filter(Item::isConnObjectKey).count();
 
         if (connObjectKeyCount != 1) {
             throw new IllegalArgumentException(anyType + ": "

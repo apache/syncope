@@ -28,23 +28,23 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
-import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
@@ -55,6 +55,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -220,12 +221,14 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
                 collect(Collectors.toList())) {
 
-            status.set("Pushing " + provision.getAnyType().getKey());
+            status.set("Pushing " + provision.getAnyType());
 
-            AnyDAO<?> anyDAO = anyUtilsFactory.getInstance(provision.getAnyType().getKind()).dao();
+            AnyType anyType = anyTypeDAO.find(provision.getAnyType());
+
+            AnyDAO<?> anyDAO = anyUtilsFactory.getInstance(anyType.getKind()).dao();
 
             SyncopePushResultHandler handler;
-            switch (provision.getAnyType().getKind()) {
+            switch (anyType.getKind()) {
                 case USER:
                     handler = buildUserHandler();
                     break;
@@ -240,7 +243,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
             }
             handler.setProfile(profile);
 
-            Optional<? extends PushTaskAnyFilter> anyFilter = pushTask.getFilter(provision.getAnyType());
+            Optional<? extends PushTaskAnyFilter> anyFilter = pushTask.getFilter(anyType);
             String filter = anyFilter.map(PushTaskAnyFilter::getFIQLCond).orElse(null);
             SearchCond cond = StringUtils.isBlank(filter)
                     ? anyDAO.getAllMatchingCond()
@@ -250,7 +253,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                     true,
                     Set.of(profile.getTask().getSourceRealm().getFullPath()),
                     cond,
-                    provision.getAnyType().getKind());
+                    anyType.getKind());
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1 && !interrupt; page++) {
                 List<? extends Any<?>> anys = searchDAO.search(
                         profile.getTask().getSourceRealm(),
@@ -260,7 +263,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE,
                         List.of(),
-                        provision.getAnyType().getKind());
+                        anyType.getKind());
                 doHandle(anys, handler, pushTask.getResource());
             }
         }

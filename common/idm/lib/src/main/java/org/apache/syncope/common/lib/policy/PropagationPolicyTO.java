@@ -28,6 +28,8 @@ public class PropagationPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = 10604950933449L;
 
+    private boolean prefetch = true;
+
     private BackOffStrategy backOffStrategy = BackOffStrategy.FIXED;
 
     private String backOffParams = BackOffStrategy.FIXED.getDefaultBackOffParams();
@@ -40,6 +42,14 @@ public class PropagationPolicyTO extends PolicyTO {
     @Override
     public String getDiscriminator() {
         return getClass().getName();
+    }
+
+    public boolean isPrefetch() {
+        return prefetch;
+    }
+
+    public void setPrefetch(final boolean prefetch) {
+        this.prefetch = prefetch;
     }
 
     public BackOffStrategy getBackOffStrategy() {

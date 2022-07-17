@@ -28,6 +28,8 @@ public class GroupDetails extends Details<GroupTO> {
 
     private static final long serialVersionUID = 855618618337931784L;
 
+    protected final AjaxTextFieldPanel name;
+
     public GroupDetails(
             final GroupWrapper wrapper,
             final boolean templateMode,
@@ -36,7 +38,7 @@ public class GroupDetails extends Details<GroupTO> {
 
         super(wrapper, templateMode, includeStatusPanel, pageRef);
 
-        AjaxTextFieldPanel name = new AjaxTextFieldPanel(
+        name = new AjaxTextFieldPanel(
                 Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME,
                 new PropertyModel<>(wrapper.getInnerObject(), Constants.NAME_FIELD_NAME), false);
         if (templateMode) {
@@ -44,6 +46,6 @@ public class GroupDetails extends Details<GroupTO> {
         } else {
             name.addRequiredLabel();
         }
-        this.add(name);
+        add(name);
     }
 }

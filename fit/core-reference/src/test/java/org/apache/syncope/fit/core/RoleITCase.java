@@ -46,14 +46,14 @@ public class RoleITCase extends AbstractITCase {
         RoleTO role = new RoleTO();
         role.setKey(name + getUUIDString());
         role.getRealms().add("/even");
-        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 
         return role;
     }
 
     @Test
     public void list() {
-        List<RoleTO> roleTOs = roleService.list();
+        List<RoleTO> roleTOs = ROLE_SERVICE.list();
         assertNotNull(roleTOs);
         assertFalse(roleTOs.isEmpty());
         roleTOs.forEach(Assertions::assertNotNull);
@@ -61,7 +61,7 @@ public class RoleITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        RoleTO roleTO = roleService.read("Search for realm evenTwo");
+        RoleTO roleTO = ROLE_SERVICE.read("Search for realm evenTwo");
         assertNotNull(roleTO);
         assertTrue(roleTO.getEntitlements().contains(IdRepoEntitlement.USER_READ));
     }
@@ -71,8 +71,7 @@ public class RoleITCase extends AbstractITCase {
         RoleTO role = new RoleTO();
         role.getRealms().add(SyncopeConstants.ROOT_REALM);
         role.getRealms().add("/even/two");
-        role.getEntitlements().add(IdRepoEntitlement.AUDIT_CREATE);
-        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 
         try {
             createRole(role);
@@ -90,7 +89,7 @@ public class RoleITCase extends AbstractITCase {
     public void createWithTilde() {
         RoleTO role = new RoleTO();
         role.getRealms().add(SyncopeConstants.ROOT_REALM);
-        role.getEntitlements().add(IdRepoEntitlement.AUDIT_UPDATE);
+        role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
         role.setKey("new~" + getUUIDString());
         role = createRole(role);
         assertNotNull(role);
@@ -108,9 +107,9 @@ public class RoleITCase extends AbstractITCase {
         role.getEntitlements().add(FlowableEntitlement.WORKFLOW_TASK_LIST);
         role.getRealms().add("/even/two");
 
-        roleService.update(role);
+        ROLE_SERVICE.update(role);
 
-        role = roleService.read(role.getKey());
+        role = ROLE_SERVICE.read(role.getKey());
         assertTrue(role.getEntitlements().contains(FlowableEntitlement.WORKFLOW_TASK_LIST));
         assertTrue(role.getRealms().contains("/even/two"));
     }
@@ -118,15 +117,15 @@ public class RoleITCase extends AbstractITCase {
     @Test
     public void delete() {
         RoleTO role = getSampleRoleTO("delete");
-        Response response = roleService.create(role);
+        Response response = ROLE_SERVICE.create(role);
 
         RoleTO actual = getObject(response.getLocation(), RoleService.class, RoleTO.class);
         assertNotNull(actual);
 
-        roleService.delete(actual.getKey());
+        ROLE_SERVICE.delete(actual.getKey());
 
         try {
-            roleService.read(actual.getKey());
+            ROLE_SERVICE.read(actual.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -135,25 +134,25 @@ public class RoleITCase extends AbstractITCase {
 
     @Test
     public void dynMembership() {
-        UserTO bellini = userService.read("bellini");
+        UserTO bellini = USER_SERVICE.read("bellini");
         assertTrue(bellini.getDynRoles().isEmpty());
         assertTrue(bellini.getPrivileges().isEmpty());
 
         RoleTO role = getSampleRoleTO("dynMembership");
         role.getPrivileges().add("getMighty");
         role.setDynMembershipCond("cool==true");
-        Response response = roleService.create(role);
+        Response response = ROLE_SERVICE.create(role);
         role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
         assertNotNull(role);
 
-        bellini = userService.read("bellini");
+        bellini = USER_SERVICE.read("bellini");
         assertTrue(bellini.getDynRoles().contains(role.getKey()));
         assertTrue(bellini.getPrivileges().contains("getMighty"));
 
         role.setDynMembershipCond("cool==false");
-        roleService.update(role);
+        ROLE_SERVICE.update(role);
 
-        bellini = userService.read("bellini");
+        bellini = USER_SERVICE.read("bellini");
         assertTrue(bellini.getDynMemberships().isEmpty());
         assertTrue(bellini.getPrivileges().isEmpty());
     }
@@ -163,22 +162,22 @@ public class RoleITCase extends AbstractITCase {
         final DynRealmTO dynRealmTO = new DynRealmTO();
         dynRealmTO.setKey("dynRealm");
         dynRealmTO.getDynMembershipConds().put(AnyTypeKind.USER.name(), "username=~rossini");
-        dynRealmService.create(dynRealmTO);
+        DYN_REALM_SERVICE.create(dynRealmTO);
 
         // 1. associate role Other again to /odd realm and twice to dynRealm
-        RoleTO roleTO = roleService.read("Other");
+        RoleTO roleTO = ROLE_SERVICE.read("Other");
         roleTO.getRealms().add("/odd");
         roleTO.getDynRealms().add("dynRealm");
         roleTO.getDynRealms().add("dynRealm");
-        roleService.update(roleTO);
+        ROLE_SERVICE.update(roleTO);
 
         // 2. update by removing realm and dynamic realm
-        roleTO = roleService.read("Other");
+        roleTO = ROLE_SERVICE.read("Other");
         roleTO.getRealms().remove("/odd");
         roleTO.getDynRealms().remove("dynRealm");
-        roleService.update(roleTO);
+        ROLE_SERVICE.update(roleTO);
 
-        roleTO = roleService.read("Other");
+        roleTO = ROLE_SERVICE.read("Other");
 
         assertFalse(roleTO.getRealms().contains("/odd"), "Should not contain removed realms");
         assertFalse(roleTO.getDynRealms().contains("dynRealm"), "Should not contain removed dynamic realms");

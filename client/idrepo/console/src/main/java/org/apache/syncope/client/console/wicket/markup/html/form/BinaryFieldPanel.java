@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
-import org.apache.syncope.client.ui.commons.markup.html.form.BinaryFieldDownload;
-
 import static de.agilecoders.wicket.jquery.JQuery.$;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.BootstrapFileInputField;
@@ -38,12 +36,13 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.commons.PreviewUtils;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
+import org.apache.syncope.client.ui.commons.markup.html.form.BaseBinaryFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.BinaryFieldDownload;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
-import org.apache.syncope.client.ui.commons.markup.html.form.BaseBinaryFieldPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.Component;

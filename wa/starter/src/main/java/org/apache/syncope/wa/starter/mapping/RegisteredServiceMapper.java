@@ -20,18 +20,28 @@ package org.apache.syncope.wa.starter.mapping;
 
 import java.util.Map;
 import java.util.Optional;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
-import org.apereo.cas.services.ReturnMappedAttributeReleasePolicy;
+import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ConfigurableApplicationContext;
 
 public class RegisteredServiceMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegisteredServiceMapper.class);
+
+    protected final ConfigurableApplicationContext ctx;
+
+    protected final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan;
 
     protected final Map<String, AuthMapper> authPolicyConfMappers;
 
@@ -42,11 +52,15 @@ public class RegisteredServiceMapper {
     protected final Map<String, ClientAppMapper> clientAppTOMappers;
 
     public RegisteredServiceMapper(
+            final ConfigurableApplicationContext ctx,
+            final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan,
             final Map<String, AuthMapper> authPolicyConfMappers,
             final Map<String, AccessMapper> accessPolicyConfMappers,
             final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers,
             final Map<String, ClientAppMapper> clientAppTOMappers) {
 
+        this.ctx = ctx;
+        this.authenticationEventExecutionPlan = authenticationEventExecutionPlan;
         this.authPolicyConfMappers = authPolicyConfMappers;
         this.accessPolicyConfMappers = accessPolicyConfMappers;
         this.attrReleasePolicyConfMappers = attrReleasePolicyConfMappers;
@@ -62,11 +76,20 @@ public class RegisteredServiceMapper {
         }
 
         RegisteredServiceAuthenticationPolicy authPolicy = null;
+        RegisteredServiceMultifactorPolicy mfaPolicy = null;
         if (clientApp.getAuthPolicy() != null) {
             AuthMapper authMapper = authPolicyConfMappers.get(
                     clientApp.getAuthPolicy().getConf().getClass().getName());
-            authPolicy = Optional.ofNullable(authMapper).
-                    map(mapper -> mapper.build(clientApp.getAuthPolicy())).orElse(null);
+            Pair<RegisteredServiceAuthenticationPolicy, RegisteredServiceMultifactorPolicy> mapped =
+                    Optional.ofNullable(authMapper).map(mapper -> mapper.build(
+                    ctx, authenticationEventExecutionPlan, clientApp.getAuthPolicy(), clientApp.getAuthModules())).
+                            orElseGet(() -> Pair.of(null, null));
+            if (mapped.getLeft() != null) {
+                authPolicy = mapped.getLeft();
+            }
+            if (mapped.getRight() != null) {
+                mfaPolicy = mapped.getRight();
+            }
         }
 
         RegisteredServiceAccessStrategy accessStrategy = null;
@@ -74,21 +97,23 @@ public class RegisteredServiceMapper {
             AccessMapper accessPolicyConfMapper = accessPolicyConfMappers.get(
                     clientApp.getAccessPolicy().getConf().getClass().getName());
             accessStrategy = Optional.ofNullable(accessPolicyConfMapper).
-                    map(mapper -> mapper.build(clientApp.getAccessPolicy())).orElse(null);
+                    map(mapper -> mapper.build(clientApp.getAccessPolicy())).
+                    orElse(null);
         }
 
-        RegisteredServiceAttributeReleasePolicy attributeReleasePolicy = null;
-        if (!clientApp.getReleaseAttrs().isEmpty()) {
-            if (clientApp.getAttrReleasePolicy() == null) {
-                attributeReleasePolicy = new ReturnMappedAttributeReleasePolicy(clientApp.getReleaseAttrs());
-            } else {
-                AttrReleaseMapper attrReleasePolicyConfMapper = attrReleasePolicyConfMappers.get(
-                        clientApp.getAttrReleasePolicy().getConf().getClass().getName());
-                attributeReleasePolicy = Optional.ofNullable(attrReleasePolicyConfMapper).
-                        map(mapper -> mapper.build(clientApp.getAttrReleasePolicy())).orElse(null);
-            }
-        }
+        AttrReleasePolicyTO attrReleasePolicyTO = Optional.ofNullable(clientApp.getAttrReleasePolicy()).
+                orElseGet(() -> {
+                    AttrReleasePolicyTO arpTO = new AttrReleasePolicyTO();
+                    arpTO.setConf(new DefaultAttrReleasePolicyConf());
+                    return arpTO;
+                });
+        AttrReleaseMapper attrReleasePolicyConfMapper = attrReleasePolicyConfMappers.get(
+                attrReleasePolicyTO.getConf().getClass().getName());
+        RegisteredServiceAttributeReleasePolicy attributeReleasePolicy =
+                Optional.ofNullable(attrReleasePolicyConfMapper).
+                        map(mapper -> mapper.build(attrReleasePolicyTO, clientApp.getReleaseAttrs())).
+                        orElse(null);
 
-        return clientAppMapper.map(clientApp, authPolicy, accessStrategy, attributeReleasePolicy);
+        return clientAppMapper.map(ctx, clientApp, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy);
     }
 }

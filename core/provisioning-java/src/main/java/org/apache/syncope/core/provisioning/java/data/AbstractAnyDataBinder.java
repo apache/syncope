@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,8 +38,9 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -64,6 +66,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -73,16 +76,14 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.AccountGetter;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
@@ -186,38 +187,39 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    protected Map<String, ConnObjectTO> onResources(
+    protected Map<String, ConnObject> onResources(
             final Any<?> any,
             final Collection<String> resources,
             final String password,
             final boolean changePwd) {
 
-        Map<String, ConnObjectTO> onResources = new HashMap<>();
+        Map<String, ConnObject> onResources = new HashMap<>();
 
-        resources.stream().map(resourceDAO::find).map(resource -> resource.getProvision(any.getType())).
-                filter(Optional::isPresent).map(Optional::get).
-                forEach(provision -> MappingUtils.getConnObjectKeyItem(provision).ifPresent(connObjectKeyItem -> {
+        resources.stream().map(resourceDAO::find).filter(Objects::nonNull).forEach(resource -> {
+            resource.getProvision(any.getType().getKey()).
+                    ifPresent(provision -> MappingUtils.getConnObjectKeyItem(provision).ifPresent(keyItem -> {
 
-            Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
-                    any, password, changePwd, true, provision);
+                Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
+                        any, password, changePwd, true, resource, provision);
 
-            ConnObjectTO connObjectTO;
-            if (StringUtils.isBlank(prepared.getLeft())) {
-                connObjectTO = ConnObjectUtils.getConnObjectTO(null, prepared.getRight());
-            } else {
-                ConnectorObject connectorObject = new ConnectorObjectBuilder().
-                        addAttributes(prepared.getRight()).
-                        addAttribute(new Uid(prepared.getLeft())).
-                        addAttribute(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), prepared.getLeft())).
-                        build();
+                ConnObject connObjectTO;
+                if (StringUtils.isBlank(prepared.getLeft())) {
+                    connObjectTO = ConnObjectUtils.getConnObjectTO(null, prepared.getRight());
+                } else {
+                    ConnectorObject connectorObject = new ConnectorObjectBuilder().
+                            addAttributes(prepared.getRight()).
+                            addAttribute(new Uid(prepared.getLeft())).
+                            addAttribute(AttributeBuilder.build(keyItem.getExtAttrName(), prepared.getLeft())).
+                            build();
 
-                connObjectTO = ConnObjectUtils.getConnObjectTO(
-                        outboundMatcher.getFIQL(connectorObject, provision),
-                        connectorObject.getAttributes());
-            }
+                    connObjectTO = ConnObjectUtils.getConnObjectTO(
+                            outboundMatcher.getFIQL(connectorObject, resource, provision),
+                            connectorObject.getAttributes());
+                }
 
-            onResources.put(provision.getResource().getKey(), connObjectTO);
-        }));
+                onResources.put(resource.getKey(), connObjectTO);
+            }));
+        });
 
         return onResources;
     }
@@ -272,13 +274,15 @@ abstract class AbstractAnyDataBinder {
         });
     }
 
-    private List<String> evaluateMandatoryCondition(final Provision provision, final Any<?> any) {
+    protected List<String> evaluateMandatoryCondition(
+            final ExternalResource resource, final Provision provision, final Any<?> any) {
+
         List<String> missingAttrNames = new ArrayList<>();
 
         MappingUtils.getPropagationItems(provision.getMapping().getItems().stream()).forEach(mapItem -> {
             IntAttrName intAttrName = null;
             try {
-                intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
+                intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), any.getType().getKind());
             } catch (ParseException e) {
                 LOG.error("Invalid intAttrName '{}', ignoring", mapItem.getIntAttrName(), e);
             }
@@ -288,6 +292,7 @@ abstract class AbstractAnyDataBinder {
                         : AttrSchemaType.String;
 
                 Pair<AttrSchemaType, List<PlainAttrValue>> intValues = mappingManager.getIntValues(
+                        resource,
                         provision,
                         mapItem,
                         intAttrName,
@@ -312,9 +317,9 @@ abstract class AbstractAnyDataBinder {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         resources.forEach(resource -> {
-            Optional<? extends Provision> provision = resource.getProvision(any.getType());
+            Optional<Provision> provision = resource.getProvision(any.getType().getKey());
             if (resource.isEnforceMandatoryCondition() && provision.isPresent()) {
-                List<String> missingAttrNames = evaluateMandatoryCondition(provision.get(), any);
+                List<String> missingAttrNames = evaluateMandatoryCondition(resource, provision.get(), any);
                 if (!missingAttrNames.isEmpty()) {
                     LOG.error("Mandatory schemas {} not provided with values", missingAttrNames);
 
@@ -493,14 +498,14 @@ abstract class AbstractAnyDataBinder {
     }
 
     protected PropagationByResource<String> propByRes(
-            final Map<String, ConnObjectTO> before,
-            final Map<String, ConnObjectTO> after) {
+            final Map<String, ConnObject> before,
+            final Map<String, ConnObject> after) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
 
         after.forEach((resource, connObject) -> {
             if (before.containsKey(resource)) {
-                ConnObjectTO beforeObject = before.get(resource);
+                ConnObject beforeObject = before.get(resource);
                 if (!beforeObject.equals(connObject)) {
                     propByRes.add(ResourceOperation.UPDATE, resource);
 

@@ -25,14 +25,18 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
+import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @ClientAppMapFor(clientAppClass = CASSPClientAppTO.class)
 public class CASSPClientAppTOMapper extends AbstractClientAppMapper {
 
     @Override
     public RegisteredService map(
+            final ConfigurableApplicationContext ctx,
             final WAClientApp clientApp,
-            final RegisteredServiceAuthenticationPolicy authenticationPolicy,
+            final RegisteredServiceAuthenticationPolicy authPolicy,
+            final RegisteredServiceMultifactorPolicy mfaPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
             final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
 
@@ -42,7 +46,7 @@ public class CASSPClientAppTOMapper extends AbstractClientAppMapper {
         service.setServiceId(cas.getServiceId());
         setCommon(service, cas);
 
-        setPolicies(service, authenticationPolicy, accessStrategy, attributeReleasePolicy);
+        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy);
 
         return service;
     }

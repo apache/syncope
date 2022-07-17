@@ -41,12 +41,12 @@ public class CamelRouteITCase extends AbstractITCase {
 
     @BeforeEach
     public void check() {
-        assumeTrue(adminClient.platform().getProvisioningInfo().getUserProvisioningManager().contains("Camel"));
+        assumeTrue(ADMIN_CLIENT.platform().getProvisioningInfo().getUserProvisioningManager().contains("Camel"));
     }
 
     @Test
     public void userRoutes() {
-        List<CamelRouteTO> userRoutes = camelRouteService.list(AnyTypeKind.USER);
+        List<CamelRouteTO> userRoutes = CAMEL_ROUTE_SERVICE.list(AnyTypeKind.USER);
         assertNotNull(userRoutes);
         assertEquals(16, userRoutes.size());
         userRoutes.forEach(route -> assertNotNull(route.getContent()));
@@ -54,23 +54,23 @@ public class CamelRouteITCase extends AbstractITCase {
 
     @Test
     public void groupRoutes() {
-        List<CamelRouteTO> groupRoutes = camelRouteService.list(AnyTypeKind.GROUP);
+        List<CamelRouteTO> groupRoutes = CAMEL_ROUTE_SERVICE.list(AnyTypeKind.GROUP);
         assertNotNull(groupRoutes);
         assertEquals(8, groupRoutes.size());
         groupRoutes.forEach(route -> assertNotNull(route.getContent()));
     }
 
     private static CamelRouteTO doUpdate(final AnyTypeKind anyTypeKind, final String key, final String content) {
-        CamelRouteTO route = camelRouteService.read(anyTypeKind, key);
+        CamelRouteTO route = CAMEL_ROUTE_SERVICE.read(anyTypeKind, key);
         route.setContent(content);
-        camelRouteService.update(anyTypeKind, route);
+        CAMEL_ROUTE_SERVICE.update(anyTypeKind, route);
         // getting new route definition
-        return camelRouteService.read(anyTypeKind, key);
+        return CAMEL_ROUTE_SERVICE.read(anyTypeKind, key);
     }
 
     @Test
     public void update() {
-        CamelRouteTO oldRoute = camelRouteService.read(AnyTypeKind.USER, "createUser");
+        CamelRouteTO oldRoute = CAMEL_ROUTE_SERVICE.read(AnyTypeKind.USER, "createUser");
         assertNotNull(oldRoute);
         String routeContent = "<route id=\"createUser\">\n"
                 + "  <from uri=\"direct:createUser\"/>\n"
@@ -102,7 +102,7 @@ public class CamelRouteITCase extends AbstractITCase {
 
     @Test
     public void scriptingUpdate() {
-        CamelRouteTO oldRoute = camelRouteService.read(AnyTypeKind.USER, "createUser");
+        CamelRouteTO oldRoute = CAMEL_ROUTE_SERVICE.read(AnyTypeKind.USER, "createUser");
         // updating route content including new attribute management
 
         String routeContent = ""
@@ -143,7 +143,7 @@ public class CamelRouteITCase extends AbstractITCase {
             AnyTypeClassTO typeClass = new AnyTypeClassTO();
             typeClass.setKey("camelAttribute");
             typeClass.getPlainSchemas().add(schemaTO.getKey());
-            anyTypeClassService.create(typeClass);
+            ANY_TYPE_CLASS_SERVICE.create(typeClass);
 
             UserCR userCR = new UserCR();
             userCR.setRealm(SyncopeConstants.ROOT_REALM);
@@ -166,7 +166,7 @@ public class CamelRouteITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE931() {
-        CamelRouteTO oldRoute = camelRouteService.read(AnyTypeKind.USER, "createUser");
+        CamelRouteTO oldRoute = CAMEL_ROUTE_SERVICE.read(AnyTypeKind.USER, "createUser");
         assertNotNull(oldRoute);
         String routeContent = "<route id=\"createUser\">\n"
                 + "  <from uri=\"direct:createUser\"/>\n"

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -28,9 +29,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
 
-public class ConnObjectAttrColumn extends AbstractColumn<ConnObjectTO, String> {
+public class ConnObjectAttrColumn extends AbstractColumn<ConnObject, String> {
 
     private static final long serialVersionUID = 2624734332447371372L;
 
@@ -45,9 +45,9 @@ public class ConnObjectAttrColumn extends AbstractColumn<ConnObjectTO, String> {
 
     @Override
     public void populateItem(
-            final Item<ICellPopulator<ConnObjectTO>> cellItem,
+            final Item<ICellPopulator<ConnObject>> cellItem,
             final String componentId,
-            final IModel<ConnObjectTO> rowModel) {
+            final IModel<ConnObject> rowModel) {
 
         Optional<Attr> attr = rowModel.getObject().getAttr(name);
         List<String> values = attr.map(Attr::getValues).orElse(null);

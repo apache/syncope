@@ -31,8 +31,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.saml2.SAML2Request;
 import org.apache.syncope.common.lib.saml2.SAML2LoginResponse;
+import org.apache.syncope.common.lib.saml2.SAML2Request;
 import org.apache.syncope.common.lib.saml2.SAML2Response;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 

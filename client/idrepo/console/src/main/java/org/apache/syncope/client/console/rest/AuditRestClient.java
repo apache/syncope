@@ -31,8 +31,8 @@ import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.syncope.common.rest.api.service.AuditService;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 public class AuditRestClient extends BaseRestClient {
 
@@ -69,14 +69,14 @@ public class AuditRestClient extends BaseRestClient {
         AuditConfTO audit = new AuditConfTO();
         audit.setKey(auditLoggerName.toAuditKey());
         audit.setActive(true);
-        getService(AuditService.class).update(audit);
+        getService(AuditService.class).set(audit);
     }
 
     public static void disableAudit(final AuditLoggerName auditLoggerName) {
         AuditConfTO audit = new AuditConfTO();
         audit.setKey(auditLoggerName.toAuditKey());
         audit.setActive(false);
-        getService(AuditService.class).update(audit);
+        getService(AuditService.class).set(audit);
     }
 
     public static List<EventCategory> listEvents() {

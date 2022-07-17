@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.console.layout;
 
-import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.console.wizards.any.AnyObjectWizardBuilder;
+import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 
 public class AnyObjectFormLayoutInfo extends AbstractAnyFormLayout<AnyObjectTO, AnyObjectForm> {

@@ -25,8 +25,8 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -85,6 +85,7 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
 
     @Override
     public ConnInstance save(final ConnInstance connector) {
+        ((JPAConnInstance) connector).list2json();
         return entityManager().merge(connector);
     }
 

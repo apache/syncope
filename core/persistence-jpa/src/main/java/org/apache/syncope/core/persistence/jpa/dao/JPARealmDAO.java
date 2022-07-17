@@ -25,29 +25,46 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
+import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.ProvisioningPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 
 public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
     protected final RoleDAO roleDAO;
 
-    public JPARealmDAO(final RoleDAO roleDAO) {
+    protected final CASSPClientAppDAO casSPClientAppDAO;
+
+    protected final OIDCRPClientAppDAO oidcRPClientAppDAO;
+
+    protected final SAML2SPClientAppDAO saml2SPClientAppDAO;
+
+    public JPARealmDAO(
+            final RoleDAO roleDAO,
+            final CASSPClientAppDAO casSPClientAppDAO,
+            final OIDCRPClientAppDAO oidcRPClientAppDAO,
+            final SAML2SPClientAppDAO saml2SPClientAppDAO) {
+
         this.roleDAO = roleDAO;
+        this.casSPClientAppDAO = casSPClientAppDAO;
+        this.oidcRPClientAppDAO = oidcRPClientAppDAO;
+        this.saml2SPClientAppDAO = saml2SPClientAppDAO;
     }
 
     @Override
@@ -240,6 +257,10 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
     public void delete(final Realm realm) {
         findDescendants(realm).forEach(toBeDeleted -> {
             roleDAO.findByRealm(toBeDeleted).forEach(role -> role.getRealms().remove(toBeDeleted));
+
+            casSPClientAppDAO.findByRealm(toBeDeleted).forEach(clientApp -> clientApp.setRealm(null));
+            oidcRPClientAppDAO.findByRealm(toBeDeleted).forEach(clientApp -> clientApp.setRealm(null));
+            saml2SPClientAppDAO.findByRealm(toBeDeleted).forEach(clientApp -> clientApp.setRealm(null));
 
             toBeDeleted.setParent(null);
 

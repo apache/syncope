@@ -20,16 +20,16 @@ package org.apache.syncope.client.console.status;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
-import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.client.ui.commons.status.StatusBean;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -50,7 +50,7 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
         super(baseModal, pageReference, resource, null, false);
 
         List<String> availableAnyTypes = resource.getProvisions().stream().
-                map(ProvisionTO::getAnyType).
+                map(Provision::getAnyType).
                 sorted(AnyTypeRestClient.KEY_COMPARATOR).
                 collect(Collectors.toList());
 

@@ -44,7 +44,7 @@ public class TestPasswordPolicy implements PasswordPolicy {
     }
 
     @Override
-    public void setName(String description) {
+    public void setName(final String description) {
         // nothing to do
     }
 

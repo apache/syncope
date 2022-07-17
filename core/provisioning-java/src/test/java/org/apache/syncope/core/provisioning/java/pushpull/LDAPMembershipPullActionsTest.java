@@ -39,7 +39,10 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.MatchType;
@@ -48,15 +51,13 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.common.lib.to.ProvisioningReport;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -151,7 +152,11 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
         lenient().when(profile.getTask()).thenReturn(provisioningTask);
         lenient().when(provisioningTask.getResource()).thenReturn(externalResource);
-        lenient().when(anyTypeDAO.findUser()).thenReturn(entityFactory.newEntity(AnyType.class));
+        lenient().when(anyTypeDAO.findUser()).thenAnswer(ic -> {
+            AnyType userAnyType = mock(AnyType.class);
+            lenient().when(userAnyType.getKey()).thenReturn(AnyTypeKind.USER.name());
+            return userAnyType;
+        });
 
         lenient().when(profile.getConnector()).thenReturn(connector);
         lenient().when(syncDelta.getObject()).thenReturn(connectorObj);
@@ -188,11 +193,11 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void afterWithEmptyAttributes(@Mock Attribute attribute) throws JobExecutionException {
+    public void afterWithEmptyAttributes(final @Mock Attribute attribute) throws JobExecutionException {
         entity = new GroupTO();
 
         when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
-        when(externalResource.getProvision(any(AnyType.class))).thenAnswer(ic -> Optional.of(mock(Provision.class)));
+        when(externalResource.getProvision(anyString())).thenAnswer(ic -> Optional.of(mock(Provision.class)));
 
         ldapMembershipPullActions.after(profile, syncDelta, entity, result);
 
@@ -207,7 +212,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         List<String> expected = List.of(expectedUid);
 
         when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
-        when(externalResource.getProvision(any(AnyType.class))).thenAnswer(ic -> Optional.empty());
+        when(externalResource.getProvision(anyString())).thenAnswer(ic -> Optional.empty());
         when(inboundMatcher.match(any(AnyType.class), anyString(), any(ExternalResource.class), any(Connector.class))).
                 thenReturn(Optional.of(new PullMatch(MatchType.ANY, user)));
 
@@ -220,9 +225,9 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
     @Test
     public void afterAll(
-            @Mock Map<String, Object> jobMap,
-            @Mock SchedulerFactoryBean schedulerFactoryBean,
-            @Mock Scheduler scheduler) throws JobExecutionException, SchedulerException {
+            final @Mock Map<String, Object> jobMap,
+            final @Mock SchedulerFactoryBean schedulerFactoryBean,
+            final @Mock Scheduler scheduler) throws JobExecutionException, SchedulerException {
 
         ReflectionTestUtils.setField(ldapMembershipPullActions, "scheduler", schedulerFactoryBean);
         when(schedulerFactoryBean.getScheduler()).thenReturn(scheduler);

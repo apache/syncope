@@ -20,12 +20,12 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import java.util.Optional;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
@@ -102,7 +102,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
                 wizardModel.add(new Ownership(GroupWrapper.class.cast(modelObject), pageRef));
             }
             if (groupFormLayoutInfo.isDynamicMemberships()) {
-                wizardModel.add(new DynamicMemberships(GroupWrapper.class.cast(modelObject)));
+                wizardModel.add(new DynamicMemberships(GroupWrapper.class.cast(modelObject), pageRef));
             }
         }
 

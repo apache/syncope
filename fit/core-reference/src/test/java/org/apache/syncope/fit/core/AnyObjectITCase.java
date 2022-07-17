@@ -28,14 +28,14 @@ import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RelationshipTO;
@@ -66,8 +66,8 @@ public class AnyObjectITCase extends AbstractITCase {
         assertEquals("REST", anyObjectTO.getCreationContext());
         assertEquals("REST", anyObjectTO.getLastChangeContext());
 
-        ConnObjectTO connObjectTO =
-                resourceService.readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
+        ConnObject connObjectTO =
+                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttr("LOCATION"));
         assertEquals(
@@ -99,7 +99,7 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void delete() {
         try {
-            anyObjectService.delete(UUID.randomUUID().toString());
+            ANY_OBJECT_SERVICE.delete(UUID.randomUUID().toString());
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -114,7 +114,7 @@ public class AnyObjectITCase extends AbstractITCase {
         assertNotNull(deletedAnyObject);
 
         try {
-            anyObjectService.read(deletedAnyObject.getKey());
+            ANY_OBJECT_SERVICE.read(deletedAnyObject.getKey());
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -122,7 +122,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        PagedResult<AnyObjectTO> anyObjectTOs = anyObjectService.search(
+        PagedResult<AnyObjectTO> anyObjectTOs = ANY_OBJECT_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).query()).
                         build());
@@ -133,7 +133,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        AnyObjectTO anyObjectTO = anyObjectService.read("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
+        AnyObjectTO anyObjectTO = ANY_OBJECT_SERVICE.read("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
         assertNotNull(anyObjectTO);
         assertNotNull(anyObjectTO.getPlainAttrs());
         assertFalse(anyObjectTO.getPlainAttrs().isEmpty());
@@ -162,10 +162,10 @@ public class AnyObjectITCase extends AbstractITCase {
         AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
         assertNotNull(anyObjectTO);
 
-        Set<Attr> attrs = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN);
+        Set<Attr> attrs = ANY_OBJECT_SERVICE.read(anyObjectTO.getKey(), SchemaType.PLAIN);
         assertEquals(anyObjectTO.getPlainAttrs(), attrs);
 
-        Attr location = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
+        Attr location = ANY_OBJECT_SERVICE.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
         assertEquals(anyObjectTO.getPlainAttr("location").get(), location);
     }
 
@@ -176,9 +176,9 @@ public class AnyObjectITCase extends AbstractITCase {
         assertNotNull(anyObjectTO);
 
         Attr updated = attr("location", "newlocation");
-        anyObjectService.update(anyObjectTO.getKey(), SchemaType.PLAIN, updated);
+        ANY_OBJECT_SERVICE.update(anyObjectTO.getKey(), SchemaType.PLAIN, updated);
 
-        Attr location = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
+        Attr location = ANY_OBJECT_SERVICE.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
         assertEquals(updated, location);
     }
 
@@ -189,10 +189,10 @@ public class AnyObjectITCase extends AbstractITCase {
         assertNotNull(anyObjectTO);
         assertNotNull(anyObjectTO.getPlainAttr("location"));
 
-        anyObjectService.delete(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
+        ANY_OBJECT_SERVICE.delete(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
 
         try {
-            anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
+            ANY_OBJECT_SERVICE.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -239,7 +239,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
         updateAnyObject(anyObjectPatch);
 
-        AnyObjectTO printer = anyObjectService.read("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
+        AnyObjectTO printer = ANY_OBJECT_SERVICE.read("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertFalse(printer.getResources().contains(RESOURCE_NAME_DBSCRIPTED), "Should not contain removed resources");
         assertFalse(printer.getAuxClasses().contains("csv"), "Should not contain removed auxiliary classes");
     }

@@ -58,7 +58,7 @@ public class UserSelectionWizardStep extends WizardStep {
         setTitleModel(title);
 
         userSearchPanel = UserSearchPanel.class.cast(new UserSearchPanel.Builder(
-                new ListModel<>(new ArrayList<>())).required(false).enableSearch(UserSelectionWizardStep.this).
+                new ListModel<>(new ArrayList<>()), pageRef).required(false).enableSearch(UserSelectionWizardStep.this).
                 build("usersearch"));
         add(userSearchPanel);
 

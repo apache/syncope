@@ -21,10 +21,10 @@ package org.apache.syncope.core.provisioning.api.data;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
 
 /**
  * Transforms values to be propagated to (or pulling from) external resources right before they leave (or enter)
@@ -38,14 +38,14 @@ public interface ItemTransformer {
      * Invoked while preparing attribute values to be sent out to external resource during propagation.
      *
      * @param item mapping item
-     * @param entity entity
+     * @param any any
      * @param schemaType schema type
      * @param values original values
      * @return transformed values
      */
     default Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
             Item item,
-            Entity entity,
+            Any<?> any,
             AttrSchemaType schemaType,
             List<PlainAttrValue> values) {
 

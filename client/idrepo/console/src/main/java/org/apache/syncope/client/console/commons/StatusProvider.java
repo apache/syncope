@@ -28,14 +28,14 @@ import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 
 public interface StatusProvider extends Serializable {
 
-    Optional<Pair<ConnObjectTO, ConnObjectTO>> get(
+    Optional<Pair<ConnObject, ConnObject>> get(
             String anyTypeKey, String connObjectKeyValue, String resource);
 
-    List<Triple<ConnObjectTO, ConnObjectWrapper, String>> get(AnyTO any, Collection<String> resources);
+    List<Triple<ConnObject, ConnObjectWrapper, String>> get(AnyTO any, Collection<String> resources);
 
     <T extends Serializable> void addConnObjectLink(
             ListViewPanel.Builder<T> builder, ActionLink<T> connObjectLink);

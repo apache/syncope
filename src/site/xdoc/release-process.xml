@@ -322,7 +322,7 @@ svn copy docs/3.0 $VERSION/docs/
 mkdir -p rest/3.0
 mv /tmp/openapi.json rest/3.0/              
 cp -r $SYNCOPE_RELEASE_DIR/core/starter/target/swagger-ui/META-INF/resources/webjars/swagger-ui/*/* rest/3.0/
-sed 's/..\/rest\/openapi.json/openapi.json/' $SYNCOPE_RELEASE_DIR/core/starter/target/classes/META-INF/resources/index.html > rest/3.0/index.html
+sed 's/rest\/openapi.json/openapi.json/' $SYNCOPE_RELEASE_DIR/core/starter/target/classes/META-INF/resources/index.html > rest/3.0/index.html
 mkdir -p docs/3.0
 cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/3.0/
 cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/3.0/

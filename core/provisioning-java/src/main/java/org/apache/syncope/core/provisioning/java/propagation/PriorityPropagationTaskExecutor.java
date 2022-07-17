@@ -31,12 +31,12 @@ import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Exec;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.AuditManager;
@@ -49,6 +49,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskCalla
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -93,6 +94,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final AnyObjectDAO anyObjectDAO,
             final TaskDAO taskDAO,
             final ExternalResourceDAO resourceDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final NotificationManager notificationManager,
             final AuditManager auditManager,
             final TaskDataBinder taskDataBinder,
@@ -109,6 +111,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 anyObjectDAO,
                 taskDAO,
                 resourceDAO,
+                plainSchemaDAO,
                 notificationManager,
                 auditManager,
                 taskDataBinder,

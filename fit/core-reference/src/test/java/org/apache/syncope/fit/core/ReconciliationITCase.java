@@ -31,8 +31,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
-import org.apache.syncope.common.lib.request.AnyObjectCR;
-import org.apache.syncope.common.lib.Attr;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -41,7 +39,9 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
@@ -81,7 +81,7 @@ public class ReconciliationITCase extends AbstractITCase {
                 "SELECT id FROM testPRINTER WHERE printername=?", printer.getName()).size());
 
         // 3. verify reconciliation status
-        ReconStatus status = reconciliationService.status(
+        ReconStatus status = RECONCILIATION_SERVICE.status(
                 new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).anyKey(printer.getName()).build());
         assertNotNull(status);
         assertEquals(AnyTypeKind.ANY_OBJECT, status.getAnyTypeKind());
@@ -94,7 +94,7 @@ public class ReconciliationITCase extends AbstractITCase {
         PushTaskTO pushTask = new PushTaskTO();
         pushTask.setPerformCreate(true);
         pushTask.setUnmatchingRule(UnmatchingRule.PROVISION);
-        reconciliationService.push(new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).
+        RECONCILIATION_SERVICE.push(new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).
                 anyKey(printer.getKey()).build(), pushTask);
 
         // 5. verify that printer is now propagated
@@ -102,11 +102,11 @@ public class ReconciliationITCase extends AbstractITCase {
                 "SELECT id FROM testPRINTER WHERE printername=?", printer.getName()).size());
 
         // 6. verify resource was not assigned
-        printer = anyObjectService.read(printer.getKey());
+        printer = ANY_OBJECT_SERVICE.read(printer.getKey());
         assertTrue(printer.getResources().isEmpty());
 
         // 7. verify reconciliation status
-        status = reconciliationService.status(
+        status = RECONCILIATION_SERVICE.status(
                 new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).anyKey(printer.getName()).build());
         assertNotNull(status);
         assertNotNull(status.getOnSyncope());
@@ -140,7 +140,7 @@ public class ReconciliationITCase extends AbstractITCase {
                 printer.getKey(), printer.getName(), "Nowhere", false, new Date());
 
         // 3. verify reconciliation status
-        ReconStatus status = reconciliationService.status(
+        ReconStatus status = RECONCILIATION_SERVICE.status(
                 new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).anyKey(printer.getName()).build());
         assertNotNull(status);
         assertNotNull(status.getOnSyncope());
@@ -151,11 +151,11 @@ public class ReconciliationITCase extends AbstractITCase {
         PullTaskTO pullTask = new PullTaskTO();
         pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         pullTask.setPerformUpdate(true);
-        reconciliationService.pull(new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).
+        RECONCILIATION_SERVICE.pull(new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).
                 anyKey(printer.getName()).build(), pullTask);
 
         // 5. verify reconciliation result (and resource is still not assigned)
-        printer = anyObjectService.read(printer.getKey());
+        printer = ANY_OBJECT_SERVICE.read(printer.getKey());
         assertEquals("Nowhere", printer.getPlainAttr("location").get().getValues().get(0));
         assertTrue(printer.getResources().isEmpty());
     }
@@ -172,7 +172,7 @@ public class ReconciliationITCase extends AbstractITCase {
                 externalKey, externalName, "Nowhere", false, new Date());
 
         // 2. verify reconciliation status
-        ReconStatus status = reconciliationService.status(
+        ReconStatus status = RECONCILIATION_SERVICE.status(
                 new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).fiql("ID==" + externalKey).build());
         assertNotNull(status);
         assertNull(status.getAnyTypeKind());
@@ -187,17 +187,17 @@ public class ReconciliationITCase extends AbstractITCase {
         PullTaskTO pullTask = new PullTaskTO();
         pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         pullTask.setPerformCreate(true);
-        reconciliationService.pull(
+        RECONCILIATION_SERVICE.pull(
                 new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).fiql("ID==" + externalKey).build(), pullTask);
 
         // 4. verify reconciliation result
-        AnyObjectTO printer = anyObjectService.read(externalName);
+        AnyObjectTO printer = ANY_OBJECT_SERVICE.read(externalName);
         assertNotNull(printer);
     }
 
     @Test
     public void importCSV() {
-        ReconciliationService service = adminClient.getService(ReconciliationService.class);
+        ReconciliationService service = ADMIN_CLIENT.getService(ReconciliationService.class);
         Client client = WebClient.client(service);
         client.type(RESTHeaders.TEXT_CSV);
 
@@ -212,12 +212,12 @@ public class ReconciliationITCase extends AbstractITCase {
         assertEquals(ResourceOperation.CREATE, results.get(0).getOperation());
         assertEquals(ProvisioningReport.Status.SUCCESS, results.get(0).getStatus());
 
-        UserTO donizetti = userService.read(results.get(0).getKey());
+        UserTO donizetti = USER_SERVICE.read(results.get(0).getKey());
         assertNotNull(donizetti);
         assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValues().get(0));
         assertEquals(1, donizetti.getPlainAttr("loginDate").get().getValues().size());
 
-        UserTO cimarosa = userService.read(results.get(1).getKey());
+        UserTO cimarosa = USER_SERVICE.read(results.get(1).getKey());
         assertNotNull(cimarosa);
         assertEquals("Domenico Cimarosa", cimarosa.getPlainAttr("fullname").get().getValues().get(0));
         assertEquals(2, cimarosa.getPlainAttr("loginDate").get().getValues().size());
@@ -225,7 +225,7 @@ public class ReconciliationITCase extends AbstractITCase {
 
     @Test
     public void exportCSV() throws IOException {
-        ReconciliationService service = adminClient.getService(ReconciliationService.class);
+        ReconciliationService service = ADMIN_CLIENT.getService(ReconciliationService.class);
         Client client = WebClient.client(service);
         client.accept(RESTHeaders.TEXT_CSV);
 
@@ -251,7 +251,7 @@ public class ReconciliationITCase extends AbstractITCase {
                 "attachment; filename=" + SyncopeConstants.MASTER_DOMAIN + ".csv",
                 response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));
 
-        PagedResult<UserTO> users = userService.search(anyQuery);
+        PagedResult<UserTO> users = USER_SERVICE.search(anyQuery);
         assertNotNull(users);
 
         MappingIterator<Map<String, String>> reader = new CsvMapper().readerFor(Map.class).

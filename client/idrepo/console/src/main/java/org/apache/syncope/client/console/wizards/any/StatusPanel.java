@@ -27,18 +27,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
-import org.apache.syncope.client.ui.commons.status.Status;
-import org.apache.syncope.client.ui.commons.status.StatusBean;
-import org.apache.syncope.client.ui.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.panels.PropagationErrorPanel;
 import org.apache.syncope.client.console.panels.RemoteObjectPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
+import org.apache.syncope.client.ui.commons.status.Status;
+import org.apache.syncope.client.ui.commons.status.StatusBean;
+import org.apache.syncope.client.ui.commons.status.StatusUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Component;
@@ -54,11 +54,11 @@ public class StatusPanel extends Panel {
 
     private static final long serialVersionUID = -4013796607157549641L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(StatusPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(StatusPanel.class);
 
-    private Map<String, StatusBean> initialStatusBeanMap;
+    protected Map<String, StatusBean> initialStatusBeanMap;
 
-    private ListViewPanel<?> listViewPanel;
+    protected ListViewPanel<?> listViewPanel;
 
     public <T extends AnyTO> StatusPanel(
             final String id,
@@ -75,17 +75,17 @@ public class StatusPanel extends Panel {
             final String id,
             final T any,
             final IModel<List<StatusBean>> model,
-            final List<Triple<ConnObjectTO, ConnObjectWrapper, String>> connObjects,
+            final List<Triple<ConnObject, ConnObjectWrapper, String>> connObjects,
             final PageReference pageRef) {
 
         super(id);
         init(any, model, connObjects, pageRef, true);
     }
 
-    private void init(
+    protected void init(
             final AnyTO any,
             final IModel<List<StatusBean>> model,
-            final List<Triple<ConnObjectTO, ConnObjectWrapper, String>> connObjects,
+            final List<Triple<ConnObject, ConnObjectWrapper, String>> connObjects,
             final PageReference pageRef,
             final boolean enableConnObjectLink) {
 
@@ -130,7 +130,7 @@ public class StatusPanel extends Panel {
             }
         });
 
-        final MultilevelPanel mlp = new MultilevelPanel("resources");
+        MultilevelPanel mlp = new MultilevelPanel("resources");
         add(mlp);
 
         ListViewPanel.Builder<StatusBean> builder = new ListViewPanel.Builder<>(StatusBean.class, pageRef) {
@@ -158,8 +158,8 @@ public class StatusPanel extends Panel {
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                Pair<ConnObjectTO, ConnObjectTO> pair =
-                    getConnObjectTOs(bean.getKey(), bean.getResource(), connObjects);
+                Pair<ConnObject, ConnObject> pair =
+                        getConnObjectTOs(bean.getKey(), bean.getResource(), connObjects);
                 return pair != null && pair.getRight() != null;
             }
 
@@ -200,12 +200,12 @@ public class StatusPanel extends Panel {
         return initialStatusBeanMap;
     }
 
-    protected static Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs(
+    protected static Pair<ConnObject, ConnObject> getConnObjectTOs(
             final String anyKey,
             final String resource,
-            final List<Triple<ConnObjectTO, ConnObjectWrapper, String>> objects) {
+            final List<Triple<ConnObject, ConnObjectWrapper, String>> objects) {
 
-        for (Triple<ConnObjectTO, ConnObjectWrapper, String> object : objects) {
+        for (Triple<ConnObject, ConnObjectWrapper, String> object : objects) {
             if (anyKey.equals(object.getMiddle().getAny().getKey())
                     && resource.equalsIgnoreCase(object.getMiddle().getResource())) {
 
@@ -220,11 +220,11 @@ public class StatusPanel extends Panel {
 
         private static final long serialVersionUID = 4303365227411467563L;
 
-        private final StatusBean bean;
+        protected final StatusBean bean;
 
-        private final List<Triple<ConnObjectTO, ConnObjectWrapper, String>> connObjects;
+        protected final List<Triple<ConnObject, ConnObjectWrapper, String>> connObjects;
 
-        RemoteAnyPanel(final StatusBean bean, final List<Triple<ConnObjectTO, ConnObjectWrapper, String>> connObjects) {
+        RemoteAnyPanel(final StatusBean bean, final List<Triple<ConnObject, ConnObjectWrapper, String>> connObjects) {
             this.bean = bean;
             this.connObjects = connObjects;
 
@@ -236,7 +236,7 @@ public class StatusPanel extends Panel {
         }
 
         @Override
-        protected final Pair<ConnObjectTO, ConnObjectTO> getConnObjectTOs() {
+        protected final Pair<ConnObject, ConnObject> getConnObjectTOs() {
             return StatusPanel.getConnObjectTOs(bean.getKey(), bean.getResource(), connObjects);
         }
     }

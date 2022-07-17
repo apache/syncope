@@ -23,31 +23,29 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.audit.AuditHistoryModal;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.panels.ConnObjects;
-import org.apache.syncope.client.console.wizards.resources.ConnectorWizardBuilder;
-import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.status.ResourceStatusModal;
 import org.apache.syncope.client.console.tasks.PropagationTasks;
+import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.tasks.PushTasks;
 import org.apache.syncope.client.console.tasks.SchedTasks;
-import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
-import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.resources.ConnectorWizardBuilder;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvision;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;
+import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
@@ -636,19 +634,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     ResourceTO resource = ResourceRestClient.read(node.getKey());
                     resource.setKey("Copy of " + node.getKey());
 
-                    // reset some resource objects keys
-                    if (resource.getOrgUnit() != null) {
-                        resource.getOrgUnit().setKey(null);
-                        for (ItemTO item : resource.getOrgUnit().getItems()) {
-                            item.setKey(null);
-                        }
-                    }
-                    for (ProvisionTO provision : resource.getProvisions()) {
-                        provision.setKey(null);
+                    for (Provision provision : resource.getProvisions()) {
                         if (provision.getMapping() != null) {
-                            for (ItemTO item : provision.getMapping().getItems()) {
-                                item.setKey(null);
-                            }
                             provision.getMapping().getLinkingItems().clear();
                         }
                         provision.getVirSchemas().clear();
@@ -684,7 +671,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             if (result != null && result instanceof ConnInstanceTO && target.isPresent()) {
                 // update Toggle Panel header
                 ConnInstanceTO conn = ConnInstanceTO.class.cast(result);
-                setHeader(target.get(), StringUtils.abbreviate(conn.getDisplayName(), HEADER_FIRST_ABBREVIATION));
+                setHeader(target.get(), conn.getDisplayName());
             }
         }
     }

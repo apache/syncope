@@ -20,9 +20,9 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import org.apache.syncope.core.persistence.api.entity.ConfParam;
 import org.apache.syncope.core.persistence.api.entity.DomainEntity;
+import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
-import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 
 public class JPASelfKeymasterEntityFactory implements SelfKeymasterEntityFactory {
 

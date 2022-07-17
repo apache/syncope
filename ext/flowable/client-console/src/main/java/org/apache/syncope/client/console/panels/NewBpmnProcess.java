@@ -23,8 +23,8 @@ import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -38,15 +38,13 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -4886361549305302161L;
 
-    private final Form<?> form;
-
     public NewBpmnProcess(final String id, final WebMarkupContainer container, final PageReference pageRef) {
         super(id, pageRef);
 
-        form = new Form<>("form");
+        Form<?> form = new Form<>("form");
         addInnerObject(form);
 
-        final TextField<String> key = new TextField<>("key", new Model<>());
+        TextField<String> key = new TextField<>("key", new Model<>());
         key.setRequired(true);
         form.add(key);
 

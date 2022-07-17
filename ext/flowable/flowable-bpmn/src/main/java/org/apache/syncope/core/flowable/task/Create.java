@@ -19,10 +19,10 @@
 package org.apache.syncope.core.flowable.task;
 
 import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 
 public class Create extends FlowableServiceTask {

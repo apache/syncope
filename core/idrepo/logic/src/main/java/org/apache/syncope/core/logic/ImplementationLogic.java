@@ -27,9 +27,9 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -190,7 +190,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 break;
 
             case IdRepoImplementationType.ITEM_TRANSFORMER:
-                inUse = !resourceDAO.findByTransformer(implementation).isEmpty();
+                inUse = resourceDAO.anyItemHaving(implementation);
                 break;
 
             case IdRepoImplementationType.TASKJOB_DELEGATE:

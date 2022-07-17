@@ -35,6 +35,9 @@ public class JPAPropagationPolicy extends AbstractPolicy implements PropagationP
 
     public static final String TABLE = "PropagationPolicy";
 
+    @NotNull
+    private Boolean prefetch = true;
+
     @Enumerated(EnumType.STRING)
     @NotNull
     private BackOffStrategy backOffStrategy;
@@ -43,6 +46,16 @@ public class JPAPropagationPolicy extends AbstractPolicy implements PropagationP
 
     @NotNull
     private Integer maxAttempts = 3;
+
+    @Override
+    public boolean isPrefetch() {
+        return prefetch;
+    }
+
+    @Override
+    public void setPrefetch(final boolean prefetch) {
+        this.prefetch = prefetch;
+    }
 
     @Override
     public BackOffStrategy getBackOffStrategy() {

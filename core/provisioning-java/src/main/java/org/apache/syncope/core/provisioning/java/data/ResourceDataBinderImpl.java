@@ -30,46 +30,41 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.ItemContainerTO;
-import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.ItemContainer;
+import org.apache.syncope.common.lib.to.Mapping;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
-import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
-import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
-import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
+import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.slf4j.Logger;
@@ -154,12 +149,11 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 LOG.debug("Invalid {} specified {}, ignoring...",
                         AnyType.class.getSimpleName(), provisionTO.getAnyType());
             } else {
-                Provision provision = resource.getProvision(anyType).orElse(null);
+                Provision provision = resource.getProvision(anyType.getKey()).orElse(null);
                 if (provision == null) {
-                    provision = entityFactory.newEntity(Provision.class);
-                    provision.setResource(resource);
-                    resource.add(provision);
-                    provision.setAnyType(anyType);
+                    provision = new Provision();
+                    provision.setAnyType(anyType.getKey());
+                    resource.getProvisions().add(provision);
                 }
 
                 if (provisionTO.getObjectClass() == null) {
@@ -167,7 +161,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     sce.getElements().add("Null " + ObjectClass.class.getSimpleName());
                     throw sce;
                 }
-                provision.setObjectClass(new ObjectClass(provisionTO.getObjectClass()));
+                provision.setObjectClass(provisionTO.getObjectClass());
 
                 // add all classes contained in the TO
                 for (String name : provisionTO.getAuxClasses()) {
@@ -175,12 +169,12 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     if (anyTypeClass == null) {
                         LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), name);
                     } else {
-                        provision.add(anyTypeClass);
+                        provision.getAuxClasses().add(anyTypeClass.getKey());
                     }
                 }
                 // remove all classes not contained in the TO
                 provision.getAuxClasses().
-                        removeIf(anyTypeClass -> !provisionTO.getAuxClasses().contains(anyTypeClass.getKey()));
+                        removeIf(anyTypeClass -> !provisionTO.getAuxClasses().contains(anyTypeClass));
 
                 provision.setIgnoreCaseMatch(provisionTO.isIgnoreCaseMatch());
 
@@ -192,7 +186,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         LOG.warn("Ignoring invalid schema for uidOnCreate: {}", provisionTO.getUidOnCreate());
                         provision.setUidOnCreate(null);
                     } else {
-                        provision.setUidOnCreate(uidOnCreate);
+                        provision.setUidOnCreate(uidOnCreate.getKey());
                     }
                 }
 
@@ -201,8 +195,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 } else {
                     Mapping mapping = provision.getMapping();
                     if (mapping == null) {
-                        mapping = entityFactory.newEntity(Mapping.class);
-                        mapping.setProvision(provision);
+                        mapping = new Mapping();
                         provision.setMapping(mapping);
                     } else {
                         mapping.getItems().clear();
@@ -210,25 +203,27 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                     AnyTypeClassTO allowedSchemas = new AnyTypeClassTO();
                     Stream.concat(
-                            provision.getAnyType().getClasses().stream(),
-                            provision.getAuxClasses().stream()).forEach(anyTypeClass -> {
+                            anyType.getClasses().stream(),
+                            provision.getAuxClasses().stream().map(anyTypeClassDAO::find)).forEach(anyTypeClass -> {
 
                         allowedSchemas.getPlainSchemas().addAll(anyTypeClass.getPlainSchemas().stream().
-                                map(Entity::getKey).collect(Collectors.toList()));
+                                map(PlainSchema::getKey).collect(Collectors.toList()));
                         allowedSchemas.getDerSchemas().addAll(anyTypeClass.getDerSchemas().stream().
-                                map(Entity::getKey).collect(Collectors.toList()));
+                                map(DerSchema::getKey).collect(Collectors.toList()));
                         allowedSchemas.getVirSchemas().addAll(anyTypeClass.getVirSchemas().stream().
-                                map(Entity::getKey).collect(Collectors.toList()));
+                                map(VirSchema::getKey).collect(Collectors.toList()));
                     });
 
                     populateMapping(
+                            resource,
                             provisionTO.getMapping(),
                             mapping,
+                            anyType.getKind(),
                             allowedSchemas);
                 }
 
                 if (provisionTO.getVirSchemas().isEmpty()) {
-                    for (VirSchema schema : virSchemaDAO.findByProvision(provision)) {
+                    for (VirSchema schema : virSchemaDAO.find(resource.getKey(), anyType.getKey())) {
                         virSchemaDAO.delete(schema.getKey());
                     }
                 } else {
@@ -238,7 +233,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             LOG.debug("Invalid {} specified: {}, ignoring...",
                                     VirSchema.class.getSimpleName(), schemaName);
                         } else {
-                            schema.setProvision(provision);
+                            schema.setResource(resource);
+                            schema.setAnyType(anyTypeDAO.find(provision.getAnyType()));
                         }
                     }
                 }
@@ -246,10 +242,11 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         });
 
         // 2. remove all provisions not contained in the TO
-        for (Iterator<? extends Provision> itor = resource.getProvisions().iterator(); itor.hasNext();) {
+        for (Iterator<Provision> itor = resource.getProvisions().iterator(); itor.hasNext();) {
             Provision provision = itor.next();
-            if (resourceTO.getProvision(provision.getAnyType().getKey()).isEmpty()) {
-                virSchemaDAO.findByProvision(provision).forEach(schema -> virSchemaDAO.delete(schema.getKey()));
+            if (resourceTO.getProvision(provision.getAnyType()).isEmpty()) {
+                virSchemaDAO.find(resource.getKey(), provision.getAnyType()).
+                        forEach(schema -> virSchemaDAO.delete(schema.getKey()));
 
                 itor.remove();
             }
@@ -257,24 +254,18 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         // 3. orgUnit
         if (resourceTO.getOrgUnit() == null && resource.getOrgUnit() != null) {
-            resource.getOrgUnit().setResource(null);
             resource.setOrgUnit(null);
         } else if (resourceTO.getOrgUnit() != null) {
-            OrgUnitTO orgUnitTO = resourceTO.getOrgUnit();
+            OrgUnit orgUnitTO = resourceTO.getOrgUnit();
 
-            OrgUnit orgUnit = resource.getOrgUnit();
-            if (orgUnit == null) {
-                orgUnit = entityFactory.newEntity(OrgUnit.class);
-                orgUnit.setResource(resource);
-                resource.setOrgUnit(orgUnit);
-            }
+            OrgUnit orgUnit = Optional.ofNullable(resource.getOrgUnit()).orElseGet(() -> new OrgUnit());
 
             if (orgUnitTO.getObjectClass() == null) {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidOrgUnit);
                 sce.getElements().add("Null " + ObjectClass.class.getSimpleName());
                 throw sce;
             }
-            orgUnit.setObjectClass(new ObjectClass(orgUnitTO.getObjectClass()));
+            orgUnit.setObjectClass(orgUnitTO.getObjectClass());
 
             orgUnit.setIgnoreCaseMatch(orgUnitTO.isIgnoreCaseMatch());
 
@@ -292,10 +283,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     ClientExceptionType.RequiredValuesMissing);
 
             orgUnit.getItems().clear();
-            for (ItemTO itemTO : orgUnitTO.getItems()) {
+            for (Item itemTO : orgUnitTO.getItems()) {
                 if (itemTO == null) {
-                    LOG.error("Null {}", ItemTO.class.getSimpleName());
-                    invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
+                    LOG.error("Null {}", Item.class.getSimpleName());
+                    invalidMapping.getElements().add("Null " + Item.class.getSimpleName());
                 } else if (itemTO.getIntAttrName() == null) {
                     requiredValuesMissing.getElements().add("intAttrName");
                     scce.addException(requiredValuesMissing);
@@ -314,7 +305,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             scce.addException(invalidMandatoryCondition);
                         }
 
-                        OrgUnitItem item = entityFactory.newEntity(OrgUnitItem.class);
+                        Item item = new Item();
                         item.setIntAttrName(itemTO.getIntAttrName());
                         item.setExtAttrName(itemTO.getExtAttrName());
                         item.setPurpose(itemTO.getPurpose());
@@ -323,12 +314,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         item.setPassword(itemTO.isPassword());
                         item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
                         item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
-                        item.setOrgUnit(orgUnit);
-                        if (item.isConnObjectKey()) {
-                            orgUnit.setConnObjectKeyItem(item);
-                        } else {
-                            orgUnit.add(item);
-                        }
 
                         itemTO.getTransformers().forEach(transformerKey -> {
                             Implementation transformer = implementationDAO.find(transformerKey);
@@ -336,12 +321,18 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                                 LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
                                         transformerKey);
                             } else {
-                                item.add(transformer);
+                                item.getTransformers().add(transformer.getKey());
                             }
                         });
                         // remove all implementations not contained in the TO
                         item.getTransformers().
-                                removeIf(implementation -> !itemTO.getTransformers().contains(implementation.getKey()));
+                                removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
+
+                        if (item.isConnObjectKey()) {
+                            orgUnit.setConnObjectKeyItem(item);
+                        } else {
+                            orgUnit.add(item);
+                        }
                     }
                 }
             }
@@ -351,6 +342,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             if (scce.hasExceptions()) {
                 throw scce;
             }
+
+            resource.setOrgUnit(orgUnit);
         }
 
         resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
@@ -412,8 +405,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
     }
 
     protected void populateMapping(
-            final MappingTO mappingTO,
+            final ExternalResource resource,
+            final Mapping mappingTO,
             final Mapping mapping,
+            final AnyTypeKind anyTypeKind,
             final AnyTypeClassTO allowedSchemas) {
 
         mapping.setConnObjectLink(mappingTO.getConnObjectLink());
@@ -423,18 +418,17 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         SyncopeClientException requiredValuesMissing = SyncopeClientException.build(
                 ClientExceptionType.RequiredValuesMissing);
 
-        for (ItemTO itemTO : mappingTO.getItems()) {
+        for (Item itemTO : mappingTO.getItems()) {
             if (itemTO == null) {
-                LOG.error("Null {}", ItemTO.class.getSimpleName());
-                invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
+                LOG.error("Null {}", Item.class.getSimpleName());
+                invalidMapping.getElements().add("Null " + Item.class.getSimpleName());
             } else if (itemTO.getIntAttrName() == null) {
                 requiredValuesMissing.getElements().add("intAttrName");
                 scce.addException(requiredValuesMissing);
             } else {
                 IntAttrName intAttrName = null;
                 try {
-                    intAttrName = intAttrNameParser.parse(
-                            itemTO.getIntAttrName(), mapping.getProvision().getAnyType().getKind());
+                    intAttrName = intAttrNameParser.parse(itemTO.getIntAttrName(), anyTypeKind);
                 } catch (ParseException e) {
                     LOG.error("Invalid intAttrName '{}'", itemTO.getIntAttrName(), e);
                 }
@@ -481,7 +475,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             scce.addException(invalidMandatoryCondition);
                         }
 
-                        MappingItem item = entityFactory.newEntity(MappingItem.class);
+                        Item item = new Item();
                         item.setIntAttrName(itemTO.getIntAttrName());
                         item.setExtAttrName(itemTO.getExtAttrName());
                         item.setPurpose(itemTO.getPurpose());
@@ -490,7 +484,19 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         item.setPassword(itemTO.isPassword());
                         item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
                         item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
-                        item.setMapping(mapping);
+
+                        itemTO.getTransformers().forEach(transformerKey -> {
+                            Implementation transformer = implementationDAO.find(transformerKey);
+                            if (transformer == null) {
+                                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                                        transformerKey);
+                            } else {
+                                item.getTransformers().add(transformer.getKey());
+                            }
+                        });
+                        // remove all implementations not contained in the TO
+                        item.getTransformers().
+                                removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
 
                         if (item.isConnObjectKey()) {
                             if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
@@ -506,19 +512,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         } else {
                             mapping.add(item);
                         }
-
-                        itemTO.getTransformers().forEach(transformerKey -> {
-                            Implementation transformer = implementationDAO.find(transformerKey);
-                            if (transformer == null) {
-                                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                                        transformerKey);
-                            } else {
-                                item.add(transformer);
-                            }
-                        });
-                        // remove all implementations not contained in the TO
-                        item.getTransformers().
-                                removeIf(implementation -> !itemTO.getTransformers().contains(implementation.getKey()));
 
                         if (intAttrName.getEnclosingGroup() != null
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {
@@ -554,7 +547,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             }
 
                             VirSchema schema = virSchemaDAO.find(item.getIntAttrName());
-                            if (schema != null && schema.getProvision().equals(item.getMapping().getProvision())) {
+                            if (schema != null && schema.getResource().equals(resource)) {
                                 invalidMapping.getElements().add(
                                         "No need to map virtual schema on linking resource");
                             }
@@ -590,10 +583,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         }
     }
 
-    protected static void populateItems(final List<? extends Item> items, final ItemContainerTO containerTO) {
+    protected void populateItems(final List<Item> items, final ItemContainer containerTO) {
         items.forEach(item -> {
-            ItemTO itemTO = new ItemTO();
-            itemTO.setKey(item.getKey());
+            Item itemTO = new Item();
             itemTO.setIntAttrName(item.getIntAttrName());
             itemTO.setExtAttrName(item.getExtAttrName());
             itemTO.setPurpose(item.getPurpose());
@@ -602,15 +594,13 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             itemTO.setPassword(item.isPassword());
             itemTO.setPropagationJEXLTransformer(item.getPropagationJEXLTransformer());
             itemTO.setPullJEXLTransformer(item.getPullJEXLTransformer());
+            itemTO.getTransformers().addAll(item.getTransformers());
 
             if (itemTO.isConnObjectKey()) {
                 containerTO.setConnObjectKeyItem(itemTO);
             } else {
                 containerTO.add(itemTO);
             }
-
-            itemTO.getTransformers().addAll(item.getTransformers().stream().
-                    map(Entity::getKey).collect(Collectors.toSet()));
         });
     }
 
@@ -624,60 +614,42 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         // set the connector instance
         ConnInstance connector = resource.getConnector();
 
-        resourceTO.setConnector(Optional.ofNullable(connector).map(Entity::getKey).orElse(null));
-        resourceTO.setConnectorDisplayName(Optional.ofNullable(connector)
-                .map(ConnInstance::getDisplayName).orElse(null));
+        resourceTO.setConnector(Optional.ofNullable(connector).map(ConnInstance::getKey).orElse(null));
+        resourceTO.setConnectorDisplayName(Optional.ofNullable(connector).
+                map(ConnInstance::getDisplayName).orElse(null));
 
         // set the provision information
         resource.getProvisions().forEach(provision -> {
-            ProvisionTO provisionTO = new ProvisionTO();
-            provisionTO.setKey(provision.getKey());
-            provisionTO.setAnyType(provision.getAnyType().getKey());
-            provisionTO.setObjectClass(provision.getObjectClass().getObjectClassValue());
-            provisionTO.getAuxClasses().addAll(provision.getAuxClasses().stream().
-                    map(Entity::getKey).collect(Collectors.toList()));
-            provisionTO.setSyncToken(provision.getSerializedSyncToken());
+            Provision provisionTO = new Provision();
+            provisionTO.setAnyType(provision.getAnyType());
+            provisionTO.setObjectClass(provision.getObjectClass());
+            provisionTO.getAuxClasses().addAll(provision.getAuxClasses());
+            provisionTO.setSyncToken(provision.getSyncToken());
             provisionTO.setIgnoreCaseMatch(provision.isIgnoreCaseMatch());
-            if (provision.getUidOnCreate() != null) {
-                provisionTO.setUidOnCreate(provision.getUidOnCreate().getKey());
-            }
+            provisionTO.setUidOnCreate(provision.getUidOnCreate());
 
             if (provision.getMapping() != null) {
-                MappingTO mappingTO = new MappingTO();
+                Mapping mappingTO = new Mapping();
                 provisionTO.setMapping(mappingTO);
                 mappingTO.setConnObjectLink(provision.getMapping().getConnObjectLink());
                 populateItems(provision.getMapping().getItems(), mappingTO);
             }
 
-            virSchemaDAO.findByProvision(provision).forEach(virSchema -> {
-                provisionTO.getVirSchemas().add(virSchema.getKey());
-
-                MappingItem linkingMappingItem = virSchema.asLinkingMappingItem();
-
-                ItemTO itemTO = new ItemTO();
-                itemTO.setKey(linkingMappingItem.getKey());
-                itemTO.setIntAttrName(linkingMappingItem.getIntAttrName());
-                itemTO.setExtAttrName(linkingMappingItem.getExtAttrName());
-                itemTO.setPurpose(linkingMappingItem.getPurpose());
-                itemTO.setMandatoryCondition(linkingMappingItem.getMandatoryCondition());
-                itemTO.setConnObjectKey(linkingMappingItem.isConnObjectKey());
-                itemTO.setPassword(linkingMappingItem.isPassword());
-                itemTO.setPropagationJEXLTransformer(linkingMappingItem.getPropagationJEXLTransformer());
-                itemTO.setPullJEXLTransformer(linkingMappingItem.getPullJEXLTransformer());
-
-                provisionTO.getMapping().getLinkingItems().add(itemTO);
-            });
-
             resourceTO.getProvisions().add(provisionTO);
         });
+        resourceTO.getProvisions().
+                forEach(provisionTO -> virSchemaDAO.find(resource.getKey(), provisionTO.getAnyType()).
+                forEach(virSchema -> {
+                    provisionTO.getVirSchemas().add(virSchema.getKey());
+                    provisionTO.getMapping().getLinkingItems().add(virSchema.asLinkingMappingItem());
+                }));
 
         if (resource.getOrgUnit() != null) {
             OrgUnit orgUnit = resource.getOrgUnit();
 
-            OrgUnitTO orgUnitTO = new OrgUnitTO();
-            orgUnitTO.setKey(orgUnit.getKey());
-            orgUnitTO.setObjectClass(orgUnit.getObjectClass().getObjectClassValue());
-            orgUnitTO.setSyncToken(orgUnit.getSerializedSyncToken());
+            OrgUnit orgUnitTO = new OrgUnit();
+            orgUnitTO.setObjectClass(orgUnit.getObjectClass());
+            orgUnitTO.setSyncToken(orgUnit.getSyncToken());
             orgUnitTO.setIgnoreCaseMatch(orgUnit.isIgnoreCaseMatch());
             orgUnitTO.setConnObjectLink(orgUnit.getConnObjectLink());
             populateItems(orgUnit.getItems(), orgUnitTO);
@@ -721,7 +693,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.getCapabilitiesOverride().addAll(resource.getCapabilitiesOverride());
 
         resourceTO.getPropagationActions().addAll(
-                resource.getPropagationActions().stream().map(Entity::getKey).collect(Collectors.toList()));
+                resource.getPropagationActions().stream().map(Implementation::getKey).collect(Collectors.toList()));
 
         return resourceTO;
     }

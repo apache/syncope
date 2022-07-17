@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-public class DuoMfaAuthModuleConf implements AuthModuleConf {
+import java.util.Map;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
+
+public class DuoMfaAuthModuleConf implements MFAAuthModuleConf {
 
     private static final long serialVersionUID = -2883257599439312426L;
 
@@ -29,6 +32,11 @@ public class DuoMfaAuthModuleConf implements AuthModuleConf {
     private String applicationKey;
 
     private String apiHost;
+
+    @Override
+    public String getFriendlyName() {
+        return "Duo Security";
+    }
 
     public String getIntegrationKey() {
         return integrationKey;
@@ -60,5 +68,10 @@ public class DuoMfaAuthModuleConf implements AuthModuleConf {
 
     public void setApiHost(final String apiHost) {
         this.apiHost = apiHost;
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
+        return mapper.map(authModule, this);
     }
 }

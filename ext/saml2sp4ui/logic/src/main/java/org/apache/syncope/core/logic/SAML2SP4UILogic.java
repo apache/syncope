@@ -36,28 +36,26 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.saml2.SAML2Request;
 import org.apache.syncope.common.lib.saml2.SAML2LoginResponse;
+import org.apache.syncope.common.lib.saml2.SAML2Request;
 import org.apache.syncope.common.lib.saml2.SAML2Response;
+import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.logic.init.SAML2SP4UILoader;
 import org.apache.syncope.core.logic.saml2.NoOpSessionStore;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIContext;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIUserManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
+import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.provisioning.api.RequestedAuthnContextProvider;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
-import org.opensaml.saml.saml2.core.LogoutResponse;
-import org.opensaml.saml.saml2.core.NameID;
-import org.opensaml.saml.saml2.core.StatusCode;
-import org.pac4j.core.context.session.SessionStore;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -65,11 +63,15 @@ import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
+import org.opensaml.saml.saml2.core.LogoutResponse;
+import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.RequestedAuthnContext;
+import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.impl.AssertionConsumerServiceBuilder;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.exception.http.WithContentAction;
 import org.pac4j.core.exception.http.WithLocationAction;
@@ -84,10 +86,8 @@ import org.pac4j.saml.profile.SAML2Profile;
 import org.pac4j.saml.redirect.SAML2RedirectionActionBuilder;
 import org.pac4j.saml.sso.impl.SAML2AuthnRequestBuilder;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.ResourceUtils;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdPItem;
-import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
-import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 
 public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
@@ -332,7 +332,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         SAML2Credentials.SAMLNameID nameID = credentials.getNameId();
 
-        SAML2SP4UIIdPItem connObjectKeyItem = idp.getConnObjectKeyItem().orElse(null);
+        Item connObjectKeyItem = idp.getConnObjectKeyItem().orElse(null);
 
         String keyValue = null;
         if (StringUtils.isNotBlank(nameID.getValue())

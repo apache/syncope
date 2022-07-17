@@ -435,13 +435,13 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.resource().name).
                 append(" WHERE resource_id=?").
-                append(setParameter(parameters, cond.getResourceKey()));
+                append(setParameter(parameters, cond.getResource()));
 
         if (svs.anyTypeKind == AnyTypeKind.USER || svs.anyTypeKind == AnyTypeKind.ANY_OBJECT) {
             query.append(" UNION SELECT DISTINCT any_id FROM ").
                     append(svs.groupResource().name).
                     append(" WHERE resource_id=?").
-                    append(setParameter(parameters, cond.getResourceKey()));
+                    append(setParameter(parameters, cond.getResource()));
         }
 
         query.append(')');

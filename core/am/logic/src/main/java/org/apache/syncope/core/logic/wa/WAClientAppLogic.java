@@ -22,40 +22,40 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.auth.CASSPDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.OIDCRPDAO;
-import org.apache.syncope.core.persistence.api.dao.auth.SAML2SPDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
+import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
+import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
-import org.apache.syncope.core.persistence.api.entity.auth.SAML2SPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.CASSPClientApp;
-import org.apache.syncope.core.persistence.api.entity.auth.OIDCRPClientApp;
 
 public class WAClientAppLogic {
 
     protected final WAClientAppDataBinder binder;
 
-    protected final SAML2SPDAO saml2spDAO;
+    protected final CASSPClientAppDAO casSPClientAppDAO;
 
-    protected final OIDCRPDAO oidcrpDAO;
+    protected final OIDCRPClientAppDAO oidcRPClientAppDAO;
 
-    protected final CASSPDAO casspDAO;
+    protected final SAML2SPClientAppDAO saml2SPClientAppDAO;
 
     public WAClientAppLogic(
             final WAClientAppDataBinder binder,
-            final SAML2SPDAO saml2spDAO,
-            final OIDCRPDAO oidcrpDAO,
-            final CASSPDAO casspDAO) {
+            final CASSPClientAppDAO casSPClientAppDAO,
+            final OIDCRPClientAppDAO oidcRPClientAppDAO,
+            final SAML2SPClientAppDAO saml2SPClientAppDAO) {
 
         this.binder = binder;
-        this.saml2spDAO = saml2spDAO;
-        this.oidcrpDAO = oidcrpDAO;
-        this.casspDAO = casspDAO;
+        this.casSPClientAppDAO = casSPClientAppDAO;
+        this.oidcRPClientAppDAO = oidcRPClientAppDAO;
+        this.saml2SPClientAppDAO = saml2SPClientAppDAO;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -66,18 +66,18 @@ public class WAClientAppLogic {
         Stream.of(ClientAppType.values()).forEach(type -> {
             switch (type) {
                 case OIDCRP:
-                    clientApps.addAll(oidcrpDAO.findAll().stream().
+                    clientApps.addAll(oidcRPClientAppDAO.findAll().stream().
                             map(binder::getWAClientApp).collect(Collectors.toList()));
                     break;
 
                 case SAML2SP:
-                    clientApps.addAll(saml2spDAO.findAll().stream().
+                    clientApps.addAll(saml2SPClientAppDAO.findAll().stream().
                             map(binder::getWAClientApp).collect(Collectors.toList()));
                     break;
 
                 case CASSP:
                 default:
-                    clientApps.addAll(casspDAO.findAll().stream().
+                    clientApps.addAll(casSPClientAppDAO.findAll().stream().
                             map(binder::getWAClientApp).collect(Collectors.toList()));
             }
         });
@@ -90,21 +90,21 @@ public class WAClientAppLogic {
 
         switch (type) {
             case OIDCRP:
-                OIDCRPClientApp oidcrp = oidcrpDAO.findByClientAppId(clientAppId);
+                OIDCRPClientApp oidcrp = oidcRPClientAppDAO.findByClientAppId(clientAppId);
                 if (oidcrp != null) {
                     clientApp = binder.getWAClientApp(oidcrp);
                 }
                 break;
 
             case SAML2SP:
-                SAML2SPClientApp saml2sp = saml2spDAO.findByClientAppId(clientAppId);
+                SAML2SPClientApp saml2sp = saml2SPClientAppDAO.findByClientAppId(clientAppId);
                 if (saml2sp != null) {
                     clientApp = binder.getWAClientApp(saml2sp);
                 }
                 break;
 
             case CASSP:
-                CASSPClientApp cassp = casspDAO.findByClientAppId(clientAppId);
+                CASSPClientApp cassp = casSPClientAppDAO.findByClientAppId(clientAppId);
                 if (cassp != null) {
                     clientApp = binder.getWAClientApp(cassp);
                 }
@@ -140,21 +140,21 @@ public class WAClientAppLogic {
 
         switch (type) {
             case OIDCRP:
-                OIDCRPClientApp oidcrp = oidcrpDAO.findByName(name);
+                OIDCRPClientApp oidcrp = oidcRPClientAppDAO.findByName(name);
                 if (oidcrp != null) {
                     clientApp = binder.getWAClientApp(oidcrp);
                 }
                 break;
 
             case SAML2SP:
-                SAML2SPClientApp saml2sp = saml2spDAO.findByName(name);
+                SAML2SPClientApp saml2sp = saml2SPClientAppDAO.findByName(name);
                 if (saml2sp != null) {
                     clientApp = binder.getWAClientApp(saml2sp);
                 }
                 break;
 
             case CASSP:
-                CASSPClientApp cassp = casspDAO.findByName(name);
+                CASSPClientApp cassp = casSPClientAppDAO.findByName(name);
                 if (cassp != null) {
                     clientApp = binder.getWAClientApp(cassp);
                 }

@@ -19,9 +19,8 @@
 package org.apache.syncope.core.provisioning.api;
 
 import java.util.Comparator;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.common.lib.to.Provision;
 
 @FunctionalInterface
 public interface ProvisionSorter extends Comparator<Provision> {
-
 }

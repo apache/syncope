@@ -42,8 +42,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
+import org.apache.syncope.common.lib.to.ConnObject;
+import org.apache.syncope.common.lib.to.PagedConnObjectResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
@@ -94,7 +94,7 @@ public interface ResourceService extends JAXRSService {
     @GET
     @Path("{key}/{anyTypeKey}/{value}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    ConnObjectTO readConnObject(
+    ConnObject readConnObject(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("anyTypeKey") String anyTypeKey,
             @NotNull @PathParam("value") String value);
@@ -111,7 +111,7 @@ public interface ResourceService extends JAXRSService {
     @GET
     @Path("{key}/{anyTypeKey}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    PagedConnObjectTOResult searchConnObjects(
+    PagedConnObjectResult searchConnObjects(
             @NotNull @PathParam("key") String key,
             @NotNull @PathParam("anyTypeKey") String anyTypeKey,
             @BeanParam ConnObjectTOQuery connObjectTOQuery);
