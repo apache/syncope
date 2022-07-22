@@ -34,7 +34,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wizards.CSVPullWizardBuilder;
 import org.apache.syncope.client.console.wizards.CSVPushWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.ProvisioningReportsPanel;
-import org.apache.syncope.client.console.wizards.any.ResultPage;
+import org.apache.syncope.client.console.wizards.any.ResultPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
@@ -90,7 +90,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                     Optional<AjaxRequestTarget> target = payload.getTarget();
 
                     if (payload.getResult() instanceof ArrayList) {
-                        modal.setContent(new ResultPage<>(
+                        modal.setContent(new ResultPanel<>(
                             null,
                             payload.getResult()) {
 
@@ -103,11 +103,11 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
 
                             @Override
                             protected Panel customResultBody(
-                                final String id, final Serializable item, final Serializable result) {
+                                final String panelId, final Serializable item, final Serializable result) {
 
                                 @SuppressWarnings("unchecked")
                                 ArrayList<ProvisioningReport> reports = (ArrayList<ProvisioningReport>) result;
-                                return new ProvisioningReportsPanel(id, reports, pageRef);
+                                return new ProvisioningReportsPanel(panelId, reports, pageRef);
                             }
                         });
                         target.ifPresent(t -> t.add(modal.getForm()));

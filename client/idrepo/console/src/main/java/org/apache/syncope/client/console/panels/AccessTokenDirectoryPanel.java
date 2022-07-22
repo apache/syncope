@@ -63,7 +63,7 @@ public class AccessTokenDirectoryPanel
     protected AccessTokenDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
 
-        setShowResultPage(true);
+        setShowResultPanel(true);
 
         modal.size(Modal.Size.Large);
         initResultTable();

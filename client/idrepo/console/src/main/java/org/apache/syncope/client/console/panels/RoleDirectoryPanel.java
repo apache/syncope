@@ -82,7 +82,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
         setReadOnly(!SyncopeConsoleSession.get().owns(IdRepoEntitlement.ROLE_UPDATE));
 
         disableCheckBoxes();
-        setShowResultPage(true);
+        setShowResultPanel(true);
 
         modal.size(Modal.Size.Large);
         initResultTable();

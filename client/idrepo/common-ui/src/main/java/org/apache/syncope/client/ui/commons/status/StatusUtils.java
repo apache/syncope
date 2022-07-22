@@ -203,6 +203,11 @@ public final class StatusUtils implements Serializable {
         return getLabel(componentId, alt, title, clazz);
     }
 
+    public static Panel getWarningStatusPanel(final String componentId) {
+        return new LabelPanel(componentId,
+                getLabel("label", "warning icon", "Propagation failed", Constants.WARNING_ICON));
+    }
+    
     public static Label getLabel(final String componentId, final String alt, final String title, final String clazz) {
         return new Label(componentId, StringUtils.EMPTY) {
 

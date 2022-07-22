@@ -125,7 +125,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
         };
         ((WebMarkupContainer) get("container:content")).addOrReplace(newBpmnProcessLink);
 
-        setShowResultPage(true);
+        setShowResultPanel(true);
 
         modal.size(Modal.Size.Large);
 

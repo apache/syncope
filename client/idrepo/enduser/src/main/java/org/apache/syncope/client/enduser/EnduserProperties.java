@@ -24,7 +24,6 @@ import org.apache.syncope.client.enduser.pages.BasePage;
 import org.apache.syncope.client.enduser.panels.Sidebar;
 import org.apache.syncope.client.ui.commons.CommonUIProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
 @ConfigurationProperties("enduser")
 public class EnduserProperties extends CommonUIProperties {
 
@@ -33,6 +32,10 @@ public class EnduserProperties extends CommonUIProperties {
     private String customFormLayout = "classpath:/customFormLayout.json";
 
     private boolean captcha;
+
+    private boolean reportPropagationErrors;
+
+    private boolean reportPropagationErrorDetails;
 
     private final Map<String, Class<? extends BasePage>> page = new HashMap<>();
 
@@ -58,6 +61,22 @@ public class EnduserProperties extends CommonUIProperties {
 
     public void setCaptcha(final boolean captcha) {
         this.captcha = captcha;
+    }
+
+    public boolean isReportPropagationErrors() {
+        return reportPropagationErrors;
+    }
+
+    public void setReportPropagationErrors(final boolean reportPropagationErrors) {
+        this.reportPropagationErrors = reportPropagationErrors;
+    }
+
+    public boolean isReportPropagationErrorDetails() {
+        return reportPropagationErrorDetails;
+    }
+
+    public void setReportPropagationErrorDetails(final boolean reportPropagationErrorDetails) {
+        this.reportPropagationErrorDetails = reportPropagationErrorDetails;
     }
 
     public Map<String, Class<? extends BasePage>> getPage() {

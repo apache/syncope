@@ -56,7 +56,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
         this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         restClient = new TaskRestClient();
-        setShowResultPage(false);
+        setShowResultPanel(false);
     }
 
     protected TaskDirectoryPanel(
@@ -66,7 +66,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
         this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         restClient = new TaskRestClient();
-        setShowResultPage(false);
+        setShowResultPanel(false);
     }
 
     protected TaskDirectoryPanel(
@@ -76,7 +76,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
         this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         restClient = new TaskRestClient();
-        setShowResultPage(false);
+        setShowResultPanel(false);
     }
 
     @Override

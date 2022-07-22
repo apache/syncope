@@ -91,7 +91,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         this.wizardBuilder = buildNewItemPanelBuilder(pageRef);
         addNewItemPanelBuilder(this.wizardBuilder, false);
 
-        setShowResultPage(true);
+        setShowResultPanel(true);
 
         modal.size(Modal.Size.Large);
         setWindowClosedReloadCallback(modal);

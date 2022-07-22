@@ -72,7 +72,7 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
         };
         addInnerObject(saveButton);
 
-        setShowResultPage(true);
+        setShowResultPanel(true);
 
         modal.size(Modal.Size.Large);
         setWindowClosedReloadCallback(modal);

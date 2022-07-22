@@ -80,7 +80,7 @@ public class TypeExtensionDirectoryPanel
                 pageRef);
         this.addNewItemPanelBuilder(builder, true);
 
-        setShowResultPage(false);
+        setShowResultPanel(false);
         initResultTable();
     }
 

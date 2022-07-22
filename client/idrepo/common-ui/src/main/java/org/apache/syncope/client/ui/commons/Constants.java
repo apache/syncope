@@ -108,6 +108,8 @@ public final class Constants {
     public static final String UNDEFINED_ICON = "fas fa-question-circle";
 
     public static final String NOT_FOUND_ICON = "fas fa-minus-circle";
+    
+    public static final String WARNING_ICON = "fas fa-exclamation-circle";
 
     public static final int MAX_GROUP_LIST_SIZE = 30;
 
@@ -120,6 +122,8 @@ public final class Constants {
     public static final String NOTIFICATION_LEVEL_PARAM = "notificationLevel";
 
     public static final String ENDUSER_ANYLAYOUT = "enduser.anylayout";
+    
+    public static final String CONTENT_ID = "content";
 
     public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {
         return getJEXLPopover(caller, placement, caller.getString("jexl_ex1"), caller.getString("jexl_ex2"));

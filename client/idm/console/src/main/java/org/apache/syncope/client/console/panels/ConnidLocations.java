@@ -60,7 +60,7 @@ public class ConnidLocations extends
         super(id, builder);
 
         disableCheckBoxes();
-        setShowResultPage(true);
+        setShowResultPanel(true);
 
         modal.size(Modal.Size.Large);
         initResultTable();
