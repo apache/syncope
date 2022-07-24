@@ -1625,6 +1625,12 @@ under the License.
         <artifactId>cas-client-core</artifactId>
         <version>${cas-client.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>nz.net.ultraq.thymeleaf</groupId>
+        <artifactId>thymeleaf-layout-dialect</artifactId>
+        <version>3.1.0</version>
+      </dependency>
       <!-- /CAS -->
 
       <!-- Wicket -->
