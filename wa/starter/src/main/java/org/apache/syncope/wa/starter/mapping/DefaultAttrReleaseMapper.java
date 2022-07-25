@@ -46,7 +46,8 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
 
         ReturnMappedAttributeReleasePolicy returnMapped = null;
         if (!releaseAttrs.isEmpty()) {
-            returnMapped = new ReturnMappedAttributeReleasePolicy(releaseAttrs);
+            returnMapped = new ReturnMappedAttributeReleasePolicy();
+            returnMapped.setAllowedAttributes(releaseAttrs);
         }
 
         ReturnAllowedAttributeReleasePolicy returnAllowed = null;

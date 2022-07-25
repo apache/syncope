@@ -64,19 +64,15 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-core-events-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-core-authentication</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-core-configuration</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-core-audit-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-core-events-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
@@ -93,6 +89,10 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-core-services</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-core-authentication-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
@@ -117,10 +117,6 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-core-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-core-authentication-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
@@ -153,6 +149,12 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-syncope-authentication</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.mmoayyed.cxf</groupId>
+          <artifactId>cxf-rt-rs-extension-search</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
@@ -169,6 +171,10 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-themes</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-core-audit-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
@@ -218,15 +224,6 @@ under the License.
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-aup-webflow</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-webauthn</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-webauthn-core</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-u2f</artifactId>
@@ -234,6 +231,46 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-u2f-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-webauthn</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.ws.rs</groupId>
+          <artifactId>javax.ws.rs-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-servlet</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.glassfish.jersey.containers</groupId>
+          <artifactId>jersey-container-servlet-core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-webauthn-core</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.ws.rs</groupId>
+          <artifactId>javax.ws.rs-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-servlet</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.glassfish.jersey.containers</groupId>
+          <artifactId>jersey-container-servlet-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
@@ -249,11 +286,11 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-gauth-ldap</artifactId>
+      <artifactId>cas-server-support-ldap-core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-ldap-core</artifactId>
+      <artifactId>cas-server-support-gauth-ldap</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
@@ -269,12 +306,12 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-webapp-config</artifactId>
+      <artifactId>cas-server-support-oidc-services</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-oidc-services</artifactId>
-    </dependency>   
+      <artifactId>cas-server-support-swagger</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-core-authentication-attributes</artifactId>
@@ -285,7 +322,7 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-swagger</artifactId>
+      <artifactId>cas-server-webapp-config</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
@@ -294,11 +331,6 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-surrogate-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>nz.net.ultraq.thymeleaf</groupId>
-      <artifactId>thymeleaf-layout-dialect</artifactId>
     </dependency>
 
     <dependency>

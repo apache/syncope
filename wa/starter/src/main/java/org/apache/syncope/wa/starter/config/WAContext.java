@@ -77,12 +77,11 @@ import org.apereo.cas.configuration.model.support.mfa.u2f.U2FCoreMultifactorAuth
 import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
-import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
 import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
 import org.apereo.cas.services.ServiceRegistryListener;
 import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
-import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactoryCustomizer;
+import org.apereo.cas.support.pac4j.authentication.clients.DelegatedClientFactoryCustomizer;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
@@ -269,7 +268,7 @@ public class WAContext {
     }
 
     @Bean
-    public OneTimeTokenRepository oneTimeTokenAuthenticatorTokenRepository(
+    public WAGoogleMfaAuthTokenRepository oneTimeTokenAuthenticatorTokenRepository(
             final CasConfigurationProperties casProperties,
             final WARestClient restClient) {
 
