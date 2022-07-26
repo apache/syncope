@@ -39,6 +39,18 @@ under the License.
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-bom</artifactId>
+        <version>${cas.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.syncope.wa</groupId>
