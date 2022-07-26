@@ -213,6 +213,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For ClassMate (https://github.com/FasterXML/java-classmate):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For JCIP Annotations (https://github.com/stephenc/jcip-annotations):
 This is licensed under the AL 2.0, see above.
 
@@ -1192,7 +1197,17 @@ obligation with respect to this CC0 or use of the Work.
 
 ==
 
+For Hibernate Validator (https://hibernate.org/validator/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Java Apereo CAS Client (https://www.apereo.org/cas):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For JBoss Logging (http://www.jboss.org/):
 This is licensed under the AL 2.0, see above.
 
 ==

@@ -631,6 +631,10 @@ $ mvn -P embedded,all
 
 ===== Paths and Components
 
+[WARNING]
+While accessing the URLs below, your browser will warn that the presented TLS certificate is invalid: it is safe to
+just ignore the message, take the risk and discover how deep does the rabbit hole go. Not for production, of course.
+
 [cols="1,2"]
 |===
 
@@ -641,23 +645,23 @@ $ mvn -P embedded,all
 | Available under `core/target/bundles`
 
 | REST API reference
-| http://localhost:9080/syncope/
+| https://localhost:9443/syncope/
 
 | Admini UI
-| http://localhost:9080/syncope-console/ +
+| https://localhost:9443/syncope-console/ +
 Credentials: `admin` / `password`
 
 | End-user UI
-| http://localhost:9080/syncope-enduser/
+| https://localhost:9443/syncope-enduser/
 
 | WA
-| http://localhost:9080/syncope-wa/
+| https://localhost:9443/syncope-wa/
 
 | SRA
 | http://localhost:8080/
 
 | Internal storage
-| A SQL web interface is available at http://localhost:9080/syncope/h2 +
+| A SQL web interface is available at https://localhost:9443/syncope/h2 +
  +
  Choose configuration 'Generic H2 (Embedded)' +
  Insert `jdbc:h2:mem:syncopedb` as JDBC URL +
@@ -674,7 +678,7 @@ You can configure any LDAP client (such as http://jxplorer.org/[JXplorer^], for 
  bind password: `secret`
 
 | External resource: SOAP and REST
-| Example SOAP and REST services are available at http://localhost:9080/syncope-fit-build-tools/cxf/
+| Example SOAP and REST services are available at https://localhost:9443/syncope-fit-build-tools/cxf/
 
 | External resource: database
 | http://www.h2database.com/[H2^] TCP database is available. +

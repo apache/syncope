@@ -33,7 +33,7 @@ under the License.
   <packaging>war</packaging>
 
   <properties>
-    <spring.profiles.active>embedded</spring.profiles.active>
+    <spring.profiles.active>embedded,https</spring.profiles.active>
     <exec.skip>true</exec.skip>
   </properties>
 
@@ -138,6 +138,9 @@ under the License.
                 <copy file="../core/target/test-classes/core-embedded.properties" 
                       todir="../core/target/syncope/WEB-INF/classes" 
                       overwrite="true"/>
+                <copy file="../core/target/test-classes/core-https.properties" 
+                      todir="../core/target/syncope/WEB-INF/classes" 
+                      overwrite="true"/>
                 <copy file="../core/target/test-classes/core-all.properties" 
                       todir="../core/target/syncope/WEB-INF/classes" 
                       overwrite="true"/>
@@ -145,8 +148,14 @@ under the License.
                 <copy file="../console/target/test-classes/console-embedded.properties" 
                       todir="../console/target/syncope-console/WEB-INF/classes" 
                       overwrite="true"/>
+                <copy file="../console/target/test-classes/console-https.properties" 
+                      todir="../console/target/syncope-console/WEB-INF/classes" 
+                      overwrite="true"/>
 
                 <copy file="../enduser/target/test-classes/enduser-embedded.properties" 
+                      todir="../enduser/target/syncope-enduser/WEB-INF/classes" 
+                      overwrite="true"/>                
+                <copy file="../enduser/target/test-classes/enduser-https.properties" 
                       todir="../enduser/target/syncope-enduser/WEB-INF/classes" 
                       overwrite="true"/>                
 
@@ -183,6 +192,8 @@ under the License.
             <configuration>
               <executable>${JAVA_HOME}/bin/java</executable>
               <arguments>
+                <argument>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks</argument>
+                <argument>-Djavax.net.ssl.trustStorePassword=password</argument>
                 <argument>-jar</argument>
                 <argument>${basedir}/../sra/target/syncope-sra.jar</argument>
                 <argument>-Dreactor.netty.http.server.accessLogEnabled=true</argument>
@@ -210,9 +221,10 @@ under the License.
               <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
               <extractDir>${project.build.directory}/cargo/extract</extractDir>
             </zipUrlInstaller>
-            <timeout>300000</timeout>
+            <timeout>600000</timeout>
             <log>${cargo.log}</log>
             <output>${cargo.output}</output> 
+
             <dependencies>
               <dependency>
                 <groupId>com.h2database</groupId>
@@ -225,6 +237,9 @@ under the License.
               <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
 
               <h2.returnOffsetDateTime>true</h2.returnOffsetDateTime>
+
+              <javax.net.ssl.trustStore>${basedir}/src/test/resources/keystore.jks</javax.net.ssl.trustStore>
+              <javax.net.ssl.trustStorePassword>password</javax.net.ssl.trustStorePassword>
             </systemProperties>
           </container>
           <configuration>
@@ -232,6 +247,16 @@ under the License.
               <cargo.jvmargs>
                 -Dspring.profiles.active=${spring.profiles.active}
                 -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
+
+              <cargo.servlet.port>9443</cargo.servlet.port>
+              <cargo.protocol>https</cargo.protocol>
+              <cargo.tomcat.connector.keystoreFile>${basedir}/src/test/resources/keystore.jks</cargo.tomcat.connector.keystoreFile>
+              <cargo.tomcat.connector.keystorePass>password</cargo.tomcat.connector.keystorePass>
+              <cargo.tomcat.connector.keyAlias>tomcat</cargo.tomcat.connector.keyAlias>
+              <cargo.tomcat.connector.clientAuth>false</cargo.tomcat.connector.clientAuth>
+              <cargo.tomcat.connector.sslProtocol>TLS</cargo.tomcat.connector.sslProtocol>
+              <cargo.tomcat.connector.redirectPort>9443</cargo.tomcat.connector.redirectPort>
+              <cargo.tomcat.httpSecure>true</cargo.tomcat.httpSecure>
             </properties>
           </configuration>
           <deployables>
@@ -245,6 +270,8 @@ under the License.
             </deployable>
             <deployable>
               <location>../core/target/syncope</location>
+              <pingURL>https://localhost:9443/syncope/index.html</pingURL>
+              <pingTimeout>${cargo.deployable.ping.timeout}</pingTimeout>
               <properties>
                 <context>syncope</context>
               </properties>
@@ -290,7 +317,7 @@ under the License.
       <id>all</id>
 
       <properties>
-        <spring.profiles.active>embedded,all</spring.profiles.active>
+        <spring.profiles.active>embedded,https,all</spring.profiles.active>
       </properties>
 
       <build>
