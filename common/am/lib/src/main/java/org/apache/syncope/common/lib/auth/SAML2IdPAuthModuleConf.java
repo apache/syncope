@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 
-public class SAML2IdPAuthModuleConf implements AuthModuleConf {
+public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -471527731042579422L;
 
@@ -33,35 +33,35 @@ public class SAML2IdPAuthModuleConf implements AuthModuleConf {
      * for the authenticated username, upon a successful authentication
      * attempt.
      */
-    private String userIdAttribute;
+    protected String userIdAttribute;
 
     /**
      * The destination binding to use
      * when creating authentication requests.
      */
-    private SAML2BindingType destinationBinding = SAML2BindingType.REDIRECT;
+    protected SAML2BindingType destinationBinding = SAML2BindingType.REDIRECT;
 
     /**
      * The password to use when generating the SP keystore.
      */
-    private String keystorePassword;
+    protected String keystorePassword;
 
     /**
      * The password to use when generating the private key for the SP keystore.
      */
-    private String privateKeyPassword;
+    protected String protectedKeyPassword;
 
     /**
      * The metadata location of the identity provider that is to handle authentications.
      */
-    private String identityProviderMetadataPath;
+    protected String identityProviderMetadataPath;
 
     /**
      * Flag to indicate whether the allow-create flags
      * for nameid policies should be set to true, false or ignored/defined.
      * Accepted values are true, false or undefined.
      */
-    private String nameIdPolicyAllowCreate = "undefined";
+    protected String nameIdPolicyAllowCreate = "undefined";
 
     /**
      * Once you have an authenticated session on the identity provider, usually it won't prompt you again to enter your
@@ -69,34 +69,34 @@ public class SAML2IdPAuthModuleConf implements AuthModuleConf {
      * will accept assertions based on a previous authentication for one hour.
      * You can adjust this behavior by modifying this setting. The unit of time here is seconds.
      */
-    private String maximumAuthenticationLifetime = "PT3600S";
+    protected String maximumAuthenticationLifetime = "PT3600S";
 
     /**
      * Maximum skew in seconds between SP and IDP clocks.
      * This skew is added onto the {@code NotOnOrAfter} field in seconds
      * for the SAML response validation.
      */
-    private String acceptedSkew = "PT300S";
+    protected String acceptedSkew = "PT300S";
 
     /**
      * The entity id of the SP that is used in the SP metadata generation process.
      */
-    private String serviceProviderEntityId;
+    protected String serviceProviderEntityId;
 
     /**
      * Whether authentication requests should be tagged as forced auth.
      */
-    private boolean forceAuth;
+    protected boolean forceAuth;
 
     /**
      * Whether authentication requests should be tagged as passive.
      */
-    private boolean passive;
+    protected boolean passive;
 
     /**
      * Requested authentication context class in authn requests.
      */
-    private final List<String> authnContextClassRefs = new ArrayList<>(0);
+    protected final List<String> authnContextClassRefs = new ArrayList<>(0);
 
     /**
      * Specifies the comparison rule that should be used to evaluate the specified authentication methods.
@@ -106,22 +106,22 @@ public class SAML2IdPAuthModuleConf implements AuthModuleConf {
      * authentication methods. If not explicitly specified "exact" rule will be used by default.
      * Other acceptable values are minimum, maximum, better.
      */
-    private String authnContextComparisonType = "exact";
+    protected String authnContextComparisonType = "exact";
 
     /**
      * The key alias used in the keystore.
      */
-    private String keystoreAlias;
+    protected String keystoreAlias;
 
     /**
      * NameID policy to request in the authentication requests.
      */
-    private String nameIdPolicyFormat;
+    protected String nameIdPolicyFormat;
 
     /**
      * Whether metadata should be marked to request sign assertions.
      */
-    private boolean wantsAssertionsSigned;
+    protected boolean wantsAssertionsSigned;
 
     /**
      * AttributeConsumingServiceIndex attribute of AuthnRequest element.
@@ -130,61 +130,61 @@ public class SAML2IdPAuthModuleConf implements AuthModuleConf {
      * is asking to be released within the authentication assertion returned by the Identity Provider (IdP).
      * This attribute won't be sent with the request unless a positive value (including 0) is defined.
      */
-    private int attributeConsumingServiceIndex;
+    protected int attributeConsumingServiceIndex;
 
     /**
      * Allows the SAML client to select a specific ACS url from the metadata, if defined.
      * A negative value de-activates the selection process and is the default.
      */
-    private int assertionConsumerServiceIndex = -1;
+    protected int assertionConsumerServiceIndex = -1;
 
     /**
      * Whether name qualifiers should be produced
      * in the final saml response.
      */
-    private boolean useNameQualifier = true;
+    protected boolean useNameQualifier = true;
 
     /**
      * Whether or not SAML SP metadata should be signed when generated.
      */
-    private boolean signServiceProviderMetadata;
+    protected boolean signServiceProviderMetadata;
 
     /**
      * Whether or not the authnRequest should be signed.
      */
-    private boolean signAuthnRequest;
+    protected boolean signAuthnRequest;
 
     /**
      * Whether or not the Logout Request sent from the SP should be signed.
      */
-    private boolean signServiceProviderLogoutRequest;
+    protected boolean signServiceProviderLogoutRequest;
 
     /**
      * Collection of signing signature blacklisted algorithms, if any, to override the global defaults.
      */
-    private final List<String> blockedSignatureSigningAlgorithms = new ArrayList<>(0);
+    protected final List<String> blockedSignatureSigningAlgorithms = new ArrayList<>(0);
 
     /**
      * Collection of signing signature algorithms, if any, to override the global defaults.
      */
-    private final List<String> signatureAlgorithms = new ArrayList<>(0);
+    protected final List<String> signatureAlgorithms = new ArrayList<>(0);
 
     /**
      * Collection of signing signature reference digest methods, if any, to override the global defaults.
      */
-    private final List<String> signatureReferenceDigestMethods = new ArrayList<>(0);
+    protected final List<String> signatureReferenceDigestMethods = new ArrayList<>(0);
 
     /**
      * The signing signature canonicalization algorithm, if any, to override the global defaults.
      */
-    private String signatureCanonicalizationAlgorithm;
+    protected String signatureCanonicalizationAlgorithm;
 
     /**
      * Provider name set for the saml authentication request.
      * Sets the human-readable name of the requester for use by
      * the presenter's user agent or the identity provider.
      */
-    private String providerName;
+    protected String providerName;
 
     public String getUserIdAttribute() {
         return userIdAttribute;
@@ -211,11 +211,11 @@ public class SAML2IdPAuthModuleConf implements AuthModuleConf {
     }
 
     public String getPrivateKeyPassword() {
-        return privateKeyPassword;
+        return protectedKeyPassword;
     }
 
-    public void setPrivateKeyPassword(final String privateKeyPassword) {
-        this.privateKeyPassword = privateKeyPassword;
+    public void setPrivateKeyPassword(final String protectedKeyPassword) {
+        this.protectedKeyPassword = protectedKeyPassword;
     }
 
     public String getIdentityProviderMetadataPath() {
