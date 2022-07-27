@@ -203,7 +203,7 @@ public class AuthModuleTest extends AbstractTest {
     @Test
     public void saveWithOIDCAuthModule() {
         OIDCAuthModuleConf conf = new OIDCAuthModuleConf();
-        conf.setId("OIDCTestId");
+        conf.setClientId("OIDCTestId");
         conf.setDiscoveryUri("www.testurl.com");
         conf.setUserIdAttribute("username");
         conf.setResponseType("code");
