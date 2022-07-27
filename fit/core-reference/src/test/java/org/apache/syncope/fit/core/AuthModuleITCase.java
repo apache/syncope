@@ -131,7 +131,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
             case OIDC:
                 conf = new OIDCAuthModuleConf();
-                OIDCAuthModuleConf.class.cast(conf).setId("OIDCTestId");
+                OIDCAuthModuleConf.class.cast(conf).setClientId("OIDCTestId");
                 OIDCAuthModuleConf.class.cast(conf).setDiscoveryUri("www.testurl.com");
                 OIDCAuthModuleConf.class.cast(conf).setUserIdAttribute("username");
                 OIDCAuthModuleConf.class.cast(conf).setResponseType("code");
