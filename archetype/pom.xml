@@ -188,6 +188,7 @@ under the License.
         <includes>
           <include>core-embedded.properties</include>
           <include>core-all.properties</include>
+          <include>core-https.properties</include>
           <include>userWorkflow.bpmn20.xml</include>
         </includes>
       </resource>
@@ -215,6 +216,7 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/test/resources</targetPath>
         <includes>
           <include>console-embedded.properties</include>
+          <include>console-https.properties</include>
         </includes>
       </resource>
       
@@ -242,6 +244,7 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/test/resources</targetPath>
         <includes>
           <include>enduser-embedded.properties</include>
+          <include>enduser-https.properties</include>
         </includes>
       </resource>
       
@@ -281,6 +284,14 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/wa/src/test/resources</targetPath>
         <includes>
           <include>wa-embedded.properties</include>
+        </includes>
+      </resource>
+
+      <resource>
+        <directory>../fit/wa-reference/src/test/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/fit/src/test/resources</targetPath>
+        <includes>
+          <include>keystore.jks</include>
         </includes>
       </resource>
     </resources>
