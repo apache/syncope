@@ -24,7 +24,6 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
@@ -37,20 +36,26 @@ import org.springframework.core.io.Resource;
 
 public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WAOIDCJWKSGeneratorService.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WAOIDCJWKSGeneratorService.class);
 
-    private final WARestClient waRestClient;
+    protected final WARestClient waRestClient;
 
-    private final int size;
+    protected final String jwksKeyId;
 
-    private final JWSAlgorithm algorithm;
+    protected final String jwksType;
+
+    protected final int jwksKeySize;
 
     public WAOIDCJWKSGeneratorService(
-            final WARestClient restClient, final int size, final JWSAlgorithm algorithm) {
+            final WARestClient restClient,
+            final String jwksKeyId,
+            final String jwksType,
+            final int jwksKeySize) {
 
         this.waRestClient = restClient;
-        this.size = size;
-        this.algorithm = algorithm;
+        this.jwksKeyId = jwksKeyId;
+        this.jwksType = jwksType;
+        this.jwksKeySize = jwksKeySize;
     }
 
     @Override
@@ -83,7 +88,7 @@ public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorS
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 try {
-                    Response response = service.generate(size, algorithm);
+                    Response response = service.generate(jwksKeyId, jwksType, jwksKeySize);
                     jwksTO = response.readEntity(OIDCJWKSTO.class);
                 } catch (Exception ge) {
                     LOG.error("While generating new OIDC JWKS", ge);

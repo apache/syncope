@@ -28,7 +28,6 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
@@ -59,10 +58,10 @@ public class OIDCJWKSITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
 
-        Response response = WA_OIDC_JWKS_SERVICE.generate(2048, JWSAlgorithm.RS256);
+        Response response = WA_OIDC_JWKS_SERVICE.generate("syncope", "RSA", 2048);
         assertEquals(HttpStatus.CREATED.value(), response.getStatus());
         try {
-            WA_OIDC_JWKS_SERVICE.generate(2048, JWSAlgorithm.RS512);
+            WA_OIDC_JWKS_SERVICE.generate("syncope", "RSA", 2048);
             fail("Should not recreate an OIDC JWKS");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.EntityExists, e.getType());

@@ -35,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
-import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.wa.bootstrap.WAProperties;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.actuate.SyncopeCoreHealthIndicator;
@@ -313,14 +312,14 @@ public class WAContext {
 
     @Bean
     public OidcJsonWebKeystoreGeneratorService oidcJsonWebKeystoreGeneratorService(
-            final ConfigurableApplicationContext ctx,
+            final CasConfigurationProperties casProperties,
             final WARestClient restClient) {
 
-        int size = ctx.getEnvironment().
-                getProperty("cas.authn.oidc.jwks.size", int.class, 2048);
-        JWSAlgorithm algorithm = ctx.getEnvironment().
-                getProperty("cas.authn.oidc.jwks.algorithm", JWSAlgorithm.class, JWSAlgorithm.RS256);
-        return new WAOIDCJWKSGeneratorService(restClient, size, algorithm);
+        return new WAOIDCJWKSGeneratorService(
+                restClient,
+                casProperties.getAuthn().getOidc().getJwks().getCore().getJwksKeyId(),
+                casProperties.getAuthn().getOidc().getJwks().getCore().getJwksType(),
+                casProperties.getAuthn().getOidc().getJwks().getCore().getJwksKeySize());
     }
 
     @Bean
