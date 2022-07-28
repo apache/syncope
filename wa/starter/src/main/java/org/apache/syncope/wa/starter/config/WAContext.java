@@ -81,6 +81,7 @@ import org.apereo.cas.services.ServiceRegistryListener;
 import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
 import org.apereo.cas.support.pac4j.authentication.clients.DelegatedClientFactoryCustomizer;
+import org.apereo.cas.support.pac4j.authentication.handler.support.DelegatedClientAuthenticationHandler;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
@@ -163,10 +164,12 @@ public class WAContext {
         return new SAML2SPClientAppTOMapper();
     }
 
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
     @ConditionalOnMissingBean
     @Bean
     public RegisteredServiceMapper registeredServiceMapper(
             final ConfigurableApplicationContext ctx,
+            final CasConfigurationProperties casProperties,
             final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan) {
 
         Map<String, AuthMapper> authPolicyConfMappers = new HashMap<>();
@@ -204,6 +207,8 @@ public class WAContext {
 
         return new RegisteredServiceMapper(
                 ctx,
+                Optional.ofNullable(casProperties.getAuthn().getPac4j().getCore().getName()).
+                        orElse(DelegatedClientAuthenticationHandler.class.getSimpleName()),
                 authenticationEventExecutionPlan,
                 authPolicyConfMappers,
                 accessPolicyConfMappers,
@@ -211,6 +216,8 @@ public class WAContext {
                 clientAppTOMappers);
     }
 
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @ConditionalOnMissingBean
     @Bean
     public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(
             final ConfigurableApplicationContext ctx,

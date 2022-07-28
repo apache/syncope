@@ -33,14 +33,12 @@ import org.springframework.test.context.TestPropertySource;
         properties = {
             "cas.authn.accept.users=mrossi::password",
             "cas.authn.syncope.url=http://localhost:8080",
-            "cas.sso.allow-missing-service-parameter=true"
+            "cas.sso.allow-missing-service-parameter=true",
+            "cas.authn.pac4j.core.name=DelegatedClientAuthenticationHandler"
         })
 @TestPropertySource(locations = { "classpath:wa.properties", "classpath:test.properties" })
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
 public abstract class AbstractTest {
-
-    @LocalServerPort
-    protected int port;
 
     protected static String getUUIDString() {
         return UUID.randomUUID().toString().substring(0, 8);
@@ -55,4 +53,8 @@ public abstract class AbstractTest {
             return new SyncopeCoreTestingServer();
         }
     }
+
+    @LocalServerPort
+    protected int port;
+
 }
