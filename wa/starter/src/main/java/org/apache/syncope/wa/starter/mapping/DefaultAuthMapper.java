@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.auth.MFAAuthModuleConf;
+import org.apache.syncope.common.lib.auth.Pac4jAuthModuleConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
@@ -34,9 +34,8 @@ import org.apereo.cas.authentication.MultifactorAuthenticationHandler;
 import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria;
 import org.apereo.cas.services.DefaultRegisteredServiceAuthenticationPolicy;
+import org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy;
 import org.apereo.cas.services.DefaultRegisteredServiceMultifactorPolicy;
-import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
-import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -48,8 +47,9 @@ public class DefaultAuthMapper implements AuthMapper {
     protected static final Logger LOG = LoggerFactory.getLogger(DefaultAuthMapper.class);
 
     @Override
-    public Pair<RegisteredServiceAuthenticationPolicy, RegisteredServiceMultifactorPolicy> build(
+    public AuthMapperResult build(
             final ConfigurableApplicationContext ctx,
+            final String pac4jCoreName,
             final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan,
             final AuthPolicyTO policy,
             final List<AuthModuleTO> authModules) {
@@ -57,17 +57,27 @@ public class DefaultAuthMapper implements AuthMapper {
         DefaultRegisteredServiceAuthenticationPolicy authPolicy = new DefaultRegisteredServiceAuthenticationPolicy();
 
         Set<String> mfaAuthHandlers = new HashSet<>();
+        Set<String> delegatedAuthHandlers = new HashSet<>();
 
         DefaultAuthPolicyConf policyConf = (DefaultAuthPolicyConf) policy.getConf();
         if (!policyConf.getAuthModules().isEmpty()) {
+            Set<String> authHandlers = new HashSet<>(policyConf.getAuthModules());            
             mfaAuthHandlers.addAll(authenticationEventExecutionPlan.getObject().getAuthenticationHandlers().stream().
                     filter(MultifactorAuthenticationHandler.class::isInstance).
                     filter(mfaAuthHander -> policyConf.getAuthModules().contains(mfaAuthHander.getName())).
                     map(AuthenticationHandler::getName).
                     collect(Collectors.toSet()));
-
-            Set<String> authHandlers = new HashSet<>(policyConf.getAuthModules());
             authHandlers.removeAll(mfaAuthHandlers);
+
+            delegatedAuthHandlers.addAll(authModules.stream().
+                    filter(m -> m.getConf() instanceof Pac4jAuthModuleConf).
+                    map(AuthModuleTO::getKey).
+                    collect(Collectors.toSet()));
+            authHandlers.removeAll(delegatedAuthHandlers);
+            if (!delegatedAuthHandlers.isEmpty()) {
+                authHandlers.add(pac4jCoreName);
+            }
+
             authPolicy.setRequiredAuthenticationHandlers(authHandlers);
         }
 
@@ -97,6 +107,12 @@ public class DefaultAuthMapper implements AuthMapper {
             mfaPolicy.setMultifactorAuthenticationProviders(mfaProviders);
         }
 
-        return Pair.of(authPolicy, mfaPolicy);
+        DefaultRegisteredServiceDelegatedAuthenticationPolicy delegatedAuthPolicy = null;
+        if (!delegatedAuthHandlers.isEmpty()) {
+            delegatedAuthPolicy = new DefaultRegisteredServiceDelegatedAuthenticationPolicy();
+            delegatedAuthPolicy.getAllowedProviders().addAll(delegatedAuthHandlers);
+        }
+
+        return new AuthMapperResult(authPolicy, mfaPolicy, delegatedAuthPolicy);
     }
 }

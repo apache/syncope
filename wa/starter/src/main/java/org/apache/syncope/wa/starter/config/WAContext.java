@@ -169,6 +169,7 @@ public class WAContext {
     @Bean
     public RegisteredServiceMapper registeredServiceMapper(
             final ConfigurableApplicationContext ctx,
+            final CasConfigurationProperties casProperties,
             final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan) {
 
         Map<String, AuthMapper> authPolicyConfMappers = new HashMap<>();
@@ -206,6 +207,7 @@ public class WAContext {
 
         return new RegisteredServiceMapper(
                 ctx,
+                casProperties.getAuthn().getPac4j().getCore().getName(),
                 authenticationEventExecutionPlan,
                 authPolicyConfMappers,
                 accessPolicyConfMappers,

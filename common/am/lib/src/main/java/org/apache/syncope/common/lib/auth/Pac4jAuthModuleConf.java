@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import java.io.Serializable;
-
-public abstract class Pac4jAuthModuleConf implements Serializable {
+public abstract class Pac4jAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -1354167135907851872L;
 

@@ -19,20 +19,18 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
-import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
-import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @FunctionalInterface
 public interface AuthMapper {
 
-    Pair<RegisteredServiceAuthenticationPolicy, RegisteredServiceMultifactorPolicy> build(
+    AuthMapperResult build(
             ConfigurableApplicationContext ctx,
+            String pac4jCoreName,
             ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan,
             AuthPolicyTO policy,
             List<AuthModuleTO> authModules);
