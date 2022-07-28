@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.auth.MFAAuthModuleConf;
 import org.apache.syncope.common.lib.auth.Pac4jAuthModuleConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
@@ -57,7 +58,7 @@ public class DefaultAuthMapper implements AuthMapper {
         DefaultRegisteredServiceAuthenticationPolicy authPolicy = new DefaultRegisteredServiceAuthenticationPolicy();
 
         Set<String> mfaAuthHandlers = new HashSet<>();
-        Set<String> delegatedAuthHandlers = new HashSet<>();
+        Set<Pair<String, String>> delegatedAuthHandlers = new HashSet<>();
 
         DefaultAuthPolicyConf policyConf = (DefaultAuthPolicyConf) policy.getConf();
         if (!policyConf.getAuthModules().isEmpty()) {
@@ -71,10 +72,12 @@ public class DefaultAuthMapper implements AuthMapper {
 
             delegatedAuthHandlers.addAll(authModules.stream().
                     filter(m -> m.getConf() instanceof Pac4jAuthModuleConf).
-                    map(AuthModuleTO::getKey).
+                    map(m -> Pair.of(
+                    m.getKey(),
+                    Optional.ofNullable(((Pac4jAuthModuleConf) m.getConf()).getClientName()).orElse(m.getKey()))).
                     collect(Collectors.toSet()));
             if (!delegatedAuthHandlers.isEmpty()) {
-                authHandlers.removeAll(delegatedAuthHandlers);
+                authHandlers.removeAll(delegatedAuthHandlers.stream().map(Pair::getLeft).collect(Collectors.toSet()));
                 authHandlers.add(pac4jCoreName);
             }
 
@@ -110,7 +113,8 @@ public class DefaultAuthMapper implements AuthMapper {
         DefaultRegisteredServiceDelegatedAuthenticationPolicy delegatedAuthPolicy = null;
         if (!delegatedAuthHandlers.isEmpty()) {
             delegatedAuthPolicy = new DefaultRegisteredServiceDelegatedAuthenticationPolicy();
-            delegatedAuthPolicy.getAllowedProviders().addAll(delegatedAuthHandlers);
+            delegatedAuthPolicy.getAllowedProviders().addAll(
+                    delegatedAuthHandlers.stream().map(Pair::getRight).collect(Collectors.toSet()));
         }
 
         return new AuthMapperResult(authPolicy, mfaPolicy, delegatedAuthPolicy);
