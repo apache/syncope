@@ -20,15 +20,16 @@ package org.apache.syncope.wa.starter.mapping;
 
 import java.util.Map;
 import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
+import org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
+import org.apereo.cas.services.RegisteredServiceDelegatedAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,9 @@ public class RegisteredServiceMapper {
 
     protected final ConfigurableApplicationContext ctx;
 
-    protected final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan;
+    protected final String pac4jCoreName;
+
+    protected final ObjectProvider<AuthenticationEventExecutionPlan> authEventExecPlan;
 
     protected final Map<String, AuthMapper> authPolicyConfMappers;
 
@@ -53,14 +56,16 @@ public class RegisteredServiceMapper {
 
     public RegisteredServiceMapper(
             final ConfigurableApplicationContext ctx,
-            final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan,
+            final String pac4jCoreName,
+            final ObjectProvider<AuthenticationEventExecutionPlan> authEventExecPlan,
             final Map<String, AuthMapper> authPolicyConfMappers,
             final Map<String, AccessMapper> accessPolicyConfMappers,
             final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers,
             final Map<String, ClientAppMapper> clientAppTOMappers) {
 
         this.ctx = ctx;
-        this.authenticationEventExecutionPlan = authenticationEventExecutionPlan;
+        this.pac4jCoreName = pac4jCoreName;
+        this.authEventExecPlan = authEventExecPlan;
         this.authPolicyConfMappers = authPolicyConfMappers;
         this.accessPolicyConfMappers = accessPolicyConfMappers;
         this.attrReleasePolicyConfMappers = attrReleasePolicyConfMappers;
@@ -77,19 +82,16 @@ public class RegisteredServiceMapper {
 
         RegisteredServiceAuthenticationPolicy authPolicy = null;
         RegisteredServiceMultifactorPolicy mfaPolicy = null;
+        RegisteredServiceDelegatedAuthenticationPolicy delegatedAuthPolicy = null;
         if (clientApp.getAuthPolicy() != null) {
             AuthMapper authMapper = authPolicyConfMappers.get(
                     clientApp.getAuthPolicy().getConf().getClass().getName());
-            Pair<RegisteredServiceAuthenticationPolicy, RegisteredServiceMultifactorPolicy> mapped =
-                    Optional.ofNullable(authMapper).map(mapper -> mapper.build(
-                    ctx, authenticationEventExecutionPlan, clientApp.getAuthPolicy(), clientApp.getAuthModules())).
-                            orElseGet(() -> Pair.of(null, null));
-            if (mapped.getLeft() != null) {
-                authPolicy = mapped.getLeft();
-            }
-            if (mapped.getRight() != null) {
-                mfaPolicy = mapped.getRight();
-            }
+            AuthMapperResult result = Optional.ofNullable(authMapper).map(mapper -> mapper.build(
+                    ctx, pac4jCoreName, authEventExecPlan, clientApp.getAuthPolicy(), clientApp.getAuthModules())).
+                    orElseGet(() -> new AuthMapperResult(null, null, null));
+            authPolicy = result.getAuthPolicy();
+            mfaPolicy = result.getMfaPolicy();
+            delegatedAuthPolicy = result.getDelegateAuthPolicy();
         }
 
         RegisteredServiceAccessStrategy accessStrategy = null;
@@ -99,6 +101,18 @@ public class RegisteredServiceMapper {
             accessStrategy = Optional.ofNullable(accessPolicyConfMapper).
                     map(mapper -> mapper.build(clientApp.getAccessPolicy())).
                     orElse(null);
+        }
+        if (delegatedAuthPolicy != null) {
+            if (accessStrategy == null) {
+                accessStrategy = new DefaultRegisteredServiceAccessStrategy();
+            }
+            if (accessStrategy instanceof DefaultRegisteredServiceAccessStrategy) {
+                ((DefaultRegisteredServiceAccessStrategy) accessStrategy).
+                        setDelegatedAuthenticationPolicy(delegatedAuthPolicy);
+            } else {
+                LOG.warn("Could not set delegated auth policy because access strategy is instance of {}",
+                        accessStrategy.getClass().getName());
+            }
         }
 
         AttrReleasePolicyTO attrReleasePolicyTO = Optional.ofNullable(clientApp.getAttrReleasePolicy()).

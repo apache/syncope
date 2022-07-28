@@ -61,16 +61,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication(exclude = {
     /*
-    List of CAS-specific classes that we want to
-    exclude from auto-configuration. This is required when there is a
-    competing option/implementation available in Syncope that needs to be
-    conditionally activated.
+     * List of CAS-specific classes that we want to exclude from auto-configuration. This is required when there is a
+     * competing option/implementation available in Syncope that needs to be conditionally activated.
      */
     GoogleAuthenticatorLdapConfiguration.class,
-
     /*
-    List of Spring Boot classes that we want to disable
-    and remove from auto-configuration.
+     * List of Spring Boot classes that we want to disable and remove from auto-configuration.
      */
     HibernateJpaAutoConfiguration.class,
     JerseyAutoConfiguration.class,
@@ -96,14 +92,14 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {
         new SpringApplicationBuilder(SyncopeWAApplication.class).
-            properties(Map.of("spring.config.name", "wa", "spring.cloud.bootstrap.name", "wa")).
-            build().run(args);
+                properties(Map.of("spring.config.name", "wa", "spring.cloud.bootstrap.name", "wa")).
+                build().run(args);
     }
 
     @Override
     protected SpringApplicationBuilder configure(final SpringApplicationBuilder builder) {
         return builder.properties(Map.of("spring.config.name", "wa",
-            "spring.cloud.bootstrap.name", "wa")).sources(SyncopeWAApplication.class);
+                "spring.cloud.bootstrap.name", "wa")).sources(SyncopeWAApplication.class);
     }
 
     /**
@@ -119,8 +115,10 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
         scheduleJobToRefreshContext(waProperties, scheduler);
     }
 
-    protected void scheduleJobToRefreshContext(final  WAProperties waProperties,
-                                               final SchedulerFactoryBean scheduler) {
+    protected void scheduleJobToRefreshContext(
+            final WAProperties waProperties,
+            final SchedulerFactoryBean scheduler) {
+
         try {
             Date date = Date.from(LocalDateTime.now().plusSeconds(waProperties.getContextRefreshDelay()).
                     atZone(ZoneId.systemDefault()).toInstant());
