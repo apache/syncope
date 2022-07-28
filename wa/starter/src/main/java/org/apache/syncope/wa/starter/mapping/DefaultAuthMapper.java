@@ -50,7 +50,7 @@ public class DefaultAuthMapper implements AuthMapper {
     public AuthMapperResult build(
             final ConfigurableApplicationContext ctx,
             final String pac4jCoreName,
-            final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan,
+            final ObjectProvider<AuthenticationEventExecutionPlan> authEventExecPlan,
             final AuthPolicyTO policy,
             final List<AuthModuleTO> authModules) {
 
@@ -61,8 +61,8 @@ public class DefaultAuthMapper implements AuthMapper {
 
         DefaultAuthPolicyConf policyConf = (DefaultAuthPolicyConf) policy.getConf();
         if (!policyConf.getAuthModules().isEmpty()) {
-            Set<String> authHandlers = new HashSet<>(policyConf.getAuthModules());            
-            mfaAuthHandlers.addAll(authenticationEventExecutionPlan.getObject().getAuthenticationHandlers().stream().
+            Set<String> authHandlers = new HashSet<>(policyConf.getAuthModules());
+            mfaAuthHandlers.addAll(authEventExecPlan.getObject().getAuthenticationHandlers().stream().
                     filter(MultifactorAuthenticationHandler.class::isInstance).
                     filter(mfaAuthHander -> policyConf.getAuthModules().contains(mfaAuthHander.getName())).
                     map(AuthenticationHandler::getName).
@@ -73,8 +73,8 @@ public class DefaultAuthMapper implements AuthMapper {
                     filter(m -> m.getConf() instanceof Pac4jAuthModuleConf).
                     map(AuthModuleTO::getKey).
                     collect(Collectors.toSet()));
-            authHandlers.removeAll(delegatedAuthHandlers);
             if (!delegatedAuthHandlers.isEmpty()) {
+                authHandlers.removeAll(delegatedAuthHandlers);
                 authHandlers.add(pac4jCoreName);
             }
 

@@ -57,7 +57,7 @@ public class RegisteredServiceMapper {
     public RegisteredServiceMapper(
             final ConfigurableApplicationContext ctx,
             final String pac4jCoreName,
-            final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan,
+            final ObjectProvider<AuthenticationEventExecutionPlan> authEventExecPlan,
             final Map<String, AuthMapper> authPolicyConfMappers,
             final Map<String, AccessMapper> accessPolicyConfMappers,
             final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers,
@@ -65,7 +65,7 @@ public class RegisteredServiceMapper {
 
         this.ctx = ctx;
         this.pac4jCoreName = pac4jCoreName;
-        this.authEventExecPlan = authenticationEventExecutionPlan;
+        this.authEventExecPlan = authEventExecPlan;
         this.authPolicyConfMappers = authPolicyConfMappers;
         this.accessPolicyConfMappers = accessPolicyConfMappers;
         this.attrReleasePolicyConfMappers = attrReleasePolicyConfMappers;
