@@ -48,6 +48,7 @@ under the License.
       <artifactId>syncope-common-keymaster-client-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-core-configuration-api</artifactId>

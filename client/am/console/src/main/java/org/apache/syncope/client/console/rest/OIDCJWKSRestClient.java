@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.rest;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
-import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 
 public class OIDCJWKSRestClient extends BaseRestClient {
@@ -39,7 +38,7 @@ public class OIDCJWKSRestClient extends BaseRestClient {
     }
 
     public static OIDCJWKSTO generate() {
-        Response response = getService(OIDCJWKSService.class).generate(2048, JWSAlgorithm.RS256);
+        Response response = getService(OIDCJWKSService.class).generate("syncope", "RSA", 2048);
         return response.readEntity(OIDCJWKSTO.class);
     }
 

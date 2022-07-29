@@ -29,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class WAGoogleMfaAuthTokenRepositoryTest extends AbstractTest {
 
     @Autowired
-    private OneTimeTokenRepository tokenRepository;
+    private OneTimeTokenRepository<GoogleAuthenticatorToken> tokenRepository;
 
     @Test
     public void verifyOps() {

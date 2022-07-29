@@ -22,13 +22,12 @@ import java.time.LocalDateTime;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
-import org.apereo.cas.authentication.OneTimeToken;
 import org.apereo.cas.gauth.token.GoogleAuthenticatorToken;
 import org.apereo.cas.otp.repository.token.BaseOneTimeTokenRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepository {
+public class WAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepository<GoogleAuthenticatorToken> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(WAGoogleMfaAuthTokenRepository.class);
 
@@ -51,7 +50,7 @@ public class WAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepository {
     }
 
     @Override
-    public void store(final OneTimeToken token) {
+    public void store(final GoogleAuthenticatorToken token) {
         GoogleMfaAuthToken tokenTO = new GoogleMfaAuthToken.Builder().
                 token(token.getToken()).
                 issueDate(token.getIssuedDateTime()).
@@ -60,7 +59,7 @@ public class WAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepository {
     }
 
     @Override
-    public OneTimeToken get(final String username, final Integer otp) {
+    public GoogleAuthenticatorToken get(final String username, final Integer otp) {
         try {
             GoogleMfaAuthToken tokenTO = service().read(username, otp);
             GoogleAuthenticatorToken token = new GoogleAuthenticatorToken(tokenTO.getOtp(), username);
