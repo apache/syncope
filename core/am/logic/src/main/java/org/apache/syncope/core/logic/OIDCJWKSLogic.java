@@ -23,7 +23,6 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
@@ -54,10 +53,10 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_GENERATE + "') "
             + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public OIDCJWKSTO generate(final int size, final JWSAlgorithm algorithm) {
+    public OIDCJWKSTO generate(final String jwksKeyId, final String jwksType, final int jwksKeySize) {
         OIDCJWKS jwks = dao.get();
         if (jwks == null) {
-            return binder.getOIDCJWKSTO(dao.save(binder.create(size, algorithm)));
+            return binder.getOIDCJWKSTO(dao.save(binder.create(jwksKeyId, jwksType, jwksKeySize)));
         }
         throw new DuplicateException("OIDC JWKS already set");
     }
@@ -78,7 +77,7 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.OIDC_JWKS_SET + "') "
-        + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+            + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public OIDCJWKSTO set(final OIDCJWKSTO entityTO) {
         OIDCJWKS jwks = dao.get();
         jwks.setJson(entityTO.getJson());

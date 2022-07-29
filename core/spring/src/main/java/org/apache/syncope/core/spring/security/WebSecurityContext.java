@@ -38,15 +38,16 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
@@ -74,66 +75,65 @@ public class WebSecurityContext {
     }
 
     @Bean
-    public WebSecurityConfigurerAdapter webSecurityConfigurerAdapter(
-            final ApplicationContext ctx,
+    public WebSecurityCustomizer webSecurityCustomizer(final HttpFirewall allowUrlEncodedSlashHttpFirewall) {
+        return web -> web.httpFirewall(allowUrlEncodedSlashHttpFirewall);
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(
+            final HttpSecurity http,
+            final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
+            final JWTAuthenticationProvider jwtAuthenticationProvider,
             final SecurityProperties securityProperties,
-            final HttpFirewall allowUrlEncodedSlashHttpFirewall) {
+            final ApplicationContext ctx) throws Exception {
 
-        return new WebSecurityConfigurerAdapter(true) {
+        AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManagerBuilder.class).
+                authenticationProvider(usernamePasswordAuthenticationProvider).
+                authenticationProvider(jwtAuthenticationProvider).
+                build();
 
-            @Override
-            public void configure(final WebSecurity web) {
-                web.httpFirewall(allowUrlEncodedSlashHttpFirewall);
-            }
+        SyncopeAuthenticationDetailsSource authenticationDetailsSource =
+                new SyncopeAuthenticationDetailsSource();
 
-            @Override
-            protected void configure(final HttpSecurity http) throws Exception {
-                SyncopeAuthenticationDetailsSource authenticationDetailsSource =
-                        new SyncopeAuthenticationDetailsSource();
+        AnonymousAuthenticationProvider anonymousAuthenticationProvider =
+                new AnonymousAuthenticationProvider(ANONYMOUS_BEAN_KEY);
+        AnonymousAuthenticationFilter anonymousAuthenticationFilter =
+                new AnonymousAuthenticationFilter(
+                        ANONYMOUS_BEAN_KEY,
+                        securityProperties.getAnonymousUser(),
+                        AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+        anonymousAuthenticationFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
 
-                AnonymousAuthenticationProvider anonymousAuthenticationProvider =
-                        new AnonymousAuthenticationProvider(ANONYMOUS_BEAN_KEY);
-                AnonymousAuthenticationFilter anonymousAuthenticationFilter =
-                        new AnonymousAuthenticationFilter(
-                                ANONYMOUS_BEAN_KEY,
-                                securityProperties.getAnonymousUser(),
-                                AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
-                anonymousAuthenticationFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+        SyncopeBasicAuthenticationEntryPoint basicAuthenticationEntryPoint =
+                new SyncopeBasicAuthenticationEntryPoint();
+        basicAuthenticationEntryPoint.setRealmName("Apache Syncope authentication");
 
-                SyncopeBasicAuthenticationEntryPoint basicAuthenticationEntryPoint =
-                        new SyncopeBasicAuthenticationEntryPoint();
-                basicAuthenticationEntryPoint.setRealmName("Apache Syncope authentication");
+        JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(
+                authenticationManager,
+                basicAuthenticationEntryPoint,
+                authenticationDetailsSource,
+                ctx.getBean(AuthDataAccessor.class),
+                ctx.getBean(DefaultCredentialChecker.class));
 
-                JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(
-                        authenticationManager(),
-                        basicAuthenticationEntryPoint,
-                        authenticationDetailsSource,
-                        ctx.getBean(AuthDataAccessor.class),
-                        ctx.getBean(DefaultCredentialChecker.class));
+        MustChangePasswordFilter mustChangePasswordFilter = new MustChangePasswordFilter();
 
-                http.authorizeRequests().
-                        antMatchers("/**").permitAll().and().
-                        sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().
-                        securityContext().securityContextRepository(new NullSecurityContextRepository()).and().
-                        anonymous().
-                        authenticationProvider(anonymousAuthenticationProvider).
-                        authenticationFilter(anonymousAuthenticationFilter).and().
-                        httpBasic().authenticationEntryPoint(basicAuthenticationEntryPoint).
-                        authenticationDetailsSource(authenticationDetailsSource).and().
-                        exceptionHandling().accessDeniedHandler(accessDeniedHandler()).and().
-                        addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class).
-                        addFilterBefore(new MustChangePasswordFilter(), FilterSecurityInterceptor.class).
-                        headers().disable().
-                        csrf().disable();
-            }
+        http.authenticationManager(authenticationManager).
+                authorizeRequests().
+                antMatchers("/**").permitAll().and().
+                sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().
+                securityContext().securityContextRepository(new NullSecurityContextRepository()).and().
+                anonymous().
+                authenticationProvider(anonymousAuthenticationProvider).
+                authenticationFilter(anonymousAuthenticationFilter).and().
+                httpBasic().authenticationEntryPoint(basicAuthenticationEntryPoint).
+                authenticationDetailsSource(authenticationDetailsSource).and().
+                exceptionHandling().accessDeniedHandler(accessDeniedHandler()).and().
+                addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class).
+                addFilterBefore(mustChangePasswordFilter, FilterSecurityInterceptor.class).
+                headers().disable().
+                csrf().disable();
 
-            @Override
-            protected void configure(final AuthenticationManagerBuilder builder) throws Exception {
-                builder.
-                        authenticationProvider(ctx.getBean(UsernamePasswordAuthenticationProvider.class)).
-                        authenticationProvider(ctx.getBean(JWTAuthenticationProvider.class));
-            }
-        };
+        return http.build();
     }
 
     @ConditionalOnMissingBean

@@ -35,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
-import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.wa.bootstrap.WAProperties;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.actuate.SyncopeCoreHealthIndicator;
@@ -77,12 +76,12 @@ import org.apereo.cas.configuration.model.support.mfa.u2f.U2FCoreMultifactorAuth
 import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
-import org.apereo.cas.otp.repository.token.OneTimeTokenRepository;
 import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
 import org.apereo.cas.services.ServiceRegistryListener;
 import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
-import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactoryCustomizer;
+import org.apereo.cas.support.pac4j.authentication.clients.DelegatedClientFactoryCustomizer;
+import org.apereo.cas.support.pac4j.authentication.handler.support.DelegatedClientAuthenticationHandler;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
@@ -165,10 +164,12 @@ public class WAContext {
         return new SAML2SPClientAppTOMapper();
     }
 
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
     @ConditionalOnMissingBean
     @Bean
     public RegisteredServiceMapper registeredServiceMapper(
             final ConfigurableApplicationContext ctx,
+            final CasConfigurationProperties casProperties,
             final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan) {
 
         Map<String, AuthMapper> authPolicyConfMappers = new HashMap<>();
@@ -206,6 +207,8 @@ public class WAContext {
 
         return new RegisteredServiceMapper(
                 ctx,
+                Optional.ofNullable(casProperties.getAuthn().getPac4j().getCore().getName()).
+                        orElse(DelegatedClientAuthenticationHandler.class.getSimpleName()),
                 authenticationEventExecutionPlan,
                 authPolicyConfMappers,
                 accessPolicyConfMappers,
@@ -213,6 +216,8 @@ public class WAContext {
                 clientAppTOMappers);
     }
 
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @ConditionalOnMissingBean
     @Bean
     public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(
             final ConfigurableApplicationContext ctx,
@@ -269,7 +274,7 @@ public class WAContext {
     }
 
     @Bean
-    public OneTimeTokenRepository oneTimeTokenAuthenticatorTokenRepository(
+    public WAGoogleMfaAuthTokenRepository oneTimeTokenAuthenticatorTokenRepository(
             final CasConfigurationProperties casProperties,
             final WARestClient restClient) {
 
@@ -283,7 +288,9 @@ public class WAContext {
     public OneTimeTokenCredentialRepository googleAuthenticatorAccountRegistry(
             final CasConfigurationProperties casProperties,
             @Qualifier("googleAuthenticatorAccountCipherExecutor")
-            final CipherExecutor<String, String> cipherExecutor,
+            final CipherExecutor<String, String> googleAuthenticatorAccountCipherExecutor,
+            @Qualifier("googleAuthenticatorScratchCodesCipherExecutor")
+            final CipherExecutor<Number, Number> googleAuthenticatorScratchCodesCipherExecutor,
             final IGoogleAuthenticator googleAuthenticatorInstance,
             final WARestClient restClient) {
 
@@ -301,21 +308,25 @@ public class WAContext {
 
             ConnectionFactory connectionFactory = LdapUtils.newLdaptiveConnectionFactory(ldap);
             return new LdapGoogleAuthenticatorTokenCredentialRepository(
-                    cipherExecutor, googleAuthenticatorInstance, connectionFactory, ldap);
+                    googleAuthenticatorAccountCipherExecutor,
+                    googleAuthenticatorScratchCodesCipherExecutor,
+                    googleAuthenticatorInstance,
+                    connectionFactory,
+                    ldap);
         }
         return new WAGoogleMfaAuthCredentialRepository(restClient, googleAuthenticatorInstance);
     }
 
     @Bean
     public OidcJsonWebKeystoreGeneratorService oidcJsonWebKeystoreGeneratorService(
-            final ConfigurableApplicationContext ctx,
+            final CasConfigurationProperties casProperties,
             final WARestClient restClient) {
 
-        int size = ctx.getEnvironment().
-                getProperty("cas.authn.oidc.jwks.size", int.class, 2048);
-        JWSAlgorithm algorithm = ctx.getEnvironment().
-                getProperty("cas.authn.oidc.jwks.algorithm", JWSAlgorithm.class, JWSAlgorithm.RS256);
-        return new WAOIDCJWKSGeneratorService(restClient, size, algorithm);
+        return new WAOIDCJWKSGeneratorService(
+                restClient,
+                casProperties.getAuthn().getOidc().getJwks().getCore().getJwksKeyId(),
+                casProperties.getAuthn().getOidc().getJwks().getCore().getJwksType(),
+                casProperties.getAuthn().getOidc().getJwks().getCore().getJwksKeySize());
     }
 
     @Bean

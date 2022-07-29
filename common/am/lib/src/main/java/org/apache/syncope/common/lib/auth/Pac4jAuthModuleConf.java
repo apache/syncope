@@ -16,22 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa.starter.mapping;
+package org.apache.syncope.common.lib.auth;
 
-import java.util.List;
-import org.apache.syncope.common.lib.policy.AuthPolicyTO;
-import org.apache.syncope.common.lib.to.AuthModuleTO;
-import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.context.ConfigurableApplicationContext;
+public abstract class Pac4jAuthModuleConf implements AuthModuleConf {
 
-@FunctionalInterface
-public interface AuthMapper {
+    private static final long serialVersionUID = -1354167135907851872L;
 
-    AuthMapperResult build(
-            ConfigurableApplicationContext ctx,
-            String pac4jCoreName,
-            ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan,
-            AuthPolicyTO policy,
-            List<AuthModuleTO> authModules);
+    /**
+     * Pac4j client name.
+     */
+    private String clientName;
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(final String clientName) {
+        this.clientName = clientName;
+    }
 }

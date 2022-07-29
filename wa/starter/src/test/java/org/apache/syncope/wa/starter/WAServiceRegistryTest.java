@@ -25,14 +25,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
@@ -40,27 +43,27 @@ import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.services.AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
 import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
 import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
+import org.apereo.cas.services.RegisteredServiceAccessStrategy;
+import org.apereo.cas.services.RegisteredServiceDelegatedAuthenticationPolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.util.RandomUtils;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.refresh.ContextRefresher;
 
 public class WAServiceRegistryTest extends AbstractTest {
-
-    @Autowired
-    private WARestClient wARestClient;
-
-    @Autowired
-    private ServicesManager servicesManager;
 
     private static OIDCRPClientAppTO buildOIDCRP() {
         OIDCRPClientAppTO oidcrpTO = new OIDCRPClientAppTO();
@@ -77,7 +80,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         return oidcrpTO;
     }
 
-    protected SAML2SPClientAppTO buildSAML2SP() {
+    private static SAML2SPClientAppTO buildSAML2SP() {
         SAML2SPClientAppTO saml2spto = new SAML2SPClientAppTO();
         saml2spto.setName("ExampleSAML2SP_" + getUUIDString());
         saml2spto.setClientAppId(RandomUtils.nextLong());
@@ -91,10 +94,10 @@ public class WAServiceRegistryTest extends AbstractTest {
         return saml2spto;
     }
 
-    private static void addAttributes(
+    private static void addPolicies(
+            final WAClientApp waClientApp,
             final boolean withReleaseAttributes,
-            final boolean withAttrReleasePolicy,
-            final WAClientApp waClientApp) {
+            final boolean withAttrReleasePolicy) {
 
         DefaultAuthPolicyConf authPolicyConf = new DefaultAuthPolicyConf();
         authPolicyConf.setTryAll(true);
@@ -126,13 +129,25 @@ public class WAServiceRegistryTest extends AbstractTest {
         }
     }
 
+    @Autowired
+    private WARestClient waRestClient;
+
+    @Autowired
+    private ServicesManager servicesManager;
+
+    @Autowired
+    private ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan;
+
+    @Autowired
+    private ContextRefresher contextRefresher;
+
     @Test
     public void addClientApp() {
         // 1. start with no client apps defined on mocked Core
-        SyncopeClient syncopeClient = wARestClient.getSyncopeClient();
+        SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
         assertNotNull(syncopeClient);
 
-        SyncopeCoreTestingServer.APPS.clear();
+        SyncopeCoreTestingServer.CLIENT_APPS.clear();
 
         WAClientAppService service = syncopeClient.getService(WAClientAppService.class);
         assertTrue(service.list().isEmpty());
@@ -141,9 +156,9 @@ public class WAServiceRegistryTest extends AbstractTest {
         WAClientApp waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(buildOIDCRP());
         Long clientAppId = waClientApp.getClientAppTO().getClientAppId();
-        addAttributes(true, true, waClientApp);
+        addPolicies(waClientApp, false, false);
 
-        SyncopeCoreTestingServer.APPS.add(waClientApp);
+        SyncopeCoreTestingServer.CLIENT_APPS.add(waClientApp);
         List<WAClientApp> apps = service.list();
         assertEquals(1, apps.size());
 
@@ -171,9 +186,9 @@ public class WAServiceRegistryTest extends AbstractTest {
         waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(buildSAML2SP());
         clientAppId = waClientApp.getClientAppTO().getClientAppId();
-        addAttributes(false, true, waClientApp);
+        addPolicies(waClientApp, false, true);
 
-        SyncopeCoreTestingServer.APPS.add(waClientApp);
+        SyncopeCoreTestingServer.CLIENT_APPS.add(waClientApp);
         apps = service.list();
         assertEquals(2, apps.size());
 
@@ -193,9 +208,9 @@ public class WAServiceRegistryTest extends AbstractTest {
         waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(buildSAML2SP());
         clientAppId = waClientApp.getClientAppTO().getClientAppId();
-        addAttributes(false, false, waClientApp);
+        addPolicies(waClientApp, false, false);
 
-        SyncopeCoreTestingServer.APPS.add(waClientApp);
+        SyncopeCoreTestingServer.CLIENT_APPS.add(waClientApp);
         apps = service.list();
         assertEquals(3, apps.size());
 
@@ -204,5 +219,62 @@ public class WAServiceRegistryTest extends AbstractTest {
 
         found = servicesManager.findServiceBy(clientAppId);
         assertTrue(found.getAttributeReleasePolicy() instanceof DenyAllAttributeReleasePolicy);
+    }
+
+    @Test
+    public void delegatedAuthentication() {
+        // 1. start with 1 client app and 1 auth module defined on mocked Core
+        SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
+        assertNotNull(syncopeClient);
+
+        OIDCAuthModuleConf oidcAuthModuleConf = new OIDCAuthModuleConf();
+        oidcAuthModuleConf.setClientId("clientId");
+        oidcAuthModuleConf.setClientSecret("clientSecret");
+        AuthModuleTO authModuleTO = new AuthModuleTO();
+        authModuleTO.setKey("keycloack");
+        authModuleTO.setConf(oidcAuthModuleConf);
+
+        SyncopeCoreTestingServer.AUTH_MODULES.clear();
+        SyncopeCoreTestingServer.AUTH_MODULES.add(authModuleTO);
+        AuthModuleService authModuleService = syncopeClient.getService(AuthModuleService.class);
+        assertEquals(1, authModuleService.list().size());
+
+        SyncopeCoreTestingServer.CLIENT_APPS.clear();
+        WAClientAppService waClientAppService = syncopeClient.getService(WAClientAppService.class);
+        assertTrue(waClientAppService.list().isEmpty());
+
+        WAClientApp waClientApp = new WAClientApp();
+        waClientApp.setClientAppTO(buildOIDCRP());
+        waClientApp.getAuthModules().add(0, authModuleTO);
+        Long clientAppId = waClientApp.getClientAppTO().getClientAppId();
+        addPolicies(waClientApp, false, false);
+        DefaultAuthPolicyConf authPolicyConf = (DefaultAuthPolicyConf) waClientApp.getAuthPolicy().getConf();
+        authPolicyConf.getAuthModules().clear();
+        authPolicyConf.getAuthModules().add(authModuleTO.getKey());
+        SyncopeCoreTestingServer.CLIENT_APPS.add(waClientApp);
+
+        // 2. trigger refresh
+        int before = authenticationEventExecutionPlan.getObject().getAuthenticationHandlers().size();
+
+        contextRefresher.refresh();
+
+        int after = authenticationEventExecutionPlan.getObject().getAuthenticationHandlers().size();
+        assertEquals(before + 1, after);
+
+        // 3. check service
+        RegisteredService service = servicesManager.findServiceBy(clientAppId);
+        assertNotNull(service);
+
+        assertEquals(
+                Set.of("DelegatedClientAuthenticationHandler"),
+                service.getAuthenticationPolicy().getRequiredAuthenticationHandlers());
+
+        RegisteredServiceAccessStrategy accessStrategy = service.getAccessStrategy();
+        assertNotNull(accessStrategy);
+        RegisteredServiceDelegatedAuthenticationPolicy delegatedAuthPolicy =
+                accessStrategy.getDelegatedAuthenticationPolicy();
+        assertNotNull(delegatedAuthPolicy);
+        assertEquals(1, delegatedAuthPolicy.getAllowedProviders().size());
+        assertTrue(delegatedAuthPolicy.getAllowedProviders().contains(authModuleTO.getKey()));
     }
 }

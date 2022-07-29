@@ -19,6 +19,7 @@
 package org.apache.syncope.wa.bootstrap;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -128,17 +129,17 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     @Override
     public Map<String, Object> map(final AuthModuleTO authModuleTO, final OIDCAuthModuleConf conf) {
         Pac4jGenericOidcClientProperties props = new Pac4jGenericOidcClientProperties();
-        props.setId(conf.getId());
+        props.setId(conf.getClientId());
+        props.setSecret(conf.getClientSecret());
+        props.setClientName(Optional.ofNullable(conf.getClientName()).orElse(authModuleTO.getKey()));
         props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
         props.setCustomParams(conf.getCustomParams());
         props.setDiscoveryUri(conf.getDiscoveryUri());
         props.setMaxClockSkew(conf.getMaxClockSkew());
-        props.setClientName(authModuleTO.getKey());
         props.setPreferredJwsAlgorithm(conf.getPreferredJwsAlgorithm());
         props.setResponseMode(conf.getResponseMode());
         props.setResponseType(conf.getResponseType());
         props.setScope(conf.getScope());
-        props.setSecret(conf.getSecret());
         props.setPrincipalAttributeId(conf.getUserIdAttribute());
         Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
         client.setGeneric(props);
@@ -149,7 +150,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     @Override
     public Map<String, Object> map(final AuthModuleTO authModuleTO, final SAML2IdPAuthModuleConf conf) {
         Pac4jSamlClientProperties props = new Pac4jSamlClientProperties();
-        props.setClientName(authModuleTO.getKey());
+        props.setClientName(Optional.ofNullable(conf.getClientName()).orElse(authModuleTO.getKey()));
         props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
         props.setAcceptedSkew(conf.getAcceptedSkew());
         props.setAssertionConsumerServiceIndex(conf.getAssertionConsumerServiceIndex());
@@ -247,12 +248,14 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         CasSimpleMultifactorAuthenticationProperties props = new CasSimpleMultifactorAuthenticationProperties();
         props.setName(authModuleTO.getKey());
         props.setOrder(authModuleTO.getOrder());
-        props.setTokenLength(conf.getTokenLength());
-        props.setTimeToKillInSeconds(conf.getTimeToKillInSeconds());
+
         props.getMail().setAttributeName(conf.getEmailAttribute());
         props.getMail().setFrom(conf.getEmailFrom());
         props.getMail().setSubject(conf.getEmailSubject());
         props.getMail().setText(conf.getEmailText());
+
+        props.getToken().getCore().setTokenLength(conf.getTokenLength());
+        props.getToken().getCore().setTimeToKillInSeconds(conf.getTimeToKillInSeconds());
 
         if (StringUtils.isNotBlank(conf.getBypassGroovyScript())) {
             try {

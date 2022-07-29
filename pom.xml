@@ -411,7 +411,7 @@ under the License.
 
     <jackson.version>2.13.3</jackson.version>
 
-    <spring-boot.version>2.6.10</spring-boot.version>
+    <spring-boot.version>2.7.2</spring-boot.version>
     <spring-cloud-gateway.version>3.1.3</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.2</openjpa.version>
@@ -430,7 +430,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.3.2</elasticsearch.version>
+    <elasticsearch.version>8.3.3</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -446,9 +446,9 @@ under the License.
 
     <modernizer-maven.version>2.4.0</modernizer-maven.version>
 
-    <pac4j.version>5.3.1</pac4j.version>
+    <pac4j.version>5.4.3</pac4j.version>
 
-    <cas.version>6.5.6</cas.version>
+    <cas.version>6.6.0-RC5</cas.version>
     <cas-client.version>3.6.4</cas-client.version>
 
     <h2.version>2.1.214</h2.version>
@@ -510,11 +510,11 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.3.6</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.4.0</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.28</jdbc.mysql.version>
     <jdbc.mariadb.version>3.0.5</jdbc.mariadb.version>
     <jdbc.mssql.version>10.2.1.jre</jdbc.mssql.version>
-    <jdbc.oracle.version>21.5.0.0</jdbc.oracle.version>
+    <jdbc.oracle.version>21.6.0.0.1</jdbc.oracle.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -1273,354 +1273,6 @@ under the License.
 
       <!-- CAS -->
       <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-audit</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-events-api</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-authentication</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-configuration-api</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-util-api</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-configuration</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-cookie</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-logout</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-logging</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-services</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-authentication-api</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-services-registry</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-services-api</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-tickets</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-util</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-validation</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-web</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-webflow</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-events-configuration</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-thymeleaf</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-actions</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-jpa-util</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-ldap</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-reports</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-syncope-authentication</artifactId>
-        <version>${cas.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.github.mmoayyed.cxf</groupId>
-            <artifactId>cxf-rt-rs-extension-search</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-saml</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-person-directory</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-person-directory-core</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-themes</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-audit-api</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-saml-idp</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-saml-idp-core</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-oidc</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-oidc-core-api</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-oidc-core</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-oauth-services</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-validation</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-pm-webflow</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-pac4j-webflow</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-pac4j-core-clients</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-consent-webflow</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-aup-webflow</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-u2f</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-u2f-core</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-webauthn</artifactId>
-        <version>${cas.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-webauthn-core</artifactId>
-        <version>${cas.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-simple-mfa</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-simple-mfa-core</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-gauth</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-ldap-core</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-gauth-ldap</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-duo</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-gauth-core-mfa</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-otp-mfa-core</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-oidc-services</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-swagger</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-authentication-attributes</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-core-services-authentication</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-webapp-config</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-surrogate-webflow</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apereo.cas</groupId>
-        <artifactId>cas-server-support-surrogate-api</artifactId>
-        <version>${cas.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.jasig.cas.client</groupId>
         <artifactId>cas-client-core</artifactId>
         <version>${cas-client.version}</version>
@@ -2009,7 +1661,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.3.0</version>
           <configuration>
             <useDefaultDelimiters>false</useDefaultDelimiters>
             <delimiters>

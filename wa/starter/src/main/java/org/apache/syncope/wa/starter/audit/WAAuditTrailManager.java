@@ -19,7 +19,6 @@
 package org.apache.syncope.wa.starter.audit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Set;
@@ -79,7 +78,7 @@ public class WAAuditTrailManager extends AbstractAuditTrailManager {
     }
 
     @Override
-    public Set<? extends AuditActionContext> getAuditRecordsSince(final LocalDate sinceDate) {
+    public Set<? extends AuditActionContext> getAuditRecords(final Map<WhereClauseFields, Object> map) {
         throw new UnsupportedOperationException("Fetching audit events from WA is not supported");
     }
 

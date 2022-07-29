@@ -40,7 +40,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
-import org.apache.syncope.common.lib.types.JWSAlgorithm;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 @Tag(name = "OpenID Connect 1.0")
@@ -55,7 +54,7 @@ public interface OIDCJWKSService extends JAXRSService {
     OIDCJWKSTO get();
 
     @ApiResponses(
-        @ApiResponse(responseCode = "204", description = "Operation was successful"))
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -74,8 +73,9 @@ public interface OIDCJWKSService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Path("new")
     Response generate(
-            @NotNull @QueryParam("size") @DefaultValue("2048") int size,
-            @NotNull @QueryParam("algorithm") @DefaultValue("RS256") JWSAlgorithm algorithm);
+            @NotNull @QueryParam("jwksKeyId") @DefaultValue("syncope") String jwksKeyId,
+            @NotNull @QueryParam("jwksType") @DefaultValue("RSA") String jwksType,
+            @NotNull @QueryParam("jwksKeySize") @DefaultValue("2048") int jwksKeySize);
 
     @DELETE
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })

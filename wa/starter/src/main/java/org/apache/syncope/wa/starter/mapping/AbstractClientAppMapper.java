@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ClientAppTO;
+import org.apereo.cas.services.BaseWebBasedRegisteredService;
 import org.apereo.cas.services.DefaultRegisteredServiceProperty;
-import org.apereo.cas.services.RegexRegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
@@ -32,7 +32,7 @@ import org.apereo.cas.services.RegisteredServiceProperty;
 
 abstract class AbstractClientAppMapper implements ClientAppMapper {
 
-    protected void setCommon(final RegexRegisteredService service, final ClientAppTO clientApp) {
+    protected void setCommon(final BaseWebBasedRegisteredService service, final ClientAppTO clientApp) {
         service.setId(clientApp.getClientAppId());
         service.setName(clientApp.getName());
         service.setDescription(clientApp.getDescription());
@@ -48,7 +48,7 @@ abstract class AbstractClientAppMapper implements ClientAppMapper {
     }
 
     protected void setPolicies(
-            final RegexRegisteredService service,
+            final BaseWebBasedRegisteredService service,
             final RegisteredServiceAuthenticationPolicy authPolicy,
             final RegisteredServiceMultifactorPolicy mfaPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
@@ -58,7 +58,7 @@ abstract class AbstractClientAppMapper implements ClientAppMapper {
             service.setAuthenticationPolicy(authPolicy);
         }
         if (mfaPolicy != null) {
-            service.setMultifactorPolicy(mfaPolicy);
+            service.setMultifactorAuthenticationPolicy(mfaPolicy);
         }
         if (accessStrategy != null) {
             service.setAccessStrategy(accessStrategy);

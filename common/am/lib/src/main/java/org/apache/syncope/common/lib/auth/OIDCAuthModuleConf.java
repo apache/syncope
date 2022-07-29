@@ -22,82 +22,80 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 
-public class OIDCAuthModuleConf implements AuthModuleConf {
+public class OIDCAuthModuleConf extends Pac4jAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -471527731042579422L;
 
     /**
      * The client id.
      */
-    private String id;
+    protected String clientId;
 
     /**
      * The client secret.
      */
-    private String secret;
+    protected String clientSecret;
 
     /**
-     * The attribute value that should be used
-     * for the authenticated username, upon a successful authentication
-     * attempt.
+     * The attribute value that should be used for the authenticated username, upon a successful authentication attempt.
      */
-    private String userIdAttribute;
+    protected String userIdAttribute;
 
-    private String discoveryUri;
+    protected String discoveryUri;
 
     /**
      * Whether an initial nonce should be to used
      * initially for replay attack mitigation.
      */
-    private boolean useNonce;
+    protected boolean useNonce;
 
     /**
      * Requested scope(s).
      */
-    private String scope;
+    protected String scope;
 
     /**
      * The JWS algorithm to use forcefully when validating ID tokens.
      * If none is defined, the first algorithm from metadata will be used.
      */
-    private String preferredJwsAlgorithm;
+    protected String preferredJwsAlgorithm;
 
     /**
      * Clock skew in order to account for drift, when validating id tokens.
      */
-    private String maxClockSkew;
+    protected String maxClockSkew;
 
     /**
      * Custom parameters to send along in authZ requests, etc.
      */
-    private final Map<String, String> customParams = new HashMap<>(0);
+    protected final Map<String, String> customParams = new HashMap<>(0);
 
     /**
      * The response mode specifies how the result of the authorization request is formatted.
      * Possible values includes "query", "fragment", "form_post", or "web_message"
      */
-    private String responseMode;
+    protected String responseMode;
 
     /**
      * The response type tells the authorization server which grant to execute.
      * Possibles values includes "code", "token" or "id_token".
      */
-    private String responseType;
+    protected String responseType;
 
-    public String getId() {
-        return id;
+    public String getClientId() {
+        return clientId;
     }
 
-    public void setId(final String id) {
-        this.id = id;
+    public void setClientId(final String clientId) {
+        this.clientId = clientId;
     }
 
-    public String getSecret() {
-        return secret;
+    public String getClientSecret() {
+        return clientSecret;
     }
 
-    public void setSecret(final String secret) {
-        this.secret = secret;
+    public void setClientSecret(final String clientSecret) {
+        this.clientSecret = clientSecret;
     }
 
     public String getUserIdAttribute() {
