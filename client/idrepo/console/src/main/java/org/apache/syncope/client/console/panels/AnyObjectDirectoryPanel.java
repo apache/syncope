@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -42,6 +43,8 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.to.DerSchemaTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -84,7 +87,11 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 target.add(displayAttributeModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
-                        displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
+                        displayAttributeModal,
+                        page.getPageReference(),
+                        plainSchemas.stream().map(PlainSchemaTO::getKey).collect(Collectors.toList()),
+                        derSchemas.stream().map(DerSchemaTO::getKey).collect(Collectors.toList()),
+                        type)));
                 displayAttributeModal.addSubmitButton();
                 displayAttributeModal.header(new ResourceModel("any.attr.display"));
                 displayAttributeModal.show(true);

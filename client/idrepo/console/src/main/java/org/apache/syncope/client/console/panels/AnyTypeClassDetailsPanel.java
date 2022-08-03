@@ -25,6 +25,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -38,11 +39,11 @@ public class AnyTypeClassDetailsPanel extends Panel {
 
     private final AnyTypeClassTO anyTypeClassTO;
 
-    private final List<String> availablePlainSchemas = SchemaRestClient.getPlainSchemaNames();
+    private final List<String> availablePlainSchemas = SchemaRestClient.getSchemaNames(SchemaType.PLAIN);
 
-    private final List<String> availableDerSchemas = SchemaRestClient.getDerSchemaNames();
+    private final List<String> availableDerSchemas = SchemaRestClient.getSchemaNames(SchemaType.DERIVED);
 
-    private final List<String> availableVirSchemas = SchemaRestClient.getVirSchemaNames();
+    private final List<String> availableVirSchemas = SchemaRestClient.getSchemaNames(SchemaType.VIRTUAL);
 
     private static final List<String> LAYOUT_PARAMETERS = List.of(Constants.ENDUSER_ANYLAYOUT);
 
@@ -52,12 +53,12 @@ public class AnyTypeClassDetailsPanel extends Panel {
         this.anyTypeClassTO = anyTypeClassTO;
         buildAvailableSchemas(anyTypeClassTO.getKey());
 
-        final Form<AnyTypeClassTO> antTypeClassForm = new Form<>("form");
+        Form<AnyTypeClassTO> antTypeClassForm = new Form<>("form");
         antTypeClassForm.setModel(new CompoundPropertyModel<>(anyTypeClassTO));
         antTypeClassForm.setOutputMarkupId(true);
         add(antTypeClassForm);
 
-        final AjaxTextFieldPanel key = new AjaxTextFieldPanel(
+        AjaxTextFieldPanel key = new AjaxTextFieldPanel(
                 Constants.KEY_FIELD_NAME,
                 getString(Constants.KEY_FIELD_NAME),
                 new PropertyModel<>(this.anyTypeClassTO, Constants.KEY_FIELD_NAME));
@@ -65,7 +66,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
         key.setEnabled(anyTypeClassTO.getKey() == null || this.anyTypeClassTO.getKey().isEmpty());
         antTypeClassForm.add(key);
 
-        final WebMarkupContainer container = new WebMarkupContainer("container");
+        WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         antTypeClassForm.add(container);
 
