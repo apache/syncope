@@ -63,7 +63,7 @@ public class ParametersCreateWizardPanel extends AjaxWizardBuilder<ParametersCre
             confRestClient.set(modelObject.getAttrTO());
         } catch (Exception e) {
             LOG.error("While setting {}, removing {}", modelObject.getAttrTO(), plainSchemaTO, e);
-            schemaRestClient.deletePlainSchema(plainSchemaTO.getKey());
+            schemaRestClient.delete(SchemaType.PLAIN, plainSchemaTO.getKey());
 
             throw e;
         }

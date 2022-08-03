@@ -195,7 +195,7 @@ public class ParametersDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
                 try {
                     restClient.delete(model.getObject().getSchema());
-                    schemaRestClient.deletePlainSchema(model.getObject().getSchema());
+                    schemaRestClient.delete(SchemaType.PLAIN, model.getObject().getSchema());
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {

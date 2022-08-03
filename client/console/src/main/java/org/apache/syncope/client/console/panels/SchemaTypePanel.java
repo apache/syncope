@@ -179,19 +179,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             @Override
             public void onClick(final AjaxRequestTarget target, final SchemaTO ignore) {
                 try {
-                    switch (schemaType) {
-                        case DERIVED:
-                            restClient.deleteDerSchema(model.getObject().getKey());
-                            break;
-
-                        case VIRTUAL:
-                            restClient.deleteVirSchema(model.getObject().getKey());
-                            break;
-
-                        default:
-                            restClient.deletePlainSchema(model.getObject().getKey());
-                            break;
-                    }
+                    restClient.delete(schemaType, model.getObject().getKey());
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
