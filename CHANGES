@@ -2,6 +2,19 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.1.12
+================================================================================
+
+** Bug
+    * [SYNCOPE-1671] - Wrong JobDelegate column name in scheduled task table
+    * [SYNCOPE-1683] - Show connector overridden properties in resource wizard in tabular topology during create
+    * [SYNCOPE-1691] - Schema labels not used for attribute column headers
+
+** Improvement
+    * [SYNCOPE-1669] - Create pull results for remediations
+    * [SYNCOPE-1670] - Support Graceful shutdown
+    * [SYNCOPE-1674] - Optimize User, Group and Any Object lifecycle events management
+
 Release Notes - Syncope - Version 2.1.11
 ================================================================================
 
