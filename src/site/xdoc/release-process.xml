@@ -220,9 +220,8 @@ gpg: Signature made ...]]></source>
 scm.tag=syncope-$VERSION]]></source>
           </li>
           <li>
-            Run the <code>release:prepare</code> step for real this time. You'll be prompted for the same version 
-            information and optionally your GPG passphrase again.
-            <source>mvn -P apache-release release:prepare -Darguments="-P all,docker -DbuildNumber=syncope-$VERSION"</source>
+            Run the <code>release:perform</code> step.
+            <source>mvn -P apache-release release:perform -Darguments="-P all,docker,skipTests -DbuildNumber=syncope-$VERSION"</source>
           </li>
           <li>
             Backup (zip or tar) your local release candidate directory in case you need to rollback the release after 
