@@ -326,8 +326,8 @@ sed -i 's/\/syncope\/webjars\/highlightjs\/10.1.2\/highlight.min.js/https:\/\/cd
 
 # else if releasing from 2_1_X
 curl -o /tmp/schema_1_syncope21.html http://localhost:9080/syncope/schema_1_syncope21.html
-sed -i 's/\/syncope\/webjars\/highlightjs\/10.1.2\/styles\/default.min.css/https:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/10.1.2\/styles\/default.min.css/' /tmp/schema_1_syncope21.html
-sed -i 's/\/syncope\/webjars\/highlightjs\/10.1.2\/highlight.min.js/https:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/10.1.2\/highlight.min.js/' /tmp/schema_1_syncope21.html
+sed -i 's/\/syncope\/webjars\/highlightjs\/11.5.0\/styles\/default.min.css/https:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/11.5.0\/styles\/default.min.css/' /tmp/schema_1_syncope21.html
+sed -i 's/\/syncope\/webjars\/highlightjs\/11.5.0\/highlight.min.js/https:\/\/cdnjs.cloudflare.com\/ajax\/libs\/highlight.js\/11.5.0\/highlight.min.js/' /tmp/schema_1_syncope21.html
 
 ./bin/shutdown.sh && cd - 
               
