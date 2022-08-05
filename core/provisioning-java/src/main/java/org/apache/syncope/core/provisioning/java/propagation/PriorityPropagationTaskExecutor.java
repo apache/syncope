@@ -55,7 +55,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * Sorts the tasks to be executed according to related
- * {@link org.apache.syncope.core.persistence.api.entity.resource.ExternalResource}'s priority, then execute.
+ * {@link org.apache.syncope.core.persistence.api.entity.ExternalResource}'s priority, then execute.
  * Tasks related to resources with NULL priority are executed after other tasks, concurrently.
  * Failure during execution of a task related to resource with non-NULL priority are treated as fatal and will interrupt
  * the whole process, resulting in a global failure.
