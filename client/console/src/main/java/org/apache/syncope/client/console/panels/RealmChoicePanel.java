@@ -23,7 +23,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.button.BootstrapAjaxLink
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.ButtonList;
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.Buttons;
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.dropdown.DropDownButton;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5IconType;
+import de.agilecoders.wicket.core.markup.html.bootstrap.image.GlyphIconType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -293,7 +293,7 @@ public class RealmChoicePanel extends Panel {
             container.addOrReplace(fragment);
         } else {
             DropDownButton realms = new DropDownButton(
-                    "realms", new ResourceModel("select", ""), new Model<>(FontAwesome5IconType.folder_open_r)) {
+                    "realms", new ResourceModel("select", ""), new Model<>(GlyphIconType.folderopen)) {
 
                 private static final long serialVersionUID = -5560086780455361131L;
 
