@@ -34,8 +34,10 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
 
@@ -64,8 +66,17 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
         form = new Form<>("membersForm");
         addInnerObject(form);
 
-        final FieldPanel<String> type = new AjaxDropDownChoicePanel<>("type", "type", typeModel, false).
+        FieldPanel<String> type = new AjaxDropDownChoicePanel<>("type", "type", typeModel, false).
                 setChoices(anyTypes).
+                setChoiceRenderer(new IChoiceRenderer<String>() {
+
+                    private static final long serialVersionUID = -200150326532439794L;
+
+                    @Override
+                    public Object getDisplayValue(final String anyType) {
+                        return new ResourceModel("anyType." + anyType, anyType).getObject();
+                    }
+                }).
                 setStyleSheet("form-control").
                 setRequired(true);
 

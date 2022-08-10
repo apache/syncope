@@ -160,7 +160,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 membersModal.header(new StringResourceModel(
                         "group.members",
                         GroupDirectoryPanel.this,
-                        Model.of(Pair.of(groupTO, type))));
+                        Model.of(Pair.of(groupTO, new ResourceModel("anyType." + type, type).getObject()))));
 
                 membersModal.setContent(anyPanel);
                 membersModal.show(true);
