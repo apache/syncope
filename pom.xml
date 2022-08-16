@@ -115,7 +115,7 @@ under the License.
       <email>ilgrosso@apache.org</email>
       <name>Francesco Chicchiriccò</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>ASF member</role>
         <role>PMC chair</role>
@@ -126,7 +126,7 @@ under the License.
       <id>fmartelli</id>
       <name>Fabio Martelli</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>PMC member</role>
       </roles>
@@ -136,7 +136,7 @@ under the License.
       <id>mdisabatino</id>
       <name>Marco Di Sabatino Di Diodoro</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>PMC member</role>
       </roles>
@@ -146,7 +146,7 @@ under the License.
       <id>massi</id>
       <name>Massimiliano Perrone</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>PMC member</role>
       </roles>
@@ -271,7 +271,7 @@ under the License.
       <id>andreapatricelli</id>
       <name>Andrea Patricelli</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>PMC member</role>
       </roles>
@@ -292,8 +292,6 @@ under the License.
     <developer>
       <id>matteodc</id>
       <name>Matteo Di Carlo</name>
-      <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
       <roles>
         <role>committer</role>
       </roles>
@@ -304,7 +302,7 @@ under the License.
       <id>skylark17</id>
       <name>Matteo Alessandroni</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>PMC member</role>
       </roles>
@@ -315,7 +313,7 @@ under the License.
       <id>loredicola</id>
       <name>Lorenzo Di Cola</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>committer</role>
       </roles>
@@ -325,8 +323,6 @@ under the License.
     <developer>
       <id>dimaayash</id>
       <name>Dima Ayash</name>
-      <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
       <roles>
         <role>committer</role>
       </roles>
@@ -336,7 +332,7 @@ under the License.
       <id>mmoayyed</id>
       <name>Misagh Moayyed</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>committer</role>
       </roles>
@@ -346,7 +342,7 @@ under the License.
       <id>sgarofalo</id>
       <name>Samuel Garofalo</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>committer</role>
       </roles>
@@ -429,8 +425,6 @@ under the License.
     <bval.version>2.0.6</bval.version>
 
     <jasypt.version>1.9.3</jasypt.version>
-
-    <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
     <groovy.version>4.0.4</groovy.version>
 
@@ -1172,17 +1166,6 @@ under the License.
         <groupId>org.jasypt</groupId>
         <artifactId>jasypt</artifactId>
         <version>${jasypt.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.cocoon.sax</groupId>
-        <artifactId>cocoon-sax</artifactId>
-        <version>${cocoon.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.cocoon.optional</groupId>
-        <artifactId>cocoon-optional</artifactId>
-        <version>${cocoon.version}</version>
       </dependency>
 
       <dependency>

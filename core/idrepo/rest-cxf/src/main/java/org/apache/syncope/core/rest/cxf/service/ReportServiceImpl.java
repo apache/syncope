@@ -75,7 +75,7 @@ public class ReportServiceImpl extends AbstractExecutableService implements Repo
     public Response exportExecutionResult(final String executionKey, final ReportExecExportFormat fmt) {
         ReportExecExportFormat format = Optional.ofNullable(fmt).orElse(ReportExecExportFormat.XML);
         ReportExec reportExec = logic.getReportExec(executionKey);
-        StreamingOutput sout = (os) -> ReportLogic.exportExecutionResult(os, reportExec, format);
+        StreamingOutput sout = os -> logic.exportExecutionResult(os, reportExec, format);
 
         return Response.ok(sout).
                 header(HttpHeaders.CONTENT_DISPOSITION,
