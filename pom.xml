@@ -413,11 +413,11 @@ under the License.
 
     <cxf.version>3.5.3</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.23</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.24.1</nimbus-jose-jwt.version>
 
     <jackson.version>2.13.3</jackson.version>
 
-    <spring-boot.version>2.7.2</spring-boot.version>
+    <spring-boot.version>2.7.3</spring-boot.version>
     <spring-cloud-gateway.version>3.1.3</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.2</openjpa.version>
@@ -450,7 +450,7 @@ under the License.
 
     <modernizer-maven.version>2.4.0</modernizer-maven.version>
 
-    <pac4j.version>5.4.4</pac4j.version>
+    <pac4j.version>5.4.5</pac4j.version>
 
     <cas.version>6.6.0-RC5</cas.version>
     <cas-client.version>3.6.4</cas-client.version>
@@ -514,10 +514,10 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.4.0</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.4.2</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.28</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.0.5</jdbc.mariadb.version>
-    <jdbc.mssql.version>10.2.1.jre</jdbc.mssql.version>
+    <jdbc.mariadb.version>3.0.7</jdbc.mariadb.version>
+    <jdbc.mssql.version>11.2.0.jre</jdbc.mssql.version>
     <jdbc.oracle.version>21.6.0.0.1</jdbc.oracle.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
@@ -1844,7 +1844,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.9.13</version>
+          <version>1.10.0</version>
           <configuration>
             <configuration>
               <type>standalone</type>
