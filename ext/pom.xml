@@ -82,6 +82,7 @@ under the License.
     <module>oidcc4ui</module>
     <module>elasticsearch</module>
     <module>scimv2</module>
+    <module>livesync</module>
   </modules>
 
 </project>
