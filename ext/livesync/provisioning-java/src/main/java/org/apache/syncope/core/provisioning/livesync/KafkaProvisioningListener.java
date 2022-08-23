@@ -21,15 +21,14 @@ package org.apache.syncope.core.provisioning.livesync;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
+import org.springframework.messaging.support.GenericMessage;
 
-@Component
 public class KafkaProvisioningListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KafkaProvisioningListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaProvisioningListener.class);
 
-    @KafkaListener(id = "foo", topics = "myTopic")
-    public void poll(final String message) {
-        LOGGER.debug(message);
+    @KafkaListener(id = "provisioning", topics = "provisioning")
+    public void poll(final GenericMessage<String> message) {
+        LOG.debug("{}", message);
     }
 }

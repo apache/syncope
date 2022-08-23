@@ -600,7 +600,177 @@ under the License.
         </testResources>
       </build>
     </profile>
-  
+
+    <profile>
+      <id>livesync-it</id>
+      
+      <properties>
+        <spring.profiles.active>embedded,livesync</spring.profiles.active>
+        <docker.autoCreateCustomNetworks>true</docker.autoCreateCustomNetworks>
+
+        <!-- TEMP -->
+        <skipTests>true</skipTests>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.ext.livesync</groupId>
+          <artifactId>syncope-ext-livesync-provisioning-java</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <!-- TEMP -->
+        <defaultGoal>clean package io.fabric8:docker-maven-plugin:start cargo:run</defaultGoal>
+        
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <includes>
+                <include>**/org/apache/syncope/fit/core/*ITCase.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <alias>zookeeper</alias> 
+                  <name>zookeeper:${zookeeper.version}</name>
+                  <run>
+                    <containerNamePattern>%a</containerNamePattern>
+                    <ports>
+                      <port>2181:2181</port>
+                    </ports>
+                    <network>
+                      <mode>custom</mode>
+                      <name>kafka-network</name>
+                    </network>
+                    <volumes>
+                      <bind>
+                        <volume>/etc/localtime:/etc/localtime:ro</volume>
+                      </bind>
+                    </volumes>
+                  </run>
+                </image>
+                <image>
+                  <alias>kafka</alias> 
+                  <name>bitnami/kafka</name>
+                  <run>
+                    <dependsOn>
+                      <container>zookeeper</container>
+                    </dependsOn>
+                    <env>
+                      <KAFKA_BROKER_ID>1</KAFKA_BROKER_ID>
+                      <KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE>true</KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE>
+                      <KAFKA_CFG_ZOOKEEPER_CONNECT>zookeeper:2181</KAFKA_CFG_ZOOKEEPER_CONNECT>
+                      <ALLOW_PLAINTEXT_LISTENER>yes</ALLOW_PLAINTEXT_LISTENER>
+                      <KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP>CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT</KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP>
+                      <KAFKA_CFG_LISTENERS>CLIENT://:9092,EXTERNAL://:9093</KAFKA_CFG_LISTENERS>
+                      <KAFKA_CFG_ADVERTISED_LISTENERS>CLIENT://kafka:9092,EXTERNAL://localhost:9093</KAFKA_CFG_ADVERTISED_LISTENERS>
+                      <KAFKA_INTER_BROKER_LISTENER_NAME>CLIENT</KAFKA_INTER_BROKER_LISTENER_NAME>
+                    </env>
+                    <containerNamePattern>%a</containerNamePattern>
+                    <ports>
+                      <port>9093:9093</port>
+                    </ports>
+                    <network>
+                      <mode>custom</mode>
+                      <name>kafka-network</name>
+                    </network>            
+                    <volumes>
+                      <bind>
+                        <volume>/etc/localtime:/etc/localtime:ro</volume>
+                      </bind>
+                    </volumes>
+                  </run>
+                </image>
+                <image>
+                  <alias>kafka-ui</alias> 
+                  <name>provectuslabs/kafka-ui</name>
+                  <run>
+                    <dependsOn>
+                      <container>kafka</container>
+                    </dependsOn>
+                    <env>
+                      <KAFKA_CLUSTERS_0_NAME>local</KAFKA_CLUSTERS_0_NAME>
+                      <KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS>kafka:9092</KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS>
+                    </env>
+                    <containerNamePattern>%a</containerNamePattern>
+                    <ports>
+                      <port>9000:8080</port>
+                    </ports>
+                    <network>
+                      <mode>custom</mode>
+                      <name>kafka-network</name>
+                    </network>
+                    <volumes>
+                      <bind>
+                        <volume>/etc/localtime:/etc/localtime:ro</volume>
+                      </bind>
+                    </volumes>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-livesync</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-livesync</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven3-plugin</artifactId>
+            <inherited>true</inherited>
+          </plugin>
+        </plugins>
+
+        <testResources>
+          <testResource>
+            <directory>src/test/resources</directory>
+            <filtering>true</filtering>
+            <excludes>
+              <exclude>keystore</exclude>
+            </excludes>
+          </testResource>
+          <testResource>
+            <directory>src/test/resources</directory>
+            <filtering>false</filtering>
+            <includes>
+              <include>keystore</include>
+            </includes>
+          </testResource>
+          <testResource>
+            <directory>${basedir}/../../core/rest-cxf/src/main/resources</directory>
+            <includes>
+              <include>errorMessages.properties</include>
+            </includes>
+          </testResource>
+        </testResources>
+      </build>
+    </profile>
+
     <profile>
       <id>pgjsonb-it</id>
 
