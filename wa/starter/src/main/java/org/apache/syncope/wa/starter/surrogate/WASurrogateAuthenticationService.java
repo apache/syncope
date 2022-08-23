@@ -41,7 +41,7 @@ public class WASurrogateAuthenticationService implements SurrogateAuthentication
     }
 
     @Override
-    public boolean canAuthenticateAs(
+    public boolean canImpersonate(
             final String surrogate, final Principal principal, final Optional<Service> service) {
 
         try {
@@ -55,7 +55,7 @@ public class WASurrogateAuthenticationService implements SurrogateAuthentication
     }
 
     @Override
-    public Collection<String> getEligibleAccountsForSurrogateToProxy(final String username) {
+    public Collection<String> getImpersonationAccounts(final String username) {
         return getImpersonationService().read(username).
                 stream().
                 map(ImpersonationAccount::getImpersonated).
