@@ -184,6 +184,12 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                             new PropertyModel<>(policyTO, "prefetch"),
                             false));
 
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field",
+                            "updateDelta",
+                            new PropertyModel<>(policyTO, "updateDelta"),
+                            false));
+
                     fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
                             "field",
                             "maxAttempts",

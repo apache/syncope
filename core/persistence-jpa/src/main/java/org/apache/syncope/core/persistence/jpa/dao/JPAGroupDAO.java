@@ -48,7 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -655,6 +655,6 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
-        return find(key).getResources().stream().map(Entity::getKey).collect(Collectors.toList());
+        return find(key).getResources().stream().map(ExternalResource::getKey).collect(Collectors.toList());
     }
 }

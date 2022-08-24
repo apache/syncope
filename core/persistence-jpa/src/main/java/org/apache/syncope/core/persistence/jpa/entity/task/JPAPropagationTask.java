@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -31,11 +29,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.PropagationTaskCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.identityconnectors.framework.common.objects.Attribute;
 
 /**
  * Encapsulate all information about a propagation task.
@@ -64,10 +62,10 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     private String oldConnObjectKey;
 
     /**
-     * Attributes to be propagated.
+     * Data to be propagated.
      */
     @Lob
-    private String attributes;
+    private String propagationData;
 
     private String objectClassName;
 
@@ -105,27 +103,25 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     }
 
     @Override
-    public String getSerializedAttributes() {
-        return this.attributes;
+    public String getSerializedPropagationData() {
+        return propagationData;
     }
 
     @Override
-    public Set<Attribute> getAttributes() {
-        Set<Attribute> result = new HashSet<>();
-        if (StringUtils.isNotBlank(this.attributes)) {
-            result.addAll(List.of(POJOHelper.deserialize(this.attributes, Attribute[].class)));
+    public Optional<PropagationData> getPropagationData() {
+        PropagationData result = null;
+        if (StringUtils.isNotBlank(propagationData)) {
+            result = POJOHelper.deserialize(propagationData, PropagationData.class);
         }
-
-        return result;
+        return Optional.ofNullable(result);
     }
 
     @Override
-    public void setAttributes(final Set<Attribute> attributes) {
-        this.attributes = POJOHelper.serialize(attributes);
+    public void setPropagationData(final PropagationData propagationData) {
+        this.propagationData = POJOHelper.serialize(propagationData);
     }
 
     @Override
-
     public ResourceOperation getOperation() {
         return operation;
     }

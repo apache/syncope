@@ -21,20 +21,26 @@ package org.apache.syncope.core.provisioning.api.serialization;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
-import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeDelta;
 
-class AttributeSerializer extends AbstractValueSerializer<Attribute> {
+class AttributeDeltaSerializer extends AbstractValueSerializer<AttributeDelta> {
 
     @Override
-    public void serialize(final Attribute source, final JsonGenerator jgen, final SerializerProvider sp)
+    public void serialize(final AttributeDelta source, final JsonGenerator jgen, final SerializerProvider sp)
             throws IOException {
 
         jgen.writeStartObject();
 
         jgen.writeStringField("name", source.getName());
 
-        jgen.writeFieldName("value");
-        doSerialize(source.getValue(), jgen);
+        jgen.writeFieldName("valuesToAdd");
+        doSerialize(source.getValuesToAdd(), jgen);
+
+        jgen.writeFieldName("valuesToRemove");
+        doSerialize(source.getValuesToRemove(), jgen);
+
+        jgen.writeFieldName("valuesToReplace");
+        doSerialize(source.getValuesToReplace(), jgen);
 
         jgen.writeEndObject();
     }

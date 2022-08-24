@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.api.propagation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
@@ -163,4 +164,17 @@ public interface PropagationManager {
             Realm realm,
             PropagationByResource<String> propByRes,
             Collection<String> noPropResourceKeys);
+
+    /**
+     * Enrich the provided tasks with attribute deltas.
+     *
+     * @param tasks propagation tasks
+     * @param skips connobject links not to process from the provided propagation tasks
+     * @param beforeAttrs attribute values before update
+     * @return enriched propagation tasks
+     */
+    List<PropagationTaskInfo> setAttributeDeltas(
+            List<PropagationTaskInfo> tasks,
+            Collection<String> skips,
+            Map<String, Set<Attribute>> beforeAttrs);
 }

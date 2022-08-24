@@ -31,8 +31,6 @@ public interface ProvisioningManager<C extends AnyCR, U extends AnyUR> {
     Pair<String, List<PropagationStatus>> create(
             C anyCR, boolean nullPriorityAsync, String creator, String context);
 
-    Pair<U, List<PropagationStatus>> update(U anyUR, boolean nullPriorityAsync, String updater, String context);
-
     Pair<U, List<PropagationStatus>> update(
             U anyUR, Set<String> excludedResources, boolean nullPriorityAsync, String updater, String context);
 

@@ -96,13 +96,6 @@ public class CamelGroupProvisioningManager
         return exchange.getIn().getBody(Pair.class);
     }
 
-    @Override
-    public Pair<GroupUR, List<PropagationStatus>> update(
-            final GroupUR groupUR, final boolean nullPriorityAsync, final String updater, final String context) {
-
-        return update(groupUR, Set.of(), nullPriorityAsync, updater, context);
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")

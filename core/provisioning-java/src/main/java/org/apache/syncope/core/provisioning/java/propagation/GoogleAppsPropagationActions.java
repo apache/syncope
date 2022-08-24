@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.propagation;
 
-import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -40,9 +40,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class GoogleAppsPropagationActions implements PropagationActions {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GoogleAppsPropagationActions.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(GoogleAppsPropagationActions.class);
 
-    protected static String getEmailAttrName() {
+    protected String getEmailAttrName() {
         return "emails";
     }
 
@@ -56,19 +56,18 @@ public class GoogleAppsPropagationActions implements PropagationActions {
             return;
         }
 
-        Set<Attribute> attrs = new HashSet<>(task.getAttributes());
+        task.getPropagationData().filter(data -> data.getAttributes() != null).ifPresent(data -> {
+            Set<Attribute> attrs = data.getAttributes();
 
-        if (AttributeUtil.find(getEmailAttrName(), attrs) == null) {
-            LOG.warn("Can't find {} to set as {} attribute value, skipping...", getEmailAttrName(), Name.NAME);
-            return;
-        }
+            if (AttributeUtil.find(getEmailAttrName(), attrs) == null) {
+                LOG.warn("Can't find {} to set as {} attribute value, skipping...", getEmailAttrName(), Name.NAME);
+                return;
+            }
 
-        Name name = AttributeUtil.getNameFromAttributes(attrs);
-        if (name != null) {
-            attrs.remove(name);
-        }
-        attrs.add(new Name(AttributeUtil.find(getEmailAttrName(), attrs).getValue().get(0).toString()));
+            Optional.ofNullable(AttributeUtil.getNameFromAttributes(attrs)).ifPresent(attrs::remove);
+            attrs.add(new Name(AttributeUtil.find(getEmailAttrName(), attrs).getValue().get(0).toString()));
 
-        task.setAttributes(attrs);
+            task.setPropagationData(data);
+        });
     }
 }

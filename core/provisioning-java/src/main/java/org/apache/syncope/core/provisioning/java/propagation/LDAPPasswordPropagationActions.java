@@ -19,13 +19,14 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.Base64;
-import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
@@ -56,11 +57,14 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
         if (AnyTypeKind.USER == task.getAnyTypeKind()) {
             User user = userDAO.find(task.getEntityKey());
+            Optional<PropagationData> propagationDataOpt = task.getPropagationData();
 
-            if (user != null && user.getPassword() != null) {
-                Attribute missing = AttributeUtil.find(
-                        PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME,
-                        task.getAttributes());
+            if (user != null && user.getPassword() != null
+                    && propagationDataOpt.isPresent() && propagationDataOpt.get().getAttributes() != null) {
+
+                Set<Attribute> attrs = propagationDataOpt.get().getAttributes();
+
+                Attribute missing = AttributeUtil.find(PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME, attrs);
 
                 ConnInstance connInstance = task.getResource().getConnector();
                 String cipherAlgorithm = getCipherAlgorithm(connInstance);
@@ -77,17 +81,16 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
                     Attribute passwordAttribute = AttributeBuilder.buildPassword(
                             new GuardedString(cipherPlusPassword.toCharArray()));
 
-                    Set<Attribute> attributes = new HashSet<>(task.getAttributes());
-                    attributes.add(passwordAttribute);
-                    attributes.remove(missing);
+                    attrs.add(passwordAttribute);
+                    attrs.remove(missing);
 
-                    task.setAttributes(attributes);
+                    task.setPropagationData(propagationDataOpt.get());
                 }
             }
         }
     }
 
-    private static String getCipherAlgorithm(final ConnInstance connInstance) {
+    protected String getCipherAlgorithm(final ConnInstance connInstance) {
         return connInstance.getConf().stream().
                 filter(property -> "passwordHashAlgorithm".equals(property.getSchema().getName())
                 && property.getValues() != null && !property.getValues().isEmpty()).findFirst().
@@ -95,7 +98,7 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
                 orElse(CLEARTEXT);
     }
 
-    private static boolean cipherAlgorithmMatches(final String connectorAlgo, final CipherAlgorithm userAlgo) {
+    protected boolean cipherAlgorithmMatches(final String connectorAlgo, final CipherAlgorithm userAlgo) {
         if (userAlgo == null) {
             return false;
         }

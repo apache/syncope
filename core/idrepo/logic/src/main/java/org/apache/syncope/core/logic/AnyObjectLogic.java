@@ -160,18 +160,16 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
     }
 
     @Override
-    public ProvisioningResult<AnyObjectTO> update(
-            final AnyObjectUR updateReq, final boolean nullPriorityAsync) {
-
-        AnyObjectTO anyObjectTO = binder.getAnyObjectTO(updateReq.getKey());
-        Pair<AnyObjectUR, List<LogicActions>> before = beforeUpdate(updateReq, anyObjectTO.getRealm());
+    public ProvisioningResult<AnyObjectTO> update(final AnyObjectUR req, final boolean nullPriorityAsync) {
+        AnyObjectTO anyObjectTO = binder.getAnyObjectTO(req.getKey());
+        Pair<AnyObjectUR, List<LogicActions>> before = beforeUpdate(req, anyObjectTO.getRealm());
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(AnyEntitlement.UPDATE.getFor(anyObjectTO.getType())),
                 anyObjectTO.getRealm());
 
         Set<String> groups = groups(anyObjectTO);
-        groups.removeAll(updateReq.getMemberships().stream().filter(Objects::nonNull).
+        groups.removeAll(req.getMemberships().stream().filter(Objects::nonNull).
                 filter(m -> m.getOperation() == PatchOperation.DELETE).
                 map(MembershipUR::getGroup).filter(Objects::nonNull).
                 collect(Collectors.toSet()));
@@ -182,8 +180,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
                 anyObjectTO.getRealm(),
                 groups);
 
-        Pair<AnyObjectUR, List<PropagationStatus>> after =
-                provisioningManager.update(updateReq, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
+        Pair<AnyObjectUR, List<PropagationStatus>> after = provisioningManager.update(
+                req, Set.of(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<AnyObjectTO> result = afterUpdate(
                 binder.getAnyObjectTO(after.getLeft().getKey()),

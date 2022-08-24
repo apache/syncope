@@ -39,8 +39,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
@@ -91,6 +89,7 @@ import org.apache.syncope.common.rest.api.beans.ExecListQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.core.reference.DateToDateItemTransformer;
 import org.apache.syncope.fit.core.reference.DateToLongItemTransformer;
@@ -526,9 +525,9 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertEquals(1, tasks.getSize());
 
             Set<Attribute> propagationAttrs = new HashSet<>();
-            if (StringUtils.isNotBlank(tasks.getResult().get(0).getAttributes())) {
-                propagationAttrs.addAll(List.of(
-                        POJOHelper.deserialize(tasks.getResult().get(0).getAttributes(), Attribute[].class)));
+            if (StringUtils.isNotBlank(tasks.getResult().get(0).getPropagationData())) {
+                propagationAttrs.addAll(POJOHelper.deserialize(
+                        tasks.getResult().get(0).getPropagationData(), PropagationData.class).getAttributes());
             }
 
             OffsetDateTime loginDate = LocalDate.parse(user.getPlainAttr("loginDate").get().getValues().get(0)).
@@ -698,9 +697,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                     anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).build());
             assertEquals(1, tasks.getSize());
 
-            Set<Attribute> propagationAttrs = Stream.of(
-                    POJOHelper.deserialize(tasks.getResult().get(0).getAttributes(), Attribute[].class)).
-                    collect(Collectors.toSet());
+            Set<Attribute> propagationAttrs = POJOHelper.deserialize(
+                    tasks.getResult().get(0).getPropagationData(), PropagationData.class).getAttributes();
             Attribute attr = AttributeUtil.find("l", propagationAttrs);
             assertNotNull(attr);
             assertNotNull(attr.getValue());

@@ -227,8 +227,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 before.getLeft().getKey(),
                 groupTO.getRealm());
 
-        Pair<GroupUR, List<PropagationStatus>> after =
-                provisioningManager.update(req, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
+        Pair<GroupUR, List<PropagationStatus>> after = provisioningManager.update(
+                req, Set.of(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         ProvisioningResult<GroupTO> result = afterUpdate(
                 binder.getGroupTO(after.getLeft().getKey()),

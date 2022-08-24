@@ -258,12 +258,13 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         switch (taskUtil.getType()) {
             case PROPAGATION:
                 PropagationTaskTO taskTO = binder.<PropagationTaskTO>getTaskTO(task, taskUtil, false);
-                PropagationTaskInfo taskInfo = new PropagationTaskInfo(((PropagationTask) task).getResource());
+                PropagationTaskInfo taskInfo = new PropagationTaskInfo(
+                        ((PropagationTask) task).getResource(),
+                        ((PropagationTask) task).getPropagationData().orElse(null));
                 taskInfo.setKey(taskTO.getKey());
                 taskInfo.setOperation(taskTO.getOperation());
                 taskInfo.setConnObjectKey(taskTO.getConnObjectKey());
                 taskInfo.setOldConnObjectKey(taskTO.getOldConnObjectKey());
-                taskInfo.setAttributes(taskTO.getAttributes());
                 taskInfo.setObjectClassName(taskTO.getObjectClassName());
                 taskInfo.setAnyTypeKind(taskTO.getAnyTypeKind());
                 taskInfo.setAnyType(taskTO.getAnyType());

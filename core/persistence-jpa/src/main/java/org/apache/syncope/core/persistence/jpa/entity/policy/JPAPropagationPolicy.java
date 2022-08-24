@@ -38,6 +38,9 @@ public class JPAPropagationPolicy extends AbstractPolicy implements PropagationP
     @NotNull
     private Boolean prefetch = true;
 
+    @NotNull
+    private Boolean updateDelta = false;
+
     @Enumerated(EnumType.STRING)
     @NotNull
     private BackOffStrategy backOffStrategy;
@@ -55,6 +58,16 @@ public class JPAPropagationPolicy extends AbstractPolicy implements PropagationP
     @Override
     public void setPrefetch(final boolean prefetch) {
         this.prefetch = prefetch;
+    }
+
+    @Override
+    public boolean isUpdateDelta() {
+        return updateDelta;
+    }
+
+    @Override
+    public void setUpdateDelta(final boolean updateDelta) {
+        this.updateDelta = updateDelta;
     }
 
     @Override

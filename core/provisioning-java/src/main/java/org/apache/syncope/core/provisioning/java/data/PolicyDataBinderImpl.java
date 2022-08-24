@@ -149,6 +149,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             PropagationPolicyTO propagationPolicyTO = PropagationPolicyTO.class.cast(policyTO);
 
             propagationPolicy.setPrefetch(propagationPolicyTO.isPrefetch());
+            propagationPolicy.setUpdateDelta(propagationPolicyTO.isUpdateDelta());
             propagationPolicy.setBackOffStrategy(propagationPolicyTO.getBackOffStrategy());
             propagationPolicy.setBackOffParams(propagationPolicyTO.getBackOffParams());
             propagationPolicy.setMaxAttempts(propagationPolicyTO.getMaxAttempts());
@@ -311,6 +312,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             policyTO = (T) propagationPolicyTO;
 
             propagationPolicyTO.setPrefetch(propagationPolicy.isPrefetch());
+            propagationPolicyTO.setUpdateDelta(propagationPolicy.isUpdateDelta());
             propagationPolicyTO.setBackOffStrategy(propagationPolicy.getBackOffStrategy());
             propagationPolicyTO.setBackOffParams(propagationPolicy.getBackOffParams());
             propagationPolicyTO.setMaxAttempts(propagationPolicy.getMaxAttempts());

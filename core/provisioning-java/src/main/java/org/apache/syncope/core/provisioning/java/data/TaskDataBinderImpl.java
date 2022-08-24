@@ -393,7 +393,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 propagationTaskTO.setOperation(propagationTask.getOperation());
                 propagationTaskTO.setConnObjectKey(propagationTask.getConnObjectKey());
                 propagationTaskTO.setOldConnObjectKey(propagationTask.getOldConnObjectKey());
-                propagationTaskTO.setAttributes(propagationTask.getSerializedAttributes());
+                propagationTaskTO.setPropagationData(propagationTask.getSerializedPropagationData());
                 propagationTaskTO.setResource(propagationTask.getResource().getKey());
                 propagationTaskTO.setObjectClassName(propagationTask.getObjectClassName());
                 propagationTaskTO.setAnyTypeKind(propagationTask.getAnyTypeKind());

@@ -548,7 +548,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
                 taskTO.setOperation(task.getOperation());
                 taskTO.setConnObjectKey(task.getConnObjectKey());
                 taskTO.setOldConnObjectKey(task.getOldConnObjectKey());
-                taskTO.setAttributes(task.getSerializedAttributes());
+                taskTO.setPropagationData(task.getSerializedPropagationData());
                 taskTO.setResource(task.getResource().getKey());
                 taskTO.setObjectClassName(task.getObjectClassName());
                 taskTO.setAnyTypeKind(task.getAnyTypeKind());

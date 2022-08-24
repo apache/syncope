@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.AbstractPatchItem;
+import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
@@ -46,6 +47,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
@@ -56,11 +58,12 @@ import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.AttributeDelta;
+import org.identityconnectors.framework.common.objects.AttributeDeltaBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -205,9 +208,8 @@ public class DefaultPropagationManager implements PropagationManager {
 
         return getUpdateTasks(
                 anyUtilsFactory.getInstance(AnyTypeKind.USER).dao().authFind(wfResult.getResult().getLeft().getKey()),
-                wfResult.getResult().getLeft().getPassword() == null
-                ? null
-                : wfResult.getResult().getLeft().getPassword().getValue(),
+                Optional.ofNullable(wfResult.getResult().getLeft().getPassword()).
+                        map(PasswordPatch::getValue).orElse(null),
                 changePwd,
                 wfResult.getResult().getRight(),
                 wfResult.getPropByRes(),
@@ -360,20 +362,12 @@ public class DefaultPropagationManager implements PropagationManager {
             final Stream<Item> mappingItems,
             final Pair<String, Set<Attribute>> preparedAttrs) {
 
-        PropagationTaskInfo task = new PropagationTaskInfo(resource);
-        task.setObjectClassName(provision.getObjectClass());
-        task.setAnyTypeKind(any.getType().getKind());
-        task.setAnyType(any.getType().getKey());
-        task.setEntityKey(any.getKey());
-        task.setOperation(operation);
-        task.setConnObjectKey(preparedAttrs.getLeft());
-
         // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 
         // if so, add special attributes that will be evaluated by PropagationTaskExecutor
         List<String> mandatoryMissing = new ArrayList<>();
         List<String> mandatoryNullOrEmpty = new ArrayList<>();
-        mappingItems.filter(item -> (!item.isConnObjectKey()
-                && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any, derAttrHandler))).
+        mappingItems.filter(item -> !item.isConnObjectKey()
+                && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any, derAttrHandler)).
                 forEach(item -> {
 
                     Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getRight());
@@ -392,7 +386,15 @@ public class DefaultPropagationManager implements PropagationManager {
                     PropagationTaskExecutor.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, mandatoryNullOrEmpty));
         }
 
-        task.setAttributes(POJOHelper.serialize(preparedAttrs.getRight()));
+        PropagationTaskInfo task = new PropagationTaskInfo(
+                resource,
+                new PropagationData.Builder().attributes(preparedAttrs.getRight()).build());
+        task.setObjectClassName(provision.getObjectClass());
+        task.setAnyTypeKind(any.getType().getKind());
+        task.setAnyType(any.getType().getKey());
+        task.setEntityKey(any.getKey());
+        task.setOperation(operation);
+        task.setConnObjectKey(preparedAttrs.getLeft());
 
         return task;
     }
@@ -578,21 +580,73 @@ public class DefaultPropagationManager implements PropagationManager {
                 LOG.warn("Requesting propagation for {} but no ConnObjectLink provided for {}",
                         realm.getFullPath(), resource);
             } else {
-                PropagationTaskInfo task = new PropagationTaskInfo(resource);
+                Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromRealm(realm, orgUnit);
+
+                PropagationTaskInfo task = new PropagationTaskInfo(
+                        resource,
+                        new PropagationData.Builder().attributes(preparedAttrs.getRight()).build());
                 task.setObjectClassName(orgUnit.getObjectClass());
                 task.setEntityKey(realm.getKey());
                 task.setOperation(operation);
-                task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
-
-                Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromRealm(realm, orgUnit);
                 task.setConnObjectKey(preparedAttrs.getLeft());
-                task.setAttributes(POJOHelper.serialize(preparedAttrs.getRight()));
+                task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
                 tasks.add(task);
 
                 LOG.debug("PropagationTask created: {}", task);
             }
         });
+
+        return tasks;
+    }
+
+    @Override
+    public List<PropagationTaskInfo> setAttributeDeltas(
+            final List<PropagationTaskInfo> tasks,
+            final Collection<String> skips,
+            final Map<String, Set<Attribute>> beforeAttrs) {
+
+        if (beforeAttrs.isEmpty()) {
+            return tasks;
+        }
+
+        tasks.stream().
+                filter(task -> !skips.contains(task.getConnObjectKey())
+                && beforeAttrs.containsKey(task.getResource())
+                && task.getOldConnObjectKey() == null).
+                forEach(task -> {
+                    PropagationData propagationData = task.getPropagationDataObj();
+
+                    Set<AttributeDelta> attributeDeltas = new HashSet<>();
+
+                    propagationData.getAttributes().forEach(next -> {
+                        Set<Object> valuesToAdd = new HashSet<>();
+                        Set<Object> valuesToRemove = new HashSet<>();
+
+                        Optional.ofNullable(AttributeUtil.find(next.getName(), beforeAttrs.get(task.getResource()))).
+                                ifPresent(prev -> {
+                                    next.getValue().forEach(v -> {
+                                        if (!prev.getValue().contains(v)) {
+                                            valuesToAdd.add(v);
+                                        }
+                                    });
+                                    prev.getValue().forEach(v -> {
+                                        if (!next.getValue().contains(v)) {
+                                            valuesToRemove.add(v);
+                                        }
+                                    });
+                                });
+
+                        if (!valuesToAdd.isEmpty() || !valuesToRemove.isEmpty()) {
+                            attributeDeltas.add(
+                                    AttributeDeltaBuilder.build(next.getName(), valuesToAdd, valuesToRemove));
+                        }
+                    });
+
+                    if (!attributeDeltas.isEmpty()) {
+                        propagationData.setAttributeDeltas(attributeDeltas);
+                    }
+                });
 
         return tasks;
     }

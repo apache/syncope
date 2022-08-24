@@ -26,6 +26,10 @@ public interface PropagationPolicy extends Policy {
 
     void setPrefetch(boolean prefetch);
 
+    boolean isUpdateDelta();
+
+    void setUpdateDelta(boolean updateDelta);
+
     BackOffStrategy getBackOffStrategy();
 
     void setBackOffStrategy(BackOffStrategy backOffStrategy);

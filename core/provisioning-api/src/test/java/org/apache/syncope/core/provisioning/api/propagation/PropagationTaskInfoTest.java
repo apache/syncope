@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -37,6 +38,9 @@ public class PropagationTaskInfoTest extends AbstractTest {
 
     @Mock
     private ExternalResource externalResource;
+    
+    @Mock
+    private PropagationData propagationData;
 
     @Mock
     private transient Connector connector;
@@ -46,7 +50,7 @@ public class PropagationTaskInfoTest extends AbstractTest {
 
     @Test
     public void test(final @Mock Optional<ConnectorObject> beforeObj) {
-        PropagationTaskInfo propagationTaskInfo2 = new PropagationTaskInfo(externalResource);
+        PropagationTaskInfo propagationTaskInfo2 = new PropagationTaskInfo(externalResource, propagationData);
         Object nullObj = null;
 
         assertTrue(propagationTaskInfo2.equals(propagationTaskInfo2));

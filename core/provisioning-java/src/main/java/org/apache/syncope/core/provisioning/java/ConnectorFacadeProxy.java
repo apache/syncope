@@ -42,6 +42,7 @@ import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeDelta;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
@@ -218,6 +219,44 @@ public class ConnectorFacadeProxy implements Connector {
             }
         } else {
             LOG.info("Update for {} was attempted, although the "
+                    + "connector only has these capabilities: {}. No action.",
+                    uid.getUidValue(), connInstance.getCapabilities());
+        }
+
+        return result;
+    }
+
+    @Override
+    public Set<AttributeDelta> updateDelta(
+            final ObjectClass objectClass,
+            final Uid uid,
+            final Set<AttributeDelta> modifications,
+            final OperationOptions options,
+            final AtomicReference<Boolean> propagationAttempted) {
+
+        Set<AttributeDelta> result = null;
+
+        if (connInstance.getCapabilities().contains(ConnectorCapability.UPDATE)) {
+            propagationAttempted.set(true);
+
+            Future<Set<AttributeDelta>> future = 
+                    asyncFacade.updateDelta(connector, objectClass, uid, modifications, options);
+
+            try {
+                result = future.get(connInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
+            } catch (java.util.concurrent.TimeoutException e) {
+                future.cancel(true);
+                throw new TimeoutException("Request timeout");
+            } catch (Exception e) {
+                LOG.error("Connector request execution failure", e);
+                if (e.getCause() instanceof RuntimeException) {
+                    throw (RuntimeException) e.getCause();
+                } else {
+                    throw new RuntimeException(e.getCause());
+                }
+            }
+        } else {
+            LOG.info("UpdateDelta for {} was attempted, although the "
                     + "connector only has these capabilities: {}. No action.",
                     uid.getUidValue(), connInstance.getCapabilities());
         }

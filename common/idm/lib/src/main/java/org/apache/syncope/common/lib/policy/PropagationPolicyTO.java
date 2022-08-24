@@ -30,6 +30,8 @@ public class PropagationPolicyTO extends PolicyTO {
 
     private boolean prefetch = true;
 
+    private boolean updateDelta = false;
+
     private BackOffStrategy backOffStrategy = BackOffStrategy.FIXED;
 
     private String backOffParams = BackOffStrategy.FIXED.getDefaultBackOffParams();
@@ -50,6 +52,14 @@ public class PropagationPolicyTO extends PolicyTO {
 
     public void setPrefetch(final boolean prefetch) {
         this.prefetch = prefetch;
+    }
+
+    public boolean isUpdateDelta() {
+        return updateDelta;
+    }
+
+    public void setUpdateDelta(final boolean updateDelta) {
+        this.updateDelta = updateDelta;
     }
 
     public BackOffStrategy getBackOffStrategy() {

@@ -25,6 +25,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
@@ -34,6 +35,8 @@ public class PropagationTaskInfo extends PropagationTaskTO {
     private static final long serialVersionUID = -2879861567335503099L;
 
     private final ExternalResource externalResource;
+
+    private final PropagationData propagationDataObj;
 
     private Connector connector;
 
@@ -46,9 +49,10 @@ public class PropagationTaskInfo extends PropagationTaskTO {
      */
     private Optional<ConnectorObject> beforeObj;
 
-    public PropagationTaskInfo(final ExternalResource externalResource) {
+    public PropagationTaskInfo(final ExternalResource externalResource, final PropagationData propagationDataObj) {
         super();
         this.externalResource = externalResource;
+        this.propagationDataObj = propagationDataObj;
     }
 
     public Connector getConnector() {
@@ -71,6 +75,10 @@ public class PropagationTaskInfo extends PropagationTaskTO {
     @Override
     public void setResource(final String resource) {
         throw new IllegalArgumentException("Cannot set ExternalResource on " + getClass().getName());
+    }
+
+    public PropagationData getPropagationDataObj() {
+        return propagationDataObj;
     }
 
     public Optional<ConnectorObject> getBeforeObj() {

@@ -19,8 +19,11 @@
 package org.apache.syncope.core.provisioning.java;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -36,7 +39,9 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
@@ -46,6 +51,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
+import org.identityconnectors.framework.common.objects.Attribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -61,22 +67,26 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     protected final PropagationTaskExecutor taskExecutor;
 
+    protected final UserDAO userDAO;
+
     protected final VirAttrHandler virtAttrHandler;
 
-    protected final UserDAO userDAO;
+    protected final MappingManager mappingManager;
 
     public DefaultUserProvisioningManager(
             final UserWorkflowAdapter uwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
+            final UserDAO userDAO,
             final VirAttrHandler virtAttrHandler,
-            final UserDAO userDAO) {
+            final MappingManager mappingManager) {
 
         this.uwfAdapter = uwfAdapter;
         this.propagationManager = propagationManager;
         this.taskExecutor = taskExecutor;
-        this.virtAttrHandler = virtAttrHandler;
         this.userDAO = userDAO;
+        this.virtAttrHandler = virtAttrHandler;
+        this.mappingManager = mappingManager;
     }
 
     @Override
@@ -113,13 +123,46 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         return Pair.of(created.getResult().getLeft(), propagationReporter.getStatuses());
     }
 
+    protected Map<String, Set<Attribute>> beforeAttrs(
+            final UserUR userUR,
+            final Boolean enable,
+            final Set<String> excludedResources) {
+
+        User user = userDAO.authFind(userUR.getKey());
+
+        Map<String, Set<Attribute>> beforeAttrs = new HashMap<>();
+        user.getResources().stream().
+                filter(r -> !excludedResources.contains(r.getKey())
+                && r.getProvision(user.getType().getKey()).isPresent()
+                && r.getPropagationPolicy() != null && r.getPropagationPolicy().isUpdateDelta()).
+                forEach(resource -> beforeAttrs.put(
+                resource.getKey(),
+                mappingManager.prepareAttrsFromAny(
+                        user,
+                        Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null),
+                        userUR.getPassword() != null,
+                        enable,
+                        resource,
+                        resource.getProvision(user.getType().getKey()).get()).getRight()));
+
+        return beforeAttrs;
+    }
+
     @Override
     public Pair<UserUR, List<PropagationStatus>> update(
             final UserUR userUR, final boolean nullPriorityAsync, final String updater, final String context) {
 
+        Map<String, Set<Attribute>> beforeAttrs = beforeAttrs(userUR, null, Set.of());
+
         UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.update(userUR, updater, context);
 
-        List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(updated);
+        Set<String> skips = userDAO.authFind(userUR.getKey()).getLinkedAccounts().stream().
+                map(LinkedAccount::getConnObjectKeyValue).collect(Collectors.toSet());
+
+        List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
+                propagationManager.getUserUpdateTasks(updated),
+                skips,
+                beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult().getLeft(), propagationReporter.getStatuses());
@@ -146,6 +189,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             final boolean nullPriorityAsync,
             final String updater,
             final String context) {
+
+        Map<String, Set<Attribute>> beforeAttrs = beforeAttrs(userUR, enabled, excludedResources);
 
         UserWorkflowResult<Pair<UserUR, Boolean>> updated;
         try {
@@ -185,8 +230,16 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             }
         }
 
-        List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
-                updated, updated.getResult().getLeft().getPassword() != null, excludedResources);
+        Set<String> skips = userDAO.authFind(userUR.getKey()).getLinkedAccounts().stream().
+                map(LinkedAccount::getConnObjectKeyValue).collect(Collectors.toSet());
+
+        List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
+                propagationManager.getUserUpdateTasks(
+                        updated,
+                        updated.getResult().getLeft().getPassword() != null,
+                        excludedResources),
+                skips,
+                beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult().getLeft(), propagationReporter.getStatuses());

@@ -651,15 +651,17 @@ public class ProvisioningContext {
             final UserWorkflowAdapter uwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
+            final UserDAO userDAO,
             final VirAttrHandler virtAttrHandler,
-            final UserDAO userDAO) {
+            final MappingManager mappingManager) {
 
         return new DefaultUserProvisioningManager(
                 uwfAdapter,
                 propagationManager,
                 taskExecutor,
+                userDAO,
                 virtAttrHandler,
-                userDAO);
+                mappingManager);
     }
 
     @ConditionalOnMissingBean
@@ -670,7 +672,8 @@ public class ProvisioningContext {
             final PropagationTaskExecutor taskExecutor,
             final GroupDataBinder groupDataBinder,
             final GroupDAO groupDAO,
-            final VirAttrHandler virtAttrHandler) {
+            final VirAttrHandler virtAttrHandler,
+            final MappingManager mappingManager) {
 
         return new DefaultGroupProvisioningManager(
                 gwfAdapter,
@@ -678,7 +681,8 @@ public class ProvisioningContext {
                 taskExecutor,
                 groupDataBinder,
                 groupDAO,
-                virtAttrHandler);
+                virtAttrHandler,
+                mappingManager);
     }
 
     @ConditionalOnMissingBean
@@ -687,15 +691,17 @@ public class ProvisioningContext {
             final AnyObjectWorkflowAdapter awfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
+            final AnyObjectDAO anyObjectDAO,
             final VirAttrHandler virtAttrHandler,
-            final AnyObjectDAO anyObjectDAO) {
+            final MappingManager mappingManager) {
 
         return new DefaultAnyObjectProvisioningManager(
                 awfAdapter,
                 propagationManager,
                 taskExecutor,
+                anyObjectDAO,
                 virtAttrHandler,
-                anyObjectDAO);
+                mappingManager);
     }
 
     @ConditionalOnMissingBean

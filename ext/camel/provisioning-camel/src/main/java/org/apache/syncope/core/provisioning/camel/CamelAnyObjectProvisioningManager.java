@@ -77,13 +77,6 @@ public class CamelAnyObjectProvisioningManager
         return exchange.getIn().getBody(Pair.class);
     }
 
-    @Override
-    public Pair<AnyObjectUR, List<PropagationStatus>> update(
-            final AnyObjectUR anyUR, final boolean nullPriorityAsync, final String updater, final String context) {
-
-        return update(anyUR, Set.of(), nullPriorityAsync, updater, context);
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")

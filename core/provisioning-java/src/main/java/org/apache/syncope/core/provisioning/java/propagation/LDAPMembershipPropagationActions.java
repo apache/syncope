@@ -75,8 +75,28 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
      *
      * @return the name of the attribute used to keep track of group memberships
      */
-    protected static String getGroupMembershipAttrName() {
+    protected String getGroupMembershipAttrName() {
         return "ldapGroups";
+    }
+
+    protected String evaluateGroupConnObjectLink(final String connObjectLinkTemplate, final Group group) {
+        LOG.debug("Evaluating connObjectLink for {}", group);
+
+        JexlContext jexlContext = new MapContext();
+        JexlUtils.addFieldsToContext(group, jexlContext);
+        JexlUtils.addPlainAttrsToContext(group.getPlainAttrs(), jexlContext);
+        JexlUtils.addDerAttrsToContext(group, derAttrHandler, jexlContext);
+
+        return JexlUtils.evaluate(connObjectLinkTemplate, jexlContext).toString();
+    }
+
+    protected void buildManagedGroupConnObjectLinks(
+            final ExternalResource resource,
+            final String connObjectLinkTemplate,
+            final Set<String> connObjectLinks) {
+
+        List<Group> managedGroups = groupDAO.findByResource(resource);
+        managedGroups.forEach(group -> connObjectLinks.add(evaluateGroupConnObjectLink(connObjectLinkTemplate, group)));
     }
 
     @Transactional(readOnly = true)
@@ -106,55 +126,37 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                 });
                 LOG.debug("Group connObjectLinks to propagate for membership: {}", groupConnObjectLinks);
 
-                Set<Attribute> attributes = new HashSet<>(task.getAttributes());
+                task.getPropagationData().ifPresent(data -> {
+                    Set<Attribute> attrs = data.getAttributes();
 
-                Set<String> groups = new HashSet<>(groupConnObjectLinks);
-                Attribute ldapGroups = AttributeUtil.find(getGroupMembershipAttrName(), attributes);
-                if (ldapGroups != null) {
-                    ldapGroups.getValue().forEach(obj -> groups.add(obj.toString()));
-                    attributes.remove(ldapGroups);
+                    Set<String> groups = new HashSet<>(groupConnObjectLinks);
+                    Attribute ldapGroups = AttributeUtil.find(getGroupMembershipAttrName(), attrs);
+                    if (ldapGroups != null) {
+                        ldapGroups.getValue().forEach(obj -> groups.add(obj.toString()));
+                        attrs.remove(ldapGroups);
 
-                    if (beforeObj != null && beforeObj.getAttributeByName(getGroupMembershipAttrName()) != null) {
-                        Set<String> connObjectLinks = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-                        buildManagedGroupConnObjectLinks(
-                                task.getResource(),
-                                provision.get().getMapping().getConnObjectLink(),
-                                connObjectLinks);
+                        if (beforeObj != null && beforeObj.getAttributeByName(getGroupMembershipAttrName()) != null) {
+                            Set<String> connObjectLinks = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+                            buildManagedGroupConnObjectLinks(
+                                    task.getResource(),
+                                    provision.get().getMapping().getConnObjectLink(),
+                                    connObjectLinks);
 
-                        Attribute beforeLdapGroups = beforeObj.getAttributeByName(getGroupMembershipAttrName());
-                        LOG.debug("Memberships not managed by Syncope: {}", beforeLdapGroups);
-                        beforeLdapGroups.getValue().stream().
-                                filter(value -> !connObjectLinks.contains(String.valueOf(value))).
-                                forEach(value -> groups.add(String.valueOf(value)));
+                            Attribute beforeLdapGroups = beforeObj.getAttributeByName(getGroupMembershipAttrName());
+                            LOG.debug("Memberships not managed by Syncope: {}", beforeLdapGroups);
+                            beforeLdapGroups.getValue().stream().
+                                    filter(value -> !connObjectLinks.contains(String.valueOf(value))).
+                                    forEach(value -> groups.add(String.valueOf(value)));
+                        }
                     }
-                }
-                LOG.debug("Add ldapGroups to attributes: {}", groups);
-                attributes.add(AttributeBuilder.build(getGroupMembershipAttrName(), groups));
+                    LOG.debug("Add ldapGroups to attributes: {}", groups);
+                    attrs.add(AttributeBuilder.build(getGroupMembershipAttrName(), groups));
 
-                task.setAttributes(attributes);
+                    task.setPropagationData(data);
+                });
             }
         } else {
             LOG.debug("Not about user, or group mapping missing for resource: not doing anything");
         }
-    }
-
-    private String evaluateGroupConnObjectLink(final String connObjectLinkTemplate, final Group group) {
-        LOG.debug("Evaluating connObjectLink for {}", group);
-
-        JexlContext jexlContext = new MapContext();
-        JexlUtils.addFieldsToContext(group, jexlContext);
-        JexlUtils.addPlainAttrsToContext(group.getPlainAttrs(), jexlContext);
-        JexlUtils.addDerAttrsToContext(group, derAttrHandler, jexlContext);
-
-        return JexlUtils.evaluate(connObjectLinkTemplate, jexlContext).toString();
-    }
-
-    private void buildManagedGroupConnObjectLinks(
-            final ExternalResource resource,
-            final String connObjectLinkTemplate,
-            final Set<String> connObjectLinks) {
-
-        List<Group> managedGroups = groupDAO.findByResource(resource);
-        managedGroups.forEach(group -> connObjectLinks.add(evaluateGroupConnObjectLink(connObjectLinkTemplate, group)));
     }
 }

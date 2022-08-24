@@ -19,7 +19,9 @@
 package org.apache.syncope.core.provisioning.java;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -29,7 +31,9 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -38,6 +42,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
+import org.identityconnectors.framework.common.objects.Attribute;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,22 +54,26 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
     protected final PropagationTaskExecutor taskExecutor;
 
+    protected final AnyObjectDAO anyObjectDAO;
+
     protected final VirAttrHandler virtAttrHandler;
 
-    protected final AnyObjectDAO anyObjectDAO;
+    protected final MappingManager mappingManager;
 
     public DefaultAnyObjectProvisioningManager(
             final AnyObjectWorkflowAdapter awfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
+            final AnyObjectDAO anyObjectDAO,
             final VirAttrHandler virtAttrHandler,
-            final AnyObjectDAO anyObjectDAO) {
+            final MappingManager mappingManager) {
 
         this.awfAdapter = awfAdapter;
         this.propagationManager = propagationManager;
         this.taskExecutor = taskExecutor;
-        this.virtAttrHandler = virtAttrHandler;
         this.anyObjectDAO = anyObjectDAO;
+        this.virtAttrHandler = virtAttrHandler;
+        this.mappingManager = mappingManager;
     }
 
     @Override
@@ -100,16 +109,6 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
 
-    @Override
-    public Pair<AnyObjectUR, List<PropagationStatus>> update(
-            final AnyObjectUR anyObjectUR,
-            final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
-
-        return update(anyObjectUR, Set.of(), nullPriorityAsync, updater, context);
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Pair<AnyObjectUR, List<PropagationStatus>> update(
@@ -119,17 +118,37 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
             final String updater,
             final String context) {
 
+        AnyObject anyObject = anyObjectDAO.authFind(anyObjectUR.getKey());
+
+        Map<String, Set<Attribute>> beforeAttrs = new HashMap<>();
+        anyObjectDAO.findAllResources(anyObject).stream().
+                filter(r -> !excludedResources.contains(r.getKey())
+                && r.getProvision(anyObject.getType().getKey()).isPresent()
+                && r.getPropagationPolicy() != null && r.getPropagationPolicy().isUpdateDelta()).
+                forEach(resource -> beforeAttrs.put(
+                resource.getKey(),
+                mappingManager.prepareAttrsFromAny(
+                        anyObject,
+                        null,
+                        false,
+                        null,
+                        resource,
+                        resource.getProvision(anyObject.getType().getKey()).get()).getRight()));
+
         WorkflowResult<AnyObjectUR> updated = awfAdapter.update(anyObjectUR, updater, context);
 
-        List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
-                AnyTypeKind.ANY_OBJECT,
-                updated.getResult().getKey(),
-                false,
-                null,
-                updated.getPropByRes(),
-                null,
-                anyObjectUR.getVirAttrs(),
-                excludedResources);
+        List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
+                propagationManager.getUpdateTasks(
+                        AnyTypeKind.ANY_OBJECT,
+                        updated.getResult().getKey(),
+                        false,
+                        null,
+                        updated.getPropByRes(),
+                        null,
+                        anyObjectUR.getVirAttrs(),
+                        excludedResources),
+                Set.of(),
+                beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult(), propagationReporter.getStatuses());
