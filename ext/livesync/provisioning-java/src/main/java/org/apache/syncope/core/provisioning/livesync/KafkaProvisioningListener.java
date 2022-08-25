@@ -27,7 +27,7 @@ public class KafkaProvisioningListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaProvisioningListener.class);
 
-    @KafkaListener(id = "provisioning", topics = "provisioning")
+    @KafkaListener(id = "provisioning", topics = "dbserver1.inventory.orders")
     public void poll(final GenericMessage<String> message) {
         LOG.debug("{}", message);
     }
