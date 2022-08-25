@@ -559,10 +559,16 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     ? ExecStatus.SUCCESS.name()
                     : ExecStatus.NOT_ATTEMPTED.name());
 
-            LOG.debug("Successfully propagated to {}", task.getResource());
             result = Result.SUCCESS;
+
+            LOG.debug("Successfully propagated to {}", task.getResource());
         } catch (Exception e) {
             result = Result.FAILURE;
+
+            exec.setStatus(ExecStatus.FAILURE.name());
+
+            propagationAttempted.set(true);
+
             LOG.error("Exception during provision on resource " + task.getResource().getKey(), e);
 
             if (e instanceof ConnectorException && e.getCause() != null) {
@@ -581,41 +587,37 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 }
             }
 
-            try {
-                exec.setStatus(ExecStatus.FAILURE.name());
-            } catch (Exception wft) {
-                LOG.error("While executing KO action on {}", exec, wft);
-            }
-
-            propagationAttempted.set(true);
-
             actions.forEach(action -> action.onError(task, exec, e));
         } finally {
             // Try to read remote object AFTER any actual operation
-            if (connector != null) {
-                if (uid != null) {
-                    task.setConnObjectKey(uid.getUidValue());
-                }
-                if (fetchRemoteObj) {
-                    try {
-                        afterObj = provision == null && orgUnit == null
-                                ? null
-                                : orgUnit == null
-                                        ? getRemoteObject(task, connector, provision, actions, true)
-                                        : getRemoteObject(task, connector, orgUnit, actions, true);
-                    } catch (Exception ignore) {
-                        // ignore exception
-                        LOG.error("Error retrieving after object", ignore);
-                    }
+            if (uid != null) {
+                task.setConnObjectKey(uid.getUidValue());
+            }
+            if (fetchRemoteObj) {
+                try {
+                    afterObj = provision == null && orgUnit == null
+                            ? null
+                            : orgUnit == null
+                                    ? getRemoteObject(task, connector, provision, actions, true)
+                                    : getRemoteObject(task, connector, orgUnit, actions, true);
+                } catch (Exception ignore) {
+                    // ignore exception
+                    LOG.error("Error retrieving after object", ignore);
                 }
             }
 
-            if (task.getOperation() != ResourceOperation.DELETE && afterObj == null && uid != null) {
-                afterObj = new ConnectorObjectBuilder().
+            if (!ExecStatus.FAILURE.name().equals(exec.getStatus())
+                    && afterObj == null
+                    && uid != null
+                    && task.getOperation() != ResourceOperation.DELETE) {
+
+                ConnectorObjectBuilder builder = new ConnectorObjectBuilder().
                         setObjectClass(new ObjectClass(task.getObjectClassName())).
-                        setUid(uid).
-                        setName(new Name(uid.getUidValue())).
-                        build();
+                        setUid(uid);
+                task.getPropagationData().ifPresentOrElse(
+                        data -> builder.setName(AttributeUtil.getNameFromAttributes(data.getAttributes())),
+                        () -> builder.setName(new Name(task.getConnObjectKey())));
+                afterObj = builder.build();
             }
 
             exec.setStart(start);
@@ -640,7 +642,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                             : beforeObj != null
                                     ? outboundMatcher.getFIQL(beforeObj, task.getResource(), provision)
                                     : null;
-            reporter.onSuccessOrNonPriorityResourceFailures(taskInfo,
+            reporter.onSuccessOrNonPriorityResourceFailures(
+                    taskInfo,
                     ExecStatus.valueOf(exec.getStatus()),
                     failureReason,
                     fiql,

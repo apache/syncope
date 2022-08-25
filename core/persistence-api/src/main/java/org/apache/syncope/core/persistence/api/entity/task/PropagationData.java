@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.entity.task;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Set;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -28,39 +29,17 @@ public class PropagationData implements Serializable {
 
     private static final long serialVersionUID = -6193849782964810456L;
 
-    public static class Builder {
-
-        private final PropagationData instance;
-
-        public Builder() {
-            instance = new PropagationData();
-        }
-
-        public Builder attributes(final Set<Attribute> attributes) {
-            instance.setAttributes(attributes);
-            return this;
-        }
-
-        public Builder attributeDeltas(final Set<AttributeDelta> attributeDeltas) {
-            instance.setAttributeDeltas(attributeDeltas);
-            return this;
-        }
-
-        public PropagationData build() {
-            return instance;
-        }
-    }
-
-    private Set<Attribute> attributes;
+    private final Set<Attribute> attributes;
 
     private Set<AttributeDelta> attributeDeltas;
 
-    public Set<Attribute> getAttributes() {
-        return attributes;
+    @JsonCreator
+    public PropagationData(@JsonProperty("attributes") final Set<Attribute> attributes) {
+        this.attributes = attributes;
     }
 
-    public void setAttributes(final Set<Attribute> attributes) {
-        this.attributes = attributes;
+    public Set<Attribute> getAttributes() {
+        return attributes;
     }
 
     public Set<AttributeDelta> getAttributeDeltas() {
@@ -69,10 +48,5 @@ public class PropagationData implements Serializable {
 
     public void setAttributeDeltas(final Set<AttributeDelta> attributeDeltas) {
         this.attributeDeltas = attributeDeltas;
-    }
-
-    @JsonIgnore
-    public boolean isEmpty() {
-        return attributes == null && attributeDeltas == null;
     }
 }

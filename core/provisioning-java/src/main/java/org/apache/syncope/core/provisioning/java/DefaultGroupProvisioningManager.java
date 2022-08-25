@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,9 +32,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
-import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -63,16 +60,13 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
     protected final VirAttrHandler virtAttrHandler;
 
-    protected final MappingManager mappingManager;
-
     public DefaultGroupProvisioningManager(
             final GroupWorkflowAdapter gwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
             final GroupDataBinder groupDataBinder,
             final GroupDAO groupDAO,
-            final VirAttrHandler virtAttrHandler,
-            final MappingManager mappingManager) {
+            final VirAttrHandler virtAttrHandler) {
 
         this.gwfAdapter = gwfAdapter;
         this.propagationManager = propagationManager;
@@ -80,7 +74,6 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         this.groupDataBinder = groupDataBinder;
         this.groupDAO = groupDAO;
         this.virtAttrHandler = virtAttrHandler;
-        this.mappingManager = mappingManager;
     }
 
     @Override
@@ -138,22 +131,13 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             final String updater,
             final String context) {
 
-        Group group = groupDAO.authFind(groupUR.getKey());
-
-        Map<String, Set<Attribute>> beforeAttrs = new HashMap<>();
-        group.getResources().stream().
-                filter(r -> !excludedResources.contains(r.getKey())
-                && r.getProvision(group.getType().getKey()).isPresent()
-                && r.getPropagationPolicy() != null && r.getPropagationPolicy().isUpdateDelta()).
-                forEach(resource -> beforeAttrs.put(
-                resource.getKey(),
-                mappingManager.prepareAttrsFromAny(
-                        group,
-                        null,
-                        false,
-                        null,
-                        resource,
-                        resource.getProvision(group.getType().getKey()).get()).getRight()));
+        Map<String, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
+                AnyTypeKind.GROUP,
+                groupUR.getKey(),
+                null,
+                false,
+                null,
+                excludedResources);
 
         WorkflowResult<GroupUR> updated = gwfAdapter.update(groupUR, updater, context);
 

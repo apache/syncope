@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,6 @@ import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
@@ -71,22 +69,18 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     protected final VirAttrHandler virtAttrHandler;
 
-    protected final MappingManager mappingManager;
-
     public DefaultUserProvisioningManager(
             final UserWorkflowAdapter uwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
             final UserDAO userDAO,
-            final VirAttrHandler virtAttrHandler,
-            final MappingManager mappingManager) {
+            final VirAttrHandler virtAttrHandler) {
 
         this.uwfAdapter = uwfAdapter;
         this.propagationManager = propagationManager;
         this.taskExecutor = taskExecutor;
         this.userDAO = userDAO;
         this.virtAttrHandler = virtAttrHandler;
-        this.mappingManager = mappingManager;
     }
 
     @Override
@@ -123,40 +117,21 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         return Pair.of(created.getResult().getLeft(), propagationReporter.getStatuses());
     }
 
-    protected Map<String, Set<Attribute>> beforeAttrs(
-            final UserUR userUR,
-            final Boolean enable,
-            final Set<String> excludedResources) {
-
-        User user = userDAO.authFind(userUR.getKey());
-
-        Map<String, Set<Attribute>> beforeAttrs = new HashMap<>();
-        user.getResources().stream().
-                filter(r -> !excludedResources.contains(r.getKey())
-                && r.getProvision(user.getType().getKey()).isPresent()
-                && r.getPropagationPolicy() != null && r.getPropagationPolicy().isUpdateDelta()).
-                forEach(resource -> beforeAttrs.put(
-                resource.getKey(),
-                mappingManager.prepareAttrsFromAny(
-                        user,
-                        Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null),
-                        userUR.getPassword() != null,
-                        enable,
-                        resource,
-                        resource.getProvision(user.getType().getKey()).get()).getRight()));
-
-        return beforeAttrs;
-    }
-
     @Override
     public Pair<UserUR, List<PropagationStatus>> update(
             final UserUR userUR, final boolean nullPriorityAsync, final String updater, final String context) {
 
-        Map<String, Set<Attribute>> beforeAttrs = beforeAttrs(userUR, null, Set.of());
+        Map<String, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
+                AnyTypeKind.USER,
+                userUR.getKey(),
+                Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null),
+                userUR.getPassword() != null,
+                null,
+                Set.of());
 
         UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.update(userUR, updater, context);
 
-        Set<String> skips = userDAO.authFind(userUR.getKey()).getLinkedAccounts().stream().
+        Set<String> skips = userDAO.findLinkedAccounts(userUR.getKey()).stream().
                 map(LinkedAccount::getConnObjectKeyValue).collect(Collectors.toSet());
 
         List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
@@ -190,7 +165,13 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             final String updater,
             final String context) {
 
-        Map<String, Set<Attribute>> beforeAttrs = beforeAttrs(userUR, enabled, excludedResources);
+        Map<String, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
+                AnyTypeKind.USER,
+                userUR.getKey(),
+                Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null),
+                userUR.getPassword() != null,
+                enabled,
+                excludedResources);
 
         UserWorkflowResult<Pair<UserUR, Boolean>> updated;
         try {
@@ -230,7 +211,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             }
         }
 
-        Set<String> skips = userDAO.authFind(userUR.getKey()).getLinkedAccounts().stream().
+        Set<String> skips = userDAO.findLinkedAccounts(userUR.getKey()).stream().
                 map(LinkedAccount::getConnObjectKeyValue).collect(Collectors.toSet());
 
         List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(

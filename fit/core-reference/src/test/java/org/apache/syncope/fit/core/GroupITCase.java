@@ -1205,14 +1205,13 @@ public class GroupITCase extends AbstractITCase {
             groupUR.setKey(groupTO.getKey());
             groupUR.setName(new StringReplacePatchItem.Builder().value("fixedSYNCOPE1467").build());
 
-            assertNotNull(updateGroup(groupUR).getEntity());
+            ProvisioningResult<GroupTO> result = updateGroup(groupUR);
+            assertEquals(1, result.getPropagationStatuses().size());
+            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
-            // Assert resources are present
-            ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
-            assertNotNull(ldap);
-
-            connObjectTO = RESOURCE_SERVICE.
-                    readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
+            connObjectTO = RESOURCE_SERVICE.readConnObject(
+                    RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
             assertNotNull(connObjectTO);
             assertEquals("fixedSYNCOPE1467", connObjectTO.getAttr("cn").get().getValues().get(0));
         } finally {

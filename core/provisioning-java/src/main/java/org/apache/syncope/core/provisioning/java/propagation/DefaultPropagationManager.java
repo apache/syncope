@@ -67,6 +67,7 @@ import org.identityconnectors.framework.common.objects.AttributeDeltaBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -117,7 +118,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final Boolean enable,
             final PropagationByResource<String> propByRes,
             final Collection<Attr> vAttrs,
-            final Collection<String> noPropResourceKeys) {
+            final Collection<String> excludedResources) {
 
         return getCreateTasks(
                 anyUtilsFactory.getInstance(kind).dao().authFind(key),
@@ -126,7 +127,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 propByRes,
                 null,
                 vAttrs,
-                noPropResourceKeys);
+                excludedResources);
     }
 
     @Override
@@ -137,7 +138,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<Attr> vAttrs,
-            final Collection<String> noPropResourceKeys) {
+            final Collection<String> excludedResources) {
 
         return getCreateTasks(
                 anyUtilsFactory.getInstance(AnyTypeKind.USER).dao().authFind(key),
@@ -146,7 +147,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 propByRes,
                 propByLinkedAccount,
                 vAttrs,
-                noPropResourceKeys);
+                excludedResources);
     }
 
     protected List<PropagationTaskInfo> getCreateTasks(
@@ -156,7 +157,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<Attr> vAttrs,
-            final Collection<String> noPropResourceKeys) {
+            final Collection<String> excludedResources) {
 
         if ((propByRes == null || propByRes.isEmpty())
                 && (propByLinkedAccount == null || propByLinkedAccount.isEmpty())) {
@@ -164,14 +165,14 @@ public class DefaultPropagationManager implements PropagationManager {
             return List.of();
         }
 
-        if (noPropResourceKeys != null) {
+        if (excludedResources != null) {
             if (propByRes != null) {
-                propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceKeys);
+                propByRes.get(ResourceOperation.CREATE).removeAll(excludedResources);
             }
 
             if (propByLinkedAccount != null) {
                 propByLinkedAccount.get(ResourceOperation.CREATE).
-                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+                        removeIf(account -> excludedResources.contains(account.getLeft()));
             }
         }
 
@@ -187,7 +188,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<Attr> vAttrs,
-            final Collection<String> noPropResourceKeys) {
+            final Collection<String> excludedResources) {
 
         return getUpdateTasks(
                 anyUtilsFactory.getInstance(kind).dao().authFind(key),
@@ -197,14 +198,14 @@ public class DefaultPropagationManager implements PropagationManager {
                 propByRes,
                 propByLinkedAccount,
                 vAttrs,
-                noPropResourceKeys);
+                excludedResources);
     }
 
     @Override
     public List<PropagationTaskInfo> getUserUpdateTasks(
             final UserWorkflowResult<Pair<UserUR, Boolean>> wfResult,
             final boolean changePwd,
-            final Collection<String> noPropResourceKeys) {
+            final Collection<String> excludedResources) {
 
         return getUpdateTasks(
                 anyUtilsFactory.getInstance(AnyTypeKind.USER).dao().authFind(wfResult.getResult().getLeft().getKey()),
@@ -215,7 +216,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 wfResult.getPropByRes(),
                 wfResult.getPropByLinkedAccount(),
                 wfResult.getResult().getLeft().getVirAttrs(),
-                noPropResourceKeys);
+                excludedResources);
     }
 
     @Override
@@ -280,20 +281,20 @@ public class DefaultPropagationManager implements PropagationManager {
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<Attr> vAttrs,
-            final Collection<String> noPropResourceKeys) {
+            final Collection<String> excludedResources) {
 
-        if (noPropResourceKeys != null) {
+        if (excludedResources != null) {
             if (propByRes != null) {
-                propByRes.removeAll(noPropResourceKeys);
+                propByRes.removeAll(excludedResources);
             }
 
             if (propByLinkedAccount != null) {
                 propByLinkedAccount.get(ResourceOperation.CREATE).
-                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+                        removeIf(account -> excludedResources.contains(account.getLeft()));
                 propByLinkedAccount.get(ResourceOperation.UPDATE).
-                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+                        removeIf(account -> excludedResources.contains(account.getLeft()));
                 propByLinkedAccount.get(ResourceOperation.DELETE).
-                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+                        removeIf(account -> excludedResources.contains(account.getLeft()));
             }
         }
 
@@ -313,18 +314,18 @@ public class DefaultPropagationManager implements PropagationManager {
             final String key,
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
-            final Collection<String> noPropResourceKeys) {
+            final Collection<String> excludedResources) {
 
         return getDeleteTasks(
                 anyUtilsFactory.getInstance(kind).dao().authFind(key),
-                propByRes, propByLinkedAccount, noPropResourceKeys);
+                propByRes, propByLinkedAccount, excludedResources);
     }
 
     protected List<PropagationTaskInfo> getDeleteTasks(
             final Any<?> any,
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
-            final Collection<String> noPropResourceKeys) {
+            final Collection<String> excludedResources) {
 
         PropagationByResource<String> localPropByRes = new PropagationByResource<>();
 
@@ -336,16 +337,16 @@ public class DefaultPropagationManager implements PropagationManager {
             localPropByRes.merge(propByRes);
         }
 
-        if (noPropResourceKeys != null) {
-            localPropByRes.removeAll(noPropResourceKeys);
+        if (excludedResources != null) {
+            localPropByRes.removeAll(excludedResources);
 
             if (propByLinkedAccount != null) {
                 propByLinkedAccount.get(ResourceOperation.CREATE).
-                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+                        removeIf(account -> excludedResources.contains(account.getLeft()));
                 propByLinkedAccount.get(ResourceOperation.UPDATE).
-                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+                        removeIf(account -> excludedResources.contains(account.getLeft()));
                 propByLinkedAccount.get(ResourceOperation.DELETE).
-                        removeIf(account -> noPropResourceKeys.contains(account.getLeft()));
+                        removeIf(account -> excludedResources.contains(account.getLeft()));
             }
         }
 
@@ -386,9 +387,7 @@ public class DefaultPropagationManager implements PropagationManager {
                     PropagationTaskExecutor.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, mandatoryNullOrEmpty));
         }
 
-        PropagationTaskInfo task = new PropagationTaskInfo(
-                resource,
-                new PropagationData.Builder().attributes(preparedAttrs.getRight()).build());
+        PropagationTaskInfo task = new PropagationTaskInfo(resource, new PropagationData(preparedAttrs.getRight()));
         task.setObjectClassName(provision.getObjectClass());
         task.setAnyTypeKind(any.getType().getKind());
         task.setAnyType(any.getType().getKey());
@@ -554,10 +553,10 @@ public class DefaultPropagationManager implements PropagationManager {
     public List<PropagationTaskInfo> createTasks(
             final Realm realm,
             final PropagationByResource<String> propByRes,
-            final Collection<String> noPropResourceKeys) {
+            final Collection<String> excludedResources) {
 
-        if (noPropResourceKeys != null) {
-            propByRes.removeAll(noPropResourceKeys);
+        if (excludedResources != null) {
+            propByRes.removeAll(excludedResources);
         }
 
         LOG.debug("Provisioning {}:\n{}", realm, propByRes);
@@ -584,7 +583,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
                 PropagationTaskInfo task = new PropagationTaskInfo(
                         resource,
-                        new PropagationData.Builder().attributes(preparedAttrs.getRight()).build());
+                        new PropagationData(preparedAttrs.getRight()));
                 task.setObjectClassName(orgUnit.getObjectClass());
                 task.setEntityKey(realm.getKey());
                 task.setOperation(operation);
@@ -598,6 +597,38 @@ public class DefaultPropagationManager implements PropagationManager {
         });
 
         return tasks;
+    }
+
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public Map<String, Set<Attribute>> prepareAttrs(
+            final AnyTypeKind kind,
+            final String key,
+            final String password,
+            final boolean changePwd,
+            final Boolean enable,
+            final Collection<String> excludedResources) {
+
+        Map<String, Set<Attribute>> attrs = new HashMap<>();
+
+        Any<?> any = anyUtilsFactory.getInstance(kind).dao().authFind(key);
+
+        anyUtilsFactory.getInstance(kind).dao().findAllResourceKeys(key).stream().
+                map(resourceDAO::find).
+                filter(resource -> !excludedResources.contains(resource.getKey())
+                && resource.getProvision(any.getType().getKey()).isPresent()
+                && resource.getPropagationPolicy() != null && resource.getPropagationPolicy().isUpdateDelta()).
+                forEach(resource -> attrs.put(
+                resource.getKey(),
+                mappingManager.prepareAttrsFromAny(
+                        any,
+                        password,
+                        changePwd,
+                        enable,
+                        resource,
+                        resource.getProvision(any.getType().getKey()).get()).getRight()));
+
+        return attrs;
     }
 
     @Override
@@ -625,16 +656,12 @@ public class DefaultPropagationManager implements PropagationManager {
 
                         Optional.ofNullable(AttributeUtil.find(next.getName(), beforeAttrs.get(task.getResource()))).
                                 ifPresent(prev -> {
-                                    next.getValue().forEach(v -> {
-                                        if (!prev.getValue().contains(v)) {
-                                            valuesToAdd.add(v);
-                                        }
-                                    });
-                                    prev.getValue().forEach(v -> {
-                                        if (!next.getValue().contains(v)) {
-                                            valuesToRemove.add(v);
-                                        }
-                                    });
+                                    next.getValue().stream().
+                                            filter(value -> !prev.getValue().contains(value)).
+                                            forEach(valuesToAdd::add);
+                                    prev.getValue().stream().
+                                            filter(value -> !next.getValue().contains(value)).
+                                            forEach(valuesToRemove::add);
                                 });
 
                         if (!valuesToAdd.isEmpty() || !valuesToRemove.isEmpty()) {

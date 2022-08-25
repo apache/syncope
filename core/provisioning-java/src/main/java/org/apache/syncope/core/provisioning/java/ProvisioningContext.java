@@ -652,16 +652,14 @@ public class ProvisioningContext {
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
             final UserDAO userDAO,
-            final VirAttrHandler virtAttrHandler,
-            final MappingManager mappingManager) {
+            final VirAttrHandler virtAttrHandler) {
 
         return new DefaultUserProvisioningManager(
                 uwfAdapter,
                 propagationManager,
                 taskExecutor,
                 userDAO,
-                virtAttrHandler,
-                mappingManager);
+                virtAttrHandler);
     }
 
     @ConditionalOnMissingBean
@@ -672,8 +670,7 @@ public class ProvisioningContext {
             final PropagationTaskExecutor taskExecutor,
             final GroupDataBinder groupDataBinder,
             final GroupDAO groupDAO,
-            final VirAttrHandler virtAttrHandler,
-            final MappingManager mappingManager) {
+            final VirAttrHandler virtAttrHandler) {
 
         return new DefaultGroupProvisioningManager(
                 gwfAdapter,
@@ -681,8 +678,7 @@ public class ProvisioningContext {
                 taskExecutor,
                 groupDataBinder,
                 groupDAO,
-                virtAttrHandler,
-                mappingManager);
+                virtAttrHandler);
     }
 
     @ConditionalOnMissingBean
@@ -692,16 +688,14 @@ public class ProvisioningContext {
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
             final AnyObjectDAO anyObjectDAO,
-            final VirAttrHandler virtAttrHandler,
-            final MappingManager mappingManager) {
+            final VirAttrHandler virtAttrHandler) {
 
         return new DefaultAnyObjectProvisioningManager(
                 awfAdapter,
                 propagationManager,
                 taskExecutor,
                 anyObjectDAO,
-                virtAttrHandler,
-                mappingManager);
+                virtAttrHandler);
     }
 
     @ConditionalOnMissingBean

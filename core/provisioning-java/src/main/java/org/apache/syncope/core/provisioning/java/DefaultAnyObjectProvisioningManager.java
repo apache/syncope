@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,9 +30,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
-import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -58,22 +55,18 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
     protected final VirAttrHandler virtAttrHandler;
 
-    protected final MappingManager mappingManager;
-
     public DefaultAnyObjectProvisioningManager(
             final AnyObjectWorkflowAdapter awfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
             final AnyObjectDAO anyObjectDAO,
-            final VirAttrHandler virtAttrHandler,
-            final MappingManager mappingManager) {
+            final VirAttrHandler virtAttrHandler) {
 
         this.awfAdapter = awfAdapter;
         this.propagationManager = propagationManager;
         this.taskExecutor = taskExecutor;
         this.anyObjectDAO = anyObjectDAO;
         this.virtAttrHandler = virtAttrHandler;
-        this.mappingManager = mappingManager;
     }
 
     @Override
@@ -118,22 +111,13 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
             final String updater,
             final String context) {
 
-        AnyObject anyObject = anyObjectDAO.authFind(anyObjectUR.getKey());
-
-        Map<String, Set<Attribute>> beforeAttrs = new HashMap<>();
-        anyObjectDAO.findAllResources(anyObject).stream().
-                filter(r -> !excludedResources.contains(r.getKey())
-                && r.getProvision(anyObject.getType().getKey()).isPresent()
-                && r.getPropagationPolicy() != null && r.getPropagationPolicy().isUpdateDelta()).
-                forEach(resource -> beforeAttrs.put(
-                resource.getKey(),
-                mappingManager.prepareAttrsFromAny(
-                        anyObject,
-                        null,
-                        false,
-                        null,
-                        resource,
-                        resource.getProvision(anyObject.getType().getKey()).get()).getRight()));
+        Map<String, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
+                AnyTypeKind.ANY_OBJECT,
+                anyObjectUR.getKey(),
+                null,
+                false,
+                null,
+                excludedResources);
 
         WorkflowResult<AnyObjectUR> updated = awfAdapter.update(anyObjectUR, updater, context);
 

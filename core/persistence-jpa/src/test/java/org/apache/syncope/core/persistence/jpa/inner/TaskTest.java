@@ -119,7 +119,7 @@ public class TaskTest extends AbstractTest {
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(AttributeBuilder.build("testAttribute", "testValue1", "testValue2"));
         attributes.add(AttributeBuilder.buildPassword("password".toCharArray()));
-        task.setPropagationData(new PropagationData.Builder().attributes(attributes).build());
+        task.setPropagationData(new PropagationData(attributes));
 
         task = taskDAO.save(task);
         assertNotNull(task);
