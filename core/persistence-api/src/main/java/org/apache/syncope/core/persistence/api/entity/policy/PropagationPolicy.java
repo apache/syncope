@@ -22,9 +22,9 @@ import org.apache.syncope.common.lib.types.BackOffStrategy;
 
 public interface PropagationPolicy extends Policy {
 
-    boolean isPrefetch();
+    boolean isFetchAroundProvisioning();
 
-    void setPrefetch(boolean prefetch);
+    void setFetchAroundProvisioning(boolean fetchAroundProvisioning);
 
     boolean isUpdateDelta();
 

@@ -28,7 +28,7 @@ public class PropagationPolicyTO extends PolicyTO {
 
     private static final long serialVersionUID = 10604950933449L;
 
-    private boolean prefetch = true;
+    private boolean fetchAroundProvisioning = true;
 
     private boolean updateDelta = false;
 
@@ -46,12 +46,12 @@ public class PropagationPolicyTO extends PolicyTO {
         return getClass().getName();
     }
 
-    public boolean isPrefetch() {
-        return prefetch;
+    public boolean isFetchAroundProvisioning() {
+        return fetchAroundProvisioning;
     }
 
-    public void setPrefetch(final boolean prefetch) {
-        this.prefetch = prefetch;
+    public void setFetchAroundProvisioning(final boolean fetchAroundProvisioning) {
+        this.fetchAroundProvisioning = fetchAroundProvisioning;
     }
 
     public boolean isUpdateDelta() {

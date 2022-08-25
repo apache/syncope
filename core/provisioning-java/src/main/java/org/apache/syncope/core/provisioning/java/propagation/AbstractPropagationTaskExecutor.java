@@ -511,7 +511,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         AtomicReference<Boolean> propagationAttempted = new AtomicReference<>(false);
 
         boolean fetchRemoteObj = Optional.ofNullable(task.getResource().getPropagationPolicy()).
-                map(PropagationPolicy::isPrefetch).
+                map(PropagationPolicy::isFetchAroundProvisioning).
                 orElse(true);
 
         ConnectorObject beforeObj = null;
