@@ -111,7 +111,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
             final String updater,
             final String context) {
 
-        Map<String, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
+        Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
                 AnyTypeKind.ANY_OBJECT,
                 anyObjectUR.getKey(),
                 null,
@@ -131,7 +131,6 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                         null,
                         anyObjectUR.getVirAttrs(),
                         excludedResources),
-                Set.of(),
                 beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 

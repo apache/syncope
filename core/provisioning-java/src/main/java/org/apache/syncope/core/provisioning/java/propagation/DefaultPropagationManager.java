@@ -601,7 +601,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Map<String, Set<Attribute>> prepareAttrs(
+    public Map<Pair<String, String>, Set<Attribute>> prepareAttrs(
             final AnyTypeKind kind,
             final String key,
             final String password,
@@ -609,7 +609,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final Boolean enable,
             final Collection<String> excludedResources) {
 
-        Map<String, Set<Attribute>> attrs = new HashMap<>();
+        Map<Pair<String, String>, Set<Attribute>> attrs = new HashMap<>();
 
         Any<?> any = anyUtilsFactory.getInstance(kind).dao().authFind(key);
 
@@ -618,15 +618,57 @@ public class DefaultPropagationManager implements PropagationManager {
                 filter(resource -> !excludedResources.contains(resource.getKey())
                 && resource.getProvision(any.getType().getKey()).isPresent()
                 && resource.getPropagationPolicy() != null && resource.getPropagationPolicy().isUpdateDelta()).
-                forEach(resource -> attrs.put(
-                resource.getKey(),
-                mappingManager.prepareAttrsFromAny(
-                        any,
-                        password,
-                        changePwd,
-                        enable,
-                        resource,
-                        resource.getProvision(any.getType().getKey()).get()).getRight()));
+                forEach(resource -> {
+                    Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromAny(
+                            any,
+                            password,
+                            changePwd,
+                            enable,
+                            resource,
+                            resource.getProvision(any.getType().getKey()).get());
+                    attrs.put(
+                            Pair.of(resource.getKey(), preparedAttrs.getLeft()),
+                            preparedAttrs.getRight());
+                });
+
+        if (any instanceof User) {
+            ((User) any).getLinkedAccounts().stream().
+                    filter(account -> !excludedResources.contains(account.getResource().getKey())
+                    && account.getResource().getProvision(any.getType().getKey()).isPresent()
+                    && account.getResource().getPropagationPolicy() != null
+                    && account.getResource().getPropagationPolicy().isUpdateDelta()).
+                    forEach(account -> {
+                        Set<Attribute> preparedAttrs = mappingManager.prepareAttrsFromLinkedAccount(
+                                (User) any,
+                                account,
+                                password,
+                                true,
+                                account.getResource().getProvision(any.getType().getKey()).get());
+                        attrs.put(
+                                Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()),
+                                preparedAttrs);
+                    });
+        }
+
+        return attrs;
+    }
+
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public Map<Pair<String, String>, Set<Attribute>> prepareAttrs(final Realm realm) {
+        Map<Pair<String, String>, Set<Attribute>> attrs = new HashMap<>();
+
+        realm.getResources().stream().
+                filter(resource -> resource.getOrgUnit() != null
+                && resource.getPropagationPolicy() != null && resource.getPropagationPolicy().isUpdateDelta()).
+                forEach(resource -> {
+                    Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromRealm(
+                            realm,
+                            resource.getOrgUnit());
+                    attrs.put(
+                            Pair.of(resource.getKey(), preparedAttrs.getLeft()),
+                            preparedAttrs.getRight());
+                });
 
         return attrs;
     }
@@ -634,18 +676,18 @@ public class DefaultPropagationManager implements PropagationManager {
     @Override
     public List<PropagationTaskInfo> setAttributeDeltas(
             final List<PropagationTaskInfo> tasks,
-            final Collection<String> skips,
-            final Map<String, Set<Attribute>> beforeAttrs) {
+            final Map<Pair<String, String>, Set<Attribute>> beforeAttrs) {
 
         if (beforeAttrs.isEmpty()) {
             return tasks;
         }
 
         tasks.stream().
-                filter(task -> !skips.contains(task.getConnObjectKey())
-                && beforeAttrs.containsKey(task.getResource())
+                filter(task -> beforeAttrs.containsKey(Pair.of(task.getResource(), task.getConnObjectKey()))
                 && task.getOldConnObjectKey() == null).
                 forEach(task -> {
+                    Pair<String, String> key = Pair.of(task.getResource(), task.getConnObjectKey());
+
                     PropagationData propagationData = task.getPropagationDataObj();
 
                     Set<AttributeDelta> attributeDeltas = new HashSet<>();
@@ -654,7 +696,7 @@ public class DefaultPropagationManager implements PropagationManager {
                         Set<Object> valuesToAdd = new HashSet<>();
                         Set<Object> valuesToRemove = new HashSet<>();
 
-                        Optional.ofNullable(AttributeUtil.find(next.getName(), beforeAttrs.get(task.getResource()))).
+                        Optional.ofNullable(AttributeUtil.find(next.getName(), beforeAttrs.get(key))).
                                 ifPresent(prev -> {
                                     next.getValue().stream().
                                             filter(value -> !prev.getValue().contains(value)).

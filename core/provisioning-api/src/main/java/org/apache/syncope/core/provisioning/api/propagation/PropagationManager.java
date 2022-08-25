@@ -167,7 +167,7 @@ public interface PropagationManager {
 
     /**
      * Prepare attributes for propagation.
-     * 
+     *
      * @param kind any object type kind
      * @param key any object key
      * @param password to be set (for users)
@@ -176,7 +176,7 @@ public interface PropagationManager {
      * @param excludedResources external resource keys not to be considered for propagation
      * @return map with prepared attributes per External Resource
      */
-    Map<String, Set<Attribute>> prepareAttrs(
+    Map<Pair<String, String>, Set<Attribute>> prepareAttrs(
             AnyTypeKind kind,
             String key,
             String password,
@@ -185,15 +185,21 @@ public interface PropagationManager {
             Collection<String> excludedResources);
 
     /**
+     * Prepare attributes for propagation.
+     *
+     * @param realm realm
+     * @return map with prepared attributes per External Resource
+     */
+    Map<Pair<String, String>, Set<Attribute>> prepareAttrs(Realm realm);
+
+    /**
      * Enrich the provided tasks with attribute deltas.
      *
      * @param tasks propagation tasks
-     * @param skips connobject links not to process from the provided propagation tasks
      * @param beforeAttrs attribute values before update
      * @return enriched propagation tasks
      */
     List<PropagationTaskInfo> setAttributeDeltas(
             List<PropagationTaskInfo> tasks,
-            Collection<String> skips,
-            Map<String, Set<Attribute>> beforeAttrs);
+            Map<Pair<String, String>, Set<Attribute>> beforeAttrs);
 }

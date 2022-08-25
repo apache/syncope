@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,6 +50,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.identityconnectors.framework.common.objects.Attribute;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -174,10 +176,15 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
             throw new NotFoundException(realmTO.getFullPath());
         }
+
+        Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(realm);
+
         PropagationByResource<String> propByRes = binder.update(realm, realmTO);
         realm = realmDAO.save(realm);
 
-        List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
+        List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
+                propagationManager.createTasks(realm, propByRes, null),
+                beforeAttrs);
         PropagationReporter propagationReporter =
                 taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
 

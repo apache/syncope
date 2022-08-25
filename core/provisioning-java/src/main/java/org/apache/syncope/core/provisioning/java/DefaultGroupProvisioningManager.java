@@ -131,7 +131,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             final String updater,
             final String context) {
 
-        Map<String, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
+        Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
                 AnyTypeKind.GROUP,
                 groupUR.getKey(),
                 null,
@@ -151,7 +151,6 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                         null,
                         groupUR.getVirAttrs(),
                         excludedResources),
-                Set.of(),
                 beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, updater);
 

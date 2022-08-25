@@ -20,8 +20,10 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.OrgUnit;
@@ -51,6 +53,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
+import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.quartz.JobExecutionException;
@@ -311,11 +314,15 @@ public class DefaultRealmPullResultHandler
                         }
                     }
 
+                    Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(realm);
+
                     PropagationByResource<String> propByRes = binder.update(realm, before);
                     realm = realmDAO.save(realm);
                     RealmTO updated = binder.getRealmTO(realm, true);
 
-                    List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
+                    List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
+                            propagationManager.createTasks(realm, propByRes, null),
+                            beforeAttrs);
                     taskExecutor.execute(taskInfos, false, securityProperties.getAdminUser());
 
                     for (PullActions action : profile.getActions()) {
