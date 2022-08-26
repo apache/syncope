@@ -82,23 +82,7 @@ under the License.
       <artifactId>syncope-ext-flowable-rest-cxf</artifactId>
       <version>${project.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.syncope.ext.camel</groupId>
-      <artifactId>syncope-ext-camel-rest-cxf</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.ext.camel</groupId>
-      <artifactId>syncope-ext-camel-persistence-jpa</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.ext.camel</groupId>
-      <artifactId>syncope-ext-camel-provisioning</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    
+   
     <dependency>
       <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
       <artifactId>syncope-ext-saml2sp4ui-rest-cxf</artifactId>

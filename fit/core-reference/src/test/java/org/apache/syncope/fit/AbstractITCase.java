@@ -115,7 +115,6 @@ import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
-import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DelegationService;
@@ -351,8 +350,6 @@ public abstract class AbstractITCase {
 
     protected static SRARouteService SRA_ROUTE_SERVICE;
 
-    protected static CamelRouteService CAMEL_ROUTE_SERVICE;
-
     protected static SAML2SP4UIService SAML2SP4UI_SERVICE;
 
     protected static SAML2SP4UIIdPService SAML2SP4UI_IDP_SERVICE;
@@ -457,7 +454,6 @@ public abstract class AbstractITCase {
         REMEDIATION_SERVICE = ADMIN_CLIENT.getService(RemediationService.class);
         DELEGATION_SERVICE = ADMIN_CLIENT.getService(DelegationService.class);
         SRA_ROUTE_SERVICE = ADMIN_CLIENT.getService(SRARouteService.class);
-        CAMEL_ROUTE_SERVICE = ADMIN_CLIENT.getService(CamelRouteService.class);
         SAML2SP4UI_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIService.class);
         SAML2SP4UI_IDP_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIIdPService.class);
         OIDCC4UI_SERVICE = ADMIN_CLIENT.getService(OIDCC4UIService.class);

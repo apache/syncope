@@ -54,10 +54,10 @@ https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/or
 endif::[]
 - even though <<extensions,extensions>> have the ability to
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/types/CamelEntitlement.java[enlarge the initial list^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/flowable/common-lib/src/main/java/org/apache/syncope/common/lib/types/FlowableEntitlement.java[enlarge the initial list^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/types/CamelEntitlement.java[enlarge the initial list^]
+https://github.com/apache/syncope/blob/master/ext/flowable/common-lib/src/main/java/org/apache/syncope/common/lib/types/FlowableEntitlement.java[enlarge the initial list^]
 endif::[]
 : this is because entitlements are the pillars of the internal security model and are not meant for external usage.
 
