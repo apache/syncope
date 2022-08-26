@@ -78,7 +78,6 @@ under the License.
   
   <modules>
     <module>flowable</module>
-    <module>camel</module>
     <module>saml2sp4ui</module>
     <module>oidcc4ui</module>
     <module>elasticsearch</module>

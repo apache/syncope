@@ -135,9 +135,6 @@ under the License.
     <asyncLogger name="org.apache.fop" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
     </asyncLogger>
-    <asyncLogger name="org.apache.camel" additivity="false" level="ERROR">
-      <appender-ref ref="main"/>
-    </asyncLogger>
     <asyncLogger name="org.apache.wss4j" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
     </asyncLogger>
