@@ -58,8 +58,9 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
@@ -398,19 +399,19 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(), () -> {
                 PLATFORM_INFO.getAnyTypes().clear();
                 PLATFORM_INFO.getAnyTypes().addAll(anyTypeDAO.findAll().stream().
-                        map(Entity::getKey).collect(Collectors.toList()));
+                        map(AnyType::getKey).collect(Collectors.toList()));
 
                 PLATFORM_INFO.getUserClasses().clear();
                 PLATFORM_INFO.getUserClasses().addAll(anyTypeDAO.findUser().getClasses().stream().
-                        map(Entity::getKey).collect(Collectors.toList()));
+                        map(AnyTypeClass::getKey).collect(Collectors.toList()));
 
                 PLATFORM_INFO.getAnyTypeClasses().clear();
                 PLATFORM_INFO.getAnyTypeClasses().addAll(anyTypeClassDAO.findAll().stream().
-                        map(Entity::getKey).collect(Collectors.toList()));
+                        map(AnyTypeClass::getKey).collect(Collectors.toList()));
 
                 PLATFORM_INFO.getResources().clear();
                 PLATFORM_INFO.getResources().addAll(resourceDAO.findAll().stream().
-                        map(Entity::getKey).collect(Collectors.toList()));
+                        map(ExternalResource::getKey).collect(Collectors.toList()));
                 return null;
             });
         }

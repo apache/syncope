@@ -286,8 +286,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final Connector connector,
             final AtomicReference<Boolean> propagationAttempted) {
 
-        PropagationData propagationData = task.getPropagationData().
-                orElseThrow(() -> new IllegalArgumentException("Propagation attibutes not found"));
+        PropagationData propagationData = task.getPropagationData();
 
         if (propagationData.getAttributeDeltas() == null) {
             Set<Attribute> attrs = propagationData.getAttributes();
@@ -614,9 +613,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 ConnectorObjectBuilder builder = new ConnectorObjectBuilder().
                         setObjectClass(new ObjectClass(task.getObjectClassName())).
                         setUid(uid);
-                task.getPropagationData().ifPresentOrElse(
-                        data -> builder.setName(AttributeUtil.getNameFromAttributes(data.getAttributes())),
-                        () -> builder.setName(new Name(task.getConnObjectKey())));
+                if (task.getPropagationData() == null) {
+                    builder.setName(new Name(task.getConnObjectKey()));
+                } else {
+                    builder.setName(AttributeUtil.getNameFromAttributes(task.getPropagationData().getAttributes()));
+                }
                 afterObj = builder.build();
             }
 

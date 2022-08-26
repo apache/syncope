@@ -28,7 +28,6 @@ import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -164,7 +163,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }

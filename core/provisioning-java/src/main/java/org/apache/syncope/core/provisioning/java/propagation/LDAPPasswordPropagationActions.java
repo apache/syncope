@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.Base64;
-import java.util.Optional;
 import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -57,12 +56,10 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
         if (AnyTypeKind.USER == task.getAnyTypeKind()) {
             User user = userDAO.find(task.getEntityKey());
-            Optional<PropagationData> propagationDataOpt = task.getPropagationData();
 
-            if (user != null && user.getPassword() != null
-                    && propagationDataOpt.isPresent() && propagationDataOpt.get().getAttributes() != null) {
-
-                Set<Attribute> attrs = propagationDataOpt.get().getAttributes();
+            PropagationData data = task.getPropagationData();
+            if (user != null && user.getPassword() != null && data != null && data.getAttributes() != null) {
+                Set<Attribute> attrs = data.getAttributes();
 
                 Attribute missing = AttributeUtil.find(PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME, attrs);
 
@@ -84,7 +81,7 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
                     attrs.add(passwordAttribute);
                     attrs.remove(missing);
 
-                    task.setPropagationData(propagationDataOpt.get());
+                    task.setPropagationData(data);
                 }
             }
         }

@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.commons;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 
 public class IdMExternalResourceProvider implements ExternalResourceProvider {
 
@@ -29,6 +29,6 @@ public class IdMExternalResourceProvider implements ExternalResourceProvider {
 
     @Override
     public List<String> get() {
-        return ResourceRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList());
+        return ResourceRestClient.list().stream().map(ResourceTO::getKey).collect(Collectors.toList());
     }
 }

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.api.entity.task;
 
-import java.util.Optional;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -35,7 +34,7 @@ public interface PropagationTask extends Task {
 
     String getSerializedPropagationData();
 
-    Optional<PropagationData> getPropagationData();
+    PropagationData getPropagationData();
 
     void setPropagationData(PropagationData propagationData);
 

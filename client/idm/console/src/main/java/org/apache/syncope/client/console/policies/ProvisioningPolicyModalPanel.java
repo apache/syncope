@@ -47,8 +47,8 @@ import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.ProvisioningPolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -92,7 +92,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                 return ImplementationRestClient.list(policyTO instanceof PullPolicyTO
                         ? IdMImplementationType.PULL_CORRELATION_RULE
                         : IdMImplementationType.PUSH_CORRELATION_RULE).stream().
-                        collect(Collectors.toMap(EntityTO::getKey, Function.identity()));
+                        collect(Collectors.toMap(ImplementationTO::getKey, Function.identity()));
             }
         };
 
@@ -313,7 +313,7 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                             ? AnyTypeKind.USER
                             : rule.getAnyType().equals(AnyTypeKind.GROUP.name())
                             ? AnyTypeKind.GROUP
-                            : AnyTypeKind.ANY_OBJECT).stream().map(EntityTO::getKey).
+                            : AnyTypeKind.ANY_OBJECT).stream().map(SchemaTO::getKey).
                             collect(Collectors.toList());
             choices.add(Constants.KEY_FIELD_NAME);
             choices.add(rule.getAnyType().equals(AnyTypeKind.USER.name())

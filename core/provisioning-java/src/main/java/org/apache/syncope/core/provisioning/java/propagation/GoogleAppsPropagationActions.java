@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -56,7 +57,8 @@ public class GoogleAppsPropagationActions implements PropagationActions {
             return;
         }
 
-        task.getPropagationData().filter(data -> data.getAttributes() != null).ifPresent(data -> {
+        PropagationData data = task.getPropagationData();
+        if (data != null && data.getAttributes() != null) {
             Set<Attribute> attrs = data.getAttributes();
 
             if (AttributeUtil.find(getEmailAttrName(), attrs) == null) {
@@ -68,6 +70,6 @@ public class GoogleAppsPropagationActions implements PropagationActions {
             attrs.add(new Name(AttributeUtil.find(getEmailAttrName(), attrs).getValue().get(0).toString()));
 
             task.setPropagationData(data);
-        });
+        }
     }
 }

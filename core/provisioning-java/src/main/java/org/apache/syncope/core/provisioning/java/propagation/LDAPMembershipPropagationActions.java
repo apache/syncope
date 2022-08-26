@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
@@ -126,7 +127,8 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                 });
                 LOG.debug("Group connObjectLinks to propagate for membership: {}", groupConnObjectLinks);
 
-                task.getPropagationData().ifPresent(data -> {
+                PropagationData data = task.getPropagationData();
+                if (data != null && data.getAttributes() != null) {
                     Set<Attribute> attrs = data.getAttributes();
 
                     Set<String> groups = new HashSet<>(groupConnObjectLinks);
@@ -153,7 +155,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                     attrs.add(AttributeBuilder.build(getGroupMembershipAttrName(), groups));
 
                     task.setPropagationData(data);
-                });
+                }
             }
         } else {
             LOG.debug("Not about user, or group mapping missing for resource: not doing anything");

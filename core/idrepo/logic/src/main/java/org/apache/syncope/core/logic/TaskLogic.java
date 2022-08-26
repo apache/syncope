@@ -260,7 +260,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 PropagationTaskTO taskTO = binder.<PropagationTaskTO>getTaskTO(task, taskUtil, false);
                 PropagationTaskInfo taskInfo = new PropagationTaskInfo(
                         ((PropagationTask) task).getResource(),
-                        ((PropagationTask) task).getPropagationData().orElse(null));
+                        ((PropagationTask) task).getPropagationData());
                 taskInfo.setKey(taskTO.getKey());
                 taskInfo.setOperation(taskTO.getOperation());
                 taskInfo.setConnObjectKey(taskTO.getConnObjectKey());

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import java.util.Optional;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -108,12 +107,12 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     }
 
     @Override
-    public Optional<PropagationData> getPropagationData() {
+    public PropagationData getPropagationData() {
         PropagationData result = null;
         if (StringUtils.isNotBlank(propagationData)) {
             result = POJOHelper.deserialize(propagationData, PropagationData.class);
         }
-        return Optional.ofNullable(result);
+        return result;
     }
 
     @Override

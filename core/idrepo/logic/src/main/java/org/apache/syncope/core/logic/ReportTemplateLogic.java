@@ -32,7 +32,6 @@ import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
@@ -158,7 +157,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
         List<Report> reports = reportDAO.findByTemplate(reportTemplate);
         if (!reports.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InUse);
-            sce.getElements().addAll(reports.stream().map(Entity::getKey).collect(Collectors.toList()));
+            sce.getElements().addAll(reports.stream().map(Report::getKey).collect(Collectors.toList()));
             throw sce;
         }
 

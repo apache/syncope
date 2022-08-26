@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -496,7 +495,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     @Override
     public void deleteAll(final ExternalResource resource, final TaskType type) {
         findAll(type, resource, null, null, null, -1, -1, List.of()).
-                stream().map(Entity::getKey).forEach(this::delete);
+                stream().map(Task::getKey).forEach(this::delete);
     }
 
     @Override

@@ -52,9 +52,9 @@ import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
+import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.Component;
@@ -253,7 +253,7 @@ public class Relationships extends WizardStep implements ICondition {
             rel = new RelationshipTO();
 
             List<String> availableRels = RelationshipTypeRestClient.list().stream().
-                    map(EntityTO::getKey).collect(Collectors.toList());
+                    map(RelationshipTypeTO::getKey).collect(Collectors.toList());
 
             type = new AjaxDropDownChoicePanel<>("type", "type", new PropertyModel<>(rel, "type"));
             type.setChoices(availableRels);

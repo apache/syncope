@@ -51,7 +51,7 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -112,7 +112,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
     protected List<Attr> loadAttrs() {
         List<String> classes = new ArrayList<>(anyTypeClasses);
         classes.addAll(AnyTypeClassRestClient.list(anyTO.getAuxClasses()).stream().
-                map(EntityTO::getKey).collect(Collectors.toList()));
+                map(AnyTypeClassTO::getKey).collect(Collectors.toList()));
         setSchemas(classes);
         setAttrs();
         return getAttrsFromTO();

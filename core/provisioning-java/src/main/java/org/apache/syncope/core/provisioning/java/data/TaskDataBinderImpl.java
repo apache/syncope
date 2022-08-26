@@ -44,7 +44,6 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -355,7 +354,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             provisioningTaskTO.setResource(provisioningTask.getResource().getKey());
 
             provisioningTaskTO.getActions().addAll(
-                    provisioningTask.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
+                    provisioningTask.getActions().stream().map(Implementation::getKey).collect(Collectors.toList()));
 
             provisioningTaskTO.setPerformCreate(provisioningTask.isPerformCreate());
             provisioningTaskTO.setPerformUpdate(provisioningTask.isPerformUpdate());

@@ -35,7 +35,7 @@ public class PropagationTaskValidator extends AbstractValidator<PropagationTaskC
             isValid = true;
         } else {
             isValid = task.getOperation() != null
-                    && !task.getPropagationData().isEmpty()
+                    && task.getPropagationData() != null
                     && task.getResource() != null;
 
             if (isValid) {
