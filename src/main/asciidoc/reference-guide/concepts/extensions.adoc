@@ -33,32 +33,6 @@ ones detailed below;
 . as Maven artifacts published by third parties;
 . as part of a given deployment source code, as explained <<customization-extensions, in the following>>.
 
-==== Apache Camel Provisioning Manager
-
-This extension delegates the <<provisioning,provisioning>> process execution to a set of
-https://camel.apache.org[Apache Camel^] routes.
-
-The pre-loaded routes can be dynamically changed at runtime via REST or admin console, and modifications are immediately
-made available for processing.
-
-For example, on creating a new user, you may wish to send an email to an administrator; or if a user is
-reactivated, you may wish to reactivate the user's home page on a web server. +
-All these things and more are possible using the myriad of
-https://camel.apache.org/components.html[components^] that are available to be used in Apache Camel routes.
-
-[NOTE]
-.Extension Sources
-====
-The source code of this extension is available from the Apache Syncope
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/camel[source tree^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/ext/camel[source tree^]
-endif::[]
-.
-====
-
 [[saml2sp4ui]]
 ==== SAML 2.0 Service Provider for UI
 

@@ -430,8 +430,6 @@ under the License.
 
     <flowable.version>6.7.2</flowable.version>
 
-    <camel.version>3.18.1</camel.version>
-
     <slf4j.version>1.7.36</slf4j.version>
 
     <elasticsearch.version>8.4.0</elasticsearch.version>
@@ -635,53 +633,6 @@ under the License.
         <version>${swagger-ui.version}</version>
       </dependency>
       <!-- /Swagger -->
-
-      <!-- Camel -->
-      <dependency>
-        <groupId>org.apache.camel.springboot</groupId>
-        <artifactId>camel-spring-boot-starter</artifactId>
-        <version>${camel.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-groovy</artifactId>
-        <version>${camel.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-metrics</artifactId>
-        <version>${camel.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>spi-annotations</artifactId>
-        <version>${camel.version}</version>
-      </dependency>
-      <!-- /Camel -->
 
       <dependency>
         <groupId>co.elastic.clients</groupId>
@@ -2250,8 +2201,6 @@ under the License.
             <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.13/</link>
             <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.13/</link>
             <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.13/</link>
-            <link>https://www.javadoc.io/doc/org.apache.camel/camel-core/latest/</link>
-            <link>https://www.javadoc.io/doc/org.apache.camel/camel-spring/latest/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/9.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>

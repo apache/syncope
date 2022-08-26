@@ -62,9 +62,6 @@ The default implementation can be sometimes tailored to meet the requirements of
 it is the crucial decision point for defining and enforcing the consistency and transformations between internal and 
 external data.
 
-In addition, an https://camel.apache.org/[Apache Camel^]-based implementation is also available as an 
-<<apache-camel-provisioning-manager,extension>>, which brings all the power of runtime changes and adaptation.
-
 [[workflow-layer]]
 ==== Workflow
 

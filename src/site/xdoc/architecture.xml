@@ -95,9 +95,6 @@ under the License.
             This component often needs to be tailored to meet the requirements of a specific deployment, as it is the 
             crucial decision point for defining and enforcing the consistency and transformations between internal and 
             external data. The default all-Java implementation can be extended for this purpose.
-            In addition, an <a target="_blank" href="https://camel.apache.org/">Apache Camel</a>-based
-            implementation is also available as an extension, which brings all the power of runtime changes and 
-            adaptation.
           </p>
         </li>
         <li>
