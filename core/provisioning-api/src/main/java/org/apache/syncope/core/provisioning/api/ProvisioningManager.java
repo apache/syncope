@@ -39,7 +39,7 @@ public interface ProvisioningManager<C extends AnyCR, U extends AnyUR> {
     String link(U anyUR, String updater, String context);
 
     List<PropagationStatus> deprovision(
-            String anyKey, Collection<String> resources, boolean nullPriorityAsync, String updater, String context);
+            String anyKey, Collection<String> resources, boolean nullPriorityAsync, String executor);
 
     List<PropagationStatus> delete(String anyKey, boolean nullPriorityAsync, String eraser, String context);
 

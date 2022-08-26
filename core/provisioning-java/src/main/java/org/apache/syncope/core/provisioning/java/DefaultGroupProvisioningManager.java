@@ -224,8 +224,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             final String key,
             final Collection<String> resources,
             final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
+            final String executor) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.UPDATE, resources);
@@ -239,7 +238,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 null,
                 null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
     }
@@ -249,8 +248,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             final String key,
             final Collection<String> resources,
             final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
+            final String executor) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.DELETE, resources);
@@ -263,7 +261,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 groupDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
     }

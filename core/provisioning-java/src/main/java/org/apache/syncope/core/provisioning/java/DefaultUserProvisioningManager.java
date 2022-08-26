@@ -347,13 +347,12 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             final String password,
             final Collection<String> resources,
             final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
+            final String executor) {
 
         UserUR userUR = new UserUR();
         userUR.setKey(key);
-        userUR.getResources().addAll(resources.stream().map(resource
-                -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+        userUR.getResources().addAll(resources.stream().
+                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
                 collect(Collectors.toSet()));
 
         if (changePwd) {
@@ -371,7 +370,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 Pair.of(userUR, (Boolean) null), propByRes, null, "update");
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(wfResult, changePwd, null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
     }
@@ -381,8 +380,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             final String key,
             final Collection<String> resources,
             final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
+            final String executor) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.DELETE, resources);
@@ -402,7 +400,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 userDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
     }

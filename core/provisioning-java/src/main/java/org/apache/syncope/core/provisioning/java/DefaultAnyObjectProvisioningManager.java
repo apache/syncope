@@ -189,8 +189,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
             final String key,
             final Collection<String> resources,
             final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
+            final String executor) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.UPDATE, resources);
@@ -204,7 +203,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 null,
                 null,
                 null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
     }
@@ -214,8 +213,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
             final String key,
             final Collection<String> resources,
             final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
+            final String executor) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.DELETE, resources);
@@ -228,7 +226,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 anyObjectDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
     }

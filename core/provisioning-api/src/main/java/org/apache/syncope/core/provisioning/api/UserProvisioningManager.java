@@ -75,6 +75,5 @@ public interface UserProvisioningManager extends ProvisioningManager<UserCR, Use
             String password,
             Collection<String> resources,
             boolean nullPriorityAsync,
-            String updater,
-            String context);
+            String executor);
 }

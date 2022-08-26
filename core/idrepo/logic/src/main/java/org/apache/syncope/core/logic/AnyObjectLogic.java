@@ -299,7 +299,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
         updateChecks(key);
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(
-                key, resources, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
+                key, resources, nullPriorityAsync, AuthContextUtils.getUsername());
 
         ProvisioningResult<AnyObjectTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getAnyObjectTO(key));
@@ -318,7 +318,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
         updateChecks(key);
 
         List<PropagationStatus> statuses = provisioningManager.provision(
-                key, resources, nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
+                key, resources, nullPriorityAsync, AuthContextUtils.getUsername());
 
         ProvisioningResult<AnyObjectTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getAnyObjectTO(key));
