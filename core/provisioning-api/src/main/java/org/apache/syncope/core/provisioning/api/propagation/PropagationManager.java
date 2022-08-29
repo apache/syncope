@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Provision;
@@ -40,6 +41,18 @@ import org.identityconnectors.framework.common.objects.Attribute;
 
 @SuppressWarnings("squid:S00107")
 public interface PropagationManager {
+
+    /**
+     * Name for special propagation attribute used to indicate whether there are attributes, marked as mandatory in the
+     * mapping but not to be propagated.
+     */
+    String MANDATORY_MISSING_ATTR_NAME = "__MANDATORY_MISSING__";
+
+    /**
+     * Name for special propagation attribute used to indicate whether there are attributes, marked as mandatory in the
+     * mapping but about to be propagated as null or empty.
+     */
+    String MANDATORY_NULL_OR_EMPTY_ATTR_NAME = "__MANDATORY_NULL_OR_EMPTY__";
 
     /**
      * Create the any object tasks for every associated resource, unless in {@code excludedResources}.
@@ -197,9 +210,11 @@ public interface PropagationManager {
      *
      * @param tasks propagation tasks
      * @param beforeAttrs attribute values before update
+     * @param updateRequest effective any update request
      * @return enriched propagation tasks
      */
     List<PropagationTaskInfo> setAttributeDeltas(
             List<PropagationTaskInfo> tasks,
-            Map<Pair<String, String>, Set<Attribute>> beforeAttrs);
+            Map<Pair<String, String>, Set<Attribute>> beforeAttrs,
+            AnyUR updateRequest);
 }

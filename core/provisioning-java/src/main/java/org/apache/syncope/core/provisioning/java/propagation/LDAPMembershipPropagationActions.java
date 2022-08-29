@@ -18,32 +18,35 @@
  */
 package org.apache.syncope.core.provisioning.java.propagation;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.request.MembershipUR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
-import org.identityconnectors.framework.common.objects.Attribute;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.AttributeDeltaBuilder;
+import org.identityconnectors.framework.common.objects.AttributeDeltaUtil;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,9 +64,6 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
 
     @Autowired
     protected DerAttrHandler derAttrHandler;
-
-    @Autowired
-    protected AnyTypeDAO anyTypeDAO;
 
     @Autowired
     protected UserDAO userDAO;
@@ -102,59 +102,98 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
 
     @Transactional(readOnly = true)
     @Override
-    public void before(final PropagationTask task, final ConnectorObject beforeObj) {
-        Optional<Provision> provision = task.getResource().getProvision(anyTypeDAO.findGroup().getKey());
-        if (AnyTypeKind.USER == task.getAnyTypeKind()
-                && provision.isPresent() && provision.get().getMapping() != null
-                && StringUtils.isNotBlank(provision.get().getMapping().getConnObjectLink())) {
+    public void before(final PropagationTaskInfo taskInfo) {
+        if (AnyTypeKind.USER != taskInfo.getAnyTypeKind() || taskInfo.getOperation() == ResourceOperation.DELETE) {
+            return;
+        }
 
-            User user = userDAO.find(task.getEntityKey());
-            if (user != null) {
-                List<String> groupConnObjectLinks = new ArrayList<>();
-                userDAO.findAllGroupKeys(user).forEach(groupKey -> {
-                    Group group = groupDAO.find(groupKey);
-                    if (group != null && groupDAO.findAllResourceKeys(groupKey).contains(task.getResource().getKey())) {
+        Optional<Provision> groupProvision = taskInfo.getResource().getProvision(AnyTypeKind.GROUP.name());
+        if (groupProvision.isPresent() && groupProvision.get().getMapping() != null
+                && StringUtils.isNotBlank(groupProvision.get().getMapping().getConnObjectLink())) {
 
+            User user = userDAO.find(taskInfo.getEntityKey());
+            Set<String> groups = new HashSet<>();
+
+            // for each user group assigned to the resource of this task, compute and add the group's 
+            // connector object link
+            userDAO.findAllGroups(user).stream().
+                    filter(group -> group.getResources().contains(taskInfo.getResource())).
+                    forEach(group -> {
                         String groupConnObjectLink = evaluateGroupConnObjectLink(
-                                provision.get().getMapping().getConnObjectLink(), group);
+                                groupProvision.get().getMapping().getConnObjectLink(), group);
 
                         LOG.debug("ConnObjectLink for {} is '{}'", group, groupConnObjectLink);
                         if (StringUtils.isNotBlank(groupConnObjectLink)) {
-                            groupConnObjectLinks.add(groupConnObjectLink);
-
+                            groups.add(groupConnObjectLink);
                         }
+                    });
+            LOG.debug("Group connObjectLinks to propagate for membership: {}", groups);
+
+            PropagationData data = taskInfo.getPropagationData();
+
+            // if groups were defined by resource mapping, take their values and clear up
+            Optional.ofNullable(AttributeUtil.find(getGroupMembershipAttrName(), data.getAttributes())).
+                    ifPresent(ldapGroups -> {
+                        Optional.ofNullable(ldapGroups.getValue()).
+                                ifPresent(value -> value.forEach(obj -> groups.add(obj.toString())));
+
+                        data.getAttributes().remove(ldapGroups);
+                    });
+            LOG.debug("Group connObjectLinks after including the ones from mapping: {}", groups);
+
+            // take groups already assigned from beforeObj and include them too
+            taskInfo.getBeforeObj().
+                    map(beforeObj -> beforeObj.getAttributeByName(getGroupMembershipAttrName())).
+                    filter(Objects::nonNull).
+                    ifPresent(beforeLdapGroups -> {
+                        Set<String> connObjectLinks = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+                        buildManagedGroupConnObjectLinks(
+                                taskInfo.getResource(),
+                                groupProvision.get().getMapping().getConnObjectLink(),
+                                connObjectLinks);
+
+                        LOG.debug("Memberships not managed by Syncope: {}", beforeLdapGroups);
+                        beforeLdapGroups.getValue().stream().
+                                filter(value -> !connObjectLinks.contains(String.valueOf(value))).
+                                forEach(value -> groups.add(String.valueOf(value)));
+                    });
+
+            LOG.debug("Adding Group connObjectLinks to attributes: {}={}", getGroupMembershipAttrName(), groups);
+            data.getAttributes().add(AttributeBuilder.build(getGroupMembershipAttrName(), groups));
+
+            if (data.getAttributeDeltas() != null && taskInfo.getUpdateRequest() != null) {
+                Set<String> groupsToAdd = new HashSet<>();
+                Set<String> groupsToRemove = new HashSet<>();
+
+                // if groups were added or removed by last update, compute and add the group's connector object link
+                for (MembershipUR memb : ((UserUR) taskInfo.getUpdateRequest()).getMemberships()) {
+                    String connObjectLink = evaluateGroupConnObjectLink(
+                            groupProvision.get().getMapping().getConnObjectLink(),
+                            groupDAO.find(memb.getGroup()));
+                    if (memb.getOperation() == PatchOperation.ADD_REPLACE) {
+                        groupsToAdd.add(connObjectLink);
+                    } else {
+                        groupsToRemove.add(connObjectLink);
                     }
-                });
-                LOG.debug("Group connObjectLinks to propagate for membership: {}", groupConnObjectLinks);
+                }
 
-                PropagationData data = task.getPropagationData();
-                if (data != null && data.getAttributes() != null) {
-                    Set<Attribute> attrs = data.getAttributes();
+                // if groups were already considered, take their values and clear up
+                Optional.ofNullable(
+                        AttributeDeltaUtil.find(getGroupMembershipAttrName(), data.getAttributeDeltas())).
+                        ifPresent(ldapGroups -> {
+                            Optional.ofNullable(ldapGroups.getValuesToAdd()).
+                                    ifPresent(value -> value.forEach(obj -> groupsToAdd.add(obj.toString())));
+                            Optional.ofNullable(ldapGroups.getValuesToRemove()).
+                                    ifPresent(value -> value.forEach(obj -> groupsToRemove.add(obj.toString())));
 
-                    Set<String> groups = new HashSet<>(groupConnObjectLinks);
-                    Attribute ldapGroups = AttributeUtil.find(getGroupMembershipAttrName(), attrs);
-                    if (ldapGroups != null) {
-                        ldapGroups.getValue().forEach(obj -> groups.add(obj.toString()));
-                        attrs.remove(ldapGroups);
+                            data.getAttributeDeltas().remove(ldapGroups);
+                        });
 
-                        if (beforeObj != null && beforeObj.getAttributeByName(getGroupMembershipAttrName()) != null) {
-                            Set<String> connObjectLinks = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-                            buildManagedGroupConnObjectLinks(
-                                    task.getResource(),
-                                    provision.get().getMapping().getConnObjectLink(),
-                                    connObjectLinks);
-
-                            Attribute beforeLdapGroups = beforeObj.getAttributeByName(getGroupMembershipAttrName());
-                            LOG.debug("Memberships not managed by Syncope: {}", beforeLdapGroups);
-                            beforeLdapGroups.getValue().stream().
-                                    filter(value -> !connObjectLinks.contains(String.valueOf(value))).
-                                    forEach(value -> groups.add(String.valueOf(value)));
-                        }
-                    }
-                    LOG.debug("Add ldapGroups to attributes: {}", groups);
-                    attrs.add(AttributeBuilder.build(getGroupMembershipAttrName(), groups));
-
-                    task.setPropagationData(data);
+                if (!groupsToAdd.isEmpty() || !groupsToRemove.isEmpty()) {
+                    LOG.debug("Adding Group connObjectLinks to attribute deltas: {}={},{}",
+                            getGroupMembershipAttrName(), groupsToAdd, groupsToRemove);
+                    data.getAttributeDeltas().add(
+                            AttributeDeltaBuilder.build(getGroupMembershipAttrName(), groupsToAdd, groupsToRemove));
                 }
             }
         } else {

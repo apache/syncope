@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.api.serialization;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.List;
@@ -30,18 +31,18 @@ import org.identityconnectors.framework.common.objects.AttributeDeltaBuilder;
 class AttributeDeltaDeserializer extends AbstractValueDeserializer<AttributeDelta> {
 
     @Override
-    public AttributeDelta deserialize(final JsonParser jp, final DeserializationContext ctx)
-            throws IOException {
-
+    public AttributeDelta deserialize(final JsonParser jp, final DeserializationContext ctx) throws IOException {
         ObjectNode tree = jp.readValueAsTree();
 
         String name = tree.get("name").asText();
 
         List<Object> valuesToAdd = doDeserialize(tree.get("valuesToAdd"), jp);
         List<Object> valuesToRemove = doDeserialize(tree.get("valuesToRemove"), jp);
-        List<Object> valuesToReplace = doDeserialize(tree.get("valuesToReplace"), jp);
 
-        return valuesToReplace == null
+        JsonNode valuesToReplaceNode = tree.get("valuesToReplace");
+        List<Object> valuesToReplace = doDeserialize(valuesToReplaceNode, jp);
+
+        return valuesToReplaceNode.isNull()
                 ? AttributeDeltaBuilder.build(name, valuesToAdd, valuesToRemove)
                 : AttributeDeltaBuilder.build(name, valuesToReplace);
     }

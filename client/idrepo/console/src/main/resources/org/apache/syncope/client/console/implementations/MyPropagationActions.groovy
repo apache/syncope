@@ -22,9 +22,9 @@ import java.util.Optional
 import java.util.Set
 import org.apache.syncope.common.lib.to.OrgUnit
 import org.apache.syncope.common.lib.to.Provision
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.identityconnectors.framework.common.objects.ConnectorObject
 
 @CompileStatic
@@ -41,17 +41,17 @@ class MyPropagationActions implements PropagationActions {
   }
 
   @Override
-  void before(PropagationTask task, ConnectorObject beforeObj) {
+  void before(PropagationTaskInfo taskInfo) {
     // do nothing
   }
 
   @Override
-  void onError(PropagationTask task, TaskExec execution, Exception error) {
+  void onError(PropagationTaskInfo taskInfo, TaskExec execution, Exception error) {
     // do nothing
   }
 
   @Override
-  void after(PropagationTask task, TaskExec execution, ConnectorObject afterObj) {
+  void after(PropagationTaskInfo taskInfo, TaskExec execution, ConnectorObject afterObj) {
     // do nothing
   }
 }

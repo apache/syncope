@@ -22,11 +22,10 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +45,9 @@ public class AzurePropagationActions implements PropagationActions {
         return "mailNickname";
     }
 
-    protected void setName(final PropagationTask task) {
-        PropagationData data = task.getPropagationData();
-        if (data != null && data.getAttributes() != null) {
+    protected void setName(final PropagationTaskInfo taskInfo) {
+        PropagationData data = taskInfo.getPropagationData();
+        if (data.getAttributes() != null) {
             Set<Attribute> attrs = data.getAttributes();
 
             if (AttributeUtil.find(getEmailAttrName(), attrs) == null) {
@@ -58,25 +57,23 @@ public class AzurePropagationActions implements PropagationActions {
 
             Optional.ofNullable(AttributeUtil.getNameFromAttributes(attrs)).ifPresent(attrs::remove);
             attrs.add(new Name(AttributeUtil.find(getEmailAttrName(), attrs).getValue().get(0).toString()));
-
-            task.setPropagationData(data);
         }
     }
 
     @Transactional
     @Override
-    public void before(final PropagationTask task, final ConnectorObject beforeObj) {
-        if (task.getOperation() == ResourceOperation.DELETE || task.getOperation() == ResourceOperation.NONE) {
+    public void before(final PropagationTaskInfo taskInfo) {
+        if (taskInfo.getOperation() == ResourceOperation.DELETE || taskInfo.getOperation() == ResourceOperation.NONE) {
             return;
         }
 
-        switch (task.getAnyTypeKind()) {
+        switch (taskInfo.getAnyTypeKind()) {
             case USER:
-                setName(task);
+                setName(taskInfo);
                 break;
 
             case GROUP:
-                setName(task);
+                setName(taskInfo);
                 break;
 
             default:

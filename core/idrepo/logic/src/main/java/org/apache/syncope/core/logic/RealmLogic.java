@@ -184,7 +184,8 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
                 propagationManager.createTasks(realm, propByRes, null),
-                beforeAttrs);
+                beforeAttrs,
+                null);
         PropagationReporter propagationReporter =
                 taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
 

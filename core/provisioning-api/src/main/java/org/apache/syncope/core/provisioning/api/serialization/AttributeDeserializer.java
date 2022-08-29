@@ -32,9 +32,7 @@ import org.identityconnectors.framework.common.objects.Uid;
 class AttributeDeserializer extends AbstractValueDeserializer<Attribute> {
 
     @Override
-    public Attribute deserialize(final JsonParser jp, final DeserializationContext ctx)
-            throws IOException {
-
+    public Attribute deserialize(final JsonParser jp, final DeserializationContext ctx) throws IOException {
         ObjectNode tree = jp.readValueAsTree();
 
         String name = tree.get("name").asText();

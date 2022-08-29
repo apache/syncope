@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -55,7 +54,7 @@ public class DefaultPropagationReporter implements PropagationReporter {
             final ConnectorObject afterObj) {
 
         PropagationStatus status = new PropagationStatus();
-        status.setResource(taskInfo.getResource());
+        status.setResource(taskInfo.getResource().getKey());
         status.setStatus(executionStatus);
         status.setFailureReason(failureReason);
 
@@ -77,19 +76,16 @@ public class DefaultPropagationReporter implements PropagationReporter {
 
         LOG.debug("Propagation error: {} priority resource failed to propagate", failingResource);
 
-        Optional<PropagationTaskInfo> propagationTask = taskInfos.stream().
-                filter(task -> task.getResource().equals(failingResource)).findFirst();
-
-        if (propagationTask.isPresent()) {
-            PropagationStatus status = new PropagationStatus();
-            status.setResource(propagationTask.get().getResource());
-            status.setStatus(ExecStatus.FAILURE);
-            status.setFailureReason(
-                    "Propagation error: " + failingResource + " priority resource failed to propagate.");
-            add(status);
-        } else {
-            LOG.error("Could not find {} for {}", PropagationTask.class.getName(), failingResource);
-        }
+        taskInfos.stream().filter(task -> task.getResource().equals(failingResource)).findFirst().ifPresentOrElse(
+                task -> {
+                    PropagationStatus status = new PropagationStatus();
+                    status.setResource(task.getResource().getKey());
+                    status.setStatus(ExecStatus.FAILURE);
+                    status.setFailureReason(
+                            "Propagation error: " + failingResource + " priority resource failed to propagate.");
+                    add(status);
+                },
+                () -> LOG.error("Could not find {} for {}", PropagationTask.class.getName(), failingResource));
     }
 
     @Override

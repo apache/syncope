@@ -131,7 +131,8 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                         null,
                         anyObjectUR.getVirAttrs(),
                         excludedResources),
-                beforeAttrs);
+                beforeAttrs,
+                updated.getResult());
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult(), propagationReporter.getStatuses());

@@ -29,7 +29,6 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -93,7 +92,6 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
             final TaskDAO taskDAO,
-            final ExternalResourceDAO resourceDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final NotificationManager notificationManager,
             final AuditManager auditManager,
@@ -110,7 +108,6 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 groupDAO,
                 anyObjectDAO,
                 taskDAO,
-                resourceDAO,
                 plainSchemaDAO,
                 notificationManager,
                 auditManager,
@@ -131,8 +128,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         PropagationReporter reporter = new DefaultPropagationReporter();
         try {
             List<PropagationTaskInfo> prioritizedTasks = taskInfos.stream().
-                    filter(task -> task.getExternalResource().getPropagationPriority() != null).
-                    sorted(Comparator.comparing(task -> task.getExternalResource().getPropagationPriority())).
+                    filter(task -> task.getResource().getPropagationPriority() != null).
+                    sorted(Comparator.comparing(task -> task.getResource().getPropagationPriority())).
                     collect(Collectors.toList());
             LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
 
@@ -142,12 +139,12 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             LOG.debug("Propagation tasks for concurrent execution: {}", concurrentTasks);
 
             // first process priority resources sequentially and fail as soon as any propagation failure is reported
-            prioritizedTasks.forEach(task -> {
+            prioritizedTasks.forEach(taskInfo -> {
                 TaskExec exec = null;
                 ExecStatus execStatus;
                 String errorMessage = null;
                 try {
-                    exec = newPropagationTaskCallable(task, reporter, executor).call();
+                    exec = newPropagationTaskCallable(taskInfo, reporter, executor).call();
                     execStatus = ExecStatus.valueOf(exec.getStatus());
                 } catch (Exception e) {
                     LOG.error("Unexpected exception", e);
@@ -156,7 +153,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 }
                 if (execStatus != ExecStatus.SUCCESS) {
                     throw new PropagationException(
-                            task.getResource(),
+                            taskInfo.getResource().getKey(),
                             Optional.ofNullable(exec).map(Exec::getMessage).orElse(errorMessage));
                 }
             });

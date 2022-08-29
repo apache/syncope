@@ -23,11 +23,10 @@ import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,16 +48,16 @@ public class GoogleAppsPropagationActions implements PropagationActions {
 
     @Transactional
     @Override
-    public void before(final PropagationTask task, final ConnectorObject beforeObj) {
-        if (task.getOperation() == ResourceOperation.DELETE || task.getOperation() == ResourceOperation.NONE) {
+    public void before(final PropagationTaskInfo taskInfo) {
+        if (taskInfo.getOperation() == ResourceOperation.DELETE || taskInfo.getOperation() == ResourceOperation.NONE) {
             return;
         }
-        if (AnyTypeKind.USER != task.getAnyTypeKind()) {
+        if (AnyTypeKind.USER != taskInfo.getAnyTypeKind()) {
             return;
         }
 
-        PropagationData data = task.getPropagationData();
-        if (data != null && data.getAttributes() != null) {
+        PropagationData data = taskInfo.getPropagationData();
+        if (data.getAttributes() != null) {
             Set<Attribute> attrs = data.getAttributes();
 
             if (AttributeUtil.find(getEmailAttrName(), attrs) == null) {
@@ -68,8 +67,6 @@ public class GoogleAppsPropagationActions implements PropagationActions {
 
             Optional.ofNullable(AttributeUtil.getNameFromAttributes(attrs)).ifPresent(attrs::remove);
             attrs.add(new Name(AttributeUtil.find(getEmailAttrName(), attrs).getValue().get(0).toString()));
-
-            task.setPropagationData(data);
         }
     }
 }

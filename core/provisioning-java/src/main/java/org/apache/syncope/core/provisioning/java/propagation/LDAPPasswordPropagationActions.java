@@ -26,15 +26,14 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,17 +52,17 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
 
     @Transactional(readOnly = true)
     @Override
-    public void before(final PropagationTask task, final ConnectorObject beforeObj) {
-        if (AnyTypeKind.USER == task.getAnyTypeKind()) {
-            User user = userDAO.find(task.getEntityKey());
+    public void before(final PropagationTaskInfo taskInfo) {
+        if (AnyTypeKind.USER == taskInfo.getAnyTypeKind()) {
+            User user = userDAO.find(taskInfo.getEntityKey());
 
-            PropagationData data = task.getPropagationData();
-            if (user != null && user.getPassword() != null && data != null && data.getAttributes() != null) {
+            PropagationData data = taskInfo.getPropagationData();
+            if (user != null && user.getPassword() != null && data.getAttributes() != null) {
                 Set<Attribute> attrs = data.getAttributes();
 
-                Attribute missing = AttributeUtil.find(PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME, attrs);
+                Attribute missing = AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs);
 
-                ConnInstance connInstance = task.getResource().getConnector();
+                ConnInstance connInstance = taskInfo.getResource().getConnector();
                 String cipherAlgorithm = getCipherAlgorithm(connInstance);
                 if (missing != null && missing.getValue() != null && missing.getValue().size() == 1
                         && missing.getValue().get(0).equals(OperationalAttributes.PASSWORD_NAME)
@@ -80,8 +79,6 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
 
                     attrs.add(passwordAttribute);
                     attrs.remove(missing);
-
-                    task.setPropagationData(data);
                 }
             }
         }

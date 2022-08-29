@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.propagation;
 
+import static org.apache.syncope.core.provisioning.api.propagation.PropagationManager.MANDATORY_MISSING_ATTR_NAME;
+import static org.apache.syncope.core.provisioning.api.propagation.PropagationManager.MANDATORY_NULL_OR_EMPTY_ATTR_NAME;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.AbstractPatchItem;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.Item;
@@ -56,7 +60,6 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
@@ -65,6 +68,9 @@ import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeDelta;
 import org.identityconnectors.framework.common.objects.AttributeDeltaBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -380,22 +386,22 @@ public class DefaultPropagationManager implements PropagationManager {
                 });
         if (!mandatoryMissing.isEmpty()) {
             preparedAttrs.getRight().add(AttributeBuilder.build(
-                    PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME, mandatoryMissing));
+                    MANDATORY_MISSING_ATTR_NAME, mandatoryMissing));
         }
         if (!mandatoryNullOrEmpty.isEmpty()) {
             preparedAttrs.getRight().add(AttributeBuilder.build(
-                    PropagationTaskExecutor.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, mandatoryNullOrEmpty));
+                    MANDATORY_NULL_OR_EMPTY_ATTR_NAME, mandatoryNullOrEmpty));
         }
 
-        PropagationTaskInfo task = new PropagationTaskInfo(resource, new PropagationData(preparedAttrs.getRight()));
-        task.setObjectClassName(provision.getObjectClass());
-        task.setAnyTypeKind(any.getType().getKind());
-        task.setAnyType(any.getType().getKey());
-        task.setEntityKey(any.getKey());
-        task.setOperation(operation);
-        task.setConnObjectKey(preparedAttrs.getLeft());
-
-        return task;
+        return new PropagationTaskInfo(
+                resource,
+                operation,
+                new ObjectClass(provision.getObjectClass()),
+                any.getType().getKind(),
+                any.getType().getKey(),
+                any.getKey(),
+                preparedAttrs.getLeft(),
+                new PropagationData(preparedAttrs.getRight()));
     }
 
     /**
@@ -583,11 +589,13 @@ public class DefaultPropagationManager implements PropagationManager {
 
                 PropagationTaskInfo task = new PropagationTaskInfo(
                         resource,
+                        operation,
+                        new ObjectClass(orgUnit.getObjectClass()),
+                        null,
+                        null,
+                        realm.getKey(),
+                        preparedAttrs.getLeft(),
                         new PropagationData(preparedAttrs.getRight()));
-                task.setObjectClassName(orgUnit.getObjectClass());
-                task.setEntityKey(realm.getKey());
-                task.setOperation(operation);
-                task.setConnObjectKey(preparedAttrs.getLeft());
                 task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
                 tasks.add(task);
@@ -650,6 +658,7 @@ public class DefaultPropagationManager implements PropagationManager {
                     });
         }
 
+        LOG.debug("Prepared attrs for {} {}: {}", kind, key, attrs);
         return attrs;
     }
 
@@ -676,46 +685,95 @@ public class DefaultPropagationManager implements PropagationManager {
     @Override
     public List<PropagationTaskInfo> setAttributeDeltas(
             final List<PropagationTaskInfo> tasks,
-            final Map<Pair<String, String>, Set<Attribute>> beforeAttrs) {
+            final Map<Pair<String, String>, Set<Attribute>> beforeAttrs,
+            final AnyUR updateRequest) {
 
         if (beforeAttrs.isEmpty()) {
             return tasks;
         }
 
-        tasks.stream().
-                filter(task -> beforeAttrs.containsKey(Pair.of(task.getResource(), task.getConnObjectKey()))
-                && task.getOldConnObjectKey() == null).
-                forEach(task -> {
-                    Pair<String, String> key = Pair.of(task.getResource(), task.getConnObjectKey());
+        for (PropagationTaskInfo task : tasks) {
+            // rename is not supported by updateDelta
+            if (!task.getConnObjectKey().equals(task.getOldConnObjectKey())) {
+                continue;
+            }
 
-                    PropagationData propagationData = task.getPropagationDataObj();
+            Pair<String, String> key = Pair.of(task.getResource().getKey(), task.getConnObjectKey());
+            if (!beforeAttrs.containsKey(key)) {
+                continue;
+            }
 
-                    Set<AttributeDelta> attributeDeltas = new HashSet<>();
+            Set<Attribute> attrs = new HashSet<>(beforeAttrs.get(key));
 
-                    propagationData.getAttributes().forEach(next -> {
-                        Set<Object> valuesToAdd = new HashSet<>();
-                        Set<Object> valuesToRemove = new HashSet<>();
+            // purge unwanted attributes, even though prepared
+            attrs.removeIf(attr -> attr instanceof Name
+                    || OperationalAttributes.ENABLE_NAME.equals(attr.getName())
+                    || MANDATORY_MISSING_ATTR_NAME.equals(attr.getName())
+                    || MANDATORY_NULL_OR_EMPTY_ATTR_NAME.equals(attr.getName()));
 
-                        Optional.ofNullable(AttributeUtil.find(next.getName(), beforeAttrs.get(key))).
-                                ifPresent(prev -> {
-                                    next.getValue().stream().
-                                            filter(value -> !prev.getValue().contains(value)).
-                                            forEach(valuesToAdd::add);
-                                    prev.getValue().stream().
-                                            filter(value -> !next.getValue().contains(value)).
-                                            forEach(valuesToRemove::add);
-                                });
+            // see org.identityconnectors.framework.impl.api.local.operations.UpdateDeltaImpl
+            if (attrs.stream().anyMatch(attr -> !OperationalAttributes.PASSWORD_NAME.equals(attr.getName())
+                    && OperationalAttributes.getOperationalAttributeNames().contains(attr.getName()))) {
 
-                        if (!valuesToAdd.isEmpty() || !valuesToRemove.isEmpty()) {
-                            attributeDeltas.add(
-                                    AttributeDeltaBuilder.build(next.getName(), valuesToAdd, valuesToRemove));
-                        }
-                    });
+                continue;
+            }
 
-                    if (!attributeDeltas.isEmpty()) {
-                        propagationData.setAttributeDeltas(attributeDeltas);
+            PropagationData propagationData = task.getPropagationData();
+
+            Set<AttributeDelta> attributeDeltas = new HashSet<>();
+
+            // build delta for updated attributes
+            propagationData.getAttributes().forEach(next -> {
+                Set<Object> valuesToAdd = new HashSet<>();
+                Set<Object> valuesToRemove = new HashSet<>();
+
+                Optional.ofNullable(AttributeUtil.find(next.getName(), attrs)).ifPresent(prev -> {
+                    if (next.getValue() == null && prev.getValue() != null) {
+                        valuesToRemove.addAll(prev.getValue());
+                    } else if (next.getValue() != null && prev.getValue() == null) {
+                        valuesToAdd.addAll(next.getValue());
+                    } else if (next.getValue() != null && prev.getValue() != null) {
+                        next.getValue().stream().
+                                filter(value -> !prev.getValue().contains(value)).
+                                forEach(valuesToAdd::add);
+
+                        prev.getValue().stream().
+                                filter(value -> !next.getValue().contains(value)).
+                                forEach(valuesToRemove::add);
                     }
                 });
+
+                if (!valuesToAdd.isEmpty() || !valuesToRemove.isEmpty()) {
+                    attributeDeltas.add(AttributeDeltaBuilder.build(next.getName(), valuesToAdd, valuesToRemove));
+                }
+            });
+
+            // build delta for new or removed attributes
+            Set<String> nextNames = propagationData.getAttributes().stream().
+                    filter(attr -> !(attr instanceof Name) && !OperationalAttributes.isOperationalAttribute(attr)).
+                    map(Attribute::getName).
+                    collect(Collectors.toSet());
+            Set<String> prevNames = attrs.stream().
+                    filter(attr -> !(attr instanceof Name) && !OperationalAttributes.isOperationalAttribute(attr)).
+                    map(Attribute::getName).
+                    collect(Collectors.toSet());
+
+            nextNames.stream().filter(name -> !prevNames.contains(name)).
+                    forEach(toAdd -> Optional.ofNullable(
+                    AttributeUtil.find(toAdd, propagationData.getAttributes())).
+                    ifPresent(attr -> attributeDeltas.add(
+                    AttributeDeltaBuilder.build(attr.getName(), attr.getValue(), Set.of()))));
+            prevNames.stream().filter(name -> !nextNames.contains(name)).
+                    forEach(toRemove -> Optional.ofNullable(
+                    AttributeUtil.find(toRemove, attrs)).
+                    ifPresent(attr -> attributeDeltas.add(
+                    AttributeDeltaBuilder.build(attr.getName(), Set.of(), attr.getValue()))));
+
+            if (!attributeDeltas.isEmpty()) {
+                propagationData.setAttributeDeltas(attributeDeltas);
+                task.setUpdateRequest(updateRequest);
+            }
+        }
 
         return tasks;
     }

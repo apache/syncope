@@ -151,7 +151,8 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                         null,
                         groupUR.getVirAttrs(),
                         excludedResources),
-                beforeAttrs);
+                beforeAttrs,
+                updated.getResult());
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult(), propagationReporter.getStatuses());

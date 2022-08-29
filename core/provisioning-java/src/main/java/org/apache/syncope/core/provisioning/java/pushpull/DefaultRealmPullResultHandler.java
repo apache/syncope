@@ -322,7 +322,8 @@ public class DefaultRealmPullResultHandler
 
                     List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
                             propagationManager.createTasks(realm, propByRes, null),
-                            beforeAttrs);
+                            beforeAttrs,
+                            null);
                     taskExecutor.execute(taskInfos, false, securityProperties.getAdminUser());
 
                     for (PullActions action : profile.getActions()) {

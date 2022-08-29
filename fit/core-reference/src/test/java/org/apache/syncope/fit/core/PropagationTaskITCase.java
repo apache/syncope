@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -49,6 +50,7 @@ import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
@@ -69,6 +71,7 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TaskTO;
@@ -80,6 +83,7 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -87,6 +91,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ExecListQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
@@ -316,7 +321,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void propagationPolicy() throws InterruptedException {
+    public void propagationPolicyRetry() throws InterruptedException {
         SyncopeClient.nullPriorityAsync(ANY_OBJECT_SERVICE, true);
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
@@ -347,6 +352,101 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             } catch (DataAccessException e) {
                 // ignore
             }
+        }
+    }
+
+    private static String propagationPolicyOptimizeKey() {
+        return POLICY_SERVICE.list(PolicyType.PROPAGATION).stream().
+                filter(p -> "optimize".equals(p.getName())).
+                findFirst().
+                orElseGet(() -> {
+                    PropagationPolicyTO policy = new PropagationPolicyTO();
+                    policy.setName("optimize");
+                    policy.setFetchAroundProvisioning(false);
+                    policy.setUpdateDelta(true);
+                    return createPolicy(PolicyType.PROPAGATION, policy);
+                }).getKey();
+    }
+
+    @Test
+    public void propagationPolicyOptimizeToLDAP() {
+        String policyKey = propagationPolicyOptimizeKey();
+
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
+        assertNull(ldap.getPropagationPolicy());
+
+        ldap.setPropagationPolicy(policyKey);
+        RESOURCE_SERVICE.update(ldap);
+
+        try {
+            // 0. create groups on LDAP
+            GroupTO group1 = createGroup(GroupITCase.getSample("propagationPolicyOptimizeToLDAP")).getEntity();
+            GroupTO group2 = createGroup(GroupITCase.getSample("propagationPolicyOptimizeToLDAP")).getEntity();
+
+            // 1a. create user on LDAP and verify success
+            UserCR userCR = UserITCase.getUniqueSample("propagationPolicyOptimizeToLDAP@syncope.apache.org");
+            userCR.getAuxClasses().add("minimal group");
+            userCR.getPlainAttrs().add(attr("title", "title1"));
+            userCR.getMemberships().add(new MembershipTO.Builder(group1.getKey()).build());
+            ProvisioningResult<UserTO> created = createUser(userCR);
+            assertEquals(RESOURCE_NAME_LDAP, created.getPropagationStatuses().get(0).getResource());
+            assertEquals(ExecStatus.SUCCESS, created.getPropagationStatuses().get(0).getStatus());
+
+            // 1b. read from LDAP the effective object
+            ReconStatus status = RECONCILIATION_SERVICE.status(
+                    new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).
+                            anyKey(created.getEntity().getKey()).moreAttrsToGet("ldapGroups").build());
+            assertEquals(List.of("title1"), status.getOnResource().getAttr("title").get().getValues());
+            assertEquals(
+                    List.of("cn=" + group1.getName() + ",ou=groups,o=isp"),
+                    status.getOnResource().getAttr("ldapGroups").get().getValues());
+
+            // 1c. check the generated propagation data
+            PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(RESOURCE_NAME_LDAP).
+                    anyTypeKind(AnyTypeKind.USER).entityKey(created.getEntity().getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            PropagationData data = POJOHelper.deserialize(
+                    tasks.getResult().get(0).getPropagationData(), PropagationData.class);
+            assertNull(data.getAttributeDeltas());
+
+            TASK_SERVICE.delete(TaskType.PROPAGATION, tasks.getResult().get(0).getKey());
+
+            // 2a. update user on LDAP and verify success
+            UserUR userUR = new UserUR.Builder(created.getEntity().getKey()).plainAttr(new AttrPatch.Builder(
+                    new Attr.Builder("title").values("title1", "title2").build()).build()).
+                    membership(new MembershipUR.Builder(group2.getKey()).build()).
+                    build();
+            ProvisioningResult<UserTO> updated = updateUser(userUR);
+            assertEquals(RESOURCE_NAME_LDAP, updated.getPropagationStatuses().get(0).getResource());
+            assertEquals(ExecStatus.SUCCESS, updated.getPropagationStatuses().get(0).getStatus());
+
+            // 2b. read from LDAP the effective object
+            status = RECONCILIATION_SERVICE.status(
+                    new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).
+                            anyKey(created.getEntity().getKey()).moreAttrsToGet("ldapGroups").build());
+            assertEquals(
+                    Set.of("title1", "title2"),
+                    new HashSet<>(status.getOnResource().getAttr("title").get().getValues()));
+            assertEquals(
+                    Set.of("cn=" + group1.getName() + ",ou=groups,o=isp",
+                            "cn=" + group2.getName() + ",ou=groups,o=isp"),
+                    new HashSet<>(status.getOnResource().getAttr("ldapGroups").get().getValues()));
+
+            // 2c. check the generated propagation data
+            tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(RESOURCE_NAME_LDAP).
+                    anyTypeKind(AnyTypeKind.USER).entityKey(created.getEntity().getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            data = POJOHelper.deserialize(tasks.getResult().get(0).getPropagationData(), PropagationData.class);
+            assertNotNull(data.getAttributeDeltas());
+
+            TASK_SERVICE.delete(TaskType.PROPAGATION, tasks.getResult().get(0).getKey());
+        } finally {
+            ldap.setPropagationPolicy(null);
+            RESOURCE_SERVICE.update(ldap);
         }
     }
 
