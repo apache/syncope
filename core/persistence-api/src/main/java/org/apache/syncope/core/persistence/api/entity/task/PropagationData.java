@@ -49,4 +49,11 @@ public class PropagationData implements Serializable {
     public void setAttributeDeltas(final Set<AttributeDelta> attributeDeltas) {
         this.attributeDeltas = attributeDeltas;
     }
+
+    @Override
+    public String toString() {
+        return "PropagationData{"
+                + "attributes=" + attributes
+                + ", attributeDeltas=" + attributeDeltas + '}';
+    }
 }

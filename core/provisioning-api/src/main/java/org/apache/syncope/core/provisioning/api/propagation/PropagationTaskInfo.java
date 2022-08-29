@@ -141,4 +141,22 @@ public class PropagationTaskInfo {
     public void setUpdateRequest(final AnyUR updateRequest) {
         this.updateRequest = updateRequest;
     }
+
+    @Override
+    public String toString() {
+        return "PropagationTaskInfo{"
+                + "resource=" + resource.getKey()
+                + ", operation=" + operation
+                + ", objectClass=" + objectClass
+                + ", anyTypeKind=" + anyTypeKind
+                + ", anyType=" + anyType
+                + ", entityKey=" + entityKey
+                + ", connObjectKey=" + connObjectKey
+                + ", oldConnObjectKey=" + oldConnObjectKey
+                + ", propagationData=" + propagationData
+                + ", connector=" + connector
+                + ", beforeObj=" + beforeObj
+                + ", updateRequest=" + updateRequest
+                + '}';
+    }
 }

@@ -76,16 +76,15 @@ public class DefaultPropagationReporter implements PropagationReporter {
 
         LOG.debug("Propagation error: {} priority resource failed to propagate", failingResource);
 
-        taskInfos.stream().filter(task -> task.getResource().equals(failingResource)).findFirst().ifPresentOrElse(
-                task -> {
+        taskInfos.stream().filter(task -> task.getResource().getKey().equals(failingResource)).findFirst().
+                ifPresentOrElse(task -> {
                     PropagationStatus status = new PropagationStatus();
                     status.setResource(task.getResource().getKey());
                     status.setStatus(ExecStatus.FAILURE);
                     status.setFailureReason(
                             "Propagation error: " + failingResource + " priority resource failed to propagate.");
                     add(status);
-                },
-                () -> LOG.error("Could not find {} for {}", PropagationTask.class.getName(), failingResource));
+                }, () -> LOG.error("Could not find {} for {}", PropagationTask.class.getName(), failingResource));
     }
 
     @Override
