@@ -46,7 +46,7 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.LinkedAccountUR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -102,7 +102,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
         add(actionTogglePanel);
 
         AnyLayout anyLayout = AnyLayoutUtils.fetch(
-                AnyTypeRestClient.listAnyTypes().stream().map(EntityTO::getKey).collect(Collectors.toList()));
+                AnyTypeRestClient.listAnyTypes().stream().map(AnyTypeTO::getKey).collect(Collectors.toList()));
         LinkedAccountFormLayoutInfo linkedAccountFormLayoutInfo =
                 anyLayout.getUser() instanceof IdMUserFormLayoutInfo
                 ? IdMUserFormLayoutInfo.class.cast(anyLayout.getUser()).getLinkedAccountFormLayoutInfo()

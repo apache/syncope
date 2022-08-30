@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ApplicationTO;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -102,7 +101,7 @@ public class ApplicationITCase extends AbstractITCase {
         RoleTO role = new RoleTO();
         role.setKey("privileged");
         role.getPrivileges().addAll(
-                application.getPrivileges().stream().map(EntityTO::getKey).collect(Collectors.toList()));
+                application.getPrivileges().stream().map(PrivilegeTO::getKey).collect(Collectors.toList()));
 
         response = ROLE_SERVICE.create(role);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());

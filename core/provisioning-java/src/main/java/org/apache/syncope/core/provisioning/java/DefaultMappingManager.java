@@ -559,7 +559,7 @@ public class DefaultMappingManager implements MappingManager {
         }
 
         AttrSchemaType schemaType = intAttrName.getSchema() instanceof PlainSchema
-                ? ((PlainSchema) intAttrName.getSchema()).getType()
+                ? intAttrName.getSchema().getType()
                 : AttrSchemaType.String;
         boolean readOnlyVirSchema = intAttrName.getSchema() instanceof VirSchema
                 ? intAttrName.getSchema().isReadonly()

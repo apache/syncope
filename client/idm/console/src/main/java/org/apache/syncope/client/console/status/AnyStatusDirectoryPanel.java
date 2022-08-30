@@ -45,11 +45,11 @@ import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
@@ -113,7 +113,7 @@ public class AnyStatusDirectoryPanel
 
         resources = ResourceRestClient.list().stream().
                 filter(resource -> resource.getProvision(anyTO.getType()).isPresent()).
-                map(EntityTO::getKey).collect(Collectors.toList());
+                map(ResourceTO::getKey).collect(Collectors.toList());
 
         initResultTable();
     }

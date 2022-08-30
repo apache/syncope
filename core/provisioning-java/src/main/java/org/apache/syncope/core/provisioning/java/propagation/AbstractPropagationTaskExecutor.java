@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
@@ -49,6 +48,8 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
@@ -59,10 +60,10 @@ import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
@@ -72,6 +73,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.AttributeDelta;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
@@ -178,142 +180,179 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected Uid createOrUpdate(
-            final PropagationTask task,
-            final ConnectorObject beforeObj,
+    protected Uid doCreate(
+            final PropagationTaskInfo taskInfo,
+            final Set<Attribute> attributes,
             final Connector connector,
             final AtomicReference<Boolean> propagationAttempted) {
 
-        // set of attributes to be propagated
-        Set<Attribute> attributes = new HashSet<>(task.getAttributes());
+        LOG.debug("Create {} on {}", attributes, taskInfo.getResource().getKey());
 
-        // check if there is any missing or null / empty mandatory attribute
-        Set<Object> mandatoryAttrNames = new HashSet<>();
-        Attribute mandatoryMissing = AttributeUtil.find(MANDATORY_MISSING_ATTR_NAME, task.getAttributes());
-        if (mandatoryMissing != null) {
-            attributes.remove(mandatoryMissing);
+        Uid result = connector.create(taskInfo.getObjectClass(), attributes, null, propagationAttempted);
 
-            if (beforeObj == null) {
-                mandatoryAttrNames.addAll(mandatoryMissing.getValue());
-            }
+        taskInfo.getResource().getProvision(taskInfo.getAnyType()).
+                filter(provision -> provision.getUidOnCreate() != null).
+                ifPresent(provision -> anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind()).addAttr(
+                taskInfo.getEntityKey(), plainSchemaDAO.find(provision.getUidOnCreate()), result.getUidValue()));
+
+        return result;
+    }
+
+    protected Uid doUpdate(
+            final PropagationTaskInfo taskInfo,
+            final Set<Attribute> attributes,
+            final Connector connector,
+            final ConnectorObject beforeObj,
+            final AtomicReference<Boolean> propagationAttempted) {
+
+        LOG.debug("Update {} on {}", attributes, taskInfo.getResource().getKey());
+
+        // 1. check if rename is really required
+        Name newName = AttributeUtil.getNameFromAttributes(attributes);
+
+        LOG.debug("Rename required with value {}", newName);
+
+        if (beforeObj != null
+                && newName != null && newName.equals(beforeObj.getName())
+                && !newName.getNameValue().equals(beforeObj.getUid().getUidValue())) {
+
+            LOG.debug("Remote object name unchanged");
+            attributes.remove(newName);
         }
-        Attribute mandatoryNullOrEmpty = AttributeUtil.find(MANDATORY_NULL_OR_EMPTY_ATTR_NAME, task.getAttributes());
-        if (mandatoryNullOrEmpty != null) {
-            attributes.remove(mandatoryNullOrEmpty);
 
-            mandatoryAttrNames.addAll(mandatoryNullOrEmpty.getValue());
-        }
-        if (!mandatoryAttrNames.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Not attempted because there are mandatory attributes without value(s): " + mandatoryAttrNames);
-        }
-
-        Uid result;
-        if (beforeObj == null) {
-            LOG.debug("Create {} on {}", attributes, task.getResource().getKey());
-            result = connector.create(
-                    new ObjectClass(task.getObjectClassName()), attributes, null, propagationAttempted);
-
-            task.getResource().getProvision(task.getAnyType()).ifPresent(provision -> {
-                if (provision.getUidOnCreate() != null) {
-                    anyUtilsFactory.getInstance(task.getAnyTypeKind()).addAttr(
-                            task.getEntityKey(), plainSchemaDAO.find(provision.getUidOnCreate()), result.getUidValue());
-                }
-            });
-        } else {
-            // 1. check if rename is really required
-            Name newName = AttributeUtil.getNameFromAttributes(attributes);
-
-            LOG.debug("Rename required with value {}", newName);
-
-            if (newName != null && newName.equals(beforeObj.getName())
-                    && !newName.getNameValue().equals(beforeObj.getUid().getUidValue())) {
-
-                LOG.debug("Remote object name unchanged");
-                attributes.remove(newName);
-            }
-
-            // 2. check whether anything is actually needing to be propagated, i.e. if there is attribute
-            // difference between beforeObj - just read above from the connector - and the values to be propagated
-            Map<String, Attribute> originalAttrMap = beforeObj.getAttributes().stream().
+        // 2. check whether anything is actually needing to be propagated, i.e. if there is attribute
+        // difference between beforeObj - just read above from the connector - and the values to be propagated
+        Map<String, Attribute> originalAttrMap = Map.of();
+        if (beforeObj != null) {
+            originalAttrMap = beforeObj.getAttributes().stream().
                     collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), Function.identity()));
             Map<String, Attribute> updateAttrMap = attributes.stream().
                     collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), Function.identity()));
 
             // Only compare attribute from beforeObj that are also being updated
-            Set<String> skipAttrNames = originalAttrMap.keySet();
-            skipAttrNames.removeAll(updateAttrMap.keySet());
+            originalAttrMap.keySet().removeAll(updateAttrMap.keySet());
+        }
 
-            if (originalAttrMap.values().equals(attributes)) {
-                LOG.debug("Don't need to propagate anything: {} is equal to {}", originalAttrMap.values(), attributes);
-                result = AttributeUtil.getUidAttribute(attributes);
-            } else {
-                LOG.debug("Attributes that would be updated {}", attributes);
+        Uid result;
+        if (!originalAttrMap.isEmpty() && originalAttrMap.values().equals(attributes)) {
+            LOG.debug("Don't need to propagate anything: {} is equal to {}", originalAttrMap.values(), attributes);
+            result = AttributeUtil.getUidAttribute(attributes);
+        } else {
+            LOG.debug("Attributes to update: {}", attributes);
 
-                // 3. provision entry
-                LOG.debug("Update {} on {}", attributes, task.getResource().getKey());
+            // 3. provision entry
+            LOG.debug("Update {} on {}", attributes, taskInfo.getResource().getKey());
 
-                result = connector.update(
-                        beforeObj.getObjectClass(),
-                        new Uid(beforeObj.getUid().getUidValue()),
-                        attributes,
-                        null,
-                        propagationAttempted);
-            }
+            result = connector.update(
+                    Optional.ofNullable(beforeObj).
+                            map(ConnectorObject::getObjectClass).
+                            orElseGet(() -> taskInfo.getObjectClass()),
+                    Optional.ofNullable(beforeObj).
+                            map(ConnectorObject::getUid).
+                            orElseGet(() -> new Uid(taskInfo.getOldConnObjectKey() == null
+                            ? taskInfo.getConnObjectKey() : taskInfo.getOldConnObjectKey())),
+                    attributes,
+                    null,
+                    propagationAttempted);
         }
 
         return result;
     }
 
+    protected Uid doUpdateDelta(
+            final PropagationTaskInfo taskInfo,
+            final Set<AttributeDelta> modifications,
+            final Connector connector,
+            final AtomicReference<Boolean> propagationAttempted) {
+
+        Uid uid = new Uid(taskInfo.getConnObjectKey());
+
+        LOG.debug("Update Delta {} for {} on {}", modifications, uid, taskInfo.getResource().getKey());
+
+        connector.updateDelta(
+                taskInfo.getObjectClass(),
+                uid,
+                modifications,
+                null,
+                propagationAttempted);
+
+        return uid;
+    }
+
+    protected Uid createOrUpdate(
+            final PropagationTaskInfo taskInfo,
+            final boolean fetchRemoteObj,
+            final ConnectorObject beforeObj,
+            final Connector connector,
+            final AtomicReference<Boolean> propagationAttempted) {
+
+        PropagationData propagationData = taskInfo.getPropagationData();
+
+        if (propagationData.getAttributeDeltas() == null) {
+            Set<Attribute> attrs = propagationData.getAttributes();
+
+            // check if there is any missing or null / empty mandatory attribute
+            Set<Object> mandatoryAttrNames = new HashSet<>();
+            Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs)).
+                    ifPresent(missing -> {
+                        attrs.remove(missing);
+
+                        if (taskInfo.getOperation() == ResourceOperation.CREATE) {
+                            mandatoryAttrNames.addAll(missing.getValue());
+                        }
+                    });
+            Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, attrs)).
+                    ifPresent(nullOrEmpty -> {
+                        attrs.remove(nullOrEmpty);
+
+                        mandatoryAttrNames.addAll(nullOrEmpty.getValue());
+                    });
+            if (!mandatoryAttrNames.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Not attempted because there are mandatory attributes without value(s): " + mandatoryAttrNames);
+            }
+
+            if (beforeObj != null) {
+                return doUpdate(taskInfo, attrs, connector, beforeObj, propagationAttempted);
+            }
+
+            if (fetchRemoteObj || taskInfo.getOperation() == ResourceOperation.CREATE) {
+                return doCreate(taskInfo, attrs, connector, propagationAttempted);
+            }
+
+            return doUpdate(taskInfo, attrs, connector, beforeObj, propagationAttempted);
+        }
+
+        return doUpdateDelta(taskInfo, propagationData.getAttributeDeltas(), connector, propagationAttempted);
+    }
+
     protected Uid delete(
-            final PropagationTask task,
+            final PropagationTaskInfo taskInfo,
+            final boolean fetchRemoteObj,
             final ConnectorObject beforeObj,
             final Connector connector,
             final AtomicReference<Boolean> propagationAttempted) {
 
         Uid result;
-        if (beforeObj == null) {
-            LOG.debug("{} not found on {}: ignoring delete", task.getConnObjectKey(), task.getResource().getKey());
+        if (fetchRemoteObj && beforeObj == null) {
+            LOG.debug("{} not found on {}: ignoring delete",
+                    taskInfo.getConnObjectKey(), taskInfo.getResource().getKey());
             result = null;
         } else {
-            LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
+            ObjectClass objectClass = Optional.ofNullable(beforeObj).
+                    map(ConnectorObject::getObjectClass).
+                    orElseGet(() -> taskInfo.getObjectClass());
+            Uid uid = Optional.ofNullable(beforeObj).
+                    map(ConnectorObject::getUid).
+                    orElseGet(() -> new Uid(taskInfo.getConnObjectKey()));
 
-            connector.delete(beforeObj.getObjectClass(), beforeObj.getUid(), null, propagationAttempted);
-            result = beforeObj.getUid();
+            LOG.debug("Delete {} on {}", uid, taskInfo.getResource().getKey());
+
+            connector.delete(objectClass, uid, null, propagationAttempted);
+            result = uid;
         }
 
         return result;
-    }
-
-    protected PropagationTask buildTask(final PropagationTaskInfo taskInfo) {
-        PropagationTask task;
-        if (taskInfo.getKey() == null) {
-            // double-checks that provided External Resource is valid, for further actions
-            ExternalResource resource = resourceDAO.find(taskInfo.getResource());
-            if (resource == null) {
-                resource = taskInfo.getExternalResource();
-            }
-
-            task = entityFactory.newEntity(PropagationTask.class);
-            task.setResource(resource);
-            task.setObjectClassName(taskInfo.getObjectClassName());
-            task.setAnyTypeKind(taskInfo.getAnyTypeKind());
-            task.setAnyType(taskInfo.getAnyType());
-            task.setEntityKey(taskInfo.getEntityKey());
-            task.setOperation(taskInfo.getOperation());
-            task.setConnObjectKey(taskInfo.getConnObjectKey());
-            task.setOldConnObjectKey(taskInfo.getOldConnObjectKey());
-        } else {
-            task = taskDAO.find(taskInfo.getKey());
-        }
-        Set<Attribute> attributes = new HashSet<>();
-        if (StringUtils.isNotBlank(taskInfo.getAttributes())) {
-            attributes.addAll(List.of(POJOHelper.deserialize(taskInfo.getAttributes(), Attribute[].class)));
-        }
-        task.setAttributes(attributes);
-
-        return task;
     }
 
     protected Optional<RetryTemplate> retryTemplate(final ExternalResource resource) {
@@ -410,32 +449,35 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final PropagationReporter reporter,
             final String executor) {
 
-        PropagationTask task = buildTask(taskInfo);
-
-        return retryTemplate(task.getResource()).map(rt -> rt.execute(context -> {
+        return retryTemplate(taskInfo.getResource()).map(rt -> rt.execute(context -> {
             LOG.debug("#{} Propagation attempt", context.getRetryCount());
 
-            TaskExec exec = doExecute(taskInfo, task, reporter, executor);
-            if (context.getRetryCount() < task.getResource().getPropagationPolicy().getMaxAttempts() - 1
+            TaskExec exec = doExecute(taskInfo, reporter, executor);
+            if (context.getRetryCount() < taskInfo.getResource().getPropagationPolicy().getMaxAttempts() - 1
                     && !ExecStatus.SUCCESS.name().equals(exec.getStatus())) {
 
                 throw new RetryException("Attempt #" + context.getRetryCount() + " failed");
             }
             return exec;
-        })).orElseGet(() -> doExecute(taskInfo, task, reporter, executor));
+        })).orElseGet(() -> doExecute(taskInfo, reporter, executor));
+    }
+
+    protected boolean isFetchRemoteObj(final PropagationTaskInfo taskInfo) {
+        return Optional.ofNullable(taskInfo.getResource().getPropagationPolicy()).
+                map(PropagationPolicy::isFetchAroundProvisioning).
+                orElse(true);
     }
 
     protected TaskExec doExecute(
             final PropagationTaskInfo taskInfo,
-            final PropagationTask task,
             final PropagationReporter reporter,
             final String executor) {
 
         Connector connector = taskInfo.getConnector() == null
-                ? connectorManager.getConnector(task.getResource())
+                ? connectorManager.getConnector(taskInfo.getResource())
                 : taskInfo.getConnector();
 
-        List<PropagationActions> actions = getPropagationActions(task.getResource());
+        List<PropagationActions> actions = getPropagationActions(taskInfo.getResource());
 
         OffsetDateTime start = OffsetDateTime.now();
 
@@ -449,6 +491,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         // Flag to state whether any propagation has been attempted
         AtomicReference<Boolean> propagationAttempted = new AtomicReference<>(false);
 
+        boolean fetchRemoteObj = isFetchRemoteObj(taskInfo);
+
         ConnectorObject beforeObj = null;
         ConnectorObject afterObj = null;
 
@@ -457,32 +501,35 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         Uid uid = null;
         Result result;
         try {
-            provision = task.getResource().getProvision(new ObjectClass(task.getObjectClassName())).orElse(null);
-            orgUnit = task.getResource().getOrgUnit();
+            provision = taskInfo.getResource().getProvision(taskInfo.getObjectClass()).orElse(null);
+            orgUnit = taskInfo.getResource().getOrgUnit();
 
-            if (taskInfo.getBeforeObj() == null || taskInfo.getBeforeObj().isEmpty()) {
-                // Try to read remote object BEFORE any actual operation
-                beforeObj = provision == null && orgUnit == null
-                        ? null
-                        : orgUnit == null
-                                ? getRemoteObject(task, connector, provision, actions, false)
-                                : getRemoteObject(task, connector, orgUnit, actions, false);
-            } else if (taskInfo.getBeforeObj().isPresent()) {
+            if (taskInfo.getBeforeObj().isEmpty()) {
+                if (fetchRemoteObj) {
+                    // Try to read remote object BEFORE any actual operation
+                    beforeObj = provision == null && orgUnit == null
+                            ? null
+                            : orgUnit == null
+                                    ? getRemoteObject(taskInfo, connector, provision, actions, false)
+                                    : getRemoteObject(taskInfo, connector, orgUnit, actions, false);
+                    taskInfo.setBeforeObj(Optional.ofNullable(beforeObj));
+                }
+            } else {
                 beforeObj = taskInfo.getBeforeObj().get();
             }
 
             for (PropagationActions action : actions) {
-                action.before(task, beforeObj);
+                action.before(taskInfo);
             }
 
-            switch (task.getOperation()) {
+            switch (taskInfo.getOperation()) {
                 case CREATE:
                 case UPDATE:
-                    uid = createOrUpdate(task, beforeObj, connector, propagationAttempted);
+                    uid = createOrUpdate(taskInfo, fetchRemoteObj, beforeObj, connector, propagationAttempted);
                     break;
 
                 case DELETE:
-                    uid = delete(task, beforeObj, connector, propagationAttempted);
+                    uid = delete(taskInfo, fetchRemoteObj, beforeObj, connector, propagationAttempted);
                     break;
 
                 default:
@@ -492,11 +539,17 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     ? ExecStatus.SUCCESS.name()
                     : ExecStatus.NOT_ATTEMPTED.name());
 
-            LOG.debug("Successfully propagated to {}", task.getResource());
             result = Result.SUCCESS;
+
+            LOG.debug("Successfully propagated to {}", taskInfo.getResource());
         } catch (Exception e) {
             result = Result.FAILURE;
-            LOG.error("Exception during provision on resource " + task.getResource().getKey(), e);
+
+            exec.setStatus(ExecStatus.FAILURE.name());
+
+            propagationAttempted.set(true);
+
+            LOG.error("Exception during provision on resource " + taskInfo.getResource().getKey(), e);
 
             if (e instanceof ConnectorException && e.getCause() != null) {
                 taskExecutionMessage = e.getCause().getMessage();
@@ -514,38 +567,36 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 }
             }
 
-            try {
-                exec.setStatus(ExecStatus.FAILURE.name());
-            } catch (Exception wft) {
-                LOG.error("While executing KO action on {}", exec, wft);
-            }
-
-            propagationAttempted.set(true);
-
-            actions.forEach(action -> action.onError(task, exec, e));
+            actions.forEach(action -> action.onError(taskInfo, exec, e));
         } finally {
             // Try to read remote object AFTER any actual operation
-            if (connector != null) {
-                if (uid != null) {
-                    task.setConnObjectKey(uid.getUidValue());
-                }
+            if (uid != null) {
+                taskInfo.setConnObjectKey(uid.getUidValue());
+            }
+            if (fetchRemoteObj) {
                 try {
                     afterObj = provision == null && orgUnit == null
                             ? null
                             : orgUnit == null
-                                    ? getRemoteObject(task, connector, provision, actions, true)
-                                    : getRemoteObject(task, connector, orgUnit, actions, true);
+                                    ? getRemoteObject(taskInfo, connector, provision, actions, true)
+                                    : getRemoteObject(taskInfo, connector, orgUnit, actions, true);
                 } catch (Exception ignore) {
                     // ignore exception
                     LOG.error("Error retrieving after object", ignore);
                 }
             }
 
-            if (task.getOperation() != ResourceOperation.DELETE && afterObj == null && uid != null) {
+            if (!ExecStatus.FAILURE.name().equals(exec.getStatus())
+                    && afterObj == null
+                    && uid != null
+                    && taskInfo.getOperation() != ResourceOperation.DELETE) {
+
                 afterObj = new ConnectorObjectBuilder().
-                        setObjectClass(new ObjectClass(task.getObjectClassName())).
+                        setObjectClass(taskInfo.getObjectClass()).
                         setUid(uid).
-                        setName(AttributeUtil.getNameFromAttributes(task.getAttributes())).
+                        setName(Optional.ofNullable(
+                                AttributeUtil.getNameFromAttributes(taskInfo.getPropagationData().getAttributes())).
+                                orElseGet(() -> new Name(taskInfo.getConnObjectKey()))).
                         build();
             }
 
@@ -555,23 +606,24 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             LOG.debug("Execution finished: {}", exec);
 
-            if (hasToBeregistered(task, exec)) {
+            hasToBeregistered(taskInfo, exec).ifPresent(task -> {
                 LOG.debug("Execution to be stored: {}", exec);
 
                 exec.setTask(task);
                 task.add(exec);
 
                 taskDAO.save(task);
-            }
+            });
 
             String fiql = provision == null
                     ? null
                     : afterObj != null
-                            ? outboundMatcher.getFIQL(afterObj, task.getResource(), provision)
+                            ? outboundMatcher.getFIQL(afterObj, taskInfo.getResource(), provision)
                             : beforeObj != null
-                                    ? outboundMatcher.getFIQL(beforeObj, task.getResource(), provision)
+                                    ? outboundMatcher.getFIQL(beforeObj, taskInfo.getResource(), provision)
                                     : null;
-            reporter.onSuccessOrNonPriorityResourceFailures(taskInfo,
+            reporter.onSuccessOrNonPriorityResourceFailures(
+                    taskInfo,
                     ExecStatus.valueOf(exec.getStatus()),
                     failureReason,
                     fiql,
@@ -580,18 +632,19 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         for (PropagationActions action : actions) {
-            action.after(task, exec, afterObj);
+            action.after(taskInfo, exec, afterObj);
         }
         // SYNCOPE-1136
-        String anyTypeKind = task.getAnyTypeKind() == null ? "realm" : task.getAnyTypeKind().name().toLowerCase();
-        String operation = task.getOperation().name().toLowerCase();
+        String anyTypeKind = Optional.ofNullable(taskInfo.getAnyTypeKind()).
+                map(kind -> kind.name().toLowerCase()).orElse("realm");
+        String operation = taskInfo.getOperation().name().toLowerCase();
         boolean notificationsAvailable = notificationManager.notificationsAvailable(
-                AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, task.getResource().getKey(), operation);
+                AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, taskInfo.getResource().getKey(), operation);
         boolean auditRequested = auditManager.auditRequested(
                 AuthContextUtils.getUsername(),
                 AuditElements.EventCategoryType.PROPAGATION,
                 anyTypeKind,
-                task.getResource().getKey(),
+                taskInfo.getResource().getKey(),
                 operation);
 
         if (notificationsAvailable || auditRequested) {
@@ -600,7 +653,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     AuthContextUtils.getWho(),
                     AuditElements.EventCategoryType.PROPAGATION,
                     anyTypeKind,
-                    task.getResource().getKey(),
+                    taskInfo.getResource().getKey(),
                     operation,
                     result,
                     beforeObj,
@@ -611,7 +664,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     AuthContextUtils.getWho(),
                     AuditElements.EventCategoryType.PROPAGATION,
                     anyTypeKind,
-                    task.getResource().getKey(),
+                    taskInfo.getResource().getKey(),
                     operation,
                     result,
                     beforeObj,
@@ -628,8 +681,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final PropagationReporter reporter,
             final String executor) {
 
-        PropagationTask task = buildTask(taskInfo);
-
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStatus(ExecStatus.NOT_ATTEMPTED.name());
         execution.setExecutor(executor);
@@ -637,14 +688,14 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         execution.setMessage(rejectReason);
         execution.setEnd(execution.getStart());
 
-        if (hasToBeregistered(task, execution)) {
+        hasToBeregistered(taskInfo, execution).ifPresent(task -> {
             LOG.debug("Execution to be stored: {}", execution);
 
             execution.setTask(task);
             task.add(execution);
 
             taskDAO.save(task);
-        }
+        });
 
         reporter.onSuccessOrNonPriorityResourceFailures(
                 taskInfo,
@@ -660,69 +711,82 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     /**
      * Check whether an execution has to be stored, for a given task.
      *
-     * @param task propagation task
+     * @param taskInfo propagation task
      * @param execution to be decide whether to store or not
      * @return true if execution has to be store, false otherwise
      */
-    protected boolean hasToBeregistered(final PropagationTask task, final TaskExec execution) {
+    protected Optional<PropagationTask> hasToBeregistered(
+            final PropagationTaskInfo taskInfo, final TaskExec execution) {
+
         boolean result;
 
         boolean failed = ExecStatus.valueOf(execution.getStatus()) != ExecStatus.SUCCESS;
 
-        switch (task.getOperation()) {
+        ExternalResource resource = taskInfo.getResource();
+
+        switch (taskInfo.getOperation()) {
 
             case CREATE:
-                result = (failed && task.getResource().getCreateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                        || task.getResource().getCreateTraceLevel() == TraceLevel.ALL;
+                result = (failed && resource.getCreateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || resource.getCreateTraceLevel() == TraceLevel.ALL;
                 break;
 
             case UPDATE:
-                result = (failed && task.getResource().getUpdateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                        || task.getResource().getUpdateTraceLevel() == TraceLevel.ALL;
+                result = (failed && resource.getUpdateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || resource.getUpdateTraceLevel() == TraceLevel.ALL;
                 break;
 
             case DELETE:
-                result = (failed && task.getResource().getDeleteTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                        || task.getResource().getDeleteTraceLevel() == TraceLevel.ALL;
+                result = (failed && resource.getDeleteTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+                        || resource.getDeleteTraceLevel() == TraceLevel.ALL;
                 break;
 
             default:
                 result = false;
         }
 
-        return result;
+        if (!result) {
+            return Optional.empty();
+        }
+
+        PropagationTask task = entityFactory.newEntity(PropagationTask.class);
+        task.setResource(resourceDAO.find(resource.getKey()));
+        task.setObjectClassName(taskInfo.getObjectClass().getObjectClassValue());
+        task.setAnyTypeKind(taskInfo.getAnyTypeKind());
+        task.setAnyType(taskInfo.getAnyType());
+        task.setEntityKey(taskInfo.getEntityKey());
+        task.setOperation(taskInfo.getOperation());
+        task.setConnObjectKey(taskInfo.getConnObjectKey());
+        task.setOldConnObjectKey(taskInfo.getOldConnObjectKey());
+        task.setPropagationData(taskInfo.getPropagationData());
+
+        return Optional.of(task);
     }
 
     /**
      * Get remote object for given task.
      *
-     * @param connector connector facade proxy.
-     * @param task current propagation task.
+     * @param connector connector facade proxy
+     * @param taskInfo current propagation task
      * @param provision provision
      * @param actions propagation actions
      * @param latest 'FALSE' to retrieve object using old connObjectKey if not null.
      * @return remote connector object.
      */
     protected ConnectorObject getRemoteObject(
-            final PropagationTask task,
+            final PropagationTaskInfo taskInfo,
             final Connector connector,
             final Provision provision,
             final List<PropagationActions> actions,
             final boolean latest) {
 
-        if (task.getResource().getPropagationPolicy() != null
-                && !task.getResource().getPropagationPolicy().isPrefetch()) {
+        String connObjectKeyValue = latest || taskInfo.getOldConnObjectKey() == null
+                ? taskInfo.getConnObjectKey()
+                : taskInfo.getOldConnObjectKey();
 
-            LOG.debug("Skipping because of configured PropagationPolicy");
-            return null;
-        }
-
-        String connObjectKeyValue = latest || task.getOldConnObjectKey() == null
-                ? task.getConnObjectKey()
-                : task.getOldConnObjectKey();
-
-        List<ConnectorObject> matches = outboundMatcher.match(task, connector, provision, actions, connObjectKeyValue);
-        LOG.debug("Found for propagation task {}: {}", task, matches);
+        List<ConnectorObject> matches =
+                outboundMatcher.match(taskInfo, connector, provision, actions, connObjectKeyValue);
+        LOG.debug("Found for propagation task {}: {}", taskInfo, matches);
 
         return matches.isEmpty() ? null : matches.get(0);
     }
@@ -730,40 +794,33 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     /**
      * Get remote object for given task.
      *
-     * @param connector connector facade proxy.
-     * @param task current propagation task.
+     * @param connector connector facade proxy
+     * @param taskInfo current propagation task
      * @param orgUnit orgUnit
      * @param actions propagation actions
      * @param latest 'FALSE' to retrieve object using old connObjectKey if not null.
      * @return remote connector object.
      */
     protected ConnectorObject getRemoteObject(
-            final PropagationTask task,
+            final PropagationTaskInfo taskInfo,
             final Connector connector,
             final OrgUnit orgUnit,
             final List<PropagationActions> actions,
             final boolean latest) {
 
-        if (task.getResource().getPropagationPolicy() != null
-                && !task.getResource().getPropagationPolicy().isPrefetch()) {
-
-            LOG.debug("Skipping because of configured PropagationPolicy");
-            return null;
-        }
-
-        String connObjectKey = latest || task.getOldConnObjectKey() == null
-                ? task.getConnObjectKey()
-                : task.getOldConnObjectKey();
+        String connObjectKey = latest || taskInfo.getOldConnObjectKey() == null
+                ? taskInfo.getConnObjectKey()
+                : taskInfo.getOldConnObjectKey();
 
         Set<String> moreAttrsToGet = new HashSet<>();
-        actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(Optional.of(task), orgUnit)));
+        actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(Optional.of(taskInfo), orgUnit)));
 
         ConnectorObject obj = null;
         Optional<Item> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
         if (connObjectKeyItem.isPresent()) {
             try {
                 obj = connector.getObject(
-                        new ObjectClass(task.getObjectClassName()),
+                        taskInfo.getObjectClass(),
                         AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKey),
                         orgUnit.isIgnoreCaseMatch(),
                         MappingUtils.buildOperationOptions(

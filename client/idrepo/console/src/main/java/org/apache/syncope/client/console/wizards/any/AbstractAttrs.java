@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
@@ -78,7 +78,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
             ((List<MembershipTO>) PropertyResolver.getPropertyField("memberships", anyTO).get(anyTO)).forEach(memb -> {
                 setSchemas(memb.getGroupKey(),
                         AnyTypeClassRestClient.list(getMembershipAuxClasses(memb, anyTO.getType())).
-                                stream().map(EntityTO::getKey).collect(Collectors.toList()));
+                                stream().map(AnyTypeClassTO::getKey).collect(Collectors.toList()));
                 setAttrs(memb);
 
                 if (this instanceof PlainAttrs && !memb.getPlainAttrs().isEmpty()) {

@@ -36,7 +36,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -72,7 +72,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
-                map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
@@ -83,7 +83,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
-                map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 

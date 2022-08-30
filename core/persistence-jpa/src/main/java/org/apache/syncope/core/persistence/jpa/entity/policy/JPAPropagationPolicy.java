@@ -36,7 +36,10 @@ public class JPAPropagationPolicy extends AbstractPolicy implements PropagationP
     public static final String TABLE = "PropagationPolicy";
 
     @NotNull
-    private Boolean prefetch = true;
+    private Boolean fetchAroundProvisioning = true;
+
+    @NotNull
+    private Boolean updateDelta = false;
 
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -48,13 +51,23 @@ public class JPAPropagationPolicy extends AbstractPolicy implements PropagationP
     private Integer maxAttempts = 3;
 
     @Override
-    public boolean isPrefetch() {
-        return prefetch;
+    public boolean isFetchAroundProvisioning() {
+        return fetchAroundProvisioning;
     }
 
     @Override
-    public void setPrefetch(final boolean prefetch) {
-        this.prefetch = prefetch;
+    public void setFetchAroundProvisioning(final boolean fetchAroundProvisioning) {
+        this.fetchAroundProvisioning = fetchAroundProvisioning;
+    }
+
+    @Override
+    public boolean isUpdateDelta() {
+        return updateDelta;
+    }
+
+    @Override
+    public void setUpdateDelta(final boolean updateDelta) {
+        this.updateDelta = updateDelta;
     }
 
     @Override

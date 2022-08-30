@@ -36,5 +36,8 @@ public interface AnyObjectProvisioningManager extends ProvisioningManager<AnyObj
             String context);
 
     List<PropagationStatus> provision(
-            String key, Collection<String> resources, boolean nullPriorityAsync, String updater, String context);
+            String key,
+            Collection<String> resources,
+            boolean nullPriorityAsync,
+            String executor);
 }

@@ -62,7 +62,7 @@ under the License.
       <artifactId>syncope-ext-flowable-client-console</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.syncope.ext.saml2sp4ui</groupId>
       <artifactId>syncope-ext-saml2sp4ui-client-console</artifactId>

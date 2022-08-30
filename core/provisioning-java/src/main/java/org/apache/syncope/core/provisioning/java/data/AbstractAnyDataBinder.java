@@ -64,7 +64,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
@@ -640,7 +639,7 @@ abstract class AbstractAnyDataBinder {
 
         anyTO.setRealm(realmFullPath);
 
-        anyTO.getAuxClasses().addAll(auxClasses.stream().map(Entity::getKey).collect(Collectors.toList()));
+        anyTO.getAuxClasses().addAll(auxClasses.stream().map(AnyTypeClass::getKey).collect(Collectors.toList()));
 
         plainAttrs
                 .forEach(plainAttr -> anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey())
@@ -652,7 +651,7 @@ abstract class AbstractAnyDataBinder {
         virAttrs.forEach((schema, values) -> anyTO.getVirAttrs()
                 .add(new Attr.Builder(schema.getKey()).values(values).build()));
 
-        anyTO.getResources().addAll(resources.stream().map(Entity::getKey).collect(Collectors.toSet()));
+        anyTO.getResources().addAll(resources.stream().map(ExternalResource::getKey).collect(Collectors.toSet()));
     }
 
     protected static RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {

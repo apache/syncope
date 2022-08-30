@@ -59,7 +59,7 @@ public class AnyPropagationTasks extends AbstractPropagationTasks {
                 mlp.next(
                         new StringResourceModel("task.view.details", this, new Model<>(Pair.of(null, taskTO))).
                                 getObject(),
-                        new TaskAttributesDetailsView(taskTO),
+                        new PropagationDataView(taskTO),
                         target);
             }
         });

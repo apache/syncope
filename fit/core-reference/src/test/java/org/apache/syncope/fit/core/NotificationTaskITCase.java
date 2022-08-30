@@ -134,10 +134,11 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), MAX_WAIT_SECONDS);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getNotification());
-        assertTrue(taskTO.getExecutions().isEmpty());
 
-        // generate an execution in order to verify the deletion of a notification task with one or more executions
-        execNotificationTask(TASK_SERVICE, taskTO.getKey(), MAX_WAIT_SECONDS);
+        if (taskTO.getExecutions().isEmpty()) {
+            // generate an execution in order to verify the deletion of a notification task with one or more executions
+            execNotificationTask(TASK_SERVICE, taskTO.getKey(), MAX_WAIT_SECONDS);
+        }
 
         taskTO = TASK_SERVICE.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
         assertTrue(taskTO.isExecuted());
@@ -156,11 +157,12 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), MAX_WAIT_SECONDS);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getNotification());
-        assertTrue(taskTO.getExecutions().isEmpty());
 
         try {
-            // 3. execute the generated NotificationTask
-            execNotificationTask(TASK_SERVICE, taskTO.getKey(), MAX_WAIT_SECONDS);
+            // 3. execute the generated NotificationTask if needed
+            if (taskTO.getExecutions().isEmpty()) {
+                execNotificationTask(TASK_SERVICE, taskTO.getKey(), MAX_WAIT_SECONDS);
+            }
 
             // 4. verify
             taskTO = TASK_SERVICE.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
@@ -181,13 +183,9 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), MAX_WAIT_SECONDS);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getNotification());
-        assertTrue(taskTO.getExecutions().isEmpty());
 
-        TASK_SERVICE.execute(new ExecSpecs.Builder().key(taskTO.getKey()).build());
-
-        try {
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
+        if (taskTO.getExecutions().isEmpty()) {
+            TASK_SERVICE.execute(new ExecSpecs.Builder().key(taskTO.getKey()).build());
         }
 
         verifyMail(sender, subject, created.getRight(), MAX_WAIT_SECONDS);
@@ -209,9 +207,10 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         NotificationTaskTO taskTO = findNotificationTask(created.getLeft(), MAX_WAIT_SECONDS);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getNotification());
-        assertTrue(taskTO.getExecutions().isEmpty());
 
-        execNotificationTask(TASK_SERVICE, taskTO.getKey(), MAX_WAIT_SECONDS);
+        if (taskTO.getExecutions().isEmpty()) {
+            execNotificationTask(TASK_SERVICE, taskTO.getKey(), MAX_WAIT_SECONDS);
+        }
 
         verifyMail(sender, subject, created.getRight(), MAX_WAIT_SECONDS);
 

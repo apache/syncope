@@ -651,15 +651,15 @@ public class ProvisioningContext {
             final UserWorkflowAdapter uwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
-            final VirAttrHandler virtAttrHandler,
-            final UserDAO userDAO) {
+            final UserDAO userDAO,
+            final VirAttrHandler virtAttrHandler) {
 
         return new DefaultUserProvisioningManager(
                 uwfAdapter,
                 propagationManager,
                 taskExecutor,
-                virtAttrHandler,
-                userDAO);
+                userDAO,
+                virtAttrHandler);
     }
 
     @ConditionalOnMissingBean
@@ -687,15 +687,15 @@ public class ProvisioningContext {
             final AnyObjectWorkflowAdapter awfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
-            final VirAttrHandler virtAttrHandler,
-            final AnyObjectDAO anyObjectDAO) {
+            final AnyObjectDAO anyObjectDAO,
+            final VirAttrHandler virtAttrHandler) {
 
         return new DefaultAnyObjectProvisioningManager(
                 awfAdapter,
                 propagationManager,
                 taskExecutor,
-                virtAttrHandler,
-                anyObjectDAO);
+                anyObjectDAO,
+                virtAttrHandler);
     }
 
     @ConditionalOnMissingBean

@@ -97,9 +97,9 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         for (int i = 0; i < users.size() && !interrupt; i++) {
             List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
                     ? userProvisioningManager.deprovision(
-                            users.get(i).getKey(), gResources, false, executor, getClass().getSimpleName())
+                            users.get(i).getKey(), gResources, false, executor)
                     : userProvisioningManager.provision(
-                            users.get(i).getKey(), true, null, gResources, false, executor, getClass().getSimpleName());
+                            users.get(i).getKey(), true, null, gResources, false, executor);
             for (PropagationStatus propagationStatus : statuses) {
                 result.append("User ").append(users.get(i).getKey()).append('\t').
                         append("Resource ").append(propagationStatus.getResource()).append('\t').
@@ -127,9 +127,9 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         for (int i = 0; i < anyObjects.size() && !interrupt; i++) {
             List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
                     ? anyObjectProvisioningManager.deprovision(
-                            anyObjects.get(i).getKey(), gResources, false, executor, getClass().getSimpleName())
+                            anyObjects.get(i).getKey(), gResources, false, executor)
                     : anyObjectProvisioningManager.provision(
-                            anyObjects.get(i).getKey(), gResources, false, executor, getClass().getSimpleName());
+                            anyObjects.get(i).getKey(), gResources, false, executor);
 
             for (PropagationStatus propagationStatus : statuses) {
                 result.append(anyObjects.get(i).getType().getKey()).append(' ').

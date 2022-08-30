@@ -20,33 +20,30 @@ package org.apache.syncope.core.provisioning.api.serialization;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.List;
-import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
-import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.common.objects.AttributeDelta;
+import org.identityconnectors.framework.common.objects.AttributeDeltaBuilder;
 
 @SuppressWarnings("squid:S3776")
-class AttributeDeserializer extends AbstractValueDeserializer<Attribute> {
+class AttributeDeltaDeserializer extends AbstractValueDeserializer<AttributeDelta> {
 
     @Override
-    public Attribute deserialize(final JsonParser jp, final DeserializationContext ctx) throws IOException {
+    public AttributeDelta deserialize(final JsonParser jp, final DeserializationContext ctx) throws IOException {
         ObjectNode tree = jp.readValueAsTree();
 
         String name = tree.get("name").asText();
 
-        List<Object> values = doDeserialize(tree.get("value"), jp);
+        List<Object> valuesToAdd = doDeserialize(tree.get("valuesToAdd"), jp);
+        List<Object> valuesToRemove = doDeserialize(tree.get("valuesToRemove"), jp);
 
-        if (Uid.NAME.equals(name)) {
-            return new Uid(values.isEmpty() || values.get(0) == null ? null : values.get(0).toString());
-        } else {
-            if (Name.NAME.equals(name)) {
-                return new Name(values.isEmpty() || values.get(0) == null ? null : values.get(0).toString());
-            }
+        JsonNode valuesToReplaceNode = tree.get("valuesToReplace");
+        List<Object> valuesToReplace = doDeserialize(valuesToReplaceNode, jp);
 
-            return AttributeBuilder.build(name, values);
-        }
+        return valuesToReplaceNode.isNull()
+                ? AttributeDeltaBuilder.build(name, valuesToAdd, valuesToRemove)
+                : AttributeDeltaBuilder.build(name, valuesToReplace);
     }
 }

@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.wicket.model.IModel;
@@ -138,7 +137,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdMImplementationType.RECON_FILTER_BUILDER).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }
@@ -152,7 +151,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }
@@ -166,7 +165,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }

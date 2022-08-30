@@ -41,6 +41,12 @@ public interface UserProvisioningManager extends ProvisioningManager<UserCR, Use
 
     Pair<UserUR, List<PropagationStatus>> update(
             UserUR userUR,
+            boolean nullPriorityAsync,
+            String updater,
+            String context);
+
+    Pair<UserUR, List<PropagationStatus>> update(
+            UserUR userUR,
             ProvisioningReport result,
             Boolean enabled,
             Set<String> excludedResources,
@@ -69,6 +75,5 @@ public interface UserProvisioningManager extends ProvisioningManager<UserCR, Use
             String password,
             Collection<String> resources,
             boolean nullPriorityAsync,
-            String updater,
-            String context);
+            String executor);
 }

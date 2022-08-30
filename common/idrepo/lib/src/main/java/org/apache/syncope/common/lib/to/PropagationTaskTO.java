@@ -39,7 +39,7 @@ public class PropagationTaskTO extends TaskTO {
 
     private String oldConnObjectKey;
 
-    private String attributes;
+    private String propagationData;
 
     private String resource;
 
@@ -95,12 +95,12 @@ public class PropagationTaskTO extends TaskTO {
     }
 
     @JsonProperty(required = true)
-    public String getAttributes() {
-        return attributes;
+    public String getPropagationData() {
+        return propagationData;
     }
 
-    public void setAttributes(final String attributes) {
-        this.attributes = attributes;
+    public void setPropagationData(final String propagationData) {
+        this.propagationData = propagationData;
     }
 
     @JsonProperty(required = true)
@@ -146,7 +146,7 @@ public class PropagationTaskTO extends TaskTO {
                 append(operation).
                 append(connObjectKey).
                 append(oldConnObjectKey).
-                append(attributes).
+                append(propagationData).
                 append(resource).
                 append(objectClassName).
                 append(anyTypeKind).
@@ -172,7 +172,7 @@ public class PropagationTaskTO extends TaskTO {
                 append(operation, other.operation).
                 append(connObjectKey, other.connObjectKey).
                 append(oldConnObjectKey, other.oldConnObjectKey).
-                append(attributes, other.attributes).
+                append(propagationData, other.propagationData).
                 append(resource, other.resource).
                 append(objectClassName, other.objectClassName).
                 append(anyTypeKind, other.anyTypeKind).
@@ -188,7 +188,7 @@ public class PropagationTaskTO extends TaskTO {
                 append(operation).
                 append(connObjectKey).
                 append(oldConnObjectKey).
-                append(attributes).
+                append(propagationData).
                 append(resource).
                 append(objectClassName).
                 append(anyTypeKind).

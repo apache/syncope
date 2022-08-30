@@ -37,12 +37,12 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ImplementationManager;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -111,31 +111,31 @@ public class OutboundMatcher {
     }
 
     public List<ConnectorObject> match(
-            final PropagationTask task,
+            final PropagationTaskInfo taskInfo,
             final Connector connector,
             final Provision provision,
             final List<PropagationActions> actions,
             final String connObjectKeyValue) {
 
-        Optional<PushCorrelationRule> rule = rule(task.getResource(), provision);
+        Optional<PushCorrelationRule> rule = rule(taskInfo.getResource(), provision);
 
-        boolean isLinkedAccount = task.getAnyTypeKind() == AnyTypeKind.USER
-                && userDAO.linkedAccountExists(task.getEntityKey(), connObjectKeyValue);
+        boolean isLinkedAccount = taskInfo.getAnyTypeKind() == AnyTypeKind.USER
+                && userDAO.linkedAccountExists(taskInfo.getEntityKey(), connObjectKeyValue);
         Any<?> any = null;
         if (!isLinkedAccount) {
-            any = anyUtilsFactory.getInstance(task.getAnyTypeKind()).dao().find(task.getEntityKey());
+            any = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind()).dao().find(taskInfo.getEntityKey());
         }
 
         Set<String> moreAttrsToGet = new HashSet<>();
-        actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(Optional.of(task), provision)));
+        actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(Optional.of(taskInfo), provision)));
 
         List<ConnectorObject> result = new ArrayList<>();
         try {
             if (any != null && rule.isPresent()) {
                 result.addAll(matchByCorrelationRule(
                         connector,
-                        rule.get().getFilter(any, task.getResource(), provision),
-                        task.getResource(),
+                        rule.get().getFilter(any, taskInfo.getResource(), provision),
+                        taskInfo.getResource(),
                         provision,
                         Optional.of(moreAttrsToGet.toArray(String[]::new)),
                         Optional.empty()));
@@ -144,7 +144,7 @@ public class OutboundMatcher {
                         connector,
                         connObjectKeyItem,
                         connObjectKeyValue,
-                        task.getResource(),
+                        taskInfo.getResource(),
                         provision,
                         Optional.of(moreAttrsToGet.toArray(String[]::new)),
                         Optional.empty())).ifPresent(result::add);

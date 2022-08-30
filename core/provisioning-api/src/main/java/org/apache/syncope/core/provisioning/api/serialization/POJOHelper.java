@@ -27,6 +27,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeDelta;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +45,11 @@ public final class POJOHelper {
         SimpleModule pojoModule = new SimpleModule("POJOModule", new Version(1, 0, 0, null, null, null));
         pojoModule.addSerializer(GuardedString.class, new GuardedStringSerializer());
         pojoModule.addSerializer(Attribute.class, new AttributeSerializer());
+        pojoModule.addSerializer(AttributeDelta.class, new AttributeDeltaSerializer());
         pojoModule.addSerializer(SyncToken.class, new SyncTokenSerializer());
         pojoModule.addDeserializer(GuardedString.class, new GuardedStringDeserializer());
         pojoModule.addDeserializer(Attribute.class, new AttributeDeserializer());
+        pojoModule.addDeserializer(AttributeDelta.class, new AttributeDeltaDeserializer());
         pojoModule.addDeserializer(SyncToken.class, new SyncTokenDeserializer());
 
         MAPPER = JsonMapper.builder().

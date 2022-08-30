@@ -32,6 +32,8 @@ import javax.ws.rs.core.Response
 //     of that attribute in the target object all of the values of that attribute in the input set.
 //   - REMOVE_ATTRIBUTE_VALUES: For each attribute that the input set contains, remove from the current values
 //     of that attribute in the target object any value that matches one of the values of the attribute from the input set.
+//   - UPDATE_DELTA: Three input maps are provided: valuesToAdd, valuesToRemove and valuesToReplace
+//     For each map key, perform the corresponding actions on attribute values
 
 // log: a handler to the Log facility
 //
@@ -39,8 +41,9 @@ import javax.ws.rs.core.Response
 //
 // uid: a String representing the entry uid
 //
-// attributes: an Attribute Map, containg the <String> attribute name as a key
-// and the <List> attribute value(s) as value.
+// attributes: an Attribute Map, containg the <String> attribute name as a key and the <List> attribute value(s) as value
+// or
+// valuesToAdd, valuesToRemove and valuesToReplace (for UPDATE_DELTA): similar data structure
 //
 // password: password string, clear text (only for UPDATE)
 //
@@ -101,9 +104,8 @@ case "UPDATE":
   return uid;
   break
 
-case "ADD_ATTRIBUTE_VALUES":
+case "UPDATE_DELTA":
   break
-
 
 default:
   break

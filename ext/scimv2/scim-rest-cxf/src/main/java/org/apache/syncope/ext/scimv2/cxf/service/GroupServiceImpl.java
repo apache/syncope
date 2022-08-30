@@ -30,9 +30,9 @@ import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.SCIMDataBinder;
@@ -137,7 +137,7 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
                     SyncopeConstants.ROOT_REALM,
                     true,
                     false).
-                    getRight().stream().map(EntityTO::getKey).collect(Collectors.toSet()));
+                    getRight().stream().map(UserTO::getKey).collect(Collectors.toSet()));
         }
 
         // update group, don't change members

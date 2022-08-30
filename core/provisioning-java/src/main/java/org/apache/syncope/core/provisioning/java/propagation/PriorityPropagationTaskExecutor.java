@@ -131,8 +131,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         PropagationReporter reporter = new DefaultPropagationReporter();
         try {
             List<PropagationTaskInfo> prioritizedTasks = taskInfos.stream().
-                    filter(task -> task.getExternalResource().getPropagationPriority() != null).
-                    sorted(Comparator.comparing(task -> task.getExternalResource().getPropagationPriority())).
+                    filter(task -> task.getResource().getPropagationPriority() != null).
+                    sorted(Comparator.comparing(task -> task.getResource().getPropagationPriority())).
                     collect(Collectors.toList());
             LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
 
@@ -142,12 +142,12 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             LOG.debug("Propagation tasks for concurrent execution: {}", concurrentTasks);
 
             // first process priority resources sequentially and fail as soon as any propagation failure is reported
-            prioritizedTasks.forEach(task -> {
+            prioritizedTasks.forEach(taskInfo -> {
                 TaskExec exec = null;
                 ExecStatus execStatus;
                 String errorMessage = null;
                 try {
-                    exec = newPropagationTaskCallable(task, reporter, executor).call();
+                    exec = newPropagationTaskCallable(taskInfo, reporter, executor).call();
                     execStatus = ExecStatus.valueOf(exec.getStatus());
                 } catch (Exception e) {
                     LOG.error("Unexpected exception", e);
@@ -156,7 +156,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 }
                 if (execStatus != ExecStatus.SUCCESS) {
                     throw new PropagationException(
-                            task.getResource(),
+                            taskInfo.getResource().getKey(),
                             Optional.ofNullable(exec).map(Exec::getMessage).orElse(errorMessage));
                 }
             });

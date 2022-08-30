@@ -58,7 +58,7 @@ public class PropagationTasks extends AbstractPropagationTasks {
                 tasks.next(
                         new StringResourceModel("task.view.details", this, new Model<>(Pair.of(null, taskTO))).
                                 getObject(),
-                        new TaskAttributesDetailsView(taskTO),
+                        new PropagationDataView(taskTO),
                         target);
             }
         });

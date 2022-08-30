@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Task attributes details.
  */
-public class TaskAttributesDetailsView extends MultilevelPanel.SecondLevel {
+public class PropagationDataView extends MultilevelPanel.SecondLevel {
 
     private static final long serialVersionUID = -4110576026663173545L;
 
@@ -41,7 +41,7 @@ public class TaskAttributesDetailsView extends MultilevelPanel.SecondLevel {
 
     private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    public TaskAttributesDetailsView(final PropagationTaskTO taskTO) {
+    public PropagationDataView(final PropagationTaskTO taskTO) {
         super();
 
         Pair<String, String> info = Pair.of(taskTO.getEntityKey(), getJSONInfo(taskTO));
@@ -63,7 +63,7 @@ public class TaskAttributesDetailsView extends MultilevelPanel.SecondLevel {
     private static String getJSONInfo(final PropagationTaskTO taskTO) {
         String json = "";
         try {
-            JsonNode list = MAPPER.readTree(taskTO.getAttributes());
+            JsonNode list = MAPPER.readTree(taskTO.getPropagationData());
             json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(list);
         } catch (IOException ex) {
             LOG.error("Error converting objects to JSON", ex);

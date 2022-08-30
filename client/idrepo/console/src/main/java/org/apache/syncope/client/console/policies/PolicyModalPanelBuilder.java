@@ -180,8 +180,14 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                 case PROPAGATION:
                     fields.add(new AjaxCheckBoxPanel(
                             "field",
-                            "prefetch",
-                            new PropertyModel<>(policyTO, "prefetch"),
+                            "fetchAroundProvisioning",
+                            new PropertyModel<>(policyTO, "fetchAroundProvisioning"),
+                            false));
+
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field",
+                            "updateDelta",
+                            new PropertyModel<>(policyTO, "updateDelta"),
                             false));
 
                     fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(

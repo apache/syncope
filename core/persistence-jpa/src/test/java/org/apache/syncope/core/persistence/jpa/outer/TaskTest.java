@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
@@ -124,7 +125,7 @@ public class TaskTest extends AbstractTest {
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(AttributeBuilder.build("testAttribute", "testValue1", "testValue2"));
         attributes.add(AttributeBuilder.buildPassword("password".toCharArray()));
-        task.setAttributes(attributes);
+        task.setPropagationData(new PropagationData(attributes));
 
         task = taskDAO.save(task);
         assertNotNull(task);

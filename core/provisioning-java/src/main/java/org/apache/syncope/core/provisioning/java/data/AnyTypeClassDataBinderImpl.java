@@ -25,9 +25,9 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -126,14 +126,14 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
         anyTypeClassTO.setKey(anyTypeClass.getKey());
 
         anyTypeClassTO.getInUseByTypes().addAll(
-                anyTypeDAO.findByTypeClass(anyTypeClass).stream().map(Entity::getKey).collect(Collectors.toList()));
+                anyTypeDAO.findByTypeClass(anyTypeClass).stream().map(AnyType::getKey).collect(Collectors.toList()));
 
         anyTypeClassTO.getPlainSchemas().addAll(
-                anyTypeClass.getPlainSchemas().stream().map(Entity::getKey).collect(Collectors.toList()));
+                anyTypeClass.getPlainSchemas().stream().map(PlainSchema::getKey).collect(Collectors.toList()));
         anyTypeClassTO.getDerSchemas().addAll(
-                anyTypeClass.getDerSchemas().stream().map(Entity::getKey).collect(Collectors.toList()));
+                anyTypeClass.getDerSchemas().stream().map(DerSchema::getKey).collect(Collectors.toList()));
         anyTypeClassTO.getVirSchemas().addAll(
-                anyTypeClass.getVirSchemas().stream().map(Entity::getKey).collect(Collectors.toList()));
+                anyTypeClass.getVirSchemas().stream().map(VirSchema::getKey).collect(Collectors.toList()));
 
         return anyTypeClassTO;
     }

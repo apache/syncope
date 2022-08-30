@@ -69,6 +69,7 @@ import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
@@ -257,17 +258,17 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         ExecTO result = null;
         switch (taskUtil.getType()) {
             case PROPAGATION:
-                PropagationTaskTO taskTO = binder.<PropagationTaskTO>getTaskTO(task, taskUtil, false);
-                PropagationTaskInfo taskInfo = new PropagationTaskInfo(((PropagationTask) task).getResource());
-                taskInfo.setKey(taskTO.getKey());
-                taskInfo.setOperation(taskTO.getOperation());
-                taskInfo.setConnObjectKey(taskTO.getConnObjectKey());
-                taskInfo.setOldConnObjectKey(taskTO.getOldConnObjectKey());
-                taskInfo.setAttributes(taskTO.getAttributes());
-                taskInfo.setObjectClassName(taskTO.getObjectClassName());
-                taskInfo.setAnyTypeKind(taskTO.getAnyTypeKind());
-                taskInfo.setAnyType(taskTO.getAnyType());
-                taskInfo.setEntityKey(taskTO.getEntityKey());
+                PropagationTask propagationTask = (PropagationTask) task;
+                PropagationTaskInfo taskInfo = new PropagationTaskInfo(
+                        propagationTask.getResource(),
+                        propagationTask.getOperation(),
+                        new ObjectClass(propagationTask.getObjectClassName()),
+                        propagationTask.getAnyTypeKind(),
+                        propagationTask.getAnyType(),
+                        propagationTask.getEntityKey(),
+                        propagationTask.getConnObjectKey(),
+                        propagationTask.getPropagationData());
+                taskInfo.setOldConnObjectKey(propagationTask.getOldConnObjectKey());
 
                 TaskExec propExec = taskExecutor.execute(taskInfo, new DefaultPropagationReporter(), executor);
                 result = binder.getExecTO(propExec);

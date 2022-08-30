@@ -28,7 +28,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -164,14 +163,14 @@ public class RoleDataBinderImpl implements RoleDataBinder {
                 map(Realm::getFullPath).collect(Collectors.toList()));
 
         roleTO.getDynRealms().addAll(role.getDynRealms().stream().
-                map(Entity::getKey).collect(Collectors.toList()));
+                map(DynRealm::getKey).collect(Collectors.toList()));
 
         if (role.getDynMembership() != null) {
             roleTO.setDynMembershipCond(role.getDynMembership().getFIQLCond());
         }
 
         roleTO.getPrivileges().addAll(role.getPrivileges().stream().
-                map(Entity::getKey).collect(Collectors.toList()));
+                map(Privilege::getKey).collect(Collectors.toList()));
 
         return roleTO;
     }

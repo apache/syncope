@@ -41,7 +41,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.DynRealmTO;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -99,7 +98,7 @@ public class Groups extends AbstractGroups {
         dynrealmsContainer.setOutputMarkupPlaceholderTag(true);
         dynrealmsContainer.add(new AjaxPalettePanel.Builder<>().build("dynrealms",
                 new PropertyModel<>(anyTO, "dynRealms"),
-                new ListModel<>(allDynRealms.stream().map(EntityTO::getKey).collect(Collectors.toList()))).
+                new ListModel<>(allDynRealms.stream().map(DynRealmTO::getKey).collect(Collectors.toList()))).
                 hideLabel().setEnabled(false).setOutputMarkupId(true));
         add(dynrealmsContainer);
     }

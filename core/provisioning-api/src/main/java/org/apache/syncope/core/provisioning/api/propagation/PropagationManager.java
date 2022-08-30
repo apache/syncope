@@ -20,10 +20,12 @@ package org.apache.syncope.core.provisioning.api.propagation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Provision;
@@ -41,14 +43,26 @@ import org.identityconnectors.framework.common.objects.Attribute;
 public interface PropagationManager {
 
     /**
-     * Create the any object tasks for every associated resource, unless in {@code noPropResourceKeys}.
+     * Name for special propagation attribute used to indicate whether there are attributes, marked as mandatory in the
+     * mapping but not to be propagated.
+     */
+    String MANDATORY_MISSING_ATTR_NAME = "__MANDATORY_MISSING__";
+
+    /**
+     * Name for special propagation attribute used to indicate whether there are attributes, marked as mandatory in the
+     * mapping but about to be propagated as null or empty.
+     */
+    String MANDATORY_NULL_OR_EMPTY_ATTR_NAME = "__MANDATORY_NULL_OR_EMPTY__";
+
+    /**
+     * Create the any object tasks for every associated resource, unless in {@code excludedResources}.
      *
      * @param kind any object type kind
      * @param key any object key
      * @param enable whether any object should be enabled or not
      * @param propByRes operation to be performed per resource
      * @param vAttrs virtual attributes to be set
-     * @param noPropResourceKeys external resources performing not to be considered for propagation
+     * @param excludedResources external resources performing not to be considered for propagation
      * @return list of propagation tasks
      */
     List<PropagationTaskInfo> getCreateTasks(
@@ -57,10 +71,10 @@ public interface PropagationManager {
             Boolean enable,
             PropagationByResource<String> propByRes,
             Collection<Attr> vAttrs,
-            Collection<String> noPropResourceKeys);
+            Collection<String> excludedResources);
 
     /**
-     * Create the user tasks for every associated resource, unless in {@code noPropResourceKeys}.
+     * Create the user tasks for every associated resource, unless in {@code excludedResources}.
      *
      * @param key user key
      * @param password to be set
@@ -68,7 +82,7 @@ public interface PropagationManager {
      * @param propByRes operation to be performed per resource
      * @param propByLinkedAccount operation to be performed for linked accounts
      * @param vAttrs virtual attributes to be set
-     * @param noPropResourceKeys external resources not to be considered for propagation
+     * @param excludedResources external resources not to be considered for propagation
      * @return list of propagation tasks
      */
     List<PropagationTaskInfo> getUserCreateTasks(
@@ -78,10 +92,10 @@ public interface PropagationManager {
             PropagationByResource<String> propByRes,
             PropagationByResource<Pair<String, String>> propByLinkedAccount,
             Collection<Attr> vAttrs,
-            Collection<String> noPropResourceKeys);
+            Collection<String> excludedResources);
 
     /**
-     * Create the update tasks for the any object on each resource associated, unless in {@code noPropResourceKeys}.
+     * Create the update tasks for the any object on each resource associated, unless in {@code excludedResources}.
      *
      * @param kind any object type kind
      * @param key any object key
@@ -90,7 +104,7 @@ public interface PropagationManager {
      * @param propByRes operation to be performed per resource
      * @param propByLinkedAccount operation to be performed for linked accounts
      * @param vAttrs virtual attributes to be set
-     * @param noPropResourceKeys external resource keys not to be considered for propagation
+     * @param excludedResources external resource keys not to be considered for propagation
      * @return list of propagation tasks
      */
     List<PropagationTaskInfo> getUpdateTasks(
@@ -101,20 +115,20 @@ public interface PropagationManager {
             PropagationByResource<String> propByRes,
             PropagationByResource<Pair<String, String>> propByLinkedAccount,
             Collection<Attr> vAttrs,
-            Collection<String> noPropResourceKeys);
+            Collection<String> excludedResources);
 
     /**
-     * Create the update tasks for the user on each resource associated, unless in {@code noPropResourceKeys}.
+     * Create the update tasks for the user on each resource associated, unless in {@code excludedResources}.
      *
      * @param wfResult user to be propagated (and info associated), as per result from workflow
      * @param changePwd whether password should be included for propagation attributes or not
-     * @param noPropResourceKeys external resources not to be considered for propagation
+     * @param excludedResources external resources not to be considered for propagation
      * @return list of propagation tasks
      */
     List<PropagationTaskInfo> getUserUpdateTasks(
             UserWorkflowResult<Pair<UserUR, Boolean>> wfResult,
             boolean changePwd,
-            Collection<String> noPropResourceKeys);
+            Collection<String> excludedResources);
 
     /**
      * Create the update tasks for the user on each resource associated; propagate password update only to requested
@@ -126,13 +140,13 @@ public interface PropagationManager {
     List<PropagationTaskInfo> getUserUpdateTasks(UserWorkflowResult<Pair<UserUR, Boolean>> wfResult);
 
     /**
-     * Create the delete tasks for the any object from each resource associated, unless in {@code noPropResourceKeys}.
+     * Create the delete tasks for the any object from each resource associated, unless in {@code excludedResources}.
      *
      * @param kind any object type kind
      * @param key any object key
      * @param propByRes operation to be performed per resource
      * @param propByLinkedAccount operation to be performed for linked accounts
-     * @param noPropResourceKeys external resource keys not to be considered for propagation
+     * @param excludedResources external resource keys not to be considered for propagation
      * @return list of propagation tasks
      */
     List<PropagationTaskInfo> getDeleteTasks(
@@ -140,7 +154,7 @@ public interface PropagationManager {
             String key,
             PropagationByResource<String> propByRes,
             PropagationByResource<Pair<String, String>> propByLinkedAccount,
-            Collection<String> noPropResourceKeys);
+            Collection<String> excludedResources);
 
     PropagationTaskInfo newTask(
             DerAttrHandler derAttrHandler,
@@ -152,15 +166,55 @@ public interface PropagationManager {
             Pair<String, Set<Attribute>> preparedAttrs);
 
     /**
-     * Create the needed tasks for the realm for each resource associated, unless in {@code noPropResourceKeys}.
+     * Create the needed tasks for the realm for each resource associated, unless in {@code excludedResources}.
      *
      * @param realm realm
      * @param propByRes operation to be performed per resource
-     * @param noPropResourceKeys external resource keys not to be considered for propagation
+     * @param excludedResources external resource keys not to be considered for propagation
      * @return list of propagation tasks
      */
     List<PropagationTaskInfo> createTasks(
             Realm realm,
             PropagationByResource<String> propByRes,
-            Collection<String> noPropResourceKeys);
+            Collection<String> excludedResources);
+
+    /**
+     * Prepare attributes for propagation.
+     *
+     * @param kind any object type kind
+     * @param key any object key
+     * @param password to be set (for users)
+     * @param changePwd whether password should be included for propagation attributes or not (for users)
+     * @param enable whether any object should be enabled or not, may be null to leave unchanged
+     * @param excludedResources external resource keys not to be considered for propagation
+     * @return map with prepared attributes per External Resource
+     */
+    Map<Pair<String, String>, Set<Attribute>> prepareAttrs(
+            AnyTypeKind kind,
+            String key,
+            String password,
+            boolean changePwd,
+            Boolean enable,
+            Collection<String> excludedResources);
+
+    /**
+     * Prepare attributes for propagation.
+     *
+     * @param realm realm
+     * @return map with prepared attributes per External Resource
+     */
+    Map<Pair<String, String>, Set<Attribute>> prepareAttrs(Realm realm);
+
+    /**
+     * Enrich the provided tasks with attribute deltas.
+     *
+     * @param tasks propagation tasks
+     * @param beforeAttrs attribute values before update
+     * @param updateRequest effective any update request
+     * @return enriched propagation tasks
+     */
+    List<PropagationTaskInfo> setAttributeDeltas(
+            List<PropagationTaskInfo> tasks,
+            Map<Pair<String, String>, Set<Attribute>> beforeAttrs,
+            AnyUR updateRequest);
 }

@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
@@ -31,32 +30,31 @@ public interface PropagationActions {
     /**
      * Return additional attributes to include in the result from the underlying connector.
      *
-     * @param task propagation task
+     * @param taskInfo propagation task
      * @param orgUnit Realm provisioning information
      * @return additional attributes to include in the result from the underlying connector
      */
-    default Set<String> moreAttrsToGet(Optional<PropagationTask> task, OrgUnit orgUnit) {
+    default Set<String> moreAttrsToGet(Optional<PropagationTaskInfo> taskInfo, OrgUnit orgUnit) {
         return Set.of();
     }
 
     /**
      * Return additional attributes to include in the result from the underlying connector.
      *
-     * @param task propagation task
+     * @param taskInfo propagation task
      * @param provision Any provisioning information
      * @return additional attributes to include in the result from the underlying connector
      */
-    default Set<String> moreAttrsToGet(Optional<PropagationTask> task, Provision provision) {
+    default Set<String> moreAttrsToGet(Optional<PropagationTaskInfo> taskInfo, Provision provision) {
         return Set.of();
     }
 
     /**
      * Executes logic before actual propagation.
      *
-     * @param task propagation task
-     * @param beforeObj connector object read before propagation
+     * @param taskInfo propagation task
      */
-    default void before(PropagationTask task, ConnectorObject beforeObj) {
+    default void before(PropagationTaskInfo taskInfo) {
         // do nothing
     }
 
@@ -65,22 +63,22 @@ public interface PropagationActions {
      * This method can throw {@link org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException} to
      * ignore the reported error and continue.
      *
-     * @param task propagation task
+     * @param taskInfo propagation task
      * @param execution execution result
      * @param error propagation error
      */
-    default void onError(PropagationTask task, TaskExec execution, Exception error) {
+    default void onError(PropagationTaskInfo taskInfo, TaskExec execution, Exception error) {
         // do nothing
     }
 
     /**
      * Executes logic after actual propagation.
      *
-     * @param task propagation task
+     * @param taskInfo propagation task
      * @param execution execution result
      * @param afterObj connector object read after propagation
      */
-    default void after(PropagationTask task, TaskExec execution, ConnectorObject afterObj) {
+    default void after(PropagationTaskInfo taskInfo, TaskExec execution, ConnectorObject afterObj) {
         // do nothing
     }
 }

@@ -55,7 +55,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -303,7 +302,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             rightAnyObjectKey = cond.getAnyObject();
         } else {
             AnyObject anyObject = anyObjectDAO.findByName(cond.getAnyObject());
-            rightAnyObjectKey = Optional.ofNullable(anyObject).map(Entity::getKey).orElse(null);
+            rightAnyObjectKey = Optional.ofNullable(anyObject).map(AnyObject::getKey).orElse(null);
         }
         if (rightAnyObjectKey == null) {
             throw new IllegalArgumentException("Could not find any object for " + cond.getAnyObject());
@@ -330,7 +329,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             if (member == null) {
                 member = anyObjectDAO.findByName(cond.getMember());
             }
-            memberKey = Optional.ofNullable(member).map(Entity::getKey).orElse(null);
+            memberKey = Optional.ofNullable(member).map(Any::getKey).orElse(null);
         }
         if (memberKey == null) {
             throw new IllegalArgumentException("Could not find user or any object for " + cond.getMember());

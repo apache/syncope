@@ -53,7 +53,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -390,7 +389,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         TypeExtensionTO typeExtTO = new TypeExtensionTO();
         typeExtTO.setAnyType(typeExt.getAnyType().getKey());
         typeExtTO.getAuxClasses().addAll(
-                typeExt.getAuxClasses().stream().map(Entity::getKey).collect(Collectors.toList()));
+                typeExt.getAuxClasses().stream().map(AnyTypeClass::getKey).collect(Collectors.toList()));
         return typeExtTO;
     }
 

@@ -42,6 +42,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
+import org.identityconnectors.framework.common.objects.Attribute;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,13 +122,6 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
 
-    @Override
-    public Pair<GroupUR, List<PropagationStatus>> update(
-            final GroupUR groupUR, final boolean nullPriorityAsync, final String updater, final String context) {
-
-        return update(groupUR, Set.of(), nullPriorityAsync, updater, context);
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Pair<GroupUR, List<PropagationStatus>> update(
@@ -137,17 +131,28 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             final String updater,
             final String context) {
 
-        WorkflowResult<GroupUR> updated = gwfAdapter.update(groupUR, updater, context);
-
-        List<PropagationTaskInfo> tasks = propagationManager.getUpdateTasks(
+        Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
                 AnyTypeKind.GROUP,
-                updated.getResult().getKey(),
+                groupUR.getKey(),
+                null,
                 false,
                 null,
-                updated.getPropByRes(),
-                null,
-                groupUR.getVirAttrs(),
                 excludedResources);
+
+        WorkflowResult<GroupUR> updated = gwfAdapter.update(groupUR, updater, context);
+
+        List<PropagationTaskInfo> tasks = propagationManager.setAttributeDeltas(
+                propagationManager.getUpdateTasks(
+                        AnyTypeKind.GROUP,
+                        updated.getResult().getKey(),
+                        false,
+                        null,
+                        updated.getPropByRes(),
+                        null,
+                        groupUR.getVirAttrs(),
+                        excludedResources),
+                beforeAttrs,
+                updated.getResult());
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult(), propagationReporter.getStatuses());
@@ -220,8 +225,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             final String key,
             final Collection<String> resources,
             final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
+            final String executor) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.UPDATE, resources);
@@ -235,7 +239,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 null,
                 null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
     }
@@ -245,8 +249,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             final String key,
             final Collection<String> resources,
             final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
+            final String executor) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.DELETE, resources);
@@ -259,7 +262,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 groupDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
     }
