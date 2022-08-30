@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -108,6 +109,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     protected final TaskDAO taskDAO;
 
+    protected final ExternalResourceDAO resourceDAO;
+
     protected final PlainSchemaDAO plainSchemaDAO;
 
     protected final NotificationManager notificationManager;
@@ -131,6 +134,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
             final TaskDAO taskDAO,
+            final ExternalResourceDAO resourceDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final NotificationManager notificationManager,
             final AuditManager auditManager,
@@ -146,6 +150,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         this.groupDAO = groupDAO;
         this.anyObjectDAO = anyObjectDAO;
         this.taskDAO = taskDAO;
+        this.resourceDAO = resourceDAO;
         this.plainSchemaDAO = plainSchemaDAO;
         this.notificationManager = notificationManager;
         this.auditManager = auditManager;
@@ -706,7 +711,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     /**
      * Check whether an execution has to be stored, for a given task.
      *
-     * @param task propagation task
+     * @param taskInfo propagation task
      * @param execution to be decide whether to store or not
      * @return true if execution has to be store, false otherwise
      */
@@ -745,7 +750,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         PropagationTask task = entityFactory.newEntity(PropagationTask.class);
-        task.setResource(resource);
+        task.setResource(resourceDAO.find(resource.getKey()));
         task.setObjectClassName(taskInfo.getObjectClass().getObjectClassValue());
         task.setAnyTypeKind(taskInfo.getAnyTypeKind());
         task.setAnyType(taskInfo.getAnyType());

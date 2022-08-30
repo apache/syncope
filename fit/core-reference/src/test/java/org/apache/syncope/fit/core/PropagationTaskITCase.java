@@ -52,6 +52,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -60,6 +61,7 @@ import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -447,6 +449,118 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         } finally {
             ldap.setPropagationPolicy(null);
             RESOURCE_SERVICE.update(ldap);
+        }
+    }
+
+    @Test
+    public void propagationPolicyOptimizeToScriptedDB() {
+        String policyKey = propagationPolicyOptimizeKey();
+
+        ResourceTO db = RESOURCE_SERVICE.read(RESOURCE_NAME_DBSCRIPTED);
+        String beforePolicyKey = db.getPropagationPolicy();
+        assertNotNull(beforePolicyKey);
+
+        db.setPropagationPolicy(policyKey);
+
+        // 0. create new schema and change resource mapping to include it
+        PlainSchemaTO paperformat = new PlainSchemaTO();
+        paperformat.setKey("paperformat");
+        paperformat.setMultivalue(true);
+        SCHEMA_SERVICE.create(SchemaType.PLAIN, paperformat);
+
+        AnyTypeClassTO printer = ANY_TYPE_CLASS_SERVICE.read("minimal printer");
+        printer.getPlainSchemas().add(paperformat.getKey());
+        ANY_TYPE_CLASS_SERVICE.update(printer);
+
+        Item paperformatItem = new Item();
+        paperformatItem.setPurpose(MappingPurpose.PROPAGATION);
+        paperformatItem.setIntAttrName("paperformat");
+        paperformatItem.setExtAttrName("paperformat");
+        db.getProvision(PRINTER).get().getMapping().add(paperformatItem);
+        RESOURCE_SERVICE.update(db);
+
+        ProvisioningResult<AnyObjectTO> created = null;
+        try {
+            // 1a. create printer on db and verify success
+            created = createAnyObject(AnyObjectITCase.getSample("ppOptimizeToDB"));
+            assertEquals(RESOURCE_NAME_DBSCRIPTED, created.getPropagationStatuses().get(0).getResource());
+            assertEquals(ExecStatus.SUCCESS, created.getPropagationStatuses().get(0).getStatus());
+
+            // 1b. check the generated propagation data
+            PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(RESOURCE_NAME_DBSCRIPTED).
+                    anyTypeKind(AnyTypeKind.ANY_OBJECT).entityKey(created.getEntity().getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            PropagationData data = POJOHelper.deserialize(
+                    tasks.getResult().get(0).getPropagationData(), PropagationData.class);
+            assertNull(data.getAttributeDeltas());
+
+            TASK_SERVICE.delete(TaskType.PROPAGATION, tasks.getResult().get(0).getKey());
+
+            // 2a. update printer on db and verify success
+            AnyObjectUR req = new AnyObjectUR.Builder(created.getEntity().getKey()).plainAttr(new AttrPatch.Builder(
+                    new Attr.Builder("paperformat").values("format1", "format2").build()).build()).
+                    build();
+            ProvisioningResult<AnyObjectTO> updated = updateAnyObject(req);
+            assertEquals(RESOURCE_NAME_DBSCRIPTED, updated.getPropagationStatuses().get(0).getResource());
+            assertEquals(ExecStatus.SUCCESS, updated.getPropagationStatuses().get(0).getStatus());
+
+            // 2b. read from db the effective object
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+            List<String> values = queryForList(jdbcTemplate,
+                    MAX_WAIT_SECONDS,
+                    "SELECT paper_format FROM testPRINTER_PAPERFORMAT WHERE printer_id=?",
+                    String.class,
+                    created.getEntity().getKey());
+            assertEquals(Set.of("format1", "format2"), new HashSet<>(values));
+
+            // 2c. check the generated propagation data
+            tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(RESOURCE_NAME_DBSCRIPTED).
+                    anyTypeKind(AnyTypeKind.ANY_OBJECT).entityKey(created.getEntity().getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            data = POJOHelper.deserialize(tasks.getResult().get(0).getPropagationData(), PropagationData.class);
+            assertNotNull(data.getAttributeDeltas());
+
+            TASK_SERVICE.delete(TaskType.PROPAGATION, tasks.getResult().get(0).getKey());
+
+            // 3a. update printer on db and verify success
+            req = new AnyObjectUR.Builder(created.getEntity().getKey()).plainAttr(new AttrPatch.Builder(
+                    new Attr.Builder("paperformat").values("format1", "format3").build()).build()).
+                    build();
+            updated = updateAnyObject(req);
+            assertEquals(RESOURCE_NAME_DBSCRIPTED, updated.getPropagationStatuses().get(0).getResource());
+            assertEquals(ExecStatus.SUCCESS, updated.getPropagationStatuses().get(0).getStatus());
+
+            // 3b. read from db the effective object
+            values = queryForList(jdbcTemplate,
+                    MAX_WAIT_SECONDS,
+                    "SELECT paper_format FROM testPRINTER_PAPERFORMAT WHERE printer_id=?",
+                    String.class,
+                    created.getEntity().getKey());
+            assertEquals(Set.of("format1", "format3"), new HashSet<>(values));
+
+            // 3c. check the generated propagation data
+            tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(RESOURCE_NAME_DBSCRIPTED).
+                    anyTypeKind(AnyTypeKind.ANY_OBJECT).entityKey(created.getEntity().getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            data = POJOHelper.deserialize(tasks.getResult().get(0).getPropagationData(), PropagationData.class);
+            assertNotNull(data.getAttributeDeltas());
+
+            TASK_SERVICE.delete(TaskType.PROPAGATION, tasks.getResult().get(0).getKey());
+        } finally {
+            Optional.ofNullable(created).map(c -> c.getEntity().getKey()).ifPresent(ANY_OBJECT_SERVICE::delete);
+
+            SCHEMA_SERVICE.delete(SchemaType.PLAIN, "paperformat");
+
+            db.setPropagationPolicy(beforePolicyKey);
+            db.getProvision(PRINTER).ifPresent(provision -> provision.getMapping().
+                    getItems().removeIf(item -> "paperformat".equals(item.getIntAttrName())));
+            RESOURCE_SERVICE.update(db);
         }
     }
 

@@ -794,12 +794,34 @@ public abstract class AbstractITCase {
     protected static <T> T queryForObject(
             final JdbcTemplate jdbcTemplate,
             final int maxWaitSeconds,
-            final String sql, final Class<T> requiredType, final Object... args) {
+            final String sql,
+            final Class<T> requiredType,
+            final Object... args) {
 
         AtomicReference<T> object = new AtomicReference<>();
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
                 object.set(jdbcTemplate.queryForObject(sql, requiredType, args));
+                return object.get() != null;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+
+        return object.get();
+    }
+
+    protected static <T> List<T> queryForList(
+            final JdbcTemplate jdbcTemplate,
+            final int maxWaitSeconds,
+            final String sql,
+            final Class<T> requiredType,
+            final Object... args) {
+
+        AtomicReference<List<T>> object = new AtomicReference<>();
+        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+            try {
+                object.set(jdbcTemplate.queryForList(sql, requiredType, args));
                 return object.get() != null;
             } catch (Exception e) {
                 return false;

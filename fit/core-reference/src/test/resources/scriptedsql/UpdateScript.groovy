@@ -30,6 +30,8 @@ import groovy.sql.DataSet;
 //     of that attribute in the target object all of the values of that attribute in the input set.
 //   - REMOVE_ATTRIBUTE_VALUES: For each attribute that the input set contains, remove from the current values
 //     of that attribute in the target object any value that matches one of the values of the attribute from the input set.
+//   - UPDATE_DELTA: Three input maps are provided: valuesToAdd, valuesToRemove and valuesToReplace
+//     For each map key, perform the corresponding actions on attribute values
 
 // log: a handler to the Log facility
 //
@@ -37,8 +39,9 @@ import groovy.sql.DataSet;
 //
 // uid: a String representing the entry uid
 //
-// attributes: an Attribute Map, containg the <String> attribute name as a key
-// and the <List> attribute value(s) as value.
+// attributes: an Attribute Map, containg the <String> attribute name as a key and the <List> attribute value(s) as value
+// or
+// valuesToAdd, valuesToRemove and valuesToReplace (for UPDATE_DELTA): similar data structure
 //
 // password: password string, clear text (only for UPDATE)
 //
@@ -52,18 +55,33 @@ switch (action) {
 case "UPDATE":
   if (attributes.get("LOCATION").get(0) != null) {
     sql.executeUpdate("UPDATE TESTPRINTER SET printername = ?, location = ?, lastmodification = ? where id = ?", 
-      [attributes.get("PRINTERNAME").get(0), 
+      [
+        attributes.get("PRINTERNAME").get(0), 
         attributes.get("LOCATION").get(0), 
         new Date(), 
-        attributes.get("__NAME__").get(0)])
-    
+        attributes.get("__NAME__").get(0)
+      ])
+
     return attributes.get("__NAME__").get(0);
   }
   break
 
-case "ADD_ATTRIBUTE_VALUES":
+case "UPDATE_DELTA":
+  if (valuesToAdd != null && valuesToAdd.containsKey("paperformat")) {
+    for (paperformat: valuesToAdd.get("paperformat")) {
+      sql.executeUpdate("INSERT INTO TESTPRINTER_PAPERFORMAT(printer_id, paper_format) VALUES(?, ?)",
+        [uid, paperformat])
+    }
+  }
+  if (valuesToRemove != null && valuesToRemove.containsKey("paperformat")) {
+    for (paperformat: valuesToRemove.get("paperformat")) {
+      sql.executeUpdate("DELETE FROM TESTPRINTER_PAPERFORMAT WHERE printer_id = ? AND paper_format = ?",
+        [uid, paperformat])
+    }    
+  }
+  
+  return uid
   break
-
 
 default:
   sql

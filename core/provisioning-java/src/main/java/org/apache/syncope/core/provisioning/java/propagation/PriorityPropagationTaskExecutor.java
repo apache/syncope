@@ -29,6 +29,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -92,6 +93,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
             final TaskDAO taskDAO,
+            final ExternalResourceDAO resourceDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final NotificationManager notificationManager,
             final AuditManager auditManager,
@@ -108,6 +110,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 groupDAO,
                 anyObjectDAO,
                 taskDAO,
+                resourceDAO,
                 plainSchemaDAO,
                 notificationManager,
                 auditManager,
