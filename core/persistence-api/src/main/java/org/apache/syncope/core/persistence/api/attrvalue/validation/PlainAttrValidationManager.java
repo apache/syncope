@@ -16,30 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.persistence.api.attrvalue.validation;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
-public interface PlainAttr<A extends Any<?>> extends Entity {
+public interface PlainAttrValidationManager {
 
-    A getOwner();
-
-    void setOwner(A owner);
-
-    PlainSchema getSchema();
-
-    void setSchema(PlainSchema schema);
-
-    void add(PlainAttrValidationManager validator, String value, AnyUtils anyUtils);
-
-    void add(PlainAttrValidationManager validator, String value, PlainAttrValue attrValue);
-
-    PlainAttrUniqueValue getUniqueValue();
-
-    void setUniqueValue(PlainAttrUniqueValue uniqueValue);
-
-    List<? extends PlainAttrValue> getValues();
-
-    List<String> getValuesAsStrings();
+    void validate(PlainSchema schema, String value, PlainAttrValue attrValue);
 }

@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 
 public interface AnyUtils {
@@ -58,5 +59,5 @@ public interface AnyUtils {
 
     Set<ExternalResource> getAllResources(Any<?> any);
 
-    void addAttr(String key, PlainSchema schema, String value);
+    void addAttr(PlainAttrValidationManager validator, String key, PlainSchema schema, String value);
 }

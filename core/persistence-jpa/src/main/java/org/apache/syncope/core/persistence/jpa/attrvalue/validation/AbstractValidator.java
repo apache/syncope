@@ -19,30 +19,23 @@
 package org.apache.syncope.core.persistence.jpa.attrvalue.validation;
 
 import java.io.Serializable;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractValidator implements Validator, Serializable {
+public abstract class AbstractValidator implements PlainAttrValueValidator, Serializable {
 
     private static final long serialVersionUID = -5439345166669502493L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
 
-    protected PlainSchema schema;
-
     @Override
-    public void setSchema(final PlainSchema schema) {
-        this.schema = schema;
-    }
-
-    @Override
-    public void validate(final String value, final PlainAttrValue attrValue) {
+    public void validate(final PlainSchema schema, final String value, final PlainAttrValue attrValue) {
         attrValue.parseValue(schema, value);
-        doValidate(attrValue);
+        doValidate(schema, attrValue);
     }
 
-    protected abstract void doValidate(PlainAttrValue attrValue);
+    protected abstract void doValidate(PlainSchema schema, PlainAttrValue attrValue);
 }

@@ -21,8 +21,10 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
@@ -106,6 +108,8 @@ public class InboundMatcher {
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
+    protected final Map<String, PullCorrelationRule> perContextPullCorrelationRules = new ConcurrentHashMap<>();
+
     public InboundMatcher(
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
@@ -128,13 +132,6 @@ public class InboundMatcher {
         this.virAttrHandler = virAttrHandler;
         this.intAttrNameParser = intAttrNameParser;
         this.anyUtilsFactory = anyUtilsFactory;
-    }
-
-    protected List<Implementation> getTransformers(final Item item) {
-        return item.getTransformers().stream().
-                map(implementationDAO::find).
-                filter(Objects::nonNull).
-                collect(Collectors.toList());
     }
 
     public Optional<PullMatch> match(
@@ -210,6 +207,13 @@ public class InboundMatcher {
         }
 
         return result;
+    }
+
+    protected List<Implementation> getTransformers(final Item item) {
+        return item.getTransformers().stream().
+                map(implementationDAO::find).
+                filter(Objects::nonNull).
+                collect(Collectors.toList());
     }
 
     public List<PullMatch> matchByConnObjectKeyValue(
@@ -353,6 +357,27 @@ public class InboundMatcher {
         return result;
     }
 
+    protected Optional<PullCorrelationRule> rule(final ExternalResource resource, final Provision provision) {
+        Optional<? extends PullCorrelationRuleEntity> correlationRule = resource.getPullPolicy() == null
+                ? Optional.empty()
+                : resource.getPullPolicy().getCorrelationRule(provision.getAnyType());
+
+        Optional<PullCorrelationRule> rule = Optional.empty();
+        if (correlationRule.isPresent()) {
+            Implementation impl = correlationRule.get().getImplementation();
+            try {
+                rule = ImplementationManager.buildPullCorrelationRule(
+                        impl,
+                        () -> perContextPullCorrelationRules.get(impl.getKey()),
+                        instance -> perContextPullCorrelationRules.put(impl.getKey(), instance));
+            } catch (Exception e) {
+                LOG.error("While building {}", impl, e);
+            }
+        }
+
+        return rule;
+    }
+
     /**
      * Finds internal entities based on external attributes and mapping.
      *
@@ -368,18 +393,7 @@ public class InboundMatcher {
             final Provision provision,
             final AnyTypeKind anyTypeKind) {
 
-        Optional<? extends PullCorrelationRuleEntity> correlationRule = resource.getPullPolicy() == null
-                ? Optional.empty()
-                : resource.getPullPolicy().getCorrelationRule(provision.getAnyType());
-
-        Optional<PullCorrelationRule> rule = Optional.empty();
-        if (correlationRule.isPresent()) {
-            try {
-                rule = ImplementationManager.buildPullCorrelationRule(correlationRule.get().getImplementation());
-            } catch (Exception e) {
-                LOG.error("While building {}", correlationRule.get().getImplementation(), e);
-            }
-        }
+        Optional<PullCorrelationRule> rule = rule(resource, provision);
 
         List<PullMatch> result = List.of();
         try {
@@ -470,7 +484,7 @@ public class InboundMatcher {
 
             case "name":
                 if (orgUnit.isIgnoreCaseMatch()) {
-                    final String realmName = connObjectKey;
+                    String realmName = connObjectKey;
                     result.addAll(realmDAO.findAll().stream().
                             filter(r -> r.getName().equalsIgnoreCase(realmName)).collect(Collectors.toList()));
                 } else {

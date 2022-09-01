@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,7 @@ import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -42,6 +44,7 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -87,11 +90,18 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
+    @Autowired
+    protected PlainAttrValidationManager validator;
+
     protected final Map<String, SyncToken> latestSyncTokens = new HashMap<>();
+
+    protected ProvisioningProfile<PullTask, PullActions> profile;
 
     protected final Map<String, MutablePair<Integer, String>> handled = new HashMap<>();
 
-    protected ProvisioningProfile<PullTask, PullActions> profile;
+    protected final Map<String, PullActions> perContextActions = new ConcurrentHashMap<>();
+
+    protected Optional<ReconFilterBuilder> perContextReconFilterBuilder = Optional.empty();
 
     @Override
     public void setLatestSyncToken(final String objectClass, final SyncToken latestSyncToken) {
@@ -165,22 +175,28 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         });
     }
 
-    protected List<PullActions> buildPullActions(final PullTask pullTask) {
-        List<PullActions> actions = new ArrayList<>();
-        pullTask.getActions().forEach(impl -> {
+    protected List<PullActions> getPullActions(final List<? extends Implementation> impls) {
+        List<PullActions> result = new ArrayList<>();
+
+        impls.forEach(impl -> {
             try {
-                actions.add(ImplementationManager.build(impl));
+                result.add(ImplementationManager.build(
+                        impl,
+                        () -> perContextActions.get(impl.getKey()),
+                        instance -> perContextActions.put(impl.getKey(), instance)));
             } catch (Exception e) {
                 LOG.warn("While building {}", impl, e);
             }
         });
-        return actions;
+
+        return result;
     }
 
-    protected ReconFilterBuilder buildReconFilterBuilder(final PullTask pullTask)
-            throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-
-        return ImplementationManager.build(pullTask.getReconFilterBuilder());
+    protected ReconFilterBuilder getReconFilterBuilder(final PullTask pullTask) throws ClassNotFoundException {
+        return ImplementationManager.build(
+                pullTask.getReconFilterBuilder(),
+                () -> perContextReconFilterBuilder.orElse(null),
+                instance -> perContextReconFilterBuilder = Optional.of(instance));
     }
 
     protected RealmPullResultHandler buildRealmHandler() {
@@ -217,10 +233,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
         LOG.debug("Executing pull on {}", pullTask.getResource());
 
-        List<PullActions> actions = buildPullActions(pullTask);
-
         profile = new ProvisioningProfile<>(connector, pullTask);
-        profile.getActions().addAll(actions);
+        profile.getActions().addAll(getPullActions(pullTask.getActions()));
         profile.setDryRun(dryRun);
         profile.setConflictResolutionAction(pullTask.getResource().getPullPolicy() == null
                 ? ConflictResolutionAction.IGNORE
@@ -230,7 +244,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         latestSyncTokens.clear();
 
         if (!profile.isDryRun()) {
-            for (PullActions action : actions) {
+            for (PullActions action : profile.getActions()) {
                 action.beforeAll(profile);
             }
         }
@@ -244,7 +258,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             OrgUnit orgUnit = pullTask.getResource().getOrgUnit();
 
             Set<String> moreAttrsToGet = new HashSet<>();
-            actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, orgUnit)));
+            profile.getActions().forEach(a -> moreAttrsToGet.addAll(a.moreAttrsToGet(profile, orgUnit)));
             OperationOptions options = MappingUtils.buildOperationOptions(
                     MappingUtils.getPullItems(orgUnit.getItems().stream()), moreAttrsToGet.toArray(String[]::new));
 
@@ -274,9 +288,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                         break;
 
                     case FILTERED_RECONCILIATION:
-                        connector.filteredReconciliation(
-                                new ObjectClass(orgUnit.getObjectClass()),
-                                buildReconFilterBuilder(pullTask),
+                        connector.filteredReconciliation(new ObjectClass(orgUnit.getObjectClass()),
+                                getReconFilterBuilder(pullTask),
                                 handler,
                                 options);
                         break;
@@ -295,14 +308,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         }
 
         // ...then provisions for any types
-        ProvisionSorter provisionSorter = new DefaultProvisionSorter();
-        if (pullTask.getResource().getProvisionSorter() != null) {
-            try {
-                provisionSorter = ImplementationManager.build(pullTask.getResource().getProvisionSorter());
-            } catch (Exception e) {
-                LOG.error("While building {}", pullTask.getResource().getProvisionSorter(), e);
-            }
-        }
+        ProvisionSorter provisionSorter = getProvisionSorter(pullTask);
 
         GroupPullResultHandler ghandler = buildGroupHandler();
         for (Provision provision : pullTask.getResource().getProvisions().stream().
@@ -332,7 +338,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
             try {
                 Set<String> moreAttrsToGet = new HashSet<>();
-                actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
+                profile.getActions().forEach(a -> moreAttrsToGet.addAll(a.moreAttrsToGet(profile, provision)));
                 Stream<Item> mapItems = Stream.concat(
                         MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
                         virSchemaDAO.find(pullTask.getResource().getKey(), anyType.getKey()).stream().
@@ -362,9 +368,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                         break;
 
                     case FILTERED_RECONCILIATION:
-                        connector.filteredReconciliation(
-                                new ObjectClass(provision.getObjectClass()),
-                                buildReconFilterBuilder(pullTask),
+                        connector.filteredReconciliation(new ObjectClass(provision.getObjectClass()),
+                                getReconFilterBuilder(pullTask),
                                 handler,
                                 options);
                         break;
@@ -385,7 +390,9 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                             && result.getOperation() == ResourceOperation.CREATE
                             && result.getAnyType().equals(provision.getAnyType())).
                             forEach(result -> anyUtils.addAttr(
-                            result.getKey(), plainSchemaDAO.find(provision.getUidOnCreate()), result.getUidValue()));
+                            validator,
+                            result.getKey(),
+                            plainSchemaDAO.find(provision.getUidOnCreate()), result.getUidValue()));
                 }
             } catch (Throwable t) {
                 throw new JobExecutionException("While pulling from connector", t);
@@ -398,7 +405,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         }
 
         if (!profile.isDryRun()) {
-            for (PullActions action : actions) {
+            for (PullActions action : profile.getActions()) {
                 action.afterAll(profile);
             }
         }

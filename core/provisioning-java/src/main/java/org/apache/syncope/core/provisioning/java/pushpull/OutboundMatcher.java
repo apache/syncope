@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.Item;
@@ -35,6 +37,7 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -69,6 +72,10 @@ public class OutboundMatcher {
 
     protected final VirAttrHandler virAttrHandler;
 
+    protected final Map<String, PropagationActions> perContextActions = new ConcurrentHashMap<>();
+
+    protected final Map<String, PushCorrelationRule> perContextPushCorrelationRules = new ConcurrentHashMap<>();
+
     public OutboundMatcher(
             final MappingManager mappingManager,
             final UserDAO userDAO,
@@ -90,10 +97,14 @@ public class OutboundMatcher {
 
         Optional<PushCorrelationRule> rule = Optional.empty();
         if (correlationRule.isPresent()) {
+            Implementation impl = correlationRule.get().getImplementation();
             try {
-                rule = ImplementationManager.buildPushCorrelationRule(correlationRule.get().getImplementation());
+                rule = ImplementationManager.buildPushCorrelationRule(
+                        impl,
+                        () -> perContextPushCorrelationRules.get(impl.getKey()),
+                        instance -> perContextPushCorrelationRules.put(impl.getKey(), instance));
             } catch (Exception e) {
-                LOG.error("While building {}", correlationRule.get().getImplementation(), e);
+                LOG.error("While building {}", impl, e);
             }
         }
 
@@ -160,6 +171,23 @@ public class OutboundMatcher {
         return result;
     }
 
+    protected List<PropagationActions> getPropagationActions(final ExternalResource resource) {
+        List<PropagationActions> result = new ArrayList<>();
+
+        resource.getPropagationActions().forEach(impl -> {
+            try {
+                result.add(ImplementationManager.build(
+                        impl,
+                        () -> perContextActions.get(impl.getKey()),
+                        instance -> perContextActions.put(impl.getKey(), instance)));
+            } catch (Exception e) {
+                LOG.error("While building {}", impl, e);
+            }
+        });
+
+        return result;
+    }
+
     @Transactional(readOnly = true)
     public List<ConnectorObject> match(
             final Connector connector,
@@ -169,19 +197,11 @@ public class OutboundMatcher {
             final Optional<String[]> moreAttrsToGet,
             final Item... linkingItems) {
 
-        Set<String> matgFromPropagationActions = new HashSet<>();
-        resource.getPropagationActions().forEach(impl -> {
-            try {
-                matgFromPropagationActions.addAll(
-                        ImplementationManager.<PropagationActions>build(impl).
-                                moreAttrsToGet(Optional.empty(), provision));
-            } catch (Exception e) {
-                LOG.error("While building {}", impl, e);
-            }
-        });
+        Stream<String> matgFromPropagationActions = getPropagationActions(resource).stream().
+                flatMap(a -> a.moreAttrsToGet(Optional.empty(), provision).stream());
         Optional<String[]> effectiveMATG = Optional.of(Stream.concat(
                 moreAttrsToGet.stream().flatMap(Stream::of),
-                matgFromPropagationActions.stream()).toArray(String[]::new));
+                matgFromPropagationActions).toArray(String[]::new));
 
         Optional<PushCorrelationRule> rule = rule(resource, provision);
 

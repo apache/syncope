@@ -41,6 +41,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -420,7 +421,12 @@ public class JPAAnyUtils implements AnyUtils {
 
     @Transactional
     @Override
-    public void addAttr(final String key, final PlainSchema schema, final String value) {
+    public void addAttr(
+            final PlainAttrValidationManager validator,
+            final String key,
+            final PlainSchema schema,
+            final String value) {
+
         Any any = dao().find(key);
 
         Set<AnyTypeClass> typeOwnClasses = new HashSet<>();
@@ -439,7 +445,7 @@ public class JPAAnyUtils implements AnyUtils {
             any.add(attr);
 
             try {
-                attr.add(value, this);
+                attr.add(validator, value, this);
                 dao().save(any);
             } catch (InvalidPlainAttrValueException e) {
                 LOG.error("Invalid value for attribute {} and {}: {}", schema.getKey(), any, value, e);

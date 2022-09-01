@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -38,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -82,6 +84,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
     protected ProvisioningProfile<PushTask, PushActions> profile;
 
     protected final Map<String, MutablePair<Integer, String>> handled = new HashMap<>();
+
+    protected final Map<String, PushActions> perContextActions = new ConcurrentHashMap<>();
 
     protected void reportHandled(final String anyType, final String key) {
         MutablePair<Integer, String> pair = handled.get(anyType);
@@ -151,6 +155,41 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                 createBean(DefaultGroupPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
     }
 
+    protected List<PushActions> getPushActions(final List<? extends Implementation> impls) {
+        List<PushActions> result = new ArrayList<>();
+
+        impls.forEach(impl -> {
+            try {
+                result.add(ImplementationManager.build(
+                        impl,
+                        () -> perContextActions.get(impl.getKey()),
+                        instance -> perContextActions.put(impl.getKey(), instance)));
+            } catch (Exception e) {
+                LOG.warn("While building {}", impl, e);
+            }
+        });
+
+        return result;
+    }
+
+    protected ProvisionSorter getProvisionSorter(final PushTask pushTask) {
+        if (pushTask.getResource().getProvisionSorter() != null) {
+            try {
+                return ImplementationManager.build(
+                        pushTask.getResource().getProvisionSorter(),
+                        () -> perContextProvisionSorter.orElse(null),
+                        instance -> perContextProvisionSorter = Optional.of(instance));
+            } catch (Exception e) {
+                LOG.error("While building {}", pushTask.getResource().getProvisionSorter(), e);
+            }
+        }
+
+        if (perContextProvisionSorter.isEmpty()) {
+            perContextProvisionSorter = Optional.of(new DefaultProvisionSorter());
+        }
+        return perContextProvisionSorter.get();
+    }
+
     @Override
     protected String doExecuteProvisioning(
             final PushTask pushTask,
@@ -161,17 +200,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
 
         LOG.debug("Executing push on {}", pushTask.getResource());
 
-        List<PushActions> actions = new ArrayList<>();
-        pushTask.getActions().forEach(impl -> {
-            try {
-                actions.add(ImplementationManager.build(impl));
-            } catch (Exception e) {
-                LOG.warn("While building {}", impl, e);
-            }
-        });
-
         profile = new ProvisioningProfile<>(connector, pushTask);
-        profile.getActions().addAll(actions);
+        profile.getActions().addAll(getPushActions(pushTask.getActions()));
         profile.setDryRun(dryRun);
         profile.setConflictResolutionAction(pushTask.getResource().getPushPolicy() == null
                 ? ConflictResolutionAction.IGNORE
@@ -179,7 +209,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         profile.setExecutor(executor);
 
         if (!profile.isDryRun()) {
-            for (PushActions action : actions) {
+            for (PushActions action : profile.getActions()) {
                 action.beforeAll(profile);
             }
         }
@@ -208,14 +238,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         }
 
         // ...then provisions for any types
-        ProvisionSorter provisionSorter = new DefaultProvisionSorter();
-        if (pushTask.getResource().getProvisionSorter() != null) {
-            try {
-                provisionSorter = ImplementationManager.build(pushTask.getResource().getProvisionSorter());
-            } catch (Exception e) {
-                LOG.error("While building {}", pushTask.getResource().getProvisionSorter(), e);
-            }
-        }
+        ProvisionSorter provisionSorter = getProvisionSorter(pushTask);
 
         for (Provision provision : pushTask.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
@@ -269,7 +292,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         }
 
         if (!profile.isDryRun() && !interrupt) {
-            for (PushActions action : actions) {
+            for (PushActions action : profile.getActions()) {
                 action.afterAll(profile);
             }
         }

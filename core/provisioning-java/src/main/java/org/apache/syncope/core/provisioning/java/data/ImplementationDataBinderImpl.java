@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
@@ -138,7 +138,7 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                     break;
 
                 case IdRepoImplementationType.VALIDATOR:
-                    base = Validator.class;
+                    base = PlainAttrValueValidator.class;
                     break;
 
                 case IdRepoImplementationType.RECIPIENTS_PROVIDER:

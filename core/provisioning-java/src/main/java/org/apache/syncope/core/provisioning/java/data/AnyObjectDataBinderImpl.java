@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -93,7 +94,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
-            final OutboundMatcher outboundMatcher) {
+            final OutboundMatcher outboundMatcher,
+            final PlainAttrValidationManager validator) {
 
         super(anyTypeDAO,
                 realmDAO,
@@ -112,7 +114,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 virAttrHandler,
                 mappingManager,
                 intAttrNameParser,
-                outboundMatcher);
+                outboundMatcher,
+                validator);
     }
 
     @Transactional(readOnly = true)

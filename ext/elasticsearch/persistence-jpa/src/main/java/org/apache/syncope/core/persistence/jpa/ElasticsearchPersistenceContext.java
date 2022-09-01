@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -56,6 +57,7 @@ public class ElasticsearchPersistenceContext {
             final PlainSchemaDAO schemaDAO,
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
+            final PlainAttrValidationManager validator,
             final ElasticsearchClient client,
             final @Lazy ElasticsearchUtils elasticsearchUtils) {
 
@@ -68,6 +70,7 @@ public class ElasticsearchPersistenceContext {
                 schemaDAO,
                 entityFactory,
                 anyUtilsFactory,
+                validator,
                 client,
                 elasticsearchUtils);
     }

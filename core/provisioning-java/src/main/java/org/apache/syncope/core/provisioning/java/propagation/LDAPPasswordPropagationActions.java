@@ -30,6 +30,8 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
+import org.apache.syncope.core.spring.implementation.InstanceScope;
+import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -43,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
  * added a password. The CipherAlgorithm associated with the password must match the password
  * hash algorithm property of the LDAP Connector.
  */
+@SyncopeImplementation(scope = InstanceScope.PER_CONTEXT)
 public class LDAPPasswordPropagationActions implements PropagationActions {
 
     private static final String CLEARTEXT = "CLEARTEXT";

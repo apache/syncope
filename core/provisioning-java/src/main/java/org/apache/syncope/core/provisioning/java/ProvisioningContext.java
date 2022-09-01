@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.LogOutputStream;
 import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -624,7 +625,8 @@ public class ProvisioningContext {
             final NotificationManager notificationManager,
             final AuditManager auditManager,
             final TaskDataBinder taskDataBinder,
-            final OutboundMatcher outboundMatcher) {
+            final OutboundMatcher outboundMatcher,
+            final PlainAttrValidationManager validator) {
 
         return new PriorityPropagationTaskExecutor(
                 connectorManager,
@@ -642,6 +644,7 @@ public class ProvisioningContext {
                 taskUtilsFactory,
                 entityFactory,
                 outboundMatcher,
+                validator,
                 propagationTaskExecutorAsyncExecutor);
     }
 
@@ -837,7 +840,8 @@ public class ProvisioningContext {
             final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
-            final OutboundMatcher outboundMatcher) {
+            final OutboundMatcher outboundMatcher,
+            final PlainAttrValidationManager validator) {
 
         return new AnyObjectDataBinderImpl(
                 anyTypeDAO,
@@ -857,7 +861,8 @@ public class ProvisioningContext {
                 virAttrHandler,
                 mappingManager,
                 intAttrNameParser,
-                outboundMatcher);
+                outboundMatcher,
+                validator);
     }
 
     @ConditionalOnMissingBean
@@ -995,7 +1000,8 @@ public class ProvisioningContext {
             final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
-            final OutboundMatcher outboundMatcher) {
+            final OutboundMatcher outboundMatcher,
+            final PlainAttrValidationManager validator) {
 
         return new GroupDataBinderImpl(
                 anyTypeDAO,
@@ -1016,7 +1022,8 @@ public class ProvisioningContext {
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,
-                searchCondVisitor);
+                searchCondVisitor,
+                validator);
     }
 
     @ConditionalOnMissingBean
@@ -1237,6 +1244,7 @@ public class ProvisioningContext {
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
+            final PlainAttrValidationManager validator,
             final RoleDAO roleDAO,
             final SecurityQuestionDAO securityQuestionDAO,
             final ApplicationDAO applicationDAO,
@@ -1263,6 +1271,7 @@ public class ProvisioningContext {
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,
+                validator,
                 roleDAO,
                 securityQuestionDAO,
                 applicationDAO,

@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.Provision;
@@ -44,7 +45,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPushExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,20 +128,6 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
 
         LOG.debug("Executing stream push as {}", executor);
 
-        List<PushActions> pushActions = new ArrayList<>();
-        pushTaskTO.getActions().forEach(key -> {
-            Implementation impl = implementationDAO.find(key);
-            if (impl == null || !IdMImplementationType.PUSH_ACTIONS.equals(impl.getType())) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key);
-            } else {
-                try {
-                    pushActions.add(ImplementationManager.build(impl));
-                } catch (Exception e) {
-                    LOG.warn("While building {}", impl, e);
-                }
-            }
-        });
-
         try {
             ExternalResource resource = externalResource(anyType, columns, propagationActions);
 
@@ -156,10 +142,11 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
 
             profile = new ProvisioningProfile<>(connector, pushTask);
             profile.setExecutor(executor);
-            profile.getActions().addAll(pushActions);
+            profile.getActions().addAll(getPushActions(pushTaskTO.getActions().stream().
+                    map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 
-            for (PushActions action : pushActions) {
+            for (PushActions action : profile.getActions()) {
                 action.beforeAll(profile);
             }
 
@@ -181,7 +168,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
 
             doHandle(anys, handler, resource);
 
-            for (PushActions action : pushActions) {
+            for (PushActions action : profile.getActions()) {
                 action.afterAll(profile);
             }
 

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,6 +40,7 @@ import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TraceLevel;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -127,6 +129,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     protected final OutboundMatcher outboundMatcher;
 
+    protected final PlainAttrValidationManager validator;
+
+    protected final Map<String, PropagationActions> perContextActions = new ConcurrentHashMap<>();
+
     public AbstractPropagationTaskExecutor(
             final ConnectorManager connectorManager,
             final ConnObjectUtils connObjectUtils,
@@ -142,7 +148,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final AnyUtilsFactory anyUtilsFactory,
             final TaskUtilsFactory taskUtilsFactory,
             final EntityFactory entityFactory,
-            final OutboundMatcher outboundMatcher) {
+            final OutboundMatcher outboundMatcher,
+            final PlainAttrValidationManager validator) {
 
         this.connectorManager = connectorManager;
         this.connObjectUtils = connObjectUtils;
@@ -159,6 +166,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         this.taskUtilsFactory = taskUtilsFactory;
         this.entityFactory = entityFactory;
         this.outboundMatcher = outboundMatcher;
+        this.validator = validator;
     }
 
     @Override
@@ -171,7 +179,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         resource.getPropagationActions().forEach(impl -> {
             try {
-                result.add(ImplementationManager.build(impl));
+                result.add(ImplementationManager.build(
+                        impl,
+                        () -> perContextActions.get(impl.getKey()),
+                        instance -> perContextActions.put(impl.getKey(), instance)));
             } catch (Exception e) {
                 LOG.error("While building {}", impl, e);
             }
@@ -193,7 +204,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         taskInfo.getResource().getProvision(taskInfo.getAnyType()).
                 filter(provision -> provision.getUidOnCreate() != null).
                 ifPresent(provision -> anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind()).addAttr(
-                taskInfo.getEntityKey(), plainSchemaDAO.find(provision.getUidOnCreate()), result.getUidValue()));
+                validator,
+                taskInfo.getEntityKey(),
+                plainSchemaDAO.find(provision.getUidOnCreate()),
+                result.getUidValue()));
 
         return result;
     }

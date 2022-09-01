@@ -24,6 +24,8 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
+import org.apache.syncope.core.spring.implementation.InstanceScope;
+import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
@@ -37,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * It ensures to send the configured e-mail address as {@code __NAME__}.
  */
+@SyncopeImplementation(scope = InstanceScope.PER_CONTEXT)
 public class AzurePropagationActions implements PropagationActions {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AzurePropagationActions.class);

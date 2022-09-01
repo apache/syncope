@@ -20,6 +20,8 @@ package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyCR;
@@ -52,6 +54,8 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     protected final TemplateUtils templateUtils;
 
+    protected final Map<String, LogicActions> perContextActions = new ConcurrentHashMap<>();
+
     public AbstractAnyLogic(
             final RealmDAO realmDAO,
             final AnyTypeDAO anyTypeDAO,
@@ -63,17 +67,20 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
     }
 
     protected List<LogicActions> getActions(final Realm realm) {
-        List<LogicActions> actions = new ArrayList<>();
+        List<LogicActions> result = new ArrayList<>();
 
         realm.getActions().forEach(impl -> {
             try {
-                actions.add(ImplementationManager.build(impl));
+                result.add(ImplementationManager.build(
+                        impl,
+                        () -> perContextActions.get(impl.getKey()),
+                        instance -> perContextActions.put(impl.getKey(), instance)));
             } catch (Exception e) {
                 LOG.warn("While building {}", impl, e);
             }
         });
 
-        return actions;
+        return result;
     }
 
     @SuppressWarnings("unchecked")
