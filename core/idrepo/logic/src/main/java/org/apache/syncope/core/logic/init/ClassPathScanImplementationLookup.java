@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
@@ -225,7 +225,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(IdMImplementationType.PUSH_ACTIONS).add(bd.getBeanClassName());
                 }
 
-                if (Validator.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                if (PlainAttrValueValidator.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(IdRepoImplementationType.VALIDATOR).add(bd.getBeanClassName());
                 }
 

@@ -47,6 +47,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -135,6 +136,8 @@ abstract class AbstractAnyDataBinder {
 
     protected final OutboundMatcher outboundMatcher;
 
+    protected final PlainAttrValidationManager validator;
+
     protected AbstractAnyDataBinder(
             final AnyTypeDAO anyTypeDAO,
             final RealmDAO realmDAO,
@@ -153,7 +156,8 @@ abstract class AbstractAnyDataBinder {
             final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
-            final OutboundMatcher outboundMatcher) {
+            final OutboundMatcher outboundMatcher,
+            final PlainAttrValidationManager validator) {
 
         this.anyTypeDAO = anyTypeDAO;
         this.realmDAO = realmDAO;
@@ -173,6 +177,7 @@ abstract class AbstractAnyDataBinder {
         this.mappingManager = mappingManager;
         this.intAttrNameParser = intAttrNameParser;
         this.outboundMatcher = outboundMatcher;
+        this.validator = validator;
     }
 
     protected void setRealm(final Any<?> any, final AnyUR anyUR) {
@@ -260,7 +265,7 @@ abstract class AbstractAnyDataBinder {
                 LOG.debug("Null value for {}, ignoring", schema.getKey());
             } else {
                 try {
-                    attr.add(value, anyUtils);
+                    attr.add(validator, value, anyUtils);
                 } catch (InvalidPlainAttrValueException e) {
                     String valueToPrint = value.length() > 40
                             ? value.substring(0, 20) + "..."

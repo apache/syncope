@@ -48,6 +48,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -116,10 +117,21 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final PlainSchemaDAO schemaDAO,
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
+            final PlainAttrValidationManager validator,
             final ElasticsearchClient client,
             final ElasticsearchUtils elasticsearchUtils) {
 
-        super(realmDAO, dynRealmDAO, userDAO, groupDAO, anyObjectDAO, schemaDAO, entityFactory, anyUtilsFactory);
+        super(
+                realmDAO,
+                dynRealmDAO,
+                userDAO,
+                groupDAO,
+                anyObjectDAO,
+                schemaDAO,
+                entityFactory,
+                anyUtilsFactory,
+                validator);
+
         this.client = client;
         this.elasticsearchUtils = elasticsearchUtils;
     }

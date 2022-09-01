@@ -48,6 +48,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -131,6 +132,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
+            final PlainAttrValidationManager validator,
             final RoleDAO roleDAO,
             final SecurityQuestionDAO securityQuestionDAO,
             final ApplicationDAO applicationDAO,
@@ -156,7 +158,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 virAttrHandler,
                 mappingManager,
                 intAttrNameParser,
-                outboundMatcher);
+                outboundMatcher,
+                validator);
 
         this.roleDAO = roleDAO;
         this.securityQuestionDAO = securityQuestionDAO;

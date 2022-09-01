@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
@@ -52,7 +53,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandle
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.ImplementationManager;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobExecutionException;
@@ -168,20 +168,6 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
         LOG.debug("Executing stream pull");
 
-        List<PullActions> actions = new ArrayList<>();
-        pullTaskTO.getActions().forEach(key -> {
-            Implementation impl = implementationDAO.find(key);
-            if (impl == null || !IdMImplementationType.PULL_ACTIONS.equals(impl.getType())) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key);
-            } else {
-                try {
-                    actions.add(ImplementationManager.build(impl));
-                } catch (Exception e) {
-                    LOG.warn("While building {}", impl, e);
-                }
-            }
-        });
-
         try {
             ExternalResource resource =
                     externalResource(anyType, keyColumn, columns, conflictResolutionAction, pullCorrelationRule);
@@ -202,9 +188,10 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             profile = new ProvisioningProfile<>(connector, pullTask);
             profile.setDryRun(false);
             profile.setConflictResolutionAction(conflictResolutionAction);
-            profile.getActions().addAll(actions);
+            profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
+                    map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
 
-            for (PullActions action : actions) {
+            for (PullActions action : profile.getActions()) {
                 action.beforeAll(profile);
             }
 
@@ -228,7 +215,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
             // execute filtered pull
             Set<String> moreAttrsToGet = new HashSet<>();
-            actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
+            profile.getActions().forEach(a -> moreAttrsToGet.addAll(a.moreAttrsToGet(profile, provision)));
 
             Stream<Item> mapItems = Stream.concat(
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
@@ -246,7 +233,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                 LOG.error("While setting group owners", e);
             }
 
-            for (PullActions action : actions) {
+            for (PullActions action : profile.getActions()) {
                 action.afterAll(profile);
             }
 

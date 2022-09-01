@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.propagation;
 
-import static org.apache.syncope.core.provisioning.api.propagation.PropagationManager.MANDATORY_MISSING_ATTR_NAME;
-import static org.apache.syncope.core.provisioning.api.propagation.PropagationManager.MANDATORY_NULL_OR_EMPTY_ATTR_NAME;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

@@ -236,7 +236,7 @@ public class ConnectorFacadeProxy implements Connector {
 
         Set<AttributeDelta> result = null;
 
-        if (connInstance.getCapabilities().contains(ConnectorCapability.UPDATE)) {
+        if (connInstance.getCapabilities().contains(ConnectorCapability.UPDATE_DELTA)) {
             propagationAttempted.set(true);
 
             Future<Set<AttributeDelta>> future = 

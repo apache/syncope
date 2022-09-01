@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -102,6 +103,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final TaskUtilsFactory taskUtilsFactory,
             final EntityFactory entityFactory,
             final OutboundMatcher outboundMatcher,
+            final PlainAttrValidationManager validator,
             final ThreadPoolTaskExecutor taskExecutor) {
 
         super(connectorManager,
@@ -118,7 +120,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 anyUtilsFactory,
                 taskUtilsFactory,
                 entityFactory,
-                outboundMatcher);
+                outboundMatcher,
+                validator);
         this.taskExecutor = taskExecutor;
     }
 

@@ -121,6 +121,8 @@ public class DefaultNotificationManager implements NotificationManager {
 
     protected final SearchCondVisitor searchCondVisitor;
 
+    protected Optional<RecipientsProvider> perContextRecipientsProvider = Optional.empty();
+
     public DefaultNotificationManager(
             final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO,
@@ -216,8 +218,11 @@ public class DefaultNotificationManager implements NotificationManager {
 
         if (notification.getRecipientsProvider() != null) {
             try {
-                RecipientsProvider recipientsProvider =
-                        ImplementationManager.build(notification.getRecipientsProvider());
+                RecipientsProvider recipientsProvider = ImplementationManager.build(
+                        notification.getRecipientsProvider(),
+                        () -> perContextRecipientsProvider.orElse(null),
+                        instance -> perContextRecipientsProvider = Optional.of(instance));
+
                 recipientEmails.addAll(recipientsProvider.provideRecipients(notification));
             } catch (Exception e) {
                 LOG.error("While building {}", notification.getRecipientsProvider(), e);

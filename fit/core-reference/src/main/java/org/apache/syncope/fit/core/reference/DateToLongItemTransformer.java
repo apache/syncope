@@ -25,7 +25,10 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.apache.syncope.core.spring.implementation.InstanceScope;
+import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
 
+@SyncopeImplementation(scope = InstanceScope.PER_CONTEXT)
 public class DateToLongItemTransformer implements ItemTransformer {
 
     @Override

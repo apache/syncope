@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -96,7 +97,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
-            final SearchCondVisitor searchCondVisitor) {
+            final SearchCondVisitor searchCondVisitor,
+            final PlainAttrValidationManager validator) {
 
         super(anyTypeDAO,
                 realmDAO,
@@ -115,7 +117,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 virAttrHandler,
                 mappingManager,
                 intAttrNameParser,
-                outboundMatcher);
+                outboundMatcher,
+                validator);
 
         this.searchCondVisitor = searchCondVisitor;
     }

@@ -43,6 +43,8 @@ import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
+import org.apache.syncope.core.spring.implementation.InstanceScope;
+import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeDeltaBuilder;
 import org.identityconnectors.framework.common.objects.AttributeDeltaUtil;
@@ -58,6 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions
  */
+@SyncopeImplementation(scope = InstanceScope.PER_CONTEXT)
 public class LDAPMembershipPropagationActions implements PropagationActions {
 
     protected static final Logger LOG = LoggerFactory.getLogger(LDAPMembershipPropagationActions.class);
