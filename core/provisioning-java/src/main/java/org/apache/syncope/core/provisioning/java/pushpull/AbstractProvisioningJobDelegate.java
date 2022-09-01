@@ -110,15 +110,15 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
 
     protected Optional<ProvisionSorter> perContextProvisionSorter = Optional.empty();
 
-    protected ProvisionSorter getProvisionSorter(final T pullTask) {
-        if (pullTask.getResource().getProvisionSorter() != null) {
+    protected ProvisionSorter getProvisionSorter(final T task) {
+        if (task.getResource().getProvisionSorter() != null) {
             try {
                 return ImplementationManager.build(
-                        pullTask.getResource().getProvisionSorter(),
+                        task.getResource().getProvisionSorter(),
                         () -> perContextProvisionSorter.orElse(null),
                         instance -> perContextProvisionSorter = Optional.of(instance));
             } catch (Exception e) {
-                LOG.error("While building {}", pullTask.getResource().getProvisionSorter(), e);
+                LOG.error("While building {}", task.getResource().getProvisionSorter(), e);
             }
         }
 

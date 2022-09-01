@@ -172,24 +172,6 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         return result;
     }
 
-    protected ProvisionSorter getProvisionSorter(final PushTask pushTask) {
-        if (pushTask.getResource().getProvisionSorter() != null) {
-            try {
-                return ImplementationManager.build(
-                        pushTask.getResource().getProvisionSorter(),
-                        () -> perContextProvisionSorter.orElse(null),
-                        instance -> perContextProvisionSorter = Optional.of(instance));
-            } catch (Exception e) {
-                LOG.error("While building {}", pushTask.getResource().getProvisionSorter(), e);
-            }
-        }
-
-        if (perContextProvisionSorter.isEmpty()) {
-            perContextProvisionSorter = Optional.of(new DefaultProvisionSorter());
-        }
-        return perContextProvisionSorter.get();
-    }
-
     @Override
     protected String doExecuteProvisioning(
             final PushTask pushTask,
