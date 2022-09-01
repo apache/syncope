@@ -432,7 +432,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.4.0</elasticsearch.version>
+    <elasticsearch.version>8.4.1</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -504,7 +504,7 @@ under the License.
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
     <tomcat.version>9.0.65</tomcat.version>
-    <wildfly.version>26.1.1.Final</wildfly.version>
+    <wildfly.version>26.1.2.Final</wildfly.version>
     <payara.version>5.2022.3</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
