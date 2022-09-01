@@ -29,7 +29,7 @@ public class JPAJSONAttributableValidator extends AbstractValidator<JPAJSONAttri
     public boolean isValid(final JSONAttributable<?> entity, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        PlainAttrValidator attrValidator = new PlainAttrValidator();
+        JPAPlainAttrValidator attrValidator = new JPAPlainAttrValidator();
         PlainAttrValueValidator attrValueValidator = new PlainAttrValueValidator();
 
         AtomicReference<Boolean> isValid = new AtomicReference<>(Boolean.TRUE);

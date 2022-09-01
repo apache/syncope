@@ -35,6 +35,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -89,6 +90,9 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
 
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
+
+    @Autowired
+    private PlainAttrValidationManager validator;
 
     /**
      * Verify if any matches the given search condition.
@@ -164,14 +168,11 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                 }
 
                 if (match == null) {
-                    Optional<AnyCond> anyCond = cond.getLeaf(AnyCond.class);
-                    if (anyCond.isPresent()) {
-                        match = matches(any, anyCond.get(), not);
-                    } else {
-                        match = cond.getLeaf(AttrCond.class).
-                                map(leaf -> matches(any, leaf, not)).
-                                orElse(null);
-                    }
+                    match = cond.getLeaf(AnyCond.class).
+                            map(value -> matches(any, value, not)).
+                            orElseGet(() -> cond.getLeaf(AttrCond.class).
+                            map(leaf -> matches(any, leaf, not)).
+                            orElse(null));
                 }
 
                 if (match == null) {
@@ -371,7 +372,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                             && cond.getType() != AttrCond.Type.ISNULL
                             && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
-                        ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);
+                        validator.validate(schema, cond.getExpression(), attrValue);
                     }
                 } catch (ValidationException e) {
                     LOG.error("Could not validate expression '" + cond.getExpression() + "'", e);
@@ -463,7 +464,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                         && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
                     try {
-                        ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);
+                        validator.validate(schema, cond.getExpression(), attrValue);
                     } catch (ValidationException e) {
                         LOG.error("Could not validate expression '" + cond.getExpression() + "'", e);
                         return false;

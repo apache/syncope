@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -35,7 +36,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -45,12 +45,12 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
-import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
-import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
@@ -169,20 +169,6 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
         LOG.debug("Executing stream pull");
 
-        List<PullActions> actions = new ArrayList<>();
-        pullTaskTO.getActions().forEach(key -> {
-            Implementation impl = implementationDAO.find(key);
-            if (impl == null || impl.getType() != ImplementationType.PULL_ACTIONS) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key);
-            } else {
-                try {
-                    actions.add(ImplementationManager.build(impl));
-                } catch (Exception e) {
-                    LOG.warn("While building {}", impl, e);
-                }
-            }
-        });
-
         try {
             ExternalResource resource =
                     externalResource(anyType, keyColumn, columns, conflictResolutionAction, pullCorrelationRule);
@@ -203,9 +189,10 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             profile = new ProvisioningProfile<>(connector, pullTask);
             profile.setDryRun(false);
             profile.setConflictResolutionAction(conflictResolutionAction);
-            profile.getActions().addAll(actions);
+            profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
+                    map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
 
-            for (PullActions action : actions) {
+            for (PullActions action : profile.getActions()) {
                 action.beforeAll(profile);
             }
 
@@ -229,9 +216,9 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
             // execute filtered pull
             Set<String> moreAttrsToGet = new HashSet<>();
-            actions.forEach(action -> moreAttrsToGet.addAll(action.moreAttrsToGet(profile, provision)));
+            profile.getActions().forEach(a -> moreAttrsToGet.addAll(a.moreAttrsToGet(profile, provision)));
 
-            Stream<? extends Item> mapItems = Stream.concat(
+            Stream<Item> mapItems = Stream.concat(
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
                     virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
 
@@ -246,7 +233,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                 LOG.error("While setting group owners", e);
             }
 
-            for (PullActions action : actions) {
+            for (PullActions action : profile.getActions()) {
                 action.afterAll(profile);
             }
 

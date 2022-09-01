@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import javax.annotation.Resource;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -38,8 +39,11 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.core.provisioning.api.ProvisionSorter;
+import org.apache.syncope.core.provisioning.java.DefaultProvisionSorter;
 import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,6 +113,26 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
      */
     @Autowired
     protected PolicyDAO policyDAO;
+
+    protected Optional<ProvisionSorter> perContextProvisionSorter = Optional.empty();
+
+    protected ProvisionSorter getProvisionSorter(final T task) {
+        if (task.getResource().getProvisionSorter() != null) {
+            try {
+                return ImplementationManager.build(
+                        task.getResource().getProvisionSorter(),
+                        () -> perContextProvisionSorter.orElse(null),
+                        instance -> perContextProvisionSorter = Optional.of(instance));
+            } catch (Exception e) {
+                LOG.error("While building {}", task.getResource().getProvisionSorter(), e);
+            }
+        }
+
+        if (!perContextProvisionSorter.isPresent()) {
+            perContextProvisionSorter = Optional.of(new DefaultProvisionSorter());
+        }
+        return perContextProvisionSorter.get();
+    }
 
     /**
      * Create a textual report of the provisionig operation, based on the trace level.

@@ -16,30 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.spring.implementation;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+public enum InstanceScope {
+    /**
+     * The declaring Implementation will be instantiated every time it is getting invoked.
+     */
+    PER_CALL,
+    /**
+     * The declaring Implementation will be instantiated once, by the time of first invocation; such instance will
+     * not be destroyed until the Spring Context gets refreshed or shut down.
+     */
+    PER_CONTEXT
 
-public interface PlainAttr<A extends Any<?>> extends Entity {
-
-    A getOwner();
-
-    void setOwner(A owner);
-
-    PlainSchema getSchema();
-
-    void setSchema(PlainSchema schema);
-
-    void add(PlainAttrValidationManager validator, String value, AnyUtils anyUtils);
-
-    void add(PlainAttrValidationManager validator, String value, PlainAttrValue attrValue);
-
-    PlainAttrUniqueValue getUniqueValue();
-
-    void setUniqueValue(PlainAttrUniqueValue uniqueValue);
-
-    List<? extends PlainAttrValue> getValues();
-
-    List<String> getValuesAsStrings();
 }

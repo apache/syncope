@@ -33,6 +33,7 @@ import java.util.UUID;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
@@ -96,6 +97,9 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private PlainAttrValidationManager validator;
 
     @Test
     public void delete() {
@@ -174,7 +178,7 @@ public class UserTest extends AbstractTest {
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
         attr.setSchema(plainSchemaDAO.find("obscure"));
-        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        attr.add(validator, "testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         user.add(attr);
 
         // add 'obscure' to user (via 'artDirector' membership): does not work because 'obscure' is from 'other'
@@ -188,7 +192,7 @@ public class UserTest extends AbstractTest {
         attr.setOwner(user);
         attr.setMembership(membership);
         attr.setSchema(plainSchemaDAO.find("obscure"));
-        attr.add("testvalue2", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        attr.add(validator, "testvalue2", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         user.add(attr);
 
         try {
@@ -209,7 +213,7 @@ public class UserTest extends AbstractTest {
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
         attr.setSchema(plainSchemaDAO.find("obscure"));
-        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        attr.add(validator, "testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         user.add(attr);
 
         // add 'obscure' (via 'additional' membership): that group defines type extension with classes 'other' and 'csv'
@@ -222,7 +226,7 @@ public class UserTest extends AbstractTest {
         attr.setOwner(user);
         attr.setMembership(membership);
         attr.setSchema(plainSchemaDAO.find("obscure"));
-        attr.add("testvalue2", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        attr.add(validator, "testvalue2", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         user.add(attr);
 
         userDAO.save(user);
@@ -264,7 +268,7 @@ public class UserTest extends AbstractTest {
         attr.setAccount(account);
         account.add(attr);
         attr.setSchema(plainSchemaDAO.find("obscure"));
-        attr.add("testvalue", anyUtils);
+        attr.add(validator, "testvalue", anyUtils);
 
         user = userDAO.save(user);
         entityManager().flush();
@@ -404,7 +408,7 @@ public class UserTest extends AbstractTest {
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
         attr.setSchema(plainSchemaDAO.find("obscure"));
-        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        attr.add(validator, "testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         user.add(attr);
 
         userDAO.save(user);

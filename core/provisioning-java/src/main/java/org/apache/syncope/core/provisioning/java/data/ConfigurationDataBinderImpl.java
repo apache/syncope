@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import org.apache.syncope.core.provisioning.api.data.ConfigurationDataBinder;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +28,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
+import org.apache.syncope.core.provisioning.api.data.ConfigurationDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,6 +46,9 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
 
     @Autowired
     private ConfDAO confDAO;
+
+    @Autowired
+    private PlainAttrValidationManager validator;
 
     @Override
     public List<AttrTO> getConfTO() {
@@ -99,7 +103,7 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
                         attrValue = entityFactory.newEntity(CPlainAttrValue.class);
                     }
 
-                    attr.add(value, attrValue);
+                    attr.add(validator, value, attrValue);
                 } catch (InvalidPlainAttrValueException e) {
                     LOG.warn("Invalid value for attribute " + schema.getKey() + ": " + value, e);
 

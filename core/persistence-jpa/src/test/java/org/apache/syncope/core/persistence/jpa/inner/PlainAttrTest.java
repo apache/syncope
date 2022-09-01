@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -67,6 +68,9 @@ public class PlainAttrTest extends AbstractTest {
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
+
+    @Autowired
+    private PlainAttrValidationManager validator;
 
     @Tag("plainAttrTable")
     @Test
@@ -99,15 +103,15 @@ public class PlainAttrTest extends AbstractTest {
 
         Exception thrown = null;
         try {
-            attr.add("john.doe@gmail.com", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-            attr.add("mario.rossi@gmail.com", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+            attr.add(validator, "john.doe@gmail.com", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+            attr.add(validator, "mario.rossi@gmail.com", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
         assertNull(thrown);
 
         try {
-            attr.add("http://www.apache.org", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+            attr.add(validator, "http://www.apache.org", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
@@ -131,13 +135,13 @@ public class PlainAttrTest extends AbstractTest {
 
         Exception thrown = null;
         try {
-            attribute.add("A", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+            attribute.add(validator, "A", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
         assertNotNull(thrown);
 
-        attribute.add("M", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        attribute.add(validator, "M", anyUtilsFactory.getInstance(AnyTypeKind.USER));
 
         InvalidEntityException iee = null;
         try {
@@ -226,7 +230,7 @@ public class PlainAttrTest extends AbstractTest {
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
         attr.setSchema(obscureSchema);
-        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        attr.add(validator, "testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         user.add(attr);
 
         userDAO.save(user);
@@ -256,7 +260,7 @@ public class PlainAttrTest extends AbstractTest {
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setSchema(obscureWithKeyAsSysprop);
-        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        attr.add(validator, "testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
 
         assertEquals(Encryptor.getInstance(obscureSchema.getSecretKey()).
                 encode("testvalue", obscureSchema.getCipherAlgorithm()), attr.getValues().get(0).getStringValue());
@@ -275,8 +279,8 @@ public class PlainAttrTest extends AbstractTest {
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setSchema(obscureWithDecodeConversionPattern);
-        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        
+        attr.add(validator, "testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+
         assertEquals(Encryptor.getInstance(obscureWithDecodeConversionPattern.getSecretKey()).
                 encode("testvalue", obscureWithDecodeConversionPattern.getCipherAlgorithm()),
                 attr.getValues().get(0).getStringValue());
@@ -303,7 +307,7 @@ public class PlainAttrTest extends AbstractTest {
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
         attr.setSchema(photoSchema);
-        attr.add(photoB64Value, anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        attr.add(validator, photoB64Value, anyUtilsFactory.getInstance(AnyTypeKind.USER));
         user.add(attr);
 
         userDAO.save(user);

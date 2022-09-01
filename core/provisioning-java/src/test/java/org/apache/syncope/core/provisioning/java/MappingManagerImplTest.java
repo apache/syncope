@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -58,6 +59,9 @@ public class MappingManagerImplTest extends AbstractTest {
 
     @Autowired
     private EntityFactory entityFactory;
+
+    @Autowired
+    private PlainAttrValidationManager validator;
 
     @Test
     public void prepareAttrsForUser() {

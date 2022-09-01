@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
-import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -18,21 +18,20 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
-import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
@@ -49,7 +48,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandle
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecutor;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
-import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -73,20 +71,6 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             final PullTaskTO pullTaskTO) throws JobExecutionException {
 
         LOG.debug("Executing pull on {}", provision.getResource());
-
-        List<PullActions> actions = new ArrayList<>();
-        pullTaskTO.getActions().forEach(key -> {
-            Implementation impl = implementationDAO.find(key);
-            if (impl == null || impl.getType() != ImplementationType.PULL_ACTIONS) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key);
-            } else {
-                try {
-                    actions.add(ImplementationManager.build(impl));
-                } catch (Exception e) {
-                    LOG.warn("While building {}", impl, e);
-                }
-            }
-        });
 
         try {
             PullTask pullTask = entityFactory.newEntity(PullTask.class);
@@ -124,9 +108,10 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             profile = new ProvisioningProfile<>(connector, pullTask);
             profile.setDryRun(false);
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
-            profile.getActions().addAll(actions);
+            profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
+                    map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
 
-            for (PullActions action : actions) {
+            for (PullActions action : profile.getActions()) {
                 action.beforeAll(profile);
             }
 
@@ -150,7 +135,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
 
             // execute filtered pull
             Set<String> matg = new HashSet<>(moreAttrsToGet);
-            actions.forEach(action -> matg.addAll(action.moreAttrsToGet(profile, provision)));
+            profile.getActions().forEach(a -> matg.addAll(a.moreAttrsToGet(profile, provision)));
 
             Stream<? extends Item> mapItems = Stream.concat(
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
@@ -168,7 +153,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                 LOG.error("While setting group owners", e);
             }
 
-            for (PullActions action : actions) {
+            for (PullActions action : profile.getActions()) {
                 action.afterAll(profile);
             }
 

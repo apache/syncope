@@ -24,6 +24,8 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
+import org.apache.syncope.core.spring.implementation.InstanceScope;
+import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -38,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * It ensures to send the configured e-mail address as {@code __NAME__}.
  */
+@SyncopeImplementation(scope = InstanceScope.PER_CONTEXT)
 public class GoogleAppsPropagationActions implements PropagationActions {
 
     private static final Logger LOG = LoggerFactory.getLogger(GoogleAppsPropagationActions.class);

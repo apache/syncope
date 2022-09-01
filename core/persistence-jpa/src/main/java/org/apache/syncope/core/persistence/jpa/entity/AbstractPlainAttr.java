@@ -27,6 +27,7 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -67,11 +68,11 @@ public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractGenera
     }
 
     @Override
-    public void add(final String value, final PlainAttrValue attrValue) {
+    public void add(final PlainAttrValidationManager validator, final String value, final PlainAttrValue attrValue) {
         checkNonNullSchema();
 
         attrValue.setAttr(this);
-        getSchema().validator().validate(value, attrValue);
+        validator.validate(getSchema(), value, attrValue);
 
         if (getSchema().isUniqueConstraint()) {
             setUniqueValue((PlainAttrUniqueValue) attrValue);
@@ -84,7 +85,7 @@ public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractGenera
     }
 
     @Override
-    public void add(final String value, final AnyUtils anyUtils) {
+    public void add(final PlainAttrValidationManager validator, final String value, final AnyUtils anyUtils) {
         checkNonNullSchema();
 
         PlainAttrValue attrValue;
@@ -95,7 +96,7 @@ public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractGenera
             attrValue = anyUtils.newPlainAttrValue();
         }
 
-        add(value, attrValue);
+        add(validator, value, attrValue);
     }
 
     @Override

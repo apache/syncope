@@ -35,6 +35,7 @@ import javax.persistence.Query;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -83,6 +84,9 @@ public class GroupTest extends AbstractTest {
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
+
+    @Autowired
+    private PlainAttrValidationManager validator;
 
     @Test
     public void saveWithTwoOwners() {
@@ -202,7 +206,7 @@ public class GroupTest extends AbstractTest {
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
         attr.setSchema(plainSchemaDAO.find("cool"));
-        attr.add("true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        attr.add(validator, "true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         user.add(attr);
 
         user = userDAO.save(user);
@@ -303,7 +307,7 @@ public class GroupTest extends AbstractTest {
         APlainAttr attr = entityFactory.newEntity(APlainAttr.class);
         attr.setOwner(anyObject);
         attr.setSchema(plainSchemaDAO.find("model"));
-        attr.add("Canon MFC8030", anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
+        attr.add(validator, "Canon MFC8030", anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
         anyObject.add(attr);
 
         anyObject = anyObjectDAO.save(anyObject);
@@ -381,14 +385,14 @@ public class GroupTest extends AbstractTest {
         GPlainAttr title = entityFactory.newEntity(GPlainAttr.class);
         title.setOwner(group);
         title.setSchema(plainSchemaDAO.find("title"));
-        title.add("syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        title.add(validator, "syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         group.add(title);
 
         // unique
         GPlainAttr originalName = entityFactory.newEntity(GPlainAttr.class);
         originalName.setOwner(group);
         originalName.setSchema(plainSchemaDAO.find("originalName"));
-        originalName.add("syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        originalName.add(validator, "syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         group.add(originalName);
 
         groupDAO.save(group);

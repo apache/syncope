@@ -20,6 +20,8 @@ package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyPatch;
@@ -37,7 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.LogicActions;
-import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> extends AbstractResourceAssociator<TO> {
@@ -51,18 +53,23 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
     @Autowired
     private TemplateUtils templateUtils;
 
-    private List<LogicActions> getActions(final Realm realm) {
-        List<LogicActions> actions = new ArrayList<>();
+    protected final Map<String, LogicActions> perContextActions = new ConcurrentHashMap<>();
+
+    protected List<LogicActions> getActions(final Realm realm) {
+        List<LogicActions> result = new ArrayList<>();
 
         realm.getActions().forEach(impl -> {
             try {
-                actions.add(ImplementationManager.build(impl));
+                result.add(ImplementationManager.build(
+                        impl,
+                        () -> perContextActions.get(impl.getKey()),
+                        instance -> perContextActions.put(impl.getKey(), instance)));
             } catch (Exception e) {
                 LOG.warn("While building {}", impl, e);
             }
         });
 
-        return actions;
+        return result;
     }
 
     protected Pair<TO, List<LogicActions>> beforeCreate(final TO input) {

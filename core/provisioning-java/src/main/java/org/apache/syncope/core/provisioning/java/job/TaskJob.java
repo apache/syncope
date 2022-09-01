@@ -27,7 +27,7 @@ import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
-import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -22,13 +22,14 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public class BasicValidator extends AbstractValidator {
 
     private static final long serialVersionUID = -2606728447694223607L;
 
     @Override
-    protected void doValidate(final PlainAttrValue attrValue) {
+    protected void doValidate(final PlainSchema schema, final PlainAttrValue attrValue) {
         if (AttrSchemaType.Enum == schema.getType()) {
             final String[] enumeration = schema.getEnumerationValues().split(SyncopeConstants.ENUM_VALUES_SEPARATOR);
             final String value = attrValue.getStringValue();
@@ -42,7 +43,7 @@ public class BasicValidator extends AbstractValidator {
 
             if (!found) {
                 throw new InvalidPlainAttrValueException(
-                        "'" + value + "' is not one of: " + schema.getEnumerationValues());
+                        '\'' + value + "' is not one of: " + schema.getEnumerationValues());
             }
         }
     }

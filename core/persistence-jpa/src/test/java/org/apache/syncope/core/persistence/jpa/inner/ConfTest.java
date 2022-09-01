@@ -27,6 +27,7 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
@@ -48,6 +49,9 @@ public class ConfTest extends AbstractTest {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private PlainAttrValidationManager validator;
 
     @Test
     public void read() {
@@ -71,7 +75,7 @@ public class ConfTest extends AbstractTest {
         } else {
             attrValue = entityFactory.newEntity(CPlainAttrValue.class);
         }
-        newAttr.add(value, attrValue);
+        newAttr.add(validator, value, attrValue);
     }
 
     @Test
