@@ -21,8 +21,10 @@ package org.apache.syncope.core.logic.oidc;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -51,7 +53,7 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
-import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -61,7 +63,7 @@ public class OIDCUserManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(OIDCUserManager.class);
 
-    protected static final String OIDC_CLIENT_CONTEXT = "ODIC Client";
+    protected static final String OIDC_CLIENT_CONTEXT = "OIDC Client";
 
     protected final InboundMatcher inboundMatcher;
 
@@ -76,6 +78,8 @@ public class OIDCUserManager {
     protected final UserProvisioningManager provisioningManager;
 
     protected final UserDataBinder binder;
+
+    protected final Map<String, OIDCC4UIProviderActions> perContextActions = new ConcurrentHashMap<>();
 
     public OIDCUserManager(
             final InboundMatcher inboundMatcher,
@@ -108,16 +112,20 @@ public class OIDCUserManager {
     }
 
     protected List<OIDCC4UIProviderActions> getActions(final OIDCC4UIProvider op) {
-        List<OIDCC4UIProviderActions> actions = new ArrayList<>();
+        List<OIDCC4UIProviderActions> result = new ArrayList<>();
+
         op.getActions().forEach(impl -> {
             try {
-                actions.add(ImplementationManager.build(impl));
+                result.add(ImplementationManager.build(
+                        impl,
+                        () -> perContextActions.get(impl.getKey()),
+                        instance -> perContextActions.put(impl.getKey(), instance)));
             } catch (Exception e) {
                 LOG.warn("While building {}", impl, e);
             }
         });
 
-        return actions;
+        return result;
     }
 
     protected List<Implementation> getTransformers(final Item item) {

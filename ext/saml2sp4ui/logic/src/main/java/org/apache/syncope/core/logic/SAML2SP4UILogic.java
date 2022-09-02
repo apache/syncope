@@ -53,11 +53,12 @@ import org.apache.syncope.core.logic.saml2.SAML2SP4UIContext;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIUserManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.provisioning.api.RequestedAuthnContextProvider;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -114,6 +115,8 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
     protected final AuthDataAccessor authDataAccessor;
 
     protected final Map<String, String> metadataCache = new ConcurrentHashMap<>();
+
+    protected final Map<String, RequestedAuthnContextProvider> perContextRACP = new ConcurrentHashMap<>();
 
     public SAML2SP4UILogic(
             final SAML2SP4UILoader loader,
@@ -193,7 +196,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
             }
         }
 
-        try (OutputStreamWriter osw = new OutputStreamWriter(os)) {
+        try ( OutputStreamWriter osw = new OutputStreamWriter(os)) {
             osw.write(metadata);
         } catch (Exception e) {
             LOG.error("While getting SP metadata", e);
@@ -235,6 +238,22 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         return requestTO;
     }
 
+    protected Optional<RequestedAuthnContextProvider> getRequestedAuthnContextProvider(final SAML2SP4UIIdP idp) {
+        Implementation impl = idp.getRequestedAuthnContextProvider();
+        if (impl != null) {
+            try {
+                return Optional.of(ImplementationManager.build(
+                        impl,
+                        () -> perContextRACP.get(impl.getKey()),
+                        instance -> perContextRACP.put(impl.getKey(), instance)));
+            } catch (Exception e) {
+                LOG.warn("Cannot instantiate '{}', reverting to default behavior", impl, e);
+            }
+        }
+
+        return Optional.empty();
+    }
+
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public SAML2Request createLoginRequest(
             final String spEntityID,
@@ -250,37 +269,27 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         // 1. look for configured client
         SAML2Client saml2Client = getSAML2Client(idp, spEntityID, urlContext);
 
-        if (idp.getRequestedAuthnContextProvider() != null) {
-            RequestedAuthnContextProvider requestedAuthnContextProvider = null;
-            try {
-                requestedAuthnContextProvider = ImplementationManager.build(idp.getRequestedAuthnContextProvider());
-            } catch (Exception e) {
-                LOG.warn("Cannot instantiate '{}', reverting to default behavior",
-                        idp.getRequestedAuthnContextProvider(), e);
-            }
+        getRequestedAuthnContextProvider(idp).ifPresent(requestedAuthnContextProvider -> {
+            RequestedAuthnContext requestedAuthnContext = requestedAuthnContextProvider.get();
+            saml2Client.setRedirectionActionBuilder(new SAML2RedirectionActionBuilder(saml2Client) {
 
-            if (requestedAuthnContextProvider != null) {
-                RequestedAuthnContext requestedAuthnContext = requestedAuthnContextProvider.get();
-                saml2Client.setRedirectionActionBuilder(new SAML2RedirectionActionBuilder(saml2Client) {
+                @Override
+                public Optional<RedirectionAction> getRedirectionAction(
+                        final WebContext wc, final SessionStore sessionStore) {
 
-                    @Override
-                    public Optional<RedirectionAction> getRedirectionAction(
-                            final WebContext wc, final SessionStore sessionStore) {
+                    this.saml2ObjectBuilder = new SAML2AuthnRequestBuilder() {
 
-                        this.saml2ObjectBuilder = new SAML2AuthnRequestBuilder() {
-
-                            @Override
-                            public AuthnRequest build(final SAML2MessageContext context) {
-                                AuthnRequest authnRequest = super.build(context);
-                                authnRequest.setRequestedAuthnContext(requestedAuthnContext);
-                                return authnRequest;
-                            }
-                        };
-                        return super.getRedirectionAction(wc, sessionStore);
-                    }
-                });
-            }
-        }
+                        @Override
+                        public AuthnRequest build(final SAML2MessageContext context) {
+                            AuthnRequest authnRequest = super.build(context);
+                            authnRequest.setRequestedAuthnContext(requestedAuthnContext);
+                            return authnRequest;
+                        }
+                    };
+                    return super.getRedirectionAction(wc, sessionStore);
+                }
+            });
+        });
 
         // 2. create AuthnRequest
         SAML2SP4UIContext ctx = new SAML2SP4UIContext(

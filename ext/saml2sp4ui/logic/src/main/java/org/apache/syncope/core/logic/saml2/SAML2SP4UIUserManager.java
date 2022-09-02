@@ -22,8 +22,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -53,7 +55,7 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
-import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -80,6 +82,8 @@ public class SAML2SP4UIUserManager {
     protected final UserProvisioningManager provisioningManager;
 
     protected final UserDataBinder binder;
+
+    protected final Map<String, SAML2SP4UIIdPActions> perContextActions = new ConcurrentHashMap<>();
 
     public SAML2SP4UIUserManager(
             final SAML2SP4UIIdPDAO idpDAO,
@@ -120,16 +124,20 @@ public class SAML2SP4UIUserManager {
     }
 
     protected List<SAML2SP4UIIdPActions> getActions(final SAML2SP4UIIdP idp) {
-        List<SAML2SP4UIIdPActions> actions = new ArrayList<>();
+        List<SAML2SP4UIIdPActions> result = new ArrayList<>();
+
         idp.getActions().forEach(impl -> {
             try {
-                actions.add(ImplementationManager.build(impl));
+                result.add(ImplementationManager.build(
+                        impl,
+                        () -> perContextActions.get(impl.getKey()),
+                        instance -> perContextActions.put(impl.getKey(), instance)));
             } catch (Exception e) {
                 LOG.warn("While building {}", impl, e);
             }
         });
 
-        return actions;
+        return result;
     }
 
     protected List<Implementation> getTransformers(final Item item) {

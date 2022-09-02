@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.spring;
+package org.apache.syncope.core.spring.implementation;
 
 import groovy.lang.GroovyClassLoader;
 import java.util.Collections;
@@ -39,8 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.spring.implementation.InstanceScope;
-import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 public final class ImplementationManager {
