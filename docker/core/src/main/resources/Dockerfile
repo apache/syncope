@@ -45,6 +45,6 @@ COPY startup.sh /opt/syncope/bin
 RUN chmod 755 /opt/syncope/bin/startup.sh
 CMD ["/opt/syncope/bin/startup.sh"]
 
-RUN apt-get update && apt-get -y install wait-for-it
+RUN curl -o /usr/local/bin/wait-for-it https://github.com/vishnubob/wait-for-it/blob/master/wait-for-it.sh && chmod 755 /usr/local/bin/wait-for-it
 
 EXPOSE 8080

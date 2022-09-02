@@ -24,7 +24,7 @@ version: '3.3'
 
 services:
    keymaster:
-     image: zookeeper:3.7.0
+     image: zookeeper:3.8.0
      restart: always
 
    db:
