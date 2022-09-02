@@ -244,6 +244,12 @@ under the License.
               <name>apache/syncope:%v</name>
               <build>
                 <dockerFileDir>${project.build.outputDirectory}</dockerFileDir>
+                <buildx>
+                   <platforms>
+                     <platform>linux/amd64</platform>
+                     <platform>linux/arm64</platform>
+                   </platforms>
+                </buildx>
               </build>
             </image>
           </images>
