@@ -196,7 +196,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
             }
         }
 
-        try ( OutputStreamWriter osw = new OutputStreamWriter(os)) {
+        try (OutputStreamWriter osw = new OutputStreamWriter(os)) {
             osw.write(metadata);
         } catch (Exception e) {
             LOG.error("While getting SP metadata", e);

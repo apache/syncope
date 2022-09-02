@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.SpringTestConfiguration;
-import org.apache.syncope.core.spring.SpringTestConfiguration;
 import org.apache.syncope.core.spring.security.TestImplementation;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
