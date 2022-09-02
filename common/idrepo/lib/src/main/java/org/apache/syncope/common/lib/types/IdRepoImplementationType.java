@@ -50,7 +50,7 @@ public final class IdRepoImplementationType {
             Pair.of(PASSWORD_RULE, "org.apache.syncope.core.persistence.api.dao.PasswordRule"),
             Pair.of(TASKJOB_DELEGATE, "org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate"),
             Pair.of(LOGIC_ACTIONS, "org.apache.syncope.core.provisioning.api.LogicActions"),
-            Pair.of(VALIDATOR, "org.apache.syncope.core.persistence.api.attrvalue.validation.Validator"),
+            Pair.of(VALIDATOR, "org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator"),
             Pair.of(RECIPIENTS_PROVIDER, "org.apache.syncope.core.provisioning.api.notification.RecipientsProvider"),
             Pair.of(AUDIT_APPENDER, "org.apache.syncope.core.logic.audit.AuditAppender"),
             Pair.of(ITEM_TRANSFORMER, "org.apache.syncope.core.provisioning.api.data.ItemTransformer"));
