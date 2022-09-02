@@ -40,6 +40,7 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.AttributeDelta;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
@@ -201,6 +202,17 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
             final AtomicReference<Boolean> propagationAttempted) {
 
         return null;
+    }
+
+    @Override
+    public Set<AttributeDelta> updateDelta(
+            final ObjectClass objectClass,
+            final Uid uid,
+            final Set<AttributeDelta> modifications,
+            final OperationOptions options,
+            final AtomicReference<Boolean> propagationAttempted) {
+
+        return Set.of();
     }
 
     @Override

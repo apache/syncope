@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -103,7 +102,7 @@ public class ReportDataBinderImpl extends AbstractExecutableDatabinder implement
         reportTO.setActive(report.isActive());
 
         reportTO.getReportlets().addAll(
-                report.getReportlets().stream().map(Entity::getKey).collect(Collectors.toList()));
+                report.getReportlets().stream().map(Implementation::getKey).collect(Collectors.toList()));
 
         ReportExec latestExec = reportExecDAO.findLatestStarted(report);
         if (latestExec == null) {

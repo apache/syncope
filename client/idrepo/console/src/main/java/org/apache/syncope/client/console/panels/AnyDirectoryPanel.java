@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.PreferenceManager;
@@ -33,6 +35,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.AnyDataProvider;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -44,10 +47,13 @@ import org.apache.syncope.client.console.wizards.any.StatusPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnObject;
+import org.apache.syncope.common.lib.to.DerSchemaTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
@@ -65,9 +71,9 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected final List<String> pSchemaNames;
+    protected final List<PlainSchemaTO> plainSchemas;
 
-    protected final List<String> dSchemaNames;
+    protected final List<DerSchemaTO> derSchemas;
 
     /**
      * Filter used in case of filtered search.
@@ -104,9 +110,9 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
             setReadOnly(!SyncopeConsoleSession.get().owns(String.format("%s_UPDATE", builder.type), builder.dynRealm));
         }
 
-        this.realm = builder.realm;
-        this.type = builder.type;
-        this.fiql = builder.fiql;
+        realm = builder.realm;
+        type = builder.type;
+        fiql = builder.fiql;
 
         utilityModal.size(Modal.Size.Large);
         addOuterObject(utilityModal);
@@ -116,16 +122,46 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
         altDefaultModal.size(Modal.Size.Large);
 
-        this.pSchemaNames = AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().stream().
-                flatMap(anyTypeClassTO -> anyTypeClassTO.getPlainSchemas().stream()).collect(Collectors.toList());
+        plainSchemas = AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().stream().
+                flatMap(anyTypeClassTO -> anyTypeClassTO.getPlainSchemas().stream()).
+                map(schema -> {
+                    try {
+                        return SchemaRestClient.<PlainSchemaTO>read(SchemaType.PLAIN, schema);
+                    } catch (SyncopeClientException e) {
+                        LOG.warn("Could not read plain schema {}, ignoring", e);
+                        return null;
+                    }
+                }).
+                filter(Objects::nonNull).
+                collect(Collectors.toList());
 
-        this.dSchemaNames = AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().stream().
-                flatMap(anyTypeClassTO -> anyTypeClassTO.getDerSchemas().stream()).collect(Collectors.toList());
+        derSchemas = AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().stream().
+                flatMap(anyTypeClassTO -> anyTypeClassTO.getDerSchemas().stream()).
+                map(schema -> {
+                    try {
+                        return SchemaRestClient.<DerSchemaTO>read(SchemaType.DERIVED, schema);
+                    } catch (SyncopeClientException e) {
+                        LOG.warn("Could not read derived schema {}, ignoring", e);
+                        return null;
+                    }
+                }).
+                filter(Objects::nonNull).
+                collect(Collectors.toList());
 
         initResultTable();
 
         SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionsProvider().add(
-                this, modal, wizardInModal, container, type, realm, fiql, rows, pSchemaNames, dSchemaNames, pageRef);
+                this,
+                modal,
+                wizardInModal,
+                container,
+                type,
+                realm,
+                fiql,
+                rows,
+                plainSchemas.stream().map(PlainSchemaTO::getKey).collect(Collectors.toList()),
+                derSchemas.stream().map(DerSchemaTO::getKey).collect(Collectors.toList()),
+                pageRef);
     }
 
     @Override
@@ -143,12 +179,16 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 prefcolumns));
 
         PreferenceManager.getList(DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
-                filter(pSchemaNames::contains).
-                forEach(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.PLAIN)));
+                map(a -> plainSchemas.stream().filter(p -> p.getKey().equals(a)).findFirst()).
+                filter(Optional::isPresent).map(Optional::get).
+                forEach(s -> prefcolumns.add(new AttrColumn<>(
+                s.getKey(), s.getLabel(SyncopeConsoleSession.get().getLocale()), SchemaType.PLAIN)));
 
         PreferenceManager.getList(DisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
-                filter(dSchemaNames::contains).
-                forEach(name -> prefcolumns.add(new AttrColumn<>(name, SchemaType.DERIVED)));
+                map(a -> derSchemas.stream().filter(p -> p.getKey().equals(a)).findFirst()).
+                filter(Optional::isPresent).map(Optional::get).
+                forEach(s -> prefcolumns.add(new AttrColumn<>(
+                s.getKey(), s.getLabel(SyncopeConsoleSession.get().getLocale()), SchemaType.DERIVED)));
 
         // Add defaults in case of no selection
         if (prefcolumns.isEmpty()) {

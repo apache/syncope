@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -79,9 +80,19 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final AnyObjectDAO anyObjectDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final EntityFactory entityFactory,
-            final AnyUtilsFactory anyUtilsFactory) {
+            final AnyUtilsFactory anyUtilsFactory,
+            final PlainAttrValidationManager validator) {
 
-        super(realmDAO, dynRealmDAO, userDAO, groupDAO, anyObjectDAO, plainSchemaDAO, entityFactory, anyUtilsFactory);
+        super(
+                realmDAO,
+                dynRealmDAO,
+                userDAO,
+                groupDAO,
+                anyObjectDAO,
+                plainSchemaDAO,
+                entityFactory,
+                anyUtilsFactory,
+                validator);
     }
 
     protected String buildAdminRealmsFilter(

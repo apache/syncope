@@ -27,7 +27,7 @@ import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -109,7 +109,7 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
             add(new Label("auxClasses.label", auxClassesLabel));
 
             List<String> anyTypeClasses = AnyTypeClassRestClient.list().stream().
-                    map(EntityTO::getKey).collect(Collectors.toList());
+                    map(AnyTypeClassTO::getKey).collect(Collectors.toList());
             AjaxPalettePanel<String> auxClassesPalette = new AjaxPalettePanel.Builder<String>().build(
                     "auxClasses.palette",
                     new PropertyModel<>(typeExtensionTO, "auxClasses"),

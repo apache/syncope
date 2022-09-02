@@ -19,8 +19,7 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 /**
- * {@link ItemTransformer} implementing evaluation of JEXL expression defined for a given
- * {@link org.apache.syncope.core.persistence.api.entity.resource.MappingItem}.
+ * {@link ItemTransformer} implementing evaluation of JEXL expression defined for a given mapping item.
  */
 public interface JEXLItemTransformer extends ItemTransformer {
 

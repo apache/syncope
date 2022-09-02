@@ -39,7 +39,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
 import org.apache.wicket.PageReference;
@@ -68,7 +68,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(OIDCClientImplementationType.OP_ACTIONS).stream().
-                map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 

@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeDelta;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
@@ -57,7 +58,7 @@ public interface Connector {
     Uid authenticate(String username, String password, OperationOptions options);
 
     /**
-     * Create user / group on a connector instance.
+     * Create user, group or any object on a connector instance.
      *
      * @param objectClass ConnId's object class
      * @param attrs attributes for creation
@@ -72,10 +73,10 @@ public interface Connector {
             AtomicReference<Boolean> propagationAttempted);
 
     /**
-     * Update user / group on a connector instance.
+     * Update user, group or any object on a connector instance.
      *
      * @param objectClass ConnId's object class
-     * @param uid user to be updated
+     * @param uid remote identifier
      * @param attrs attributes for update
      * @param options ConnId's OperationOptions
      * @param propagationAttempted if creation is actually performed (based on connector instance's capabilities)
@@ -89,7 +90,24 @@ public interface Connector {
             AtomicReference<Boolean> propagationAttempted);
 
     /**
-     * Delete user / group on a connector instance.
+     * Partial update user, group or any object on a connector instance.
+     *
+     * @param objectClass ConnId's object class
+     * @param uid remote identifier
+     * @param modifications attribute modifications to apply
+     * @param options ConnId's OperationOptions
+     * @param propagationAttempted if creation is actually performed (based on connector instance's capabilities)
+     * @return
+     */
+    Set<AttributeDelta> updateDelta(
+            ObjectClass objectClass,
+            Uid uid,
+            Set<AttributeDelta> modifications,
+            OperationOptions options,
+            AtomicReference<Boolean> propagationAttempted);
+
+    /**
+     * Delete user, group or any object on a connector instance.
      *
      * @param objectClass ConnId's object class
      * @param uid user to be deleted

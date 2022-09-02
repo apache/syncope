@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 
 public interface PlainAttr<A extends Any<?>> extends Entity {
 
@@ -30,9 +31,9 @@ public interface PlainAttr<A extends Any<?>> extends Entity {
 
     void setSchema(PlainSchema schema);
 
-    void add(String value, AnyUtils anyUtils);
+    void add(PlainAttrValidationManager validator, String value, AnyUtils anyUtils);
 
-    void add(String value, PlainAttrValue attrValue);
+    void add(PlainAttrValidationManager validator, String value, PlainAttrValue attrValue);
 
     PlainAttrUniqueValue getUniqueValue();
 
@@ -41,5 +42,4 @@ public interface PlainAttr<A extends Any<?>> extends Entity {
     List<? extends PlainAttrValue> getValues();
 
     List<String> getValuesAsStrings();
-
 }

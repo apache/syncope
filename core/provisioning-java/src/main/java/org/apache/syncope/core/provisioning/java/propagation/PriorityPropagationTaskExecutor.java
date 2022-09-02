@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -55,7 +56,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * Sorts the tasks to be executed according to related
- * {@link org.apache.syncope.core.persistence.api.entity.resource.ExternalResource}'s priority, then execute.
+ * {@link org.apache.syncope.core.persistence.api.entity.ExternalResource}'s priority, then execute.
  * Tasks related to resources with NULL priority are executed after other tasks, concurrently.
  * Failure during execution of a task related to resource with non-NULL priority are treated as fatal and will interrupt
  * the whole process, resulting in a global failure.
@@ -102,6 +103,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final TaskUtilsFactory taskUtilsFactory,
             final EntityFactory entityFactory,
             final OutboundMatcher outboundMatcher,
+            final PlainAttrValidationManager validator,
             final ThreadPoolTaskExecutor taskExecutor) {
 
         super(connectorManager,
@@ -118,7 +120,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 anyUtilsFactory,
                 taskUtilsFactory,
                 entityFactory,
-                outboundMatcher);
+                outboundMatcher,
+                validator);
         this.taskExecutor = taskExecutor;
     }
 
@@ -131,8 +134,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         PropagationReporter reporter = new DefaultPropagationReporter();
         try {
             List<PropagationTaskInfo> prioritizedTasks = taskInfos.stream().
-                    filter(task -> task.getExternalResource().getPropagationPriority() != null).
-                    sorted(Comparator.comparing(task -> task.getExternalResource().getPropagationPriority())).
+                    filter(task -> task.getResource().getPropagationPriority() != null).
+                    sorted(Comparator.comparing(task -> task.getResource().getPropagationPriority())).
                     collect(Collectors.toList());
             LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
 
@@ -142,12 +145,12 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             LOG.debug("Propagation tasks for concurrent execution: {}", concurrentTasks);
 
             // first process priority resources sequentially and fail as soon as any propagation failure is reported
-            prioritizedTasks.forEach(task -> {
+            prioritizedTasks.forEach(taskInfo -> {
                 TaskExec exec = null;
                 ExecStatus execStatus;
                 String errorMessage = null;
                 try {
-                    exec = newPropagationTaskCallable(task, reporter, executor).call();
+                    exec = newPropagationTaskCallable(taskInfo, reporter, executor).call();
                     execStatus = ExecStatus.valueOf(exec.getStatus());
                 } catch (Exception e) {
                     LOG.error("Unexpected exception", e);
@@ -156,7 +159,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 }
                 if (execStatus != ExecStatus.SUCCESS) {
                     throw new PropagationException(
-                            task.getResource(),
+                            taskInfo.getResource().getKey(),
                             Optional.ofNullable(exec).map(Exec::getMessage).orElse(errorMessage));
                 }
             });

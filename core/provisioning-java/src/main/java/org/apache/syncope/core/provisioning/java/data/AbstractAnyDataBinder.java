@@ -47,6 +47,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -64,7 +65,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
@@ -136,6 +136,8 @@ abstract class AbstractAnyDataBinder {
 
     protected final OutboundMatcher outboundMatcher;
 
+    protected final PlainAttrValidationManager validator;
+
     protected AbstractAnyDataBinder(
             final AnyTypeDAO anyTypeDAO,
             final RealmDAO realmDAO,
@@ -154,7 +156,8 @@ abstract class AbstractAnyDataBinder {
             final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
-            final OutboundMatcher outboundMatcher) {
+            final OutboundMatcher outboundMatcher,
+            final PlainAttrValidationManager validator) {
 
         this.anyTypeDAO = anyTypeDAO;
         this.realmDAO = realmDAO;
@@ -174,6 +177,7 @@ abstract class AbstractAnyDataBinder {
         this.mappingManager = mappingManager;
         this.intAttrNameParser = intAttrNameParser;
         this.outboundMatcher = outboundMatcher;
+        this.validator = validator;
     }
 
     protected void setRealm(final Any<?> any, final AnyUR anyUR) {
@@ -261,7 +265,7 @@ abstract class AbstractAnyDataBinder {
                 LOG.debug("Null value for {}, ignoring", schema.getKey());
             } else {
                 try {
-                    attr.add(value, anyUtils);
+                    attr.add(validator, value, anyUtils);
                 } catch (InvalidPlainAttrValueException e) {
                     String valueToPrint = value.length() > 40
                             ? value.substring(0, 20) + "..."
@@ -640,7 +644,7 @@ abstract class AbstractAnyDataBinder {
 
         anyTO.setRealm(realmFullPath);
 
-        anyTO.getAuxClasses().addAll(auxClasses.stream().map(Entity::getKey).collect(Collectors.toList()));
+        anyTO.getAuxClasses().addAll(auxClasses.stream().map(AnyTypeClass::getKey).collect(Collectors.toList()));
 
         plainAttrs
                 .forEach(plainAttr -> anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey())
@@ -652,7 +656,7 @@ abstract class AbstractAnyDataBinder {
         virAttrs.forEach((schema, values) -> anyTO.getVirAttrs()
                 .add(new Attr.Builder(schema.getKey()).values(values).build()));
 
-        anyTO.getResources().addAll(resources.stream().map(Entity::getKey).collect(Collectors.toSet()));
+        anyTO.getResources().addAll(resources.stream().map(ExternalResource::getKey).collect(Collectors.toSet()));
     }
 
     protected static RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {

@@ -51,8 +51,8 @@ public class ImplementationManagerTest {
         String body = POJOHelper.serialize(createBaseDefaultPasswordRuleConf());
 
         assertTimeoutPreemptively(Duration.ofSeconds(30), () -> {
-            TestImplementation implementation = new TestImplementation();
-            implementation.setBody(body);
+            TestImplementation impl = new TestImplementation();
+            impl.setBody(body);
             ReentrantLock lock = new ReentrantLock();
             lock.lock();
             AtomicInteger runningThreads = new AtomicInteger(0);
@@ -66,7 +66,11 @@ public class ImplementationManagerTest {
                             Thread.yield();
                         }
                         try {
-                            ImplementationManager.buildPasswordRule(implementation).orElseThrow();
+                            ImplementationManager.buildPasswordRule(
+                                    impl,
+                                    () -> null,
+                                    instance -> {
+                                    }).orElseThrow();
                         } catch (Exception e) {
                             errorMessages.add(e.getLocalizedMessage());
                             errorCount.incrementAndGet();

@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -90,7 +89,7 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             schemaNames = getSchemas(schemaType, null, new String[0]).stream().
-                    map(EntityTO::getKey).collect(Collectors.toList());
+                    map(SchemaTO::getKey).collect(Collectors.toList());
         } catch (SyncopeClientException e) {
             LOG.error("While getting all user schema names", e);
         }

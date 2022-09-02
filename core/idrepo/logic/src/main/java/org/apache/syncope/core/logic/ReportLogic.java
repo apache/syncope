@@ -19,6 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -28,19 +29,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 import javax.ws.rs.core.Response;
+import javax.xml.XMLConstants;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Templates;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import org.apache.cocoon.pipeline.NonCachingPipeline;
-import org.apache.cocoon.pipeline.Pipeline;
-import org.apache.cocoon.sax.SAXPipelineComponent;
-import org.apache.cocoon.sax.component.XMLGenerator;
-import org.apache.cocoon.sax.component.XMLSerializer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.fop.apps.FopFactory;
+import org.apache.fop.apps.FopFactoryBuilder;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -54,9 +62,6 @@ import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
-import org.apache.syncope.core.logic.cocoon.FopSerializer;
-import org.apache.syncope.core.logic.cocoon.TextSerializer;
-import org.apache.syncope.core.logic.cocoon.XSLTTransformer;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
@@ -77,6 +82,22 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
+
+    protected static final Pattern XSLT_PARAMETER_NAME_PATTERN = Pattern.compile("[a-zA-Z_][\\w\\-\\.]*");
+
+    protected static final SAXTransformerFactory TRAX_FACTORY;
+
+    protected static final FopFactory FOP_FACTORY = new FopFactoryBuilder(new File(".").toURI()).build();
+
+    static {
+        TRAX_FACTORY = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        TRAX_FACTORY.setURIResolver((href, base) -> null);
+        try {
+            TRAX_FACTORY.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        } catch (TransformerConfigurationException e) {
+            LOG.error("Could not enable secure XML processing", e);
+        }
+    }
 
     protected final ReportDAO reportDAO;
 
@@ -227,8 +248,27 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         return reportExec;
     }
 
+    protected Transformer buildXSLTTransformer(final String template, final Map<String, Object> parameters)
+            throws TransformerConfigurationException {
+
+        Templates templates = TRAX_FACTORY.newTemplates(
+                new StreamSource(IOUtils.toInputStream(template, StandardCharsets.UTF_8)));
+        TransformerHandler transformerHandler = TRAX_FACTORY.newTransformerHandler(templates);
+
+        Transformer transformer = transformerHandler.getTransformer();
+        parameters.forEach((name, values) -> {
+            if (XSLT_PARAMETER_NAME_PATTERN.matcher(name).matches()) {
+                transformer.setParameter(name, values);
+            }
+        });
+
+        return transformer;
+    }
+
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
-    public static void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
+    public void exportExecutionResult(
+            final OutputStream os,
+            final ReportExec reportExec,
             final ReportExecExportFormat format) {
 
         // streaming SAX handler from a compressed byte array stream
@@ -238,9 +278,6 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             // a single ZipEntry in the ZipInputStream (see ReportJob)
             zis.getNextEntry();
 
-            Pipeline<SAXPipelineComponent> pipeline = new NonCachingPipeline<>();
-            pipeline.addComponent(new XMLGenerator(zis));
-
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("status", reportExec.getStatus());
             parameters.put("message", reportExec.getMessage());
@@ -249,48 +286,43 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
             switch (format) {
                 case HTML:
-                    XSLTTransformer xsl2html = new XSLTTransformer(new StreamSource(
-                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getHTMLTemplate(),
-                                    StandardCharsets.UTF_8)));
-                    xsl2html.setParameters(parameters);
-                    pipeline.addComponent(xsl2html);
-                    pipeline.addComponent(XMLSerializer.createXHTMLSerializer());
+                    Transformer html = buildXSLTTransformer(
+                            reportExec.getReport().getTemplate().getHTMLTemplate(), parameters);
+                    html.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+                    html.transform(
+                            new StreamSource(zis),
+                            new StreamResult(os));
                     break;
 
                 case PDF:
-                    XSLTTransformer xsl2pdf = new XSLTTransformer(new StreamSource(
-                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getFOTemplate(),
-                                    StandardCharsets.UTF_8)));
-                    xsl2pdf.setParameters(parameters);
-                    pipeline.addComponent(xsl2pdf);
-                    pipeline.addComponent(new FopSerializer(MimeConstants.MIME_PDF));
+                    Transformer pdf = buildXSLTTransformer(
+                            reportExec.getReport().getTemplate().getFOTemplate(), parameters);
+                    pdf.transform(
+                            new StreamSource(zis),
+                            new SAXResult(FOP_FACTORY.newFop(MimeConstants.MIME_PDF, os).getDefaultHandler()));
                     break;
 
                 case RTF:
-                    XSLTTransformer xsl2rtf = new XSLTTransformer(new StreamSource(
-                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getFOTemplate(),
-                                    StandardCharsets.UTF_8)));
-                    xsl2rtf.setParameters(parameters);
-                    pipeline.addComponent(xsl2rtf);
-                    pipeline.addComponent(new FopSerializer(MimeConstants.MIME_RTF));
+                    Transformer rtf = buildXSLTTransformer(
+                            reportExec.getReport().getTemplate().getFOTemplate(), parameters);
+                    rtf.transform(
+                            new StreamSource(zis),
+                            new SAXResult(FOP_FACTORY.newFop(MimeConstants.MIME_RTF, os).getDefaultHandler()));
                     break;
 
                 case CSV:
-                    XSLTTransformer xsl2csv = new XSLTTransformer(new StreamSource(
-                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getCSVTemplate(),
-                                    StandardCharsets.UTF_8)));
-                    xsl2csv.setParameters(parameters);
-                    pipeline.addComponent(xsl2csv);
-                    pipeline.addComponent(new TextSerializer());
+                    Transformer csv = buildXSLTTransformer(
+                            reportExec.getReport().getTemplate().getCSVTemplate(), parameters);
+                    csv.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+                    csv.transform(
+                            new StreamSource(zis),
+                            new StreamResult(os));
                     break;
 
                 case XML:
                 default:
-                    pipeline.addComponent(XMLSerializer.createXMLSerializer());
+                    zis.transferTo(os);
             }
-
-            pipeline.setup(os);
-            pipeline.execute();
 
             LOG.debug("Result of {} successfully exported as {}", reportExec, format);
         } catch (Exception e) {

@@ -83,8 +83,6 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 * https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/DefaultAnyObjectProvisioningManager.java[DefaultAnyObjectProvisioningManager^]
 endif::[]
-
-An Apache Camel-based implementation is available as <<apache-camel-provisioning-manager,extension>>.
 ====
 
 include::propagation.adoc[]

@@ -28,7 +28,7 @@ import javax.validation.Payload;
 
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = PlainAttrValidator.class)
+@Constraint(validatedBy = JPAPlainAttrValidator.class)
 @Documented
 public @interface PlainAttrCheck {
 

@@ -126,7 +126,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                     columns.add(new BooleanPropertyColumn<>(new ResourceModel(field), field, field));
                 } else {
                     IColumn<SchemaTO, String> column = new PropertyColumn<>(
-                        new ResourceModel(field), field, field) {
+                            new ResourceModel(field), field, field) {
 
                         private static final long serialVersionUID = 3282547854226892169L;
 
@@ -135,8 +135,8 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
                             String css = super.getCssClass();
                             if (Constants.KEY_FIELD_NAME.equals(field)) {
                                 css = StringUtils.isBlank(css)
-                                    ? "col-xs-1"
-                                    : css + " col-xs-1";
+                                        ? "col-xs-1"
+                                        : css + " col-xs-1";
                             }
                             return css;
                         }
@@ -159,7 +159,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             @Override
             public void onClick(final AjaxRequestTarget target, final SchemaTO ignore) {
                 send(SchemaTypePanel.this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<>(
-                    SchemaRestClient.read(schemaType, model.getObject().getKey()), target));
+                        SchemaRestClient.read(schemaType, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.SCHEMA_UPDATE);
         panel.add(new ActionLink<>() {
@@ -169,19 +169,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             @Override
             public void onClick(final AjaxRequestTarget target, final SchemaTO ignore) {
                 try {
-                    switch (schemaType) {
-                        case DERIVED:
-                            SchemaRestClient.deleteDerSchema(model.getObject().getKey());
-                            break;
-
-                        case VIRTUAL:
-                            SchemaRestClient.deleteVirSchema(model.getObject().getKey());
-                            break;
-
-                        default:
-                            SchemaRestClient.deletePlainSchema(model.getObject().getKey());
-                            break;
-                    }
+                    SchemaRestClient.delete(schemaType, model.getObject().getKey());
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);

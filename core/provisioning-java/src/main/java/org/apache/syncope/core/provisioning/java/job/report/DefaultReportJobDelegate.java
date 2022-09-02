@@ -174,7 +174,8 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
                         status.set("Invoking reportlet " + report.getReportlets().get(i).getKey());
                         reportlet.get().extract(handler, status);
                     } catch (Throwable t) {
-                        LOG.error("While executing reportlet {} for report {}", reportlet, reportKey, t);
+                        LOG.error("While executing reportlet {} for report {}",
+                                report.getReportlets().get(i).getKey(), reportKey, t);
 
                         execution.setStatus(ReportExecStatus.FAILURE);
 

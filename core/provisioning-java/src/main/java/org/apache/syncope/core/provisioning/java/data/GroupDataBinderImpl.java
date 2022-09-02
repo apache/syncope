@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -53,7 +54,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -97,7 +97,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
-            final SearchCondVisitor searchCondVisitor) {
+            final SearchCondVisitor searchCondVisitor,
+            final PlainAttrValidationManager validator) {
 
         super(anyTypeDAO,
                 realmDAO,
@@ -116,7 +117,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 virAttrHandler,
                 mappingManager,
                 intAttrNameParser,
-                outboundMatcher);
+                outboundMatcher,
+                validator);
 
         this.searchCondVisitor = searchCondVisitor;
     }
@@ -390,7 +392,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         TypeExtensionTO typeExtTO = new TypeExtensionTO();
         typeExtTO.setAnyType(typeExt.getAnyType().getKey());
         typeExtTO.getAuxClasses().addAll(
-                typeExt.getAuxClasses().stream().map(Entity::getKey).collect(Collectors.toList()));
+                typeExt.getAuxClasses().stream().map(AnyTypeClass::getKey).collect(Collectors.toList()));
         return typeExtTO;
     }
 

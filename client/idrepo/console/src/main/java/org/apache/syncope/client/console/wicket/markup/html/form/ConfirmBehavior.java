@@ -22,6 +22,7 @@ import static de.agilecoders.wicket.jquery.JQuery.$;
 
 import de.agilecoders.wicket.jquery.function.JavaScriptInlineFunction;
 import java.util.ArrayList;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -52,7 +53,10 @@ public class ConfirmBehavior extends Behavior {
                         + "evt.preventDefault();"
                         + "if (proceed == false) {"
                         + "  evt.stopImmediatePropagation();"
-                        + "  bootbox.confirm('" + new ResourceModel(msg).getObject() + "', function(result) {"
+                        + "  bootbox.confirm({"
+                        + "message:'" + new ResourceModel(msg).getObject() + "', "
+                        + "locale: '" + SyncopeConsoleSession.get().getLocale().getLanguage() + "',"
+                        + "callback: function(result) {"
                         + "    if (result == true) {"
                         + "      proceed = true;"
                         + "      element.click();"
@@ -60,7 +64,7 @@ public class ConfirmBehavior extends Behavior {
                         + "      proceed = false;"
                         + "    }"
                         + "  return true;"
-                        + "  })"
+                        + "  }})"
                         + "} else {"
                         + "  proceed = false;"
                         + "};", new ArrayList<>()

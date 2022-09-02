@@ -32,7 +32,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -59,7 +59,7 @@ public class ResourceDetailsPanel extends WizardStep {
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
@@ -70,7 +70,7 @@ public class ResourceDetailsPanel extends WizardStep {
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdMImplementationType.PROVISION_SORTER).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 

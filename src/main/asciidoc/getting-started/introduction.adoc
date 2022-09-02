@@ -139,8 +139,7 @@ features (notifications, reports and auditing)
 representation of Users, Groups and Any Objects. +
 This component often needs to be tailored to meet the requirements of a specific deployment, as it is the crucial decision 
 point for defining and enforcing the consistency and transformations between internal and external data. The default
-all-Java implementation can be extended for this purpose. In addition, an https://camel.apache.org/[Apache Camel^]-based 
-implementation is also available as an extension, which brings all the power of runtime changes and adaptation.
+all-Java implementation can be extended for this purpose.
  * *_Workflow_*  is one of the pluggable aspects of Apache Syncope: this lets every deployment choose the preferred engine
 from a provided list - including one based on https://www.flowable.org/[Flowable^], the reference open source
 http://www.bpmn.org/[BPMN 2.0^] implementations - or define new, custom ones. 

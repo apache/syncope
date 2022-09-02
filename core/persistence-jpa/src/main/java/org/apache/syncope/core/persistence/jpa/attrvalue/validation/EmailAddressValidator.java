@@ -22,13 +22,14 @@ import java.util.regex.Matcher;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public class EmailAddressValidator extends AbstractValidator {
 
     private static final long serialVersionUID = 792457177290331518L;
 
     @Override
-    protected void doValidate(final PlainAttrValue attrValue) {
+    protected void doValidate(final PlainSchema schema, final PlainAttrValue attrValue) {
         Matcher matcher = Entity.EMAIL_PATTERN.matcher(attrValue.<CharSequence>getValue());
         if (!matcher.matches()) {
             throw new InvalidPlainAttrValueException("\"" + attrValue.getValue() + "\" is not a valid email address");

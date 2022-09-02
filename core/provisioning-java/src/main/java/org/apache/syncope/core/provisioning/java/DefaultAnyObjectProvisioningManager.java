@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -38,6 +39,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
+import org.identityconnectors.framework.common.objects.Attribute;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,22 +51,22 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
     protected final PropagationTaskExecutor taskExecutor;
 
-    protected final VirAttrHandler virtAttrHandler;
-
     protected final AnyObjectDAO anyObjectDAO;
+
+    protected final VirAttrHandler virtAttrHandler;
 
     public DefaultAnyObjectProvisioningManager(
             final AnyObjectWorkflowAdapter awfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
-            final VirAttrHandler virtAttrHandler,
-            final AnyObjectDAO anyObjectDAO) {
+            final AnyObjectDAO anyObjectDAO,
+            final VirAttrHandler virtAttrHandler) {
 
         this.awfAdapter = awfAdapter;
         this.propagationManager = propagationManager;
         this.taskExecutor = taskExecutor;
-        this.virtAttrHandler = virtAttrHandler;
         this.anyObjectDAO = anyObjectDAO;
+        this.virtAttrHandler = virtAttrHandler;
     }
 
     @Override
@@ -100,16 +102,6 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
 
-    @Override
-    public Pair<AnyObjectUR, List<PropagationStatus>> update(
-            final AnyObjectUR anyObjectUR,
-            final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
-
-        return update(anyObjectUR, Set.of(), nullPriorityAsync, updater, context);
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Pair<AnyObjectUR, List<PropagationStatus>> update(
@@ -119,17 +111,28 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
             final String updater,
             final String context) {
 
-        WorkflowResult<AnyObjectUR> updated = awfAdapter.update(anyObjectUR, updater, context);
-
-        List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
+        Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
                 AnyTypeKind.ANY_OBJECT,
-                updated.getResult().getKey(),
+                anyObjectUR.getKey(),
+                null,
                 false,
                 null,
-                updated.getPropByRes(),
-                null,
-                anyObjectUR.getVirAttrs(),
                 excludedResources);
+
+        WorkflowResult<AnyObjectUR> updated = awfAdapter.update(anyObjectUR, updater, context);
+
+        List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
+                propagationManager.getUpdateTasks(
+                        AnyTypeKind.ANY_OBJECT,
+                        updated.getResult().getKey(),
+                        false,
+                        null,
+                        updated.getPropByRes(),
+                        null,
+                        anyObjectUR.getVirAttrs(),
+                        excludedResources),
+                beforeAttrs,
+                updated.getResult());
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult(), propagationReporter.getStatuses());
@@ -187,8 +190,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
             final String key,
             final Collection<String> resources,
             final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
+            final String executor) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.UPDATE, resources);
@@ -202,7 +204,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 null,
                 null,
                 null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
     }
@@ -212,8 +214,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
             final String key,
             final Collection<String> resources,
             final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
+            final String executor) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.DELETE, resources);
@@ -226,7 +227,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 anyObjectDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
     }

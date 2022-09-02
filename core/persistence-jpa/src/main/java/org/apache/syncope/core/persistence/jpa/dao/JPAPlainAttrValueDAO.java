@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUniqueValue;
@@ -64,7 +63,7 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue> implements
     @Override
     public void deleteAll(final PlainAttr<?> attr, final AnyUtils anyUtils) {
         if (attr.getUniqueValue() == null) {
-            attr.getValues().stream().map(Entity::getKey).collect(Collectors.toSet()).forEach(attrValueKey -> {
+            attr.getValues().stream().map(PlainAttrValue::getKey).collect(Collectors.toSet()).forEach(attrValueKey -> {
                 PlainAttrValue attrValue = anyUtils.plainAttrValueClass().cast(
                         entityManager().find(getEntityReference(anyUtils.plainAttrValueClass()), attrValueKey));
                 if (attrValue != null) {

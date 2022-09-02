@@ -29,7 +29,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -57,7 +57,7 @@ public class RealmDetails extends Panel {
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdRepoImplementationType.LOGIC_ACTIONS).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 

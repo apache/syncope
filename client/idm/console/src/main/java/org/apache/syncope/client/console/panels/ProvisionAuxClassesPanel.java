@@ -28,7 +28,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -103,6 +102,6 @@ public class ProvisionAuxClassesPanel extends Panel {
 
         return SchemaRestClient.<PlainSchemaTO>getSchemas(
                 SchemaType.PLAIN, null, classes.toArray(String[]::new)).
-                stream().map(EntityTO::getKey).collect(Collectors.toList());
+                stream().map(PlainSchemaTO::getKey).collect(Collectors.toList());
     }
 }

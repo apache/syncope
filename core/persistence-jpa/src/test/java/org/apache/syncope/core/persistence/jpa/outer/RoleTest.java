@@ -32,6 +32,7 @@ import java.util.Set;
 import javax.persistence.Query;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -71,6 +72,9 @@ public class RoleTest extends AbstractTest {
     @Autowired
     private DelegationDAO delegationDAO;
 
+    @Autowired
+    private PlainAttrValidationManager validator;
+
     /**
      * Static copy of {@link org.apache.syncope.core.persistence.jpa.dao.JPAUserDAO} method with same signature:
      * required for avoiding creating new transaction - good for general use case but bad for the way how
@@ -106,7 +110,7 @@ public class RoleTest extends AbstractTest {
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
         attr.setSchema(plainSchemaDAO.find("cool"));
-        attr.add("true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        attr.add(validator, "true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         user.add(attr);
 
         user = userDAO.save(user);

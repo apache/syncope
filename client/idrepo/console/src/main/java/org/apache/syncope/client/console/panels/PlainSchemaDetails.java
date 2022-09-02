@@ -35,7 +35,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -255,7 +255,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdRepoImplementationType.VALIDATOR).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
         validator = new AjaxDropDownChoicePanel<>("validator",

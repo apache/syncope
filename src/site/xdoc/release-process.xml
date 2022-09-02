@@ -220,11 +220,6 @@ gpg: Signature made ...]]></source>
 scm.tag=syncope-$VERSION]]></source>
           </li>
           <li>
-            Run the <code>release:prepare</code> step for real this time. You'll be prompted for the same version 
-            information and optionally your GPG passphrase again.
-            <source>mvn -P apache-release release:prepare -Darguments="-P all,docker -DbuildNumber=syncope-$VERSION"</source>
-          </li>
-          <li>
             Backup (zip or tar) your local release candidate directory in case you need to rollback the release after 
             the next step is performed.
             <source><![CDATA[
@@ -341,8 +336,8 @@ svn commit -m "Staging site for release"]]></source>
           </li>
           <li>
             From <code>$SYNCOPE_RELEASE_DIR</code> execute (this step will create a maven staging repository):
-            <source>mvn -P apache-release release:perform -Darguments="-P all,docker -DbuildNumber=syncope-$VERSION" [-Duser.name=&lt;your_apache_uid&gt;]</source>
-        
+            <source>mvn -P apache-release release:perform -Darguments="-P all,docker,skipTests -DbuildNumber=syncope-$VERSION" [-Duser.name=&lt;your_apache_uid&gt;]</source>
+
             <p>
               <em>If your local OS userid doesn't match your Apache userid, then you'll have to also override the value 
                 provided by the OS to Maven for the site-deploy step to work. This is known to work for Linux, 

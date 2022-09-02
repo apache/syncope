@@ -38,7 +38,6 @@ import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ApplicationTO;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.MarkupContainer;
@@ -144,7 +143,7 @@ public class ApplicationDirectoryPanel extends
                 final IModel<ApplicationTO> rowModel) {
 
                 item.add(new Label(componentId, '[' + rowModel.getObject().getPrivileges().stream().
-                    map(EntityTO::getKey).collect(Collectors.joining(", ")) + ']'));
+                    map(PrivilegeTO::getKey).collect(Collectors.joining(", ")) + ']'));
             }
         });
 

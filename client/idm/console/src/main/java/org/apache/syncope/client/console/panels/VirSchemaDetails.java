@@ -32,7 +32,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
@@ -59,7 +58,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<>(
                 "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource"), false).
                 setNullValid(false);
-        resource.setChoices(ResourceRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList()));
+        resource.setChoices(ResourceRestClient.list().stream().map(ResourceTO::getKey).collect(Collectors.toList()));
         resource.setOutputMarkupId(true);
         resource.addRequiredLabel();
         if (resource.getModelObject() != null) {

@@ -35,7 +35,8 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.DynRealmTO;
+import org.apache.syncope.common.lib.to.PrivilegeTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.wicket.PageReference;
@@ -177,7 +178,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
             add(new AjaxPalettePanel.Builder<>().build("dynRealms",
                     new PropertyModel<>(modelObject, "dynRealms"),
                     new ListModel<>(DynRealmRestClient.list().stream().
-                            map(EntityTO::getKey).collect(Collectors.toList()))).
+                            map(DynRealmTO::getKey).collect(Collectors.toList()))).
                     hideLabel().setOutputMarkupId(true));
         }
     }
@@ -192,7 +193,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
                     new PropertyModel<>(modelObject, "privileges"),
                     new ListModel<>(ApplicationRestClient.list().stream().
                             flatMap(application -> application.getPrivileges().stream()).
-                            map(EntityTO::getKey).collect(Collectors.toList()))).
+                            map(PrivilegeTO::getKey).collect(Collectors.toList()))).
                     hideLabel().setOutputMarkupId(true));
         }
     }

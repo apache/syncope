@@ -27,8 +27,8 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -80,7 +80,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
                     "template", getString("template"),
                     new PropertyModel<>(reportTO, "template"));
             template.setChoices(restClient.listTemplates().stream().
-                    map(EntityTO::getKey).collect(Collectors.toList()));
+                    map(ReportTemplateTO::getKey).collect(Collectors.toList()));
 
             template.addRequiredLabel();
             add(template);

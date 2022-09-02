@@ -18,14 +18,16 @@
  */
 package org.apache.syncope.core.provisioning.java.propagation;
 
-import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
+import org.apache.syncope.core.spring.implementation.InstanceScope;
+import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,49 +39,48 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * It ensures to send the configured e-mail address as {@code __NAME__}.
  */
+@SyncopeImplementation(scope = InstanceScope.PER_CONTEXT)
 public class AzurePropagationActions implements PropagationActions {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AzurePropagationActions.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AzurePropagationActions.class);
 
-    protected static String getEmailAttrName() {
+    protected String getEmailAttrName() {
         return "mailNickname";
+    }
+
+    protected void setName(final PropagationTaskInfo taskInfo) {
+        PropagationData data = taskInfo.getPropagationData();
+        if (data.getAttributes() != null) {
+            Set<Attribute> attrs = data.getAttributes();
+
+            if (AttributeUtil.find(getEmailAttrName(), attrs) == null) {
+                LOG.warn("Can't find {} to set as {} attribute value, skipping...", getEmailAttrName(), Name.NAME);
+                return;
+            }
+
+            Optional.ofNullable(AttributeUtil.getNameFromAttributes(attrs)).ifPresent(attrs::remove);
+            attrs.add(new Name(AttributeUtil.find(getEmailAttrName(), attrs).getValue().get(0).toString()));
+        }
     }
 
     @Transactional
     @Override
-    public void before(final PropagationTask task, final ConnectorObject beforeObj) {
-        if (task.getOperation() == ResourceOperation.DELETE || task.getOperation() == ResourceOperation.NONE) {
+    public void before(final PropagationTaskInfo taskInfo) {
+        if (taskInfo.getOperation() == ResourceOperation.DELETE || taskInfo.getOperation() == ResourceOperation.NONE) {
             return;
         }
 
-        switch (task.getAnyTypeKind()) {
+        switch (taskInfo.getAnyTypeKind()) {
             case USER:
-                setName(task);
+                setName(taskInfo);
                 break;
 
             case GROUP:
-                setName(task);
+                setName(taskInfo);
                 break;
 
             default:
                 LOG.debug("Not about user or group: not doing anything");
         }
-    }
-
-    private static void setName(final PropagationTask task) {
-        Set<Attribute> attrs = new HashSet<>(task.getAttributes());
-
-        if (AttributeUtil.find(getEmailAttrName(), attrs) == null) {
-            LOG.warn("Can't find {} to set as {} attribute value, skipping...", getEmailAttrName(), Name.NAME);
-            return;
-        }
-
-        Name name = AttributeUtil.getNameFromAttributes(attrs);
-        if (name != null) {
-            attrs.remove(name);
-        }
-        attrs.add(new Name(AttributeUtil.find(getEmailAttrName(), attrs).getValue().get(0).toString()));
-
-        task.setAttributes(attrs);
     }
 }

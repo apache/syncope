@@ -34,7 +34,6 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -148,7 +147,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             PropagationPolicy propagationPolicy = PropagationPolicy.class.cast(result);
             PropagationPolicyTO propagationPolicyTO = PropagationPolicyTO.class.cast(policyTO);
 
-            propagationPolicy.setPrefetch(propagationPolicyTO.isPrefetch());
+            propagationPolicy.setFetchAroundProvisioning(propagationPolicyTO.isFetchAroundProvisioning());
+            propagationPolicy.setUpdateDelta(propagationPolicyTO.isUpdateDelta());
             propagationPolicy.setBackOffStrategy(propagationPolicyTO.getBackOffStrategy());
             propagationPolicy.setBackOffParams(propagationPolicyTO.getBackOffParams());
             propagationPolicy.setMaxAttempts(propagationPolicyTO.getMaxAttempts());
@@ -291,7 +291,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             passwordPolicyTO.setHistoryLength(passwordPolicy.getHistoryLength());
 
             passwordPolicyTO.getRules().addAll(
-                    passwordPolicy.getRules().stream().map(Entity::getKey).collect(Collectors.toList()));
+                    passwordPolicy.getRules().stream().map(Implementation::getKey).collect(Collectors.toList()));
         } else if (policy instanceof AccountPolicy) {
             AccountPolicy accountPolicy = AccountPolicy.class.cast(policy);
             AccountPolicyTO accountPolicyTO = new AccountPolicyTO();
@@ -301,16 +301,17 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             accountPolicyTO.setPropagateSuspension(accountPolicy.isPropagateSuspension());
 
             accountPolicyTO.getRules().addAll(
-                    accountPolicy.getRules().stream().map(Entity::getKey).collect(Collectors.toList()));
+                    accountPolicy.getRules().stream().map(Implementation::getKey).collect(Collectors.toList()));
 
             accountPolicyTO.getPassthroughResources().addAll(
-                    accountPolicy.getResources().stream().map(Entity::getKey).collect(Collectors.toList()));
+                    accountPolicy.getResources().stream().map(ExternalResource::getKey).collect(Collectors.toList()));
         } else if (policy instanceof PropagationPolicy) {
             PropagationPolicy propagationPolicy = PropagationPolicy.class.cast(policy);
             PropagationPolicyTO propagationPolicyTO = new PropagationPolicyTO();
             policyTO = (T) propagationPolicyTO;
 
-            propagationPolicyTO.setPrefetch(propagationPolicy.isPrefetch());
+            propagationPolicyTO.setFetchAroundProvisioning(propagationPolicy.isFetchAroundProvisioning());
+            propagationPolicyTO.setUpdateDelta(propagationPolicy.isUpdateDelta());
             propagationPolicyTO.setBackOffStrategy(propagationPolicy.getBackOffStrategy());
             propagationPolicyTO.setBackOffParams(propagationPolicy.getBackOffParams());
             propagationPolicyTO.setMaxAttempts(propagationPolicy.getMaxAttempts());

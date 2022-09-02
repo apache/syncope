@@ -47,7 +47,11 @@ public class PropagationPolicyDirectoryPanel extends PolicyDirectoryPanel<Propag
 
     @Override
     protected void addCustomColumnFields(final List<IColumn<PropagationPolicyTO, String>> columns) {
-        columns.add(new BooleanPropertyColumn<>(new StringResourceModel("prefetch", this), "prefetch", "prefetch"));
-        columns.add(new PropertyColumn<>(new StringResourceModel("maxAttempts", this), "maxAttempts", "maxAttempts"));
+        columns.add(new BooleanPropertyColumn<>(new StringResourceModel(
+                "fetchAroundProvisioning", this), "fetchAroundProvisioning", "fetchAroundProvisioning"));
+        columns.add(new BooleanPropertyColumn<>(
+                new StringResourceModel("updateDelta", this), "updateDelta", "updateDelta"));
+        columns.add(new PropertyColumn<>(
+                new StringResourceModel("maxAttempts", this), "maxAttempts", "maxAttempts"));
     }
 }

@@ -25,8 +25,8 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
@@ -42,15 +42,15 @@ public class AnyTypeDetailsPanel extends Panel {
     public AnyTypeDetailsPanel(final String id, final AnyTypeTO anyTypeTO) {
         super(id);
 
-        final WebMarkupContainer container = new WebMarkupContainer("container");
+        WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
 
-        final Form<AnyTypeTO> form = new Form<>("form");
+        Form<AnyTypeTO> form = new Form<>("form");
         form.setModel(new CompoundPropertyModel<>(anyTypeTO));
         container.add(form);
 
-        final AjaxTextFieldPanel key = new AjaxTextFieldPanel(
+        AjaxTextFieldPanel key = new AjaxTextFieldPanel(
                 Constants.KEY_FIELD_NAME,
                 getString(Constants.KEY_FIELD_NAME),
                 new PropertyModel<>(anyTypeTO, Constants.KEY_FIELD_NAME));
@@ -58,7 +58,7 @@ public class AnyTypeDetailsPanel extends Panel {
         key.setEnabled(key.getModelObject() == null || key.getModelObject().isEmpty());
         form.add(key);
 
-        final AjaxDropDownChoicePanel<AnyTypeKind> kind = new AjaxDropDownChoicePanel<>(
+        AjaxDropDownChoicePanel<AnyTypeKind> kind = new AjaxDropDownChoicePanel<>(
                 "kind", getString("kind"), new PropertyModel<>(anyTypeTO, "kind"));
         kind.setChoices(List.of(AnyTypeKind.values()));
         kind.setOutputMarkupId(true);
@@ -73,7 +73,7 @@ public class AnyTypeDetailsPanel extends Panel {
                 new ListModel<>(getAvailableAnyTypeClasses())).hideLabel().setOutputMarkupId(true));
     }
 
-    private static List<String> getAvailableAnyTypeClasses() {
-        return AnyTypeClassRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList());
+    protected List<String> getAvailableAnyTypeClasses() {
+        return AnyTypeClassRestClient.list().stream().map(AnyTypeClassTO::getKey).collect(Collectors.toList());
     }
 }

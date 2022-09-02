@@ -30,6 +30,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -83,6 +84,9 @@ public class DefaultMappingManagerTest extends AbstractTest {
 
     @Autowired
     private EntityFactory entityFactory;
+
+    @Autowired
+    private PlainAttrValidationManager validator;
 
     @Test
     public void prepareAttrsForUser() {
@@ -251,7 +255,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
         UPlainAttr cool = entityFactory.newEntity(UPlainAttr.class);
         cool.setOwner(user);
         cool.setSchema(plainSchemaDAO.find("cool"));
-        cool.add("true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        cool.add(validator, "true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         user.add(cool);
 
         user = userDAO.save(user);

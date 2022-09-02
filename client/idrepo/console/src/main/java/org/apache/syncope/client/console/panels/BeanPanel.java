@@ -53,7 +53,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.Schema;
 import org.apache.syncope.common.lib.report.SearchCondition;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
@@ -207,7 +206,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                         panel = new AjaxPalettePanel.Builder<>().setName(fieldName).build(
                                 "value",
                                 new PropertyModel<>(bean.getObject(), fieldName),
-                                new ListModel<>(choices.stream().map(EntityTO::getKey).collect(Collectors.toList()))).
+                                new ListModel<>(choices.stream().map(SchemaTO::getKey).collect(Collectors.toList()))).
                                 hideLabel();
                     } else if (listItemType.isEnum()) {
                         panel = new AjaxPalettePanel.Builder<>().setName(fieldName).build(

@@ -1082,6 +1082,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE307() {
+        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform()));
+        
         UserCR userCR = UserITCase.getUniqueSample("s307@apache.org");
         userCR.setUsername("test0");
         userCR.getPlainAttrs().removeIf(attr -> "firstname".equals(attr.getSchema()));

@@ -37,10 +37,10 @@ public class AttrColumn<T extends Attributable> extends AbstractColumn<T, String
 
     private final SchemaType schemaType;
 
-    public AttrColumn(final String name, final SchemaType schemaType) {
+    public AttrColumn(final String name, final String label, final SchemaType schemaType) {
         // set sortProperty to schematype#name (e.g. derivedSchema#cn, 
         // for use with SortableUserProviderComparator.AttrModel#getObject)
-        super(new ResourceModel(name, name), schemaType.name() + '#' + name);
+        super(new ResourceModel(name, label), schemaType.name() + '#' + name);
         this.name = name;
         this.schemaType = schemaType;
     }

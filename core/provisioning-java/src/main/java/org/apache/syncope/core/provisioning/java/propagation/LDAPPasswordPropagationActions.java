@@ -19,22 +19,23 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.Base64;
-import java.util.HashSet;
 import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
+import org.apache.syncope.core.spring.implementation.InstanceScope;
+import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
  * added a password. The CipherAlgorithm associated with the password must match the password
  * hash algorithm property of the LDAP Connector.
  */
+@SyncopeImplementation(scope = InstanceScope.PER_CONTEXT)
 public class LDAPPasswordPropagationActions implements PropagationActions {
 
     private static final String CLEARTEXT = "CLEARTEXT";
@@ -53,16 +55,17 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
 
     @Transactional(readOnly = true)
     @Override
-    public void before(final PropagationTask task, final ConnectorObject beforeObj) {
-        if (AnyTypeKind.USER == task.getAnyTypeKind()) {
-            User user = userDAO.find(task.getEntityKey());
+    public void before(final PropagationTaskInfo taskInfo) {
+        if (AnyTypeKind.USER == taskInfo.getAnyTypeKind()) {
+            User user = userDAO.find(taskInfo.getEntityKey());
 
-            if (user != null && user.getPassword() != null) {
-                Attribute missing = AttributeUtil.find(
-                        PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME,
-                        task.getAttributes());
+            PropagationData data = taskInfo.getPropagationData();
+            if (user != null && user.getPassword() != null && data.getAttributes() != null) {
+                Set<Attribute> attrs = data.getAttributes();
 
-                ConnInstance connInstance = task.getResource().getConnector();
+                Attribute missing = AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs);
+
+                ConnInstance connInstance = taskInfo.getResource().getConnector();
                 String cipherAlgorithm = getCipherAlgorithm(connInstance);
                 if (missing != null && missing.getValue() != null && missing.getValue().size() == 1
                         && missing.getValue().get(0).equals(OperationalAttributes.PASSWORD_NAME)
@@ -77,17 +80,14 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
                     Attribute passwordAttribute = AttributeBuilder.buildPassword(
                             new GuardedString(cipherPlusPassword.toCharArray()));
 
-                    Set<Attribute> attributes = new HashSet<>(task.getAttributes());
-                    attributes.add(passwordAttribute);
-                    attributes.remove(missing);
-
-                    task.setAttributes(attributes);
+                    attrs.add(passwordAttribute);
+                    attrs.remove(missing);
                 }
             }
         }
     }
 
-    private static String getCipherAlgorithm(final ConnInstance connInstance) {
+    protected String getCipherAlgorithm(final ConnInstance connInstance) {
         return connInstance.getConf().stream().
                 filter(property -> "passwordHashAlgorithm".equals(property.getSchema().getName())
                 && property.getValues() != null && !property.getValues().isEmpty()).findFirst().
@@ -95,7 +95,7 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
                 orElse(CLEARTEXT);
     }
 
-    private static boolean cipherAlgorithmMatches(final String connectorAlgo, final CipherAlgorithm userAlgo) {
+    protected boolean cipherAlgorithmMatches(final String connectorAlgo, final CipherAlgorithm userAlgo) {
         if (userAlgo == null) {
             return false;
         }
