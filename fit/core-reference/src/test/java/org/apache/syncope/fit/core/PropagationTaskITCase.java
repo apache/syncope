@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -39,8 +40,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
@@ -51,7 +50,9 @@ import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -60,6 +61,7 @@ import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -71,6 +73,7 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TaskTO;
@@ -82,6 +85,7 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -89,8 +93,10 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ExecListQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.core.reference.DateToDateItemTransformer;
 import org.apache.syncope.fit.core.reference.DateToLongItemTransformer;
@@ -317,7 +323,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void propagationPolicy() throws InterruptedException {
+    public void propagationPolicyRetry() throws InterruptedException {
         SyncopeClient.nullPriorityAsync(ANY_OBJECT_SERVICE, true);
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
@@ -348,6 +354,213 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             } catch (DataAccessException e) {
                 // ignore
             }
+        }
+    }
+
+    private static String propagationPolicyOptimizeKey() {
+        return POLICY_SERVICE.list(PolicyType.PROPAGATION).stream().
+                filter(p -> "optimize".equals(p.getName())).
+                findFirst().
+                orElseGet(() -> {
+                    PropagationPolicyTO policy = new PropagationPolicyTO();
+                    policy.setName("optimize");
+                    policy.setFetchAroundProvisioning(false);
+                    policy.setUpdateDelta(true);
+                    return createPolicy(PolicyType.PROPAGATION, policy);
+                }).getKey();
+    }
+
+    @Test
+    public void propagationPolicyOptimizeToLDAP() {
+        String policyKey = propagationPolicyOptimizeKey();
+
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
+        assertNull(ldap.getPropagationPolicy());
+
+        ldap.setPropagationPolicy(policyKey);
+        RESOURCE_SERVICE.update(ldap);
+
+        try {
+            // 0. create groups on LDAP
+            GroupTO group1 = createGroup(GroupITCase.getSample("propagationPolicyOptimizeToLDAP")).getEntity();
+            GroupTO group2 = createGroup(GroupITCase.getSample("propagationPolicyOptimizeToLDAP")).getEntity();
+
+            // 1a. create user on LDAP and verify success
+            UserCR userCR = UserITCase.getUniqueSample("propagationPolicyOptimizeToLDAP@syncope.apache.org");
+            userCR.getAuxClasses().add("minimal group");
+            userCR.getPlainAttrs().add(attr("title", "title1"));
+            userCR.getMemberships().add(new MembershipTO.Builder(group1.getKey()).build());
+            ProvisioningResult<UserTO> created = createUser(userCR);
+            assertEquals(RESOURCE_NAME_LDAP, created.getPropagationStatuses().get(0).getResource());
+            assertEquals(ExecStatus.SUCCESS, created.getPropagationStatuses().get(0).getStatus());
+
+            // 1b. read from LDAP the effective object
+            ReconStatus status = RECONCILIATION_SERVICE.status(
+                    new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).
+                            anyKey(created.getEntity().getKey()).moreAttrsToGet("ldapGroups").build());
+            assertEquals(List.of("title1"), status.getOnResource().getAttr("title").get().getValues());
+            assertEquals(
+                    List.of("cn=" + group1.getName() + ",ou=groups,o=isp"),
+                    status.getOnResource().getAttr("ldapGroups").get().getValues());
+
+            // 1c. check the generated propagation data
+            PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(RESOURCE_NAME_LDAP).
+                    anyTypeKind(AnyTypeKind.USER).entityKey(created.getEntity().getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            PropagationData data = POJOHelper.deserialize(
+                    tasks.getResult().get(0).getPropagationData(), PropagationData.class);
+            assertNull(data.getAttributeDeltas());
+
+            TASK_SERVICE.delete(TaskType.PROPAGATION, tasks.getResult().get(0).getKey());
+
+            // 2a. update user on LDAP and verify success
+            UserUR userUR = new UserUR.Builder(created.getEntity().getKey()).plainAttr(new AttrPatch.Builder(
+                    new Attr.Builder("title").values("title1", "title2").build()).build()).
+                    membership(new MembershipUR.Builder(group2.getKey()).build()).
+                    build();
+            ProvisioningResult<UserTO> updated = updateUser(userUR);
+            assertEquals(RESOURCE_NAME_LDAP, updated.getPropagationStatuses().get(0).getResource());
+            assertEquals(ExecStatus.SUCCESS, updated.getPropagationStatuses().get(0).getStatus());
+
+            // 2b. read from LDAP the effective object
+            status = RECONCILIATION_SERVICE.status(
+                    new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).
+                            anyKey(created.getEntity().getKey()).moreAttrsToGet("ldapGroups").build());
+            assertEquals(
+                    Set.of("title1", "title2"),
+                    new HashSet<>(status.getOnResource().getAttr("title").get().getValues()));
+            assertEquals(
+                    Set.of("cn=" + group1.getName() + ",ou=groups,o=isp",
+                            "cn=" + group2.getName() + ",ou=groups,o=isp"),
+                    new HashSet<>(status.getOnResource().getAttr("ldapGroups").get().getValues()));
+
+            // 2c. check the generated propagation data
+            tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(RESOURCE_NAME_LDAP).
+                    anyTypeKind(AnyTypeKind.USER).entityKey(created.getEntity().getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            data = POJOHelper.deserialize(tasks.getResult().get(0).getPropagationData(), PropagationData.class);
+            assertNotNull(data.getAttributeDeltas());
+
+            TASK_SERVICE.delete(TaskType.PROPAGATION, tasks.getResult().get(0).getKey());
+        } finally {
+            ldap.setPropagationPolicy(null);
+            RESOURCE_SERVICE.update(ldap);
+        }
+    }
+
+    @Test
+    public void propagationPolicyOptimizeToScriptedDB() {
+        String policyKey = propagationPolicyOptimizeKey();
+
+        ResourceTO db = RESOURCE_SERVICE.read(RESOURCE_NAME_DBSCRIPTED);
+        String beforePolicyKey = db.getPropagationPolicy();
+        assertNotNull(beforePolicyKey);
+
+        db.setPropagationPolicy(policyKey);
+
+        // 0. create new schema and change resource mapping to include it
+        PlainSchemaTO paperformat = new PlainSchemaTO();
+        paperformat.setKey("paperformat");
+        paperformat.setMultivalue(true);
+        SCHEMA_SERVICE.create(SchemaType.PLAIN, paperformat);
+
+        AnyTypeClassTO printer = ANY_TYPE_CLASS_SERVICE.read("minimal printer");
+        printer.getPlainSchemas().add(paperformat.getKey());
+        ANY_TYPE_CLASS_SERVICE.update(printer);
+
+        Item paperformatItem = new Item();
+        paperformatItem.setPurpose(MappingPurpose.PROPAGATION);
+        paperformatItem.setIntAttrName("paperformat");
+        paperformatItem.setExtAttrName("paperformat");
+        db.getProvision(PRINTER).get().getMapping().add(paperformatItem);
+        RESOURCE_SERVICE.update(db);
+
+        ProvisioningResult<AnyObjectTO> created = null;
+        try {
+            // 1a. create printer on db and verify success
+            created = createAnyObject(AnyObjectITCase.getSample("ppOptimizeToDB"));
+            assertEquals(RESOURCE_NAME_DBSCRIPTED, created.getPropagationStatuses().get(0).getResource());
+            assertEquals(ExecStatus.SUCCESS, created.getPropagationStatuses().get(0).getStatus());
+
+            // 1b. check the generated propagation data
+            PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(RESOURCE_NAME_DBSCRIPTED).
+                    anyTypeKind(AnyTypeKind.ANY_OBJECT).entityKey(created.getEntity().getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            PropagationData data = POJOHelper.deserialize(
+                    tasks.getResult().get(0).getPropagationData(), PropagationData.class);
+            assertNull(data.getAttributeDeltas());
+
+            TASK_SERVICE.delete(TaskType.PROPAGATION, tasks.getResult().get(0).getKey());
+
+            // 2a. update printer on db and verify success
+            AnyObjectUR req = new AnyObjectUR.Builder(created.getEntity().getKey()).plainAttr(new AttrPatch.Builder(
+                    new Attr.Builder("paperformat").values("format1", "format2").build()).build()).
+                    build();
+            ProvisioningResult<AnyObjectTO> updated = updateAnyObject(req);
+            assertEquals(RESOURCE_NAME_DBSCRIPTED, updated.getPropagationStatuses().get(0).getResource());
+            assertEquals(ExecStatus.SUCCESS, updated.getPropagationStatuses().get(0).getStatus());
+
+            // 2b. read from db the effective object
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+            List<String> values = queryForList(jdbcTemplate,
+                    MAX_WAIT_SECONDS,
+                    "SELECT paper_format FROM testPRINTER_PAPERFORMAT WHERE printer_id=?",
+                    String.class,
+                    created.getEntity().getKey());
+            assertEquals(Set.of("format1", "format2"), new HashSet<>(values));
+
+            // 2c. check the generated propagation data
+            tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(RESOURCE_NAME_DBSCRIPTED).
+                    anyTypeKind(AnyTypeKind.ANY_OBJECT).entityKey(created.getEntity().getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            data = POJOHelper.deserialize(tasks.getResult().get(0).getPropagationData(), PropagationData.class);
+            assertNotNull(data.getAttributeDeltas());
+
+            TASK_SERVICE.delete(TaskType.PROPAGATION, tasks.getResult().get(0).getKey());
+
+            // 3a. update printer on db and verify success
+            req = new AnyObjectUR.Builder(created.getEntity().getKey()).plainAttr(new AttrPatch.Builder(
+                    new Attr.Builder("paperformat").values("format1", "format3").build()).build()).
+                    build();
+            updated = updateAnyObject(req);
+            assertEquals(RESOURCE_NAME_DBSCRIPTED, updated.getPropagationStatuses().get(0).getResource());
+            assertEquals(ExecStatus.SUCCESS, updated.getPropagationStatuses().get(0).getStatus());
+
+            // 3b. read from db the effective object
+            values = queryForList(jdbcTemplate,
+                    MAX_WAIT_SECONDS,
+                    "SELECT paper_format FROM testPRINTER_PAPERFORMAT WHERE printer_id=?",
+                    String.class,
+                    created.getEntity().getKey());
+            assertEquals(Set.of("format1", "format3"), new HashSet<>(values));
+
+            // 3c. check the generated propagation data
+            tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                    resource(RESOURCE_NAME_DBSCRIPTED).
+                    anyTypeKind(AnyTypeKind.ANY_OBJECT).entityKey(created.getEntity().getKey()).build());
+            assertEquals(1, tasks.getSize());
+
+            data = POJOHelper.deserialize(tasks.getResult().get(0).getPropagationData(), PropagationData.class);
+            assertNotNull(data.getAttributeDeltas());
+
+            TASK_SERVICE.delete(TaskType.PROPAGATION, tasks.getResult().get(0).getKey());
+        } finally {
+            Optional.ofNullable(created).map(c -> c.getEntity().getKey()).ifPresent(ANY_OBJECT_SERVICE::delete);
+
+            SCHEMA_SERVICE.delete(SchemaType.PLAIN, "paperformat");
+
+            db.setPropagationPolicy(beforePolicyKey);
+            db.getProvision(PRINTER).ifPresent(provision -> provision.getMapping().
+                    getItems().removeIf(item -> "paperformat".equals(item.getIntAttrName())));
+            RESOURCE_SERVICE.update(db);
         }
     }
 
@@ -526,9 +739,9 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertEquals(1, tasks.getSize());
 
             Set<Attribute> propagationAttrs = new HashSet<>();
-            if (StringUtils.isNotBlank(tasks.getResult().get(0).getAttributes())) {
-                propagationAttrs.addAll(List.of(
-                        POJOHelper.deserialize(tasks.getResult().get(0).getAttributes(), Attribute[].class)));
+            if (StringUtils.isNotBlank(tasks.getResult().get(0).getPropagationData())) {
+                propagationAttrs.addAll(POJOHelper.deserialize(
+                        tasks.getResult().get(0).getPropagationData(), PropagationData.class).getAttributes());
             }
 
             OffsetDateTime loginDate = LocalDate.parse(user.getPlainAttr("loginDate").get().getValues().get(0)).
@@ -698,9 +911,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                     anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).build());
             assertEquals(1, tasks.getSize());
 
-            Set<Attribute> propagationAttrs = Stream.of(
-                    POJOHelper.deserialize(tasks.getResult().get(0).getAttributes(), Attribute[].class)).
-                    collect(Collectors.toSet());
+            Set<Attribute> propagationAttrs = POJOHelper.deserialize(
+                    tasks.getResult().get(0).getPropagationData(), PropagationData.class).getAttributes();
             Attribute attr = AttributeUtil.find("l", propagationAttrs);
             assertNotNull(attr);
             assertNotNull(attr.getValue());

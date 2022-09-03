@@ -161,9 +161,7 @@ public class ReportTemplateITCase extends AbstractITCase {
         response = REPORT_SERVICE.exportExecutionResult(execKey, ReportExecExportFormat.HTML);
         String result = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
         assertNotNull(result);
-        assertTrue(result.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" "
-                + "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"));
+        assertTrue(result.startsWith("<html"));
 
         String malicious = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
                 + "<!DOCTYPE xsl:stylesheet "

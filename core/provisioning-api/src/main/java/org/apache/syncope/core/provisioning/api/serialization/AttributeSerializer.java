@@ -19,18 +19,11 @@
 package org.apache.syncope.core.provisioning.api.serialization;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
-import java.util.Base64;
-import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 
-class AttributeSerializer extends JsonSerializer<Attribute> {
-
-    public static final String BYTE_ARRAY_PREFIX = "<binary>";
-
-    public static final String BYTE_ARRAY_SUFFIX = "</binary>";
+class AttributeSerializer extends AbstractValueSerializer<Attribute> {
 
     @Override
     public void serialize(final Attribute source, final JsonGenerator jgen, final SerializerProvider sp)
@@ -41,36 +34,8 @@ class AttributeSerializer extends JsonSerializer<Attribute> {
         jgen.writeStringField("name", source.getName());
 
         jgen.writeFieldName("value");
-        if (source.getValue() == null) {
-            jgen.writeNull();
-        } else {
-            jgen.writeStartArray();
-            for (Object value : source.getValue()) {
-                if (value == null) {
-                    jgen.writeNull();
-                } else if (value instanceof GuardedString) {
-                    jgen.writeObject(value);
-                } else if (value instanceof Integer) {
-                    jgen.writeNumber((Integer) value);
-                } else if (value instanceof Long) {
-                    jgen.writeNumber((Long) value);
-                } else if (value instanceof Double) {
-                    jgen.writeNumber((Double) value);
-                } else if (value instanceof Boolean) {
-                    jgen.writeBoolean((Boolean) value);
-                } else if (value instanceof byte[]) {
-                    jgen.writeString(
-                            BYTE_ARRAY_PREFIX
-                            + Base64.getEncoder().encodeToString((byte[]) value)
-                            + BYTE_ARRAY_SUFFIX);
-                } else {
-                    jgen.writeString(value.toString());
-                }
-            }
-            jgen.writeEndArray();
-        }
+        doSerialize(source.getValue(), jgen);
 
         jgen.writeEndObject();
     }
-
 }

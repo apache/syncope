@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -96,9 +96,8 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
             return;
         }
 
-        connInstance.getResources().stream().
-                map(Entity::getKey).collect(Collectors.toList()).
-                forEach(resource -> resourceDAO.delete(resource));
+        connInstance.getResources().stream().map(ExternalResource::getKey).collect(Collectors.toList()).
+                forEach(resourceDAO::delete);
 
         entityManager().remove(connInstance);
     }

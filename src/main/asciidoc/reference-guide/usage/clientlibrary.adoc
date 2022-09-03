@@ -115,14 +115,6 @@ loggerTO.setLevel(LoggerLevel.DEBUG);
 loggerService.update(LoggerType.LOG, loggerTO);
 ----
 
-[NOTE]
-More RESTful services could be available besides the 
-https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/rest/api/service/package-summary.html[default set^],
-as there might be <<extensions,extensions>> installed in the given deployment; the
-<<apache-camel-provisioning-manager>> provides the
-https://syncope.apache.org/apidocs/3.0/org/apache/syncope/common/rest/api/service/CamelRouteService.html[CamelRouteService^],
-for instance.
-
 [TIP]
 Advanced REST features are also available from `SyncopeClient` instances: check
 https://syncope.apache.org/apidocs/3.0/org/apache/syncope/client/lib/SyncopeClient.html[the javadoc^]

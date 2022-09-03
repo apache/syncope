@@ -29,7 +29,6 @@ import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -99,7 +98,7 @@ public class ReportletWizardBuilder extends BaseAjaxWizardBuilder<ReportletWrapp
                     "reportlet", getString("reportlet"), new PropertyModel<>(reportlet, "implementationKey"));
 
             conf.setChoices(ImplementationRestClient.list(IdRepoImplementationType.REPORTLET).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList()));
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList()));
             conf.addRequiredLabel();
             conf.setNullValid(false);
             conf.setEnabled(reportlet.isNew());

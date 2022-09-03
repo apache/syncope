@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
@@ -66,7 +67,8 @@ public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
             final @Lazy AnyObjectDAO anyObjectDAO,
             final @Lazy PlainSchemaDAO schemaDAO,
             final @Lazy EntityFactory entityFactory,
-            final AnyUtilsFactory anyUtilsFactory) {
+            final AnyUtilsFactory anyUtilsFactory,
+            final PlainAttrValidationManager validator) {
 
         return new MyJPAJSONAnySearchDAO(
                 realmDAO,
@@ -76,7 +78,8 @@ public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
                 anyObjectDAO,
                 schemaDAO,
                 entityFactory,
-                anyUtilsFactory);
+                anyUtilsFactory,
+                validator);
     }
 
     @ConditionalOnMissingBean(name = "myJPAJSONAuditConfDAO")

@@ -35,6 +35,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -55,13 +56,11 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.springframework.util.CollectionUtils;
 
 public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO {
@@ -127,6 +126,8 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
+    protected final PlainAttrValidationManager validator;
+
     public AbstractAnySearchDAO(
             final RealmDAO realmDAO,
             final DynRealmDAO dynRealmDAO,
@@ -135,7 +136,8 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             final AnyObjectDAO anyObjectDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final EntityFactory entityFactory,
-            final AnyUtilsFactory anyUtilsFactory) {
+            final AnyUtilsFactory anyUtilsFactory,
+            final PlainAttrValidationManager validator) {
 
         this.realmDAO = realmDAO;
         this.dynRealmDAO = dynRealmDAO;
@@ -145,6 +147,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         this.plainSchemaDAO = plainSchemaDAO;
         this.entityFactory = entityFactory;
         this.anyUtilsFactory = anyUtilsFactory;
+        this.validator = validator;
     }
 
     protected abstract int doCount(
@@ -211,7 +214,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                     && cond.getType() != AttrCond.Type.ISNULL
                     && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
-                ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);
+                validator.validate(schema, cond.getExpression(), attrValue);
             }
         } catch (ValidationException e) {
             throw new IllegalArgumentException("Could not validate expression " + cond.getExpression());
@@ -273,7 +276,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                 && computed.getType() != AttrCond.Type.ISNOTNULL) {
 
             try {
-                ((JPAPlainSchema) schema).validator().validate(computed.getExpression(), attrValue);
+                validator.validate(schema, computed.getExpression(), attrValue);
             } catch (ValidationException e) {
                 throw new IllegalArgumentException("Could not validate expression " + computed.getExpression());
             }
@@ -303,7 +306,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             rightAnyObjectKey = cond.getAnyObject();
         } else {
             AnyObject anyObject = anyObjectDAO.findByName(cond.getAnyObject());
-            rightAnyObjectKey = Optional.ofNullable(anyObject).map(Entity::getKey).orElse(null);
+            rightAnyObjectKey = Optional.ofNullable(anyObject).map(AnyObject::getKey).orElse(null);
         }
         if (rightAnyObjectKey == null) {
             throw new IllegalArgumentException("Could not find any object for " + cond.getAnyObject());
@@ -330,7 +333,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             if (member == null) {
                 member = anyObjectDAO.findByName(cond.getMember());
             }
-            memberKey = Optional.ofNullable(member).map(Entity::getKey).orElse(null);
+            memberKey = Optional.ofNullable(member).map(Any::getKey).orElse(null);
         }
         if (memberKey == null) {
             throw new IllegalArgumentException("Could not find user or any object for " + cond.getMember());

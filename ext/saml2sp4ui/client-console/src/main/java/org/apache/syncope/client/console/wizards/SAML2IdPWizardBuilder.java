@@ -40,7 +40,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
@@ -71,7 +71,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2SP4UIIdPTO> {
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(SAML2SP4UIImplementationType.IDP_ACTIONS).stream().
-                map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
@@ -82,7 +82,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2SP4UIIdPTO> {
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(SAML2SP4UIImplementationType.REQUESTED_AUTHN_CONTEXT_PROVIDER).
-                stream().map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                stream().map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 

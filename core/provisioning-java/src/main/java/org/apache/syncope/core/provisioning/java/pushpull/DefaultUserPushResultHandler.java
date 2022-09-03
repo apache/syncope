@@ -37,7 +37,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -109,7 +109,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
             final ProvisioningReport result) {
 
         List<String> ownedResources = getAnyUtils().getAllResources(any).stream().
-                map(Entity::getKey).collect(Collectors.toList());
+                map(ExternalResource::getKey).collect(Collectors.toList());
 
         List<String> noPropResources = new ArrayList<>(ownedResources);
         noPropResources.remove(profile.getTask().getResource().getKey());

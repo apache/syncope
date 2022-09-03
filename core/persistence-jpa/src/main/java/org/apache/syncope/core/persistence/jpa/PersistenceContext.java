@@ -26,6 +26,7 @@ import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -79,6 +80,7 @@ import org.apache.syncope.core.persistence.api.entity.am.ClientAppUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.jpa.attrvalue.validation.DefaultPlainAttrValidationManager;
 import org.apache.syncope.core.persistence.jpa.content.KeymasterConfParamLoader;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentExporter;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentLoader;
@@ -172,6 +174,12 @@ public class PersistenceContext {
     @Bean
     public Validator localValidatorFactoryBean() {
         return new LocalValidatorFactoryBean();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PlainAttrValidationManager plainAttrValidationManager() {
+        return new DefaultPlainAttrValidationManager();
     }
 
     @ConditionalOnMissingBean
@@ -321,9 +329,17 @@ public class PersistenceContext {
             final @Lazy AnyObjectDAO anyObjectDAO,
             final RealmDAO realmDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final AnyUtilsFactory anyUtilsFactory) {
+            final AnyUtilsFactory anyUtilsFactory,
+            final PlainAttrValidationManager validator) {
 
-        return new JPAAnyMatchDAO(userDAO, groupDAO, anyObjectDAO, realmDAO, plainSchemaDAO, anyUtilsFactory);
+        return new JPAAnyMatchDAO(
+                userDAO,
+                groupDAO,
+                anyObjectDAO,
+                realmDAO,
+                plainSchemaDAO,
+                anyUtilsFactory,
+                validator);
     }
 
     @ConditionalOnMissingBean
@@ -355,7 +371,8 @@ public class PersistenceContext {
             final @Lazy AnyObjectDAO anyObjectDAO,
             final PlainSchemaDAO schemaDAO,
             final EntityFactory entityFactory,
-            final AnyUtilsFactory anyUtilsFactory) {
+            final AnyUtilsFactory anyUtilsFactory,
+            final PlainAttrValidationManager validator) {
 
         return new JPAAnySearchDAO(
                 realmDAO,
@@ -365,7 +382,8 @@ public class PersistenceContext {
                 anyObjectDAO,
                 schemaDAO,
                 entityFactory,
-                anyUtilsFactory);
+                anyUtilsFactory,
+                validator);
     }
 
     @ConditionalOnMissingBean

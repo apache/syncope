@@ -23,6 +23,7 @@ import java.util.concurrent.Future;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeDelta;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
@@ -74,6 +75,17 @@ public class AsyncConnectorFacade {
             final OperationOptions options) {
 
         return new AsyncResult<>(connector.update(objectClass, uid, attrs, options));
+    }
+
+    @Async
+    public Future<Set<AttributeDelta>> updateDelta(
+            final ConnectorFacade connector,
+            final ObjectClass objectClass,
+            final Uid uid,
+            final Set<AttributeDelta> modifications,
+            final OperationOptions options) {
+
+        return new AsyncResult<>(connector.updateDelta(objectClass, uid, modifications, options));
     }
 
     @Async

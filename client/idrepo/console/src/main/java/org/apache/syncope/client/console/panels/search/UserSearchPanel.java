@@ -25,7 +25,8 @@ import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.PrivilegeTO;
+import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.model.IModel;
@@ -73,7 +74,7 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
 
             @Override
             protected List<String> load() {
-                return RoleRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList());
+                return RoleRestClient.list().stream().map(RoleTO::getKey).collect(Collectors.toList());
             }
         };
 
@@ -85,7 +86,7 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
             protected List<String> load() {
                 return ApplicationRestClient.list().stream().
                         flatMap(application -> application.getPrivileges().stream()).
-                        map(EntityTO::getKey).collect(Collectors.toList());
+                        map(PrivilegeTO::getKey).collect(Collectors.toList());
             }
         };
     }

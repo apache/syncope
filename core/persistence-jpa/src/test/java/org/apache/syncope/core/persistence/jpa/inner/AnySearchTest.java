@@ -57,7 +57,6 @@ import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -180,7 +179,7 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(4, users.size());
 
-        Set<String> ids = users.stream().map(Entity::getKey).collect(Collectors.toSet());
+        Set<String> ids = users.stream().map(User::getKey).collect(Collectors.toSet());
         assertTrue(ids.contains("1417acbe-cbf6-4277-9372-e75e04f97000"));
         assertTrue(ids.contains("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee"));
     }
@@ -214,7 +213,7 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(4, users.size());
 
-        Set<String> ids = users.stream().map(Entity::getKey).collect(Collectors.toSet());
+        Set<String> ids = users.stream().map(User::getKey).collect(Collectors.toSet());
         assertTrue(ids.contains("1417acbe-cbf6-4277-9372-e75e04f97000"));
         assertTrue(ids.contains("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee"));
     }

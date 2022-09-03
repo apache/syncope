@@ -2,353 +2,328 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
-Release Notes - Syncope - Version 2.1.0
+Release Notes - Syncope - Version 3.0.0-M0
 ================================================================================
 
 ** Sub-task
-    * [SYNCOPE-808] - Netbeans plugin
-    * [SYNCOPE-984] - Errors when building on Windows for archetype and Eclipse plugin
-    * [SYNCOPE-985] - org.apache.syncope.client.cli.commands.MigrateTest Fails on Windows
+    * [SYNCOPE-1413] - Remove CLI
+    * [SYNCOPE-1414] - Remove GUI Installer
+    * [SYNCOPE-1418] - Convert webapps to Spring Boot
+    * [SYNCOPE-1421] - New Enduser UI
+    * [SYNCOPE-1426] - Remove Eclipse IDE plugin
+    * [SYNCOPE-1458] - Keymaster for Configuration Parameters
+    * [SYNCOPE-1459] - Keymaster for Service Discovery
+    * [SYNCOPE-1460] - Keymaster for dynamic Domain management
+    * [SYNCOPE-1494] - Basic maven build to verify compilation correctness
+    * [SYNCOPE-1495] - Remove deb packages
+    * [SYNCOPE-1496] - Add integration tests for DBMSes via Docker
+    * [SYNCOPE-1552] - Allow WA audits to be stored in Syncope
+    * [SYNCOPE-1553] - Fetch WA auth modules & map to properties during bootstrap
+    * [SYNCOPE-1555] - Allow WA as SAML2 IdP to fetch metadata over REST
+    * [SYNCOPE-1556] - Allow WA as OIDC OP to fetch JWKS over REST
+    * [SYNCOPE-1557] - Complete policies manipulating with authentication modules and mappings information
+    * [SYNCOPE-1558] - Configure WA delegated authn module to SAML IdPs via REST
+    * [SYNCOPE-1559] - Allow WA Google Auth MFA settings to become reloadable
+    * [SYNCOPE-1562] - Handle OTP records for GoogleAuthN MFA
+    * [SYNCOPE-1566] - Manage device registration records for GoogleAuthMFA
+    * [SYNCOPE-1570] - Support U2F device registration via REST APIs
+    * [SYNCOPE-1571] - Support U2F MFA tokens/requests via REST APIs
+    * [SYNCOPE-1577] - Support CAS-enabled client applications
+    * [SYNCOPE-1578] - Protected SRA Routes: OAuth 2.0 / OpenID Connect 1.0
+    * [SYNCOPE-1579] - Protected SRA Routes: SAML 2.0
+    * [SYNCOPE-1580] - Design WA REST APIs to configure configuration properties
+    * [SYNCOPE-1582] - Protected SRA Routes: CAS
+    * [SYNCOPE-1584] - Allow Syncope to manage WA authentication events
+    * [SYNCOPE-1587] - Enable Web AuthN support for WA
+    * [SYNCOPE-1588] - WA attributes consent management
+    * [SYNCOPE-1595] - Support themes per client application
+    * [SYNCOPE-1599] - Support Duo Security for MFA
+    * [SYNCOPE-1625] - Support impersonation for Web Access
+    * [SYNCOPE-1638] - Remove Netbeans IDE plugin
+    * [SYNCOPE-1682] - WA: support CAS Attribute Resolution
 
 ** Bug
-    * [SYNCOPE-937] - Security question not loaded while resetting the user password
-    * [SYNCOPE-940] - Handle authorization issues more gracefully in the console
-    * [SYNCOPE-942] - Bug in changing security answer in the Enduser UI
-    * [SYNCOPE-944] - Cannot manually assign groups provided with dynamic assignment rules
-    * [SYNCOPE-946] - Encrypted attribute values not managed as password values
-    * [SYNCOPE-950] - Self-registration / self-update not working
-    * [SYNCOPE-953] - Enduser shows groups of the selected realm rather than groups assignable to users in the selected realm
-    * [SYNCOPE-965] - Cron expression for scheduled job is not saved from the console
-    * [SYNCOPE-966] - Exception reported when looking at propagation task details from user list
-    * [SYNCOPE-970] - On logout, page translation doesn't reset to default settings.
-    * [SYNCOPE-974] - Incorrect error reported when creating notification with missing events
-    * [SYNCOPE-975] - Search case insensitive ilike operator triggers search validation
-    * [SYNCOPE-976] - Duplicated events shown by admin console for notifications and audit
-    * [SYNCOPE-977] - style missing for captcha buttons in responsive template (under 800px width)
-    * [SYNCOPE-979] - resource id is missing in user propagation task table
-    * [SYNCOPE-980] - AnyObject search filter not honored with inGroups condition
-    * [SYNCOPE-981] - Oracle/SQLServer configuration does not work
-    * [SYNCOPE-982] - Notification tasks modal window does not provide access to actual HTML and TEXT e-mail body
-    * [SYNCOPE-987] - Build issues on Windows
-    * [SYNCOPE-990] - Explore resource detailed view always shows empty left column
-    * [SYNCOPE-992] - Date not registered in self registration
-    * [SYNCOPE-993] - Footer buttons positioning and resizing
-    * [SYNCOPE-994] - Character encoding not being respected
-    * [SYNCOPE-997] - Angular transition errors
-    * [SYNCOPE-999] - REST exception mapper overwrites Spring Security response
-    * [SYNCOPE-1000] - CSVDir connector unclear about required attributes/columns
-    * [SYNCOPE-1001] - Closing the Activiti Modeler popup does not make the spinner to disappear
-    * [SYNCOPE-1002] - Updating any objects' name via console is ineffective
-    * [SYNCOPE-1003] - Error when accessing notification tasks for a given user
-    * [SYNCOPE-1004] - Notification tasks generated for self read event not linked to user
-    * [SYNCOPE-1007] - NPE in Console when on an empty search term for user assignment
-    * [SYNCOPE-1008] - Maven home directory not trimmed of whitespace
-    * [SYNCOPE-1010] - Some PushActions methods not invoked even if assigned
-    * [SYNCOPE-1012] - Security answer not recognized during password reset
-    * [SYNCOPE-1013] - Password reset link generated by default notification template does not trigger Enduser UI features
-    * [SYNCOPE-1014] - The list of security questions is not refreshed after creating new one
-    * [SYNCOPE-1016] - Last change date not updated for users when attributes are updated via pull
-    * [SYNCOPE-1022] - UTF-8 characters in security questions not correctly encoded by Enduser UI
-    * [SYNCOPE-1023] - Maven projects from archetype deploy test content with 'all' profile
-    * [SYNCOPE-1024] - Enduser does not manages properly ENUM schema labels 
-    * [SYNCOPE-1025] - SYNCOPEAUDIT table not populated
-    * [SYNCOPE-1026] - Cannot remove group owner once set
-    * [SYNCOPE-1027] - Mapping errors cannot be fixed when defining provision rules for a new resource
-    * [SYNCOPE-1030] - Invalid DefaultAccountRule definition from Admin Console
-    * [SYNCOPE-1032] - Role key must be not modifiable during edit from Admin Console
-    * [SYNCOPE-1033] - NPE in Admin Console when working with Reconciliation Report
-    * [SYNCOPE-1034] - Assigned Auxiliary classes disappear in the Type Extensions panel when click on cancel
-    * [SYNCOPE-1036] - Notification icon does not refresh on new approval event
-    * [SYNCOPE-1037] - Pending approvals list is clickable
-    * [SYNCOPE-1038] - User create: finish button should remain clickable if the last step is reached
-    * [SYNCOPE-1039] - User attributes in user edit/create form are reset after validation error
-    * [SYNCOPE-1040] - Membership derived attributes cannot reference own plain attributes
-    * [SYNCOPE-1042] - Removal of all executed pull tasks via bulk action returns a missing resource exception
-    * [SYNCOPE-1043] - Improve JWT token expiration handling
-    * [SYNCOPE-1044] - By editing the provisioning rules, modal footer is not disabled
-    * [SYNCOPE-1045] - Activiti Modeler: log out from Admin Console in case of error
-    * [SYNCOPE-1046] - Console: task execution sort not working properly
-    * [SYNCOPE-1048] - Into the connector configuration page the same bundle appear more then once if different versions exist
-    * [SYNCOPE-1049] - Console returns an error if you try to explore Syncope as a remote object
-    * [SYNCOPE-1051] - It is possible to schedule task execution in the past
-    * [SYNCOPE-1052] - Enduser CAPTCHA not reloading
-    * [SYNCOPE-1057] - Type extensions cleared after group update during pull
-    * [SYNCOPE-1060] - Date in membership attribute is propagated as timestamp
-    * [SYNCOPE-1062] - Changes pulled from one resource not propagated externally
-    * [SYNCOPE-1066] - WADL servlet uses request url to provide wadl
-    * [SYNCOPE-1069] - Incomplete HA setup instructions
-    * [SYNCOPE-1070] - Conversion pattern ignored for date, long and double values during propagation
-    * [SYNCOPE-1071] - The executed notification tasks are not displaying on the console
-    * [SYNCOPE-1075] - User lastChangeDate attribute is not displayed correctly
-    * [SYNCOPE-1076] - The console doesn't allow to download the report in various formats
-    * [SYNCOPE-1078] - Activiti modeler window doesn't open on click
-    * [SYNCOPE-1079] - Missing toggle panel for the job control widget of the administration console dashboard
-    * [SYNCOPE-1081] - Console: new toggle panel behavior anomalies
-    * [SYNCOPE-1082] - Concurrent CRUD random failures with dynamic memberships
-    * [SYNCOPE-1085] - Custom tasks modal page shouldn't show "Cancel" button
-    * [SYNCOPE-1089] - Improve provisioning mapping page in order to avoid duplicates in internal attribute name list
-    * [SYNCOPE-1090] - Error defining clause to search for group owners
-    * [SYNCOPE-1091] - Error while downloading Jpeg binary attribute content
-    * [SYNCOPE-1094] - Out of memory error while rendering PDF
-    * [SYNCOPE-1098] - User edit modal page opening takes long in case of a lot of groups defined
-    * [SYNCOPE-1099] - Dynamic group membership does not trigger propagation
-    * [SYNCOPE-1101] - Error showing action icons on Notidfication events managements
-    * [SYNCOPE-1104] - Missing autocomplete for ConnId object class when defining new provision
-    * [SYNCOPE-1107] - The installer fails with a NoClassDefFoundError
-    * [SYNCOPE-1108] - NullPointerException while saving an empty template
-    * [SYNCOPE-1109] - Installer fails to setup Activiti
-    * [SYNCOPE-1110] - Error replacing group/auxclass/resource during self-management operation
-    * [SYNCOPE-1111] - New any type not shown unders Realms
-    * [SYNCOPE-1112] - Error searching for user/group/anyobject by providing conditions on attribute with schema type Long
-    * [SYNCOPE-1114] - Dynamic group information not available during propagation
-    * [SYNCOPE-1121] - Enduser form customization does not work with empty section in edit mode
-    * [SYNCOPE-1122] - Enduser must show all attributes when customForm.json has empty section with show=true
-    * [SYNCOPE-1123] - Enduser UserRequestValidator NPE on custom form empty sections
-    * [SYNCOPE-1125] - Password on external resource not updated via Enduser
-    * [SYNCOPE-1127] - Membership attribute values are not shown
-    * [SYNCOPE-1128] - Content exporter does not sort for internal foreign keys
-    * [SYNCOPE-1130] - NPE refreshing realm page after realm creation
-    * [SYNCOPE-1131] - Cannot delete resources owned by realms
-    * [SYNCOPE-1133] - Search panel used for relationships definition does not work
-    * [SYNCOPE-1134] - Action menu not working after page refresh
-    * [SYNCOPE-1135] - Groups list not refreshing after realm change
-    * [SYNCOPE-1139] - StackOverflowError while serializing AuditEntry after propagation
-    * [SYNCOPE-1140] - Error when trying to assign a relationship
-    * [SYNCOPE-1141] - Error when getting /numbers with application/xml
-    * [SYNCOPE-1149] - Access token still required for the third party JWT SSO integration scenario
-    * [SYNCOPE-1150] - Invalid property set for propagation task modal page header
-    * [SYNCOPE-1151] -  Glinch in the root realm information
-    * [SYNCOPE-1158] - Misleading Push Task reports
-    * [SYNCOPE-1162] - Change to Connector's display name not reflected by contextual menu
-    * [SYNCOPE-1163] - External Resource priority is never NULL
-    * [SYNCOPE-1166] - No propagation task is created for resources where the password is not propagated
-    * [SYNCOPE-1168] - Encryptor pads short secret keys with "0" instead of random characters
-    * [SYNCOPE-1169] - Operation not supported error when trying to run a bulk action for users 
-    * [SYNCOPE-1170] - Can't remove a "Dynamic USER assignment"
-    * [SYNCOPE-1174] - NPE in AccessTokenDataBinderImpl if no 'jwt.lifetime.minutes' schema is present
-    * [SYNCOPE-1175] - Password Reset Token Generation Not Working After Upgrading to 2.0.4
-    * [SYNCOPE-1178] - PlainSchema page empty while self update on Enduser 
-    * [SYNCOPE-1179] - JWT "Date" claims are interpreted using milliseconds instead of seconds
-    * [SYNCOPE-1180] - No e-mail debug output
-    * [SYNCOPE-1184] - In the "Attributes to be displayed" sellection show the ones already displayed by default
-    * [SYNCOPE-1188] - NPE Message while saving Dynamic Realm with empty key
-    * [SYNCOPE-1189] - Realms page not accessible when user has permissions on dynamic realms
-    * [SYNCOPE-1190] - Username not refreshed on toggle menu after user update
-    * [SYNCOPE-1193] - Add the option to update a user via REST by using the username as key
-    * [SYNCOPE-1199] - Syncope performance: AnyObjectTO's creation time grows with it's quantity
-    * [SYNCOPE-1203] - Not possible to add provision rules for "Realm" type
-    * [SYNCOPE-1205] - Serialization exception in the logs when editing users pending approval
-    * [SYNCOPE-1206] - Dynamic membership updates not considered for provisioning during update
-    * [SYNCOPE-1207] - Audit: incorrect output element reported for Pull Tasks
-    * [SYNCOPE-1210] - Random password generation fails for push tasks
-    * [SYNCOPE-1211] - syncope migration 1.2 to 2.0 users blocked to 200
-    * [SYNCOPE-1213] - Syncope console should advice user about exceeded file size
-    * [SYNCOPE-1214] - Error when sorting Users by Realm
-    * [SYNCOPE-1215] - Multivalue readonly fields allow frontend deletion
-    * [SYNCOPE-1216] - Upgrade to Spring 5
-    * [SYNCOPE-1217] - Using the JAVA API is possible to create a Realm with the same name in the same parent realm
-    * [SYNCOPE-1222] - Unwanted delete from External Resources on Membership removal
-    * [SYNCOPE-1223] - Cannot search for values containing comma
-    * [SYNCOPE-1224] - CLI: user "all" operations limited to 25 users
-    * [SYNCOPE-1226] - List the attributes to be displayed show deleted attributes
-    * [SYNCOPE-1227] - Password template not nullable after setting
-    * [SYNCOPE-1229] - Pull task execution bulk delete fails
-    * [SYNCOPE-1230] - Bad toggle handling during task execution delete
-    * [SYNCOPE-1231] - Hidden columns in bulk action resul modal page
-    * [SYNCOPE-1232] - AnyType removal does not check for existing AnyObjects
-    * [SYNCOPE-1233] - NullPointerException in Topology after creating a connector with no displayName using pure REST call
-    * [SYNCOPE-1235] - Unlink or unassign Group from External Resource resets dynamic membership conditions
-    * [SYNCOPE-1236] - Pagination error for executed tasks
-    * [SYNCOPE-1239] - Missing specified plain attr values if plain attr step is the last one of the any management wizard
-    * [SYNCOPE-1241] - Under high load propagation after pull might fail
-    * [SYNCOPE-1244] - Error creating bean with name 'logicInitializer' on startup related to quartz clustering 
-    * [SYNCOPE-1246] - Group membership search stucks with several thousands of groups
-    * [SYNCOPE-1247] - Group search and auto-completion does not work with several thousands of groups
-    * [SYNCOPE-1248] - Password policy history error when the user is updated before being approved
-    * [SYNCOPE-1250] - Missing attributes layout order
-    * [SYNCOPE-1251] - UserTO variable is not updated during Update Activiti Task
-    * [SYNCOPE-1252] - Search failing for non-string attributes from Admin Console
-    * [SYNCOPE-1253] - Pulled users have password set even if no mapping was provided
-    * [SYNCOPE-1254] - Cannot create new connector instances from Admin Console
-    * [SYNCOPE-1257] - USER search by GROUP does not work if group name has spaces
-    * [SYNCOPE-1261] - When starting with empty database and no ConnInstances in Content.xml no bundles are reported as available
-    * [SYNCOPE-1263] - REST invocation with invalid JWT string returns 500
-    * [SYNCOPE-1265] - SAML 2.0 IdP cache empty until either new is imported or SAML2IdPService#list is invoked
-    * [SYNCOPE-1266] - Multivalue binary attributes leads to OutOfMemory exception
-    * [SYNCOPE-1269] - Cannot specify validator for Configuration Parameters
-    * [SYNCOPE-1272] - Export of the report always returns the result of the last execution
-    * [SYNCOPE-1275] - Add the possibiliy to delete a job
-    * [SYNCOPE-1276] - Link or assign Group from External Resource resets dynamic membership conditions
-    * [SYNCOPE-1282] - Search schema error
-    * [SYNCOPE-1285] - Quartz db init on HA environments occurs on all nodes
-    * [SYNCOPE-1288] - Propagation tasks list not keeping order while browsing pages
-    * [SYNCOPE-1290] - Deletion of only schema entry breaks schema UI
-    * [SYNCOPE-1291] - Cannot login again into Admin Console after Session Expired
-    * [SYNCOPE-1293] - Default password reset notifications not working
-    * [SYNCOPE-1294] - Plainschema panel doesn't display the assigned validator class
-    * [SYNCOPE-1296] - Eclipse Plugin OSGI Dependency Issue
-    * [SYNCOPE-1297] - Select all + bulk button redirecting to top of the page on click
-    * [SYNCOPE-1298] - Quartz jobs with no matching Task or Report not visible from Admin Console
-    * [SYNCOPE-1301] - Token creation is not threadsafe
-    * [SYNCOPE-1303] - Content migration from 1.2 problems
-    * [SYNCOPE-1304] - Order Groups by userOwner throws DataIntegrityViolation exception
-    * [SYNCOPE-1306] -  Date value without a conversion pattern not shown by Admin Console
-    * [SYNCOPE-1307] - Wrong export order for Realms
-    * [SYNCOPE-1308] - Exception getting users with orderBy on SyncopeClient API with Postgres 10.3
-    * [SYNCOPE-1309] - Enduser UI does not remove Access Token on Finish
-    * [SYNCOPE-1312] - Console CSS is depending from Google fonts
-    * [SYNCOPE-1314] - Bulk action from reconciliation section ever shows NOT ATTEMPTED after provision
-    * [SYNCOPE-1315] - Propagation task sorting by Object Type not working as expected
-    * [SYNCOPE-1317] - RuntimeException when remove all schemas
-    * [SYNCOPE-1318] - Future task rejected from ScheduledThreadPoolExecutor
-    * [SYNCOPE-1319] - Pull Task template not assigning roles
-    * [SYNCOPE-1320] - Push task report generation fails in case of IgnoreProvisionException
-    * [SYNCOPE-1321] - Search doesn't work for date attributes with conversion pattern with time zone
-    * [SYNCOPE-1326] - Wizard generates unnecessary attrPatch when the field is empty
+    * [SYNCOPE-1333] - Missing virtual attribute value in case of type extension
+    * [SYNCOPE-1334] - Maven install problem with Apache Syncope 2.1.0
+    * [SYNCOPE-1335] - Missing SQL statements when upgrading from 2.0 Jazz
+    * [SYNCOPE-1337] - Password history policy is not enforced on salted passwords
+    * [SYNCOPE-1338] - Double type conversion applied during pull leads to errors
+    * [SYNCOPE-1339] - Enduser spinner does not apply to the whole page
+    * [SYNCOPE-1340] - Cannot update membership attribute
+    * [SYNCOPE-1342] - console UI login form ignores Domain selection
+    * [SYNCOPE-1343] - Attributes are not reset after pull of null values
+    * [SYNCOPE-1344] - CORE_SCHEME not being updated in enduser.properties
+    * [SYNCOPE-1346] - Adding a new task while re-executing a propagation task
+    * [SYNCOPE-1347] - Invocation Problem calling org.apache.syncope.installer.processes.ArchetypeProcess
+    * [SYNCOPE-1350] - Date values not formatted according to the conversion pattern
+    * [SYNCOPE-1352] - Group wizard doesn't update the plain attributes
+    * [SYNCOPE-1353] - DBPasswordPropagationActions link in the reference guide is wrong
+    * [SYNCOPE-1354] - Push Tasks do not send status onto External Resources
+    * [SYNCOPE-1356] - LDAPMembershipPullActions does not remove memberships
+    * [SYNCOPE-1357] - MemoryVirAttrCache not working
+    * [SYNCOPE-1358] - Search by boolean value does not work from Admin Console
+    * [SYNCOPE-1360] - Delegated administration to Dynamic Realms not possible
+    * [SYNCOPE-1361] - Custom audit appender does not work after a restart
+    * [SYNCOPE-1362] - Sorting users by creation date raises RuntimeException
+    * [SYNCOPE-1363] - Deleting multiple users at once reports "Operation delete not supported"
+    * [SYNCOPE-1364] - Upgrade tool from 2.0 script error
+    * [SYNCOPE-1365] - Erorr during retrieve candidate groups for approval process
+    * [SYNCOPE-1366] - Audit events ownership always set to admin user
+    * [SYNCOPE-1370] - Password reset succeeds also on wrong captcha
+    * [SYNCOPE-1373] - Custom task schedule is reset after update
+    * [SYNCOPE-1374] - Concurrent propagation tasks for non-Master domains not saved
+    * [SYNCOPE-1375] - The existence of a membership attribute mapping implies membership creation during pull
+    * [SYNCOPE-1376] - swagger-ui server URL incorrect behind ssl reverse proxy
+    * [SYNCOPE-1377] - Wrong X-Syncope-Domain header does not throw an error
+    * [SYNCOPE-1380] - During Push or Pull, if policy with conflict resolution IGNORE is set, the process is interrupted as soon as such setting applies
+    * [SYNCOPE-1383] - Exception during "getObject" from external resource
+    * [SYNCOPE-1387] - ClassCast exception when pull realms
+    * [SYNCOPE-1388] - mustChangePassword flag does not prevent user from invoking actions
+    * [SYNCOPE-1389] - In case of virtual attribute mapping, propagation is always set as UPDATE also in case of CREATE
+    * [SYNCOPE-1390] - Pull Realms: pull task with Unmatching Rules: PROVISION shouldn't create propagation task
+    * [SYNCOPE-1391] - Check template for confirmPasswordReset and mustChangePassword
+    * [SYNCOPE-1393] - jexl function fullPath2Dn return invalid value for ROOT realm
+    * [SYNCOPE-1399] - Error while executing the custom task to initialize indices with Elasticsearch v6.x
+    * [SYNCOPE-1404] - Dialog not closing in Netbeans ide plugin when creating a new element
+    * [SYNCOPE-1405] - Error during db initialization: views.xml always set for PostgreSQL
+    * [SYNCOPE-1406] - Error during startup because of missing property 'historyLevel'
+    * [SYNCOPE-1407] - Date pattern ignored by widget
+    * [SYNCOPE-1408] - Partial user edit via Role layout implies removing all unmanaged attributes
+    * [SYNCOPE-1411] - User/Any object updates generate attributes with null owner in case of patches involving membership attributes
+    * [SYNCOPE-1417] - Search with order by two plain attributes gives no results
+    * [SYNCOPE-1419] - User and AnyObject search fails in case of not leaf conditions given on multivalue fields
+    * [SYNCOPE-1420] - Expired Access Tokens might impede successful authentication
+    * [SYNCOPE-1425] - Mapping item transformers do not work for non-string values
+    * [SYNCOPE-1428] - APIs to read by key return 404 instead of 401 for not authenticated calls
+    * [SYNCOPE-1429] - Wildcard case-insesitive queries do not work with Elasticsearch
+    * [SYNCOPE-1430] - ItemTransformer for Date schemas throws NPE 
+    * [SYNCOPE-1431] - Connector and Resource history compare does not work
+    * [SYNCOPE-1432] - After creating new connector / resource, Topology does not show it
+    * [SYNCOPE-1437] - Error while searching for users / groups / any objects with Elasticsearch when no data are present
+    * [SYNCOPE-1438] - "changePwdDate" field is not initialized when create a new user with the specified password
+    * [SYNCOPE-1439] - User membership attributes not updated
+    * [SYNCOPE-1440] - Pagination of Users/Groups doesn't work as expected with Elasticsearch
+    * [SYNCOPE-1442] - Inactive Job with cron expression set is executed anyway 
+    * [SYNCOPE-1443] - Changing Display Rows number in Reconciliation Resource Panel doesn't work
+    * [SYNCOPE-1446] - Persistence exception on PostgreSQL when AUDIT is enabled on propagation tasks 
+    * [SYNCOPE-1447] - NPE while deleting a privilege from admin console
+    * [SYNCOPE-1448] - Bean loading/register section not threadsafe
+    * [SYNCOPE-1450] - Audit: sensitive information not masked by default during update
+    * [SYNCOPE-1452] - Notification about is not deleted after update
+    * [SYNCOPE-1453] - MappingItem with "mustChangePassword" field cannot be provisioned and updated during import
+    * [SYNCOPE-1454] - Avoid duplicated Propagation Tasks
+    * [SYNCOPE-1457] - NonAlphaNumeric policy pattern matches the "Not word" character class
+    * [SYNCOPE-1461] - MySQL: Segmentation fault with query using JSON_TABLE
+    * [SYNCOPE-1467] - RDN not allowed when an attribute of the group present also in the DN is changed
+    * [SYNCOPE-1469] - MySQL with JSON support: errors during startup
+    * [SYNCOPE-1470] - Flowable extension not working with MariaDB
+    * [SYNCOPE-1472] - Resource association is duplicated on database after update, assign or link operations
+    * [SYNCOPE-1474] - Resource is duplicated after batch operation
+    * [SYNCOPE-1476] - Error while creating Enum schema from Admin Console
+    * [SYNCOPE-1477] - jQuery UI's spinner not rendered
+    * [SYNCOPE-1478] - Unable to remove value of "Schema to hold values for identifiers generated upon Create by the external Identity Store" from provisioning
+    * [SYNCOPE-1480] - Elasticsearch:dynrealm assignment not updated on condition change
+    * [SYNCOPE-1481] - Invalid values when saving a membership attribute of type date
+    * [SYNCOPE-1483] - maven-enforcer-plugin: API incompatibility fails the build
+    * [SYNCOPE-1484] - syncope-ide-netbeans submodule fails to find netbeans dependency
+    * [SYNCOPE-1485] - Reindex of elasticsearch ends with memory error in case of huge amount of data
+    * [SYNCOPE-1487] - Build Instructions do not say that the "patch" program is needed
+    * [SYNCOPE-1488] - Change to MVM Env for JDK > 8.00
+    * [SYNCOPE-1492] - Build Instructions are missing an EVN (DOCKER_HOST) needed for  mvn -Ppostgres-it 
+    * [SYNCOPE-1493] - Mapping unique schema as remote key never matches internal objects
+    * [SYNCOPE-1503] - Cannot remove provisioning information from Resource in Admin Console
+    * [SYNCOPE-1504] - Error setting uidOnCreate attribute during a pull task with multiple provisions
+    * [SYNCOPE-1505] - Changes to "AjaxPalettePanel" components in Console are not saved when the previous step button is pressed before submitting the wizard form
+    * [SYNCOPE-1512] - Error while saving a unique plain attribute value with single quote when using JPA JSON
+    * [SYNCOPE-1520] - Exception when updating Group unique attribute with JPA JSON
+    * [SYNCOPE-1525] - Documentation indicates sharing private key, hiding public key
+    * [SYNCOPE-1526] - Broken link to issues from reference documentation
+    * [SYNCOPE-1533] - Broken backward compatibilty because of changes in Equals and HashCode methods in TOs
+    * [SYNCOPE-1536] - Enduser UI does not clean up file alteration monitors on shutdown
+    * [SYNCOPE-1537] - Password of LinkedAccounts not saved properly from Admin Console
+    * [SYNCOPE-1538] - Admin Console: users / groups management slow to access with high number of realms
+    * [SYNCOPE-1539] - AjaxPalettePanel does not support setRequired
+    * [SYNCOPE-1542] - Search panel issues in Admin Console
+    * [SYNCOPE-1544] - 'Override?' flag not properly set for password and username fields of LinkedAccounts
+    * [SYNCOPE-1546] - PriorityPropagationTaskExecutor: rejected tasks not stored
+    * [SYNCOPE-1554] - Generated default admin role layout doesn't work
+    * [SYNCOPE-1560] - File upload component: missing translations
+    * [SYNCOPE-1561] - Batch: missing support for custom TLSClientParameters
+    * [SYNCOPE-1563] - User approval update should send the password only when requested
+    * [SYNCOPE-1564] - Integration tests run with YAML payloads are failing
+    * [SYNCOPE-1565] - Integration tests run with XML payloads are failing
+    * [SYNCOPE-1567] - Mapping does not allow relationships
+    * [SYNCOPE-1569] - Console: cannot save Reportlet search conditions
+    * [SYNCOPE-1573] - Logout forced from Console when editing user with many memberships
+    * [SYNCOPE-1583] - For members part of a Dynamic Group, but cannot access group attributes in member mapping
+    * [SYNCOPE-1586] - Startup failures with sample docker-compose and MySQL
+    * [SYNCOPE-1598] - Create or update user with two+ memberships for the same group are not prevented
+    * [SYNCOPE-1601] - Propagation not always triggered after form submit in User Requests
+    * [SYNCOPE-1602] - ConnObjectKey attribute values not included with DefaultPushCorrelationRule
+    * [SYNCOPE-1603] - PushCorrelationRule not used for DELETE on External Resources
+    * [SYNCOPE-1604] - AjaxDateTimePicker doesn't handle some 1900 dates the right way
+    * [SYNCOPE-1605] - Propagation task not generated if update involves only ConnObjectLink
+    * [SYNCOPE-1606] - Syncope returns an exception when doing two sequential operations for the same user from the toggle panel
+    * [SYNCOPE-1607] - Console Page preferences not working
+    * [SYNCOPE-1612] - "Operation is taking too long" warning while adding/editing a connector/resource  
+    * [SYNCOPE-1613] - startAt date is set to start field for SCHEDULED, PULL and PUSH TaskTOs
+    * [SYNCOPE-1616] - CSV and single push / pull concurrency issues
+    * [SYNCOPE-1619] - SearchPanel should display the input field based on the type of the selected property
+    * [SYNCOPE-1620] - JWT validation requires exp and nbf claims
+    * [SYNCOPE-1622] - ConnId Connectors not pooled with Resource override
+    * [SYNCOPE-1626] - rename package org.apache.syncope.common.keymaster.client.zookeper to zookeeper
+    * [SYNCOPE-1628] - Console goes NPE when Connector fails to initialize
+    * [SYNCOPE-1629] - JPA JSON: Date conversion pattern including slashes leads to incorrect search results
+    * [SYNCOPE-1632] - Graphical issue on must change password view
+    * [SYNCOPE-1634] - Group Owner update/delete action doesn't trigger propagation action
+    * [SYNCOPE-1635] - Create Rules with configurations for each domain, make creation thread safe
+    * [SYNCOPE-1640] - Uncaught exception when creating Enum schema
+    * [SYNCOPE-1643] - Update of Realm doesn't trigger provisioning for users
+    * [SYNCOPE-1644] - Task run failure with multi-node deployments
+    * [SYNCOPE-1645] - Case insensitive search with Elasticsearch extension returns wrong results 
+    * [SYNCOPE-1646] - Linked Account status set to wrong value on propagation
+    * [SYNCOPE-1648] - Search with PostgreSQL JSONB fails for FIQL like 'username!=value'
+    * [SYNCOPE-1649] - Reports: XML character escaping applied to CSV output
+    * [SYNCOPE-1650] - Default Account Rule: pattern is ignored
+    * [SYNCOPE-1651] - Invalid users can be specified in X-Syncope-Delegated-By
+    * [SYNCOPE-1654] - Inconsistent Realm search FIQL expressions between JPA and Elasticsearch engines
+    * [SYNCOPE-1656] - Remediations are not created on update while pulling
+    * [SYNCOPE-1657] - Unable to define a new name for a cloned resource 
+    * [SYNCOPE-1659] - Read-only flag not working in console on virtual attributes
+    * [SYNCOPE-1660] - Anonymous requests does not store domain and delegatedBy information in the auth context
+    * [SYNCOPE-1663] - Value errors in FIQL expressions lead to empty result rather than error messages
+    * [SYNCOPE-1664] - JSONB: Inconsistent search query when is used a pull correlation rule
+    * [SYNCOPE-1671] - Wrong JobDelegate column name in scheduled task table
+    * [SYNCOPE-1672] - Can't retrieve Java classes when add java implementation for Password Rule, Account Rule and Reportlet on Console
+    * [SYNCOPE-1676] - Wrong header color in reset password enduser
+    * [SYNCOPE-1677] - Code editor in Console wraps short lines
+    * [SYNCOPE-1683] - Show connector overridden properties in resource wizard in tabular topology during create
+    * [SYNCOPE-1684] - NotFoundException thrown when enabled/disabled audit from console
+    * [SYNCOPE-1690] - NPE when add search condition in topology explore resource
+    * [SYNCOPE-1691] - Schema labels not used for attribute column headers
 
 ** New Feature
-    * [SYNCOPE-152] - Support SCIM REST API
-    * [SYNCOPE-882] - Log viewer
-    * [SYNCOPE-956] - Allow for scripted customizations
-    * [SYNCOPE-1015] - User Authentication using email
-    * [SYNCOPE-1018] - Social registration for Enduser UI
-    * [SYNCOPE-1035] - JWT-based access to REST services
-    * [SYNCOPE-1041] - SAML 2.0 Service Provider feature
-    * [SYNCOPE-1054] - Replace Activiti-based workflow adapter with Flowable
-    * [SYNCOPE-1077] - Extension: Elasticsearch-based search engine
-    * [SYNCOPE-1095] - Provide preview for JSON and XML binary field
-    * [SYNCOPE-1129] - Third Party JWT SSO integration
-    * [SYNCOPE-1144] - Customizable Audit appender
-    * [SYNCOPE-1145] - Connector and Resource configuration versioning
-    * [SYNCOPE-1249] - Support for mustChangePassword mapping
-    * [SYNCOPE-1256] - Docker images
-    * [SYNCOPE-1259] - Japanese translation for Admin console & Enduser UI
-    * [SYNCOPE-1270] - OpenID Connect client feature
-    * [SYNCOPE-1279] - Provide live updates from running tasks and reports
-    * [SYNCOPE-1281] - Privilege management
-    * [SYNCOPE-1283] - Support Azure AD
-    * [SYNCOPE-1287] - Remediation
-    * [SYNCOPE-1289] - REST: support YAML payloads
-    * [SYNCOPE-1310] - Support SCIM v1.1
-    * [SYNCOPE-1316] - Support ServiceNow
+    * [SYNCOPE-129] - Delegation
+    * [SYNCOPE-160] - Authentication features
+    * [SYNCOPE-957] - Multiaccount
+    * [SYNCOPE-1019] - Template mechanism for Enduser UI
+    * [SYNCOPE-1220] - Support Groovy implementations in the Netbeans IDE plugin
+    * [SYNCOPE-1348] - REST: replace bulk operations with batch requests
+    * [SYNCOPE-1367] - Add some accessibility features to Enduser
+    * [SYNCOPE-1368] - Add some accessibility features to Console
+    * [SYNCOPE-1369] - User requests
+    * [SYNCOPE-1395] - Leverage PostgreSQL's jsonb type
+    * [SYNCOPE-1401] - Leverage MySQL JSON type
+    * [SYNCOPE-1455] - New component: sra (API gateway)
+    * [SYNCOPE-1456] - New component: Keymaster
+    * [SYNCOPE-1506] - Merge Users
+    * [SYNCOPE-1511] - Configure audit events create/update/etc of users, groups, etc
+    * [SYNCOPE-1529] - French (CA) translation for Admin Console
+    * [SYNCOPE-1545] - Web Access
+    * [SYNCOPE-1680] - Support Simple MFA as an MFA Provider in WA
+    * [SYNCOPE-1681] - Support LDAP Google Auth Tokens/Accounts in WA
+    * [SYNCOPE-1688] - Console: saved queries
 
 ** Improvement
-    * [SYNCOPE-470] - Implement correlation rule management for push task
-    * [SYNCOPE-681] - i18n labels for schema names
-    * [SYNCOPE-773] - Allow in-place edit in Job dashboard widget
-    * [SYNCOPE-779] - Use Kendo UI Boostrap DateTimePicker
-    * [SYNCOPE-938] - Use Java 8 language features
-    * [SYNCOPE-948] - Optionally provide schema information with attribute values
-    * [SYNCOPE-949] - Leave WebApplicationException to default processing
-    * [SYNCOPE-952] - Provide realm management to enduser
-    * [SYNCOPE-958] - Enduser improvements
-    * [SYNCOPE-959] - Specify working domain in enduser.properties
-    * [SYNCOPE-960] - Make the breadcrumb in creation navigable only when the Finish page has been reached
-    * [SYNCOPE-971] - Case insensitive search
-    * [SYNCOPE-972] - Make Syncope Enduser template responsive
-    * [SYNCOPE-978] - Add sample REST external resource
-    * [SYNCOPE-983] - Search performance improvement with mandatory schemas only
-    * [SYNCOPE-989] - Upgrade FOP to 2.1
-    * [SYNCOPE-991] - Improve user password management / resource management
-    * [SYNCOPE-996] - Replace Angular Bootstrap DateTimePicker with Kendo UI DateTimePicker
-    * [SYNCOPE-1005] - Schema sorting should be done on JS side 
-    * [SYNCOPE-1009] - Enduser must provide an easy way to enable/disable visualization and sorting of USER attributes
-    * [SYNCOPE-1020] - Support for BPMN call activity
-    * [SYNCOPE-1028] - Improve usability of the modal window for provision rules
-    * [SYNCOPE-1029] - Change modal window title and button bars background
-    * [SYNCOPE-1031] - Hide key when creating / editing Security Questions from Admin Console
-    * [SYNCOPE-1047] - Replace ActionLinksPanel with TogglePanel
-    * [SYNCOPE-1050] - Allow easier extension of REST interface exposed to AngularJS
-    * [SYNCOPE-1053] - Show actual pending modifications during approval
-    * [SYNCOPE-1058] - Do not show time picker and values for date-only schemas
-    * [SYNCOPE-1059] - Remove final landing page after user create/update
-    * [SYNCOPE-1061] - Support SAML 2.0 Redirect profile
-    * [SYNCOPE-1063] - Incomplete title for modal windows from Topology
-    * [SYNCOPE-1064] - Improve security of customization mechanism
-    * [SYNCOPE-1067] - More flexible delegated administration model
-    * [SYNCOPE-1068] - Console: CSRF protection
-    * [SYNCOPE-1072] - Display or enable add button only to realms were CREATE is owned
-    * [SYNCOPE-1073] - Hide realm management if no realm entitlement are owned
-    * [SYNCOPE-1074] - Realm navigator: show only relevant realms for delegated admin
-    * [SYNCOPE-1083] - ConnInstance location is not normalized
-    * [SYNCOPE-1084] - Switch to HikariCP for Core's default DataSource definitions
-    * [SYNCOPE-1086] - Avoid to read whole entities to check ETag
-    * [SYNCOPE-1087] - Avoid to read input entities if no notification or audit are requested
-    * [SYNCOPE-1088] - Store authorizations with access tokens
-    * [SYNCOPE-1093] - Add some feedbacks when linking not existing groups/resources to existing user
-    * [SYNCOPE-1096] - Download button should be disabled while populating for the first time a binary attribute
-    * [SYNCOPE-1097] - Downloaded file for binary attribute better naming
-    * [SYNCOPE-1100] - Provide JWT expiration information to self
-    * [SYNCOPE-1103] - Option to disable Quartz instances across cluster
-    * [SYNCOPE-1106] - Remove misleading getAttrMap and similar methods from TOs
-    * [SYNCOPE-1115] - Display attributes for propagation tasks
-    * [SYNCOPE-1117] - Make it more obvious that the jwsKey needs to be changed
-    * [SYNCOPE-1118] - Update docs to explain what "anonymousKey" refers to
-    * [SYNCOPE-1119] - Make it more obvious that the default admin password needs to be changed
-    * [SYNCOPE-1120] - Use the standard Bearer Authorization header for JWT tokens
-    * [SYNCOPE-1124] - Support functions for internal JEXL engine
-    * [SYNCOPE-1126] - Include realms into the Explore Resource feature
-    * [SYNCOPE-1136] - Groups list reset always after realm change
-    * [SYNCOPE-1138] - Update RelationshipTO to also report the "left" end of a relationship
-    * [SYNCOPE-1143] - Fine-grained administration rights for Connector and Resources
-    * [SYNCOPE-1146] - On-the-fly creation of unmatched users logging via SAML 2.0
-    * [SYNCOPE-1147] - Extend SAML 2.0 IdP mapping to Roles
-    * [SYNCOPE-1148] - SAML-initiated self-registration
-    * [SYNCOPE-1152] - Clear out unneeded anonymous authenticated services
-    * [SYNCOPE-1153] - Push Tasks result to show "no operation" when operation is not enabled 
-    * [SYNCOPE-1154] - Edit resource to show always in the same order in list of object provision rules
-    * [SYNCOPE-1155] - Hard-coded /syncope-enduser HTTP subcontext
-    * [SYNCOPE-1159] - Allow to set Realm for Push Tasks
-    * [SYNCOPE-1164] - Complete mapping for Realm provisioning
-    * [SYNCOPE-1165] - Switch the default password cipher algorithm from SHA1 to SSHA256
-    * [SYNCOPE-1167] - Preliminary AnyType selection when adding new provision rule
-    * [SYNCOPE-1171] - Skip Relationships page when no relationship types exist
-    * [SYNCOPE-1172] - Error message of "Malformed Path" could be made a little clearer
-    * [SYNCOPE-1173] - Replace List<String> dynGroups with List<MembershipTO> dynMemberships
-    * [SYNCOPE-1176] - Edit provisioning rules menu is flat and not toggle
-    * [SYNCOPE-1177] - Configuration Parameter deletion should ask for confirmation
-    * [SYNCOPE-1182] - Use Remote Key in the Mapping to fetch external entities
-    * [SYNCOPE-1183] - Realm attribute available (as a detail) to use as a column in the "realm view" object list
-    * [SYNCOPE-1185] - Further validate SAML responses with CXF's SAMLSSOResponseValidator
-    * [SYNCOPE-1192] - Provide latest GIT commit hash alongside with version number
-    * [SYNCOPE-1194] - Sign the SAML SSO Service Provider Metadata
-    * [SYNCOPE-1196] - Binary previewer also for configuration parameters
-    * [SYNCOPE-1197] - Enduser console doesn't specify "SAML 2.0" as per the admin console
-    * [SYNCOPE-1198] - Make the signature algorithm configurable for SAML SSO
-    * [SYNCOPE-1200] - Allow to update user data during approval
-    * [SYNCOPE-1201] - Allow AnyType-based conditions for DynRealms
-    * [SYNCOPE-1202] - Support IdP Initiated SAML SSO
-    * [SYNCOPE-1212] - Allow for easier Pull / Push processes customization
-    * [SYNCOPE-1225] - Search funcionality in Schemas
-    * [SYNCOPE-1228] - Parent should be passed once for Realm create
-    * [SYNCOPE-1234] - SyncDelta pre-processing
-    * [SYNCOPE-1237] - Copy table row element key to clipboard by clicking on its name in toggle menu
-    * [SYNCOPE-1238] - Terminate Topology background checks once completed
-    * [SYNCOPE-1242] - Simple way to see elements full text value in Palette Panels
-    * [SYNCOPE-1243] - Add information to GroupTO about user and AnyObject membership counts
-    * [SYNCOPE-1255] - Dynamic group/role create/update can result in timeout error in case of a great number of members
-    * [SYNCOPE-1267] - Provide check of mimetypes before generate a binary attribute preview
-    * [SYNCOPE-1274] - Report required and read-only payload properties in OpenApi spec
-    * [SYNCOPE-1280] - Better job interrupt
-    * [SYNCOPE-1292] - Use Remote Key during Pull to match internal entities
-    * [SYNCOPE-1295] - Create a structured wizard to edit SCIM 2.0 configuration 
-    * [SYNCOPE-1299] - Manual reconciliation
-    * [SYNCOPE-1300] - Resource: ignoreCase match
-    * [SYNCOPE-1302] - New expression model in mapping for internal attributes to access user relationships
-    * [SYNCOPE-1311] - Support to save ids generated by identity repositories upon create
-    * [SYNCOPE-1322] - Get available tasks from workflow definition
-    * [SYNCOPE-1323] - Upgrade to Wicket 8
-    * [SYNCOPE-1324] - Have I Been Pwned password rule
-    * [SYNCOPE-1328] - Need option to configure the encryption algorithm used to generate JWT.
-    * [SYNCOPE-1329] - JWT: need support for asymmetric key
-
-** Wish
-    * [SYNCOPE-1161] - Option to clone a resource
+    * [SYNCOPE-1336] - Add pagination for approvals forms
+    * [SYNCOPE-1341] - Domain should be configurable parameter for syncope-enduser docker image
+    * [SYNCOPE-1355] - Document how to access services when using Docker Compose
+    * [SYNCOPE-1379] - Make configurable resource check timeout
+    * [SYNCOPE-1382] - Failure specifying push task filters including db column mapped as integer
+    * [SYNCOPE-1384] - SAML 2.0: Allow to customize RequestedAuthnContext for a given Service Provider
+    * [SYNCOPE-1385] - Priority propagation timeout hard coded into PriorityPropagationTaskExecutor
+    * [SYNCOPE-1392] - Reduce usage of Reflection to improve overall performance
+    * [SYNCOPE-1394] - Add un-claim capability for requests
+    * [SYNCOPE-1396] - Give the possibility to configure TLS client parameters
+    * [SYNCOPE-1397] - No Such element exception while editing USER update approval
+    * [SYNCOPE-1409] - Avoid double round-trip to External Resource during Push
+    * [SYNCOPE-1412] - Serch for identities with null attributes can be improved 
+    * [SYNCOPE-1416] - remove user_search_null_attr view
+    * [SYNCOPE-1422] - Permit to provide custom implementation of NotificationManager and AuditManager
+    * [SYNCOPE-1424] - Improve Propagation task ordered search
+    * [SYNCOPE-1433] - Unflag/flag uniqueness shouldn't be permitted
+    * [SYNCOPE-1436] - Remove pullPolicy EAGER fetchType from JPAExternalResource
+    * [SYNCOPE-1441] - Perform in-memory match for dynamic conditions
+    * [SYNCOPE-1444] - Pull correlation rules: allow to discriminate ongoing event
+    * [SYNCOPE-1445] - Docker: support pgjsonb as DBMS option
+    * [SYNCOPE-1449] - Support multi-value attributes in JEXL expressions
+    * [SYNCOPE-1465] - Add executor information to Task and Report executions
+    * [SYNCOPE-1466] - Add context to user, group and any object metadata information
+    * [SYNCOPE-1468] - Allow for configurable org.quartz.jobStore.misfireThreshold
+    * [SYNCOPE-1473] - Provide a PropagationActions to maintain a conservative membership policy management
+    * [SYNCOPE-1498] - Allow variable resolution in Content.xml
+    * [SYNCOPE-1499] - Add support for READ correlation rule
+    * [SYNCOPE-1500] - Allow single import from External Resource
+    * [SYNCOPE-1501] - Allow filtering for explore resource
+    * [SYNCOPE-1502] - Find Anys using FIQL: SQL improvements
+    * [SYNCOPE-1508] - Allow to extend the set of attributes requested from External Resources
+    * [SYNCOPE-1509] - Auto-select language from Accept-Language HTTP header
+    * [SYNCOPE-1510] - Allow to store encrypted schema's secret key externally
+    * [SYNCOPE-1513] - Allow to customize security headers
+    * [SYNCOPE-1515] - Adapt realm selector to actual number of realms
+    * [SYNCOPE-1517] - Audit appender should be configurable
+    * [SYNCOPE-1518] - Allow X-Forwarded-For and X-Forwarded-Proto HTTP headers integration
+    * [SYNCOPE-1519] - SchemaDataBinderImpl#update optimization
+    * [SYNCOPE-1521] - Allow filtering for Role assignment
+    * [SYNCOPE-1522] - Realm behaviors for Delegated Administration
+    * [SYNCOPE-1523] - JPAConnInstanceDAO should be marked as Transactional
+    * [SYNCOPE-1527] - Allow for custom search conditions
+    * [SYNCOPE-1530] - Add parameters at User Requests start
+    * [SYNCOPE-1531] - Easier bulk upload from / download to CSV
+    * [SYNCOPE-1532] - Allow tilde for key values and Realms name
+    * [SYNCOPE-1534] - Display friendly error messages in Admin Console
+    * [SYNCOPE-1535] - Customize the order of the provisions of a resource according to the object classes
+    * [SYNCOPE-1540] - Make internal storage export DBMS independent
+    * [SYNCOPE-1541] - XML response message timestamps missing millisecs component if "0 msecs"
+    * [SYNCOPE-1547] - Allow the possibility to customize the roles to be displayed
+    * [SYNCOPE-1548] - Allow the possibility to customize the Groups wizard step
+    * [SYNCOPE-1551] - Allow for info notifications in Admin Console
+    * [SYNCOPE-1568] - Render custom wizard on user request
+    * [SYNCOPE-1575] - Provide the ability to specify on which resources the user's status should be propagated
+    * [SYNCOPE-1591] - Support fetching data from internal storage for XML content loader
+    * [SYNCOPE-1594] - Allow to filter user requests and forms by username
+    * [SYNCOPE-1597] - Enable default customization of console layout
+    * [SYNCOPE-1600] - Flowable: support password form property type
+    * [SYNCOPE-1608] - Allow wildcard group membership search
+    * [SYNCOPE-1609] - Reduce the number of table joins into PostgreSQL JSONB persistence implementation
+    * [SYNCOPE-1610] - Set Reconciliation to work with Pull and Push Correlation Rules if available
+    * [SYNCOPE-1611] - Caffeine Cache for Virtual Attribute Cache
+    * [SYNCOPE-1614] - Convert SyncopeService into Spring Boot's InfoContributor
+    * [SYNCOPE-1615] - Convert LoggerService into Spring Boot's loggers actuator 
+    * [SYNCOPE-1624] - Toggle panel improvements
+    * [SYNCOPE-1630] - Use Group owners to extend Delegated Administration
+    * [SYNCOPE-1631] - Pass ConnId ObjectClass to ReconFilterBuilder
+    * [SYNCOPE-1633] - Give the possibility to add a custom message to the confirm dialog
+    * [SYNCOPE-1639] - Provide ordering of attributes in the diff view on the history management
+    * [SYNCOPE-1641] - Allow to purge Propagation Tasks
+    * [SYNCOPE-1652] - Align AccessPolicy with CAS DefaultRegisteredServiceAccessStrategy
+    * [SYNCOPE-1653] - Align AttrReleasePolicy with CAS ReturnAllowedAttributeReleasePolicy
+    * [SYNCOPE-1658] - Allow to view the topology in table format
+    * [SYNCOPE-1661] - Add sidebar layout customization thorugh JSON file to enduser
+    * [SYNCOPE-1666] - Security Answer encryption 
+    * [SYNCOPE-1667] - Propagation Policy
+    * [SYNCOPE-1668] - Provide Entity Cache report and management
+    * [SYNCOPE-1669] - Create pull results for remediations
+    * [SYNCOPE-1670] - Support Graceful shutdown
+    * [SYNCOPE-1673] - Use Passay for password validation and generation
+    * [SYNCOPE-1674] - Optimize User, Group and Any Object lifecycle events management
+    * [SYNCOPE-1678] - Allow for non-recursive search operations
+    * [SYNCOPE-1679] - Allow to search by Auxiliary Any Type class assignment
+    * [SYNCOPE-1685] - Allow JEXL expression to evaluate to Object
+    * [SYNCOPE-1687] - Allow to configure External Resources not to pre-fetch objects during propagation
+    * [SYNCOPE-1689] - Consolidate Provision, Mapping and Items into single JSON column
 
 ** Task
-    * [SYNCOPE-962] - Upgrade to Wicket 7.5.0
-    * [SYNCOPE-1080] - Update swagger-jaxrs dependency to 1.5.13
-    * [SYNCOPE-1204] - Upgrade Migration code and guide
-    * [SYNCOPE-1208] - MIgrate to JUnit 5
-    * [SYNCOPE-1262] - Upgrade to Swagger UI 3.0
-    * [SYNCOPE-1327] - Enable build with Java 10
+    * [SYNCOPE-1258] - Upgrade to Font Awesome 5
+    * [SYNCOPE-1332] - Java 11 language features
+    * [SYNCOPE-1381] - Support user request from Enduser UI
+    * [SYNCOPE-1400] - Support MySQL 8
+    * [SYNCOPE-1402] - Upgrade to Validation API 2.0
+    * [SYNCOPE-1410] - Prepare code tree for 3.0 architecture
+    * [SYNCOPE-1435] - Upgrade to Bootstrap 4 / AdminLTE 3
+    * [SYNCOPE-1464] - Upgrade to Apache Netbeans Maven dependencies
+    * [SYNCOPE-1486] - Upgrade maven-checkstyle-plugin to checkstyle 8.24
+    * [SYNCOPE-1489] - Reorganize Travis CI to run the build suite in stages
+    * [SYNCOPE-1497] - Upgrade to Wicket 9
+    * [SYNCOPE-1585] - Streamline existing components with WA
+    * [SYNCOPE-1618] - Use Constructor-level dependency injections

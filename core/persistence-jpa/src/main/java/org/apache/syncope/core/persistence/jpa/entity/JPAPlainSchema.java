@@ -27,18 +27,14 @@ import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidator;
 import org.apache.syncope.core.persistence.jpa.validation.entity.PlainSchemaCheck;
-import org.apache.syncope.core.spring.ImplementationManager;
 
 @Entity
 @Table(name = JPAPlainSchema.TABLE)
@@ -89,9 +85,6 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
 
     @OneToOne
     private JPAImplementation validator;
-
-    @Transient
-    private Validator validatorImpl;
 
     @Override
     public AnyTypeClass getAnyTypeClass() {
@@ -152,27 +145,6 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     @Override
     public void setReadonly(final boolean readonly) {
         this.readonly = readonly;
-    }
-
-    public Validator validator() {
-        if (validatorImpl != null) {
-            return validatorImpl;
-        }
-
-        if (getValidator() != null) {
-            try {
-                validatorImpl = ImplementationManager.build(getValidator());
-            } catch (Exception e) {
-                LOG.error("While building {}", getValidator(), e);
-            }
-        }
-
-        if (validatorImpl == null) {
-            validatorImpl = new BasicValidator();
-        }
-        validatorImpl.setSchema(this);
-
-        return validatorImpl;
     }
 
     @Override

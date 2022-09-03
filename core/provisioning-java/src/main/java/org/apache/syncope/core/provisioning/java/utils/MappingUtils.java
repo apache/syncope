@@ -21,8 +21,10 @@ package org.apache.syncope.core.provisioning.java.utils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +50,8 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 public final class MappingUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingUtils.class);
+
+    private static final Map<String, ItemTransformer> PER_CONTEXT_ITEM_TRANSFORMERS = new ConcurrentHashMap<>();
 
     public static Optional<Item> getConnObjectKeyItem(final Provision provision) {
         Mapping mapping = null;
@@ -91,7 +95,10 @@ public final class MappingUtils {
         // Then other custom transformers
         transformers.forEach(impl -> {
             try {
-                result.add(ImplementationManager.build(impl));
+                result.add(ImplementationManager.build(
+                        impl,
+                        () -> PER_CONTEXT_ITEM_TRANSFORMERS.get(impl.getKey()),
+                        instance -> PER_CONTEXT_ITEM_TRANSFORMERS.put(impl.getKey(), instance)));
             } catch (Exception e) {
                 LOG.error("While building {}", impl, e);
             }

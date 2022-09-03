@@ -329,7 +329,11 @@ case of failures.
 
 When defining a propagation policy, the following information must be provided:
 
-* pre-fetch - the default behavior to attempt to read upfront the object being propagated can be disabled
+* fetch around provisioning - the default behavior is to attempt to read upfront the object being propagated (to ensure
+it exists or not, depending on the actual operation scheduled to perform) and to read it again afterwards (to check the
+effective results); this can be disabled
+* update delta - in case of update, all object attributes are propagated by default; when enabled, only the changed
+attributes will be instead propagated
 * max number of attempts
 * back-off strategy
 ** `FIXED` - pauses for a fixed period of time before continuing

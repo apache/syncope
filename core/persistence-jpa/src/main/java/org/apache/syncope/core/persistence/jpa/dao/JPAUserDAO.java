@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceException;
@@ -38,11 +39,13 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -92,6 +95,10 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     protected final FIQLQueryDAO fiqlQueryDAO;
 
     protected final SecurityProperties securityProperties;
+
+    protected final Map<String, AccountRule> perContextAccountRules = new ConcurrentHashMap<>();
+
+    protected final Map<String, PasswordRule> perContextPasswordRules = new ConcurrentHashMap<>();
 
     public JPAUserDAO(
             final AnyUtilsFactory anyUtilsFactory,
@@ -321,6 +328,42 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return policies;
     }
 
+    protected List<AccountRule> getAccountRules(final AccountPolicy policy) {
+        List<AccountRule> result = new ArrayList<>();
+
+        for (Implementation impl : policy.getRules()) {
+            try {
+                ImplementationManager.buildAccountRule(
+                        impl,
+                        () -> perContextAccountRules.get(impl.getKey()),
+                        instance -> perContextAccountRules.put(impl.getKey(), instance)).
+                        ifPresent(result::add);
+            } catch (Exception e) {
+                LOG.warn("While building {}", impl, e);
+            }
+        }
+
+        return result;
+    }
+
+    protected List<PasswordRule> getPasswordRules(final PasswordPolicy policy) {
+        List<PasswordRule> result = new ArrayList<>();
+
+        for (Implementation impl : policy.getRules()) {
+            try {
+                ImplementationManager.buildPasswordRule(
+                        impl,
+                        () -> perContextPasswordRules.get(impl.getKey()),
+                        instance -> perContextPasswordRules.put(impl.getKey(), instance)).
+                        ifPresent(result::add);
+            } catch (Exception e) {
+                LOG.warn("While building {}", impl, e);
+            }
+        }
+
+        return result;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Pair<Boolean, Boolean> enforcePolicies(final User user) {
@@ -336,15 +379,13 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                     throw new PasswordPolicyException("Password mandatory");
                 }
 
-                for (Implementation impl : policy.getRules()) {
-                    ImplementationManager.buildPasswordRule(impl).ifPresent(rule -> {
-                        rule.enforce(user);
+                getPasswordRules(policy).forEach(rule -> {
+                    rule.enforce(user);
 
-                        user.getLinkedAccounts().stream().
-                                filter(account -> account.getPassword() != null).
-                                forEach(rule::enforce);
-                    });
-                }
+                    user.getLinkedAccounts().stream().
+                            filter(account -> account.getPassword() != null).
+                            forEach(rule::enforce);
+                });
 
                 boolean matching = false;
                 if (policy.getHistoryLength() > 0) {
@@ -419,15 +460,13 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                         });
             } else {
                 for (AccountPolicy policy : accountPolicies) {
-                    for (Implementation impl : policy.getRules()) {
-                        ImplementationManager.buildAccountRule(impl).ifPresent(rule -> {
-                            rule.enforce(user);
+                    getAccountRules(policy).forEach(rule -> {
+                        rule.enforce(user);
 
-                            user.getLinkedAccounts().stream().
-                                    filter(account -> account.getUsername() != null).
-                                    forEach(rule::enforce);
-                        });
-                    }
+                        user.getLinkedAccounts().stream().
+                                filter(account -> account.getUsername() != null).
+                                forEach(rule::enforce);
+                    });
 
                     suspend |= user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0
                             && user.getFailedLogins() > policy.getMaxAuthenticationAttempts() && !user.isSuspended();

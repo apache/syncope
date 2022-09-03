@@ -309,30 +309,6 @@ Add the following dependency to `core/pom.xml`:
 ----
 
 [discrete]
-===== Enable the <<apache-camel-provisioning-manager>>
-
-Add the following dependencies to `core/pom.xml`:
-
-[source,xml,subs="verbatim,attributes"]
-----
-<dependency>
-  <groupId>org.apache.syncope.ext.camel</groupId>
-  <artifactId>syncope-ext-camel-rest-cxf</artifactId>
-  <version>${syncope.version}</version>
-</dependency>
-<dependency>
-  <groupId>org.apache.syncope.ext.camel</groupId>
-  <artifactId>syncope-ext-camel-persistence-jpa</artifactId>
-  <version>${syncope.version}</version>
-</dependency>
-<dependency>
-  <groupId>org.apache.syncope.ext.camel</groupId>
-  <artifactId>syncope-ext-camel-provisioning</artifactId>
-  <version>${syncope.version}</version>
-</dependency>
-----
-
-[discrete]
 ===== Enable the <<saml2sp4ui>> extension
 
 Add the following dependencies to `core/pom.xml`:
@@ -436,28 +412,28 @@ Adding a new REST endpoint involves several operations:
 . create - in an extension's `rest-api` module or under `common` otherwise - a Java interface with package
 `org.apache.syncope.common.rest.api.service` and proper JAX-RS annotations; check
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/CamelRouteService.java[CamelRouteService^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/flowable/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/BpmnProcessService.java[BpmnProcessService^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/camel/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/CamelRouteService.java[CamelRouteService^]
+https://github.com/apache/syncope/blob/master/ext/flowable/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/BpmnProcessService.java[BpmnProcessService^]
 endif::[]
 for reference;
 . if needed, define supporting payload objects - in an extension's `common-lib` module or under `common` otherwise;
 check
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/to/CamelRouteTO.java[CamelRouteTO^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/flowable/common-lib/src/main/java/org/apache/syncope/common/lib/to/BpmnProcess.java[BpmnProcess^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/to/CamelRouteTO.java[CamelRouteTO^]
+https://github.com/apache/syncope/blob/master/ext/flowable/common-lib/src/main/java/org/apache/syncope/common/lib/to/BpmnProcess.java[BpmnProcess^]
 endif::[]
 for reference;
 . implement - in an extension's `rest-cxf` module or under `core` otherwise -  the interface defined above in a Java
 class with package `org.apache.syncope.core.rest.cxf.service`; check
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/camel/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/CamelRouteServiceImpl.java[CamelRouteServiceImpl^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/flowable/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/BpmnProcessServiceImpl.java[BpmnProcessServiceImpl^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/camel/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/CamelRouteServiceImpl.java[CamelRouteServiceImpl^]
+https://github.com/apache/syncope/blob/master/ext/flowable/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/BpmnProcessServiceImpl.java[BpmnProcessServiceImpl^]
 endif::[]
 for reference.
 
@@ -483,20 +459,6 @@ Add the following dependency to `console/pom.xml`:
   <artifactId>syncope-ext-flowable-client-console</artifactId>
   <version>${syncope.version}</version>
 </dependency>
-----
-
-[discrete]
-===== Enable the <<apache-camel-provisioning-manager>>
-
-Add the following dependency to `console/pom.xml`:
-
-[source,xml,subs="verbatim,attributes"]
-----
-<dependency>
-  <groupId>org.apache.syncope.ext.camel</groupId>
-  <artifactId>syncope-ext-camel-client-console</artifactId>
-  <version>${syncope.version}</version>
-</dependency> 
 ----
 
 [discrete]

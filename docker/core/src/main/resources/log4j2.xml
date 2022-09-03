@@ -86,13 +86,7 @@ under the License.
     <asyncLogger name="liquibase" additivity="false" level="ERROR">
       <appender-ref ref="console"/>
     </asyncLogger>
-    <asyncLogger name="org.apache.cocoon" additivity="false" level="ERROR">
-      <appender-ref ref="console"/>
-    </asyncLogger>
     <asyncLogger name="org.apache.fop" additivity="false" level="ERROR">
-      <appender-ref ref="console"/>
-    </asyncLogger>
-    <asyncLogger name="org.apache.camel" additivity="false" level="ERROR">
       <appender-ref ref="console"/>
     </asyncLogger>
     <asyncLogger name="org.apache.wss4j" additivity="false" level="ERROR">

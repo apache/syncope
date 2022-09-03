@@ -61,12 +61,16 @@ import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.common.rest.api.service.ExecutableService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Entry point for client access to all REST services exposed by Syncope core; obtain instances via
  * {@link SyncopeClientFactoryBean}.
  */
 public class SyncopeClient {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeClient.class);
 
     protected static final String HEADER_SPLIT_PROPERTY = "org.apache.cxf.http.header.split";
 
@@ -228,7 +232,11 @@ public class SyncopeClient {
      * Invalidates the JWT currently in use.
      */
     public void logout() {
-        getService(AccessTokenService.class).logout();
+        try {
+            getService(AccessTokenService.class).logout();
+        } catch (Exception e) {
+            LOG.error("While logging out, cleaning up anyway", e);
+        }
         cleanup();
     }
 

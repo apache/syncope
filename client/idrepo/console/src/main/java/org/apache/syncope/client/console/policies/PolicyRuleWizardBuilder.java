@@ -32,7 +32,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.common.lib.policy.ComposablePolicy;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.RuleConf;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -126,12 +125,12 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
             switch (type) {
                 case ACCOUNT:
                     choices = ImplementationRestClient.list(IdRepoImplementationType.ACCOUNT_RULE).stream().
-                            map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                            map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
                     break;
 
                 case PASSWORD:
                     choices = ImplementationRestClient.list(IdRepoImplementationType.PASSWORD_RULE).stream().
-                            map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                            map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
                     break;
 
                 default:

@@ -115,7 +115,6 @@ import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
-import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DelegationService;
@@ -351,8 +350,6 @@ public abstract class AbstractITCase {
 
     protected static SRARouteService SRA_ROUTE_SERVICE;
 
-    protected static CamelRouteService CAMEL_ROUTE_SERVICE;
-
     protected static SAML2SP4UIService SAML2SP4UI_SERVICE;
 
     protected static SAML2SP4UIIdPService SAML2SP4UI_IDP_SERVICE;
@@ -457,7 +454,6 @@ public abstract class AbstractITCase {
         REMEDIATION_SERVICE = ADMIN_CLIENT.getService(RemediationService.class);
         DELEGATION_SERVICE = ADMIN_CLIENT.getService(DelegationService.class);
         SRA_ROUTE_SERVICE = ADMIN_CLIENT.getService(SRARouteService.class);
-        CAMEL_ROUTE_SERVICE = ADMIN_CLIENT.getService(CamelRouteService.class);
         SAML2SP4UI_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIService.class);
         SAML2SP4UI_IDP_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIIdPService.class);
         OIDCC4UI_SERVICE = ADMIN_CLIENT.getService(OIDCC4UIService.class);
@@ -798,12 +794,34 @@ public abstract class AbstractITCase {
     protected static <T> T queryForObject(
             final JdbcTemplate jdbcTemplate,
             final int maxWaitSeconds,
-            final String sql, final Class<T> requiredType, final Object... args) {
+            final String sql,
+            final Class<T> requiredType,
+            final Object... args) {
 
         AtomicReference<T> object = new AtomicReference<>();
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
                 object.set(jdbcTemplate.queryForObject(sql, requiredType, args));
+                return object.get() != null;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+
+        return object.get();
+    }
+
+    protected static <T> List<T> queryForList(
+            final JdbcTemplate jdbcTemplate,
+            final int maxWaitSeconds,
+            final String sql,
+            final Class<T> requiredType,
+            final Object... args) {
+
+        AtomicReference<List<T>> object = new AtomicReference<>();
+        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+            try {
+                object.set(jdbcTemplate.queryForList(sql, requiredType, args));
                 return object.get() != null;
             } catch (Exception e) {
                 return false;

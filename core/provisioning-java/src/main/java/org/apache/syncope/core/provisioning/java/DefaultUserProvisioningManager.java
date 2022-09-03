@@ -21,6 +21,8 @@ package org.apache.syncope.core.provisioning.java;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -46,6 +48,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
+import org.identityconnectors.framework.common.objects.Attribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -61,22 +64,22 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     protected final PropagationTaskExecutor taskExecutor;
 
-    protected final VirAttrHandler virtAttrHandler;
-
     protected final UserDAO userDAO;
+
+    protected final VirAttrHandler virtAttrHandler;
 
     public DefaultUserProvisioningManager(
             final UserWorkflowAdapter uwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
-            final VirAttrHandler virtAttrHandler,
-            final UserDAO userDAO) {
+            final UserDAO userDAO,
+            final VirAttrHandler virtAttrHandler) {
 
         this.uwfAdapter = uwfAdapter;
         this.propagationManager = propagationManager;
         this.taskExecutor = taskExecutor;
-        this.virtAttrHandler = virtAttrHandler;
         this.userDAO = userDAO;
+        this.virtAttrHandler = virtAttrHandler;
     }
 
     @Override
@@ -117,9 +120,20 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     public Pair<UserUR, List<PropagationStatus>> update(
             final UserUR userUR, final boolean nullPriorityAsync, final String updater, final String context) {
 
+        Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
+                AnyTypeKind.USER,
+                userUR.getKey(),
+                Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null),
+                userUR.getPassword() != null,
+                null,
+                Set.of());
+
         UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.update(userUR, updater, context);
 
-        List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(updated);
+        List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
+                propagationManager.getUserUpdateTasks(updated),
+                beforeAttrs,
+                updated.getResult().getLeft());
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult().getLeft(), propagationReporter.getStatuses());
@@ -146,6 +160,14 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             final boolean nullPriorityAsync,
             final String updater,
             final String context) {
+
+        Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(
+                AnyTypeKind.USER,
+                userUR.getKey(),
+                Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null),
+                userUR.getPassword() != null,
+                enabled,
+                excludedResources);
 
         UserWorkflowResult<Pair<UserUR, Boolean>> updated;
         try {
@@ -185,8 +207,13 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             }
         }
 
-        List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
-                updated, updated.getResult().getLeft().getPassword() != null, excludedResources);
+        List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
+                propagationManager.getUserUpdateTasks(
+                        updated,
+                        updated.getResult().getLeft().getPassword() != null,
+                        excludedResources),
+                beforeAttrs,
+                updated.getResult().getLeft());
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult().getLeft(), propagationReporter.getStatuses());
@@ -322,13 +349,12 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             final String password,
             final Collection<String> resources,
             final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
+            final String executor) {
 
         UserUR userUR = new UserUR();
         userUR.setKey(key);
-        userUR.getResources().addAll(resources.stream().map(resource
-                -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+        userUR.getResources().addAll(resources.stream().
+                map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
                 collect(Collectors.toSet()));
 
         if (changePwd) {
@@ -346,7 +372,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 Pair.of(userUR, (Boolean) null), propByRes, null, "update");
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(wfResult, changePwd, null);
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
     }
@@ -356,8 +382,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             final String key,
             final Collection<String> resources,
             final boolean nullPriorityAsync,
-            final String updater,
-            final String context) {
+            final String executor) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.DELETE, resources);
@@ -377,7 +402,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 userDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
                         collect(Collectors.toList()));
-        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
+        PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
     }

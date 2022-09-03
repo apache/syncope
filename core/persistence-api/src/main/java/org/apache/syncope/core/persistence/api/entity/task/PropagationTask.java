@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.entity.task;
 
-import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.identityconnectors.framework.common.objects.Attribute;
 
 public interface PropagationTask extends Task {
 
@@ -34,11 +32,11 @@ public interface PropagationTask extends Task {
 
     void setOldConnObjectKey(String oldConnObjectKey);
 
-    String getSerializedAttributes();
+    String getSerializedPropagationData();
 
-    Set<Attribute> getAttributes();
+    PropagationData getPropagationData();
 
-    void setAttributes(Set<Attribute> attributes);
+    void setPropagationData(PropagationData propagationData);
 
     String getObjectClassName();
 

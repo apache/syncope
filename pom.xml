@@ -115,7 +115,7 @@ under the License.
       <email>ilgrosso@apache.org</email>
       <name>Francesco Chicchiriccò</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>ASF member</role>
         <role>PMC chair</role>
@@ -126,7 +126,7 @@ under the License.
       <id>fmartelli</id>
       <name>Fabio Martelli</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>PMC member</role>
       </roles>
@@ -136,7 +136,7 @@ under the License.
       <id>mdisabatino</id>
       <name>Marco Di Sabatino Di Diodoro</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>PMC member</role>
       </roles>
@@ -146,7 +146,7 @@ under the License.
       <id>massi</id>
       <name>Massimiliano Perrone</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>PMC member</role>
       </roles>
@@ -271,7 +271,7 @@ under the License.
       <id>andreapatricelli</id>
       <name>Andrea Patricelli</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>PMC member</role>
       </roles>
@@ -292,8 +292,6 @@ under the License.
     <developer>
       <id>matteodc</id>
       <name>Matteo Di Carlo</name>
-      <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
       <roles>
         <role>committer</role>
       </roles>
@@ -304,7 +302,7 @@ under the License.
       <id>skylark17</id>
       <name>Matteo Alessandroni</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>PMC member</role>
       </roles>
@@ -315,7 +313,7 @@ under the License.
       <id>loredicola</id>
       <name>Lorenzo Di Cola</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>committer</role>
       </roles>
@@ -325,8 +323,6 @@ under the License.
     <developer>
       <id>dimaayash</id>
       <name>Dima Ayash</name>
-      <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
       <roles>
         <role>committer</role>
       </roles>
@@ -336,11 +332,21 @@ under the License.
       <id>mmoayyed</id>
       <name>Misagh Moayyed</name>
       <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>committer</role>
       </roles>
       <email>mmoayyed@apache.org</email>
+    </developer>
+    <developer>
+      <id>sgarofalo</id>
+      <name>Samuel Garofalo</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>https://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <email>sgarofalo@apache.org</email>
     </developer>
   </developers>
   <contributors>
@@ -388,15 +394,15 @@ under the License.
   </contributors>
 
   <properties>
-    <project.build.outputTimestamp>2021-07-16T09:00:00Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2022-08-05T11:54:29Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
     <connid.version>1.5.1.0</connid.version>
     <connid.soap.version>1.4.5</connid.soap.version>
-    <connid.rest.version>1.0.6</connid.rest.version>
-    <connid.database.version>2.2.8</connid.database.version>
+    <connid.rest.version>1.0.7</connid.rest.version>
+    <connid.database.version>2.2.9</connid.database.version>
     <connid.csvdir.version>0.8.9</connid.csvdir.version>
-    <connid.ldap.version>1.5.5</connid.ldap.version>
+    <connid.ldap.version>1.5.6</connid.ldap.version>
     <connid.ad.version>1.3.8</connid.ad.version>
     <connid.googleapps.version>1.4.3</connid.googleapps.version>
     <connid.azure.version>2.0.0</connid.azure.version>
@@ -407,11 +413,11 @@ under the License.
 
     <cxf.version>3.5.3</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.23</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.24.3</nimbus-jose-jwt.version>
 
     <jackson.version>2.13.3</jackson.version>
 
-    <spring-boot.version>2.7.2</spring-boot.version>
+    <spring-boot.version>2.7.3</spring-boot.version>
     <spring-cloud-gateway.version>3.1.3</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.2</openjpa.version>
@@ -420,17 +426,13 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <cocoon.version>3.0.0-alpha-3</cocoon.version>
-
     <groovy.version>4.0.4</groovy.version>
 
     <flowable.version>6.7.2</flowable.version>
 
-    <camel.version>3.18.0</camel.version>
-
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.3.3</elasticsearch.version>
+    <elasticsearch.version>8.4.1</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -446,7 +448,7 @@ under the License.
 
     <modernizer-maven.version>2.4.0</modernizer-maven.version>
 
-    <pac4j.version>5.4.3</pac4j.version>
+    <pac4j.version>5.4.6</pac4j.version>
 
     <cas.version>6.6.0-SNAPSHOT</cas.version>
     <cas-client.version>3.6.4</cas-client.version>
@@ -454,7 +456,7 @@ under the License.
     <h2.version>2.1.214</h2.version>
 
     <swagger-core.version>2.2.2</swagger-core.version>
-    <swagger-ui.version>4.11.1</swagger-ui.version>
+    <swagger-ui.version>4.14.0</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
@@ -502,18 +504,18 @@ under the License.
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
     <tomcat.version>9.0.65</tomcat.version>
-    <wildfly.version>26.1.1.Final</wildfly.version>
-    <payara.version>5.2022.2</payara.version>
+    <wildfly.version>26.1.2.Final</wildfly.version>
+    <payara.version>5.2022.3</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>14</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.4.0</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.4.2</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.28</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.0.5</jdbc.mariadb.version>
-    <jdbc.mssql.version>10.2.1.jre</jdbc.mssql.version>
+    <jdbc.mariadb.version>3.0.7</jdbc.mariadb.version>
+    <jdbc.mssql.version>11.2.0.jre</jdbc.mssql.version>
     <jdbc.oracle.version>21.6.0.0.1</jdbc.oracle.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
@@ -631,53 +633,6 @@ under the License.
         <version>${swagger-ui.version}</version>
       </dependency>
       <!-- /Swagger -->
-
-      <!-- Camel -->
-      <dependency>
-        <groupId>org.apache.camel.springboot</groupId>
-        <artifactId>camel-spring-boot-starter</artifactId>
-        <version>${camel.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-groovy</artifactId>
-        <version>${camel.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-metrics</artifactId>
-        <version>${camel.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>spi-annotations</artifactId>
-        <version>${camel.version}</version>
-      </dependency>
-      <!-- /Camel -->
 
       <dependency>
         <groupId>co.elastic.clients</groupId>
@@ -1149,7 +1104,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.6.8</version>
+        <version>1.6.10</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>
@@ -1162,17 +1117,6 @@ under the License.
         <groupId>org.jasypt</groupId>
         <artifactId>jasypt</artifactId>
         <version>${jasypt.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.cocoon.sax</groupId>
-        <artifactId>cocoon-sax</artifactId>
-        <version>${cocoon.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.cocoon.optional</groupId>
-        <artifactId>cocoon-optional</artifactId>
-        <version>${cocoon.version}</version>
       </dependency>
 
       <dependency>
@@ -1531,13 +1475,13 @@ under the License.
       <dependency>
         <groupId>org.passay</groupId>
         <artifactId>passay</artifactId>
-        <version>1.6.1</version>
+        <version>1.6.2</version>
       </dependency>
 
       <dependency>
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
-        <version>1.15.2</version>
+        <version>1.15.3</version>
       </dependency>
 
       <!-- TEST -->
@@ -1698,7 +1642,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.4.0</version>
+          <version>3.4.1</version>
           <configuration>
             <source>${targetJdk}</source>
           </configuration>
@@ -1851,7 +1795,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.9.13</version>
+          <version>1.10.1</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -1898,12 +1842,12 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.1.2</version>
+          <version>3.2.0</version>
           <dependencies>
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.3.1</version>
+              <version>10.3.3</version>
             </dependency>
           </dependencies>
           <configuration>
@@ -1916,7 +1860,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.40.1</version>
+          <version>0.40.2</version>
         </plugin>
 
         <plugin>
@@ -2215,7 +2159,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.4.1</version>
         <configuration>
           <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
@@ -2233,7 +2177,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.4.1</version>
         <configuration>
           <source>${targetJdk}</source>
           <destDir>apidocs/3.0</destDir>
@@ -2257,8 +2201,6 @@ under the License.
             <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.13/</link>
             <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.13/</link>
             <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.13/</link>
-            <link>https://www.javadoc.io/doc/org.apache.camel/camel-core/latest/</link>
-            <link>https://www.javadoc.io/doc/org.apache.camel/camel-spring/latest/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/9.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
@@ -2281,7 +2223,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>3.3.0</version>
       </plugin>
     </plugins>
   </reporting>
@@ -2365,7 +2307,7 @@ under the License.
               <dependency>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctorj-pdf</artifactId>
-                <version>2.1.6</version>
+                <version>2.3.0</version>
               </dependency>
             </dependencies>
             <configuration>
@@ -2463,7 +2405,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.12.0</version>
+            <version>3.12.1</version>
             <configuration>
               <locales>en</locales>
               <generateProjectInfo>false</generateProjectInfo>

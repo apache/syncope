@@ -23,6 +23,7 @@ import java.io.IOException;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.tika.Tika;
 
 public class BinaryValidator extends AbstractValidator {
@@ -38,7 +39,7 @@ public class BinaryValidator extends AbstractValidator {
     }
 
     @Override
-    protected void doValidate(final PlainAttrValue attrValue) {
+    protected void doValidate(final PlainSchema schema, final PlainAttrValue attrValue) {
         // check Binary schemas MIME Type mismatches
         if (attrValue.getBinaryValue() != null) {
             byte[] binaryValue = attrValue.getBinaryValue();

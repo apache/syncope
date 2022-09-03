@@ -30,7 +30,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -114,7 +114,7 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 
@@ -125,7 +125,7 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
-                    map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 

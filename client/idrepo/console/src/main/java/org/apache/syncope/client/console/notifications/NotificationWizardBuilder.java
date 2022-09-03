@@ -47,7 +47,8 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -134,7 +135,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
                     "template", getString("template"),
                     new PropertyModel<>(notificationTO, "template"));
             template.setChoices(restClient.listTemplates().stream().
-                    map(EntityTO::getKey).collect(Collectors.toList()));
+                    map(MailTemplateTO::getKey).collect(Collectors.toList()));
 
             template.addRequiredLabel();
             add(template);
@@ -332,7 +333,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdRepoImplementationType.RECIPIENTS_PROVIDER).stream().
-                        map(EntityTO::getKey).sorted().collect(Collectors.toList());
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 
@@ -396,11 +397,11 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         result.add(Constants.USERNAME_FIELD_NAME);
 
         result.addAll(SchemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, null, anyTypeClasses).
-                stream().map(EntityTO::getKey).collect(Collectors.toList()));
+                stream().map(PlainSchemaTO::getKey).collect(Collectors.toList()));
         result.addAll(SchemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, null, anyTypeClasses).
-                stream().map(EntityTO::getKey).collect(Collectors.toList()));
+                stream().map(DerSchemaTO::getKey).collect(Collectors.toList()));
         result.addAll(SchemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, null, anyTypeClasses).
-                stream().map(EntityTO::getKey).collect(Collectors.toList()));
+                stream().map(VirSchemaTO::getKey).collect(Collectors.toList()));
 
         Collections.sort(result);
         return result;

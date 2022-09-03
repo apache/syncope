@@ -32,7 +32,6 @@ import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -146,7 +145,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
         List<Notification> notifications = notificationDAO.findByTemplate(mailTemplate);
         if (!notifications.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InUse);
-            sce.getElements().addAll(notifications.stream().map(Entity::getKey).collect(Collectors.toList()));
+            sce.getElements().addAll(notifications.stream().map(Notification::getKey).collect(Collectors.toList()));
             throw sce;
         }
 

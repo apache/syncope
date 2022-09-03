@@ -45,7 +45,6 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -325,7 +324,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final AnyObject anyObject) {
-        return findAllGroups(anyObject).stream().map(Entity::getKey).collect(Collectors.toList());
+        return findAllGroups(anyObject).stream().map(Group::getKey).collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -341,6 +340,6 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
-        return findAllResources(authFind(key)).stream().map(Entity::getKey).collect(Collectors.toList());
+        return findAllResources(authFind(key)).stream().map(ExternalResource::getKey).collect(Collectors.toList());
     }
 }

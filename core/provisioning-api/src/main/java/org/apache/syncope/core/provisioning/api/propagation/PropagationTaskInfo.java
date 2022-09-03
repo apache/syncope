@@ -19,36 +19,103 @@
 package org.apache.syncope.core.provisioning.api.propagation;
 
 import java.util.Optional;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
+import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 
-@SuppressWarnings("squid:S1948")
-public class PropagationTaskInfo extends PropagationTaskTO {
+public class PropagationTaskInfo {
 
-    private static final long serialVersionUID = -2879861567335503099L;
+    private final ExternalResource resource;
 
-    private final ExternalResource externalResource;
+    private final ResourceOperation operation;
+
+    private final ObjectClass objectClass;
+
+    private final AnyTypeKind anyTypeKind;
+
+    private final String anyType;
+
+    private final String entityKey;
+
+    private String connObjectKey;
+
+    private String oldConnObjectKey;
+
+    private final PropagationData propagationData;
 
     private Connector connector;
 
-    /**
-     * Object on External Resource before propagation takes place.
-     *
-     * null: beforeObj was not attempted to read
-     * not null but not present: beforeObj was attempted to read, but not found
-     * not null and present: beforeObj value is available
-     */
-    private Optional<ConnectorObject> beforeObj;
+    private Optional<ConnectorObject> beforeObj = Optional.empty();
 
-    public PropagationTaskInfo(final ExternalResource externalResource) {
-        super();
-        this.externalResource = externalResource;
+    private AnyUR updateRequest;
+
+    public PropagationTaskInfo(
+            final ExternalResource resource,
+            final ResourceOperation operation,
+            final ObjectClass objectClass,
+            final AnyTypeKind anyTypeKind,
+            final String anyType,
+            final String entityKey,
+            final String connObjectKey,
+            final PropagationData propagationData) {
+
+        this.resource = resource;
+        this.operation = operation;
+        this.objectClass = objectClass;
+        this.anyTypeKind = anyTypeKind;
+        this.anyType = anyType;
+        this.entityKey = entityKey;
+        this.connObjectKey = connObjectKey;
+        this.propagationData = propagationData;
+    }
+
+    public ExternalResource getResource() {
+        return resource;
+    }
+
+    public ResourceOperation getOperation() {
+        return operation;
+    }
+
+    public ObjectClass getObjectClass() {
+        return objectClass;
+    }
+
+    public AnyTypeKind getAnyTypeKind() {
+        return anyTypeKind;
+    }
+
+    public String getAnyType() {
+        return anyType;
+    }
+
+    public String getEntityKey() {
+        return entityKey;
+    }
+
+    public String getConnObjectKey() {
+        return connObjectKey;
+    }
+
+    public void setConnObjectKey(final String connObjectKey) {
+        this.connObjectKey = connObjectKey;
+    }
+
+    public String getOldConnObjectKey() {
+        return oldConnObjectKey;
+    }
+
+    public void setOldConnObjectKey(final String oldConnObjectKey) {
+        this.oldConnObjectKey = oldConnObjectKey;
+    }
+
+    public PropagationData getPropagationData() {
+        return propagationData;
     }
 
     public Connector getConnector() {
@@ -59,20 +126,6 @@ public class PropagationTaskInfo extends PropagationTaskTO {
         this.connector = connector;
     }
 
-    public ExternalResource getExternalResource() {
-        return externalResource;
-    }
-
-    @Override
-    public String getResource() {
-        return externalResource.getKey();
-    }
-
-    @Override
-    public void setResource(final String resource) {
-        throw new IllegalArgumentException("Cannot set ExternalResource on " + getClass().getName());
-    }
-
     public Optional<ConnectorObject> getBeforeObj() {
         return beforeObj;
     }
@@ -81,40 +134,29 @@ public class PropagationTaskInfo extends PropagationTaskTO {
         this.beforeObj = beforeObj;
     }
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().
-                appendSuper(super.hashCode()).
-                append(externalResource.getKey()).
-                append(beforeObj).
-                build();
+    public AnyUR getUpdateRequest() {
+        return updateRequest;
     }
 
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final PropagationTaskInfo other = (PropagationTaskInfo) obj;
-        return new EqualsBuilder().
-                appendSuper(super.equals(obj)).
-                append(externalResource.getKey(), other.externalResource.getKey()).
-                append(beforeObj, other.beforeObj).
-                build();
+    public void setUpdateRequest(final AnyUR updateRequest) {
+        this.updateRequest = updateRequest;
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
-                appendSuper(super.toString()).
-                append(externalResource).
-                append(beforeObj).
-                build();
+        return "PropagationTaskInfo{"
+                + "resource=" + resource.getKey()
+                + ", operation=" + operation
+                + ", objectClass=" + objectClass
+                + ", anyTypeKind=" + anyTypeKind
+                + ", anyType=" + anyType
+                + ", entityKey=" + entityKey
+                + ", connObjectKey=" + connObjectKey
+                + ", oldConnObjectKey=" + oldConnObjectKey
+                + ", propagationData=" + propagationData
+                + ", connector=" + connector
+                + ", beforeObj=" + beforeObj
+                + ", updateRequest=" + updateRequest
+                + '}';
     }
 }

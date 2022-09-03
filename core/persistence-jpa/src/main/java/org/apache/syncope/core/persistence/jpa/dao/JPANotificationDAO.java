@@ -23,10 +23,10 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
+import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,7 +86,7 @@ public class JPANotificationDAO extends AbstractDAO<Notification> implements Not
 
         taskDAO.findAll(
                 TaskType.NOTIFICATION, null, notification, null, null, -1, -1, List.of()).
-                stream().map(Entity::getKey).forEach(this::delete);
+                stream().map(Task::getKey).forEach(this::delete);
 
         entityManager().remove(notification);
     }
