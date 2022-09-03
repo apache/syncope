@@ -87,13 +87,13 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         } else {
             chain = new ChainingAttributeReleasePolicy();
             if (attributeReleasePolicy != null) {
-                chain.addPolicy(attributeReleasePolicy);
+                chain.addPolicies(attributeReleasePolicy);
             }
 
-            chain.addPolicy(new OidcProfileScopeAttributeReleasePolicy());
-            chain.addPolicy(new OidcEmailScopeAttributeReleasePolicy());
-            chain.addPolicy(new OidcAddressScopeAttributeReleasePolicy());
-            chain.addPolicy(new OidcPhoneScopeAttributeReleasePolicy());
+            chain.addPolicies(new OidcProfileScopeAttributeReleasePolicy(),
+                new OidcEmailScopeAttributeReleasePolicy(),
+                new OidcAddressScopeAttributeReleasePolicy(),
+                new OidcPhoneScopeAttributeReleasePolicy());
 
             Set<String> customClaims = clientApp.getReleaseAttrs().values().stream().
                     map(Objects::toString).collect(Collectors.toCollection(HashSet::new));
@@ -110,7 +110,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                                     distinct().collect(Collectors.toList()));
                 }
 
-                chain.addPolicy(new OidcCustomScopeAttributeReleasePolicy(
+                chain.addPolicies(new OidcCustomScopeAttributeReleasePolicy(
                         CUSTOM_SCOPE, customClaims.stream().collect(Collectors.toList())));
             }
         }
