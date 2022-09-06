@@ -25,7 +25,7 @@ public interface TaskUtilsFactory {
 
     TaskUtils getInstance(TaskType type);
 
-    TaskUtils getInstance(Task task);
+    TaskUtils getInstance(Task<?> task);
 
     TaskUtils getInstance(Class<? extends TaskTO> taskClass);
 

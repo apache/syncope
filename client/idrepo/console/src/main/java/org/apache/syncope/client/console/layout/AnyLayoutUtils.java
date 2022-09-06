@@ -41,8 +41,6 @@ import org.springframework.util.ClassUtils;
 
 public final class AnyLayoutUtils {
 
-    private static final RoleRestClient ROLE_REST_CLIENT = new RoleRestClient();
-
     private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private static void setUserIfEmpty(final AnyLayout anyLayout) {
@@ -81,7 +79,7 @@ public final class AnyLayoutUtils {
         try {
             AnyLayout anyLayout = null;
             for (int i = 0; i < ownedRoles.size() && anyLayout == null; i++) {
-                String anyLayoutJSON = ROLE_REST_CLIENT.readAnyLayout(ownedRoles.get(i));
+                String anyLayoutJSON = RoleRestClient.readAnyLayout(ownedRoles.get(i));
                 if (StringUtils.isNotBlank(anyLayoutJSON)) {
                     anyLayout = MAPPER.readValue(anyLayoutJSON, AnyLayout.class);
                 }

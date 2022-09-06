@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
@@ -41,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Remove and rebuild all Elasticsearch indexes with information from existing users, groups and any objects.
  */
-public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
+public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask> {
 
     @Autowired
     protected ElasticsearchClient client;
@@ -166,7 +167,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
     }
 
     @Override
-    protected boolean hasToBeRegistered(final TaskExec execution) {
+    protected boolean hasToBeRegistered(final TaskExec<?> execution) {
         return true;
     }
 }

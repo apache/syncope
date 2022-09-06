@@ -51,15 +51,15 @@ public class ConnectorDataProvider extends DirectoryDataProvider<Serializable> {
 
     protected int currentPage;
 
-    private String keyword;
-
-    private final ConnectorRestClient restClient = new ConnectorRestClient();
+    private final String keyword;
 
     public ConnectorDataProvider(
             final int paginatorRows,
             final PageReference pageRef,
             final String keyword) {
+
         super(paginatorRows);
+
         setSort("displayNameSortParam", SortOrder.ASCENDING);
         this.pageRef = pageRef;
         this.keyword = keyword;
@@ -75,18 +75,18 @@ public class ConnectorDataProvider extends DirectoryDataProvider<Serializable> {
                 currentPage = 0;
             }
             if (StringUtils.isBlank(keyword)) {
-                result = restClient.getAllConnectors();
+                result = ConnectorRestClient.getAllConnectors();
             } else {
-                result = restClient.getAllConnectors().stream().filter(conn ->
-                        conn.getDisplayName().toLowerCase().contains(keyword)).collect(Collectors.toList());
+                result = ConnectorRestClient.getAllConnectors().stream().
+                        filter(conn -> conn.getDisplayName().toLowerCase().contains(keyword)).
+                        collect(Collectors.toList());
             }
         } catch (Exception e) {
             LOG.error("While searching", e);
             SyncopeConsoleSession.get().onException(e);
 
             Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            target.ifPresent(ajaxRequestTarget ->
-                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
+            target.ifPresent(t -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(t));
         }
 
         SortParam<String> sortParam = getSort();
@@ -126,10 +126,10 @@ public class ConnectorDataProvider extends DirectoryDataProvider<Serializable> {
 
         try {
             if (StringUtils.isBlank(keyword)) {
-                result = restClient.getAllConnectors().size();
+                result = ConnectorRestClient.getAllConnectors().size();
             } else {
-                result = restClient.getAllConnectors().stream().filter(conn ->
-                        conn.getDisplayName().toLowerCase().contains(keyword)).count();
+                result = ConnectorRestClient.getAllConnectors().stream().filter(conn
+                        -> conn.getDisplayName().toLowerCase().contains(keyword)).count();
             }
         } catch (Exception e) {
             LOG.error("While requesting for size()", e);
@@ -144,7 +144,7 @@ public class ConnectorDataProvider extends DirectoryDataProvider<Serializable> {
 
     @Override
     public IModel<Serializable> model(final Serializable object) {
-        return new CompoundPropertyModel<>((ConnInstanceTO) object);
+        return new CompoundPropertyModel<>(object);
     }
 
     public int getCurrentPage() {

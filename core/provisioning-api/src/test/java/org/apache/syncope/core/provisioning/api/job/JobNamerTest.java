@@ -58,7 +58,7 @@ public class JobNamerTest extends AbstractTest {
     }
 
     @Test
-    public void getJobKey(final @Mock Task task) {
+    public void getJobKey(final @Mock Task<?> task) {
         String uuid = UUID.randomUUID().toString();
         when(task.getKey()).thenReturn(uuid);
         assertTrue(EqualsBuilder.reflectionEquals(new JobKey("taskJob" + task.getKey(), Scheduler.DEFAULT_GROUP),

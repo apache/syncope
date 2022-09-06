@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Exec;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.AuditManager;
@@ -146,7 +147,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
 
             // first process priority resources sequentially and fail as soon as any propagation failure is reported
             prioritizedTasks.forEach(taskInfo -> {
-                TaskExec exec = null;
+                TaskExec<PropagationTask> exec = null;
                 ExecStatus execStatus;
                 String errorMessage = null;
                 try {
@@ -166,8 +167,9 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
 
             // then process non-priority resources concurrently...
             if (!concurrentTasks.isEmpty()) {
-                CompletionService<TaskExec> completionService = new ExecutorCompletionService<>(taskExecutor);
-                List<Future<TaskExec>> futures = new ArrayList<>();
+                CompletionService<TaskExec<PropagationTask>> completionService =
+                        new ExecutorCompletionService<>(taskExecutor);
+                List<Future<TaskExec<PropagationTask>>> futures = new ArrayList<>();
 
                 concurrentTasks.forEach(taskInfo -> {
                     try {

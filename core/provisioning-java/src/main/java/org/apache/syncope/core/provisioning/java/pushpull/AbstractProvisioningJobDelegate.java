@@ -707,12 +707,10 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
 
     @Override
     protected boolean hasToBeRegistered(final TaskExec<?> execution) {
-        ProvisioningTask<T> provTask = (ProvisioningTask<T>) task;
-
         // True if either failed and failures have to be registered, or if ALL has to be registered.
         return (TaskJob.Status.valueOf(execution.getStatus()) == TaskJob.Status.FAILURE
-                && provTask.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                || provTask.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.SUMMARY.ordinal();
+                && task.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+                || task.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.SUMMARY.ordinal();
     }
 
     @SuppressWarnings("unchecked")

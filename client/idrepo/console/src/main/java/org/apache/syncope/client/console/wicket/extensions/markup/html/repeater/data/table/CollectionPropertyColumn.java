@@ -31,21 +31,19 @@ public class CollectionPropertyColumn<T> extends PropertyColumn<T, String> {
 
     private static final long serialVersionUID = 8077865338230121496L;
 
-    public CollectionPropertyColumn(
-            final IModel<String> displayModel,
-            final String propertyExpression) {
+    public CollectionPropertyColumn(final IModel<String> displayModel, final String propertyExpression) {
         super(displayModel, propertyExpression);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    @SuppressWarnings("unchecked")
     public void populateItem(
             final Item<ICellPopulator<T>> cellItem, final String componentId, final IModel<T> rowModel) {
 
-        final Object value = getDataModel(rowModel).getObject();
+        Object value = getDataModel(rowModel).getObject();
 
         if (value instanceof Collection) {
-            final List values = new ArrayList((Collection) value);
+            List values = new ArrayList((Collection) value);
             Collections.sort(values);
             cellItem.add(new CollectionPanel(componentId, values));
         }

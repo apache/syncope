@@ -307,7 +307,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
             final String cookie,
             final String fiql) {
 
-        Pair<String, List<ConnObject>> items = new ResourceRestClient().searchConnObjects(
+        Pair<String, List<ConnObject>> items = ResourceRestClient.searchConnObjects(
                 resource,
                 anyType,
                 new ConnObjectTOQuery.Builder().

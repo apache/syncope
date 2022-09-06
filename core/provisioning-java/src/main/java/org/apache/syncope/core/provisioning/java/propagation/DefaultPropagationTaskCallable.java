@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskCallable;
@@ -73,11 +74,11 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
     }
 
     @Override
-    public TaskExec call() throws Exception {
+    public TaskExec<PropagationTask> call() throws Exception {
         return AuthContextUtils.callAs(domain, executor, authorities, () -> {
             LOG.debug("Execution started for {}", taskInfo);
 
-            TaskExec execution = taskExecutor.execute(taskInfo, reporter, executor);
+            TaskExec<PropagationTask> execution = taskExecutor.execute(taskInfo, reporter, executor);
 
             LOG.debug("Execution completed for {}, {}", taskInfo, execution);
 

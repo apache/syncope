@@ -103,13 +103,10 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             protected Serializable onApplyInternal(
                     final GroupTO groupTO, final String type, final AjaxRequestTarget target) {
 
-                AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-                AnyTypeClassRestClient classRestClient = new AnyTypeClassRestClient();
-
-                AnyLayout layout = AnyLayoutUtils.fetch(anyTypeRestClient.list());
+                AnyLayout layout = AnyLayoutUtils.fetch(AnyTypeRestClient.list());
                 ModalPanel anyPanel = AnyLayoutUtils.newAnyPanel(
                         layout.getAnyPanelClass(),
-                        BaseModal.CONTENT_ID, anyTypeRestClient.read(type), null, layout, false,
+                        BaseModal.CONTENT_ID, AnyTypeRestClient.read(type), null, layout, false,
                         (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
                             final Panel panel;
                             if (AnyTypeKind.USER.name().equals(type)) {
@@ -119,7 +116,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                                 is(Constants.KEY_FIELD_NAME).notNullValue()).query();
 
                                 panel = new UserDirectoryPanel.Builder(
-                                        classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                                        AnyTypeClassRestClient.list(
+                                                anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
                                         setRealm(realm).
                                         setFiltered(true).
                                         setFiql(query).
@@ -141,7 +139,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                                 is(Constants.KEY_FIELD_NAME).notNullValue()).query();
 
                                 panel = new AnyObjectDirectoryPanel.Builder(
-                                        classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                                        AnyTypeClassRestClient.list(
+                                                anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
                                         setRealm(realm).
                                         setFiltered(true).
                                         setFiql(query).

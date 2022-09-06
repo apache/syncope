@@ -51,15 +51,15 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
 
     protected int currentPage;
 
-    private String keyword;
-
-    private final ResourceRestClient restClient = new ResourceRestClient();
+    private final String keyword;
 
     public ResourceDataProvider(
             final int paginatorRows,
             final PageReference pageRef,
             final String keyword) {
+
         super(paginatorRows);
+
         setSort("keySortParam", SortOrder.ASCENDING);
         this.pageRef = pageRef;
         this.keyword = keyword;
@@ -75,18 +75,19 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
                 currentPage = 0;
             }
             if (StringUtils.isBlank(keyword)) {
-                result = restClient.list();
+                result = ResourceRestClient.list();
             } else {
-                result = restClient.list().stream().filter(resource ->
-                        resource.getKey().toLowerCase().contains(keyword)).collect(Collectors.toList());
+                result = ResourceRestClient.list().stream().
+                        filter(resource -> resource.getKey().toLowerCase().contains(keyword)).
+                        collect(Collectors.toList());
             }
         } catch (Exception e) {
             LOG.error("While searching", e);
             SyncopeConsoleSession.get().onException(e);
 
             Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            target.ifPresent(ajaxRequestTarget ->
-                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
+            target.ifPresent(ajaxRequestTarget
+                    -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
         }
 
         SortParam<String> sortParam = getSort();
@@ -126,10 +127,10 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
 
         try {
             if (StringUtils.isBlank(keyword)) {
-                result = restClient.list().size();
+                result = ResourceRestClient.list().size();
             } else {
-                result = restClient.list().stream().filter(resource ->
-                        resource.getKey().toLowerCase().contains(keyword)).count();
+                result = ResourceRestClient.list().stream().filter(resource
+                        -> resource.getKey().toLowerCase().contains(keyword)).count();
             }
         } catch (Exception e) {
             LOG.error("While requesting for size()", e);
@@ -144,7 +145,7 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
 
     @Override
     public IModel<Serializable> model(final Serializable object) {
-        return new CompoundPropertyModel<>((ResourceTO) object);
+        return new CompoundPropertyModel<>(object);
     }
 
     public int getCurrentPage() {

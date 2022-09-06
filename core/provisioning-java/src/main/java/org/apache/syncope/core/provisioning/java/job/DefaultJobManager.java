@@ -276,7 +276,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
     }
 
     @Override
-    public void unregister(final Task task) {
+    public void unregister(final Task<?> task) {
         unregisterJob(JobNamer.getJobKey(task).getName());
     }
 

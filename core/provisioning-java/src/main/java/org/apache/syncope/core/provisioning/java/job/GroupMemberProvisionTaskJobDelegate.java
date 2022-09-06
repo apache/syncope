@@ -159,7 +159,7 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
     }
 
     @Override
-    protected boolean hasToBeRegistered(final TaskExec execution) {
+    protected boolean hasToBeRegistered(final TaskExec<?> execution) {
         // always record execution result
         return true;
     }

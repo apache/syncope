@@ -37,8 +37,6 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
 
     private static final long serialVersionUID = 21020550706646L;
 
-    protected final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
-
     protected final ResourceTO resource;
 
     public static class Builder extends AbstractSearchPanel.Builder<ConnObjectSearchPanel> {
@@ -118,11 +116,12 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
-                return connectorRestClient.buildObjectClassInfo(
-                        connectorRestClient.read(resource.getConnector()), false).stream().
+                return ConnectorRestClient.buildObjectClassInfo(
+                        ConnectorRestClient.read(resource.getConnector()), false).stream().
                         map(ConnIdObjectClass::getAttributes).
                         flatMap(List::stream).
-                        collect(Collectors.toMap(PlainSchemaTO::getKey, Function.identity(),
+                        collect(Collectors.toMap(
+                                PlainSchemaTO::getKey, Function.identity(),
                                 (schema1, schema2) -> schema1));
             }
         };

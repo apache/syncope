@@ -55,7 +55,7 @@ public final class JobNamer {
         return getKeyFromJobName(name, "reportJob" + SyncopeConstants.UUID_REGEX, 9);
     }
 
-    public static JobKey getJobKey(final Task task) {
+    public static JobKey getJobKey(final Task<?> task) {
         return new JobKey("taskJob" + task.getKey(), Scheduler.DEFAULT_GROUP);
     }
 

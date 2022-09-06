@@ -104,7 +104,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     private Map<String, Set<String>> membershipsAfter;
 
     @Mock
-    private ProvisioningTask provisioningTask;
+    private ProvisioningTask<?> provisioningTask;
 
     @Mock
     private ExternalResource externalResource;
@@ -150,7 +150,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         connConfProperties = new HashSet<>();
         connConfProperties.add(connConfProperty);
 
-        lenient().when(profile.getTask()).thenReturn(provisioningTask);
+        lenient().when(profile.getTask()).thenAnswer(ic -> provisioningTask);
         lenient().when(provisioningTask.getResource()).thenReturn(externalResource);
         lenient().when(anyTypeDAO.findUser()).thenAnswer(ic -> {
             AnyType userAnyType = mock(AnyType.class);

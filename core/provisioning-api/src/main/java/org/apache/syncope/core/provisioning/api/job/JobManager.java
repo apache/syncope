@@ -50,7 +50,7 @@ public interface JobManager {
     void register(Report report, OffsetDateTime startAt, long interruptMaxRetries, String executor)
             throws SchedulerException;
 
-    void unregister(Task task);
+    void unregister(Task<?> task);
 
     void unregister(Report report);
 }

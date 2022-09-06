@@ -796,7 +796,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         query.append("SELECT DISTINCT any_id FROM ").
-                append(svs.dynrolemembership().name).append(" WHERE ").
+                append(SearchSupport.dynrolemembership().name).append(" WHERE ").
                 append("role_id=?").append(setParameter(parameters, cond.getRole())).
                 append("))");
 
@@ -853,7 +853,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         query.append("SELECT DISTINCT any_id FROM ").
-                append(svs.dynrealmmembership().name).append(" WHERE ").
+                append(SearchSupport.dynrealmmembership().name).append(" WHERE ").
                 append("dynRealm_id=?").append(setParameter(parameters, cond.getDynRealm())).
                 append("))");
 

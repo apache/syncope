@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -65,9 +64,6 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
     @Autowired
     private RealmDAO realmDAO;
-
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
 
     private PullPolicy pullPolicy(
             final AnyType anyType,

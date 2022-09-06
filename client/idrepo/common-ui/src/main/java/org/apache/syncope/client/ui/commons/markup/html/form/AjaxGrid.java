@@ -222,6 +222,8 @@ public class AjaxGrid<K, V, S> extends Panel {
 
     protected class AjaxGridActionsPanel<T> extends EditableGridActionsPanel<Pair<K, V>> {
 
+        private static final long serialVersionUID = -1239486389000098745L;
+
         private final Item<Pair<K, V>> rowItem;
 
         @SuppressWarnings("unchecked")
@@ -231,10 +233,12 @@ public class AjaxGrid<K, V, S> extends Panel {
             rowItem = item.findParent(Item.class);
             addOrReplace(new AjaxLink<String>("delete") {
 
+                private static final long serialVersionUID = 1049203640150071039L;
+
                 @SuppressWarnings("unchecked")
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
-                    EditableDataTable eventTarget = rowItem.findParent(EditableDataTable.class);
+                    EditableDataTable<?, ?> eventTarget = rowItem.findParent(EditableDataTable.class);
                     send(getPage(), Broadcast.BREADTH, new GridOperationData<>(
                             OperationType.DELETE, (T) rowItem.getDefaultModelObject(), eventTarget));
                     target.add(eventTarget);

@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.core.reference;
 
 import java.util.Date;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
 import org.quartz.JobExecutionContext;
@@ -27,7 +28,7 @@ import org.quartz.JobExecutionException;
 /**
  * Sample implementation for executing a scheduled task.
  */
-public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate {
+public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate<SchedTask> {
 
     @Override
     protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
@@ -61,7 +62,7 @@ public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate {
     }
 
     @Override
-    protected boolean hasToBeRegistered(final TaskExec execution) {
+    protected boolean hasToBeRegistered(final TaskExec<?> execution) {
         return true;
     }
 }

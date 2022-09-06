@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 
-public class ProvisioningProfile<T extends ProvisioningTask, A extends ProvisioningActions> {
+public class ProvisioningProfile<T extends ProvisioningTask<?>, A extends ProvisioningActions> {
 
     private final Connector connector;
 
