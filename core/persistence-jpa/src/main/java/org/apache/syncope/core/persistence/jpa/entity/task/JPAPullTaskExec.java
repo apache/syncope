@@ -21,50 +21,29 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.task.Task;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractExec;
 
-/**
- * An execution (with result) of a Task.
- *
- * @see AbstractTask
- */
 @Entity
-@Table(name = JPATaskExec.TABLE)
-public class JPATaskExec extends AbstractExec implements TaskExec {
+@Table(name = JPAPullTaskExec.TABLE)
+public class JPAPullTaskExec extends AbstractTaskExec<SchedTask> implements TaskExec<SchedTask> {
 
     private static final long serialVersionUID = 1909033231464074554L;
 
-    public static final String TABLE = "TaskExec";
+    public static final String TABLE = "PullTaskExec";
 
-    /**
-     * The referred task.
-     */
     @ManyToOne(optional = false)
-    private AbstractTask task;
+    private JPAPullTask task;
 
     @Override
-    public Task getTask() {
+    public PullTask getTask() {
         return task;
     }
 
     @Override
-    public void setTask(final Task task) {
-        checkType(task, AbstractTask.class);
-        this.task = (AbstractTask) task;
-    }
-
-    @Override
-    public String toString() {
-        return new StringBuilder(getClass().getSimpleName()).append('{').
-                append("id=").append(getKey()).append(", ").
-                append("start=").append(start).append(", ").
-                append("end=").append(end).append(", ").
-                append("task=").append(task).append(", ").
-                append("status=").append(status).append(", ").
-                append("message=").append(message).
-                append('}').
-                toString();
+    public void setTask(final SchedTask task) {
+        checkType(task, PullTask.class);
+        this.task = (JPAPullTask) task;
     }
 }

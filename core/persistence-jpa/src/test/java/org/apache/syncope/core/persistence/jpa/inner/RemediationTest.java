@@ -30,11 +30,13 @@ import java.util.Set;
 import java.util.UUID;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
+import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +68,7 @@ public class RemediationTest extends AbstractTest {
         remediation.setError("Error");
         remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName("remote");
-        remediation.setPullTask(taskDAO.find("38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
+        remediation.setPullTask((PullTask) taskDAO.find(TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
 
         // missing payload
         try {
@@ -87,7 +89,7 @@ public class RemediationTest extends AbstractTest {
         remediation.setError("Error");
         remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName("remote");
-        remediation.setPullTask(taskDAO.find("38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
+        remediation.setPullTask((PullTask) taskDAO.find(TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
         remediation.setPayload(UUID.randomUUID().toString());
 
         // wrong payload for operation
@@ -109,7 +111,7 @@ public class RemediationTest extends AbstractTest {
         remediation.setError("Error");
         remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName("remote");
-        remediation.setPullTask(taskDAO.find("38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
+        remediation.setPullTask((PullTask) taskDAO.find(TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
         remediation.setPayload(UUID.randomUUID().toString());
         remediation.setOperation(ResourceOperation.DELETE);
 

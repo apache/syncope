@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -452,8 +453,8 @@ public class DefaultNotificationManager implements NotificationManager {
     }
 
     @Override
-    public TaskExec storeExec(final TaskExec execution) {
-        NotificationTask task = taskDAO.find(execution.getTask().getKey());
+    public TaskExec<NotificationTask> storeExec(final TaskExec<NotificationTask> execution) {
+        NotificationTask task = taskDAO.find(TaskType.NOTIFICATION, execution.getTask().getKey());
         task.add(execution);
         task.setExecuted(true);
         taskDAO.save(task);
@@ -462,16 +463,16 @@ public class DefaultNotificationManager implements NotificationManager {
 
     @Override
     public void setTaskExecuted(final String taskKey, final boolean executed) {
-        NotificationTask task = taskDAO.find(taskKey);
+        NotificationTask task = taskDAO.find(TaskType.NOTIFICATION, taskKey);
         task.setExecuted(executed);
         taskDAO.save(task);
     }
 
     @Override
     public long countExecutionsWithStatus(final String taskKey, final String status) {
-        NotificationTask task = taskDAO.find(taskKey);
+        NotificationTask task = taskDAO.find(TaskType.NOTIFICATION, taskKey);
         long count = 0;
-        for (TaskExec taskExec : task.getExecs()) {
+        for (TaskExec<NotificationTask> taskExec : task.getExecs()) {
             if (status == null) {
                 if (taskExec.getStatus() == null) {
                     count++;

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.CascadeType;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -30,6 +29,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -37,14 +37,18 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
+import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 
 @Entity
-@DiscriminatorValue("PushTask")
-public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
+@Table(name = JPAPushTask.TABLE)
+public class JPAPushTask extends AbstractProvisioningTask<PushTask> implements PushTask {
 
     private static final long serialVersionUID = -4141057723006682564L;
+
+    public static final String TABLE = "PushTask";
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPARealm sourceRealm;
@@ -61,6 +65,10 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pushTask")
     private List<JPAPushTaskAnyFilter> filters = new ArrayList<>();
+
+    @OneToMany(targetEntity = JPAPushTaskExec.class,
+            cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
+    private List<TaskExec<SchedTask>> executions = new ArrayList<>();
 
     @Override
     public JPARealm getSourceRealm() {
@@ -99,5 +107,15 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     @Override
     public List<? extends PushTaskAnyFilter> getFilters() {
         return filters;
+    }
+
+    @Override
+    protected Class<? extends TaskExec<SchedTask>> executionClass() {
+        return JPAPushTaskExec.class;
+    }
+
+    @Override
+    protected List<TaskExec<SchedTask>> executions() {
+        return executions;
     }
 }

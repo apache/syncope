@@ -154,7 +154,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_UPDATE + "')")
     public <T extends SchedTaskTO> T updateSchedTask(final TaskType type, final SchedTaskTO taskTO) {
-        SchedTask task = taskDAO.find(taskTO.getKey());
+        SchedTask task = taskDAO.find(type, taskTO.getKey());
         if (task == null) {
             throw new NotFoundException("Task " + taskTO.getKey());
         }
@@ -224,7 +224,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
     @Transactional(readOnly = true)
     public <T extends TaskTO> T read(final TaskType type, final String key, final boolean details) {
-        Task task = taskDAO.find(key);
+        Task<?> task = taskDAO.find(type, key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
         }
@@ -242,10 +242,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     @Override
     public ExecTO execute(final String key, final OffsetDateTime startAt, final boolean dryRun) {
-        Task task = taskDAO.find(key);
-        if (task == null) {
-            throw new NotFoundException("Task " + key);
-        }
+        Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
         if (startAt != null && startAt.isBefore(OffsetDateTime.now())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add("Cannot schedule in the past");
@@ -270,12 +267,14 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                         propagationTask.getPropagationData());
                 taskInfo.setOldConnObjectKey(propagationTask.getOldConnObjectKey());
 
-                TaskExec propExec = taskExecutor.execute(taskInfo, new DefaultPropagationReporter(), executor);
+                TaskExec<PropagationTask> propExec = taskExecutor.execute(
+                        taskInfo, new DefaultPropagationReporter(), executor);
                 result = binder.getExecTO(propExec);
                 break;
 
             case NOTIFICATION:
-                TaskExec notExec = notificationJobDelegate.executeSingle((NotificationTask) task, executor);
+                TaskExec<NotificationTask> notExec = notificationJobDelegate.executeSingle(
+                        (NotificationTask) task, executor);
                 result = binder.getExecTO(notExec);
                 break;
 
@@ -326,7 +325,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")
     public <T extends TaskTO> T delete(final TaskType type, final String key) {
-        Task task = taskDAO.find(key);
+        Task<?> task = taskDAO.find(type, key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
         }
@@ -356,12 +355,9 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     public Pair<Integer, List<ExecTO>> listExecutions(
             final String key, final int page, final int size, final List<OrderByClause> orderByClauses) {
 
-        Task task = taskDAO.find(key);
-        if (task == null) {
-            throw new NotFoundException("Task " + key);
-        }
+        Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
-        Integer count = taskExecDAO.count(key);
+        Integer count = taskExecDAO.count(task);
 
         List<ExecTO> result = taskExecDAO.findAll(task, page, size, orderByClauses).stream().
                 map(taskExec -> binder.getExecTO(taskExec)).collect(Collectors.toList());
@@ -379,10 +375,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")
     @Override
     public ExecTO deleteExecution(final String execKey) {
-        TaskExec taskExec = taskExecDAO.find(execKey);
-        if (taskExec == null) {
-            throw new NotFoundException("Task execution " + execKey);
-        }
+        TaskExec<?> taskExec = taskExecDAO.find(execKey).
+                orElseThrow(() -> new NotFoundException("Task execution " + execKey));
 
         ExecTO taskExecutionToDelete = binder.getExecTO(taskExec);
         taskExecDAO.delete(taskExec);
@@ -398,10 +392,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             final OffsetDateTime endedBefore,
             final OffsetDateTime endedAfter) {
 
-        Task task = taskDAO.find(key);
-        if (task == null) {
-            throw new NotFoundException("Task " + key);
-        }
+        Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
         List<BatchResponseItem> batchResponseItems = new ArrayList<>();
 
@@ -427,7 +418,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
         String key = JobNamer.getTaskKeyFromJobName(jobKey.getName());
 
-        Task task = taskDAO.find(key);
+        Task<?> task = taskDAO.find(key).orElse(null);
         return task == null || !(task instanceof SchedTask)
                 ? null
                 : Triple.of(JobType.TASK, key, binder.buildRefDesc(task));
@@ -442,10 +433,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
     @Override
     public JobTO getJob(final String key) {
-        Task task = taskDAO.find(key);
-        if (task == null) {
-            throw new NotFoundException("Task " + key);
-        }
+        Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
         JobTO jobTO = null;
         try {
@@ -466,10 +454,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     @Override
     public void actionJob(final String key, final JobAction action) {
-        Task task = taskDAO.find(key);
-        if (task == null) {
-            throw new NotFoundException("Task " + key);
-        }
+        Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
         doActionJob(JobNamer.getJobKey(task), action);
     }
@@ -505,8 +490,9 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         }
 
         if (key != null) {
+            String taskKey = key;
             try {
-                final Task task = taskDAO.find(key);
+                Task<?> task = taskDAO.find(taskKey).orElseThrow(() -> new NotFoundException("Task " + taskKey));
                 return binder.getTaskTO(task, taskUtilsFactory.getInstance(task), false);
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);

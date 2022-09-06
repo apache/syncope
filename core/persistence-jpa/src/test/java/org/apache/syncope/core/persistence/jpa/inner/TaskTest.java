@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -66,26 +65,23 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void findPaginated() {
-        List<Task> tasks = taskDAO.findAll(
-                TaskType.PROPAGATION, null, null, null, null, 1, 2, List.of());
+        List<PropagationTask> tasks = taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, 1, 2, List.of());
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
 
-        for (Task task : tasks) {
+        for (PropagationTask task : tasks) {
             assertNotNull(task);
         }
 
-        tasks = taskDAO.findAll(
-                TaskType.PROPAGATION, null, null, null, null, 2, 2, List.of());
+        tasks = taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, 2, 2, List.of());
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
 
-        for (Task task : tasks) {
+        for (PropagationTask task : tasks) {
             assertNotNull(task);
         }
 
-        tasks = taskDAO.findAll(
-                TaskType.PROPAGATION, null, null, null, null, 1000, 2, List.of());
+        tasks = taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, 1000, 2, List.of());
         assertNotNull(tasks);
         assertTrue(tasks.isEmpty());
 
@@ -124,25 +120,25 @@ public class TaskTest extends AbstractTest {
         task = taskDAO.save(task);
         assertNotNull(task);
 
-        PropagationTask actual = taskDAO.find(task.getKey());
+        PropagationTask actual = taskDAO.find(TaskType.PROPAGATION, task.getKey());
         assertEquals(task, actual);
     }
 
     @Test
     public void delete() {
-        PropagationTask task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNotNull(task);
 
         ExternalResource resource = task.getResource();
         assertNotNull(resource);
 
         taskDAO.delete(task);
-        task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNull(task);
 
         resource = resourceDAO.find(resource.getKey());
         assertNotNull(resource);
-        assertFalse(taskDAO.findAll(
+        assertFalse(taskDAO.<PropagationTask>findAll(
                 TaskType.PROPAGATION, resource, null, null, null, -1, -1, List.of()).
                 contains(task));
     }

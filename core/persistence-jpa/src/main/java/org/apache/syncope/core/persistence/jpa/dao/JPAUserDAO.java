@@ -488,6 +488,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         String clearPwd = user.getClearPassword();
 
         // 2. save
+        ((JPAUser) user).list2json();
         User merged = super.save(user);
 
         // 3. set back the sole clear password value

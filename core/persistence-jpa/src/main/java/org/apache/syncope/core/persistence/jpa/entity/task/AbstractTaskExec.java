@@ -18,32 +18,26 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import java.util.List;
 import javax.persistence.MappedSuperclass;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractExec;
 
 @MappedSuperclass
-public abstract class AbstractTask<T extends Task<T>> extends AbstractGeneratedKeyEntity implements Task<T> {
+public abstract class AbstractTaskExec<T extends Task<T>> extends AbstractExec implements TaskExec<T> {
 
-    private static final long serialVersionUID = 5837401178128177511L;
-
-    protected abstract List<TaskExec<T>> executions();
-
-    protected abstract Class<? extends TaskExec<T>> executionClass();
+    private static final long serialVersionUID = 1909033231464074554L;
 
     @Override
-    public boolean add(final TaskExec<T> exec) {
-        Class<? extends TaskExec<T>> clazz = executionClass();
-        checkType(exec, clazz);
-        return exec != null
-                && !executions().contains(clazz.cast(exec))
-                && executions().add(clazz.cast(exec));
-    }
-
-    @Override
-    public List<? extends TaskExec<T>> getExecs() {
-        return executions();
+    public String toString() {
+        return new StringBuilder(getClass().getSimpleName()).append('{').
+                append("id=").append(getKey()).append(", ").
+                append("start=").append(start).append(", ").
+                append("end=").append(end).append(", ").
+                append("task=").append(getTask()).append(", ").
+                append("status=").append(status).append(", ").
+                append("message=").append(message).
+                append('}').
+                toString();
     }
 }

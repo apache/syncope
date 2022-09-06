@@ -112,7 +112,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         this.taskUtilsFactory = taskUtilsFactory;
     }
 
-    protected void fill(final ProvisioningTask provisioningTask, final ProvisioningTaskTO provisioningTaskTO) {
+    protected void fill(final ProvisioningTask<?> provisioningTask, final ProvisioningTaskTO provisioningTaskTO) {
         if (provisioningTask instanceof PushTask && provisioningTaskTO instanceof PushTaskTO) {
             PushTask pushTask = (PushTask) provisioningTask;
             PushTaskTO pushTaskTO = (PushTaskTO) provisioningTaskTO;
@@ -298,7 +298,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
     }
 
     @Override
-    public String buildRefDesc(final Task task) {
+    public String buildRefDesc(final Task<?> task) {
         return taskUtilsFactory.getInstance(task).getType().name() + ' '
                 + "Task "
                 + task.getKey() + ' '
@@ -310,7 +310,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
     }
 
     @Override
-    public ExecTO getExecTO(final TaskExec execution) {
+    public ExecTO getExecTO(final TaskExec<?> execution) {
         ExecTO execTO = new ExecTO();
         execTO.setKey(execution.getKey());
         execTO.setStatus(execution.getStatus());
@@ -349,7 +349,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
         if (schedTaskTO instanceof ProvisioningTaskTO && schedTask instanceof ProvisioningTask) {
             ProvisioningTaskTO provisioningTaskTO = (ProvisioningTaskTO) schedTaskTO;
-            ProvisioningTask provisioningTask = (ProvisioningTask) schedTask;
+            ProvisioningTask<?> provisioningTask = (ProvisioningTask<?>) schedTask;
 
             provisioningTaskTO.setResource(provisioningTask.getResource().getKey());
 
@@ -364,11 +364,11 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
     }
 
     @Override
-    public <T extends TaskTO> T getTaskTO(final Task task, final TaskUtils taskUtils, final boolean details) {
+    public <T extends TaskTO> T getTaskTO(final Task<?> task, final TaskUtils taskUtils, final boolean details) {
         T taskTO = taskUtils.newTaskTO();
         taskTO.setKey(task.getKey());
 
-        TaskExec latestExec = taskExecDAO.findLatestStarted(task);
+        TaskExec<?> latestExec = taskExecDAO.findLatestStarted(taskUtils.getType(), task);
         if (latestExec == null) {
             taskTO.setLatestExecStatus(StringUtils.EMPTY);
         } else {

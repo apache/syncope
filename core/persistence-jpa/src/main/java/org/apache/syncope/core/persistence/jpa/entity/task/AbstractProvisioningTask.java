@@ -27,12 +27,14 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ProvisioningTaskCheck;
 
 @MappedSuperclass
 @ProvisioningTaskCheck
-public abstract class AbstractProvisioningTask extends JPASchedTask implements ProvisioningTask {
+public abstract class AbstractProvisioningTask<T extends SchedTask>
+        extends JPASchedTask implements ProvisioningTask<T> {
 
     private static final long serialVersionUID = -4141057723006682562L;
 

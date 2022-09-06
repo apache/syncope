@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.CascadeType;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -33,6 +32,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -41,14 +41,18 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
+import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 
 @Entity
-@DiscriminatorValue("PullTask")
-public class JPAPullTask extends AbstractProvisioningTask implements PullTask {
+@Table(name = JPAPullTask.TABLE)
+public class JPAPullTask extends AbstractProvisioningTask<PullTask> implements PullTask {
 
     private static final long serialVersionUID = -4141057723006682563L;
+
+    public static final String TABLE = "PullTask";
 
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -72,6 +76,10 @@ public class JPAPullTask extends AbstractProvisioningTask implements PullTask {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pullTask")
     private List<JPAAnyTemplatePullTask> templates = new ArrayList<>();
+
+    @OneToMany(targetEntity = JPAPullTaskExec.class,
+            cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
+    private List<TaskExec<SchedTask>> executions = new ArrayList<>();
 
     @NotNull
     private Boolean remediation = false;
@@ -147,5 +155,15 @@ public class JPAPullTask extends AbstractProvisioningTask implements PullTask {
     @Override
     public boolean isRemediation() {
         return remediation;
+    }
+
+    @Override
+    protected Class<? extends TaskExec<SchedTask>> executionClass() {
+        return JPAPullTaskExec.class;
+    }
+
+    @Override
+    protected List<TaskExec<SchedTask>> executions() {
+        return executions;
     }
 }

@@ -84,7 +84,11 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUni
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskExec;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTaskExec;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTaskExec;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTaskExec;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTaskExec;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
@@ -107,9 +111,11 @@ public class XMLContentExporter implements ContentExporter {
 
     protected static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
 
-    protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = Stream.of(
-            "QRTZ_", "LOGGING", "NotificationTask_recipients", AuditConfDAO.AUDIT_ENTRY_TABLE, JPAReportExec.TABLE,
-            JPATaskExec.TABLE, JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE,
+    protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = Stream.of("QRTZ_", "LOGGING",
+            AuditConfDAO.AUDIT_ENTRY_TABLE, JPAReportExec.TABLE,
+            JPAPropagationTaskExec.TABLE, JPANotificationTaskExec.TABLE, JPASchedTaskExec.TABLE,
+            JPAPushTaskExec.TABLE, JPAPullTaskExec.TABLE,
+            JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE,
             JPAUPlainAttrUniqueValue.TABLE, JPAURelationship.TABLE, JPAUMembership.TABLE,
             JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
             JPAARelationship.TABLE, JPAAMembership.TABLE, JPAAccessToken.TABLE

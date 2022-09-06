@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.task;
 import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 
-public interface SchedTask extends Task {
+public interface SchedTask extends Task<SchedTask> {
 
     void setName(String name);
 

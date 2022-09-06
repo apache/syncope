@@ -104,6 +104,5 @@ public interface NotificationManager {
      * @param execution task execution.
      * @return merged task execution.
      */
-    TaskExec storeExec(TaskExec execution);
-
+    TaskExec<NotificationTask> storeExec(TaskExec<NotificationTask> execution);
 }

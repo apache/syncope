@@ -93,8 +93,8 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
 
     @Transactional
     @Override
-    public TaskExec executeSingle(final NotificationTask task, final String executor) {
-        TaskExec execution = entityFactory.newEntity(TaskExec.class);
+    public TaskExec<NotificationTask> executeSingle(final NotificationTask task, final String executor) {
+        TaskExec<NotificationTask> execution = entityFactory.newTaskExec(TaskType.NOTIFICATION);
         execution.setTask(task);
         execution.setStart(OffsetDateTime.now());
         execution.setExecutor(executor);
@@ -232,8 +232,8 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
         }
     }
 
-    protected static boolean hasToBeRegistered(final TaskExec execution) {
-        NotificationTask task = (NotificationTask) execution.getTask();
+    protected static boolean hasToBeRegistered(final TaskExec<NotificationTask> execution) {
+        NotificationTask task = execution.getTask();
 
         // True if either failed and failures have to be registered, or if ALL
         // has to be registered.
@@ -242,7 +242,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
                 || task.getTraceLevel() == TraceLevel.ALL;
     }
 
-    protected void handleRetries(final TaskExec execution) {
+    protected void handleRetries(final TaskExec<NotificationTask> execution) {
         if (notificationManager.getMaxRetries() <= 0) {
             return;
         }

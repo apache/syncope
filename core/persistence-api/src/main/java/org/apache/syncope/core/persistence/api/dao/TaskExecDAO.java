@@ -20,36 +20,40 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
-public interface TaskExecDAO extends DAO<TaskExec> {
+public interface TaskExecDAO extends DAO<TaskExec<?>> {
 
-    TaskExec find(String key);
+    <T extends Task<T>> TaskExec<T> find(TaskType type, String key);
 
-    List<TaskExec> findRecent(int max);
+    Optional<TaskExec<?>> find(String key);
 
-    <T extends Task> TaskExec findLatestStarted(T task);
+    List<TaskExec<?>> findRecent(int max);
 
-    <T extends Task> TaskExec findLatestEnded(T task);
+    TaskExec<?> findLatestStarted(TaskType type, Task<?> task);
 
-    int count(String taskKey);
+    TaskExec<?> findLatestEnded(TaskType type, Task<?> task);
 
-    <T extends Task> List<TaskExec> findAll(T task, int page, int itemsPerPage, List<OrderByClause> orderByClauses);
+    int count(Task<?> task);
 
-    <T extends Task> List<TaskExec> findAll(
-            T task,
+    List<TaskExec<?>> findAll(Task<?> task, int page, int itemsPerPage, List<OrderByClause> orderByClauses);
+
+    List<TaskExec<?>> findAll(
+            Task<?> task,
             OffsetDateTime startedBefore,
             OffsetDateTime startedAfter,
             OffsetDateTime endedBefore,
             OffsetDateTime endedAfter);
 
-    TaskExec save(TaskExec execution);
+    <T extends Task<T>> TaskExec<T> save(TaskExec<T> execution);
 
-    void saveAndAdd(String taskKey, TaskExec execution);
+    <T extends Task<T>> void saveAndAdd(TaskType type, String taskKey, TaskExec<T> execution);
 
-    void delete(String key);
+    <T extends Task<T>> void delete(TaskType type, String key);
 
-    void delete(TaskExec execution);
+    <T extends Task<T>> void delete(TaskExec<T> execution);
 }

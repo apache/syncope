@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,9 +26,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -35,7 +33,13 @@ import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
 import org.apache.syncope.core.persistence.api.entity.Application;
@@ -46,6 +50,7 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.validation.entity.RoleCheck;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPARole.TABLE)
@@ -57,12 +62,11 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
 
     public static final String TABLE = "SyncopeRole";
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "entitlement")
-    @CollectionTable(name = "SyncopeRole_entitlements",
-            joinColumns =
-            @JoinColumn(name = "role_id", referencedColumnName = "id"))
-    private Set<String> entitlements = new HashSet<>();
+    @Lob
+    private String entitlements;
+
+    @Transient
+    private Set<String> entitlementsSet = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -103,7 +107,7 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
 
     @Override
     public Set<String> getEntitlements() {
-        return entitlements;
+        return entitlementsSet;
     }
 
     @Override
@@ -167,4 +171,31 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
         return privileges;
     }
 
+    protected void json2list(final boolean clearFirst) {
+        if (clearFirst) {
+            getEntitlements().clear();
+        }
+        if (entitlements != null) {
+            getEntitlements().addAll(
+                    POJOHelper.deserialize(entitlements, new TypeReference<Set<String>>() {
+                    }));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2list(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2list(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void list2json() {
+        entitlements = POJOHelper.serialize(getEntitlements());
+    }
 }

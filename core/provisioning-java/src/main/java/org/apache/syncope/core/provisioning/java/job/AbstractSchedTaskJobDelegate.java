@@ -22,6 +22,7 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -40,17 +41,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelegate {
+public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implements SchedTaskJobDelegate {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SchedTaskJobDelegate.class);
 
     @Autowired
     private SecurityProperties securityProperties;
 
+    protected TaskType taskType;
+
     /**
      * The actual task to be executed.
      */
-    protected SchedTask task;
+    protected T task;
 
     /**
      * Task execution DAO.
@@ -100,12 +103,18 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         return interrupted;
     }
 
+    @SuppressWarnings("unchecked")
     @Transactional
     @Override
-    public void execute(final String taskKey, final boolean dryRun, final JobExecutionContext context)
+    public void execute(
+            final TaskType taskType,
+            final String taskKey,
+            final boolean dryRun,
+            final JobExecutionContext context)
             throws JobExecutionException {
 
-        task = taskDAO.find(taskKey);
+        this.taskType = taskType;
+        task = (T) taskDAO.find(taskType, taskKey);
         if (task == null) {
             throw new JobExecutionException("Task " + taskKey + " not found");
         }
@@ -117,7 +126,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
 
         String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
                 orElse(securityProperties.getAdminUser());
-        TaskExec execution = entityFactory.newEntity(TaskExec.class);
+        TaskExec<SchedTask> execution = entityFactory.newTaskExec(taskType);
         execution.setStart(OffsetDateTime.now());
         execution.setTask(task);
         execution.setExecutor(executor);
@@ -142,7 +151,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         if (hasToBeRegistered(execution)) {
             register(execution);
         }
-        task = taskDAO.save(task);
+        task = (T) taskDAO.save(task);
 
         status.set("Done");
 
@@ -185,11 +194,11 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
      * @param execution task execution
      * @return whether to persist or not
      */
-    protected boolean hasToBeRegistered(final TaskExec execution) {
+    protected boolean hasToBeRegistered(final TaskExec<?> execution) {
         return false;
     }
 
-    protected void register(final TaskExec execution) {
-        taskExecDAO.saveAndAdd(task.getKey(), execution);
+    protected void register(final TaskExec<?> execution) {
+        taskExecDAO.saveAndAdd(taskType, task.getKey(), execution);
     }
 }

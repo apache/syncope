@@ -18,31 +18,41 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.ElementCollection;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
+import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
-@DiscriminatorValue("NotificationTask")
-public class JPANotificationTask extends AbstractTask implements NotificationTask {
+@Table(name = JPANotificationTask.TABLE)
+public class JPANotificationTask extends AbstractTask<NotificationTask> implements NotificationTask {
 
     private static final long serialVersionUID = 95731573485279180L;
+
+    public static final String TABLE = "NotificationTask";
 
     @NotNull
     @ManyToOne
@@ -53,12 +63,15 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
 
     private String entityKey;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "address")
-    @CollectionTable(name = "NotificationTask_recipients",
-            joinColumns =
-            @JoinColumn(name = "notificationTask_id", referencedColumnName = "id"))
-    private Set<String> recipients = new HashSet<>();
+    @Lob
+    private String recipients;
+
+    @Transient
+    private Set<String> recipientsSet = new HashSet<>();
+
+    @OneToMany(targetEntity = JPANotificationTaskExec.class,
+            cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
+    private List<TaskExec<NotificationTask>> executions = new ArrayList<>();
 
     @NotNull
     private String sender;
@@ -114,7 +127,7 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
 
     @Override
     public Set<String> getRecipients() {
-        return recipients;
+        return recipientsSet;
     }
 
     @Override
@@ -175,5 +188,43 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
     @Override
     public void setTraceLevel(final TraceLevel traceLevel) {
         this.traceLevel = traceLevel;
+    }
+
+    @Override
+    protected Class<? extends TaskExec<NotificationTask>> executionClass() {
+        return JPANotificationTaskExec.class;
+    }
+
+    @Override
+    protected List<TaskExec<NotificationTask>> executions() {
+        return executions;
+    }
+
+    protected void json2list(final boolean clearFirst) {
+        if (clearFirst) {
+            getRecipients().clear();
+        }
+        if (recipients != null) {
+            getRecipients().addAll(
+                    POJOHelper.deserialize(recipients, new TypeReference<List<String>>() {
+                    }));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2list(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2list(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void list2json() {
+        recipients = POJOHelper.serialize(getRecipients());
     }
 }

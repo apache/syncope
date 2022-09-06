@@ -32,10 +32,9 @@ public interface TaskDataBinder {
 
     void updateSchedTask(SchedTask task, SchedTaskTO taskTO, TaskUtils taskUtil);
 
-    String buildRefDesc(Task task);
+    String buildRefDesc(Task<?> task);
 
-    ExecTO getExecTO(TaskExec execution);
+    ExecTO getExecTO(TaskExec<?> execution);
 
-    <T extends TaskTO> T getTaskTO(Task task, TaskUtils taskUtil, boolean details);
-
+    <T extends TaskTO> T getTaskTO(Task<?> task, TaskUtils taskUtil, boolean details);
 }

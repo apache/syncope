@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -45,35 +46,35 @@ public class TaskExecTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        PropagationTask task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNotNull(task);
 
         OffsetDateTime startedBefore = OffsetDateTime.of(2015, 12, 18, 0, 0, 0, 0, FormatUtils.DEFAULT_OFFSET);
 
-        List<TaskExec> execs = taskExecDAO.findAll(task, startedBefore, null, null, null);
+        List<TaskExec<?>> execs = taskExecDAO.findAll(task, startedBefore, null, null, null);
         assertNotNull(execs);
         assertEquals(1, execs.size());
     }
 
     @Test
     public void findLatestStarted() {
-        PropagationTask task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNotNull(task);
 
-        TaskExec latestStarted = taskExecDAO.findLatestStarted(task);
+        TaskExec<?> latestStarted = taskExecDAO.findLatestStarted(TaskType.PROPAGATION, task);
         assertNotNull(latestStarted);
         assertEquals("e58ca1c7-178a-4012-8a71-8aa14eaf0655", latestStarted.getKey());
     }
 
     @Test
     public void issueSYNCOPE214() {
-        PropagationTask task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNotNull(task);
 
         String faultyMessage = "A faulty message";
         faultyMessage = faultyMessage.replace('a', '\0');
 
-        TaskExec exec = entityFactory.newEntity(TaskExec.class);
+        TaskExec<PropagationTask> exec = entityFactory.newTaskExec(TaskType.PROPAGATION);
         exec.setStart(OffsetDateTime.now());
         exec.setEnd(OffsetDateTime.now());
         exec.setStatus(ExecStatus.SUCCESS.name());

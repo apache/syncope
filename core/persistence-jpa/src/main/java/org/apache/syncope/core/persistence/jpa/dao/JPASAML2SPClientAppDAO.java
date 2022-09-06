@@ -87,6 +87,7 @@ public class JPASAML2SPClientAppDAO extends AbstractClientAppDAO<SAML2SPClientAp
 
     @Override
     public SAML2SPClientApp save(final SAML2SPClientApp clientApp) {
+        ((JPASAML2SPClientApp) clientApp).list2json();
         return entityManager().merge(clientApp);
     }
 

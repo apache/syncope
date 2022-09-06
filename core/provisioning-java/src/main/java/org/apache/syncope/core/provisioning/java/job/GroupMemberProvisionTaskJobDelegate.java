@@ -24,12 +24,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ProvisionAction;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
@@ -39,7 +41,7 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDelegate {
+public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDelegate<SchedTask> {
 
     public static final String ACTION_JOBDETAIL_KEY = "action";
 
@@ -63,13 +65,17 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
 
     @Transactional
     @Override
-    public void execute(final String taskKey, final boolean dryRun, final JobExecutionContext context)
+    public void execute(
+            final TaskType taskType,
+            final String taskKey,
+            final boolean dryRun,
+            final JobExecutionContext context)
             throws JobExecutionException {
 
         groupKey = context.getMergedJobDataMap().getString(GROUP_KEY_JOBDETAIL_KEY);
         action = (ProvisionAction) context.getMergedJobDataMap().get(ACTION_JOBDETAIL_KEY);
 
-        super.execute(taskKey, dryRun, context);
+        super.execute(taskType, taskKey, dryRun, context);
     }
 
     @Override

@@ -23,7 +23,7 @@ import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
-public interface PushTask extends ProvisioningTask {
+public interface PushTask extends ProvisioningTask<PushTask> {
 
     Realm getSourceRealm();
 

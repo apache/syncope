@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.job;
 
 import java.util.Optional;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -41,8 +42,11 @@ public class SyncopeSpringBeanJobFactory extends SpringBeanJobFactory {
                 Optional.ofNullable(bundle.getJobDetail().getJobDataMap().getString(JobManager.REPORT_KEY)).
                         ifPresent(((ReportJob) job)::setReportKey);
             } else if (job instanceof TaskJob) {
-                Optional.ofNullable(bundle.getJobDetail().getJobDataMap().getString(JobManager.TASK_KEY)).
-                        ifPresent(((TaskJob) job)::setTaskKey);
+                TaskType taskType = (TaskType) bundle.getJobDetail().getJobDataMap().get(JobManager.TASK_TYPE);
+                String taskKey = bundle.getJobDetail().getJobDataMap().getString(JobManager.TASK_KEY);
+                if (taskType != null && taskKey != null) {
+                    ((TaskJob) job).setTaskInfo(taskType, taskKey);
+                }
             }
         }
 

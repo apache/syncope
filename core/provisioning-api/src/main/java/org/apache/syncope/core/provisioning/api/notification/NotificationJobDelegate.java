@@ -25,7 +25,7 @@ import org.quartz.JobExecutionException;
 
 public interface NotificationJobDelegate extends JobDelegate {
 
-    TaskExec executeSingle(NotificationTask task, String executor);
+    TaskExec<NotificationTask> executeSingle(NotificationTask task, String executor);
 
     void execute(String executor) throws JobExecutionException;
 }

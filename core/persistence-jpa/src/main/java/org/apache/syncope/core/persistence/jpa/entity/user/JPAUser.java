@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -38,6 +37,11 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -62,6 +66,7 @@ import org.apache.syncope.core.persistence.jpa.entity.AbstractGroupableRelatable
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -111,11 +116,11 @@ public class JPAUser
     @Enumerated(EnumType.STRING)
     private CipherAlgorithm cipherAlgorithm;
 
-    @ElementCollection
-    @Column(name = "passwordHistoryValue")
-    @CollectionTable(name = "SyncopeUser_passwordHistory", joinColumns =
-            @JoinColumn(name = "user_id", referencedColumnName = "id"))
-    private List<String> passwordHistory = new ArrayList<>();
+    @Lob
+    private String passwordHistory;
+
+    @Transient
+    private List<String> passwordHistoryList = new ArrayList<>();
 
     /**
      * Subsequent failed logins.
@@ -341,7 +346,7 @@ public class JPAUser
 
     @Override
     public List<String> getPasswordHistory() {
-        return passwordHistory;
+        return passwordHistoryList;
     }
 
     @Override
@@ -520,5 +525,33 @@ public class JPAUser
     @Override
     public List<? extends LinkedAccount> getLinkedAccounts() {
         return linkedAccounts;
+    }
+
+    protected void json2list(final boolean clearFirst) {
+        if (clearFirst) {
+            getPasswordHistory().clear();
+        }
+        if (passwordHistory != null) {
+            getPasswordHistory().addAll(
+                    POJOHelper.deserialize(passwordHistory, new TypeReference<List<String>>() {
+                    }));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2list(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2list(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void list2json() {
+        passwordHistory = POJOHelper.serialize(getPasswordHistory());
     }
 }

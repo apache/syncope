@@ -224,6 +224,11 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         }
 
         Map<String, Object> jobMap = createJobMapForExecutionContext(executor);
+        jobMap.put(JobManager.TASK_TYPE, task instanceof PullTask
+                ? TaskType.PULL
+                : task instanceof PushTask
+                        ? TaskType.PUSH
+                        : TaskType.SCHEDULED);
         jobMap.put(JobManager.TASK_KEY, task.getKey());
         jobMap.put(TaskJob.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
 
@@ -322,8 +327,8 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         AuthContextUtils.callAsAdmin(domain, () -> {
             // 1. jobs for SchedTasks
             Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
-            tasks.addAll(taskDAO.<PullTask>findAll(TaskType.PULL));
-            tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
+            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PULL));
+            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PUSH));
 
             boolean loadException = false;
             for (Iterator<SchedTask> it = tasks.iterator(); it.hasNext() && !loadException;) {
@@ -401,8 +406,8 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         AuthContextUtils.callAsAdmin(domain, () -> {
             // 1. jobs for SchedTasks
             Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
-            tasks.addAll(taskDAO.<PullTask>findAll(TaskType.PULL));
-            tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
+            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PULL));
+            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PUSH));
 
             tasks.forEach(task -> {
                 try {

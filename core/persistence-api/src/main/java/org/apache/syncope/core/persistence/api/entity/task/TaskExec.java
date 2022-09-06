@@ -20,9 +20,9 @@ package org.apache.syncope.core.persistence.api.entity.task;
 
 import org.apache.syncope.core.persistence.api.entity.Exec;
 
-public interface TaskExec extends Exec {
+public interface TaskExec<T extends Task<T>> extends Exec {
 
-    Task getTask();
+    T getTask();
 
-    void setTask(Task task);
+    void setTask(T task);
 }

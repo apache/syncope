@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.outer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.OffsetDateTime;
@@ -54,6 +53,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -84,7 +84,7 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void read() {
-        PropagationTask task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNotNull(task);
 
         assertNotNull(task.getExecs());
@@ -130,25 +130,25 @@ public class TaskTest extends AbstractTest {
         task = taskDAO.save(task);
         assertNotNull(task);
 
-        PropagationTask actual = taskDAO.find(task.getKey());
+        PropagationTask actual = taskDAO.find(TaskType.PROPAGATION, task.getKey());
         assertEquals(task, actual);
 
         entityManager().flush();
 
         resource = resourceDAO.find("ws-target-resource-1");
-        assertTrue(taskDAO.findAll(
+        assertTrue(taskDAO.<PropagationTask>findAll(
                 TaskType.PROPAGATION, resource, null, null, null, -1, -1, List.of()).
                 contains(task));
     }
 
     @Test
     public void addPropagationTaskExecution() {
-        PropagationTask task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNotNull(task);
 
         int executionNumber = task.getExecs().size();
 
-        TaskExec execution = entityFactory.newEntity(TaskExec.class);
+        TaskExec<PropagationTask> execution = entityFactory.newTaskExec(TaskType.PROPAGATION);
         execution.setTask(task);
         execution.setStatus(ExecStatus.CREATED.name());
         execution.setStart(OffsetDateTime.now());
@@ -158,7 +158,7 @@ public class TaskTest extends AbstractTest {
         taskDAO.save(task);
         entityManager().flush();
 
-        task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNotNull(task);
 
         assertEquals(executionNumber + 1, task.getExecs().size());
@@ -166,12 +166,12 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void addPullTaskExecution() {
-        PullTask task = taskDAO.find("c41b9b71-9bfa-4f90-89f2-84787def4c5c");
+        PullTask task = (PullTask) taskDAO.find(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c");
         assertNotNull(task);
 
         int executionNumber = task.getExecs().size();
 
-        TaskExec execution = entityFactory.newEntity(TaskExec.class);
+        TaskExec<SchedTask> execution = entityFactory.newTaskExec(TaskType.PULL);
         execution.setStatus("Text-free status");
         execution.setTask(task);
         execution.setStart(OffsetDateTime.now());
@@ -182,7 +182,7 @@ public class TaskTest extends AbstractTest {
         taskDAO.save(task);
         entityManager().flush();
 
-        task = taskDAO.find("c41b9b71-9bfa-4f90-89f2-84787def4c5c");
+        task = (PullTask) taskDAO.find(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c");
         assertNotNull(task);
 
         assertEquals(executionNumber + 1, task.getExecs().size());
@@ -190,12 +190,12 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void addPushTaskExecution() {
-        PushTask task = taskDAO.find("af558be4-9d2f-4359-bf85-a554e6e90be1");
+        PushTask task = (PushTask) taskDAO.find(TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1");
         assertNotNull(task);
 
         int executionNumber = task.getExecs().size();
 
-        TaskExec execution = entityFactory.newEntity(TaskExec.class);
+        TaskExec<SchedTask> execution = entityFactory.newTaskExec(TaskType.PUSH);
         execution.setStatus("Text-free status");
         execution.setTask(task);
         execution.setStart(OffsetDateTime.now());
@@ -206,7 +206,7 @@ public class TaskTest extends AbstractTest {
         taskDAO.save(task);
         entityManager().flush();
 
-        task = taskDAO.find("af558be4-9d2f-4359-bf85-a554e6e90be1");
+        task = (PushTask) taskDAO.find(TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1");
         assertNotNull(task);
 
         assertEquals(executionNumber + 1, task.getExecs().size());
@@ -214,26 +214,27 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void deleteTask() {
-        taskDAO.delete("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        taskDAO.delete(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
 
         entityManager().flush();
 
-        assertNull(taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c"));
-        assertNull(taskExecDAO.find("e58ca1c7-178a-4012-8a71-8aa14eaf0655"));
+        assertTrue(taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c").isEmpty());
+        assertTrue(taskExecDAO.find("e58ca1c7-178a-4012-8a71-8aa14eaf0655").isEmpty());
     }
 
     @Test
     public void deleteTaskExecution() {
-        TaskExec execution = taskExecDAO.find("e58ca1c7-178a-4012-8a71-8aa14eaf0655");
+        TaskExec<PropagationTask> execution =
+                taskExecDAO.find(TaskType.PROPAGATION, "e58ca1c7-178a-4012-8a71-8aa14eaf0655");
         int executionNumber = execution.getTask().getExecs().size();
 
-        taskExecDAO.delete("e58ca1c7-178a-4012-8a71-8aa14eaf0655");
+        taskExecDAO.delete(TaskType.PROPAGATION, "e58ca1c7-178a-4012-8a71-8aa14eaf0655");
 
         entityManager().flush();
 
-        assertNull(taskExecDAO.find("e58ca1c7-178a-4012-8a71-8aa14eaf0655"));
+        assertTrue(taskExecDAO.find("e58ca1c7-178a-4012-8a71-8aa14eaf0655").isEmpty());
 
-        PropagationTask task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertEquals(task.getExecs().size(), executionNumber - 1);
     }
 
@@ -286,10 +287,10 @@ public class TaskTest extends AbstractTest {
         task.add(pullActions);
 
         // this save() finally works
-        task = taskDAO.save(task);
+        task = (PullTask) taskDAO.save(task);
         assertNotNull(task);
 
-        PullTask actual = taskDAO.find(task.getKey());
+        PullTask actual = (PullTask) taskDAO.find(TaskType.PULL, task.getKey());
         assertEquals(task, actual);
     }
 
@@ -316,10 +317,10 @@ public class TaskTest extends AbstractTest {
         task.setMatchingRule(MatchingRule.UPDATE);
         task.setUnmatchingRule(UnmatchingRule.PROVISION);
 
-        task = taskDAO.save(task);
+        task = (PullTask) taskDAO.save(task);
         assertNotNull(task);
 
-        PullTask actual = taskDAO.find(task.getKey());
+        PullTask actual = (PullTask) taskDAO.find(TaskType.PULL, task.getKey());
         assertEquals(task, actual);
         assertEquals("issueSYNCOPE144", actual.getName());
         assertEquals("issueSYNCOPE144 Description", actual.getDescription());
@@ -327,10 +328,9 @@ public class TaskTest extends AbstractTest {
         actual.setName("issueSYNCOPE144_2");
         actual.setDescription("issueSYNCOPE144 Description_2");
 
-        actual = taskDAO.save(actual);
+        actual = (PullTask) taskDAO.save(actual);
         assertNotNull(actual);
         assertEquals("issueSYNCOPE144_2", actual.getName());
         assertEquals("issueSYNCOPE144 Description_2", actual.getDescription());
     }
-
 }

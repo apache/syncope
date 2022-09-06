@@ -87,6 +87,7 @@ public class JPAOIDCRPClientAppDAO extends AbstractClientAppDAO<OIDCRPClientApp>
 
     @Override
     public OIDCRPClientApp save(final OIDCRPClientApp clientApp) {
+        ((JPAOIDCRPClientApp) clientApp).list2json();
         return entityManager().merge(clientApp);
     }
 

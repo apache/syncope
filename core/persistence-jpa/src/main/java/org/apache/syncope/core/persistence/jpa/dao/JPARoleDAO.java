@@ -107,6 +107,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
     @Override
     public Role save(final Role role) {
+        ((JPARole) role).list2json();
         return entityManager().merge(role);
     }
 
