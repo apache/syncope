@@ -33,8 +33,6 @@ public class LinkedAccountPrivilegesPanel extends WizardStep {
 
     private static final long serialVersionUID = 3388483585148725922L;
 
-    private final ApplicationRestClient applicationRestClient = new ApplicationRestClient();
-
     public LinkedAccountPrivilegesPanel(final LinkedAccountTO linkedAccountTO) {
         super();
         setOutputMarkupId(true);
@@ -45,7 +43,7 @@ public class LinkedAccountPrivilegesPanel extends WizardStep {
 
             @Override
             protected List<String> load() {
-                return applicationRestClient.list().stream().
+                return ApplicationRestClient.list().stream().
                     flatMap(app -> app.getPrivileges().stream()).
                     map(PrivilegeTO::getKey).
                     distinct().
@@ -63,5 +61,4 @@ public class LinkedAccountPrivilegesPanel extends WizardStep {
         privilegesPanel.setOutputMarkupId(true);
         add(privilegesPanel);
     }
-
 }

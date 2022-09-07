@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
@@ -67,7 +68,7 @@ public interface PropagationActions {
      * @param execution execution result
      * @param error propagation error
      */
-    default void onError(PropagationTaskInfo taskInfo, TaskExec execution, Exception error) {
+    default void onError(PropagationTaskInfo taskInfo, TaskExec<PropagationTask> execution, Exception error) {
         // do nothing
     }
 
@@ -78,7 +79,7 @@ public interface PropagationActions {
      * @param execution execution result
      * @param afterObj connector object read after propagation
      */
-    default void after(PropagationTaskInfo taskInfo, TaskExec execution, ConnectorObject afterObj) {
+    default void after(PropagationTaskInfo taskInfo, TaskExec<PropagationTask> execution, ConnectorObject afterObj) {
         // do nothing
     }
 }

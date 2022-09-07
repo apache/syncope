@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 
-public interface NotificationTask extends Task {
+public interface NotificationTask extends Task<NotificationTask> {
 
     Notification getNotification();
 

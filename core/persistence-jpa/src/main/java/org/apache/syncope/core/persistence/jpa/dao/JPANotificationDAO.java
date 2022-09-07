@@ -74,6 +74,7 @@ public class JPANotificationDAO extends AbstractDAO<Notification> implements Not
 
     @Override
     public Notification save(final Notification notification) {
+        ((JPANotification) notification).list2json();
         return entityManager().merge(notification);
     }
 

@@ -52,7 +52,7 @@ public final class JPATaskUtils implements TaskUtils {
     }
 
     @Override
-    public <T extends Task> Class<T> taskClass() {
+    public <T extends Task<T>> Class<T> taskClass() {
         Class<T> result = null;
 
         switch (type) {
@@ -83,7 +83,7 @@ public final class JPATaskUtils implements TaskUtils {
     }
 
     @Override
-    public <T extends Task> T newTask() {
+    public <T extends Task<T>> T newTask() {
         T result = null;
 
         switch (type) {
@@ -146,7 +146,7 @@ public final class JPATaskUtils implements TaskUtils {
 
     @Override
     public <T extends TaskTO> T newTaskTO() {
-        final Class<T> taskClass = taskTOClass();
+        Class<T> taskClass = taskTOClass();
         try {
             return taskClass == null ? null : taskClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {

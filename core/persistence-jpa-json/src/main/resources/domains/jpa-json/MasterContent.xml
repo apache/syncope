@@ -47,11 +47,11 @@ under the License.
 
   <Implementation id="ExpiredAccessTokenCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>
-  <Task DTYPE="SchedTask" id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
+  <SchedTask id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
         jobDelegate_id="ExpiredAccessTokenCleanup" cronExpression="0 0/5 * * * ?"/>
   <Implementation id="ExpiredBatchCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup"/>
-  <Task DTYPE="SchedTask" id="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" name="Expired Batch Operations Cleanup Task"  active="1"
+  <SchedTask id="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" name="Expired Batch Operations Cleanup Task"  active="1"
         jobDelegate_id="ExpiredBatchCleanup" cronExpression="0 0/5 * * * ?"/>
 
   <!-- Password reset notifications -->
@@ -95,14 +95,12 @@ we are happy to inform you that the password request was successfully executed f
 
   <Notification id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" active="1" recipientAttrName="email" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset request" template_id="requestPasswordReset" 
-                traceLevel="FAILURES"/> 
+                traceLevel="FAILURES" events='["[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"]'/> 
   <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39" anyType_id="USER" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" anyType_filter="token!=$null"/>
-  <Notification_events notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   
   <Notification id="bef0c250-e8a7-4848-bb63-2564fc409ce2" active="1" recipientAttrName="email" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset successful" template_id="confirmPasswordReset" 
-                traceLevel="FAILURES"/> 
-  <Notification_events notification_id="bef0c250-e8a7-4848-bb63-2564fc409ce2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
+                traceLevel="FAILURES" events='["[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"]'/> 
 
   <ReportTemplate id="empty"/>  
 
@@ -111,20 +109,5 @@ we are happy to inform you that the password request was successfully executed f
                   body='{"_class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
   <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
 
-  <SyncopeRole id="GROUP_OWNER"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_SEARCH"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_READ"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_CREATE"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_UPDATE"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="USER_DELETE"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPECLASS_READ"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPE_LIST"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPECLASS_LIST"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="RELATIONSHIPTYPE_LIST"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="ANYTYPE_READ"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="REALM_LIST"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_SEARCH"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_READ"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_UPDATE"/>
-  <SyncopeRole_entitlements role_id="GROUP_OWNER" entitlement="GROUP_DELETE"/>
+  <SyncopeRole id="GROUP_OWNER" entitlements='["USER_SEARCH","USER_READ","USER_CREATE","USER_UPDATE","USER_DELETE","ANYTYPECLASS_READ","ANYTYPE_LIST","ANYTYPECLASS_LIST","RELATIONSHIPTYPE_LIST","ANYTYPE_READ","REALM_LIST","GROUP_SEARCH","GROUP_READ","GROUP_UPDATE","GROUP_DELETE"]'/>
 </dataset>

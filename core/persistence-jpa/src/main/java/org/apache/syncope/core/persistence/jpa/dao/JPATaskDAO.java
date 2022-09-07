@@ -22,8 +22,8 @@ import java.lang.reflect.Field;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -40,46 +40,70 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Notification;
+import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
-import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskExec;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
-public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
+public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
 
-    protected static String getEntityTableName(final TaskType type) {
+    public static TaskType getTaskType(final Task<?> task) {
+        if (task instanceof NotificationTask) {
+            return TaskType.NOTIFICATION;
+        }
+
+        if (task instanceof PropagationTask) {
+            return TaskType.PROPAGATION;
+        }
+
+        if (task instanceof PushTask) {
+            return TaskType.PUSH;
+        }
+
+        if (task instanceof PullTask) {
+            return TaskType.PULL;
+        }
+
+        if (task instanceof SchedTask) {
+            return TaskType.SCHEDULED;
+        }
+
+        return null;
+    }
+
+    public static String getEntityTableName(final TaskType type) {
         String result = null;
 
         switch (type) {
             case NOTIFICATION:
-                result = JPANotificationTask.class.getAnnotation(DiscriminatorValue.class).value();
+                result = JPANotificationTask.TABLE;
                 break;
 
             case PROPAGATION:
-                result = JPAPropagationTask.class.getAnnotation(DiscriminatorValue.class).value();
+                result = JPAPropagationTask.TABLE;
                 break;
 
             case PUSH:
-                result = JPAPushTask.class.getAnnotation(DiscriminatorValue.class).value();
+                result = JPAPushTask.TABLE;
                 break;
 
             case SCHEDULED:
-                result = JPASchedTask.class.getAnnotation(DiscriminatorValue.class).value();
+                result = JPASchedTask.TABLE;
                 break;
 
             case PULL:
-                result = JPAPullTask.class.getAnnotation(DiscriminatorValue.class).value();
+                result = JPAPullTask.TABLE;
                 break;
 
             default:
@@ -88,15 +112,8 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         return result;
     }
 
-    protected final RemediationDAO remediationDAO;
-
-    public JPATaskDAO(final RemediationDAO remediationDAO) {
-        this.remediationDAO = remediationDAO;
-    }
-
-    @Override
-    public Class<? extends Task> getEntityReference(final TaskType type) {
-        Class<? extends Task> result = null;
+    public static Class<? extends Task<?>> getEntityReference(final TaskType type) {
+        Class<? extends Task<?>> result = null;
 
         switch (type) {
             case NOTIFICATION:
@@ -125,12 +142,17 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         return result;
     }
 
+    protected final RemediationDAO remediationDAO;
+
+    public JPATaskDAO(final RemediationDAO remediationDAO) {
+        this.remediationDAO = remediationDAO;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public boolean exists(final TaskType type, final String key) {
-        Query query = entityManager().createNativeQuery("SELECT id FROM Task WHERE id=? AND dtype=?");
+        Query query = entityManager().createNativeQuery("SELECT id FROM " + getEntityTableName(type) + " WHERE id=?");
         query.setParameter(1, key);
-        query.setParameter(2, getEntityTableName(type));
 
         return !query.getResultList().isEmpty();
     }
@@ -138,8 +160,27 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends Task> T find(final String key) {
-        return (T) entityManager().find(AbstractTask.class, key);
+    public <T extends Task<T>> T find(final TaskType type, final String key) {
+        return (T) entityManager().find(getEntityReference(type), key);
+    }
+
+    @Override
+    public Optional<Task<?>> find(final String key) {
+        Task<?> task = find(TaskType.SCHEDULED, key);
+        if (task == null) {
+            task = find(TaskType.PULL, key);
+        }
+        if (task == null) {
+            task = find(TaskType.PUSH, key);
+        }
+        if (task == null) {
+            task = find(TaskType.PROPAGATION, key);
+        }
+        if (task == null) {
+            task = find(TaskType.NOTIFICATION, key);
+        }
+
+        return Optional.ofNullable(task);
     }
 
     @Override
@@ -182,7 +223,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
         return query.getResultList();
     }
 
-    protected final <T extends Task> StringBuilder buildFindAllQueryJPA(final TaskType type) {
+    protected final <T extends Task<T>> StringBuilder buildFindAllQueryJPA(final TaskType type) {
         StringBuilder builder = new StringBuilder("SELECT t FROM ").
                 append(getEntityReference(type).getSimpleName()).
                 append(" t WHERE ");
@@ -201,7 +242,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends Task> List<T> findToExec(final TaskType type) {
+    public <T extends Task<T>> List<T> findToExec(final TaskType type) {
         StringBuilder queryString = buildFindAllQueryJPA(type).append("AND ");
 
         if (type == TaskType.NOTIFICATION) {
@@ -217,7 +258,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public <T extends Task> List<T> findAll(final TaskType type) {
+    public <T extends Task<T>> List<T> findAll(final TaskType type) {
         return findAll(type, null, null, null, null, -1, -1, List.of());
     }
 
@@ -246,58 +287,43 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             throw new IllegalArgumentException(type + " is not related to notifications");
         }
 
-        StringBuilder queryString = new StringBuilder("SELECT ").append(AbstractTask.TABLE).append(".*");
+        String table = getEntityTableName(type);
+        StringBuilder queryString = new StringBuilder("SELECT ").append(table).append(".*");
 
         if (orderByTaskExecInfo) {
-            queryString.append(',').append(JPATaskExec.TABLE).append(".startDate AS startDate").
-                    append(',').append(JPATaskExec.TABLE).append(".endDate AS endDate").
-                    append(',').append(JPATaskExec.TABLE).append(".status AS status").
-                    append(" FROM ").append(AbstractTask.TABLE).
-                    append(',').append(JPATaskExec.TABLE).append(',').append("(SELECT ").
-                    append(JPATaskExec.TABLE).append(".task_id, ").
-                    append("MAX(").append(JPATaskExec.TABLE).append(".startDate) AS startDate").
-                    append(" FROM ").append(JPATaskExec.TABLE).
-                    append(" GROUP BY ").append(JPATaskExec.TABLE).append(".task_id) GRP").
+            queryString.append(',').append(JPATaskExecDAO.getEntityTableName(type)).append(".startDate AS startDate").
+                    append(',').append(JPATaskExecDAO.getEntityTableName(type)).append(".endDate AS endDate").
+                    append(',').append(JPATaskExecDAO.getEntityTableName(type)).append(".status AS status").
+                    append(" FROM ").append(table).
+                    append(',').append(JPATaskExecDAO.getEntityTableName(type)).append(',').append("(SELECT ").
+                    append(JPATaskExecDAO.getEntityTableName(type)).append(".task_id, ").
+                    append("MAX(").append(JPATaskExecDAO.getEntityTableName(type)).append(".startDate) AS startDate").
+                    append(" FROM ").append(JPATaskExecDAO.getEntityTableName(type)).
+                    append(" GROUP BY ").append(JPATaskExecDAO.getEntityTableName(type)).append(".task_id) GRP").
                     append(" WHERE ").
-                    append(AbstractTask.TABLE).append(".id=").append(JPATaskExec.TABLE).append(".task_id").
-                    append(" AND ").append(AbstractTask.TABLE).append(".id=").append("GRP.task_id").
-                    append(" AND ").append(JPATaskExec.TABLE).append(".startDate=").append("GRP.startDate").
-                    append(" AND ").append(AbstractTask.TABLE).append(".DTYPE = ?1");
-        } else {
-            queryString.append(", null AS startDate, null AS endDate, null AS status FROM ").append(AbstractTask.TABLE).
-                    append(" WHERE ").append(AbstractTask.TABLE).append(".DTYPE = ?1");
-        }
-
-        queryParameters.add(getEntityTableName(type));
-        if (type == TaskType.SCHEDULED) {
-            queryString.append(" AND ").
-                    append(AbstractTask.TABLE).
-                    append(".id NOT IN (SELECT ").append(AbstractTask.TABLE).append(".id FROM ").
-                    append(AbstractTask.TABLE).append(" WHERE ").
-                    append(AbstractTask.TABLE).append(".DTYPE = ?2)").
+                    append(table).append(".id=").append(JPATaskExecDAO.getEntityTableName(type)).append(".task_id").
+                    append(" AND ").append(table).append(".id=").append("GRP.task_id").
                     append(" AND ").
-                    append(AbstractTask.TABLE).
-                    append(".id NOT IN (SELECT id FROM ").
-                    append(AbstractTask.TABLE).append(" WHERE ").
-                    append(AbstractTask.TABLE).append(".DTYPE = ?3)");
-
-            queryParameters.add(JPAPushTask.class.getAnnotation(DiscriminatorValue.class).value());
-            queryParameters.add(JPAPullTask.class.getAnnotation(DiscriminatorValue.class).value());
+                    append(JPATaskExecDAO.getEntityTableName(type)).append(".startDate=").append("GRP.startDate");
+        } else {
+            queryString.append(", null AS startDate, null AS endDate, null AS status FROM ").append(table).
+                    append(" WHERE 1=1 ");
         }
+
         queryString.append(' ');
 
         if (resource != null) {
             queryParameters.add(resource.getKey());
 
             queryString.append(" AND ").
-                    append(AbstractTask.TABLE).
+                    append(table).
                     append(".resource_id=?").append(queryParameters.size());
         }
         if (notification != null) {
             queryParameters.add(notification.getKey());
 
             queryString.append(" AND ").
-                    append(AbstractTask.TABLE).
+                    append(table).
                     append(".notification_id=?").append(queryParameters.size());
         }
         if (anyTypeKind != null && entityKey != null) {
@@ -305,10 +331,10 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             queryParameters.add(entityKey);
 
             queryString.append(" AND ").
-                    append(AbstractTask.TABLE).
+                    append(table).
                     append(".anyTypeKind=?").append(queryParameters.size() - 1).
                     append(" AND ").
-                    append(AbstractTask.TABLE).
+                    append(table).
                     append(".entityKey=?").append(queryParameters.size());
         }
 
@@ -316,7 +342,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     }
 
     protected String toOrderByStatement(
-            final Class<? extends Task> beanClass,
+            final Class<? extends Task<?>> beanClass,
             final List<OrderByClause> orderByClauses) {
 
         StringBuilder statement = new StringBuilder();
@@ -364,7 +390,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     }
 
     @Override
-    public <T extends Task> List<T> findAll(
+    public <T extends Task<T>> List<T> findAll(
             final TaskType type,
             final ExternalResource resource,
             final Notification notification,
@@ -403,7 +429,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
                             false,
                             queryParameters)).
                     append(" AND id NOT IN ").
-                    append("(SELECT task_id AS id FROM ").append(JPATaskExec.TABLE).append(')').
+                    append("(SELECT task_id AS id FROM ").append(JPATaskExecDAO.getEntityTableName(type)).append(')').
                     append(")) T");
         } else {
             queryString.insert(0, "SELECT T.id FROM (").append(") T");
@@ -431,7 +457,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
                 ? (String) ((Object[]) key)[0]
                 : ((String) key)).forEach(key -> {
 
-            T task = find(key);
+            T task = find(type, key);
             if (task == null) {
                 LOG.error("Could not find task with key {}, even if returned by native query", key);
             } else if (!result.contains(task)) {
@@ -457,8 +483,8 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
         Query query = entityManager().createNativeQuery(StringUtils.replaceOnce(
                 queryString.toString(),
-                "SELECT " + AbstractTask.TABLE + ".*, null AS startDate, null AS endDate, null AS status",
-                "SELECT COUNT(" + AbstractTask.TABLE + ".id)"));
+                "SELECT " + getEntityTableName(type) + ".*, null AS startDate, null AS endDate, null AS status",
+                "SELECT COUNT(" + getEntityTableName(type) + ".id)"));
 
         for (int i = 1; i <= queryParameters.size(); i++) {
             query.setParameter(i, queryParameters.get(i - 1));
@@ -469,13 +495,16 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
     @Transactional(rollbackFor = { Throwable.class })
     @Override
-    public <T extends Task> T save(final T task) {
+    public <T extends Task<T>> T save(final T task) {
+        if (task instanceof JPANotificationTask) {
+            ((JPANotificationTask) task).list2json();
+        }
         return entityManager().merge(task);
     }
 
     @Override
-    public void delete(final String id) {
-        Task task = find(id);
+    public void delete(final TaskType type, final String id) {
+        Task<?> task = find(type, id);
         if (task == null) {
             return;
         }
@@ -484,7 +513,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     }
 
     @Override
-    public void delete(final Task task) {
+    public void delete(final Task<?> task) {
         if (task instanceof PullTask) {
             remediationDAO.findByPullTask((PullTask) task).forEach(remediation -> remediation.setPullTask(null));
         }
@@ -495,7 +524,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
     @Override
     public void deleteAll(final ExternalResource resource, final TaskType type) {
         findAll(type, resource, null, null, null, -1, -1, List.of()).
-                stream().map(Task::getKey).forEach(this::delete);
+                stream().map(Task<?>::getKey).forEach(key -> delete(type, key));
     }
 
     @Override
@@ -505,8 +534,11 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             final List<ExternalResource> externalResources) {
 
         StringBuilder queryString = new StringBuilder("SELECT t.task_id "
-                + "FROM TaskExec t INNER JOIN Task z ON t.task_id=z.id AND z.dtype='PropagationTask' "
-                + "WHERE t.enddate=(SELECT MAX(e.enddate) FROM TaskExec e WHERE e.task_id=t.task_id) ");
+                + "FROM " + JPAPropagationTaskExec.TABLE + " t "
+                + "INNER JOIN " + JPAPropagationTask.TABLE + " z "
+                + "ON t.task_id=z.id "
+                + "WHERE t.enddate=(SELECT MAX(e.enddate) FROM " + JPAPropagationTaskExec.TABLE + " e "
+                + "WHERE e.task_id=t.task_id) ");
 
         List<Object> queryParameters = new ArrayList<>();
         if (since != null) {
@@ -540,7 +572,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
         List<PropagationTaskTO> purged = new ArrayList<>();
         raw.stream().map(Object::toString).distinct().forEach(key -> {
-            PropagationTask task = find(key);
+            PropagationTask task = find(TaskType.PROPAGATION, key);
             if (task != null) {
                 PropagationTaskTO taskTO = new PropagationTaskTO();
 

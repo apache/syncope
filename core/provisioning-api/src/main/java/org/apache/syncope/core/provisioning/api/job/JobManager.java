@@ -30,7 +30,9 @@ import org.quartz.SchedulerException;
 @SuppressWarnings("squid:S1214")
 public interface JobManager {
 
-    String TASK_KEY = "task";
+    String TASK_TYPE = "taskType";
+
+    String TASK_KEY = "taskKey";
 
     String REPORT_KEY = "report";
 
@@ -48,7 +50,7 @@ public interface JobManager {
     void register(Report report, OffsetDateTime startAt, long interruptMaxRetries, String executor)
             throws SchedulerException;
 
-    void unregister(Task task);
+    void unregister(Task<?> task);
 
     void unregister(Report report);
 }

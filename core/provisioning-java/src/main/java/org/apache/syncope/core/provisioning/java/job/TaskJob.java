@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -54,6 +55,8 @@ public class TaskJob extends AbstractInterruptableJob {
     @Autowired
     private DomainHolder domainHolder;
 
+    private TaskType taskType;
+
     /**
      * Key, set by the caller, for identifying the task to be executed.
      */
@@ -66,7 +69,8 @@ public class TaskJob extends AbstractInterruptableJob {
      *
      * @param taskKey to be set
      */
-    public void setTaskKey(final String taskKey) {
+    public void setTaskInfo(final TaskType taskType, final String taskKey) {
+        this.taskType = taskType;
         this.taskKey = taskKey;
     }
 
@@ -92,6 +96,7 @@ public class TaskJob extends AbstractInterruptableJob {
                         } else {
                             delegate = ImplementationManager.build(implementation);
                             delegate.execute(
+                                    taskType,
                                     taskKey,
                                     context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
                                     context);

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -62,6 +61,7 @@ import org.apache.syncope.core.persistence.jpa.entity.AbstractGroupableRelatable
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -111,11 +111,8 @@ public class JPAUser
     @Enumerated(EnumType.STRING)
     private CipherAlgorithm cipherAlgorithm;
 
-    @ElementCollection
-    @Column(name = "passwordHistoryValue")
-    @CollectionTable(name = "SyncopeUser_passwordHistory", joinColumns =
-            @JoinColumn(name = "user_id", referencedColumnName = "id"))
-    private List<String> passwordHistory = new ArrayList<>();
+    @Lob
+    private String passwordHistory;
 
     /**
      * Subsequent failed logins.
@@ -340,8 +337,25 @@ public class JPAUser
     }
 
     @Override
+    public void addToPasswordHistory(final String password) {
+        List<String> ph = getPasswordHistory();
+        ph.add(password);
+        passwordHistory = POJOHelper.serialize(ph);
+    }
+
+    @Override
+    public void removeOldestEntriesFromPasswordHistory(final int n) {
+        List<String> ph = getPasswordHistory();
+        ph.subList(n, ph.size());
+        passwordHistory = POJOHelper.serialize(ph);
+    }
+
+    @Override
     public List<String> getPasswordHistory() {
-        return passwordHistory;
+        return passwordHistory == null
+                ? new ArrayList<>(0)
+                : POJOHelper.deserialize(passwordHistory, new TypeReference<List<String>>() {
+                });
     }
 
     @Override

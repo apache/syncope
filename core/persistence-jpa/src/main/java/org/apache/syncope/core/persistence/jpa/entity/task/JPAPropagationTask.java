@@ -18,18 +18,23 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import javax.persistence.DiscriminatorValue;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.PropagationTaskCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -38,11 +43,13 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
  * Encapsulate all information about a propagation task.
  */
 @Entity
-@DiscriminatorValue("PropagationTask")
+@Table(name = JPAPropagationTask.TABLE)
 @PropagationTaskCheck
-public class JPAPropagationTask extends AbstractTask implements PropagationTask {
+public class JPAPropagationTask extends AbstractTask<PropagationTask> implements PropagationTask {
 
     private static final long serialVersionUID = 7086054884614511210L;
+
+    public static final String TABLE = "PropagationTask";
 
     /**
      * @see ResourceOperation
@@ -80,6 +87,10 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
      */
     @ManyToOne
     private JPAExternalResource resource;
+
+    @OneToMany(targetEntity = JPAPropagationTaskExec.class,
+            cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
+    private List<TaskExec<PropagationTask>> executions = new ArrayList<>();
 
     @Override
     public String getConnObjectKey() {
@@ -132,17 +143,6 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     }
 
     @Override
-    public ExternalResource getResource() {
-        return resource;
-    }
-
-    @Override
-    public void setResource(final ExternalResource resource) {
-        checkType(resource, JPAExternalResource.class);
-        this.resource = (JPAExternalResource) resource;
-    }
-
-    @Override
     public String getObjectClassName() {
         return objectClassName;
     }
@@ -180,5 +180,26 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     @Override
     public void setEntityKey(final String entityKey) {
         this.entityKey = entityKey;
+    }
+
+    @Override
+    public ExternalResource getResource() {
+        return resource;
+    }
+
+    @Override
+    public void setResource(final ExternalResource resource) {
+        checkType(resource, JPAExternalResource.class);
+        this.resource = (JPAExternalResource) resource;
+    }
+
+    @Override
+    protected Class<? extends TaskExec<PropagationTask>> executionClass() {
+        return JPAPropagationTaskExec.class;
+    }
+
+    @Override
+    protected List<TaskExec<PropagationTask>> executions() {
+        return executions;
     }
 }

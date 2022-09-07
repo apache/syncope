@@ -25,12 +25,11 @@ public interface TaskUtils {
 
     TaskType getType();
 
-    <T extends Task> T newTask();
+    <T extends Task<T>> T newTask();
 
     <T extends TaskTO> T newTaskTO();
 
-    <T extends Task> Class<T> taskClass();
+    <T extends Task<T>> Class<T> taskClass();
 
     <T extends TaskTO> Class<T> taskTOClass();
-
 }

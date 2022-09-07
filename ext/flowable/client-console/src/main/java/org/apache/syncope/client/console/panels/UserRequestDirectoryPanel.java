@@ -66,8 +66,6 @@ public class UserRequestDirectoryPanel
         super(id, pageRef, true);
         setFooterVisibility(false);
 
-        restClient = new UserRequestRestClient();
-
         initResultTable();
 
         IndicatingAjaxButton batchLink = new IndicatingAjaxButton("batchLink", resultTable.group.getForm()) {
@@ -82,7 +80,7 @@ public class UserRequestDirectoryPanel
                     UserRequestService service = batch.getService(UserRequestService.class);
                     items.forEach(item -> service.cancelRequest(item.getExecutionId(), null));
 
-                    Map<String, String> results = restClient.batch(batch);
+                    Map<String, String> results = UserRequestRestClient.batch(batch);
 
                     resultTable.batchModal.header(new ResourceModel("batch"));
                     resultTable.batchModal.changeCloseButtonLabel(getString("cancel", null, "Cancel"), target);

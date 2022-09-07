@@ -18,21 +18,26 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -41,6 +46,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPANotification.TABLE)
@@ -50,24 +56,22 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
 
     public static final String TABLE = "Notification";
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "event")
-    @CollectionTable(name = "Notification_events",
-            joinColumns =
-            @JoinColumn(name = "notification_id", referencedColumnName = "id"))
-    private List<String> events = new ArrayList<>();
+    @Lob
+    private String events;
+
+    @Transient
+    private List<String> eventsList = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "notification")
     private List<JPAAnyAbout> abouts = new ArrayList<>();
 
     private String recipientsFIQL;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "Notification_staticRecipients",
-            joinColumns =
-            @JoinColumn(name = "notification_id", referencedColumnName = "id"))
-    @Column(name = "staticRecipients")
-    private List<String> staticRecipients = new ArrayList<>();
+    @Lob
+    private String staticRecipients;
+
+    @Transient
+    private List<String> staticRecipientsList = new ArrayList<>();
 
     @NotNull
     private String recipientAttrName;
@@ -129,7 +133,7 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
 
     @Override
     public List<String> getEvents() {
-        return events;
+        return eventsList;
     }
 
     @Override
@@ -150,7 +154,7 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
 
     @Override
     public List<String> getStaticRecipients() {
-        return staticRecipients;
+        return staticRecipientsList;
     }
 
     @Override
@@ -213,5 +217,40 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
     @Override
     public void setActive(final boolean active) {
         this.active = active;
+    }
+
+    protected void json2list(final boolean clearFirst) {
+        if (clearFirst) {
+            getEvents().clear();
+            getStaticRecipients().clear();
+        }
+        if (events != null) {
+            getEvents().addAll(
+                    POJOHelper.deserialize(events, new TypeReference<List<String>>() {
+                    }));
+        }
+        if (staticRecipients != null) {
+            getStaticRecipients().addAll(
+                    POJOHelper.deserialize(staticRecipients, new TypeReference<List<String>>() {
+                    }));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2list(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2list(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void list2json() {
+        events = POJOHelper.serialize(getEvents());
+        staticRecipients = POJOHelper.serialize(getStaticRecipients());
     }
 }

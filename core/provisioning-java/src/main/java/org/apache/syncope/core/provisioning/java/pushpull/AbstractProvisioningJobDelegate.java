@@ -45,7 +45,8 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask> extends AbstractSchedTaskJobDelegate {
+public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask<T>>
+        extends AbstractSchedTaskJobDelegate<T> {
 
     private static final String USER = "USER";
 
@@ -705,13 +706,11 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
             throws JobExecutionException;
 
     @Override
-    protected boolean hasToBeRegistered(final TaskExec execution) {
-        final ProvisioningTask provTask = (ProvisioningTask) task;
-
+    protected boolean hasToBeRegistered(final TaskExec<?> execution) {
         // True if either failed and failures have to be registered, or if ALL has to be registered.
         return (TaskJob.Status.valueOf(execution.getStatus()) == TaskJob.Status.FAILURE
-                && provTask.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                || provTask.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.SUMMARY.ordinal();
+                && task.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+                || task.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.SUMMARY.ordinal();
     }
 
     @SuppressWarnings("unchecked")

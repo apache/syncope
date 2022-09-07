@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -33,13 +34,13 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 
-public interface TaskDAO extends DAO<Task> {
-
-    Class<? extends Task> getEntityReference(TaskType type);
+public interface TaskDAO extends DAO<Task<?>> {
 
     boolean exists(TaskType type, String key);
 
-    <T extends Task> T find(String key);
+    <T extends Task<T>> T find(TaskType type, String key);
+
+    Optional<Task<?>> find(String key);
 
     List<SchedTask> findByDelegate(Implementation delegate);
 
@@ -49,11 +50,11 @@ public interface TaskDAO extends DAO<Task> {
 
     List<PushTask> findByPushActions(Implementation pushActions);
 
-    <T extends Task> List<T> findToExec(TaskType type);
+    <T extends Task<T>> List<T> findToExec(TaskType type);
 
-    <T extends Task> List<T> findAll(TaskType type);
+    <T extends Task<T>> List<T> findAll(TaskType type);
 
-    <T extends Task> List<T> findAll(
+    <T extends Task<T>> List<T> findAll(
             TaskType type,
             ExternalResource resource,
             Notification notification,
@@ -70,11 +71,11 @@ public interface TaskDAO extends DAO<Task> {
             AnyTypeKind anyTypeKind,
             String entityKey);
 
-    <T extends Task> T save(T task);
+    <T extends Task<T>> T save(T task);
 
-    void delete(String key);
+    void delete(TaskType type, String key);
 
-    void delete(Task task);
+    void delete(Task<?> task);
 
     void deleteAll(ExternalResource resource, TaskType type);
 

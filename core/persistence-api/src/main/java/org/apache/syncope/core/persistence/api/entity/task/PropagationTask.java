@@ -22,7 +22,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 
-public interface PropagationTask extends Task {
+public interface PropagationTask extends Task<PropagationTask> {
 
     String getConnObjectKey();
 

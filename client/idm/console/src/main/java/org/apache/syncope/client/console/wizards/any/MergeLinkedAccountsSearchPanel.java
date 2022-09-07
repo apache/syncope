@@ -50,10 +50,6 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
 
     private final UserSearchPanel userSearchPanel;
 
-    private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
-
-    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
     private final UserSelectionDirectoryPanel userDirectoryPanel;
 
     private final Fragment userSearchFragment;
@@ -77,9 +73,9 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
                 build("usersearch"));
         userSearchFragment.add(userSearchPanel);
 
-        AnyTypeTO anyTypeTO = anyTypeRestClient.read(AnyTypeKind.USER.name());
+        AnyTypeTO anyTypeTO = AnyTypeRestClient.read(AnyTypeKind.USER.name());
         userDirectoryPanel = UserSelectionDirectoryPanel.class.cast(new UserSelectionDirectoryPanel.Builder(
-                anyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
                 build("searchResult"));
 
         userSearchFragment.add(userDirectoryPanel);

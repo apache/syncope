@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 
-public interface ProvisioningTask extends SchedTask {
+public interface ProvisioningTask<T extends SchedTask> extends SchedTask {
 
     ExternalResource getResource();
 

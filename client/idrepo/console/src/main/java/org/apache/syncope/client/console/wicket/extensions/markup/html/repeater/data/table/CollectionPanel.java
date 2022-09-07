@@ -29,7 +29,7 @@ public class CollectionPanel extends Panel {
 
     private static final long serialVersionUID = -4042497356836230377L;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public CollectionPanel(final String id, final List values) {
         super(id);
 
@@ -39,7 +39,7 @@ public class CollectionPanel extends Panel {
 
             @Override
             protected void populateItem(final ListItem item) {
-                final String value = item.getModelObject() == null ? null : item.getModelObject().toString();
+                String value = item.getModelObject() == null ? null : item.getModelObject().toString();
                 item.add(new Label("item", new ResourceModel(value, value)));
             }
         });

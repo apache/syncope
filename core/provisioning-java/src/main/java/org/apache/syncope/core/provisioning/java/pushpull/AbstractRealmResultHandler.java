@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractRealmResultHandler<T extends ProvisioningTask, A extends ProvisioningActions>
+public abstract class AbstractRealmResultHandler<T extends ProvisioningTask<?>, A extends ProvisioningActions>
         implements SyncopeResultHandler<T, A> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeResultHandler.class);

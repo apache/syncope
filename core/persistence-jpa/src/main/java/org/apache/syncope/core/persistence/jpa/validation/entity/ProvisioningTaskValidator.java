@@ -22,19 +22,13 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 
-public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTaskCheck, ProvisioningTask> {
+public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTaskCheck, ProvisioningTask<?>> {
 
-    private final SchedTaskValidator schedV;
-
-    public ProvisioningTaskValidator() {
-        super();
-
-        schedV = new SchedTaskValidator();
-    }
+    private final SchedTaskValidator schedTaskValidator = new SchedTaskValidator();
 
     @Override
-    public boolean isValid(final ProvisioningTask task, final ConstraintValidatorContext context) {
-        boolean isValid = schedV.isValid(task, context);
+    public boolean isValid(final ProvisioningTask<?> task, final ConstraintValidatorContext context) {
+        boolean isValid = schedTaskValidator.isValid(task, context);
 
         if (isValid) {
             isValid = task.getResource() != null;

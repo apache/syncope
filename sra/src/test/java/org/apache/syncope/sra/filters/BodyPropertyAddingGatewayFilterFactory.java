@@ -126,11 +126,11 @@ public class BodyPropertyAddingGatewayFilterFactory extends CustomGatewayFilterF
                         }
 
                         if (compressed) {
-                            try (ByteArrayOutputStream baos = new ByteArrayOutputStream(output.length);  
-                                 GZIPOutputStream gzipos = new GZIPOutputStream(baos)) {
+                            try (ByteArrayOutputStream baos = new ByteArrayOutputStream(output.length)) {
+                                try (GZIPOutputStream gzipos = new GZIPOutputStream(baos)) {
+                                    gzipos.write(output);
+                                }
 
-                                gzipos.write(output);
-                                gzipos.close();
                                 output = baos.toByteArray();
                             } catch (IOException e) {
                                 LOG.error("While GZIP-encoding output", e);

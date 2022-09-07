@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import java.util.List;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -29,33 +28,26 @@ public class PropagationTaskValidator extends AbstractValidator<PropagationTaskC
 
     @Override
     public boolean isValid(final PropagationTask task, final ConstraintValidatorContext context) {
-        boolean isValid;
+        boolean isValid = task.getOperation() != null
+                && task.getPropagationData() != null
+                && task.getResource() != null;
 
-        if (task == null) {
-            isValid = true;
-        } else {
-            isValid = task.getOperation() != null
-                    && task.getPropagationData() != null
-                    && task.getResource() != null;
-
-            if (isValid) {
-                List<? extends TaskExec> executions = task.getExecs();
-                for (TaskExec execution : executions) {
-                    try {
-                        ExecStatus.valueOf(execution.getStatus());
-                    } catch (IllegalArgumentException e) {
-                        LOG.error("Invalid execution status '" + execution.getStatus() + '\'', e);
-                        isValid = false;
-                    }
+        if (isValid) {
+            for (TaskExec<PropagationTask> execution : task.getExecs()) {
+                try {
+                    ExecStatus.valueOf(execution.getStatus());
+                } catch (IllegalArgumentException e) {
+                    LOG.error("Invalid execution status '" + execution.getStatus() + '\'', e);
+                    isValid = false;
                 }
             }
+        }
 
-            if (!isValid) {
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidPropagationTask, "Invalid task")).
-                        addPropertyNode(task.getClass().getSimpleName()).addConstraintViolation();
-            }
+        if (!isValid) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidPropagationTask, "Invalid task")).
+                    addPropertyNode(task.getClass().getSimpleName()).addConstraintViolation();
         }
 
         return isValid;

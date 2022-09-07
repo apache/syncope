@@ -18,20 +18,25 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.am;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPASAML2SPClientApp.TABLE)
@@ -66,57 +71,56 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
 
     private String nameIdQualifier;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "assertionAudience")
-    @CollectionTable(name = "SAML2SPClientApp_AssAud",
-            joinColumns =
-            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private Set<String> assertionAudiences = new HashSet<>();
+    @Lob
+    private String assertionAudiences;
+
+    @Transient
+    private Set<String> assertionAudiencesSet = new HashSet<>();
 
     @Column(name = "spNameIdQualifier")
     private String serviceProviderNameIdQualifier;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "sigAlg")
-    @CollectionTable(name = "SAML2SPClientApp_SigAlgs",
-            joinColumns =
-            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<XmlSecAlgorithm> signingSignatureAlgorithms = new ArrayList<>();
+    @Column(name = "sigAlgs")
+    @Lob
+    private String signingSignatureAlgorithms;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @Transient
+    private List<XmlSecAlgorithm> signingSignatureAlgorithmsList = new ArrayList<>();
+
     @Column(name = "sigRefDigestMethod")
-    @CollectionTable(name = "SAML2SPClientApp_SigRefDigAlgs",
-            joinColumns =
-            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<XmlSecAlgorithm> signingSignatureReferenceDigestMethods = new ArrayList<>();
+    @Lob
+    private String signingSignatureReferenceDigestMethods;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @Transient
+    private List<XmlSecAlgorithm> signingSignatureReferenceDigestMethodsList = new ArrayList<>();
+
     @Column(name = "encDataAlg")
-    @CollectionTable(name = "SAML2SPClientApp_EncDataAlgs",
-            joinColumns =
-            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<XmlSecAlgorithm> encryptionDataAlgorithms = new ArrayList<>();
+    @Lob
+    private String encryptionDataAlgorithms;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @Transient
+    private List<XmlSecAlgorithm> encryptionDataAlgorithmsList = new ArrayList<>();
+
     @Column(name = "encKeyAlg")
-    @CollectionTable(name = "SAML2SPClientApp_EncKeyAlgs",
-            joinColumns =
-            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<XmlSecAlgorithm> encryptionKeyAlgorithms = new ArrayList<>();
+    @Lob
+    private String encryptionKeyAlgorithms;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @Transient
+    private List<XmlSecAlgorithm> encryptionKeyAlgorithmsList = new ArrayList<>();
+
     @Column(name = "sigBlAlg")
-    @CollectionTable(name = "SAML2SPClientApp_BlSigAlgs",
-            joinColumns =
-            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<XmlSecAlgorithm> signingSignatureBlackListedAlgorithms = new ArrayList<>();
+    @Lob
+    private String signingSignatureBlackListedAlgorithms;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @Transient
+    private List<XmlSecAlgorithm> signingSignatureBlackListedAlgorithmsList = new ArrayList<>();
+
     @Column(name = "encBlAlg")
-    @CollectionTable(name = "SAML2SPClientApp_BlEncAlgs",
-            joinColumns =
-            @JoinColumn(name = "client_app_id", referencedColumnName = "id"))
-    private List<XmlSecAlgorithm> encryptionBlackListedAlgorithms = new ArrayList<>();
+    @Lob
+    private String encryptionBlackListedAlgorithms;
+
+    @Transient
+    private List<XmlSecAlgorithm> encryptionBlackListedAlgorithmsList = new ArrayList<>();
 
     @Override
     public String getEntityId() {
@@ -230,7 +234,7 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
 
     @Override
     public Set<String> getAssertionAudiences() {
-        return assertionAudiences;
+        return assertionAudiencesSet;
     }
 
     @Override
@@ -245,31 +249,108 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
 
     @Override
     public List<XmlSecAlgorithm> getSigningSignatureAlgorithms() {
-        return signingSignatureAlgorithms;
+        return signingSignatureAlgorithmsList;
     }
 
     @Override
     public List<XmlSecAlgorithm> getSigningSignatureReferenceDigestMethods() {
-        return signingSignatureReferenceDigestMethods;
+        return signingSignatureReferenceDigestMethodsList;
     }
 
     @Override
     public List<XmlSecAlgorithm> getEncryptionDataAlgorithms() {
-        return encryptionDataAlgorithms;
+        return encryptionDataAlgorithmsList;
     }
 
     @Override
     public List<XmlSecAlgorithm> getEncryptionKeyAlgorithms() {
-        return encryptionKeyAlgorithms;
+        return encryptionKeyAlgorithmsList;
     }
 
     @Override
     public List<XmlSecAlgorithm> getSigningSignatureBlackListedAlgorithms() {
-        return signingSignatureBlackListedAlgorithms;
+        return signingSignatureBlackListedAlgorithmsList;
     }
 
     @Override
     public List<XmlSecAlgorithm> getEncryptionBlackListedAlgorithms() {
-        return encryptionBlackListedAlgorithms;
+        return encryptionBlackListedAlgorithmsList;
+    }
+
+    protected void json2list(final boolean clearFirst) {
+        if (clearFirst) {
+            getAssertionAudiences().clear();
+            getSigningSignatureAlgorithms().clear();
+            getSigningSignatureReferenceDigestMethods().clear();
+            getEncryptionDataAlgorithms().clear();
+            getEncryptionKeyAlgorithms().clear();
+            getSigningSignatureBlackListedAlgorithms().clear();
+            getEncryptionBlackListedAlgorithms().clear();
+        }
+        if (assertionAudiences != null) {
+            getAssertionAudiences().addAll(
+                    POJOHelper.deserialize(assertionAudiences,
+                            new TypeReference<Set<String>>() {
+                    }));
+        }
+        if (signingSignatureAlgorithms != null) {
+            getSigningSignatureAlgorithms().addAll(
+                    POJOHelper.deserialize(signingSignatureAlgorithms,
+                            new TypeReference<List<XmlSecAlgorithm>>() {
+                    }));
+        }
+        if (signingSignatureReferenceDigestMethods != null) {
+            getSigningSignatureReferenceDigestMethods().addAll(
+                    POJOHelper.deserialize(signingSignatureReferenceDigestMethods,
+                            new TypeReference<List<XmlSecAlgorithm>>() {
+                    }));
+        }
+        if (encryptionDataAlgorithms != null) {
+            getEncryptionDataAlgorithms().addAll(
+                    POJOHelper.deserialize(encryptionDataAlgorithms,
+                            new TypeReference<List<XmlSecAlgorithm>>() {
+                    }));
+        }
+        if (encryptionKeyAlgorithms != null) {
+            getEncryptionKeyAlgorithms().addAll(
+                    POJOHelper.deserialize(encryptionKeyAlgorithms,
+                            new TypeReference<List<XmlSecAlgorithm>>() {
+                    }));
+        }
+        if (signingSignatureBlackListedAlgorithms != null) {
+            getSigningSignatureBlackListedAlgorithms().addAll(
+                    POJOHelper.deserialize(signingSignatureBlackListedAlgorithms,
+                            new TypeReference<List<XmlSecAlgorithm>>() {
+                    }));
+        }
+        if (encryptionBlackListedAlgorithms != null) {
+            getEncryptionBlackListedAlgorithms().addAll(
+                    POJOHelper.deserialize(encryptionBlackListedAlgorithms,
+                            new TypeReference<List<XmlSecAlgorithm>>() {
+                    }));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2list(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2list(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void list2json() {
+        assertionAudiences = POJOHelper.serialize(getAssertionAudiences());
+        signingSignatureAlgorithms = POJOHelper.serialize(getSigningSignatureAlgorithms());
+        signingSignatureReferenceDigestMethods = POJOHelper.serialize(getSigningSignatureReferenceDigestMethods());
+        encryptionDataAlgorithms = POJOHelper.serialize(getEncryptionDataAlgorithms());
+        encryptionKeyAlgorithms = POJOHelper.serialize(getEncryptionKeyAlgorithms());
+        signingSignatureBlackListedAlgorithms = POJOHelper.serialize(getSigningSignatureBlackListedAlgorithms());
+        encryptionBlackListedAlgorithms = POJOHelper.serialize(getEncryptionBlackListedAlgorithms());
     }
 }

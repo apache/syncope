@@ -232,7 +232,7 @@ public class ResourceTest extends AbstractTest {
                 forEach(res -> assertFalse(res.getKey().equalsIgnoreCase(resource.getKey())));
 
         // there must be no tasks
-        propagationTasks.forEach(task -> assertNull(taskDAO.find(task.getKey())));
+        propagationTasks.forEach(task -> assertTrue(taskDAO.find(task.getKey()).isEmpty()));
     }
 
     @Test

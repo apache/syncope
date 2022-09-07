@@ -114,7 +114,11 @@ public class NotificationTest extends AbstractTest {
         notification.setSubject("Test notification");
         notification.setTemplate(mailTemplateDAO.find("test"));
 
-        Notification actual = notificationDAO.save(notification);
+        notification = notificationDAO.save(notification);
+
+        entityManager().flush();
+
+        Notification actual = notificationDAO.find(notification.getKey());
         assertNotNull(actual);
         assertNotNull(actual.getKey());
         assertNotNull(actual.getStaticRecipients());
@@ -140,7 +144,11 @@ public class NotificationTest extends AbstractTest {
         notification.setSubject("Test notification");
         notification.setTemplate(mailTemplateDAO.find("test"));
 
-        Notification actual = notificationDAO.save(notification);
+        notification = notificationDAO.save(notification);
+
+        entityManager().flush();
+
+        Notification actual = notificationDAO.find(notification.getKey());
         assertNotNull(actual);
         assertNotNull(actual.getKey());
         assertNotNull(actual.getStaticRecipients());

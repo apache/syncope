@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.api.propagation;
 
 import java.util.Collection;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
 /**
@@ -45,7 +46,7 @@ public interface PropagationTaskExecutor {
      * @param executor the executor of this task
      * @return the generated TaskExec
      */
-    TaskExec execute(PropagationTaskInfo taskInfo, PropagationReporter reporter, String executor);
+    TaskExec<PropagationTask> execute(PropagationTaskInfo taskInfo, PropagationReporter reporter, String executor);
 
     /**
      * Execute the given collection of tasks.

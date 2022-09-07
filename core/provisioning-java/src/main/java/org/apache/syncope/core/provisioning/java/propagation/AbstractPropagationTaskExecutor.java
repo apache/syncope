@@ -17,6 +17,7 @@
  * under the License.
  */
 package org.apache.syncope.core.provisioning.java.propagation;
+
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +39,7 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -457,7 +459,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     @Override
-    public TaskExec execute(
+    public TaskExec<PropagationTask> execute(
             final PropagationTaskInfo taskInfo,
             final PropagationReporter reporter,
             final String executor) {
@@ -465,7 +467,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return retryTemplate(taskInfo.getResource()).map(rt -> rt.execute(context -> {
             LOG.debug("#{} Propagation attempt", context.getRetryCount());
 
-            TaskExec exec = doExecute(taskInfo, reporter, executor);
+            TaskExec<PropagationTask> exec = doExecute(taskInfo, reporter, executor);
             if (context.getRetryCount() < taskInfo.getResource().getPropagationPolicy().getMaxAttempts() - 1
                     && !ExecStatus.SUCCESS.name().equals(exec.getStatus())) {
 
@@ -481,7 +483,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 orElse(true);
     }
 
-    protected TaskExec doExecute(
+    protected TaskExec<PropagationTask> doExecute(
             final PropagationTaskInfo taskInfo,
             final PropagationReporter reporter,
             final String executor) {
@@ -494,7 +496,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         OffsetDateTime start = OffsetDateTime.now();
 
-        TaskExec exec = entityFactory.newEntity(TaskExec.class);
+        TaskExec<PropagationTask> exec = entityFactory.newTaskExec(TaskType.PROPAGATION);
         exec.setStatus(ExecStatus.CREATED.name());
         exec.setExecutor(executor);
 
@@ -688,13 +690,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return exec;
     }
 
-    protected TaskExec rejected(
+    protected TaskExec<PropagationTask> rejected(
             final PropagationTaskInfo taskInfo,
             final String rejectReason,
             final PropagationReporter reporter,
             final String executor) {
 
-        TaskExec execution = entityFactory.newEntity(TaskExec.class);
+        TaskExec<PropagationTask> execution = entityFactory.newTaskExec(TaskType.PROPAGATION);
         execution.setStatus(ExecStatus.NOT_ATTEMPTED.name());
         execution.setExecutor(executor);
         execution.setStart(OffsetDateTime.now());
@@ -729,7 +731,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      * @return true if execution has to be store, false otherwise
      */
     protected Optional<PropagationTask> hasToBeregistered(
-            final PropagationTaskInfo taskInfo, final TaskExec execution) {
+            final PropagationTaskInfo taskInfo, final TaskExec<PropagationTask> execution) {
 
         boolean result;
 

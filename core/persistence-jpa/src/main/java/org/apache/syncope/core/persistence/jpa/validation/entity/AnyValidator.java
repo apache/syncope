@@ -34,9 +34,9 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
 
     private static boolean raiseNotAllowedViolation(
-        final ConstraintValidatorContext context,
-        final String schema,
-        final Group group) {
+            final ConstraintValidatorContext context,
+            final String schema,
+            final Group group) {
 
         if (group == null) {
             context.buildConstraintViolationWithTemplate(

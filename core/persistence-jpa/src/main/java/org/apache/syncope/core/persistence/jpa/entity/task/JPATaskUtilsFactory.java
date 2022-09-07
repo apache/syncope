@@ -64,7 +64,7 @@ public class JPATaskUtilsFactory implements TaskUtilsFactory {
     }
 
     @Override
-    public TaskUtils getInstance(final Task task) {
+    public TaskUtils getInstance(final Task<?> task) {
         TaskType type;
         if (task instanceof PullTask) {
             type = TaskType.PULL;

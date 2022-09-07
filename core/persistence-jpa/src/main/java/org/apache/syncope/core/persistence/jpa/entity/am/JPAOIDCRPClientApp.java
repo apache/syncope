@@ -18,21 +18,26 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.am;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAOIDCRPClientApp.TABLE)
@@ -56,34 +61,29 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Enumerated(EnumType.STRING)
     private OIDCSubjectType subjectType;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "redirectUri")
-    @CollectionTable(name = "OIDCRPClientApp_RedirectUris",
-            joinColumns =
-            @JoinColumn(name = "client_id", referencedColumnName = "id"))
-    private Set<String> redirectUris = new HashSet<>();
+    @Lob
+    private String redirectUris;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    @Column(name = "supportedGrantType")
-    @CollectionTable(name = "OIDCRPClientApp_SuppGrantTypes",
-            joinColumns =
-            @JoinColumn(name = "client_id", referencedColumnName = "id"))
-    private Set<OIDCGrantType> supportedGrantTypes = new HashSet<>();
+    @Transient
+    private Set<String> redirectUrisSet = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    @Column(name = "supportedResponseType")
-    @CollectionTable(name = "OIDCRPClientApp_SuppResTypes",
-            joinColumns =
-            @JoinColumn(name = "client_id", referencedColumnName = "id"))
-    private Set<OIDCResponseType> supportedResponseTypes = new HashSet<>();
+    @Lob
+    private String supportedGrantTypes;
+
+    @Transient
+    private Set<OIDCGrantType> supportedGrantTypesSet = new HashSet<>();
+
+    @Lob
+    private String supportedResponseTypes;
+
+    @Transient
+    private Set<OIDCResponseType> supportedResponseTypesSet = new HashSet<>();
 
     private String logoutUri;
 
     @Override
     public Set<String> getRedirectUris() {
-        return redirectUris;
+        return redirectUrisSet;
     }
 
     @Override
@@ -148,12 +148,12 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     @Override
     public Set<OIDCGrantType> getSupportedGrantTypes() {
-        return supportedGrantTypes;
+        return supportedGrantTypesSet;
     }
 
     @Override
     public Set<OIDCResponseType> getSupportedResponseTypes() {
-        return supportedResponseTypes;
+        return supportedResponseTypesSet;
     }
 
     @Override
@@ -164,5 +164,47 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Override
     public void setLogoutUri(final String logoutUri) {
         this.logoutUri = logoutUri;
+    }
+
+    protected void json2list(final boolean clearFirst) {
+        if (clearFirst) {
+            getRedirectUris().clear();
+            getSupportedGrantTypes().clear();
+            getSupportedResponseTypes().clear();
+        }
+        if (redirectUris != null) {
+            getRedirectUris().addAll(
+                    POJOHelper.deserialize(redirectUris, new TypeReference<Set<String>>() {
+                    }));
+        }
+        if (supportedGrantTypes != null) {
+            getSupportedGrantTypes().addAll(
+                    POJOHelper.deserialize(supportedGrantTypes, new TypeReference<Set<OIDCGrantType>>() {
+                    }));
+        }
+        if (supportedResponseTypes != null) {
+            getSupportedResponseTypes().addAll(
+                    POJOHelper.deserialize(supportedResponseTypes, new TypeReference<Set<OIDCResponseType>>() {
+                    }));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2list(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2list(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void list2json() {
+        redirectUris = POJOHelper.serialize(getRedirectUris());
+        supportedGrantTypes = POJOHelper.serialize(getSupportedGrantTypes());
+        supportedResponseTypes = POJOHelper.serialize(getSupportedResponseTypes());
     }
 }

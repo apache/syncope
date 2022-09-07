@@ -20,10 +20,9 @@ package org.apache.syncope.core.provisioning.api.pushpull;
 
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 
-public interface SyncopeResultHandler<T extends ProvisioningTask, A extends ProvisioningActions> {
+public interface SyncopeResultHandler<T extends ProvisioningTask<?>, A extends ProvisioningActions> {
 
     ProvisioningProfile<T, A> getProfile();
 
     void setProfile(ProvisioningProfile<T, A> profile);
-
 }

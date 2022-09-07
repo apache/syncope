@@ -18,32 +18,32 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import java.util.List;
-import javax.persistence.MappedSuperclass;
-import org.apache.syncope.core.persistence.api.entity.task.Task;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
-@MappedSuperclass
-public abstract class AbstractTask<T extends Task<T>> extends AbstractGeneratedKeyEntity implements Task<T> {
+@Entity
+@Table(name = JPAPushTaskExec.TABLE)
+public class JPAPushTaskExec extends AbstractTaskExec<SchedTask> implements TaskExec<SchedTask> {
 
-    private static final long serialVersionUID = 5837401178128177511L;
+    private static final long serialVersionUID = 1909033231464074554L;
 
-    protected abstract List<TaskExec<T>> executions();
+    public static final String TABLE = "PushTaskExec";
 
-    protected abstract Class<? extends TaskExec<T>> executionClass();
+    @ManyToOne(optional = false)
+    private JPAPushTask task;
 
     @Override
-    public boolean add(final TaskExec<T> exec) {
-        Class<? extends TaskExec<T>> clazz = executionClass();
-        checkType(exec, clazz);
-        return exec != null
-                && !executions().contains(clazz.cast(exec))
-                && executions().add(clazz.cast(exec));
+    public PushTask getTask() {
+        return task;
     }
 
     @Override
-    public List<? extends TaskExec<T>> getExecs() {
-        return executions();
+    public void setTask(final SchedTask task) {
+        checkType(task, PushTask.class);
+        this.task = (JPAPushTask) task;
     }
 }
