@@ -47,6 +47,10 @@ public interface User extends Account, GroupableRelatable<User, UMembership, UPl
 
     void setChangePwdDate(OffsetDateTime changePwdDate);
 
+    void addToPasswordHistory(String password);
+
+    void removeOldestEntriesFromPasswordHistory(int n);
+
     List<String> getPasswordHistory();
 
     SecurityQuestion getSecurityQuestion();

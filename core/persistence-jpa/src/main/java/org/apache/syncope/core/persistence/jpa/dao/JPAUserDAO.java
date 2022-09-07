@@ -407,16 +407,15 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             }
 
             // update user's password history with encrypted password
-            if (maxPPSpecHistory > 0 && user.getPassword() != null
+            if (maxPPSpecHistory > 0
+                    && user.getPassword() != null
                     && !user.getPasswordHistory().contains(user.getPassword())) {
 
-                user.getPasswordHistory().add(user.getPassword());
+                user.addToPasswordHistory(user.getPassword());
             }
             // keep only the last maxPPSpecHistory items in user's password history
             if (maxPPSpecHistory < user.getPasswordHistory().size()) {
-                for (int i = 0; i < user.getPasswordHistory().size() - maxPPSpecHistory; i++) {
-                    user.getPasswordHistory().remove(i);
-                }
+                user.removeOldestEntriesFromPasswordHistory(user.getPasswordHistory().size() - maxPPSpecHistory);
             }
         } catch (PersistenceException | InvalidEntityException e) {
             throw e;
@@ -488,7 +487,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         String clearPwd = user.getClearPassword();
 
         // 2. save
-        ((JPAUser) user).list2json();
         User merged = super.save(user);
 
         // 3. set back the sole clear password value

@@ -267,12 +267,10 @@ abstract class AbstractAnyDataBinder {
                 try {
                     attr.add(validator, value, anyUtils);
                 } catch (InvalidPlainAttrValueException e) {
-                    String valueToPrint = value.length() > 40
-                            ? value.substring(0, 20) + "..."
-                            : value;
-                    LOG.warn("Invalid value for attribute " + schema.getKey() + ": " + valueToPrint, e);
+                    LOG.warn("Invalid value for attribute {}: {}",
+                            schema.getKey(), StringUtils.abbreviate(value, 20), e);
 
-                    invalidValues.getElements().add(schema.getKey() + ": " + valueToPrint + " - " + e.getMessage());
+                    invalidValues.getElements().add(schema.getKey() + ": " + value + " - " + e.getMessage());
                 }
             }
         });
@@ -292,7 +290,7 @@ abstract class AbstractAnyDataBinder {
             }
             if (intAttrName != null && intAttrName.getSchema() != null) {
                 AttrSchemaType schemaType = intAttrName.getSchema() instanceof PlainSchema
-                        ? ((PlainSchema) intAttrName.getSchema()).getType()
+                        ? intAttrName.getSchema().getType()
                         : AttrSchemaType.String;
 
                 Pair<AttrSchemaType, List<PlainAttrValue>> intValues = mappingManager.getIntValues(
@@ -362,10 +360,11 @@ abstract class AbstractAnyDataBinder {
             allowedPlainSchemas.getForMemberships().forEach((group, schemas) -> {
                 GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
                 Membership<?> membership = groupable.getMembership(group.getKey()).orElse(null);
-                schemas
-                        .forEach(schema -> checkMandatory(schema, groupable.getPlainAttr(schema.getKey(), membership)
-                        .orElse(null),
-                        any, reqValMissing));
+                schemas.forEach(schema -> checkMandatory(
+                        schema,
+                        groupable.getPlainAttr(schema.getKey(), membership).orElse(null),
+                        any,
+                        reqValMissing));
             });
         }
 
@@ -538,7 +537,7 @@ abstract class AbstractAnyDataBinder {
         any.getAuxClasses().clear();
         anyCR.getAuxClasses().stream().
                 map(className -> anyTypeClassDAO.find(className)).
-                forEachOrdered(auxClass -> {
+                forEach(auxClass -> {
                     if (auxClass == null) {
                         LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...", auxClass);
                     } else {
@@ -607,26 +606,25 @@ abstract class AbstractAnyDataBinder {
 
         membershipTO.getPlainAttrs().stream().
                 filter(attrTO -> !attrTO.getValues().isEmpty()).
-                forEach(attrTO -> {
-                    PlainSchema schema = getPlainSchema(attrTO.getSchema());
-                    if (schema != null) {
-                        GroupablePlainAttr attr = (GroupablePlainAttr) GroupableRelatable.class.cast(any).
-                                getPlainAttr(schema.getKey(), membership).orElse(null);
-                        if (attr == null) {
-                            attr = anyUtils.newPlainAttr();
-                            attr.setOwner(any);
-                            attr.setMembership(membership);
-                            attr.setSchema(schema);
-                        }
-                        fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+                forEach(attrTO -> Optional.ofNullable(getPlainSchema(attrTO.getSchema())).ifPresent(schema -> {
 
-                        if (attr.getValuesAsStrings().isEmpty()) {
-                            attr.setOwner(null);
-                        } else {
-                            any.add(attr);
-                        }
-                    }
-                });
+            GroupablePlainAttr attr = (GroupablePlainAttr) GroupableRelatable.class.cast(any).
+                    getPlainAttr(schema.getKey(), membership).
+                    orElseGet(() -> {
+                        GroupablePlainAttr gpa = anyUtils.newPlainAttr();
+                        gpa.setOwner(any);
+                        gpa.setMembership(membership);
+                        gpa.setSchema(schema);
+                        return gpa;
+                    });
+            fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+
+            if (attr.getValuesAsStrings().isEmpty()) {
+                attr.setOwner(null);
+            } else {
+                any.add(attr);
+            }
+        }));
 
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);

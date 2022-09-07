@@ -192,7 +192,18 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         return authUserTO;
     }
 
-    private void setPassword(final User user, final String password, final SyncopeClientCompositeException scce) {
+    protected RuntimeException aggregateException(
+            final SyncopeClientCompositeException scce,
+            final RuntimeException e,
+            final ClientExceptionType clientExceptionType) {
+
+        SyncopeClientException sce = SyncopeClientException.build(clientExceptionType);
+        sce.getElements().add(e.getMessage());
+        scce.addException(sce);
+        return scce;
+    }
+
+    protected void setPassword(final User user, final String password, final SyncopeClientCompositeException scce) {
         try {
             setCipherAlgorithm(user);
             user.setPassword(password);
@@ -201,7 +212,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
     }
 
-    private void setSecurityAnswer(
+    protected void setSecurityAnswer(
             final User user,
             final String securityAnswer,
             final SyncopeClientCompositeException scce) {
@@ -213,24 +224,14 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
     }
 
-    private void setCipherAlgorithm(final User user) {
+    protected void setCipherAlgorithm(final User user) {
         if (user.getCipherAlgorithm() == null) {
             user.setCipherAlgorithm(CipherAlgorithm.valueOf(confParamOps.get(AuthContextUtils.getDomain(),
                     "password.cipher.algorithm", CipherAlgorithm.AES.name(), String.class)));
         }
     }
 
-    private RuntimeException aggregateException(
-            final SyncopeClientCompositeException scce,
-            final RuntimeException e,
-            final ClientExceptionType clientExceptionType) {
-        SyncopeClientException sce = SyncopeClientException.build(clientExceptionType);
-        sce.getElements().add(e.getMessage());
-        scce.addException(sce);
-        return scce;
-    }
-
-    private void linkedAccount(
+    protected void linkedAccount(
             final User user,
             final LinkedAccountTO accountTO,
             final AnyUtils anyUtils,
@@ -426,8 +427,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         // linked accounts
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
-        userCR.getLinkedAccounts().forEach(accountTO
-                -> linkedAccount(user, accountTO, anyUtilsFactory.getLinkedAccountInstance(), invalidValues));
+        userCR.getLinkedAccounts().
+                forEach(acct -> linkedAccount(user, acct, anyUtilsFactory.getLinkedAccountInstance(), invalidValues));
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
         }
@@ -441,7 +442,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
     }
 
-    private boolean isPasswordMapped(final ExternalResource resource) {
+    protected boolean isPasswordMapped(final ExternalResource resource) {
         return resource.getProvision(anyTypeDAO.findUser().getKey()).
                 filter(provision -> provision.getMapping() != null).
                 map(provision -> provision.getMapping().getItems().stream().anyMatch(Item::isPassword)).
@@ -757,7 +758,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         return Pair.of(propByRes, propByLinkedAccount);
     }
 
-    private LinkedAccountTO getLinkedAccountTO(final LinkedAccount account, final boolean returnPasswordValue) {
+    protected LinkedAccountTO getLinkedAccountTO(final LinkedAccount account, final boolean returnPasswordValue) {
         LinkedAccountTO accountTO = new LinkedAccountTO.Builder(
                 account.getKey(), account.getResource().getKey(), account.getConnObjectKeyValue()).
                 username(account.getUsername()).

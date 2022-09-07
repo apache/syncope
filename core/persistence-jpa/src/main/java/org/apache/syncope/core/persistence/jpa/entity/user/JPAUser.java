@@ -37,11 +37,6 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.PostLoad;
-import javax.persistence.PostPersist;
-import javax.persistence.PostUpdate;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
@@ -118,9 +113,6 @@ public class JPAUser
 
     @Lob
     private String passwordHistory;
-
-    @Transient
-    private List<String> passwordHistoryList = new ArrayList<>();
 
     /**
      * Subsequent failed logins.
@@ -345,8 +337,25 @@ public class JPAUser
     }
 
     @Override
+    public void addToPasswordHistory(final String password) {
+        List<String> ph = getPasswordHistory();
+        ph.add(password);
+        passwordHistory = POJOHelper.serialize(ph);
+    }
+
+    @Override
+    public void removeOldestEntriesFromPasswordHistory(final int n) {
+        List<String> ph = getPasswordHistory();
+        ph.subList(n, ph.size());
+        passwordHistory = POJOHelper.serialize(ph);
+    }
+
+    @Override
     public List<String> getPasswordHistory() {
-        return passwordHistoryList;
+        return passwordHistory == null
+                ? new ArrayList<>(0)
+                : POJOHelper.deserialize(passwordHistory, new TypeReference<List<String>>() {
+                });
     }
 
     @Override
@@ -525,33 +534,5 @@ public class JPAUser
     @Override
     public List<? extends LinkedAccount> getLinkedAccounts() {
         return linkedAccounts;
-    }
-
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getPasswordHistory().clear();
-        }
-        if (passwordHistory != null) {
-            getPasswordHistory().addAll(
-                    POJOHelper.deserialize(passwordHistory, new TypeReference<List<String>>() {
-                    }));
-        }
-    }
-
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
-    }
-
-    @PostPersist
-    @PostUpdate
-    public void postSave() {
-        json2list(true);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void list2json() {
-        passwordHistory = POJOHelper.serialize(getPasswordHistory());
     }
 }
