@@ -53,7 +53,6 @@ import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -662,61 +661,69 @@ public class DefaultRealmPullResultHandler
         }
 
         try {
-            if (SyncDeltaType.CREATE_OR_UPDATE == finalDelta.getDeltaType()) {
-                if (realms.isEmpty()) {
-                    switch (profile.getTask().getUnmatchingRule()) {
-                        case ASSIGN:
-                            profile.getResults().addAll(assign(finalDelta, orgUnit));
-                            break;
+            switch (delta.getDeltaType()) {
+                case CREATE:
+                case UPDATE:
+                case CREATE_OR_UPDATE:
+                    if (realms.isEmpty()) {
+                        switch (profile.getTask().getUnmatchingRule()) {
+                            case ASSIGN:
+                                profile.getResults().addAll(assign(finalDelta, orgUnit));
+                                break;
 
-                        case PROVISION:
-                            profile.getResults().addAll(provision(finalDelta, orgUnit));
-                            break;
+                            case PROVISION:
+                                profile.getResults().addAll(provision(finalDelta, orgUnit));
+                                break;
 
-                        case IGNORE:
-                            profile.getResults().add(ignore(finalDelta, false));
-                            break;
+                            case IGNORE:
+                                profile.getResults().add(ignore(finalDelta, false));
+                                break;
 
-                        default:
-                        // do nothing
+                            default:
+                            // do nothing
+                        }
+                    } else {
+                        switch (profile.getTask().getMatchingRule()) {
+                            case UPDATE:
+                                profile.getResults().addAll(update(finalDelta, realms, false));
+                                break;
+
+                            case DEPROVISION:
+                                profile.getResults().addAll(deprovision(finalDelta, realms, false));
+                                break;
+
+                            case UNASSIGN:
+                                profile.getResults().addAll(deprovision(finalDelta, realms, true));
+                                break;
+
+                            case LINK:
+                                profile.getResults().addAll(link(finalDelta, realms, false));
+                                break;
+
+                            case UNLINK:
+                                profile.getResults().addAll(link(finalDelta, realms, true));
+                                break;
+
+                            case IGNORE:
+                                profile.getResults().add(ignore(finalDelta, true));
+                                break;
+
+                            default:
+                            // do nothing
+                        }
                     }
-                } else {
-                    switch (profile.getTask().getMatchingRule()) {
-                        case UPDATE:
-                            profile.getResults().addAll(update(finalDelta, realms, false));
-                            break;
+                    break;
 
-                        case DEPROVISION:
-                            profile.getResults().addAll(deprovision(finalDelta, realms, false));
-                            break;
-
-                        case UNASSIGN:
-                            profile.getResults().addAll(deprovision(finalDelta, realms, true));
-                            break;
-
-                        case LINK:
-                            profile.getResults().addAll(link(finalDelta, realms, false));
-                            break;
-
-                        case UNLINK:
-                            profile.getResults().addAll(link(finalDelta, realms, true));
-                            break;
-
-                        case IGNORE:
-                            profile.getResults().add(ignore(finalDelta, true));
-                            break;
-
-                        default:
-                        // do nothing
+                case DELETE:
+                    if (realms.isEmpty()) {
+                        finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, finalDelta);
+                        LOG.debug("No match found for deletion");
+                    } else {
+                        profile.getResults().addAll(delete(finalDelta, realms));
                     }
-                }
-            } else if (SyncDeltaType.DELETE == finalDelta.getDeltaType()) {
-                if (realms.isEmpty()) {
-                    finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, finalDelta);
-                    LOG.debug("No match found for deletion");
-                } else {
-                    profile.getResults().addAll(delete(finalDelta, realms));
-                }
+                    break;
+
+                default:
             }
         } catch (IllegalStateException | IllegalArgumentException e) {
             LOG.warn(e.getMessage());

@@ -53,7 +53,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Collections;
@@ -148,63 +147,79 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             if (found.isPresent()) {
                 LinkedAccount account = found.get();
 
-                if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
-                    switch (profile.getTask().getMatchingRule()) {
-                        case UPDATE:
-                            update(delta, account, provision).ifPresent(profile.getResults()::add);
-                            break;
+                switch (delta.getDeltaType()) {
+                    case CREATE:
+                    case UPDATE:
+                    case CREATE_OR_UPDATE:
+                        switch (profile.getTask().getMatchingRule()) {
+                            case UPDATE:
+                                update(delta, account, provision).ifPresent(profile.getResults()::add);
+                                break;
 
-                        case DEPROVISION:
-                        case UNASSIGN:
-                            deprovision(profile.getTask().getMatchingRule(), delta, account).
-                                    ifPresent(profile.getResults()::add);
-                            break;
+                            case DEPROVISION:
+                            case UNASSIGN:
+                                deprovision(profile.getTask().getMatchingRule(), delta, account).
+                                        ifPresent(profile.getResults()::add);
+                                break;
 
-                        case LINK:
-                        case UNLINK:
-                            LOG.warn("{} not applicable to linked accounts, ignoring",
-                                    profile.getTask().getMatchingRule());
-                            break;
+                            case LINK:
+                            case UNLINK:
+                                LOG.warn("{} not applicable to linked accounts, ignoring",
+                                        profile.getTask().getMatchingRule());
+                                break;
 
-                        case IGNORE:
-                            profile.getResults().add(ignore(delta, account, true));
-                            break;
+                            case IGNORE:
+                                profile.getResults().add(ignore(delta, account, true));
+                                break;
 
-                        default:
-                        // do nothing
-                    }
-                } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
-                    delete(delta, account, provision).ifPresent(profile.getResults()::add);
+                            default:
+                            // do nothing
+                        }
+                        break;
+
+                    case DELETE:
+                        delete(delta, account, provision).ifPresent(profile.getResults()::add);
+                        break;
+
+                    default:
                 }
             } else {
-                if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
-                    LinkedAccountTO accountTO = new LinkedAccountTO();
-                    accountTO.setConnObjectKeyValue(delta.getUid().getUidValue());
-                    accountTO.setResource(provision.getResource().getKey());
+                switch (delta.getDeltaType()) {
+                    case CREATE:
+                    case UPDATE:
+                    case CREATE_OR_UPDATE:
+                        LinkedAccountTO accountTO = new LinkedAccountTO();
+                        accountTO.setConnObjectKeyValue(delta.getUid().getUidValue());
+                        accountTO.setResource(provision.getResource().getKey());
 
-                    switch (profile.getTask().getUnmatchingRule()) {
-                        case ASSIGN:
-                        case PROVISION:
-                            provision(profile.getTask().getUnmatchingRule(), delta, user, accountTO, provision).
-                                    ifPresent(profile.getResults()::add);
-                            break;
+                        switch (profile.getTask().getUnmatchingRule()) {
+                            case ASSIGN:
+                            case PROVISION:
+                                provision(profile.getTask().getUnmatchingRule(), delta, user, accountTO, provision).
+                                        ifPresent(profile.getResults()::add);
+                                break;
 
-                        case IGNORE:
-                            profile.getResults().add(ignore(delta, null, false));
-                            break;
+                            case IGNORE:
+                                profile.getResults().add(ignore(delta, null, false));
+                                break;
 
-                        default:
-                        // do nothing
-                    }
-                } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
-                    end(
-                            AnyTypeKind.USER,
-                            ResourceOperation.DELETE.name().toLowerCase(),
-                            AuditElements.Result.SUCCESS,
-                            null,
-                            null,
-                            delta);
-                    LOG.debug("No match found for deletion");
+                            default:
+                            // do nothing
+                        }
+                        break;
+
+                    case DELETE:
+                        end(
+                                AnyTypeKind.USER,
+                                ResourceOperation.DELETE.name().toLowerCase(),
+                                AuditElements.Result.SUCCESS,
+                                null,
+                                null,
+                                delta);
+                        LOG.debug("No match found for deletion");
+                        break;
+
+                    default:
                 }
             }
         }
