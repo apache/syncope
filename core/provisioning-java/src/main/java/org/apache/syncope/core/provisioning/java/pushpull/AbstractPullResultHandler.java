@@ -68,7 +68,6 @@ import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -784,68 +783,78 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             return;
         }
 
-        if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
-            if (matches.get(0).getAny() == null) {
-                switch (profile.getTask().getUnmatchingRule()) {
-                    case ASSIGN:
-                    case PROVISION:
-                        profile.getResults().addAll(
-                                provision(profile.getTask().getUnmatchingRule(), delta, anyTypeKind, provision));
-                        break;
+        switch (delta.getDeltaType()) {
+            case CREATE:
+            case UPDATE:
+            case CREATE_OR_UPDATE:
+                if (matches.get(0).getAny() == null) {
+                    switch (profile.getTask().getUnmatchingRule()) {
+                        case ASSIGN:
+                        case PROVISION:
+                            profile.getResults().addAll(
+                                    provision(profile.getTask().getUnmatchingRule(), delta, anyTypeKind, provision));
+                            break;
 
-                    case IGNORE:
-                        profile.getResults().addAll(ignore(delta, null, provision, false));
-                        break;
+                        case IGNORE:
+                            profile.getResults().addAll(ignore(delta, null, provision, false));
+                            break;
 
-                    default:
-                    // do nothing
+                        default:
+                        // do nothing
                     }
-            } else {
-                // update VirAttrCache
-                virSchemaDAO.find(profile.getTask().getResource().getKey(), matches.get(0).getAny().getType().getKey()).
-                        forEach(vs -> {
-                            Attribute attr = delta.getObject().getAttributeByName(vs.getExtAttrName());
-                            matches.forEach(match -> {
-                                VirAttrCacheKey cacheKey = new VirAttrCacheKey(
-                                        provision.getAnyType(), match.getAny().getKey(),
-                                        vs.getKey());
-                                if (attr == null) {
-                                    virAttrCache.expire(cacheKey);
-                                } else {
-                                    virAttrCache.put(cacheKey, new VirAttrCacheValue(attr.getValue()));
-                                }
+                } else {
+                    // update VirAttrCache
+                    virSchemaDAO.find(
+                            profile.getTask().getResource().getKey(),
+                            matches.get(0).getAny().getType().getKey()).
+                            forEach(vs -> {
+                                Attribute attr = delta.getObject().getAttributeByName(vs.getExtAttrName());
+                                matches.forEach(match -> {
+                                    VirAttrCacheKey cacheKey = new VirAttrCacheKey(
+                                            provision.getAnyType(), match.getAny().getKey(),
+                                            vs.getKey());
+                                    if (attr == null) {
+                                        virAttrCache.expire(cacheKey);
+                                    } else {
+                                        virAttrCache.put(cacheKey, new VirAttrCacheValue(attr.getValue()));
+                                    }
+                                });
                             });
-                        });
 
-                switch (profile.getTask().getMatchingRule()) {
-                    case UPDATE:
-                        profile.getResults().addAll(update(delta, matches, provision));
-                        break;
+                    switch (profile.getTask().getMatchingRule()) {
+                        case UPDATE:
+                            profile.getResults().addAll(update(delta, matches, provision));
+                            break;
 
-                    case DEPROVISION:
-                    case UNASSIGN:
-                        profile.getResults().addAll(
-                                deprovision(profile.getTask().getMatchingRule(), delta, matches, provision));
-                        break;
+                        case DEPROVISION:
+                        case UNASSIGN:
+                            profile.getResults().addAll(
+                                    deprovision(profile.getTask().getMatchingRule(), delta, matches, provision));
+                            break;
 
-                    case LINK:
-                        profile.getResults().addAll(link(delta, matches, provision, false));
-                        break;
+                        case LINK:
+                            profile.getResults().addAll(link(delta, matches, provision, false));
+                            break;
 
-                    case UNLINK:
-                        profile.getResults().addAll(link(delta, matches, provision, true));
-                        break;
+                        case UNLINK:
+                            profile.getResults().addAll(link(delta, matches, provision, true));
+                            break;
 
-                    case IGNORE:
-                        profile.getResults().addAll(ignore(delta, matches, provision, true));
-                        break;
+                        case IGNORE:
+                            profile.getResults().addAll(ignore(delta, matches, provision, true));
+                            break;
 
-                    default:
-                    // do nothing
+                        default:
+                        // do nothing
                     }
-            }
-        } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
-            profile.getResults().addAll(delete(delta, matches, provision));
+                }
+                break;
+
+            case DELETE:
+                profile.getResults().addAll(delete(delta, matches, provision));
+                break;
+
+            default:
         }
     }
 
