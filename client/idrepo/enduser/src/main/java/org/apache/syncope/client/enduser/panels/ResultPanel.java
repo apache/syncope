@@ -20,7 +20,6 @@ package org.apache.syncope.client.enduser.panels;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 import org.apache.syncope.client.ui.commons.panels.SimpleListViewPanel;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;

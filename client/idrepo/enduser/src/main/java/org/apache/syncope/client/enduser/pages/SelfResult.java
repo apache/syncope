@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
+import java.io.Serializable;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.enduser.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.EnduserConstants;
@@ -33,14 +35,16 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import java.io.Serializable;
-import java.util.stream.Collectors;
 
 public class SelfResult extends BasePage {
 
     private static final long serialVersionUID = 3804053409052140145L;
 
     private static final String RESULT_PAGE = "page.resultPage";
+
+    public SelfResult(final PageParameters parameters) {
+        this(null, parameters);
+    }
 
     @SuppressWarnings("unchecked")
     public SelfResult(final ProvisioningResult<UserTO> provisioningResult, final PageParameters parameters) {
@@ -69,12 +73,15 @@ public class SelfResult extends BasePage {
         content.add(new Label("resultTitle", parameters.get(Constants.NOTIFICATION_TITLE_PARAM).toString()));
         content.add(new Label("resultMessage", parameters.get(Constants.NOTIFICATION_MSG_PARAM).toString()));
         Fragment statusFragment = new Fragment("statusIcon",
-                SyncopeWebApplication.get().isReportPropagationErrors()
+                provisioningResult != null
+                        && SyncopeWebApplication.get().isReportPropagationErrors()
                         && provisioningResult.getPropagationStatuses().stream()
                         .anyMatch(ps -> ExecStatus.SUCCESS != ps.getStatus())
                         ? "errorIcon" : "successIcon", content);
         // add also details about failed propagations, if enbaled by property enduser.showPropErrors
-        if (provisioningResult.getPropagationStatuses().stream().anyMatch(ps -> ExecStatus.SUCCESS != ps.getStatus())) {
+        if (provisioningResult != null
+                && provisioningResult.getPropagationStatuses().stream()
+                .anyMatch(ps -> ExecStatus.SUCCESS != ps.getStatus())) {
             statusFragment.add(new ResultPanel("propagationErrors",
                     (Serializable) provisioningResult.getPropagationStatuses().stream()
                             .filter(ps -> ExecStatus.SUCCESS != ps.getStatus())
