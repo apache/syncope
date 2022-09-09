@@ -23,7 +23,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 
-public abstract class AbstractResultPanel<T extends Serializable, R extends Object> extends Panel
+public abstract class AbstractResultPanel<T extends Serializable, R extends Serializable> extends Panel
         implements WizardModalPanel<T> {
 
     private static final long serialVersionUID = -1619945285130369086L;

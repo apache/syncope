@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import java.util.stream.Collectors;
 import org.apache.syncope.client.enduser.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.EnduserConstants;
@@ -34,6 +33,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import java.io.Serializable;
+import java.util.stream.Collectors;
 
 public class SelfResult extends BasePage {
 
@@ -70,12 +71,12 @@ public class SelfResult extends BasePage {
         Fragment statusFragment = new Fragment("statusIcon",
                 SyncopeWebApplication.get().isReportPropagationErrors()
                         && provisioningResult.getPropagationStatuses().stream()
-                                .anyMatch(ps -> ExecStatus.SUCCESS != ps.getStatus())
+                        .anyMatch(ps -> ExecStatus.SUCCESS != ps.getStatus())
                         ? "errorIcon" : "successIcon", content);
         // add also details about failed propagations, if enbaled by property enduser.showPropErrors
         if (provisioningResult.getPropagationStatuses().stream().anyMatch(ps -> ExecStatus.SUCCESS != ps.getStatus())) {
             statusFragment.add(new ResultPanel("propagationErrors",
-                    provisioningResult.getPropagationStatuses().stream()
+                    (Serializable) provisioningResult.getPropagationStatuses().stream()
                             .filter(ps -> ExecStatus.SUCCESS != ps.getStatus())
                             .map(ps -> StatusUtils.getStatusBean(provisioningResult.getEntity(), ps.getResource(),
                                     ps.getAfterObj(), false)).collect(Collectors.toList()), getPageReference())

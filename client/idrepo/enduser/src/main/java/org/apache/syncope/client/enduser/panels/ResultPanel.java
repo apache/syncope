@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.enduser.panels;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.panels.SimpleListViewPanel;
@@ -27,11 +28,10 @@ import org.apache.syncope.client.ui.commons.wizards.any.AbstractResultPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.util.ListModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ResultPanel extends AbstractResultPanel<String, List<StatusBean>> {
+public class ResultPanel extends AbstractResultPanel<String, Serializable> {
 
     private static final long serialVersionUID = -8995647450549098844L;
 
@@ -39,13 +39,13 @@ public class ResultPanel extends AbstractResultPanel<String, List<StatusBean>> {
 
     private final PageReference pageRef;
 
-    public ResultPanel(final String item, final List<StatusBean> errors, final PageReference pageRef) {
+    public ResultPanel(final String item, final Serializable errors, final PageReference pageRef) {
         super(item, errors);
         this.pageRef = pageRef;
     }
 
     @Override
-    protected Panel customResultBody(final String panelId, final String item, final List<StatusBean> errorBeans) {
+    protected Panel customResultBody(final String panelId, final String item, final Serializable errorBeans) {
         return new SimpleListViewPanel.Builder<>(StatusBean.class, pageRef) {
 
             private static final long serialVersionUID = -6809736686861678498L;
@@ -58,8 +58,7 @@ public class ResultPanel extends AbstractResultPanel<String, List<StatusBean>> {
                     return super.getValueComponent(key, bean);
                 }
             }
-        }.setModel(new ListModel<>(new ArrayList<>()))
-                .setItems(errorBeans)
+        }.setItems((ArrayList<StatusBean>) errorBeans)
                 .includes("resource", "status")
                 .build(panelId);
     }

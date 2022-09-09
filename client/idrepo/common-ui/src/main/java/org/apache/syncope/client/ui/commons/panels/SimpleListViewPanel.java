@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -34,8 +33,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +59,7 @@ public abstract class SimpleListViewPanel<T extends Serializable> extends Panel 
             final String id,
             final List<T> list,
             final Class<T> reference,
-            final List<String> includes,
-            final IModel<? extends Collection<T>> model) {
+            final List<String> includes) {
 
         super(id);
         setOutputMarkupId(true);
@@ -133,11 +129,9 @@ public abstract class SimpleListViewPanel<T extends Serializable> extends Panel 
      *
      * @param <T> list item reference type.
      */
-    public static class Builder<T extends Serializable> {
+    public static class Builder<T extends Serializable> implements Serializable {
 
         private static final long serialVersionUID = -3643771352897992172L;
-
-        private IModel<? extends Collection<T>> model = Model.of(List.of());
 
         private final List<String> includes = new ArrayList<>();
 
@@ -151,11 +145,6 @@ public abstract class SimpleListViewPanel<T extends Serializable> extends Panel 
             this.pageReference = pageRef;
             this.reference = reference;
             this.items = null;
-        }
-
-        public Builder<T> setModel(final IModel<? extends Collection<T>> model) {
-            this.model = model;
-            return this;
         }
 
         /**
@@ -237,7 +226,7 @@ public abstract class SimpleListViewPanel<T extends Serializable> extends Panel 
         }
 
         public SimpleListViewPanel<T> build(final String id) {
-            return new SimpleListViewPanel<T>(id, items, reference, includes, model) {
+            return new SimpleListViewPanel<T>(id, items, reference, includes) {
 
                 @Override
                 protected Component getValueComponent(final String key, final T bean) {

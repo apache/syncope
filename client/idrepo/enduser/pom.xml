@@ -269,6 +269,7 @@ under the License.
             <configuration>
               <jvmArguments>
                 -Dwicket.core.settings.general.configuration-type=development
+                -XX:HotswapAgent=fatjar
                 -Xdebug -Xrunjdwp:transport=dt_socket,address=8004,server=y,suspend=n
               </jvmArguments>
               <profiles>
