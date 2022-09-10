@@ -413,7 +413,7 @@ under the License.
 
     <cxf.version>3.5.3</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.24.3</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.24.4</nimbus-jose-jwt.version>
 
     <jackson.version>2.13.4</jackson.version>
 
@@ -426,7 +426,7 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>4.0.4</groovy.version>
+    <groovy.version>4.0.5</groovy.version>
 
     <flowable.version>6.7.2</flowable.version>
 
