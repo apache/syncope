@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.EnduserConstants;
+import org.apache.syncope.client.enduser.commons.ProvisioningUtils;
 import org.apache.syncope.client.enduser.panels.captcha.CaptchaPanel;
 import org.apache.syncope.client.enduser.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
@@ -34,8 +35,10 @@ import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.panels.CardPanel;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -78,6 +81,7 @@ public class EditSecurityQuestion extends BasePage {
         securityQuestion = new AjaxDropDownChoicePanel<>("securityQuestion",
                 "securityQuestion", new PropertyModel<>(userTO, "securityQuestion"));
         securityQuestion.setNullValid(true);
+        securityQuestion.setRequired(true);
 
         List<SecurityQuestionTO> securityQuestions = SecurityQuestionRestClient.list();
         securityQuestion.setChoices(securityQuestions.stream().
@@ -89,7 +93,7 @@ public class EditSecurityQuestion extends BasePage {
             @Override
             public Object getDisplayValue(final String value) {
                 return securityQuestions.stream().filter(sq -> value.equals(sq.getKey())).
-                    map(SecurityQuestionTO::getContent).findFirst().orElse(null);
+                        map(SecurityQuestionTO::getContent).findFirst().orElse(null);
             }
 
             @Override
@@ -120,6 +124,7 @@ public class EditSecurityQuestion extends BasePage {
                 new PropertyModel<>(userTO, "securityAnswer"), false);
         form.add(securityAnswer.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true).
                 setEnabled(StringUtils.isNotBlank(securityQuestion.getModelObject())));
+        securityAnswer.setRequired(true);
 
         CaptchaPanel<Void> captcha = new CaptchaPanel<>(EnduserConstants.CONTENT_PANEL);
         captcha.setOutputMarkupPlaceholderTag(true);
@@ -135,51 +140,29 @@ public class EditSecurityQuestion extends BasePage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                if (StringUtils.isBlank(securityQuestion.getModelObject())
-                        || StringUtils.isBlank(securityAnswer.getModelObject())) {
-
+                if (SyncopeWebApplication.get().isCaptchaEnabled() && !captcha.check()) {
                     SyncopeEnduserSession.get().error(getString(Constants.CAPTCHA_ERROR));
                     ((BasePage) getPageReference().getPage()).getNotificationPanel().refresh(target);
                 } else {
-                    boolean checked = true;
-                    if (SyncopeWebApplication.get().isCaptchaEnabled()) {
-                        checked = captcha.check();
-                    }
-                    if (!checked) {
-                        SyncopeEnduserSession.get().error(getString(Constants.CAPTCHA_ERROR));
+                    try {
+                        ProvisioningResult<UserTO> provisioningResult =
+                                ProvisioningUtils.updateUser(new UserUR.Builder(userTO.getKey())
+                                                .securityQuestion(new StringReplacePatchItem.Builder().
+                                                        value(securityQuestion.getModelObject()).build())
+                                                .securityAnswer(new StringReplacePatchItem.Builder().
+                                                        value(securityAnswer.getModelObject()).build()).build(),
+                                        userTO.getETagValue());
+                        setResponsePage(new SelfResult(provisioningResult,
+                                ProvisioningUtils.managePageParams(EditSecurityQuestion.this,
+                                        "securityquestion.change",
+                                        !SyncopeWebApplication.get().isReportPropagationErrors()
+                                                || provisioningResult.getPropagationStatuses().stream()
+                                                        .allMatch(ps -> ExecStatus.SUCCESS == ps.getStatus()))));
+                    } catch (Exception e) {
+                        LOG.error("While updating security question for {}",
+                                SyncopeEnduserSession.get().getSelfTO().getUsername(), e);
+                        SyncopeEnduserSession.get().onException(e);
                         ((BasePage) getPageReference().getPage()).getNotificationPanel().refresh(target);
-                    } else {
-                        PageParameters parameters = new PageParameters();
-                        try {
-                            UserUR req = new UserUR();
-                            req.setKey(userTO.getKey());
-                            req.setSecurityQuestion(new StringReplacePatchItem.Builder().
-                                    value(securityQuestion.getModelObject()).build());
-                            req.setSecurityAnswer(new StringReplacePatchItem.Builder().
-                                    value(securityAnswer.getModelObject()).build());
-                            userSelfRestClient.update(userTO.getETagValue(), req);
-
-                            parameters.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);
-                            parameters.add(Constants.NOTIFICATION_TITLE_PARAM,
-                                    getString("self.securityquestion.change.success"));
-                            parameters.add(Constants.NOTIFICATION_MSG_PARAM,
-                                    getString("self.securityquestion.change.success.msg"));
-                            SyncopeEnduserSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (Exception e) {
-                            LOG.error("While changing password for {}",
-                                    SyncopeEnduserSession.get().getSelfTO().getUsername(), e);
-                            parameters.add(EnduserConstants.STATUS, Constants.OPERATION_ERROR);
-                            parameters.add(Constants.NOTIFICATION_TITLE_PARAM,
-                                    getString("self.securityquestion.change.error"));
-                            parameters.add(Constants.NOTIFICATION_MSG_PARAM,
-                                    getString("self.securityquestion.change.error.msg"));
-                            SyncopeEnduserSession.get().onException(e);
-                            notificationPanel.refresh(target);
-                        }
-                        parameters.add(
-                                EnduserConstants.LANDING_PAGE,
-                                SyncopeWebApplication.get().getPageClass("profile", Dashboard.class).getName());
-                        setResponsePage(SelfResult.class, parameters);
                     }
                 }
             }

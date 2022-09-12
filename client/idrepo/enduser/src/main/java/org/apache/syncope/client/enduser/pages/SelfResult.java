@@ -18,9 +18,17 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
+import java.io.Serializable;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.enduser.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.EnduserConstants;
+import org.apache.syncope.client.enduser.panels.ResultPanel;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.status.StatusUtils;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -34,8 +42,12 @@ public class SelfResult extends BasePage {
 
     private static final String RESULT_PAGE = "page.resultPage";
 
-    @SuppressWarnings("unchecked")
     public SelfResult(final PageParameters parameters) {
+        this(null, parameters);
+    }
+
+    @SuppressWarnings("unchecked")
+    public SelfResult(final ProvisioningResult<UserTO> provisioningResult, final PageParameters parameters) {
         super(parameters, RESULT_PAGE);
 
         WebMarkupContainer content = new WebMarkupContainer("content");
@@ -60,8 +72,24 @@ public class SelfResult extends BasePage {
 
         content.add(new Label("resultTitle", parameters.get(Constants.NOTIFICATION_TITLE_PARAM).toString()));
         content.add(new Label("resultMessage", parameters.get(Constants.NOTIFICATION_MSG_PARAM).toString()));
-        content.add(new Fragment("statusIcon",
-                Constants.OPERATION_SUCCEEDED.equals(parameters.get(EnduserConstants.STATUS).toString())
-                ? "successIcon" : "errorIcon", content));
+        Fragment statusFragment = new Fragment("statusIcon",
+                provisioningResult != null
+                        && SyncopeWebApplication.get().isReportPropagationErrors()
+                        && provisioningResult.getPropagationStatuses().stream()
+                        .anyMatch(ps -> ExecStatus.SUCCESS != ps.getStatus())
+                        ? "errorIcon" : "successIcon", content);
+        // add also details about failed propagations, if enbaled by property enduser.showPropErrors
+        if (provisioningResult != null
+                && provisioningResult.getPropagationStatuses().stream()
+                .anyMatch(ps -> ExecStatus.SUCCESS != ps.getStatus())) {
+            statusFragment.add(new ResultPanel("propagationErrors",
+                    (Serializable) provisioningResult.getPropagationStatuses().stream()
+                            .filter(ps -> ExecStatus.SUCCESS != ps.getStatus())
+                            .map(ps -> StatusUtils.getStatusBean(provisioningResult.getEntity(), ps.getResource(),
+                                    ps.getAfterObj(), false)).collect(Collectors.toList()), getPageReference())
+                    .setOutputMarkupId(true)
+                    .setVisible(SyncopeWebApplication.get().isReportPropagationErrorDetails()));
+        }
+        content.add(statusFragment);
     }
 }

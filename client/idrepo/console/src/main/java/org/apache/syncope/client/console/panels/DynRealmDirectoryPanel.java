@@ -61,7 +61,7 @@ public class DynRealmDirectoryPanel extends
         setReadOnly(!SyncopeConsoleSession.get().owns(IdRepoEntitlement.DYNREALM_UPDATE));
 
         disableCheckBoxes();
-        setShowResultPage(true);
+        setShowResultPanel(true);
 
         modal.size(Modal.Size.Large);
         modal.addSubmitButton();

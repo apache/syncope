@@ -21,8 +21,10 @@ package org.apache.syncope.client.enduser.commons;
 public final class EnduserConstants {
 
     public static final String STATUS = "status";
-
+    
     public static final String SUCCESS = "success";
+    
+    public static final String FAILING_RESOURCES = "failing_resources";
 
     public static final String LANDING_PAGE = "landingPage";
 

@@ -73,7 +73,7 @@ public class ConnectorDirectoryPanel extends
             MetaDataRoleAuthorizationStrategy.unauthorizeAll(addAjaxLink, RENDER);
         }
 
-        setShowResultPage(false);
+        setShowResultPanel(false);
         modal.size(Modal.Size.Large);
         initResultTable();
 

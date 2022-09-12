@@ -30,7 +30,7 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.tasks.TemplatesTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wizards.any.ResultPage;
+import org.apache.syncope.client.console.wizards.any.ResultPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
@@ -197,8 +197,8 @@ public class Realms extends BasePage {
         @Override
         protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
             modal.setWindowClosedCallback(target -> {
-                if (modal.getContent() instanceof ResultPage) {
-                    Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
+                if (modal.getContent() instanceof ResultPanel) {
+                    Object result = ResultPanel.class.cast(modal.getContent()).getResult();
 
                     RealmTO newRealmTO = RealmTO.class.cast(ProvisioningResult.class.cast(result).getEntity());
                     // reload realmChoicePanel label too - SYNCOPE-1151

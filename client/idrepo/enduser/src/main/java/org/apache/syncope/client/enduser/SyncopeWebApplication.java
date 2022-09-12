@@ -261,6 +261,14 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
     public boolean isCaptchaEnabled() {
         return props.isCaptcha();
     }
+    
+    public boolean isReportPropagationErrors() {
+        return props.isReportPropagationErrors();
+    }
+    
+    public boolean isReportPropagationErrorDetails() {
+        return props.isReportPropagationErrorDetails();
+    }
 
     public long getMaxWaitTimeInSeconds() {
         return props.getMaxWaitTimeOnApplyChanges();

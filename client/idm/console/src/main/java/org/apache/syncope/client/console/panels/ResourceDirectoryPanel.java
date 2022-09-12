@@ -87,7 +87,7 @@ public class ResourceDirectoryPanel extends
             MetaDataRoleAuthorizationStrategy.unauthorizeAll(addAjaxLink, RENDER);
         }
 
-        setShowResultPage(false);
+        setShowResultPanel(false);
         modal.size(Modal.Size.Large);
         initResultTable();
 

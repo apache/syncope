@@ -22,9 +22,9 @@ import java.util.List;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.EnduserConstants;
+import org.apache.syncope.client.enduser.commons.ProvisioningUtils;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.pages.BasePage;
-import org.apache.syncope.client.enduser.pages.Dashboard;
 import org.apache.syncope.client.enduser.pages.SelfResult;
 import org.apache.syncope.client.enduser.panels.any.Details;
 import org.apache.syncope.client.enduser.panels.any.UserDetails;
@@ -38,13 +38,12 @@ import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEventSink;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class UserFormPanel extends AnyFormPanel implements UserForm {
 
@@ -98,37 +97,27 @@ public class UserFormPanel extends AnyFormPanel implements UserForm {
             SyncopeEnduserSession.get().error(getString(Constants.CAPTCHA_ERROR));
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         } else {
-            ProvisioningResult<UserTO> result;
-            PageParameters parameters = new PageParameters();
             try {
                 AnyWrapper<UserTO> updatedWrapper = form.getModelObject();
                 UserTO userTO = updatedWrapper.getInnerObject();
 
                 fixPlainAndVirAttrs(userTO, getOriginalItem().getInnerObject());
-                UserUR req = AnyOperations.diff(userTO, getOriginalItem().getInnerObject(), false);
-
-                // update just if it is changed
-                if (req.isEmpty()) {
-                    result = new ProvisioningResult<>();
-                    result.setEntity(userTO);
-                } else {
-                    result = userSelfRestClient.update(getOriginalItem().getInnerObject().getETagValue(), req);
-                    LOG.debug("User {} has been modified", result.getEntity().getUsername());
-                }
-                parameters.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);
-                parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.profile.change.success"));
-                parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.profile.change.success.msg"));
-            } catch (SyncopeClientException sce) {
-                parameters.add(EnduserConstants.STATUS, Constants.ERROR);
-                parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.profile.change.error"));
-                parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.profile.change.error.msg"));
-                SyncopeEnduserSession.get().onException(sce);
+                // update and set page paramters according to provisioning result
+                ProvisioningResult<UserTO> provisioningResult =
+                        ProvisioningUtils.updateUser(
+                                AnyOperations.diff(userTO, getOriginalItem().getInnerObject(), false),
+                                getOriginalItem().getInnerObject().getETagValue());
+                setResponsePage(new SelfResult(provisioningResult,
+                        ProvisioningUtils.managePageParams(UserFormPanel.this, "profile.change",
+                                !SyncopeWebApplication.get().isReportPropagationErrors()
+                                        || provisioningResult.getPropagationStatuses().stream()
+                                                .allMatch(ps -> ExecStatus.SUCCESS == ps.getStatus()))));
+            } catch (SyncopeClientException e) {
+                LOG.error("While changing password for {}",
+                        SyncopeEnduserSession.get().getSelfTO().getUsername(), e);
+                SyncopeEnduserSession.get().onException(e);
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-            parameters.add(
-                    EnduserConstants.LANDING_PAGE,
-                    SyncopeWebApplication.get().getPageClass("profile", Dashboard.class).getName());
-            setResponsePage(SelfResult.class, parameters);
         }
     }
 

@@ -23,16 +23,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.EnduserConstants;
+import org.apache.syncope.client.enduser.commons.ProvisioningUtils;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.pages.BasePage;
-import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.SelfResult;
 import org.apache.syncope.client.enduser.panels.any.Details;
 import org.apache.syncope.client.enduser.panels.any.SelfUserDetails;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
-import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -40,12 +39,12 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class UserSelfFormPanel extends UserFormPanel {
 
@@ -78,42 +77,31 @@ public class UserSelfFormPanel extends UserFormPanel {
 
     @Override
     protected void onFormSubmit(final AjaxRequestTarget target) {
-        // captcha check
-        boolean checked = true;
-        if (SyncopeWebApplication.get().isCaptchaEnabled()) {
-            checked = captcha.check();
-        }
-        if (!checked) {
+        // first check captcha
+        if (SyncopeWebApplication.get().isCaptchaEnabled() && !captcha.check()) {
             SyncopeEnduserSession.get().error(getString(Constants.CAPTCHA_ERROR));
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         } else {
-            ProvisioningResult<UserTO> result;
-            PageParameters parameters = new PageParameters();
+            UserTO userTO = form.getModelObject().getInnerObject();
             try {
-                AnyWrapper<UserTO> updatedWarapper = form.getModelObject();
-                UserTO userTO = updatedWarapper.getInnerObject();
-
+                // create and set page paramters according to provisioning result
                 UserCR req = new UserCR();
                 EntityTOUtils.toAnyCR(userTO, req);
-                req.setStorePassword(updatedWarapper instanceof UserWrapper
-                        ? UserWrapper.class.cast(updatedWarapper).isStorePasswordInSyncope()
+                req.setStorePassword(form.getModelObject() instanceof UserWrapper
+                        ? UserWrapper.class.cast(form.getModelObject()).isStorePasswordInSyncope()
                         : StringUtils.isNotBlank(userTO.getPassword()));
-
-                result = userSelfRestClient.create(req);
-                LOG.debug("User {} has been created", result.getEntity().getUsername());
-
-                parameters.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);
-                parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.profile.change.success"));
-                parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.profile.change.success.msg"));
-            } catch (SyncopeClientException sce) {
-                parameters.add(EnduserConstants.STATUS, Constants.ERROR);
-                parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.profile.change.error"));
-                parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.profile.change.error.msg"));
-                SyncopeEnduserSession.get().onException(sce);
+                // perform request and pass propagation statuses to SelfResult page
+                ProvisioningResult<UserTO> provisioningResult = ProvisioningUtils.createUser(req);
+                setResponsePage(new SelfResult(provisioningResult,
+                        ProvisioningUtils.managePageParams(UserSelfFormPanel.this, "profile.change",
+                                !SyncopeWebApplication.get().isReportPropagationErrors()
+                                || provisioningResult.getPropagationStatuses().stream()
+                                        .allMatch(ps -> ExecStatus.SUCCESS == ps.getStatus()))));
+            } catch (SyncopeClientException e) {
+                LOG.error("While creating user {}", userTO.getUsername(), e);
+                SyncopeEnduserSession.get().onException(e);
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-            parameters.add(EnduserConstants.LANDING_PAGE, Login.class);
-            setResponsePage(SelfResult.class, parameters);
         }
     }
 

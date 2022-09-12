@@ -25,7 +25,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.SCIMConfPanel;
 import org.apache.syncope.client.console.rest.SCIMConfRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wizards.any.ResultPage;
+import org.apache.syncope.client.console.wizards.any.ResultPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.common.lib.scim.SCIMConf;
@@ -68,8 +68,8 @@ public class SCIMConfPage extends BaseExtPage {
             @Override
             protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
                 modal.setWindowClosedCallback(target -> {
-                    if (modal.getContent() instanceof ResultPage) {
-                        Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
+                    if (modal.getContent() instanceof ResultPanel) {
+                        Serializable result = (Serializable) ResultPanel.class.cast(modal.getContent()).getResult();
                         try {
                             SCIMConfRestClient.set(MAPPER.readValue(result.toString(), SCIMConf.class));
 

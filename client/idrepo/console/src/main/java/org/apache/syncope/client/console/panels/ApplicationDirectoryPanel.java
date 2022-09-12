@@ -79,7 +79,7 @@ public class ApplicationDirectoryPanel extends
         setReadOnly(!SyncopeConsoleSession.get().owns(IdRepoEntitlement.APPLICATION_UPDATE));
 
         disableCheckBoxes();
-        setShowResultPage(true);
+        setShowResultPanel(true);
 
         modal.size(Modal.Size.Default);
         modal.addSubmitButton();

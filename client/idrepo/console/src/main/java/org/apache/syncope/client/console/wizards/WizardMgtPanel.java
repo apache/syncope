@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
-import org.apache.syncope.client.console.wizards.any.ResultPage;
+import org.apache.syncope.client.console.wizards.any.ResultPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
@@ -82,7 +82,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
 
     protected boolean footerVisibility = false;
 
-    protected boolean showResultPage = false;
+    protected boolean showResultPanel = false;
 
     private final List<Component> outerObjects = new ArrayList<>();
 
@@ -230,8 +230,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                 target.ifPresent(ajaxRequestTarget ->
                     ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
 
-                if (wizardInModal && showResultPage) {
-                    modal.setContent(new ResultPage<>(
+                if (wizardInModal && showResultPanel) {
+                    modal.setContent(new ResultPanel<>(
                         item,
                         AjaxWizard.NewItemFinishEvent.class.cast(newItemEvent).getResult()) {
 
@@ -243,8 +243,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                         }
 
                         @Override
-                        protected Panel customResultBody(final String id, final T item, final Serializable result) {
-                            return WizardMgtPanel.this.customResultBody(id, item, result);
+                        protected Panel customResultBody(final String panelId, final T item, 
+                                final Serializable result) {
+                            return WizardMgtPanel.this.customResultBody(panelId, item, result);
                         }
                     });
                     target.ifPresent(t -> t.add(modal.getForm()));
@@ -328,8 +329,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
         return this;
     }
 
-    public <B extends ModalPanelBuilder<T>> WizardMgtPanel<T> setShowResultPage(final boolean showResultPage) {
-        this.showResultPage = showResultPage;
+    public <B extends ModalPanelBuilder<T>> WizardMgtPanel<T> setShowResultPanel(final boolean showResultPanel) {
+        this.showResultPanel = showResultPanel;
         return this;
     }
 
@@ -426,7 +427,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
         public WizardMgtPanel<T> build(final String id) {
             return newInstance(id, wizardInModal).
                     setPageRef(this.pageRef).
-                    setShowResultPage(this.showResultPage).
+                    setShowResultPanel(this.showResultPage).
                     addNewItemPanelBuilder(this.newItemPanelBuilder, this.newItemDefaultButtonEnabled).
                     addNotificationPanel(this.notificationPanel);
         }

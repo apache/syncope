@@ -20,30 +20,18 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
+import org.apache.syncope.client.ui.commons.wizards.any.AbstractResultPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.panel.Panel;
 
-public abstract class ResultPage<T extends Serializable> extends Panel implements WizardModalPanel<T> {
+public abstract class ResultPanel<T extends Serializable, R extends Serializable> extends AbstractResultPanel<T, R> {
 
     private static final long serialVersionUID = -1619945285130369086L;
 
-    private final T item;
-
-    private final Serializable result;
-
-    public ResultPage(final T item, final Serializable result) {
-        super(BaseModal.CONTENT_ID);
-        setOutputMarkupId(true);
-        this.item = item;
-        this.result = result;
-
-        add(customResultBody("customResultBody", item, result));
-
+    public ResultPanel(final T item, final R result) {
+        super(item, result);
         ActionsPanel<T> panel = new ActionsPanel<>(Constants.ACTION, null);
         panel.add(new ActionLink<>() {
 
@@ -59,14 +47,4 @@ public abstract class ResultPage<T extends Serializable> extends Panel implement
 
     protected abstract void closeAction(AjaxRequestTarget target);
 
-    protected abstract Panel customResultBody(String panleId, T item, Serializable result);
-
-    @Override
-    public T getItem() {
-        return this.item;
-    }
-
-    public Serializable getResult() {
-        return result;
-    }
 }
