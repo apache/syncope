@@ -270,8 +270,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     model.setObject(restClient.read(model.getObject().getKey()));
                     target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
                             altDefaultModal,
-                            AuditElements.EventCategoryType.LOGIC,
-                            "UserLogic",
+                            null,
+                            null,
                             model.getObject(),
                             IdRepoEntitlement.USER_UPDATE,
                             pageRef) {

@@ -54,7 +54,8 @@ public abstract class AuditHistoryDirectoryPanel<T extends Serializable> extends
 
     private static final long serialVersionUID = -8248734710505211261L;
 
-    private static final List<String> EVENTS = List.of("create", "update");
+    private static final List<String> EVENTS = List.of("create", "update", "matchingrule_update",
+            "unmatchingrule_assign", "unmatchingrule_provision");
 
     private static final SortParam<String> REST_SORT = new SortParam<>("event_date", false);
 
@@ -132,16 +133,16 @@ public abstract class AuditHistoryDirectoryPanel<T extends Serializable> extends
                 AuditHistoryDirectoryPanel.this.getTogglePanel().close(target);
 
                 mlp.next(
-                    new StringResourceModel("audit.diff.view", AuditHistoryDirectoryPanel.this).getObject(),
-                    new AuditHistoryDetails<T>(mlp, modelObject, entity, auditRestoreEntitlement) {
+                        new StringResourceModel("audit.diff.view", AuditHistoryDirectoryPanel.this).getObject(),
+                        new AuditHistoryDetails<T>(mlp, modelObject, entity, auditRestoreEntitlement) {
 
-                        private static final long serialVersionUID = -5311898419151367494L;
+                            private static final long serialVersionUID = -5311898419151367494L;
 
-                        @Override
-                        protected void restore(final String json, final AjaxRequestTarget target) {
-                            AuditHistoryDirectoryPanel.this.restore(json, target);
-                        }
-                    }, target);
+                            @Override
+                            protected void restore(final String json, final AjaxRequestTarget target) {
+                                AuditHistoryDirectoryPanel.this.restore(json, target);
+                            }
+                        }, target);
 
                 target.add(modal);
             }
@@ -173,14 +174,14 @@ public abstract class AuditHistoryDirectoryPanel<T extends Serializable> extends
         public Iterator<AuditEntry> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
             return restClient.search(
-                    entity.getKey(),
-                    (page < 0 ? 0 : page) + 1,
-                    paginatorRows,
-                    type,
-                    category,
-                    EVENTS,
-                    AuditElements.Result.SUCCESS,
-                    REST_SORT).
+                            entity.getKey(),
+                            (page < 0 ? 0 : page) + 1,
+                            paginatorRows,
+                            type,
+                            category,
+                            EVENTS,
+                            AuditElements.Result.SUCCESS,
+                            REST_SORT).
                     iterator();
         }
 

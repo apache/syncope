@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonDiffPanel;
@@ -118,7 +119,8 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Multil
 
     private static final ObjectMapper MAPPER = JsonMapper.builder().
             nodeFactory(new SortingNodeFactory()).build().
-            registerModule(new SimpleModule().addSerializer(new SortedSetJsonSerializer(cast(Set.class))));
+            registerModule(new SimpleModule().addSerializer(new SortedSetJsonSerializer(cast(Set.class)))).
+            registerModule(new JavaTimeModule());
 
     public AuditHistoryDetails(
             final MultilevelPanel mlp,
