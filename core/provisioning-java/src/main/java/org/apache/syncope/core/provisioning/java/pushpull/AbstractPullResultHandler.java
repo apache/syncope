@@ -960,7 +960,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         notificationManager.createTasks(
                 profile.getExecutor(),
                 AuditElements.EventCategoryType.PULL,
-                anyType,
+                anyType.toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,
@@ -972,7 +972,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         auditManager.audit(
                 profile.getExecutor(),
                 AuditElements.EventCategoryType.PULL,
-                anyType,
+                anyType.toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,
