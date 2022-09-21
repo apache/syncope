@@ -766,6 +766,10 @@ under the License.
                       <CONFIG_STORAGE_TOPIC>my_connect_configs</CONFIG_STORAGE_TOPIC>
                       <OFFSET_STORAGE_TOPIC>my_connect_offsets</OFFSET_STORAGE_TOPIC>
                       <STATUS_STORAGE_TOPIC>my_connect_statuses</STATUS_STORAGE_TOPIC>
+                      <KEY_CONVERTER>org.apache.kafka.connect.json.JsonConverter</KEY_CONVERTER>
+                      <CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE>false</CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE>
+                      <VALUE_CONVERTER>org.apache.kafka.connect.json.JsonConverter</VALUE_CONVERTER>
+                      <CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE>false</CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE>
                     </env>
                     <containerNamePattern>%a</containerNamePattern>
                     <ports>

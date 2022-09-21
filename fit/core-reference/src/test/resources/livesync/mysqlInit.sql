@@ -127,3 +127,17 @@ INSERT INTO geom
 VALUES(default, ST_GeomFromText('POINT(1 1)'), NULL),
       (default, ST_GeomFromText('LINESTRING(2 1, 6 6)'), NULL),
       (default, ST_GeomFromText('POLYGON((0 5, 2 5, 2 7, 0 7, 0 5))'), NULL);
+
+# Create test table users
+CREATE TABLE users (
+	username VARCHAR(255) NOT NULL PRIMARY KEY,
+	firstname VARCHAR(255) NOT NULL,
+	lastname VARCHAR(255) NOT NULL,
+	email VARCHAR(255) NOT NULL UNIQUE KEY,
+	surname VARCHAR(255) NOT NULL,
+	fullname VARCHAR(255) NOT NULL UNIQUE KEY,
+	userId VARCHAR(255) NOT NULL UNIQUE KEY);
+
+INSERT INTO users
+VALUES('mariorossi','rossi' , 'rossi','mario.rossi@apache.it','rossi', 'mario rossi' ,'mario.rossi@apache.it'),
+      ('peppino22','peppino' , 'bianchi', 'peppino@apache.it','peppino', 'peppino bianchi','peppino@apache.it');

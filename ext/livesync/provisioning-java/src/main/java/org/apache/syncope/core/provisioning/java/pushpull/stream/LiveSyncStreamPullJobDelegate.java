@@ -18,16 +18,23 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.types.ConflictResolutionAction;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.quartz.JobExecutionException;
+import org.springframework.transaction.annotation.Transactional;
 
-public class StreamPullJobDelegate extends AbstractStreamPullJobDelegate {
+public class LiveSyncStreamPullJobDelegate extends AbstractStreamPullJobDelegate {
 
     @Override
     protected void stream(
@@ -37,9 +44,25 @@ public class StreamPullJobDelegate extends AbstractStreamPullJobDelegate {
             final Stream<Item> mapItems,
             final Set<String> moreAttrsToGet) {
 
-        connector.fullReconciliation(
+        connector.sync(
                 new ObjectClass(provision.getObjectClass()),
+                null,
                 handler,
                 MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new)));
+    }
+
+    @Transactional
+    @Override
+    public List<ProvisioningReport> pull(
+            final AnyType anyType,
+            final String keyColumn,
+            final List<String> columns,
+            final ConflictResolutionAction conflictResolutionAction,
+            final String pullCorrelationRule,
+            final Connector connector,
+            final PullTaskTO pullTaskTO) throws JobExecutionException {
+
+        return super.pull(
+                anyType, keyColumn, columns, conflictResolutionAction, pullCorrelationRule, connector, pullTaskTO);
     }
 }
