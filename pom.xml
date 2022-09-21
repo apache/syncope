@@ -413,7 +413,7 @@ under the License.
 
     <cxf.version>3.5.3</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.24.4</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.25</nimbus-jose-jwt.version>
 
     <jackson.version>2.13.4</jackson.version>
 
@@ -432,12 +432,12 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.4.1</elasticsearch.version>
+    <elasticsearch.version>8.4.2</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
 
-    <log4j2.version>2.18.0</log4j2.version>
+    <log4j2.version>2.19.0</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
     
     <commons-jexl.version>3.2.1</commons-jexl.version>
@@ -1746,7 +1746,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.2.2</version>
+          <version>3.3.0</version>
         </plugin>
 
         <plugin>
@@ -1795,7 +1795,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.1</version>
+          <version>1.10.2</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -2029,6 +2029,7 @@ under the License.
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
+        <version>0.15</version>
         <configuration>
           <excludes>
             <exclude>**/nbactions.xml</exclude>
