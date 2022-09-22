@@ -272,6 +272,6 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         return prefix("cas.authn.mfa.simple.", CasCoreConfigurationUtils.asMap(
                 props,
                 new SimpleFilterProvider().setDefaultFilter(
-                        SimpleBeanPropertyFilter.filterOutAllExcept("defined", "undefined"))));
+                        SimpleBeanPropertyFilter.serializeAllExcept("defined", "undefined"))));
     }
 }
