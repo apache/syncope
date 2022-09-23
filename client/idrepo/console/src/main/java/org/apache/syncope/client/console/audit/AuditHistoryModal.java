@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.console.audit;
 
+import java.util.Spliterators;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
@@ -25,6 +28,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 
 public abstract class AuditHistoryModal<T extends EntityTO> extends Panel implements ModalPanel {
@@ -43,16 +47,16 @@ public abstract class AuditHistoryModal<T extends EntityTO> extends Panel implem
 
         MultilevelPanel mlp = new MultilevelPanel("history");
         mlp.setOutputMarkupId(true);
-        add(mlp.setFirstLevel(new AuditHistoryDirectoryPanel<T>(
+        add(mlp.setFirstLevel(new AuditHistoryDetails(
                 baseModal,
                 mlp,
+                entity,
                 type,
                 category,
-                entity,
                 auditRestoreEntitlement,
                 pageRef) {
 
-            private static final long serialVersionUID = 1952220682903768286L;
+            private static final long serialVersionUID = -5311898419151367494L;
 
             @Override
             protected void restore(final String json, final AjaxRequestTarget target) {

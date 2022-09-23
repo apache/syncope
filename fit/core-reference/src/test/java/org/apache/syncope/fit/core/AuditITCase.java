@@ -18,7 +18,31 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.Attr;
@@ -27,6 +51,7 @@ import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AuditConfTO;
@@ -44,6 +69,7 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -56,30 +82,6 @@ import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.time.OffsetDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class AuditITCase extends AbstractITCase {
 
@@ -324,7 +326,7 @@ public class AuditITCase extends AbstractITCase {
 
         found = false;
         for (EventCategory eventCategoryTO : events) {
-            if (AnyTypeKind.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
+            if (AnyTypeKind.USER.name().equals(eventCategoryTO.getCategory())) {
                 if (RESOURCE_NAME_LDAP.equals(eventCategoryTO.getSubcategory())
                         && AuditElements.EventCategoryType.PULL == eventCategoryTO.getType()) {
 
@@ -337,7 +339,7 @@ public class AuditITCase extends AbstractITCase {
 
         found = false;
         for (EventCategory eventCategoryTO : events) {
-            if (AnyTypeKind.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
+            if (AnyTypeKind.USER.name().equals(eventCategoryTO.getCategory())) {
                 if (RESOURCE_NAME_CSV.equals(eventCategoryTO.getSubcategory())
                         && AuditElements.EventCategoryType.PROPAGATION == eventCategoryTO.getType()) {
 
@@ -489,25 +491,25 @@ public class AuditITCase extends AbstractITCase {
     public void issueSYNCOPE1446() {
         AuditLoggerName createSuccess = new AuditLoggerName(
                 AuditElements.EventCategoryType.PROPAGATION,
-                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
+                AnyTypeKind.ANY_OBJECT.name(),
                 RESOURCE_NAME_DBSCRIPTED,
                 "create",
                 AuditElements.Result.SUCCESS);
         AuditLoggerName createFailure = new AuditLoggerName(
                 AuditElements.EventCategoryType.PROPAGATION,
-                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
+                AnyTypeKind.ANY_OBJECT.name(),
                 RESOURCE_NAME_DBSCRIPTED,
                 "create",
                 AuditElements.Result.FAILURE);
         AuditLoggerName updateSuccess = new AuditLoggerName(
                 AuditElements.EventCategoryType.PROPAGATION,
-                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
+                AnyTypeKind.ANY_OBJECT.name(),
                 RESOURCE_NAME_DBSCRIPTED,
                 "update",
                 AuditElements.Result.SUCCESS);
         AuditLoggerName updateFailure = new AuditLoggerName(
                 AuditElements.EventCategoryType.PROPAGATION,
-                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
+                AnyTypeKind.ANY_OBJECT.name(),
                 RESOURCE_NAME_DBSCRIPTED,
                 "update",
                 AuditElements.Result.FAILURE);
@@ -567,37 +569,50 @@ public class AuditITCase extends AbstractITCase {
         // add audit conf for pull
         AuditConfTO auditConfTO = new AuditConfTO();
         auditConfTO.setActive(true);
-        auditConfTO.setKey("syncope.audit.[PullTask]:[user]:[resource-ldap]:[matchingrule_update]:[SUCCESS]");
-        auditConfTO.setKey("syncope.audit.[PullTask]:[user]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]");
-        auditConfTO.setKey("syncope.audit.[PullTask]:[user]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]");
+        auditConfTO.setKey("syncope.audit.[PULL]:[user]:[resource-ldap]:[matchingrule_update]:[SUCCESS]");
+        auditConfTO.setKey("syncope.audit.[PULL]:[user]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]");
+        auditConfTO.setKey("syncope.audit.[PULL]:[user]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]");
         AUDIT_SERVICE.set(auditConfTO);
-        // update bellini -> create an audit entry
-        UserTO bellini = USER_SERVICE.read("bellini");
-        updateUser(new UserUR.Builder(bellini.getKey()).password(
-                new PasswordPatch.Builder().onSyncope(true).value("NewPassword123").build()).build());
-        // pull pullTaskTO -> another audit entry
-        PullTaskTO pullTaskTO = new PullTaskTO();
-        pullTaskTO.setPerformCreate(true);
-        pullTaskTO.setPerformUpdate(true);
-        pullTaskTO.getActions().add("LDAPMembershipPullActions");
-        pullTaskTO.setDestinationRealm(SyncopeConstants.ROOT_REALM);
-        pullTaskTO.setMatchingRule(MatchingRule.UPDATE);
-        pullTaskTO.setUnmatchingRule(UnmatchingRule.ASSIGN);
-        RECONCILIATION_SERVICE.pull(
-                new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).fiql("uid==pullFromLDAP").build(),
-                pullTaskTO);
-        // update pullTaskTO -> another audit entry
-        UserTO pullFromLDAP = updateUser(new UserUR.Builder(USER_SERVICE.read("pullFromLDAP").getKey())
-                .plainAttr(new AttrPatch.Builder(new Attr.Builder("ctype").value("abcdef").build()).build())
-                .build()).getEntity();
-        // search by empty type and category events and get both events on testfromLDAP
-        PagedResult<AuditEntry> events = AUDIT_SERVICE.search(new AuditQuery.Builder()
-                .entityKey(pullFromLDAP.getKey())
-                .page(1)
-                .size(10)
-                .events(List.of("create", "update"))
-                .result(AuditElements.Result.SUCCESS)
-                .build());
-        assertEquals(3, events.getTotalCount());
+        UserTO pullFromLDAP = null;
+        try {
+            UserTO bellini = USER_SERVICE.read("bellini");
+            updateUser(new UserUR.Builder(bellini.getKey()).password(
+                    new PasswordPatch.Builder().onSyncope(true).value("NewPassword123").build()).build());
+            // pull pullTaskTO -> another audit entry
+            PullTaskTO pullTaskTO = new PullTaskTO();
+            pullTaskTO.setPerformCreate(true);
+            pullTaskTO.setPerformUpdate(true);
+            pullTaskTO.getActions().add("LDAPMembershipPullActions");
+            pullTaskTO.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+            pullTaskTO.setMatchingRule(MatchingRule.UPDATE);
+            pullTaskTO.setUnmatchingRule(UnmatchingRule.ASSIGN);
+            RECONCILIATION_SERVICE.pull(
+                    new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).fiql("uid==pullFromLDAP")
+                            .build(),
+                    pullTaskTO);
+            // update pullTaskTO -> another audit entry
+            pullFromLDAP = updateUser(new UserUR.Builder(USER_SERVICE.read("pullFromLDAP").getKey())
+                    .plainAttr(new AttrPatch.Builder(new Attr.Builder("ctype").value("abcdef").build()).build())
+                    .build()).getEntity();
+            // search by empty type and category events and get both events on testfromLDAP
+            assertEquals(2,
+                    AUDIT_SERVICE.search(new AuditQuery.Builder()
+                            .entityKey(pullFromLDAP.getKey())
+                            .page(1)
+                            .size(10)
+                            .events(List.of("create", "update", "matchingrule_update", "unmatchingrule_assign",
+                                    "unmatchingrule_provision"))
+                            .result(AuditElements.Result.SUCCESS)
+                            .build()).getTotalCount());
+        } finally {
+            if (pullFromLDAP != null) {
+                USER_SERVICE.deassociate(new ResourceDR.Builder()
+                        .key(pullFromLDAP.getKey())
+                        .resource(RESOURCE_NAME_LDAP)
+                        .action(ResourceDeassociationAction.UNLINK)
+                        .build());
+                USER_SERVICE.delete(pullFromLDAP.getKey());
+            }
+        }
     }
 }

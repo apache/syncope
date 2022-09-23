@@ -213,11 +213,11 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
                     EventCategory pullEventCategory = new EventCategory(EventCategoryType.PULL);
                     EventCategory pushEventCategory = new EventCategory(EventCategoryType.PUSH);
 
-                    propEventCategory.setCategory(anyTypeKind.name().toLowerCase());
+                    propEventCategory.setCategory(anyTypeKind.name());
                     propEventCategory.setSubcategory(resource.getKey());
 
-                    pullEventCategory.setCategory(anyTypeKind.name().toLowerCase());
-                    pushEventCategory.setCategory(anyTypeKind.name().toLowerCase());
+                    pullEventCategory.setCategory(anyTypeKind.name());
+                    pushEventCategory.setCategory(anyTypeKind.name());
                     pullEventCategory.setSubcategory(resource.getKey());
                     pushEventCategory.setSubcategory(resource.getKey());
 

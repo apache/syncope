@@ -33,9 +33,9 @@ public final class AuditElements implements BaseBean {
         LOGIC("LOGIC"),
         WA("WA"),
         TASK("TASK"),
-        PROPAGATION("PropagationTask"),
-        PULL("PullTask"),
-        PUSH("PushTask"),
+        PROPAGATION("PROPAGATION"),
+        PULL("PULL"),
+        PUSH("PUSH"),
         CUSTOM("CUSTOM");
 
         private final String value;
