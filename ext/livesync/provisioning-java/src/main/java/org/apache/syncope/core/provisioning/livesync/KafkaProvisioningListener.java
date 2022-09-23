@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.livesync;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -51,6 +52,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 public class KafkaProvisioningListener {
 
@@ -58,6 +60,9 @@ public class KafkaProvisioningListener {
 
     @Autowired
     protected AnyTypeDAO anyTypeDAO;
+
+    @Autowired
+    protected ThreadPoolTaskExecutor livesyncTaskExecutorAsyncExecutor;
 
     @KafkaListener(id = "provisioningRegex", topics = "dbserver1.inventory.users")
     public void pollTable(
@@ -68,6 +73,7 @@ public class KafkaProvisioningListener {
             //skip debezium read message
             return;
         }
+        LOG.debug("my pool size : {}", livesyncTaskExecutorAsyncExecutor.getPoolSize());
 
         String uidValue = primaryKey.entrySet().iterator().next().getValue().toString();
         Uid uid = new Uid(uidValue);
@@ -97,8 +103,11 @@ public class KafkaProvisioningListener {
         SyncDelta delta = syncDeltaBuilder.setObject(connectorBuilder.build()).build();
         LOG.debug("This is my syncDelta {}", delta);
 
-        pull(delta, primaryKey.entrySet().iterator().next().getKey(),
-                obj.keySet().stream().collect(Collectors.toList()));
+        livesyncTaskExecutorAsyncExecutor.submit((Callable<Void>) () -> {
+            pull(delta, primaryKey.entrySet().iterator().next().getKey(),
+                    obj.keySet().stream().collect(Collectors.toList()));
+            return null;
+        });
     }
 
     protected void pull(

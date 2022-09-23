@@ -16,18 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.livesync;
+package org.apache.syncope.core.provisioning.java;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@EnableKafka
-@Configuration(proxyBeanMethods = false)
-public class KafkaProvisioningContext {
+@ConfigurationProperties("livesync")
+public class LiveSyncProperties {
 
-    @Bean
-    public KafkaProvisioningListener kafkaProvisioningListener() {
-        return new KafkaProvisioningListener();
+    private final ExecutorProperties propagationTaskExecutorAsyncExecutor = new ExecutorProperties();
+
+    public ExecutorProperties getPropagationTaskExecutorAsyncExecutor() {
+        return propagationTaskExecutorAsyncExecutor;
     }
+
 }
