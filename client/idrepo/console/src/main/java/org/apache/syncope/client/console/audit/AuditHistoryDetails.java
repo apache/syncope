@@ -280,7 +280,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         this.auditEntries.addAll(new AuditRestClient().search(
                 currentEntity.getKey(),
                 1,
-                500,
+                50,
                 type,
                 category,
                 EVENTS,
