@@ -463,8 +463,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // 2. Create notification
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.FAILURES);
-        notification.getEvents().add("[PushTask]:[group]:[resource-ldap]:[matchingrule_ignore]:[SUCCESS]");
-        notification.getEvents().add("[PushTask]:[group]:[resource-ldap]:[unmatchingrule_ignore]:[SUCCESS]");
+        notification.getEvents().add("[PUSH]:[GROUP]:[resource-ldap]:[matchingrule_ignore]:[SUCCESS]");
+        notification.getEvents().add("[PUSH]:[GROUP]:[resource-ldap]:[unmatchingrule_ignore]:[SUCCESS]");
 
         notification.getStaticRecipients().add("issueyncope648@syncope.apache.org");
         notification.setSelfAsRecipient(false);

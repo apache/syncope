@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +50,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.request.AttrPatch;
-import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -568,18 +566,16 @@ public class AuditITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1695() {
         // add audit conf for pull
-        AuditConfTO auditConfTO = new AuditConfTO();
-        auditConfTO.setActive(true);
-        auditConfTO.setKey("syncope.audit.[PULL]:[user]:[resource-ldap]:[matchingrule_update]:[SUCCESS]");
-        auditConfTO.setKey("syncope.audit.[PULL]:[user]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]");
-        auditConfTO.setKey("syncope.audit.[PULL]:[user]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]");
-        AUDIT_SERVICE.set(auditConfTO);
+        AUDIT_SERVICE.set(
+                buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]", true));
+        AUDIT_SERVICE.set(
+                buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]", true));
+        AUDIT_SERVICE.set(
+                buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]",
+                        true));
         UserTO pullFromLDAP = null;
         try {
-            UserTO bellini = USER_SERVICE.read("bellini");
-            updateUser(new UserUR.Builder(bellini.getKey()).password(
-                    new PasswordPatch.Builder().onSyncope(true).value("NewPassword123").build()).build());
-            // pull pullTaskTO -> another audit entry
+            // pull from resource-ldap -> generates an audit entry
             PullTaskTO pullTaskTO = new PullTaskTO();
             pullTaskTO.setPerformCreate(true);
             pullTaskTO.setPerformUpdate(true);
@@ -613,7 +609,25 @@ public class AuditITCase extends AbstractITCase {
                         .action(ResourceDeassociationAction.UNLINK)
                         .build());
                 USER_SERVICE.delete(pullFromLDAP.getKey());
+
+                // restore previous audit
+                AUDIT_SERVICE.set(
+                        buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]",
+                                false));
+                AUDIT_SERVICE.set(
+                        buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]",
+                                false));
+                AUDIT_SERVICE.set(buildAuditConf(
+                        "syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]",
+                        false));
             }
         }
+    }
+
+    private static AuditConfTO buildAuditConf(final String auditLoggerName, final boolean active) {
+        AuditConfTO auditConfTO = new AuditConfTO();
+        auditConfTO.setActive(active);
+        auditConfTO.setKey(auditLoggerName);
+        return auditConfTO;
     }
 }
