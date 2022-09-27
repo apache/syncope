@@ -188,12 +188,10 @@ public class ConnectorDirectoryPanel extends
               ConnInstanceTO modelObject = ConnectorRestClient.read(((ConnInstanceTO) model.getObject()).getKey());
             
               target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
-                      altDefaultModal,
                       AuditElements.EventCategoryType.LOGIC,
                       "ConnectorLogic",
                       modelObject,
-                      IdMEntitlement.CONNECTOR_UPDATE,
-                      pageRef) {
+                      IdMEntitlement.CONNECTOR_UPDATE) {
             
                   private static final long serialVersionUID = -3225348282675513648L;
 

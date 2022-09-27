@@ -18,25 +18,19 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
-import org.apache.syncope.client.console.panels.AbstractModalPanel;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 
-public class JsonDiffPanel extends AbstractModalPanel<String> {
+public class JsonDiffPanel extends Panel {
 
     private static final long serialVersionUID = -5110368813584745668L;
 
-    public JsonDiffPanel(
-            final BaseModal<String> modal,
-            final IModel<String> first,
-            final IModel<String> second,
-            final PageReference pageRef) {
+    public JsonDiffPanel(final IModel<String> first, final IModel<String> second) {
 
-        super(modal, pageRef);
+        super("jsonDiffPanel");
 
         TextArea<String> jsonEditorInfoDefArea1 = new TextArea<>("jsonEditorInfo1", first);
         jsonEditorInfoDefArea1.setMarkupId("jsonEditorInfo1").setOutputMarkupPlaceholderTag(true);
@@ -52,14 +46,15 @@ public class JsonDiffPanel extends AbstractModalPanel<String> {
         super.renderHead(response);
         response.render(OnLoadHeaderItem.forScript(
                 "CodeMirror.MergeView(document.getElementById('jsonDiffEditorInfoDefForm'), {"
-                + "  value: document.getElementById('jsonEditorInfo1').innerHTML, "
-                + "  orig: document.getElementById('jsonEditorInfo2').innerHTML, "
-                + "  lineNumbers: true, "
-                + "  mode: \"application/json\","
-                + "  highlightDifferences: true,"
-                + "  showDifferences: true,"
-                + "  readOnly: true,"
-                + "  revertButtons: false"
-                + "});"));
+                        + "  value: document.getElementById('jsonEditorInfo1').innerHTML, "
+                        + "  orig: document.getElementById('jsonEditorInfo2').innerHTML, "
+                        + "  lineNumbers: true, "
+                        + "  mode: \"application/json\","
+                        + "  highlightDifferences: true,"
+                        + "  showDifferences: true,"
+                        + "  readOnly: true,"
+                        + "  revertButtons: false,"
+                        + "  autoRefresh: true"
+                        + "});"));
     }
 }

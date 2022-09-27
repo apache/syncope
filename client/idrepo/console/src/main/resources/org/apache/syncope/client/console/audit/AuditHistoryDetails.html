@@ -20,16 +20,16 @@ under the License.
 <wicket:panel>
 
     <div class="json-diff-header">
-        <div class="json-diff-item" wicket:id="afterVersions"></div>
+        <div class="json-diff-item" wicket:id="beforeVersions"></div>
         <div class="json-diff-item">
             <a href="#" wicket:id="restore" wicket:message="title:restore">
                 <i class="fa fa-history fa-2x"></i>
             </a>
         </div>
-        <div class="json-diff-item" wicket:id="beforeVersions"></div>
+        <div class="json-diff-item" wicket:id="afterVersions"></div>
     </div>
 
-    <div wicket:id="content"></div>
+    <div wicket:id="jsonDiffPanel"></div>
 
 </wicket:panel>
 </html>

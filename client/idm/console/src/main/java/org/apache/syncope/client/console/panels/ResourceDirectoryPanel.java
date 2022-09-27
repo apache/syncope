@@ -303,12 +303,10 @@ public class ResourceDirectoryPanel extends
                 ResourceTO modelObject = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
-                        historyModal,
                         AuditElements.EventCategoryType.LOGIC,
                         "ResourceLogic",
                         modelObject,
-                        IdMEntitlement.RESOURCE_UPDATE,
-                        pageRef) {
+                        IdMEntitlement.RESOURCE_UPDATE) {
 
                     private static final long serialVersionUID = -3712506022627033811L;
 

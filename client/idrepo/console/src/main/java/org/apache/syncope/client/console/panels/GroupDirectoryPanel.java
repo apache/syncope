@@ -339,12 +339,10 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 model.setObject(restClient.read(model.getObject().getKey()));
                 target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
-                        altDefaultModal,
                         AuditElements.EventCategoryType.LOGIC,
                         "GroupLogic",
                         model.getObject(),
-                        IdRepoEntitlement.GROUP_UPDATE,
-                        pageRef) {
+                        IdRepoEntitlement.GROUP_UPDATE) {
 
                     private static final long serialVersionUID = -5819724478921691835L;
 
