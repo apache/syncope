@@ -503,7 +503,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.65</tomcat.version>
+    <tomcat.version>9.0.67</tomcat.version>
     <wildfly.version>26.1.2.Final</wildfly.version>
     <payara.version>5.2022.3</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
