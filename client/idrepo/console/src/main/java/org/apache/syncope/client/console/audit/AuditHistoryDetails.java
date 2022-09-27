@@ -269,12 +269,12 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         MetaDataRoleAuthorizationStrategy.authorize(restore, ENABLE, auditRestoreEntitlement);
         add(restore);
         
-        init();
+        initDiff();
     }
 
     protected abstract void restore(String json, AjaxRequestTarget target);
 
-    protected void init() {
+    protected void initDiff() {
         // audit fetch size is fixed, for the moment... 
         this.auditEntries.clear();
         this.auditEntries.addAll(new AuditRestClient().search(

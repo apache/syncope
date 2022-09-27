@@ -49,7 +49,7 @@ public abstract class AuditHistoryModal<T extends EntityTO> extends Panel implem
             @Override
             protected void restore(final String json, final AjaxRequestTarget target) {
                 AuditHistoryModal.this.restore(json, target);
-                this.init();
+                this.initDiff();
                 target.add(this);
             }
         });
