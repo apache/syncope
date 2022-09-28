@@ -30,24 +30,14 @@ public final class AuditElements implements BaseBean {
 
     public enum EventCategoryType {
 
-        LOGIC("LOGIC"),
-        WA("WA"),
-        TASK("TASK"),
-        PROPAGATION("PropagationTask"),
-        PULL("PullTask"),
-        PUSH("PushTask"),
-        CUSTOM("CUSTOM");
+        LOGIC,
+        WA,
+        TASK,
+        PROPAGATION,
+        PULL,
+        PUSH,
+        CUSTOM;
 
-        private final String value;
-
-        EventCategoryType(final String value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value;
-        }
     }
 
     public enum Result {

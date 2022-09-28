@@ -300,13 +300,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
             boolean notificationsAvailable = notificationManager.notificationsAvailable(
                     AuditElements.EventCategoryType.PUSH,
-                    any.getType().getKind().name().toLowerCase(),
+                    any.getType().getKind().name(),
                     profile.getTask().getResource().getKey(),
                     operation);
             boolean auditRequested = auditManager.auditRequested(
                     AuthContextUtils.getUsername(),
                     AuditElements.EventCategoryType.PUSH,
-                    any.getType().getKind().name().toLowerCase(),
+                    any.getType().getKind().name(),
                     profile.getTask().getResource().getKey(),
                     operation);
 
@@ -488,7 +488,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
                             AuthContextUtils.getWho(),
                             AuditElements.EventCategoryType.PUSH,
-                            any.getType().getKind().name().toLowerCase(),
+                            any.getType().getKind().name(),
                             profile.getTask().getResource().getKey(),
                             operation,
                             resultStatus,

@@ -46,15 +46,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.audit.EventCategory;
+import org.apache.syncope.common.lib.request.AttrPatch;
+import org.apache.syncope.common.lib.request.ResourceDR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -64,6 +69,7 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -320,7 +326,7 @@ public class AuditITCase extends AbstractITCase {
 
         found = false;
         for (EventCategory eventCategoryTO : events) {
-            if (AnyTypeKind.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
+            if (AnyTypeKind.USER.name().equals(eventCategoryTO.getCategory())) {
                 if (RESOURCE_NAME_LDAP.equals(eventCategoryTO.getSubcategory())
                         && AuditElements.EventCategoryType.PULL == eventCategoryTO.getType()) {
 
@@ -333,7 +339,7 @@ public class AuditITCase extends AbstractITCase {
 
         found = false;
         for (EventCategory eventCategoryTO : events) {
-            if (AnyTypeKind.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
+            if (AnyTypeKind.USER.name().equals(eventCategoryTO.getCategory())) {
                 if (RESOURCE_NAME_CSV.equals(eventCategoryTO.getSubcategory())
                         && AuditElements.EventCategoryType.PROPAGATION == eventCategoryTO.getType()) {
 
@@ -455,7 +461,7 @@ public class AuditITCase extends AbstractITCase {
                     auditFilePath,
                     content -> content.contains(
                             "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
-                            + " - This is a static test message"),
+                                    + " - This is a static test message"),
                     10);
 
             // nothing expected in audit_for_Master_norewrite_file.log instead
@@ -463,7 +469,7 @@ public class AuditITCase extends AbstractITCase {
                     auditNoRewriteFilePath,
                     content -> !content.contains(
                             "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
-                            + " - This is a static test message"),
+                                    + " - This is a static test message"),
                     10);
         } catch (IOException e) {
             fail("Unable to read/write log files", e);
@@ -485,25 +491,25 @@ public class AuditITCase extends AbstractITCase {
     public void issueSYNCOPE1446() {
         AuditLoggerName createSuccess = new AuditLoggerName(
                 AuditElements.EventCategoryType.PROPAGATION,
-                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
+                AnyTypeKind.ANY_OBJECT.name(),
                 RESOURCE_NAME_DBSCRIPTED,
                 "create",
                 AuditElements.Result.SUCCESS);
         AuditLoggerName createFailure = new AuditLoggerName(
                 AuditElements.EventCategoryType.PROPAGATION,
-                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
+                AnyTypeKind.ANY_OBJECT.name(),
                 RESOURCE_NAME_DBSCRIPTED,
                 "create",
                 AuditElements.Result.FAILURE);
         AuditLoggerName updateSuccess = new AuditLoggerName(
                 AuditElements.EventCategoryType.PROPAGATION,
-                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
+                AnyTypeKind.ANY_OBJECT.name(),
                 RESOURCE_NAME_DBSCRIPTED,
                 "update",
                 AuditElements.Result.SUCCESS);
         AuditLoggerName updateFailure = new AuditLoggerName(
                 AuditElements.EventCategoryType.PROPAGATION,
-                AnyTypeKind.ANY_OBJECT.name().toLowerCase(),
+                AnyTypeKind.ANY_OBJECT.name(),
                 RESOURCE_NAME_DBSCRIPTED,
                 "update",
                 AuditElements.Result.FAILURE);
@@ -556,5 +562,73 @@ public class AuditITCase extends AbstractITCase {
                 // ignore
             }
         }
+    }
+
+    @Test
+    public void issueSYNCOPE1695() {
+        // add audit conf for pull
+        AUDIT_SERVICE.set(
+                buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]", true));
+        AUDIT_SERVICE.set(
+                buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]", true));
+        AUDIT_SERVICE.set(
+                buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]",
+                        true));
+        UserTO pullFromLDAP = null;
+        try {
+            // pull from resource-ldap -> generates an audit entry
+            PullTaskTO pullTaskTO = new PullTaskTO();
+            pullTaskTO.setPerformCreate(true);
+            pullTaskTO.setPerformUpdate(true);
+            pullTaskTO.getActions().add("LDAPMembershipPullActions");
+            pullTaskTO.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+            pullTaskTO.setMatchingRule(MatchingRule.UPDATE);
+            pullTaskTO.setUnmatchingRule(UnmatchingRule.ASSIGN);
+            RECONCILIATION_SERVICE.pull(
+                    new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).fiql("uid==pullFromLDAP")
+                            .build(),
+                    pullTaskTO);
+            // update pullTaskTO -> another audit entry
+            pullFromLDAP = updateUser(new UserUR.Builder(USER_SERVICE.read("pullFromLDAP").getKey())
+                    .plainAttr(new AttrPatch.Builder(new Attr.Builder("ctype").value("abcdef").build()).build())
+                    .build()).getEntity();
+            // search by empty type and category events and get both events on testfromLDAP
+            assertEquals(2,
+                    AUDIT_SERVICE.search(new AuditQuery.Builder()
+                            .entityKey(pullFromLDAP.getKey())
+                            .page(1)
+                            .size(10)
+                            .events(List.of("create", "update", "matchingrule_update", "unmatchingrule_assign",
+                                    "unmatchingrule_provision"))
+                            .result(AuditElements.Result.SUCCESS)
+                            .build()).getTotalCount());
+        } finally {
+            if (pullFromLDAP != null) {
+                USER_SERVICE.deassociate(new ResourceDR.Builder()
+                        .key(pullFromLDAP.getKey())
+                        .resource(RESOURCE_NAME_LDAP)
+                        .action(ResourceDeassociationAction.UNLINK)
+                        .build());
+                USER_SERVICE.delete(pullFromLDAP.getKey());
+
+                // restore previous audit
+                AUDIT_SERVICE.set(
+                        buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]",
+                                false));
+                AUDIT_SERVICE.set(
+                        buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]",
+                                false));
+                AUDIT_SERVICE.set(buildAuditConf(
+                        "syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]",
+                        false));
+            }
+        }
+    }
+
+    private static AuditConfTO buildAuditConf(final String auditLoggerName, final boolean active) {
+        AuditConfTO auditConfTO = new AuditConfTO();
+        auditConfTO.setActive(active);
+        auditConfTO.setKey(auditLoggerName);
+        return auditConfTO;
     }
 }

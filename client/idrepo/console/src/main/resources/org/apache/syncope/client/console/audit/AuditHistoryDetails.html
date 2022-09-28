@@ -17,15 +17,19 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
+<wicket:panel>
 
-    <div style="padding-left: 1%;padding-right: 1%;text-align: center;">
-      <div class="float-left"><strong><span wicket:id="current"/></strong></div>
-      <a href="#" wicket:id="restore" wicket:message="title:restore"><i class="fa fa-history fa-2x"></i></a>
-      <div class="float-right"><strong><span wicket:id="previous"/></strong></div>
+    <div class="json-diff-header">
+        <div class="json-diff-item" wicket:id="beforeVersions"></div>
+        <div class="json-diff-item">
+            <a href="#" wicket:id="restore" wicket:message="title:restore">
+                <i class="fa fa-history fa-2x"></i>
+            </a>
+        </div>
+        <div class="json-diff-item" wicket:id="afterVersions"></div>
     </div>
 
-    <div wicket:id="content"></div>
+    <div wicket:id="jsonDiffPanel"></div>
 
-  </wicket:panel>
+</wicket:panel>
 </html>

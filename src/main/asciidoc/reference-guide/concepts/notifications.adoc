@@ -83,7 +83,7 @@ An event is uniquely identified by a string of the following form:
 
 Some samples:
 
-* `[PushTask]:[group]:[resource-db-scripted]:[matchingrule_deprovision]:[SUCCESS]` +
+* `[PUSH]:[GROUP]:[resource-db-scripted]:[matchingrule_deprovision]:[SUCCESS]` +
 successful Group <<provisioning-push,push>> to the external resource `resource-db-scripted`, when deprovisioning
 matching entities
 * `[LOGIC]:[RealmLogic]:[]:[create]:[FAILURE]` +

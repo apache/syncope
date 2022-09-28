@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.client.console.audit;
 
-import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
 
@@ -32,33 +30,29 @@ public abstract class AuditHistoryModal<T extends EntityTO> extends Panel implem
     private static final long serialVersionUID = 1066124171682570080L;
 
     public AuditHistoryModal(
-            final BaseModal<?> baseModal,
             final AuditElements.EventCategoryType type,
             final String category,
             final T entity,
-            final String auditRestoreEntitlement,
-            final PageReference pageRef) {
+            final String auditRestoreEntitlement) {
 
         super(BaseModal.CONTENT_ID);
 
-        MultilevelPanel mlp = new MultilevelPanel("history");
-        mlp.setOutputMarkupId(true);
-        add(mlp.setFirstLevel(new AuditHistoryDirectoryPanel<T>(
-                baseModal,
-                mlp,
+        add(new AuditHistoryDetails(
+                "history",
+                entity,
                 type,
                 category,
-                entity,
-                auditRestoreEntitlement,
-                pageRef) {
+                auditRestoreEntitlement) {
 
-            private static final long serialVersionUID = 1952220682903768286L;
+            private static final long serialVersionUID = -5311898419151367494L;
 
             @Override
             protected void restore(final String json, final AjaxRequestTarget target) {
                 AuditHistoryModal.this.restore(json, target);
+                this.initDiff();
+                target.add(this);
             }
-        }));
+        });
     }
 
     protected abstract void restore(String json, AjaxRequestTarget target);

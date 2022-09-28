@@ -170,12 +170,10 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                 model.setObject(restClient.read(model.getObject().getKey()));
                 target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
-                        altDefaultModal,
                         AuditElements.EventCategoryType.LOGIC,
                         "AnyObjectLogic",
                         model.getObject(),
-                        AnyEntitlement.UPDATE.getFor(type),
-                        pageRef) {
+                        AnyEntitlement.UPDATE.getFor(type)) {
 
                     private static final long serialVersionUID = -7440902560249531201L;
 

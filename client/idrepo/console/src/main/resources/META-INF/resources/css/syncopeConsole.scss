@@ -22,7 +22,6 @@ $background_console_dark: #00a65a;
 $background_console_white: #eee;
 
 
-
 /* SCSS Methods
 ============================================================================= */
 
@@ -32,8 +31,6 @@ $background_console_white: #eee;
   -o-box-shadow: $args;
   box-shadow: $args;
 }
-
-
 
 
 /* General
@@ -73,6 +70,7 @@ body {
       background-color: $background_console_dark;
     }
   }
+
   &.btn-sso {
     &:hover, &:active, &:focus {
       background-color: $background_console_dark;
@@ -85,7 +83,7 @@ body {
 
 #mcp_wrapper {
 
-  .form-control{
+  .form-control {
     margin-bottom: 10px
   }
 
@@ -96,4 +94,18 @@ body {
   .custom_content_wrapper {
     padding: 2% 2% 0 2%;
   }
+}
+
+.json-diff-header {
+  text-align: center;
+  
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  border-spacing: 10px;
+}
+
+.json-diff-item {
+  display: table-cell;
+  vertical-align: middle;
 }

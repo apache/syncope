@@ -165,11 +165,11 @@ public class AuditLoggerName implements BaseBean {
             } else {
                 EventCategoryType type;
 
-                if (EventCategoryType.PROPAGATION.toString().equals(elements[0])) {
+                if (EventCategoryType.PROPAGATION.name().equals(elements[0])) {
                     type = EventCategoryType.PROPAGATION;
-                } else if (EventCategoryType.PULL.toString().equals(elements[0])) {
+                } else if (EventCategoryType.PULL.name().equals(elements[0])) {
                     type = EventCategoryType.PULL;
-                } else if (EventCategoryType.PUSH.toString().equals(elements[0])) {
+                } else if (EventCategoryType.PUSH.name().equals(elements[0])) {
                     type = EventCategoryType.PUSH;
                 } else {
                     try {
@@ -219,7 +219,7 @@ public class AuditLoggerName implements BaseBean {
 
         eventBuilder.append('[');
         if (type != null) {
-            eventBuilder.append(type.toString());
+            eventBuilder.append(type.name());
         }
         eventBuilder.append("]:[");
         if (StringUtils.isNotBlank(category)) {

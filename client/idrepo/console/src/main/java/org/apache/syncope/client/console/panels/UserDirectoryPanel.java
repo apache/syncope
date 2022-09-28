@@ -52,7 +52,6 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.PageReference;
@@ -269,12 +268,10 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                     model.setObject(restClient.read(model.getObject().getKey()));
                     target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
-                            altDefaultModal,
-                            AuditElements.EventCategoryType.LOGIC,
-                            "UserLogic",
+                            null,
+                            null,
                             model.getObject(),
-                            IdRepoEntitlement.USER_UPDATE,
-                            pageRef) {
+                            IdRepoEntitlement.USER_UPDATE) {
 
                         private static final long serialVersionUID = 959378158400669867L;
 
