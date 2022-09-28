@@ -519,21 +519,21 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name()
-                                            + " allowed when referring to groups");
+                                    + " allowed when referring to groups");
                         }
                         if (intAttrName.getRelatedAnyObject() != null
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {
 
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name()
-                                            + " allowed when referring to any objects");
+                                    + " allowed when referring to any objects");
                         }
                         if (intAttrName.getPrivilegesOfApplication() != null
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {
 
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name()
-                                            + " allowed when referring to privileges");
+                                    + " allowed when referring to privileges");
                         }
                         if (intAttrName.getSchemaType() == SchemaType.DERIVED
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {
@@ -558,7 +558,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name()
-                                            + " allowed when referring to users");
+                                    + " allowed when referring to users");
                         }
                         if ((intAttrName.getRelationshipType() != null
                                 || intAttrName.getRelationshipAnyType() != null)
@@ -566,7 +566,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name()
-                                            + " allowed when referring to relationships");
+                                    + " allowed when referring to relationships");
                         }
                     } else {
                         LOG.error("'{}' not allowed", itemTO.getIntAttrName());
@@ -640,10 +640,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         });
         resourceTO.getProvisions().
                 forEach(provisionTO -> virSchemaDAO.find(resource.getKey(), provisionTO.getAnyType()).
-                        forEach(virSchema -> {
-                            provisionTO.getVirSchemas().add(virSchema.getKey());
-                            provisionTO.getMapping().getLinkingItems().add(virSchema.asLinkingMappingItem());
-                        }));
+                forEach(virSchema -> {
+                provisionTO.getVirSchemas().add(virSchema.getKey());
+                provisionTO.getMapping().getLinkingItems().add(virSchema.asLinkingMappingItem());
+                }));
 
         if (resource.getOrgUnit() != null) {
             OrgUnit orgUnit = resource.getOrgUnit();
