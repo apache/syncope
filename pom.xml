@@ -413,7 +413,7 @@ under the License.
 
     <cxf.version>3.5.3</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.25.3</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.25.4</nimbus-jose-jwt.version>
 
     <jackson.version>2.14.0-rc1</jackson.version>
 
@@ -455,7 +455,7 @@ under the License.
 
     <h2.version>2.1.214</h2.version>
 
-    <swagger-core.version>2.2.2</swagger-core.version>
+    <swagger-core.version>2.2.3</swagger-core.version>
     <swagger-ui.version>4.14.0</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
