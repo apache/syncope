@@ -641,8 +641,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.getProvisions().
                 forEach(provisionTO -> virSchemaDAO.find(resource.getKey(), provisionTO.getAnyType()).
                 forEach(virSchema -> {
-                provisionTO.getVirSchemas().add(virSchema.getKey());
-                provisionTO.getMapping().getLinkingItems().add(virSchema.asLinkingMappingItem());
+                    provisionTO.getVirSchemas().add(virSchema.getKey());
+                    provisionTO.getMapping().getLinkingItems().add(virSchema.asLinkingMappingItem());
                 }));
 
         if (resource.getOrgUnit() != null) {
