@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -43,6 +44,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -51,6 +53,7 @@ import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
@@ -363,10 +366,23 @@ public class IdRepoLogicContext {
             final RealmDataBinder binder,
             final RealmDAO realmDAO,
             final AnySearchDAO anySearchDAO,
+            final TaskDAO taskDAO,
+            final CASSPClientAppDAO casSPClientAppDAO,
+            final OIDCRPClientAppDAO oidcRPClientAppDAO,
+            final SAML2SPClientAppDAO saml2SPClientAppDAO,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor) {
 
-        return new RealmLogic(realmDAO, anySearchDAO, binder, propagationManager, taskExecutor);
+        return new RealmLogic(
+                realmDAO,
+                anySearchDAO,
+                taskDAO,
+                casSPClientAppDAO,
+                oidcRPClientAppDAO,
+                saml2SPClientAppDAO,
+                binder,
+                propagationManager,
+                taskExecutor);
     }
 
     @ConditionalOnMissingBean

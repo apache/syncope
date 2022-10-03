@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTaskExec;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPACommandTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTaskExec;
@@ -54,16 +55,20 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
                 result = JPAPropagationTaskExec.TABLE;
                 break;
 
-            case PUSH:
-                result = JPAPushTaskExec.TABLE;
-                break;
-
             case SCHEDULED:
                 result = JPASchedTaskExec.TABLE;
                 break;
 
+            case PUSH:
+                result = JPAPushTaskExec.TABLE;
+                break;
+
             case PULL:
                 result = JPAPullTaskExec.TABLE;
+                break;
+
+            case COMMAND:
+                result = JPACommandTaskExec.TABLE;
                 break;
 
             default:
@@ -84,16 +89,20 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
                 result = JPAPropagationTaskExec.class;
                 break;
 
-            case PUSH:
-                result = JPAPushTaskExec.class;
-                break;
-
             case SCHEDULED:
                 result = JPASchedTaskExec.class;
                 break;
 
+            case PUSH:
+                result = JPAPushTaskExec.class;
+                break;
+
             case PULL:
                 result = JPAPullTaskExec.class;
+                break;
+
+            case COMMAND:
+                result = JPACommandTaskExec.class;
                 break;
 
             default:
@@ -122,6 +131,9 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
         }
         if (task == null) {
             task = find(TaskType.PUSH, key);
+        }
+        if (task == null) {
+            task = find(TaskType.COMMAND, key);
         }
         if (task == null) {
             task = find(TaskType.PROPAGATION, key);

@@ -19,8 +19,10 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.lang.reflect.Modifier;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.policy.CommandArgs;
 import org.apache.syncope.common.lib.policy.RuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -28,24 +30,10 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator;
-import org.apache.syncope.core.persistence.api.dao.AccountRule;
-import org.apache.syncope.core.persistence.api.dao.PasswordRule;
-import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
-import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
-import org.apache.syncope.core.persistence.api.dao.Reportlet;
+import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.provisioning.api.LogicActions;
-import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
-import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
-import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
-import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
-import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,72 +75,20 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
         implementation.setBody(implementationTO.getBody());
 
         if (implementation.getEngine() == ImplementationEngine.JAVA) {
-            Class<?> base = null;
-            switch (implementation.getType()) {
-                case IdRepoImplementationType.REPORTLET:
-                    base = Reportlet.class;
-                    break;
+            Class<?> baseClazz = Optional.ofNullable(
+                    ImplementationTypesHolder.getInstance().getValues().get(implementation.getType())).
+                    map(intf -> {
+                        try {
+                            return Class.forName(intf);
+                        } catch (ClassNotFoundException e) {
+                            LOG.error("While resolving interface {} for implementation type {}",
+                                    intf, implementation.getType());
+                            return null;
+                        }
+                    }).
+                    orElse(null);
 
-                case IdRepoImplementationType.ACCOUNT_RULE:
-                    base = AccountRule.class;
-                    break;
-
-                case IdRepoImplementationType.PASSWORD_RULE:
-                    base = PasswordRule.class;
-                    break;
-
-                case IdRepoImplementationType.ITEM_TRANSFORMER:
-                    base = ItemTransformer.class;
-                    break;
-
-                case IdRepoImplementationType.TASKJOB_DELEGATE:
-                    base = SchedTaskJobDelegate.class;
-                    break;
-
-                case IdMImplementationType.RECON_FILTER_BUILDER:
-                    base = ReconFilterBuilder.class;
-                    break;
-
-                case IdRepoImplementationType.LOGIC_ACTIONS:
-                    base = LogicActions.class;
-                    break;
-
-                case IdMImplementationType.PROPAGATION_ACTIONS:
-                    base = PropagationActions.class;
-                    break;
-
-                case IdMImplementationType.PULL_ACTIONS:
-                    base = PullActions.class;
-                    break;
-
-                case IdMImplementationType.PUSH_ACTIONS:
-                    base = PushActions.class;
-                    break;
-
-                case IdMImplementationType.PULL_CORRELATION_RULE:
-                    base = PullCorrelationRule.class;
-                    break;
-
-                case IdMImplementationType.PUSH_CORRELATION_RULE:
-                    base = PushCorrelationRule.class;
-                    break;
-
-                case IdRepoImplementationType.VALIDATOR:
-                    base = PlainAttrValueValidator.class;
-                    break;
-
-                case IdRepoImplementationType.RECIPIENTS_PROVIDER:
-                    base = RecipientsProvider.class;
-                    break;
-
-                case IdMImplementationType.PROVISION_SORTER:
-                    base = ProvisionSorter.class;
-                    break;
-
-                default:
-            }
-
-            if (base == null) {
+            if (baseClazz == null) {
                 sce.getElements().add("No Java interface found for " + implementation.getType());
                 throw sce;
             }
@@ -178,6 +114,14 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                     }
                     break;
 
+                case IdRepoImplementationType.COMMAND:
+                    CommandArgs args = POJOHelper.deserialize(implementation.getBody(), CommandArgs.class);
+                    if (args == null) {
+                        sce.getElements().add("Could not deserialize as CommandArgs");
+                        throw sce;
+                    }
+                    break;
+
                 default:
                     Class<?> clazz = null;
                     try {
@@ -187,9 +131,9 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                         sce.getElements().add("No Java class found: " + implementation.getBody());
                         throw sce;
                     }
-                    if (!base.isAssignableFrom(clazz)) {
+                    if (!baseClazz.isAssignableFrom(clazz)) {
                         sce.getElements().add(
-                                "Java class " + implementation.getBody() + " must comply with " + base.getName());
+                                "Java class " + implementation.getBody() + " must comply with " + baseClazz.getName());
                         throw sce;
                     }
                     if (Modifier.isAbstract(clazz.getModifiers())) {

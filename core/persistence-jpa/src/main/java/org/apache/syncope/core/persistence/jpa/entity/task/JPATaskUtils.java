@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
+import org.apache.syncope.common.lib.to.CommandTaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -26,13 +27,16 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.task.CommandTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
+import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 @SuppressWarnings("unchecked")
 public final class JPATaskUtils implements TaskUtils {
@@ -72,6 +76,10 @@ public final class JPATaskUtils implements TaskUtils {
                 result = (Class<T>) PushTask.class;
                 break;
 
+            case COMMAND:
+                result = (Class<T>) CommandTask.class;
+                break;
+
             case NOTIFICATION:
                 result = (Class<T>) NotificationTask.class;
                 break;
@@ -103,11 +111,55 @@ public final class JPATaskUtils implements TaskUtils {
                 result = (T) entityFactory.newEntity(PushTask.class);
                 break;
 
+            case COMMAND:
+                result = (T) entityFactory.newEntity(CommandTask.class);
+                break;
+
             case NOTIFICATION:
                 result = (T) entityFactory.newEntity(NotificationTask.class);
                 break;
 
             default:
+        }
+
+        return result;
+    }
+
+    @Override
+    public <E extends TaskExec<?>> E newTaskExec() {
+        E result;
+
+        switch (type) {
+            case NOTIFICATION:
+                result = (E) new JPANotificationTaskExec();
+                break;
+
+            case PROPAGATION:
+                result = (E) new JPAPropagationTaskExec();
+                break;
+
+            case PULL:
+                result = (E) new JPAPullTaskExec();
+                break;
+
+            case PUSH:
+                result = (E) new JPAPushTaskExec();
+                break;
+
+            case COMMAND:
+                result = (E) new JPACommandTaskExec();
+                break;
+
+            case SCHEDULED:
+                result = (E) new JPASchedTaskExec();
+                break;
+
+            default:
+                result = null;
+        }
+
+        if (result != null) {
+            ((AbstractTaskExec<?>) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
         }
 
         return result;
@@ -132,6 +184,10 @@ public final class JPATaskUtils implements TaskUtils {
 
             case PUSH:
                 result = (Class<T>) PushTaskTO.class;
+                break;
+
+            case COMMAND:
+                result = (Class<T>) CommandTaskTO.class;
                 break;
 
             case NOTIFICATION:

@@ -27,6 +27,8 @@ public interface TaskUtils {
 
     <T extends Task<T>> T newTask();
 
+    <E extends TaskExec<?>> E newTaskExec();
+
     <T extends TaskTO> T newTaskTO();
 
     <T extends Task<T>> Class<T> taskClass();

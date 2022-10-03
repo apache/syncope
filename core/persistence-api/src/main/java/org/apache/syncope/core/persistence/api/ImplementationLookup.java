@@ -20,10 +20,12 @@ package org.apache.syncope.core.persistence.api;
 
 import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.policy.CommandArgs;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.core.persistence.api.command.Command;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
@@ -50,6 +52,9 @@ public interface ImplementationLookup extends SyncopeCoreLoader {
 
     Class<? extends PushCorrelationRule> getPushCorrelationRuleClass(
             Class<? extends PushCorrelationRuleConf> pushCorrelationRuleConfClass);
+
+    Class<? extends Command> getCommandClass(
+            Class<? extends CommandArgs> commandArgsClass);
 
     Set<Class<?>> getAuditAppenderClasses();
 }

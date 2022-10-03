@@ -27,11 +27,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.policy.CommandArgs;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.persistence.api.command.Command;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
@@ -177,6 +179,34 @@ public final class ImplementationManager {
                 PushCorrelationRule rule = build(clazz, true, cacheGetter, cachePutter);
                 rule.setConf(conf);
                 return Optional.of(rule);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Optional<Command> buildCommand(
+            final Implementation impl,
+            final Supplier<Command> cacheGetter,
+            final Consumer<Command> cachePutter)
+            throws ClassNotFoundException {
+
+        switch (impl.getEngine()) {
+            case GROOVY:
+                return Optional.of(build(impl, cacheGetter, cachePutter));
+
+            case JAVA:
+            default:
+                CommandArgs args = POJOHelper.deserialize(impl.getBody(), CommandArgs.class);
+                Class<Command> clazz =
+                        (Class<Command>) ApplicationContextProvider.getApplicationContext().
+                                getBean(ImplementationLookup.class).getCommandClass(args.getClass());
+
+                if (clazz == null) {
+                    return Optional.empty();
+                }
+
+                Command command = build(clazz, true, cacheGetter, cachePutter);
+                command.setArgs(args);
+                return Optional.of(command);
         }
     }
 

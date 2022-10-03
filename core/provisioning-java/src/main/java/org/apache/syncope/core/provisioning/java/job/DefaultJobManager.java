@@ -48,6 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
@@ -89,6 +90,8 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
     protected final ImplementationDAO implementationDAO;
 
+    protected final TaskUtilsFactory taskUtilsFactory;
+
     protected final ConfParamOps confParamOps;
 
     protected final SecurityProperties securityProperties;
@@ -101,6 +104,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             final TaskDAO taskDAO,
             final ReportDAO reportDAO,
             final ImplementationDAO implementationDAO,
+            final TaskUtilsFactory taskUtilsFactory,
             final ConfParamOps confParamOps,
             final SecurityProperties securityProperties) {
 
@@ -109,6 +113,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         this.taskDAO = taskDAO;
         this.reportDAO = reportDAO;
         this.implementationDAO = implementationDAO;
+        this.taskUtilsFactory = taskUtilsFactory;
         this.confParamOps = confParamOps;
         this.securityProperties = securityProperties;
     }
@@ -224,11 +229,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         }
 
         Map<String, Object> jobMap = createJobMapForExecutionContext(executor);
-        jobMap.put(JobManager.TASK_TYPE, task instanceof PullTask
-                ? TaskType.PULL
-                : task instanceof PushTask
-                        ? TaskType.PUSH
-                        : TaskType.SCHEDULED);
+        jobMap.put(JobManager.TASK_TYPE, taskUtilsFactory.getInstance(task).getType());
         jobMap.put(JobManager.TASK_KEY, task.getKey());
         jobMap.put(TaskJob.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
 

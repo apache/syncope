@@ -18,12 +18,8 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.policy.AbstractPasswordRuleConf;
 
-@XmlRootElement(name = "testPasswordRuleConf")
-@XmlType
 public class TestPasswordRuleConf extends AbstractPasswordRuleConf {
 
     private static final long serialVersionUID = -1803947511928491978L;
@@ -33,5 +29,4 @@ public class TestPasswordRuleConf extends AbstractPasswordRuleConf {
     public String getMustEndWith() {
         return mustEndWith;
     }
-
 }

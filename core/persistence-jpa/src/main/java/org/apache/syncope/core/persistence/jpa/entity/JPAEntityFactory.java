@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
@@ -86,13 +85,13 @@ import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
+import org.apache.syncope.core.persistence.api.entity.task.CommandTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrUniqueValue;
@@ -140,17 +139,13 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplatePullTask;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPACommandTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTaskAnyFilter;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttrUniqueValue;
@@ -281,6 +276,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAPushTask();
         } else if (reference.equals(PullTask.class)) {
             result = (E) new JPAPullTask();
+        } else if (reference.equals(CommandTask.class)) {
+            result = (E) new JPACommandTask();
         } else if (reference.equals(SchedTask.class)) {
             result = (E) new JPASchedTask();
         } else if (reference.equals(PushTaskAnyFilter.class)) {
@@ -339,43 +336,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAWAConfigEntry();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
-        }
-
-        if (result instanceof AbstractGeneratedKeyEntity) {
-            ((AbstractGeneratedKeyEntity) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
-        }
-
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <E extends TaskExec<?>> E newTaskExec(final TaskType taskType) {
-        E result;
-
-        switch (taskType) {
-            case NOTIFICATION:
-                result = (E) new JPANotificationTaskExec();
-                break;
-
-            case PROPAGATION:
-                result = (E) new JPAPropagationTaskExec();
-                break;
-
-            case PULL:
-                result = (E) new JPAPullTaskExec();
-                break;
-
-            case PUSH:
-                result = (E) new JPAPushTaskExec();
-                break;
-
-            case SCHEDULED:
-                result = (E) new JPASchedTaskExec();
-                break;
-
-            default:
-                result = null;
         }
 
         if (result instanceof AbstractGeneratedKeyEntity) {

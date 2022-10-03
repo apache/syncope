@@ -55,6 +55,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
@@ -81,6 +82,9 @@ public class TaskTest extends AbstractTest {
 
     @Autowired
     private ImplementationDAO implementationDAO;
+
+    @Autowired
+    private TaskUtilsFactory taskUtilsFactory;
 
     @Test
     public void read() {
@@ -148,7 +152,7 @@ public class TaskTest extends AbstractTest {
 
         int executionNumber = task.getExecs().size();
 
-        TaskExec<PropagationTask> execution = entityFactory.newTaskExec(TaskType.PROPAGATION);
+        TaskExec<PropagationTask> execution = taskUtilsFactory.getInstance(TaskType.PROPAGATION).newTaskExec();
         execution.setTask(task);
         execution.setStatus(ExecStatus.CREATED.name());
         execution.setStart(OffsetDateTime.now());
@@ -171,7 +175,7 @@ public class TaskTest extends AbstractTest {
 
         int executionNumber = task.getExecs().size();
 
-        TaskExec<SchedTask> execution = entityFactory.newTaskExec(TaskType.PULL);
+        TaskExec<SchedTask> execution = taskUtilsFactory.getInstance(TaskType.PULL).newTaskExec();
         execution.setStatus("Text-free status");
         execution.setTask(task);
         execution.setStart(OffsetDateTime.now());
@@ -195,7 +199,7 @@ public class TaskTest extends AbstractTest {
 
         int executionNumber = task.getExecs().size();
 
-        TaskExec<SchedTask> execution = entityFactory.newTaskExec(TaskType.PUSH);
+        TaskExec<SchedTask> execution = taskUtilsFactory.getInstance(TaskType.PUSH).newTaskExec();
         execution.setStatus("Text-free status");
         execution.setTask(task);
         execution.setStart(OffsetDateTime.now());

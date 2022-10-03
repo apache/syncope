@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.policy.CommandArgs;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
@@ -42,6 +43,7 @@ import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.persistence.api.command.Command;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
@@ -119,6 +121,10 @@ public class ITImplementationLookup implements ImplementationLookup {
             Map.of(
                     DummyPushCorrelationRuleConf.class, DummyPushCorrelationRule.class,
                     DefaultPushCorrelationRuleConf.class, DefaultPushCorrelationRule.class);
+
+    private static final Map<
+            Class<? extends CommandArgs>, Class<? extends Command>> COMMAND_CLASSES =
+            Map.of(TestCommandArgs.class, TestCommand.class);
 
     private static final Set<Class<?>> AUDITAPPENDER_CLASSES =
             Set.of(TestFileAuditAppender.class, TestFileRewriteAuditAppender.class);
@@ -309,6 +315,11 @@ public class ITImplementationLookup implements ImplementationLookup {
             final Class<? extends PushCorrelationRuleConf> pushCorrelationRuleConfClass) {
 
         return PUSH_CR_CLASSES.get(pushCorrelationRuleConfClass);
+    }
+
+    @Override
+    public Class<? extends Command> getCommandClass(final Class<? extends CommandArgs> commandArgsClass) {
+        return COMMAND_CLASSES.get(commandArgsClass);
     }
 
     @Override

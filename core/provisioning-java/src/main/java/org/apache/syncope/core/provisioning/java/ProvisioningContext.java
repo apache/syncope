@@ -341,6 +341,7 @@ public class ProvisioningContext {
             final TaskDAO taskDAO,
             final ReportDAO reportDAO,
             final ImplementationDAO implementationDAO,
+            final TaskUtilsFactory taskUtilsFactory,
             final ConfParamOps confParamOps) {
 
         DefaultJobManager jobManager = new DefaultJobManager(
@@ -349,6 +350,7 @@ public class ProvisioningContext {
                 taskDAO,
                 reportDAO,
                 implementationDAO,
+                taskUtilsFactory,
                 confParamOps,
                 securityProperties);
         jobManager.setDisableQuartzInstance(provisioningProperties.getQuartz().isDisableInstance());
@@ -414,7 +416,7 @@ public class ProvisioningContext {
             if (provisioningProperties.getSmtp().isDebug()) {
                 session = mailSender.getSession();
                 session.setDebug(true);
-                try (LogOutputStream los = new LogOutputStream(LOG)) {
+                try ( LogOutputStream los = new LogOutputStream(LOG)) {
                     session.setDebugOut(new PrintStream(los));
                 }
             }
@@ -611,7 +613,6 @@ public class ProvisioningContext {
     public PropagationTaskExecutor propagationTaskExecutor(
             @Qualifier("propagationTaskExecutorAsyncExecutor")
             final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor,
-            final EntityFactory entityFactory,
             final TaskUtilsFactory taskUtilsFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final ConnectorManager connectorManager,
@@ -642,7 +643,6 @@ public class ProvisioningContext {
                 taskDataBinder,
                 anyUtilsFactory,
                 taskUtilsFactory,
-                entityFactory,
                 outboundMatcher,
                 validator,
                 propagationTaskExecutorAsyncExecutor);
@@ -767,7 +767,7 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public NotificationJobDelegate notificationJobDelegate(
-            final EntityFactory entityFactory,
+            final TaskUtilsFactory taskUtilsFactory,
             final TaskDAO taskDAO,
             final JavaMailSender mailSender,
             final AuditManager auditManager,
@@ -776,7 +776,7 @@ public class ProvisioningContext {
         return new DefaultNotificationJobDelegate(
                 taskDAO,
                 mailSender,
-                entityFactory,
+                taskUtilsFactory,
                 auditManager,
                 notificationManager);
     }

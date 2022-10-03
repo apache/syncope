@@ -581,13 +581,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public RealmDAO realmDAO(
-            final @Lazy RoleDAO roleDAO,
-            final @Lazy CASSPClientAppDAO casSPClientAppDAO,
-            final @Lazy OIDCRPClientAppDAO oidcRPClientAppDAO,
-            final @Lazy SAML2SPClientAppDAO saml2SPClientAppDAO) {
-
-        return new JPARealmDAO(roleDAO, casSPClientAppDAO, oidcRPClientAppDAO, saml2SPClientAppDAO);
+    public RealmDAO realmDAO(final @Lazy RoleDAO roleDAO) {
+        return new JPARealmDAO(roleDAO);
     }
 
     @ConditionalOnMissingBean
@@ -678,8 +673,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public TaskDAO taskDAO(final RemediationDAO remediationDAO) {
-        return new JPATaskDAO(remediationDAO);
+    public TaskDAO taskDAO(
+            final RealmDAO realmDAO,
+            final RemediationDAO remediationDAO,
+            final SecurityProperties securityProperties) {
+
+        return new JPATaskDAO(realmDAO, remediationDAO, securityProperties);
     }
 
     @ConditionalOnMissingBean

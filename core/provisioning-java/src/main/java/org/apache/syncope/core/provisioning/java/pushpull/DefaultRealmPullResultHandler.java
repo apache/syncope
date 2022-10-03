@@ -38,6 +38,10 @@ import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
+import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
+import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -72,6 +76,18 @@ public class DefaultRealmPullResultHandler
 
     @Autowired
     private AnySearchDAO searchDAO;
+
+    @Autowired
+    private TaskDAO taskDAO;
+
+    @Autowired
+    private CASSPClientAppDAO casSPClientAppDAO;
+
+    @Autowired
+    private OIDCRPClientAppDAO oidcRPClientAppDAO;
+
+    @Autowired
+    private SAML2SPClientAppDAO saml2SPClientAppDAO;
 
     private SyncopePullExecutor executor;
 
@@ -573,14 +589,20 @@ public class DefaultRealmPullResultHandler
                                 realmDAO.getRoot(), true, adminRealms, allMatchingCond, AnyTypeKind.GROUP);
                         int anyObjects = searchDAO.count(
                                 realmDAO.getRoot(), true, adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
+                        int commandTasks = taskDAO.findByRealm(realm).size();
+                        int clientApps = casSPClientAppDAO.findByRealm(realm).size()
+                                + saml2SPClientAppDAO.findByRealm(realm).size()
+                                + oidcRPClientAppDAO.findByRealm(realm).size();
 
-                        if (users + groups + anyObjects > 0) {
-                            SyncopeClientException containedAnys = SyncopeClientException.build(
-                                    ClientExceptionType.AssociatedAnys);
-                            containedAnys.getElements().add(users + " user(s)");
-                            containedAnys.getElements().add(groups + " group(s)");
-                            containedAnys.getElements().add(anyObjects + " anyObject(s)");
-                            throw containedAnys;
+                        if (users + groups + anyObjects + commandTasks + clientApps > 0) {
+                            SyncopeClientException realmContains =
+                                    SyncopeClientException.build(ClientExceptionType.RealmContains);
+                            realmContains.getElements().add(users + " user(s)");
+                            realmContains.getElements().add(groups + " group(s)");
+                            realmContains.getElements().add(anyObjects + " anyObject(s)");
+                            realmContains.getElements().add(commandTasks + " command task(s)");
+                            realmContains.getElements().add(clientApps + " client app(s)");
+                            throw realmContains;
                         }
 
                         PropagationByResource<String> propByRes = new PropagationByResource<>();

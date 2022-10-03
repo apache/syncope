@@ -16,21 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.spring.security;
+package org.apache.syncope.core.persistence.api.command;
 
-import java.util.Optional;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.apache.syncope.common.lib.policy.CommandArgs;
 
-public class DelegatedAdministrationException extends RuntimeException {
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface CommandArgsClass {
 
-    private static final long serialVersionUID = 7540587364235915081L;
+    Class<? extends CommandArgs> value();
 
-    public DelegatedAdministrationException(final String realm, final String type, final String key) {
-        super("Missing entitlement or realm administration under " + realm + " for "
-                + Optional.ofNullable(key).map(s -> type + ' ' + s).orElseGet(() -> "new " + type));
-    }
-
-    public DelegatedAdministrationException(final AnyTypeKind type, final String key) {
-        super("The requested UPDATE would alter the set of dynamic realms for " + type + ' ' + key);
-    }
 }

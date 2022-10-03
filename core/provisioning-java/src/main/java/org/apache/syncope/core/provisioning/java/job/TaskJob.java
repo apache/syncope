@@ -65,9 +65,10 @@ public class TaskJob extends AbstractInterruptableJob {
     private SchedTaskJobDelegate delegate;
 
     /**
-     * Task key setter.
+     * Task info setter.
      *
-     * @param taskKey to be set
+     * @param taskType task type
+     * @param taskKey task key
      */
     public void setTaskInfo(final TaskType taskType, final String taskKey) {
         this.taskType = taskType;

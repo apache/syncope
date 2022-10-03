@@ -20,11 +20,13 @@ package org.apache.syncope.core.persistence.jpa;
 
 import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.policy.CommandArgs;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.persistence.api.command.Command;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
@@ -85,6 +87,11 @@ public class DummyImplementationLookup implements ImplementationLookup {
             final Class<? extends PushCorrelationRuleConf> pushCorrelationRuleConfClass) {
 
         return DefaultPushCorrelationRule.class;
+    }
+
+    @Override
+    public Class<? extends Command> getCommandClass(final Class<? extends CommandArgs> commandArgsClass) {
+        return null;
     }
 
     @Override

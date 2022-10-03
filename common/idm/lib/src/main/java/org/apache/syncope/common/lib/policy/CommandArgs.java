@@ -16,21 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.spring.security;
+package org.apache.syncope.common.lib.policy;
 
-import java.util.Optional;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.syncope.common.lib.BaseBean;
 
-public class DelegatedAdministrationException extends RuntimeException {
+@FunctionalInterface
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
+public interface CommandArgs extends BaseBean {
 
-    private static final long serialVersionUID = 7540587364235915081L;
-
-    public DelegatedAdministrationException(final String realm, final String type, final String key) {
-        super("Missing entitlement or realm administration under " + realm + " for "
-                + Optional.ofNullable(key).map(s -> type + ' ' + s).orElseGet(() -> "new " + type));
-    }
-
-    public DelegatedAdministrationException(final AnyTypeKind type, final String key) {
-        super("The requested UPDATE would alter the set of dynamic realms for " + type + ' ' + key);
-    }
+    /**
+     * Give name of related command instance.
+     *
+     * @return name of this command instance
+     */
+    String getName();
 }

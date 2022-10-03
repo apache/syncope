@@ -37,6 +37,8 @@ public final class IdRepoImplementationType {
 
     public static final String VALIDATOR = "VALIDATOR";
 
+    public static final String COMMAND = "COMMAND";
+
     public static final String RECIPIENTS_PROVIDER = "RECIPIENTS_PROVIDER";
 
     public static final String AUDIT_APPENDER = "AUDIT_APPENDER";
@@ -51,6 +53,7 @@ public final class IdRepoImplementationType {
             Pair.of(TASKJOB_DELEGATE, "org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate"),
             Pair.of(LOGIC_ACTIONS, "org.apache.syncope.core.provisioning.api.LogicActions"),
             Pair.of(VALIDATOR, "org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator"),
+            Pair.of(COMMAND, "org.apache.syncope.core.persistence.api.command.Command"),
             Pair.of(RECIPIENTS_PROVIDER, "org.apache.syncope.core.provisioning.api.notification.RecipientsProvider"),
             Pair.of(AUDIT_APPENDER, "org.apache.syncope.core.logic.audit.AuditAppender"),
             Pair.of(ITEM_TRANSFORMER, "org.apache.syncope.core.provisioning.api.data.ItemTransformer"));
