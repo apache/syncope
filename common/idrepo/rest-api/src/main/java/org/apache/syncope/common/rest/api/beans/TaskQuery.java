@@ -50,11 +50,6 @@ public class TaskQuery extends AbstractQuery {
             return this;
         }
 
-        public Builder name(final String name) {
-            getInstance().setName(name);
-            return this;
-        }
-
         public Builder notification(final String notification) {
             getInstance().setNotification(notification);
             return this;
@@ -78,8 +73,6 @@ public class TaskQuery extends AbstractQuery {
 
     private TaskType type;
 
-    private String name;
-
     private String resource;
 
     private String notification;
@@ -98,17 +91,6 @@ public class TaskQuery extends AbstractQuery {
     @PathParam("type")
     public void setType(final TaskType type) {
         this.type = type;
-    }
-
-    @Parameter(name = "name", description = "name to match", schema =
-            @Schema(implementation = String.class))
-    public String getName() {
-        return name;
-    }
-
-    @QueryParam("name")
-    public void setName(final String name) {
-        this.name = name;
     }
 
     @Parameter(name = JAXRSService.PARAM_RESOURCE, description = "resource key to match", schema =

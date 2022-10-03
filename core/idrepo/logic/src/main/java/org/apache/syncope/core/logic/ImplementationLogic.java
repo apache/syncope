@@ -197,6 +197,10 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 inUse = !taskDAO.findByDelegate(implementation).isEmpty();
                 break;
 
+            case IdRepoImplementationType.COMMAND:
+                inUse = !taskDAO.findByCommand(implementation).isEmpty();
+                break;
+
             case IdMImplementationType.RECON_FILTER_BUILDER:
                 inUse = !taskDAO.findByReconFilterBuilder(implementation).isEmpty();
                 break;

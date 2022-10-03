@@ -683,8 +683,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public TaskExecDAO taskExecDAO(final TaskDAO taskDAO) {
-        return new JPATaskExecDAO(taskDAO);
+    public TaskExecDAO taskExecDAO(final TaskDAO taskDAO, final TaskUtilsFactory taskUtilsFactory) {
+        return new JPATaskExecDAO(taskDAO, taskUtilsFactory);
     }
 
     @ConditionalOnMissingBean

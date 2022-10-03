@@ -28,7 +28,6 @@ import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.RealmLogic;
 import org.apache.syncope.core.persistence.api.command.Command;
 import org.apache.syncope.core.persistence.api.command.CommandArgsClass;
-import org.apache.syncope.core.persistence.api.command.CommandExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +59,7 @@ public class TestCommand implements Command {
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
-    public String run() throws CommandExecutionException {
+    public String run() {
         // 1. create new Realm
         RealmTO realm = new RealmTO();
         realm.setName(args.getRealmName());

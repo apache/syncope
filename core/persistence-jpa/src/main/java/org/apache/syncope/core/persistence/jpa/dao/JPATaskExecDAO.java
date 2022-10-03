@@ -31,6 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPACommandTaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTaskExec;
@@ -113,8 +114,11 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
 
     protected final TaskDAO taskDAO;
 
-    public JPATaskExecDAO(final TaskDAO taskDAO) {
+    protected final TaskUtilsFactory taskUtilsFactory;
+
+    public JPATaskExecDAO(final TaskDAO taskDAO, final TaskUtilsFactory taskUtilsFactory) {
         this.taskDAO = taskDAO;
+        this.taskUtilsFactory = taskUtilsFactory;
     }
 
     @SuppressWarnings("unchecked")
@@ -204,7 +208,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
             final OffsetDateTime endedAfter) {
 
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(getEntityReference(JPATaskDAO.getTaskType(task)).getSimpleName()).
+                append(getEntityReference(taskUtilsFactory.getInstance(task).getType()).getSimpleName()).
                 append(" e WHERE e.task=:task ");
 
         if (startedBefore != null) {
@@ -242,7 +246,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
     @Override
     public int count(final Task<?> task) {
         Query countQuery = entityManager().createNativeQuery(
-                "SELECT COUNT(e.id) FROM " + getEntityTableName(JPATaskDAO.getTaskType(task)) + " e "
+                "SELECT COUNT(e.id) FROM " + getEntityTableName(taskUtilsFactory.getInstance(task).getType()) + " e "
                 + "WHERE e.task_id=?1");
         countQuery.setParameter(1, task.getKey());
 
@@ -273,7 +277,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
             final Task<?> task, final int page, final int itemsPerPage, final List<OrderByClause> orderByClauses) {
 
         String queryString = "SELECT e "
-                + "FROM " + getEntityReference(JPATaskDAO.getTaskType(task)).getSimpleName() + " e "
+                + "FROM " + getEntityReference(taskUtilsFactory.getInstance(task).getType()).getSimpleName() + " e "
                 + "WHERE e.task=:task "
                 + toOrderByStatement(orderByClauses);
 

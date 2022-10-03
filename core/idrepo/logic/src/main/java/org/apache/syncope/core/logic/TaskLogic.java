@@ -88,7 +88,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     protected final TaskDAO taskDAO;
 
-    protected final TaskExecDAO execDAO;
+    protected final TaskExecDAO taskExecDAO;
 
     protected final ExternalResourceDAO resourceDAO;
 
@@ -108,7 +108,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             final JobManager jobManager,
             final SchedulerFactoryBean scheduler,
             final TaskDAO taskDAO,
-            final TaskExecDAO execDAO,
+            final TaskExecDAO taskExecDAO,
             final ExternalResourceDAO resourceDAO,
             final NotificationDAO notificationDAO,
             final ConfParamOps confParamOps,
@@ -120,7 +120,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         super(jobManager, scheduler);
 
         this.taskDAO = taskDAO;
-        this.execDAO = execDAO;
+        this.taskExecDAO = taskExecDAO;
         this.resourceDAO = resourceDAO;
         this.notificationDAO = notificationDAO;
         this.confParamOps = confParamOps;
@@ -416,9 +416,9 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             securityChecks(IdRepoEntitlement.TASK_READ, ((CommandTask) task).getRealm().getFullPath());
         }
 
-        Integer count = execDAO.count(task);
+        Integer count = taskExecDAO.count(task);
 
-        List<ExecTO> result = execDAO.findAll(task, page, size, orderByClauses).stream().
+        List<ExecTO> result = taskExecDAO.findAll(task, page, size, orderByClauses).stream().
                 map(exec -> binder.getExecTO(exec)).collect(Collectors.toList());
 
         return Pair.of(count, result);
@@ -427,7 +427,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")
     @Override
     public List<ExecTO> listRecentExecutions(final int max) {
-        return execDAO.findRecent(max).stream().
+        return taskExecDAO.findRecent(max).stream().
                 map(exec -> {
                     try {
                         if (exec.getTask() instanceof CommandTask) {
@@ -449,7 +449,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")
     @Override
     public ExecTO deleteExecution(final String execKey) {
-        TaskExec<?> exec = execDAO.find(execKey).
+        TaskExec<?> exec = taskExecDAO.find(execKey).
                 orElseThrow(() -> new NotFoundException("Task execution " + execKey));
 
         if (exec.getTask() instanceof CommandTask) {
@@ -457,7 +457,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         }
 
         ExecTO executionToDelete = binder.getExecTO(exec);
-        execDAO.delete(exec);
+        taskExecDAO.delete(exec);
         return executionToDelete;
     }
 
@@ -474,7 +474,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         List<BatchResponseItem> batchResponseItems = new ArrayList<>();
 
-        execDAO.findAll(task, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
+        taskExecDAO.findAll(task, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
             BatchResponseItem item = new BatchResponseItem();
             item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(exec.getKey()));
             batchResponseItems.add(item);
@@ -486,7 +486,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                             ((CommandTask) exec.getTask()).getRealm().getFullPath());
                 }
 
-                execDAO.delete(exec);
+                taskExecDAO.delete(exec);
                 item.setStatus(Response.Status.OK.getStatusCode());
             } catch (Exception e) {
                 LOG.error("Error deleting execution {} of task {}", exec.getKey(), key, e);

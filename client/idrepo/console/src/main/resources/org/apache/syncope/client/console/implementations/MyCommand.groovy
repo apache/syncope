@@ -19,12 +19,11 @@
  */
 import groovy.transform.CompileStatic
 import org.apache.syncope.core.persistence.api.command.Command
-import org.apache.syncope.core.persistence.api.command.CommandExecutionException
 
 @CompileStatic
 class MyCommand implements Command {
 
-  String run() throws CommandExecutionException {
+  String run() {
     return "SUCCESS"
   }
 }

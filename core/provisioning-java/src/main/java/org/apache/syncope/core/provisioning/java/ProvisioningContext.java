@@ -416,7 +416,7 @@ public class ProvisioningContext {
             if (provisioningProperties.getSmtp().isDebug()) {
                 session = mailSender.getSession();
                 session.setDebug(true);
-                try ( LogOutputStream los = new LogOutputStream(LOG)) {
+                try (LogOutputStream los = new LogOutputStream(LOG)) {
                     session.setDebugOut(new PrintStream(los));
                 }
             }

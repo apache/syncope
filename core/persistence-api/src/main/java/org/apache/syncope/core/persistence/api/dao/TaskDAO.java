@@ -52,6 +52,8 @@ public interface TaskDAO extends DAO<Task<?>> {
 
     List<PushTask> findByPushActions(Implementation pushActions);
 
+    List<CommandTask> findByCommand(Implementation delegate);
+
     List<CommandTask> findByRealm(Realm realm);
 
     <T extends Task<T>> List<T> findToExec(TaskType type);

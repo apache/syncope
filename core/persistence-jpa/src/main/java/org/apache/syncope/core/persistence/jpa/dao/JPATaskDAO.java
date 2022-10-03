@@ -45,7 +45,6 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.CommandTask;
-import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
@@ -65,34 +64,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
 public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
-
-    public static TaskType getTaskType(final Task<?> task) {
-        if (task instanceof NotificationTask) {
-            return TaskType.NOTIFICATION;
-        }
-
-        if (task instanceof PropagationTask) {
-            return TaskType.PROPAGATION;
-        }
-
-        if (task instanceof PushTask) {
-            return TaskType.PUSH;
-        }
-
-        if (task instanceof PullTask) {
-            return TaskType.PULL;
-        }
-
-        if (task instanceof CommandTask) {
-            return TaskType.COMMAND;
-        }
-
-        if (task instanceof SchedTask) {
-            return TaskType.SCHEDULED;
-        }
-
-        return null;
-    }
 
     public static String getEntityTableName(final TaskType type) {
         String result = null;
@@ -262,6 +233,16 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
                 "SELECT e FROM " + JPACommandTask.class.getSimpleName() + " e "
                 + "WHERE e.realm=:realm", CommandTask.class);
         query.setParameter("realm", realm);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<CommandTask> findByCommand(final Implementation command) {
+        TypedQuery<CommandTask> query = entityManager().createQuery(
+                "SELECT e FROM " + JPACommandTask.class.getSimpleName()
+                + " e WHERE e.command=:command", CommandTask.class);
+        query.setParameter("command", command);
 
         return query.getResultList();
     }

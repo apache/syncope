@@ -26,5 +26,5 @@ public interface Command {
     default void setArgs(CommandArgs args) {
     }
 
-    String run() throws CommandExecutionException;
+    String run();
 }
