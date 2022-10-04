@@ -20,22 +20,19 @@ package org.apache.syncope.fit.core.reference;
 
 import java.util.Optional;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.policy.CommandArgs;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.RealmLogic;
-import org.apache.syncope.core.persistence.api.command.Command;
-import org.apache.syncope.core.persistence.api.command.CommandArgsClass;
+import org.apache.syncope.core.logic.api.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@CommandArgsClass(TestCommandArgs.class)
-public class TestCommand implements Command {
+public class TestCommand implements Command<TestCommandArgs> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestCommand.class);
 
@@ -45,21 +42,13 @@ public class TestCommand implements Command {
     @Autowired
     private AnyObjectLogic anyObjectLogic;
 
-    private TestCommandArgs args;
-
-    @Override
-    public void setArgs(final CommandArgs args) {
-        this.args = (TestCommandArgs) args;
-        LOG.info("Configured args: {}", this.args);
-    }
-
     private Optional<RealmTO> getRealm(final String fullPath) {
         return realmLogic.list(fullPath).stream().filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
-    public String run() {
+    public String run(final TestCommandArgs args) {
         // 1. create new Realm
         RealmTO realm = new RealmTO();
         realm.setName(args.getRealmName());

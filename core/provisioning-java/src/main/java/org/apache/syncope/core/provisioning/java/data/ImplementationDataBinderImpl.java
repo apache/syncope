@@ -22,7 +22,6 @@ import java.lang.reflect.Modifier;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.policy.CommandArgs;
 import org.apache.syncope.common.lib.policy.RuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -110,14 +109,6 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                     if (rule == null) {
                         sce.getElements().add("Could not deserialize as neither "
                                 + "Account, Password, Pull nor Push Correlation RuleConf");
-                        throw sce;
-                    }
-                    break;
-
-                case IdRepoImplementationType.COMMAND:
-                    CommandArgs args = POJOHelper.deserialize(implementation.getBody(), CommandArgs.class);
-                    if (args == null) {
-                        sce.getElements().add("Could not deserialize as CommandArgs");
                         throw sce;
                     }
                     break;

@@ -18,12 +18,17 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.core.persistence.api.command.Command
+import org.apache.syncope.common.lib.command.CommandArgs
+import org.apache.syncope.core.logic.api.Command
 
 @CompileStatic
-class MyCommand implements Command {
+class MyCommand implements Command<MyCommandArgs> {
 
-  String run() {
+  @CompileStatic
+  class MyCommandArgs implements CommandArgs {
+  }
+  
+  String run(MyCommandArgs args) {
     return "SUCCESS"
   }
 }

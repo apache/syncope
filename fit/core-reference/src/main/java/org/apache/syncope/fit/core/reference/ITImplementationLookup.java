@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
-import org.apache.syncope.common.lib.policy.CommandArgs;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
@@ -43,7 +42,6 @@ import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
-import org.apache.syncope.core.persistence.api.command.Command;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
@@ -122,15 +120,14 @@ public class ITImplementationLookup implements ImplementationLookup {
                     DummyPushCorrelationRuleConf.class, DummyPushCorrelationRule.class,
                     DefaultPushCorrelationRuleConf.class, DefaultPushCorrelationRule.class);
 
-    private static final Map<
-            Class<? extends CommandArgs>, Class<? extends Command>> COMMAND_CLASSES =
-            Map.of(TestCommandArgs.class, TestCommand.class);
-
     private static final Set<Class<?>> AUDITAPPENDER_CLASSES =
             Set.of(TestFileAuditAppender.class, TestFileRewriteAuditAppender.class);
 
     private static final Set<Class<?>> PROVISION_SORTER_CLASSES =
             Set.of(DefaultProvisionSorter.class);
+
+    private static final Set<Class<?>> COMMAND_CLASSES =
+            Set.of(TestCommand.class);
 
     private static final Map<String, Set<String>> CLASS_NAMES = new HashMap<>() {
 
@@ -216,6 +213,10 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames = ITImplementationLookup.PROVISION_SORTER_CLASSES.stream().
                     map(Class::getName).collect(Collectors.toSet());
             put(IdMImplementationType.PROVISION_SORTER, classNames);
+
+            classNames = ITImplementationLookup.COMMAND_CLASSES.stream().
+                    map(Class::getName).collect(Collectors.toSet());
+            put(IdRepoImplementationType.COMMAND, classNames);
         }
     };
 
@@ -315,11 +316,6 @@ public class ITImplementationLookup implements ImplementationLookup {
             final Class<? extends PushCorrelationRuleConf> pushCorrelationRuleConfClass) {
 
         return PUSH_CR_CLASSES.get(pushCorrelationRuleConfClass);
-    }
-
-    @Override
-    public Class<? extends Command> getCommandClass(final Class<? extends CommandArgs> commandArgsClass) {
-        return COMMAND_CLASSES.get(commandArgsClass);
     }
 
     @Override

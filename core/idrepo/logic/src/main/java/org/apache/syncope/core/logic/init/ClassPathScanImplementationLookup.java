@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
-import org.apache.syncope.common.lib.policy.CommandArgs;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
@@ -34,12 +33,12 @@ import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
+import org.apache.syncope.core.logic.api.LogicActions;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator;
-import org.apache.syncope.core.persistence.api.command.Command;
-import org.apache.syncope.core.persistence.api.command.CommandArgsClass;
+import org.apache.syncope.core.logic.api.Command;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
@@ -50,7 +49,6 @@ import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
-import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
@@ -94,8 +92,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     private Map<Class<? extends PushCorrelationRuleConf>, Class<? extends PushCorrelationRule>> pushCRClasses;
 
-    private Map<Class<? extends CommandArgs>, Class<? extends Command>> commandClasses;
-
     private Set<Class<?>> auditAppenderClasses;
 
     @Override
@@ -133,7 +129,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         passwordRuleClasses = new HashMap<>();
         pullCRClasses = new HashMap<>();
         pushCRClasses = new HashMap<>();
-        commandClasses = new HashMap<>();
         auditAppenderClasses = new HashSet<>();
 
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
@@ -197,16 +192,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     }
                 }
 
-                if (Command.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    CommandArgsClass annotation = clazz.getAnnotation(CommandArgsClass.class);
-                    if (annotation == null) {
-                        LOG.warn("Found command {} without declared configuration", clazz.getName());
-                    } else {
-                        classNames.get(IdRepoImplementationType.COMMAND).add(clazz.getName());
-                        commandClasses.put(annotation.value(), (Class<? extends Command>) clazz);
-                    }
-                }
-
                 if (ItemTransformer.class.isAssignableFrom(clazz) && !isAbstractClazz
                         && !clazz.equals(JEXLItemTransformerImpl.class)) {
 
@@ -259,6 +244,10 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 if (ProvisionSorter.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(IdMImplementationType.PROVISION_SORTER).add(bd.getBeanClassName());
                 }
+
+                if (Command.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                    classNames.get(IdRepoImplementationType.COMMAND).add(bd.getBeanClassName());
+                }
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
             }
@@ -273,7 +262,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         passwordRuleClasses = Collections.unmodifiableMap(passwordRuleClasses);
         pullCRClasses = Collections.unmodifiableMap(pullCRClasses);
         pushCRClasses = Collections.unmodifiableMap(pushCRClasses);
-        commandClasses = Collections.unmodifiableMap(commandClasses);
         auditAppenderClasses = Collections.unmodifiableSet(auditAppenderClasses);
     }
 
@@ -320,11 +308,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
             final Class<? extends PushCorrelationRuleConf> correlationRuleConfClass) {
 
         return pushCRClasses.get(correlationRuleConfClass);
-    }
-
-    @Override
-    public Class<? extends Command> getCommandClass(final Class<? extends CommandArgs> commandArgsClass) {
-        return commandClasses.get(commandArgsClass);
     }
 
     @Override

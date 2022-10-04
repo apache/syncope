@@ -18,22 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import org.apache.syncope.core.persistence.api.command.Command;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.task.CommandTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
-import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class CommandRunJobDelegate extends AbstractSchedTaskJobDelegate<CommandTask> {
-
-    protected static final Map<String, Command> PER_CONTEXT_COMMANDS = new ConcurrentHashMap<>();
 
     @Autowired
     protected ImplementationDAO implementationDAO;
@@ -42,24 +34,25 @@ public class CommandRunJobDelegate extends AbstractSchedTaskJobDelegate<CommandT
     protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
             throws JobExecutionException {
 
-        Optional<Command> command = Optional.empty();
-        try {
-            command = ImplementationManager.buildCommand(
-                    task.getCommand(),
-                    () -> PER_CONTEXT_COMMANDS.get(task.getCommand().getKey()),
-                    instance -> PER_CONTEXT_COMMANDS.put(task.getCommand().getKey(), instance));
-        } catch (Exception e) {
-            LOG.error("While building {}", task.getCommand(), e);
-        }
-        if (command.isEmpty()) {
-            throw new JobExecutionException("While building " + task.getCommand().getKey());
-        }
-
-        try {
-            return command.get().run();
-        } catch (Exception e) {
-            return "FAILURE\n\n" + ExceptionUtils2.getFullStackTrace(e);
-        }
+//        Optional<Command> command = Optional.empty();
+//        try {
+//            command = ImplementationManager.buildCommand(
+//                    task.getCommand(),
+//                    () -> PER_CONTEXT_COMMANDS.get(task.getCommand().getKey()),
+//                    instance -> PER_CONTEXT_COMMANDS.put(task.getCommand().getKey(), instance));
+//        } catch (Exception e) {
+//            LOG.error("While building {}", task.getCommand(), e);
+//        }
+//        if (command.isEmpty()) {
+//            throw new JobExecutionException("While building " + task.getCommand().getKey());
+//        }
+//
+//        try {
+//            return command.get().run();
+//        } catch (Exception e) {
+//            return "FAILURE\n\n" + ExceptionUtils2.getFullStackTrace(e);
+//        }
+        return "";
     }
 
     @Override

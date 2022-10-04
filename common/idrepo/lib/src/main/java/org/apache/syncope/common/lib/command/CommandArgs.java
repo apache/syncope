@@ -16,19 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.policy;
+package org.apache.syncope.common.lib.command;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apache.syncope.common.lib.BaseBean;
 
-@FunctionalInterface
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 public interface CommandArgs extends BaseBean {
-
-    /**
-     * Give name of related command instance.
-     *
-     * @return name of this command instance
-     */
-    String getName();
 }

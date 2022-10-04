@@ -18,24 +18,17 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import org.apache.syncope.common.lib.policy.CommandArgs;
+import org.apache.syncope.common.lib.command.CommandArgs;
 
 public class TestCommandArgs implements CommandArgs {
 
     private static final long serialVersionUID = 1408260716514938521L;
-
-    private String name = "Test";
 
     private String parentRealm = "/even/two";
 
     private String realmName = "realm123";
 
     private String printerName = "printer123";
-
-    @Override
-    public String getName() {
-        return name;
-    }
 
     public String getParentRealm() {
         return parentRealm;
@@ -47,10 +40,6 @@ public class TestCommandArgs implements CommandArgs {
 
     public String getPrinterName() {
         return printerName;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
     }
 
     public void setParentRealm(final String parentRealm) {
@@ -68,8 +57,7 @@ public class TestCommandArgs implements CommandArgs {
     @Override
     public String toString() {
         return "TestCommandArgs{"
-                + "name=" + name
-                + ", parentRealm=" + parentRealm
+                + "parentRealm=" + parentRealm
                 + ", realmName=" + realmName
                 + ", printerName=" + printerName
                 + '}';

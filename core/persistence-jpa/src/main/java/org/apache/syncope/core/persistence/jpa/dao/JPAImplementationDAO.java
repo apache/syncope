@@ -37,7 +37,7 @@ public class JPAImplementationDAO extends AbstractDAO<Implementation> implements
     @Override
     public List<Implementation> findByType(final String type) {
         TypedQuery<Implementation> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAImplementation.class.getSimpleName() + " e WHERE e.type=:type",
+                "SELECT e FROM " + JPAImplementation.class.getSimpleName() + " e WHERE e.type=:type ORDER BY e.id ASC",
                 Implementation.class);
         query.setParameter("type", type);
         return query.getResultList();

@@ -77,6 +77,7 @@ public enum ClientExceptionType {
     Scheduling(Response.Status.BAD_REQUEST),
     DelegatedAdministration(Response.Status.FORBIDDEN),
     Reconciliation(Response.Status.BAD_REQUEST),
+    RunError(Response.Status.INTERNAL_SERVER_ERROR),
     Unknown(Response.Status.BAD_REQUEST),
     Workflow(Response.Status.BAD_REQUEST);
 

@@ -19,6 +19,7 @@
 package org.apache.syncope.core.spring.implementation;
 
 import groovy.lang.GroovyClassLoader;
+import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,14 +27,14 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
-import org.apache.syncope.common.lib.policy.CommandArgs;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
-import org.apache.syncope.core.persistence.api.command.Command;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
@@ -182,32 +183,17 @@ public final class ImplementationManager {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public static Optional<Command> buildCommand(
-            final Implementation impl,
-            final Supplier<Command> cacheGetter,
-            final Consumer<Command> cachePutter)
-            throws ClassNotFoundException {
-
-        switch (impl.getEngine()) {
-            case GROOVY:
-                return Optional.of(build(impl, cacheGetter, cachePutter));
-
-            case JAVA:
-            default:
-                CommandArgs args = POJOHelper.deserialize(impl.getBody(), CommandArgs.class);
-                Class<Command> clazz =
-                        (Class<Command>) ApplicationContextProvider.getApplicationContext().
-                                getBean(ImplementationLookup.class).getCommandClass(args.getClass());
-
-                if (clazz == null) {
-                    return Optional.empty();
-                }
-
-                Command command = build(clazz, true, cacheGetter, cachePutter);
-                command.setArgs(args);
-                return Optional.of(command);
+    public static CommandArgs getArgs(final Implementation impl) throws Exception {
+        if (!IdRepoImplementationType.COMMAND.equals(impl.getType())) {
+            throw new IllegalArgumentException("This method can be only called on implementations");
         }
+
+        Class<Object> commandClass = getClass(impl).getLeft();
+        @SuppressWarnings("unchecked")
+        Class<? extends CommandArgs> commandArgsClass =
+                (Class<? extends CommandArgs>) (((ParameterizedType) commandClass.getGenericInterfaces()[0]).
+                        getActualTypeArguments()[0]);
+        return commandArgsClass.getDeclaredConstructor().newInstance();
     }
 
     @SuppressWarnings("unchecked")

@@ -238,6 +238,12 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public CommandLogic CommandLogic(final ImplementationDAO implementationDAO) {
+        return new CommandLogic(implementationDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public FIQLQueryLogic fiqlQueryLogic(
             final FIQLQueryDataBinder binder,
             final UserDAO userDAO,

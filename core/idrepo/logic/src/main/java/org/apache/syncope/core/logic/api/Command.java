@@ -16,15 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.command;
+package org.apache.syncope.core.logic.api;
 
-import org.apache.syncope.common.lib.policy.CommandArgs;
+import org.apache.syncope.common.lib.command.CommandArgs;
 
 @FunctionalInterface
-public interface Command {
+public interface Command<A extends CommandArgs> {
 
-    default void setArgs(CommandArgs args) {
-    }
-
-    String run();
+    String run(A args);
 }
