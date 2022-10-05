@@ -21,7 +21,7 @@ import org.apache.syncope.common.lib.Attr
 import org.apache.syncope.common.lib.request.AnyCR
 import org.apache.syncope.common.lib.request.AnyUR
 import org.apache.syncope.common.lib.request.AttrPatch
-import org.apache.syncope.core.provisioning.api.LogicActions
+import org.apache.syncope.core.logic.api.LogicActions
 
 /**
  * Class for integration tests: transform (by making it double) any attribute value for defined schema.
