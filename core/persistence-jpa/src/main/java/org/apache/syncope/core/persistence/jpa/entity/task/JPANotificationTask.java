@@ -54,6 +54,9 @@ public class JPANotificationTask extends AbstractTask<NotificationTask> implemen
 
     public static final String TABLE = "NotificationTask";
 
+    protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
+    };
+
     @NotNull
     @ManyToOne
     private JPANotification notification;
@@ -205,9 +208,7 @@ public class JPANotificationTask extends AbstractTask<NotificationTask> implemen
             getRecipients().clear();
         }
         if (recipients != null) {
-            getRecipients().addAll(
-                    POJOHelper.deserialize(recipients, new TypeReference<List<String>>() {
-                    }));
+            getRecipients().addAll(POJOHelper.deserialize(recipients, TYPEREF));
         }
     }
 

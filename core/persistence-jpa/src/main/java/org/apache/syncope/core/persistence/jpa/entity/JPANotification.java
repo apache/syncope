@@ -56,6 +56,9 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
 
     public static final String TABLE = "Notification";
 
+    protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
+    };
+
     @Lob
     private String events;
 
@@ -225,14 +228,10 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
             getStaticRecipients().clear();
         }
         if (events != null) {
-            getEvents().addAll(
-                    POJOHelper.deserialize(events, new TypeReference<List<String>>() {
-                    }));
+            getEvents().addAll(POJOHelper.deserialize(events, TYPEREF));
         }
         if (staticRecipients != null) {
-            getStaticRecipients().addAll(
-                    POJOHelper.deserialize(staticRecipients, new TypeReference<List<String>>() {
-                    }));
+            getStaticRecipients().addAll(POJOHelper.deserialize(staticRecipients, TYPEREF));
         }
     }
 

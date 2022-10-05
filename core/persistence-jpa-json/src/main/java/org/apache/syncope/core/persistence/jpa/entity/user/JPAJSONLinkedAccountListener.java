@@ -32,10 +32,13 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public class JPAJSONLinkedAccountListener extends JPAJSONEntityListener<User> {
 
+    protected static final TypeReference<List<JPAJSONLAPlainAttr>> TYPEREF =
+            new TypeReference<List<JPAJSONLAPlainAttr>>() {
+    };
+
     @Override
     protected List<? extends JSONLAPlainAttr> getAttrs(final String plainAttrsJSON) {
-        return POJOHelper.deserialize(plainAttrsJSON, new TypeReference<List<JPAJSONLAPlainAttr>>() {
-        });
+        return POJOHelper.deserialize(plainAttrsJSON, TYPEREF);
     }
 
     @PostLoad

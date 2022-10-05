@@ -19,6 +19,7 @@
 package org.apache.syncope.core.spring.implementation;
 
 import groovy.lang.GroovyClassLoader;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.HashMap;
@@ -183,17 +184,24 @@ public final class ImplementationManager {
         }
     }
 
-    public static CommandArgs getArgs(final Implementation impl) throws Exception {
+    public static CommandArgs emptyArgs(final Implementation impl) throws Exception {
         if (!IdRepoImplementationType.COMMAND.equals(impl.getType())) {
             throw new IllegalArgumentException("This method can be only called on implementations");
         }
 
         Class<Object> commandClass = getClass(impl).getLeft();
+
         @SuppressWarnings("unchecked")
         Class<? extends CommandArgs> commandArgsClass =
                 (Class<? extends CommandArgs>) (((ParameterizedType) commandClass.getGenericInterfaces()[0]).
                         getActualTypeArguments()[0]);
-        return commandArgsClass.getDeclaredConstructor().newInstance();
+
+        if (commandArgsClass.getEnclosingClass() == null || Modifier.isStatic(commandArgsClass.getModifiers())) {
+            return commandArgsClass.getDeclaredConstructor().newInstance();
+        }
+
+        throw new IllegalArgumentException(
+                CommandArgs.class.getName() + " shall be either declared as independent or nested static");
     }
 
     @SuppressWarnings("unchecked")

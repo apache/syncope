@@ -31,9 +31,12 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 @Table(name = JPAWAConfigEntry.TABLE)
 public class JPAWAConfigEntry extends AbstractProvidedKeyEntity implements WAConfigEntry {
 
+    private static final long serialVersionUID = 6422422526695279794L;
+
     public static final String TABLE = "WAConfigEntry";
 
-    private static final long serialVersionUID = 6422422526695279794L;
+    protected static TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
+    };
 
     @Lob
     private String waConfigValues;
@@ -42,8 +45,7 @@ public class JPAWAConfigEntry extends AbstractProvidedKeyEntity implements WACon
     public List<String> getValues() {
         return waConfigValues == null
                 ? List.of()
-                : POJOHelper.deserialize(waConfigValues, new TypeReference<>() {
-        });
+                : POJOHelper.deserialize(waConfigValues, TYPEREF);
     }
 
     @Override

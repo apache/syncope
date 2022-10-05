@@ -299,8 +299,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public TaskUtilsFactory taskUtilsFactory(final @Lazy EntityFactory entityFactory) {
-        return new JPATaskUtilsFactory(entityFactory);
+    public TaskUtilsFactory taskUtilsFactory() {
+        return new JPATaskUtilsFactory();
     }
 
     @ConditionalOnMissingBean
@@ -676,9 +676,10 @@ public class PersistenceContext {
     public TaskDAO taskDAO(
             final RealmDAO realmDAO,
             final RemediationDAO remediationDAO,
+            final TaskUtilsFactory taskUtilsFactory,
             final SecurityProperties securityProperties) {
 
-        return new JPATaskDAO(realmDAO, remediationDAO, securityProperties);
+        return new JPATaskDAO(realmDAO, remediationDAO, taskUtilsFactory, securityProperties);
     }
 
     @ConditionalOnMissingBean

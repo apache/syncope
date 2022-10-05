@@ -20,7 +20,7 @@ package org.apache.syncope.fit.core.reference;
 
 import org.apache.syncope.common.lib.command.CommandArgs;
 
-public class TestCommandArgs implements CommandArgs {
+public class TestCommandArgs extends CommandArgs {
 
     private static final long serialVersionUID = 1408260716514938521L;
 

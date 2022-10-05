@@ -238,7 +238,7 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public CommandLogic CommandLogic(final ImplementationDAO implementationDAO) {
+    public CommandLogic commandLogic(final ImplementationDAO implementationDAO) {
         return new CommandLogic(implementationDAO);
     }
 

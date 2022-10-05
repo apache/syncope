@@ -23,8 +23,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.CommandTaskTO;
+import org.apache.syncope.common.lib.command.CommandArgs;
+import org.apache.syncope.common.lib.command.CommandTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
@@ -49,7 +51,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
-import org.apache.syncope.core.persistence.api.entity.task.CommandTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
@@ -63,10 +65,10 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
-import org.apache.syncope.core.provisioning.java.job.CommandRunJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -78,6 +80,8 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements TaskDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
+
+    protected static final String MACRO_RUN_JOB_DELEGATE = "org.apache.syncope.core.logic.job.MacroRunJobDelegate";
 
     protected final RealmDAO realmDAO;
 
@@ -235,6 +239,35 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         provisioningTask.getActions().removeIf(impl -> !provisioningTaskTO.getActions().contains(impl.getKey()));
     }
 
+    protected void fill(final MacroTask macroTask, final MacroTaskTO macroTaskTO) {
+        macroTask.setRealm(Optional.ofNullable(realmDAO.findByFullPath(macroTaskTO.getRealm())).
+                orElseThrow(() -> new NotFoundException("Realm " + macroTaskTO.getRealm())));
+
+        macroTaskTO.getCommands().
+                forEach(command -> Optional.ofNullable(implementationDAO.find(command.getKey())).ifPresentOrElse(
+                impl -> {
+                    try {
+                        CommandArgs args = command.getArgs();
+                        if (args == null) {
+                            args = ImplementationManager.emptyArgs(impl);
+                        }
+
+                        macroTask.add(impl, args);
+                    } catch (Exception e) {
+                        LOG.error("While adding Command {} to Macro", impl.getKey(), e);
+
+                        SyncopeClientException sce = SyncopeClientException.build(
+                                ClientExceptionType.InvalidImplementationType);
+                        sce.getElements().add("While adding Command " + impl.getKey() + ": " + e.getMessage());
+                        throw sce;
+                    }
+                },
+                () -> LOG.error("Could not find Command {}", command.getKey())));
+
+        macroTask.setContinueOnError(macroTaskTO.isContinueOnError());
+        macroTask.setSaveExecs(macroTaskTO.isSaveExecs());
+    }
+
     @Override
     public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtils taskUtils) {
         Class<? extends TaskTO> taskTOClass = taskUtils.taskTOClass();
@@ -252,36 +285,29 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         if (taskUtils.getType() == TaskType.SCHEDULED) {
             task.setJobDelegate(Optional.ofNullable(implementationDAO.find(taskTO.getJobDelegate())).
                     orElseThrow(() -> new NotFoundException("JobDelegate " + taskTO.getJobDelegate())));
-        } else if (taskTO instanceof CommandTaskTO) {
-            CommandTaskTO commandTaskTO = (CommandTaskTO) taskTO;
-            CommandTask commandTask = (CommandTask) task;
+        } else if (taskTO instanceof MacroTaskTO) {
+            MacroTaskTO macroTaskTO = (MacroTaskTO) taskTO;
+            MacroTask macroTask = (MacroTask) task;
 
-            Implementation jobDelegate = commandTaskTO.getJobDelegate() == null
+            Implementation jobDelegate = macroTaskTO.getJobDelegate() == null
                     ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
-                            filter(impl -> CommandRunJobDelegate.class.getName().equals(impl.getBody())).
+                            filter(impl -> MACRO_RUN_JOB_DELEGATE.equals(impl.getBody())).
                             findFirst().orElse(null)
-                    : implementationDAO.find(commandTaskTO.getJobDelegate());
+                    : implementationDAO.find(macroTaskTO.getJobDelegate());
             if (jobDelegate == null) {
                 jobDelegate = entityFactory.newEntity(Implementation.class);
-                jobDelegate.setKey(CommandRunJobDelegate.class.getSimpleName());
+                jobDelegate.setKey(StringUtils.substringAfterLast(MACRO_RUN_JOB_DELEGATE, "."));
                 jobDelegate.setEngine(ImplementationEngine.JAVA);
                 jobDelegate.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
-                jobDelegate.setBody(CommandRunJobDelegate.class.getName());
+                jobDelegate.setBody(MACRO_RUN_JOB_DELEGATE);
                 jobDelegate = implementationDAO.save(jobDelegate);
             }
-            commandTask.setJobDelegate(jobDelegate);
+            macroTask.setJobDelegate(jobDelegate);
 
-            commandTask.setRealm(Optional.ofNullable(realmDAO.findByFullPath(commandTaskTO.getRealm())).
-                    orElseThrow(() -> new NotFoundException("Realm " + commandTaskTO.getRealm())));
+            macroTask.setRealm(Optional.ofNullable(realmDAO.findByFullPath(macroTaskTO.getRealm())).
+                    orElseThrow(() -> new NotFoundException("Realm " + macroTaskTO.getRealm())));
 
-            Implementation command = implementationDAO.find(commandTaskTO.getCommand());
-            if (command == null || !IdRepoImplementationType.COMMAND.equals(command.getType())) {
-                throw new NotFoundException(
-                        IdRepoImplementationType.COMMAND + " implementation " + commandTaskTO.getCommand());
-            }
-            commandTask.setCommand(command);
-
-            commandTask.setSaveExecs(commandTaskTO.isSaveExecs());
+            fill(macroTask, macroTaskTO);
         } else if (taskTO instanceof ProvisioningTaskTO) {
             ProvisioningTaskTO provisioningTaskTO = (ProvisioningTaskTO) taskTO;
             ProvisioningTask<?> provisioningTask = (ProvisioningTask<?>) task;
@@ -307,12 +333,21 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             sce.getElements().add("name");
             throw sce;
         }
+
         task.setName(taskTO.getName());
         task.setDescription(taskTO.getDescription());
         task.setCronExpression(taskTO.getCronExpression());
         task.setActive(taskTO.isActive());
 
-        if (task instanceof ProvisioningTask) {
+        if (task instanceof MacroTask) {
+            MacroTaskTO macroTaskTO = (MacroTaskTO) taskTO;
+            MacroTask macroTask = (MacroTask) task;
+
+            macroTask.getCommands().clear();
+            macroTask.getCommandArgs().clear();
+
+            fill(macroTask, macroTaskTO);
+        } else if (task instanceof ProvisioningTask) {
             fill((ProvisioningTask) task, (ProvisioningTaskTO) taskTO);
         }
     }
@@ -428,16 +463,21 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 fill(schedTaskTO, schedTask);
                 break;
 
-            case COMMAND:
-                CommandTask commandTask = (CommandTask) task;
-                CommandTaskTO commandTaskTO = (CommandTaskTO) taskTO;
+            case MACRO:
+                MacroTask macroTask = (MacroTask) task;
+                MacroTaskTO macroTaskTO = (MacroTaskTO) taskTO;
 
-                commandTaskTO.setJobDelegate(commandTask.getJobDelegate().getKey());
-                commandTaskTO.setRealm(commandTask.getRealm().getFullPath());
-                commandTaskTO.setCommand(commandTask.getCommand().getKey());
-                commandTaskTO.setSaveExecs(commandTask.isSaveExecs());
+                macroTaskTO.setJobDelegate(macroTask.getJobDelegate().getKey());
+                macroTaskTO.setRealm(macroTask.getRealm().getFullPath());
+                for (int i = 0; i < macroTask.getCommands().size(); i++) {
+                    macroTaskTO.getCommands().add(
+                            new CommandTO.Builder(macroTask.getCommands().get(i).getKey()).
+                                    args(macroTask.getCommandArgs().get(i)).build());
+                }
+                macroTaskTO.setContinueOnError(macroTask.isContinueOnError());
+                macroTaskTO.setSaveExecs(macroTask.isSaveExecs());
 
-                fill(commandTaskTO, commandTask);
+                fill(macroTaskTO, macroTask);
                 break;
 
             case PULL:

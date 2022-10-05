@@ -21,29 +21,29 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.task.CommandTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
 @Entity
-@Table(name = JPACommandTaskExec.TABLE)
-public class JPACommandTaskExec extends AbstractTaskExec<SchedTask> implements TaskExec<SchedTask> {
+@Table(name = JPAMacroTaskExec.TABLE)
+public class JPAMacroTaskExec extends AbstractTaskExec<SchedTask> implements TaskExec<SchedTask> {
 
     private static final long serialVersionUID = 1909033231464074554L;
 
-    public static final String TABLE = "CommandTaskExec";
+    public static final String TABLE = "MacroTaskExec";
 
     @ManyToOne(optional = false)
-    private JPACommandTask task;
+    private JPAMacroTask task;
 
     @Override
-    public CommandTask getTask() {
+    public MacroTask getTask() {
         return task;
     }
 
     @Override
     public void setTask(final SchedTask task) {
-        checkType(task, CommandTask.class);
-        this.task = (JPACommandTask) task;
+        checkType(task, MacroTask.class);
+        this.task = (JPAMacroTask) task;
     }
 }

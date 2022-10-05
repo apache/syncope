@@ -46,7 +46,7 @@ public class LinkedAccountPlainAttrProperty implements Serializable, Comparable<
     }
 
     @JacksonXmlElementWrapper(localName = "values")
-    @JacksonXmlProperty(localName = "values")
+    @JacksonXmlProperty(localName = "value")
     public List<String> getValues() {
         return values;
     }

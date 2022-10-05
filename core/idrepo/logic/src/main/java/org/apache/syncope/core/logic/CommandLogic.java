@@ -62,7 +62,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
                 map(command -> {
                     try {
                         return new CommandTO.Builder(command.getKey()).
-                                args(ImplementationManager.getArgs(command)).build();
+                                args(ImplementationManager.emptyArgs(command)).build();
                     } catch (Exception e) {
                         LOG.error("Could not get arg class for {}", command, e);
                         return null;

@@ -56,6 +56,7 @@ public class TestCommand implements Command<TestCommandArgs> {
         realm = realmLogic.create(args.getParentRealm(), realm).getEntity();
         LOG.info("Realm created: {}", realm.getFullPath());
 
+        // 2. create new PRINTER
         AnyObjectTO anyObject = anyObjectLogic.create(
                 new AnyObjectCR.Builder(realm.getFullPath(), "PRINTER", args.getPrinterName()).
                         plainAttr(new Attr.Builder("location").value("location").build()).

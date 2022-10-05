@@ -34,4 +34,12 @@ public interface TaskUtils {
     <T extends Task<T>> Class<T> taskClass();
 
     <T extends TaskTO> Class<T> taskTOClass();
+
+    String getTaskTable();
+
+    Class<? extends Task<?>> getTaskEntity();
+
+    String getTaskExecTable();
+
+    Class<? extends TaskExec<?>> getTaskExecEntity();
 }

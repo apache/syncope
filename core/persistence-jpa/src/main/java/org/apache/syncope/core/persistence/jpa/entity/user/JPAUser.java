@@ -78,13 +78,16 @@ public class JPAUser
 
     public static final String TABLE = "SyncopeUser";
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
+    protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
+    };
 
     @Column(nullable = true)
-    private String password;
+    protected String password;
 
     @Transient
-    private String clearPassword;
+    protected String clearPassword;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -93,53 +96,53 @@ public class JPAUser
             @JoinColumn(name = "role_id"),
             uniqueConstraints =
             @UniqueConstraint(columnNames = { "user_id", "role_id" }))
-    private List<JPARole> roles = new ArrayList<>();
+    protected List<JPARole> roles = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<JPAUPlainAttr> plainAttrs = new ArrayList<>();
+    protected List<JPAUPlainAttr> plainAttrs = new ArrayList<>();
 
     @Column(nullable = true)
-    private String status;
+    protected String status;
 
     @Lob
-    private String token;
+    protected String token;
 
-    private OffsetDateTime tokenExpireTime;
+    protected OffsetDateTime tokenExpireTime;
 
     @Column(nullable = true)
     @Enumerated(EnumType.STRING)
-    private CipherAlgorithm cipherAlgorithm;
+    protected CipherAlgorithm cipherAlgorithm;
 
     @Lob
-    private String passwordHistory;
+    protected String passwordHistory;
 
     /**
      * Subsequent failed logins.
      */
     @Column(nullable = true)
-    private Integer failedLogins;
+    protected Integer failedLogins;
 
     /**
      * Username/Login.
      */
     @Column(unique = true)
     @NotNull(message = "Blank username")
-    private String username;
+    protected String username;
 
     /**
      * Last successful login date.
      */
-    private OffsetDateTime lastLoginDate;
+    protected OffsetDateTime lastLoginDate;
 
     /**
      * Change password date.
      */
-    private OffsetDateTime changePwdDate;
+    protected OffsetDateTime changePwdDate;
 
-    private Boolean suspended = false;
+    protected Boolean suspended = false;
 
-    private Boolean mustChangePassword = false;
+    protected Boolean mustChangePassword = false;
 
     /**
      * Provisioning external resources.
@@ -151,7 +154,7 @@ public class JPAUser
             @JoinColumn(name = "resource_id"),
             uniqueConstraints =
             @UniqueConstraint(columnNames = { "user_id", "resource_id" }))
-    private List<JPAExternalResource> resources = new ArrayList<>();
+    protected List<JPAExternalResource> resources = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
@@ -160,28 +163,28 @@ public class JPAUser
             @JoinColumn(name = "anyTypeClass_id"),
             uniqueConstraints =
             @UniqueConstraint(columnNames = { "user_id", "anyTypeClass_id" }))
-    private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
+    protected List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
     @Valid
-    private List<JPAURelationship> relationships = new ArrayList<>();
+    protected List<JPAURelationship> relationships = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
     @Valid
-    private List<JPAUMembership> memberships = new ArrayList<>();
+    protected List<JPAUMembership> memberships = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private JPASecurityQuestion securityQuestion;
+    protected JPASecurityQuestion securityQuestion;
 
     @Column(nullable = true)
-    private String securityAnswer;
+    protected String securityAnswer;
 
     @Transient
-    private String clearSecurityAnswer;
+    protected String clearSecurityAnswer;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     @Valid
-    private List<JPALinkedAccount> linkedAccounts = new ArrayList<>();
+    protected List<JPALinkedAccount> linkedAccounts = new ArrayList<>();
 
     @Override
     public AnyType getType() {
@@ -354,8 +357,7 @@ public class JPAUser
     public List<String> getPasswordHistory() {
         return passwordHistory == null
                 ? new ArrayList<>(0)
-                : POJOHelper.deserialize(passwordHistory, new TypeReference<List<String>>() {
-                });
+                : POJOHelper.deserialize(passwordHistory, TYPEREF);
     }
 
     @Override

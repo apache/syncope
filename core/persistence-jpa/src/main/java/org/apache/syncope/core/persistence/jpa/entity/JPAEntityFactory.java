@@ -85,7 +85,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
-import org.apache.syncope.core.persistence.api.entity.task.CommandTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -139,7 +139,7 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplatePullTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPACommandTask;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
@@ -276,8 +276,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAPushTask();
         } else if (reference.equals(PullTask.class)) {
             result = (E) new JPAPullTask();
-        } else if (reference.equals(CommandTask.class)) {
-            result = (E) new JPACommandTask();
+        } else if (reference.equals(MacroTask.class)) {
+            result = (E) new JPAMacroTask();
         } else if (reference.equals(SchedTask.class)) {
             result = (E) new JPASchedTask();
         } else if (reference.equals(PushTaskAnyFilter.class)) {

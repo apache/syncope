@@ -33,84 +33,10 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTaskExec;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPACommandTaskExec;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTaskExec;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTaskExec;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTaskExec;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTaskExec;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTaskExec;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
 public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExecDAO {
-
-    public static String getEntityTableName(final TaskType type) {
-        String result = null;
-
-        switch (type) {
-            case NOTIFICATION:
-                result = JPANotificationTaskExec.TABLE;
-                break;
-
-            case PROPAGATION:
-                result = JPAPropagationTaskExec.TABLE;
-                break;
-
-            case SCHEDULED:
-                result = JPASchedTaskExec.TABLE;
-                break;
-
-            case PUSH:
-                result = JPAPushTaskExec.TABLE;
-                break;
-
-            case PULL:
-                result = JPAPullTaskExec.TABLE;
-                break;
-
-            case COMMAND:
-                result = JPACommandTaskExec.TABLE;
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    protected static Class<? extends TaskExec<?>> getEntityReference(final TaskType type) {
-        Class<? extends TaskExec<?>> result = null;
-
-        switch (type) {
-            case NOTIFICATION:
-                result = JPANotificationTaskExec.class;
-                break;
-
-            case PROPAGATION:
-                result = JPAPropagationTaskExec.class;
-                break;
-
-            case SCHEDULED:
-                result = JPASchedTaskExec.class;
-                break;
-
-            case PUSH:
-                result = JPAPushTaskExec.class;
-                break;
-
-            case PULL:
-                result = JPAPullTaskExec.class;
-                break;
-
-            case COMMAND:
-                result = JPACommandTaskExec.class;
-                break;
-
-            default:
-        }
-
-        return result;
-    }
 
     protected final TaskDAO taskDAO;
 
@@ -124,7 +50,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Task<T>> TaskExec<T> find(final TaskType type, final String key) {
-        return (TaskExec<T>) entityManager().find(getEntityReference(type), key);
+        return (TaskExec<T>) entityManager().find(taskUtilsFactory.getInstance(type).getTaskExecEntity(), key);
     }
 
     @Override
@@ -137,7 +63,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
             task = find(TaskType.PUSH, key);
         }
         if (task == null) {
-            task = find(TaskType.COMMAND, key);
+            task = find(TaskType.MACRO, key);
         }
         if (task == null) {
             task = find(TaskType.PROPAGATION, key);
@@ -152,7 +78,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
     @SuppressWarnings("unchecked")
     protected <T extends Task<T>> List<TaskExec<T>> findRecent(final TaskType type, final int max) {
         Query query = entityManager().createQuery(
-                "SELECT e FROM " + getEntityReference(type).getSimpleName() + " e "
+                "SELECT e FROM " + taskUtilsFactory.getInstance(type).getTaskExecEntity().getSimpleName() + " e "
                 + "WHERE e.end IS NOT NULL ORDER BY e.end DESC");
         query.setMaxResults(max);
 
@@ -177,7 +103,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
     @SuppressWarnings("unchecked")
     protected TaskExec<?> findLatest(final TaskType type, final Task<?> task, final String field) {
         Query query = entityManager().createQuery(
-                "SELECT e FROM " + getEntityReference(type).getSimpleName() + " e "
+                "SELECT e FROM " + taskUtilsFactory.getInstance(type).getTaskExecEntity().getSimpleName() + " e "
                 + "WHERE e.task=:task ORDER BY e." + field + " DESC");
         query.setParameter("task", task);
         query.setMaxResults(1);
@@ -208,7 +134,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
             final OffsetDateTime endedAfter) {
 
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(getEntityReference(taskUtilsFactory.getInstance(task).getType()).getSimpleName()).
+                append(taskUtilsFactory.getInstance(task).getTaskExecEntity().getSimpleName()).
                 append(" e WHERE e.task=:task ");
 
         if (startedBefore != null) {
@@ -246,7 +172,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
     @Override
     public int count(final Task<?> task) {
         Query countQuery = entityManager().createNativeQuery(
-                "SELECT COUNT(e.id) FROM " + getEntityTableName(taskUtilsFactory.getInstance(task).getType()) + " e "
+                "SELECT COUNT(e.id) FROM " + taskUtilsFactory.getInstance(task).getTaskExecTable() + " e "
                 + "WHERE e.task_id=?1");
         countQuery.setParameter(1, task.getKey());
 
@@ -277,7 +203,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
             final Task<?> task, final int page, final int itemsPerPage, final List<OrderByClause> orderByClauses) {
 
         String queryString = "SELECT e "
-                + "FROM " + getEntityReference(taskUtilsFactory.getInstance(task).getType()).getSimpleName() + " e "
+                + "FROM " + taskUtilsFactory.getInstance(task).getTaskExecEntity().getSimpleName() + " e "
                 + "WHERE e.task=:task "
                 + toOrderByStatement(orderByClauses);
 

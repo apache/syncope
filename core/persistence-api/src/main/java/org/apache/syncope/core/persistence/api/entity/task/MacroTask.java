@@ -16,14 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.command;
+package org.apache.syncope.core.persistence.api.entity.task;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.apache.syncope.common.lib.BaseBean;
+import java.util.List;
+import org.apache.syncope.common.lib.command.CommandArgs;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
-public class CommandArgs implements BaseBean {
+public interface MacroTask extends SchedTask {
 
-    private static final long serialVersionUID = -85050010490462751L;
+    Realm getRealm();
 
+    void setRealm(Realm realm);
+
+    void add(Implementation command, CommandArgs args);
+
+    List<? extends Implementation> getCommands();
+
+    List<CommandArgs> getCommandArgs();
+
+    boolean isContinueOnError();
+
+    void setContinueOnError(boolean continueOnError);
+
+    boolean isSaveExecs();
+
+    void setSaveExecs(boolean saveExecs);
 }

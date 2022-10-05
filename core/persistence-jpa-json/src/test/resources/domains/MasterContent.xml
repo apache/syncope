@@ -680,8 +680,8 @@ under the License.
   <VirSchema id="virtualdata" READONLY="0" anyTypeClass_id="minimal user"
              resource_id="resource-db-virattr" anyType_id="USER" extAttrName="USERNAME"/>
 
-  <Implementation id="CommandRunJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
-                  body="org.apache.syncope.core.provisioning.java.job.CommandRunJobDelegate"/>
+  <Implementation id="MacroRunJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.logic.job.MacroRunJobDelegate"/>
 
   <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>

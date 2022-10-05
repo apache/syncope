@@ -19,25 +19,31 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.command.CommandTO;
 
 @Schema(allOf = { SchedTaskTO.class }, discriminatorProperty = "_class")
-public class CommandTaskTO extends SchedTaskTO {
+public class MacroTaskTO extends SchedTaskTO {
 
     private static final long serialVersionUID = -2387363212408909094L;
 
     private String realm;
 
-    private String command;
+    private final List<CommandTO> commands = new ArrayList<>();
+
+    private boolean continueOnError;
 
     private boolean saveExecs = true;
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
-    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.CommandTaskTO")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.MacroTaskTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -51,12 +57,18 @@ public class CommandTaskTO extends SchedTaskTO {
         this.realm = realm;
     }
 
-    public String getCommand() {
-        return command;
+    @JacksonXmlElementWrapper(localName = "commands")
+    @JacksonXmlProperty(localName = "command")
+    public List<CommandTO> getCommands() {
+        return commands;
     }
 
-    public void setCommand(final String command) {
-        this.command = command;
+    public boolean isContinueOnError() {
+        return continueOnError;
+    }
+
+    public void setContinueOnError(final boolean continueOnError) {
+        this.continueOnError = continueOnError;
     }
 
     public boolean isSaveExecs() {
@@ -72,7 +84,8 @@ public class CommandTaskTO extends SchedTaskTO {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(realm).
-                append(command).
+                append(commands).
+                append(continueOnError).
                 append(saveExecs).
                 build();
     }
@@ -88,11 +101,12 @@ public class CommandTaskTO extends SchedTaskTO {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final CommandTaskTO other = (CommandTaskTO) obj;
+        final MacroTaskTO other = (MacroTaskTO) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(realm, other.realm).
-                append(command, other.command).
+                append(commands, other.commands).
+                append(continueOnError, other.continueOnError).
                 append(saveExecs, other.saveExecs).
                 build();
     }

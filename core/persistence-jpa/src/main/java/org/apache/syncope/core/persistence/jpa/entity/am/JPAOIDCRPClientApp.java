@@ -47,6 +47,17 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     public static final String TABLE = "OIDCRPClientApp";
 
+    protected static final TypeReference<Set<String>> STRING_TYPEREF = new TypeReference<Set<String>>() {
+    };
+
+    protected static final TypeReference<Set<OIDCGrantType>> GRANT_TYPE_TYPEREF =
+            new TypeReference<Set<OIDCGrantType>>() {
+    };
+
+    protected static final TypeReference<Set<OIDCResponseType>> RESPONSE_TYPE_TYPEREF =
+            new TypeReference<Set<OIDCResponseType>>() {
+    };
+
     @Column(unique = true, nullable = false)
     private String clientId;
 
@@ -173,19 +184,13 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
             getSupportedResponseTypes().clear();
         }
         if (redirectUris != null) {
-            getRedirectUris().addAll(
-                    POJOHelper.deserialize(redirectUris, new TypeReference<Set<String>>() {
-                    }));
+            getRedirectUris().addAll(POJOHelper.deserialize(redirectUris, STRING_TYPEREF));
         }
         if (supportedGrantTypes != null) {
-            getSupportedGrantTypes().addAll(
-                    POJOHelper.deserialize(supportedGrantTypes, new TypeReference<Set<OIDCGrantType>>() {
-                    }));
+            getSupportedGrantTypes().addAll(POJOHelper.deserialize(supportedGrantTypes, GRANT_TYPE_TYPEREF));
         }
         if (supportedResponseTypes != null) {
-            getSupportedResponseTypes().addAll(
-                    POJOHelper.deserialize(supportedResponseTypes, new TypeReference<Set<OIDCResponseType>>() {
-                    }));
+            getSupportedResponseTypes().addAll(POJOHelper.deserialize(supportedResponseTypes, RESPONSE_TYPE_TYPEREF));
         }
     }
 

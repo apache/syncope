@@ -30,7 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.task.CommandTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
@@ -52,9 +52,9 @@ public interface TaskDAO extends DAO<Task<?>> {
 
     List<PushTask> findByPushActions(Implementation pushActions);
 
-    List<CommandTask> findByCommand(Implementation delegate);
+    List<MacroTask> findByCommand(Implementation delegate);
 
-    List<CommandTask> findByRealm(Realm realm);
+    List<MacroTask> findByRealm(Realm realm);
 
     <T extends Task<T>> List<T> findToExec(TaskType type);
 

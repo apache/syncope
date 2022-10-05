@@ -46,9 +46,12 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 @Table(name = JPAAttrRepo.TABLE)
 public class JPAAttrRepo extends AbstractProvidedKeyEntity implements AttrRepo {
 
+    private static final long serialVersionUID = 7337970107878689617L;
+
     public static final String TABLE = "AttrRepo";
 
-    private static final long serialVersionUID = 7337970107878689617L;
+    protected static final TypeReference<List<Item>> TYPEREF = new TypeReference<List<Item>>() {
+    };
 
     private String description;
 
@@ -123,9 +126,7 @@ public class JPAAttrRepo extends AbstractProvidedKeyEntity implements AttrRepo {
             getItems().clear();
         }
         if (items != null) {
-            getItems().addAll(
-                    POJOHelper.deserialize(items, new TypeReference<List<Item>>() {
-                    }));
+            getItems().addAll(POJOHelper.deserialize(items, TYPEREF));
         }
     }
 

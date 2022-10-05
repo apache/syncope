@@ -33,9 +33,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.CommandTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
+import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
@@ -56,7 +56,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Notification;
-import org.apache.syncope.core.persistence.api.entity.task.CommandTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
@@ -133,7 +133,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     protected void securityChecks(final String entitlement, final String realm) {
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(entitlement);
         if (authRealms.stream().noneMatch(r -> realm.startsWith(r))) {
-            throw new DelegatedAdministrationException(realm, CommandTask.class.getSimpleName(), null);
+            throw new DelegatedAdministrationException(realm, MacroTask.class.getSimpleName(), null);
         }
     }
 
@@ -146,8 +146,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             throw sce;
         }
 
-        if (taskUtils.getType() == TaskType.COMMAND) {
-            securityChecks(IdRepoEntitlement.TASK_CREATE, ((CommandTaskTO) taskTO).getRealm());
+        if (taskUtils.getType() == TaskType.MACRO) {
+            securityChecks(IdRepoEntitlement.TASK_CREATE, ((MacroTaskTO) taskTO).getRealm());
         }
 
         SchedTask task = binder.createSchedTask(taskTO, taskUtils);
@@ -184,9 +184,9 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             throw sce;
         }
 
-        if (taskUtils.getType() == TaskType.COMMAND) {
-            securityChecks(IdRepoEntitlement.TASK_UPDATE, ((CommandTask) task).getRealm().getFullPath());
-            securityChecks(IdRepoEntitlement.TASK_UPDATE, ((CommandTaskTO) taskTO).getRealm());
+        if (taskUtils.getType() == TaskType.MACRO) {
+            securityChecks(IdRepoEntitlement.TASK_UPDATE, ((MacroTask) task).getRealm().getFullPath());
+            securityChecks(IdRepoEntitlement.TASK_UPDATE, ((MacroTaskTO) taskTO).getRealm());
         }
 
         binder.updateSchedTask(task, taskTO, taskUtils);
@@ -278,8 +278,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             throw sce;
         }
 
-        if (taskUtils.getType() == TaskType.COMMAND) {
-            securityChecks(IdRepoEntitlement.TASK_READ, ((CommandTask) task).getRealm().getFullPath());
+        if (taskUtils.getType() == TaskType.MACRO) {
+            securityChecks(IdRepoEntitlement.TASK_READ, ((MacroTask) task).getRealm().getFullPath());
         }
 
         return binder.getTaskTO(task, taskUtilsFactory.getInstance(task), details);
@@ -327,9 +327,9 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             case SCHEDULED:
             case PULL:
             case PUSH:
-            case COMMAND:
-                if (taskUtils.getType() == TaskType.COMMAND) {
-                    securityChecks(IdRepoEntitlement.TASK_EXECUTE, ((CommandTask) task).getRealm().getFullPath());
+            case MACRO:
+                if (taskUtils.getType() == TaskType.MACRO) {
+                    securityChecks(IdRepoEntitlement.TASK_EXECUTE, ((MacroTask) task).getRealm().getFullPath());
                 }
 
                 if (!((SchedTask) task).isActive()) {
@@ -388,8 +388,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             throw sce;
         }
 
-        if (taskUtils.getType() == TaskType.COMMAND) {
-            securityChecks(IdRepoEntitlement.TASK_DELETE, ((CommandTask) task).getRealm().getFullPath());
+        if (taskUtils.getType() == TaskType.MACRO) {
+            securityChecks(IdRepoEntitlement.TASK_DELETE, ((MacroTask) task).getRealm().getFullPath());
         }
 
         T taskToDelete = binder.getTaskTO(task, taskUtils, true);
@@ -412,8 +412,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
-        if (task instanceof CommandTask) {
-            securityChecks(IdRepoEntitlement.TASK_READ, ((CommandTask) task).getRealm().getFullPath());
+        if (task instanceof MacroTask) {
+            securityChecks(IdRepoEntitlement.TASK_READ, ((MacroTask) task).getRealm().getFullPath());
         }
 
         Integer count = taskExecDAO.count(task);
@@ -430,10 +430,9 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         return taskExecDAO.findRecent(max).stream().
                 map(exec -> {
                     try {
-                        if (exec.getTask() instanceof CommandTask) {
-                            securityChecks(
-                                    IdRepoEntitlement.TASK_DELETE,
-                                    ((CommandTask) exec.getTask()).getRealm().getFullPath());
+                        if (exec.getTask() instanceof MacroTask) {
+                            securityChecks(IdRepoEntitlement.TASK_DELETE,
+                                    ((MacroTask) exec.getTask()).getRealm().getFullPath());
                         }
 
                         return binder.getExecTO(exec);
@@ -452,8 +451,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         TaskExec<?> exec = taskExecDAO.find(execKey).
                 orElseThrow(() -> new NotFoundException("Task execution " + execKey));
 
-        if (exec.getTask() instanceof CommandTask) {
-            securityChecks(IdRepoEntitlement.TASK_DELETE, ((CommandTask) exec.getTask()).getRealm().getFullPath());
+        if (exec.getTask() instanceof MacroTask) {
+            securityChecks(IdRepoEntitlement.TASK_DELETE, ((MacroTask) exec.getTask()).getRealm().getFullPath());
         }
 
         ExecTO executionToDelete = binder.getExecTO(exec);
@@ -480,10 +479,9 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             batchResponseItems.add(item);
 
             try {
-                if (exec.getTask() instanceof CommandTask) {
-                    securityChecks(
-                            IdRepoEntitlement.TASK_DELETE,
-                            ((CommandTask) exec.getTask()).getRealm().getFullPath());
+                if (exec.getTask() instanceof MacroTask) {
+                    securityChecks(IdRepoEntitlement.TASK_DELETE,
+                            ((MacroTask) exec.getTask()).getRealm().getFullPath());
                 }
 
                 taskExecDAO.delete(exec);
@@ -519,8 +517,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     public JobTO getJob(final String key) {
         Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
-        if (task instanceof CommandTask) {
-            securityChecks(IdRepoEntitlement.TASK_READ, ((CommandTask) task).getRealm().getFullPath());
+        if (task instanceof MacroTask) {
+            securityChecks(IdRepoEntitlement.TASK_READ, ((MacroTask) task).getRealm().getFullPath());
         }
 
         JobTO jobTO = null;
@@ -544,8 +542,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     public void actionJob(final String key, final JobAction action) {
         Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
-        if (task instanceof CommandTask) {
-            securityChecks(IdRepoEntitlement.TASK_EXECUTE, ((CommandTask) task).getRealm().getFullPath());
+        if (task instanceof MacroTask) {
+            securityChecks(IdRepoEntitlement.TASK_EXECUTE, ((MacroTask) task).getRealm().getFullPath());
         }
 
         doActionJob(JobNamer.getJobKey(task), action);

@@ -44,6 +44,9 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
 
     private static final long serialVersionUID = 7422422526695279794L;
 
+    protected static final TypeReference<List<Attr>> ATTR_TYPEREF = new TypeReference<List<Attr>>() {
+    };
+
     @Column(unique = true, nullable = false)
     private String name;
 
@@ -159,8 +162,7 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     public List<Attr> getProperties() {
         return properties == null
                 ? new ArrayList<>(0)
-                : POJOHelper.deserialize(properties, new TypeReference<>() {
-                });
+                : POJOHelper.deserialize(properties, ATTR_TYPEREF);
     }
 
     @Override

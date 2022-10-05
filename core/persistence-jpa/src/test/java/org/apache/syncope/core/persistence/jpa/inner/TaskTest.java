@@ -113,7 +113,7 @@ public class TaskTest extends AbstractTest {
         auth.setDetails(new SyncopeAuthenticationDetails(SyncopeConstants.MASTER_DOMAIN, null));
         SecurityContextHolder.getContext().setAuthentication(auth);
         try {
-            assertEquals(0, taskDAO.findAll(TaskType.COMMAND).size());
+            assertEquals(0, taskDAO.findAll(TaskType.MACRO).size());
         } finally {
             SecurityContextHolder.getContext().setAuthentication(null);
         }

@@ -1,3 +1,5 @@
+
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -16,22 +18,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.task;
 
-import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.common.lib.command.CommandArgs
+import org.apache.syncope.core.logic.SyncopeLogic
+import org.apache.syncope.core.logic.api.Command
+import org.springframework.beans.factory.annotation.Autowired
 
-public interface CommandTask extends SchedTask {
+class GroovyCommand implements Command<CommandArgs> {
 
-    Realm getRealm();
+  @Autowired
+  SyncopeLogic logic;
 
-    void setRealm(Realm realm);
-
-    void setCommand(Implementation command);
-
-    Implementation getCommand();
-
-    boolean isSaveExecs();
-
-    void setSaveExecs(boolean saveExecs);
+  String run(CommandArgs args) {
+    return "" + logic.isPwdResetAllowed()
+  }
 }

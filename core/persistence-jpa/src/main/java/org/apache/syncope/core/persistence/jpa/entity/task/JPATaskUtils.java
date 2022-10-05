@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import org.apache.syncope.common.lib.to.CommandTaskTO;
+import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -26,8 +26,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.task.CommandTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -41,12 +40,9 @@ import org.apache.syncope.core.spring.security.SecureRandomUtils;
 @SuppressWarnings("unchecked")
 public final class JPATaskUtils implements TaskUtils {
 
-    protected final EntityFactory entityFactory;
-
     protected final TaskType type;
 
-    protected JPATaskUtils(final EntityFactory entityFactory, final TaskType type) {
-        this.entityFactory = entityFactory;
+    protected JPATaskUtils(final TaskType type) {
         this.type = type;
     }
 
@@ -76,8 +72,8 @@ public final class JPATaskUtils implements TaskUtils {
                 result = (Class<T>) PushTask.class;
                 break;
 
-            case COMMAND:
-                result = (Class<T>) CommandTask.class;
+            case MACRO:
+                result = (Class<T>) MacroTask.class;
                 break;
 
             case NOTIFICATION:
@@ -96,30 +92,34 @@ public final class JPATaskUtils implements TaskUtils {
 
         switch (type) {
             case PROPAGATION:
-                result = (T) entityFactory.newEntity(PropagationTask.class);
+                result = (T) new JPAPropagationTask();
                 break;
 
             case SCHEDULED:
-                result = (T) entityFactory.newEntity(SchedTask.class);
+                result = (T) new JPASchedTask();
                 break;
 
             case PULL:
-                result = (T) entityFactory.newEntity(PullTask.class);
+                result = (T) new JPAPullTask();
                 break;
 
             case PUSH:
-                result = (T) entityFactory.newEntity(PushTask.class);
+                result = (T) new JPAPushTask();
                 break;
 
-            case COMMAND:
-                result = (T) entityFactory.newEntity(CommandTask.class);
+            case MACRO:
+                result = (T) new JPAMacroTask();
                 break;
 
             case NOTIFICATION:
-                result = (T) entityFactory.newEntity(NotificationTask.class);
+                result = (T) new JPANotificationTask();
                 break;
 
             default:
+        }
+
+        if (result != null) {
+            ((AbstractTask<?>) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
         }
 
         return result;
@@ -146,8 +146,8 @@ public final class JPATaskUtils implements TaskUtils {
                 result = (E) new JPAPushTaskExec();
                 break;
 
-            case COMMAND:
-                result = (E) new JPACommandTaskExec();
+            case MACRO:
+                result = (E) new JPAMacroTaskExec();
                 break;
 
             case SCHEDULED:
@@ -186,8 +186,8 @@ public final class JPATaskUtils implements TaskUtils {
                 result = (Class<T>) PushTaskTO.class;
                 break;
 
-            case COMMAND:
-                result = (Class<T>) CommandTaskTO.class;
+            case MACRO:
+                result = (Class<T>) MacroTaskTO.class;
                 break;
 
             case NOTIFICATION:
@@ -208,5 +208,145 @@ public final class JPATaskUtils implements TaskUtils {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @Override
+    public String getTaskTable() {
+        String result = null;
+
+        switch (type) {
+            case NOTIFICATION:
+                result = JPANotificationTask.TABLE;
+                break;
+
+            case PROPAGATION:
+                result = JPAPropagationTask.TABLE;
+                break;
+
+            case PUSH:
+                result = JPAPushTask.TABLE;
+                break;
+
+            case PULL:
+                result = JPAPullTask.TABLE;
+                break;
+
+            case MACRO:
+                result = JPAMacroTask.TABLE;
+                break;
+
+            case SCHEDULED:
+                result = JPASchedTask.TABLE;
+                break;
+
+            default:
+        }
+
+        return result;
+    }
+
+    @Override
+    public Class<? extends Task<?>> getTaskEntity() {
+        Class<? extends Task<?>> result = null;
+
+        switch (type) {
+            case NOTIFICATION:
+                result = JPANotificationTask.class;
+                break;
+
+            case PROPAGATION:
+                result = JPAPropagationTask.class;
+                break;
+
+            case PUSH:
+                result = JPAPushTask.class;
+                break;
+
+            case PULL:
+                result = JPAPullTask.class;
+                break;
+
+            case MACRO:
+                result = JPAMacroTask.class;
+                break;
+
+            case SCHEDULED:
+                result = JPASchedTask.class;
+                break;
+
+            default:
+        }
+
+        return result;
+    }
+
+    @Override
+    public String getTaskExecTable() {
+        String result = null;
+
+        switch (type) {
+            case NOTIFICATION:
+                result = JPANotificationTaskExec.TABLE;
+                break;
+
+            case PROPAGATION:
+                result = JPAPropagationTaskExec.TABLE;
+                break;
+
+            case SCHEDULED:
+                result = JPASchedTaskExec.TABLE;
+                break;
+
+            case PUSH:
+                result = JPAPushTaskExec.TABLE;
+                break;
+
+            case PULL:
+                result = JPAPullTaskExec.TABLE;
+                break;
+
+            case MACRO:
+                result = JPAMacroTaskExec.TABLE;
+                break;
+
+            default:
+        }
+
+        return result;
+    }
+
+    @Override
+    public Class<? extends TaskExec<?>> getTaskExecEntity() {
+        Class<? extends TaskExec<?>> result = null;
+
+        switch (type) {
+            case NOTIFICATION:
+                result = JPANotificationTaskExec.class;
+                break;
+
+            case PROPAGATION:
+                result = JPAPropagationTaskExec.class;
+                break;
+
+            case SCHEDULED:
+                result = JPASchedTaskExec.class;
+                break;
+
+            case PUSH:
+                result = JPAPushTaskExec.class;
+                break;
+
+            case PULL:
+                result = JPAPullTaskExec.class;
+                break;
+
+            case MACRO:
+                result = JPAMacroTaskExec.class;
+                break;
+
+            default:
+        }
+
+        return result;
     }
 }

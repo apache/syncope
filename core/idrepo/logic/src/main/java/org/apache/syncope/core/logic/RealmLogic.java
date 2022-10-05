@@ -232,17 +232,17 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         int users = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.USER);
         int groups = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.GROUP);
         int anyObjects = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
-        int commandTasks = taskDAO.findByRealm(realm).size();
+        int macroTasks = taskDAO.findByRealm(realm).size();
         int clientApps = casSPClientAppDAO.findByRealm(realm).size()
                 + saml2SPClientAppDAO.findByRealm(realm).size()
                 + oidcRPClientAppDAO.findByRealm(realm).size();
 
-        if (users + groups + anyObjects + commandTasks + clientApps > 0) {
+        if (users + groups + anyObjects + macroTasks + clientApps > 0) {
             SyncopeClientException realmContains = SyncopeClientException.build(ClientExceptionType.RealmContains);
             realmContains.getElements().add(users + " user(s)");
             realmContains.getElements().add(groups + " group(s)");
             realmContains.getElements().add(anyObjects + " anyObject(s)");
-            realmContains.getElements().add(commandTasks + " command task(s)");
+            realmContains.getElements().add(macroTasks + " command task(s)");
             realmContains.getElements().add(clientApps + " client app(s)");
             throw realmContains;
         }
