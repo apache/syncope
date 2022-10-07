@@ -268,10 +268,6 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
             }
         }
 
-        // workaround to remove with CAS >= 6.6.1
-        return prefix("cas.authn.mfa.simple.", CasCoreConfigurationUtils.asMap(
-                props,
-                new SimpleFilterProvider().setDefaultFilter(
-                        SimpleBeanPropertyFilter.serializeAllExcept("defined", "undefined"))));
+        return prefix("cas.authn.mfa.simple.", CasCoreConfigurationUtils.asMap(props));
     }
 }
