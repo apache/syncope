@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.wa.bootstrap;
 
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -268,10 +266,6 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
             }
         }
 
-        // workaround to remove with CAS >= 6.6.1
-        return prefix("cas.authn.mfa.simple.", CasCoreConfigurationUtils.asMap(
-                props,
-                new SimpleFilterProvider().setDefaultFilter(
-                        SimpleBeanPropertyFilter.serializeAllExcept("defined", "undefined"))));
+        return prefix("cas.authn.mfa.simple.", CasCoreConfigurationUtils.asMap(props));
     }
 }
