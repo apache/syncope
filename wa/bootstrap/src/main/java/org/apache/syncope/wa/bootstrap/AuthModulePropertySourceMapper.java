@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.wa.bootstrap;
 
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
