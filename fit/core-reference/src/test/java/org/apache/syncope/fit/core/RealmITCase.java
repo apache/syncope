@@ -361,8 +361,8 @@ public class RealmITCase extends AbstractITCase {
             REALM_SERVICE.delete("/even/two");
             fail("This should not happen");
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.AssociatedAnys, e.getType());
-            assertEquals(3, e.getElements().size());
+            assertEquals(ClientExceptionType.RealmContains, e.getType());
+            assertEquals(5, e.getElements().size());
         }
     }
 

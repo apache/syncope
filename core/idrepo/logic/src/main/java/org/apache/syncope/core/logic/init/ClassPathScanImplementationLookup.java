@@ -33,6 +33,8 @@ import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
+import org.apache.syncope.core.logic.api.Command;
+import org.apache.syncope.core.logic.api.LogicActions;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
@@ -47,7 +49,6 @@ import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
-import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
@@ -242,6 +243,10 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
                 if (ProvisionSorter.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(IdMImplementationType.PROVISION_SORTER).add(bd.getBeanClassName());
+                }
+
+                if (Command.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                    classNames.get(IdRepoImplementationType.COMMAND).add(bd.getBeanClassName());
                 }
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);

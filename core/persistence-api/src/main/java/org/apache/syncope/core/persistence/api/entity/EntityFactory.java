@@ -18,18 +18,14 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface EntityFactory {
 
     <E extends Entity> E newEntity(Class<E> reference);
-
-    <E extends TaskExec<?>> E newTaskExec(TaskType taskType);
 
     ConnPoolConf newConnPoolConf();
 

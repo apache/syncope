@@ -66,16 +66,6 @@ public class JPASchedTask extends AbstractTask<SchedTask> implements SchedTask {
     private List<TaskExec<SchedTask>> executions = new ArrayList<>();
 
     @Override
-    protected Class<? extends TaskExec<SchedTask>> executionClass() {
-        return JPASchedTaskExec.class;
-    }
-
-    @Override
-    protected List<TaskExec<SchedTask>> executions() {
-        return executions;
-    }
-
-    @Override
     public Implementation getJobDelegate() {
         return jobDelegate;
     }
@@ -135,5 +125,15 @@ public class JPASchedTask extends AbstractTask<SchedTask> implements SchedTask {
     @Override
     public void setActive(final boolean active) {
         this.active = active;
+    }
+
+    @Override
+    protected Class<? extends TaskExec<SchedTask>> executionClass() {
+        return JPASchedTaskExec.class;
+    }
+
+    @Override
+    protected List<TaskExec<SchedTask>> executions() {
+        return executions;
     }
 }

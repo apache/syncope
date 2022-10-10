@@ -81,6 +81,14 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     public static final String TABLE = "ExternalResource";
 
+    protected static final TypeReference<Set<ConnectorCapability>> CAPABILITY_TYPEREF =
+            new TypeReference<Set<ConnectorCapability>>() {
+    };
+
+    protected static final TypeReference<List<Provision>> PROVISION_TYPEREF =
+            new TypeReference<List<Provision>>() {
+    };
+
     /**
      * Should this resource enforce the mandatory constraints?
      */
@@ -397,14 +405,10 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
             getProvisions().clear();
         }
         if (capabilitiesOverride != null) {
-            getCapabilitiesOverride().addAll(
-                    POJOHelper.deserialize(capabilitiesOverride, new TypeReference<Set<ConnectorCapability>>() {
-                    }));
+            getCapabilitiesOverride().addAll(POJOHelper.deserialize(capabilitiesOverride, CAPABILITY_TYPEREF));
         }
         if (provisions != null) {
-            getProvisions().addAll(
-                    POJOHelper.deserialize(provisions, new TypeReference<List<Provision>>() {
-                    }));
+            getProvisions().addAll(POJOHelper.deserialize(provisions, PROVISION_TYPEREF));
         }
     }
 

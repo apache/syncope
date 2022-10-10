@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
@@ -37,9 +38,26 @@ public class JPAImplementationDAO extends AbstractDAO<Implementation> implements
     @Override
     public List<Implementation> findByType(final String type) {
         TypedQuery<Implementation> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAImplementation.class.getSimpleName() + " e WHERE e.type=:type",
+                "SELECT e FROM " + JPAImplementation.class.getSimpleName() + " e WHERE e.type=:type ORDER BY e.id ASC",
                 Implementation.class);
         query.setParameter("type", type);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Implementation> findByTypeAndKeyword(final String type, final String keyword) {
+        if (StringUtils.isBlank(keyword)) {
+            return findByType(type);
+        }
+
+        TypedQuery<Implementation> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAImplementation.class.getSimpleName() + " e "
+                + "WHERE e.type=:type "
+                + "AND e.id LIKE :keyword "
+                + "ORDER BY e.id ASC",
+                Implementation.class);
+        query.setParameter("type", type);
+        query.setParameter("keyword", keyword);
         return query.getResultList();
     }
 

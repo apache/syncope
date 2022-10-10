@@ -36,6 +36,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -136,8 +137,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             description.setEnabled(true);
             add(description);
 
-            AjaxCheckBoxPanel active = new AjaxCheckBoxPanel("active", "active", new PropertyModel<>(taskTO, "active"),
-                    false);
+            AjaxCheckBoxPanel active = new AjaxCheckBoxPanel(
+                    "active", "active", new PropertyModel<>(taskTO, "active"), false);
             add(active);
 
             AjaxDropDownChoicePanel<String> jobDelegate = new AjaxDropDownChoicePanel<>(
@@ -146,6 +147,47 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             jobDelegate.addRequiredLabel();
             jobDelegate.setEnabled(taskTO.getKey() == null);
             add(jobDelegate);
+
+            AutoCompleteSettings settings = new AutoCompleteSettings();
+            settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
+            settings.setShowListOnEmptyInput(!isSearchEnabled);
+
+            // ------------------------------
+            // Only for macro tasks
+            // ------------------------------            
+            WebMarkupContainer macroTaskSpecifics = new WebMarkupContainer("macroTaskSpecifics");
+            add(macroTaskSpecifics.setRenderBodyOnly(true));
+
+            AjaxSearchFieldPanel realm =
+                    new AjaxSearchFieldPanel("realm", "realm",
+                            new PropertyModel<>(taskTO, "realm"), settings) {
+
+                private static final long serialVersionUID = -6390474600233486704L;
+
+                @Override
+                protected Iterator<String> getChoices(final String input) {
+                    return (RealmsUtils.checkInput(input)
+                            ? searchRealms(input).stream().map(RealmTO::getFullPath).collect(Collectors.toList())
+                            : List.<String>of()).iterator();
+                }
+            };
+
+            if (taskTO instanceof MacroTaskTO) {
+                realm.addRequiredLabel();
+                if (StringUtils.isBlank(MacroTaskTO.class.cast(taskTO).getRealm())) {
+                    // add a default destination realm if missing in the task
+                    realm.setModelObject(SyncopeConstants.ROOT_REALM);
+                }
+            }
+            macroTaskSpecifics.add(realm);
+
+            AjaxCheckBoxPanel continueOnError = new AjaxCheckBoxPanel(
+                    "continueOnError", "continueOnError", new PropertyModel<>(taskTO, "continueOnError"), false);
+            macroTaskSpecifics.add(continueOnError);
+
+            AjaxCheckBoxPanel saveExecs = new AjaxCheckBoxPanel(
+                    "saveExecs", "saveExecs", new PropertyModel<>(taskTO, "saveExecs"), false);
+            macroTaskSpecifics.add(saveExecs);
 
             // ------------------------------
             // Only for pull tasks
@@ -160,7 +202,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                 pullTaskSpecifics.setEnabled(false).setVisible(false);
             }
 
-            final AjaxDropDownChoicePanel<PullMode> pullMode = new AjaxDropDownChoicePanel<>(
+            AjaxDropDownChoicePanel<PullMode> pullMode = new AjaxDropDownChoicePanel<>(
                     "pullMode", "pullMode", new PropertyModel<>(taskTO, "pullMode"), false);
             pullMode.setChoices(List.of(PullMode.values()));
             if (taskTO instanceof PullTaskTO) {
@@ -169,7 +211,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             pullMode.setNullValid(!(taskTO instanceof PullTaskTO));
             pullTaskSpecifics.add(pullMode);
 
-            final AjaxDropDownChoicePanel<String> reconFilterBuilder = new AjaxDropDownChoicePanel<>(
+            AjaxDropDownChoicePanel<String> reconFilterBuilder = new AjaxDropDownChoicePanel<>(
                     "reconFilterBuilder", "reconFilterBuilder",
                     new PropertyModel<>(taskTO, "reconFilterBuilder"), false);
             reconFilterBuilder.setChoices(reconFilterBuilders.getObject());
@@ -191,11 +233,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                 }
             });
 
-            final AutoCompleteSettings settings = new AutoCompleteSettings();
-            settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
-            settings.setShowListOnEmptyInput(!isSearchEnabled);
-
-            final AjaxSearchFieldPanel destinationRealm =
+            AjaxSearchFieldPanel destinationRealm =
                     new AjaxSearchFieldPanel("destinationRealm", "destinationRealm",
                             new PropertyModel<>(taskTO, "destinationRealm"), settings) {
 
@@ -224,7 +262,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
             // ------------------------------
             // Only for push tasks
-            // ------------------------------  
+            // ------------------------------
             WebMarkupContainer pushTaskSpecifics = new WebMarkupContainer("pushTaskSpecifics");
             add(pushTaskSpecifics.setRenderBodyOnly(true));
 
@@ -232,8 +270,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                 pushTaskSpecifics.setEnabled(false).setVisible(false);
             }
 
-            final AjaxSearchFieldPanel sourceRealm = new AjaxSearchFieldPanel("sourceRealm", "sourceRealm",
-                    new PropertyModel<>(taskTO, "sourceRealm"), settings) {
+            AjaxSearchFieldPanel sourceRealm = new AjaxSearchFieldPanel(
+                    "sourceRealm", "sourceRealm", new PropertyModel<>(taskTO, "sourceRealm"), settings) {
 
                 private static final long serialVersionUID = -6390474600233486704L;
 
@@ -258,8 +296,13 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
             if (taskTO instanceof ProvisioningTaskTO) {
                 jobDelegate.setEnabled(false).setVisible(false);
+                macroTaskSpecifics.setEnabled(false).setVisible(false);
+            } else if (taskTO instanceof MacroTaskTO) {
+                jobDelegate.setEnabled(false).setVisible(false);
+                provisioningTaskSpecifics.setEnabled(false).setVisible(false);
             } else {
                 provisioningTaskSpecifics.setEnabled(false).setVisible(false);
+                macroTaskSpecifics.setEnabled(false).setVisible(false);
             }
 
             AjaxPalettePanel<String> actions = new AjaxPalettePanel.Builder<String>().

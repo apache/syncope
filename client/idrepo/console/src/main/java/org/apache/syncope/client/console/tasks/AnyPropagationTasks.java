@@ -47,10 +47,10 @@ public class AnyPropagationTasks extends AbstractPropagationTasks {
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
-            protected void viewTask(final PropagationTaskTO taskTO, final AjaxRequestTarget target) {
+            protected void viewTaskExecs(final PropagationTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
                         new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
-                        new TaskExecutionDetails<>(baseModal, taskTO, pageRef),
+                        new TaskExecutionDetails<>(taskTO, pageRef),
                         target);
             }
 

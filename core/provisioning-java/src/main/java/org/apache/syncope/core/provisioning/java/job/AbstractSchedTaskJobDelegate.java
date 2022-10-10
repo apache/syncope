@@ -25,9 +25,9 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
@@ -68,7 +68,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
     protected TaskDAO taskDAO;
 
     @Autowired
-    protected EntityFactory entityFactory;
+    protected TaskUtilsFactory taskUtilsFactory;
 
     /**
      * Notification manager.
@@ -126,7 +126,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
 
         String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
                 orElse(securityProperties.getAdminUser());
-        TaskExec<SchedTask> execution = entityFactory.newTaskExec(taskType);
+        TaskExec<SchedTask> execution = taskUtilsFactory.getInstance(taskType).newTaskExec();
         execution.setStart(OffsetDateTime.now());
         execution.setTask(task);
         execution.setExecutor(executor);

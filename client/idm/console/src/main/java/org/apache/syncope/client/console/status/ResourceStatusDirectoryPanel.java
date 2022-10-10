@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -65,8 +64,6 @@ public class ResourceStatusDirectoryPanel
 
     private static final long serialVersionUID = -9148734710505211261L;
 
-    private final BaseModal<?> baseModal;
-
     private final MultilevelPanel multiLevelPanelRef;
 
     private String type;
@@ -74,14 +71,12 @@ public class ResourceStatusDirectoryPanel
     private final ResourceTO resource;
 
     public ResourceStatusDirectoryPanel(
-            final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef,
             final String type,
             final ResourceTO resource) {
 
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef);
-        this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         this.type = type;
         this.resource = resource;
@@ -92,7 +87,7 @@ public class ResourceStatusDirectoryPanel
 
     @Override
     protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<StatusBean, String> resultTableBuilder) {
-        resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
+        resultTableBuilder.setMultiLevelPanel(multiLevelPanelRef);
     }
 
     @Override
@@ -121,8 +116,8 @@ public class ResourceStatusDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                 multiLevelPanelRef.next(bean.getResource(),
-                    new ReconStatusPanel(bean.getResource(), type, bean.getKey()),
-                    target);
+                        new ReconStatusPanel(bean.getResource(), type, bean.getKey()),
+                        target);
                 target.add(multiLevelPanelRef);
                 getTogglePanel().close(target);
             }
@@ -140,15 +135,15 @@ public class ResourceStatusDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                 multiLevelPanelRef.next("PUSH " + bean.getResource(),
-                    new ReconTaskPanel(
-                        bean.getResource(),
-                        new PushTaskTO(),
-                        type,
-                        bean.getKey(),
-                        true,
-                        multiLevelPanelRef,
-                        pageRef),
-                    target);
+                        new ReconTaskPanel(
+                                bean.getResource(),
+                                new PushTaskTO(),
+                                type,
+                                bean.getKey(),
+                                true,
+                                multiLevelPanelRef,
+                                pageRef),
+                        target);
                 target.add(multiLevelPanelRef);
                 getTogglePanel().close(target);
             }
@@ -166,15 +161,15 @@ public class ResourceStatusDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                 multiLevelPanelRef.next("PULL " + bean.getResource(),
-                    new ReconTaskPanel(
-                        bean.getResource(),
-                        new PullTaskTO(),
-                        type,
-                        bean.getKey(),
-                        true,
-                        multiLevelPanelRef,
-                        pageRef),
-                    target);
+                        new ReconTaskPanel(
+                                bean.getResource(),
+                                new PullTaskTO(),
+                                type,
+                                bean.getKey(),
+                                true,
+                                multiLevelPanelRef,
+                                pageRef),
+                        target);
                 target.add(multiLevelPanelRef);
                 getTogglePanel().close(target);
             }

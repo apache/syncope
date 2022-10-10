@@ -52,6 +52,7 @@ import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.ApplicationService;
 import org.apache.syncope.common.rest.api.service.AuditService;
+import org.apache.syncope.common.rest.api.service.CommandService;
 import org.apache.syncope.common.rest.api.service.DelegationService;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.FIQLQueryService;
@@ -77,6 +78,7 @@ import org.apache.syncope.core.logic.AnyTypeClassLogic;
 import org.apache.syncope.core.logic.AnyTypeLogic;
 import org.apache.syncope.core.logic.ApplicationLogic;
 import org.apache.syncope.core.logic.AuditLogic;
+import org.apache.syncope.core.logic.CommandLogic;
 import org.apache.syncope.core.logic.DelegationLogic;
 import org.apache.syncope.core.logic.DynRealmLogic;
 import org.apache.syncope.core.logic.FIQLQueryLogic;
@@ -108,6 +110,7 @@ import org.apache.syncope.core.rest.cxf.service.AnyTypeClassServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AnyTypeServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ApplicationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AuditServiceImpl;
+import org.apache.syncope.core.rest.cxf.service.CommandServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.DelegationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.DynRealmServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.FIQLQueryServiceImpl;
@@ -373,6 +376,12 @@ public class IdRepoRESTCXFContext {
     @Bean
     public AuditService auditService(final AuditLogic auditLogic) {
         return new AuditServiceImpl(auditLogic);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public CommandService commandService(final CommandLogic commandLogic) {
+        return new CommandServiceImpl(commandLogic);
     }
 
     @ConditionalOnMissingBean

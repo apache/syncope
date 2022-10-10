@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -27,7 +28,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -40,13 +41,7 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 public class JPATaskUtilsFactory implements TaskUtilsFactory {
 
-    protected final EntityFactory entityFactory;
-
     protected final Map<TaskType, TaskUtils> instances = new HashMap<>(5);
-
-    public JPATaskUtilsFactory(final EntityFactory entityFactory) {
-        this.entityFactory = entityFactory;
-    }
 
     @Override
     public TaskUtils getInstance(final TaskType type) {
@@ -54,7 +49,7 @@ public class JPATaskUtilsFactory implements TaskUtilsFactory {
         synchronized (instances) {
             instance = instances.get(type);
             if (instance == null) {
-                instance = new JPATaskUtils(entityFactory, type);
+                instance = new JPATaskUtils(type);
                 ApplicationContextProvider.getBeanFactory().autowireBean(instance);
                 instances.put(type, instance);
             }
@@ -70,6 +65,8 @@ public class JPATaskUtilsFactory implements TaskUtilsFactory {
             type = TaskType.PULL;
         } else if (task instanceof PushTask) {
             type = TaskType.PUSH;
+        } else if (task instanceof MacroTask) {
+            type = TaskType.MACRO;
         } else if (task instanceof SchedTask) {
             type = TaskType.SCHEDULED;
         } else if (task instanceof PropagationTask) {
@@ -96,6 +93,8 @@ public class JPATaskUtilsFactory implements TaskUtilsFactory {
             type = TaskType.PULL;
         } else if (taskClass == PushTaskTO.class) {
             type = TaskType.PUSH;
+        } else if (taskClass == MacroTaskTO.class) {
+            type = TaskType.MACRO;
         } else {
             throw new IllegalArgumentException("Invalid TaskTO class: " + taskClass.getName());
         }

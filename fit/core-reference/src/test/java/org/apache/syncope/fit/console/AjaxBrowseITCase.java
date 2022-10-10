@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.console;
 
 import org.apache.syncope.client.console.pages.Dashboard;
+import org.apache.syncope.client.console.pages.Engagements;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.console.pages.Logs;
 import org.apache.syncope.client.console.pages.Notifications;
@@ -63,6 +64,9 @@ public class AjaxBrowseITCase extends AbstractConsoleITCase {
 
         TESTER.clickLink("body:idmPages:0:idmPageLI:idmPage", false);
         TESTER.assertRenderedPage(Topology.class);
+
+        TESTER.clickLink("body:engagementsLI:engagements", false);
+        TESTER.assertRenderedPage(Engagements.class);
 
         TESTER.clickLink("body:reportsLI:reports", false);
         TESTER.assertRenderedPage(Reports.class);

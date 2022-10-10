@@ -118,7 +118,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
         public Profile(final PolicyRuleWrapper rule) {
             this.rule = rule;
 
-            final AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>(
+            AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>(
                     "rule", "rule", new PropertyModel<>(rule, "implementationKey"));
 
             List<String> choices;
@@ -151,8 +151,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
                     rule.setImplementationEngine(impl.getEngine());
                     if (impl.getEngine() == ImplementationEngine.JAVA) {
                         try {
-                            RuleConf ruleConf = MAPPER.readValue(impl.getBody(), RuleConf.class);
-                            rule.setConf(ruleConf);
+                            rule.setConf(MAPPER.readValue(impl.getBody(), RuleConf.class));
                         } catch (Exception e) {
                             LOG.error("During deserialization", e);
                         }

@@ -167,8 +167,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 for (String name : provisionTO.getAuxClasses()) {
                     AnyTypeClass anyTypeClass = anyTypeClassDAO.find(name);
                     if (anyTypeClass == null || provision.getAuxClasses().contains(name)) {
-                        LOG.warn("Ignoring invalid or already present {}: {}", AnyTypeClass.class.getSimpleName(),
-                                name);
+                        LOG.warn("Ignoring invalid or already present {}: {}",
+                                AnyTypeClass.class.getSimpleName(), name);
                     } else {
                         provision.getAuxClasses().add(anyTypeClass.getKey());
                     }

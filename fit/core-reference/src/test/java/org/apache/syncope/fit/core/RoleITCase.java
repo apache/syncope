@@ -159,7 +159,7 @@ public class RoleITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1472() {
-        final DynRealmTO dynRealmTO = new DynRealmTO();
+        DynRealmTO dynRealmTO = new DynRealmTO();
         dynRealmTO.setKey("dynRealm");
         dynRealmTO.getDynMembershipConds().put(AnyTypeKind.USER.name(), "username=~rossini");
         DYN_REALM_SERVICE.create(dynRealmTO);

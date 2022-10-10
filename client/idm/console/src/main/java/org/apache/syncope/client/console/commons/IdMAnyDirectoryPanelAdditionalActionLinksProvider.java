@@ -68,15 +68,14 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             @Override
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                    new AnyWrapper<>(model.getObject()));
+                        new AnyWrapper<>(model.getObject()));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
-                    modal,
-                    pageRef,
-                    formModel.getObject().getInnerObject(),
-                    "resource",
-                    true)));
+                        pageRef,
+                        formModel.getObject().getInnerObject(),
+                        "resource",
+                        true)));
 
                 modal.header(new Model<>(header));
 
@@ -96,15 +95,14 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 model.setObject(new UserRestClient().read(model.getObject().getKey()));
                 IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                    new AnyWrapper<>(model.getObject()));
+                        new AnyWrapper<>(model.getObject()));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
-                    modal,
-                    pageRef,
-                    formModel.getObject().getInnerObject(),
-                    "resource",
-                    false)));
+                        pageRef,
+                        formModel.getObject().getInnerObject(),
+                        "resource",
+                        false)));
 
                 modal.header(new Model<>(header));
 
@@ -146,7 +144,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 model.setObject(new UserRestClient().read(model.getObject().getKey()));
                 MergeLinkedAccountsWizardBuilder builder =
-                    new MergeLinkedAccountsWizardBuilder(model, pageRef, parentPanel, modal);
+                        new MergeLinkedAccountsWizardBuilder(model, pageRef, parentPanel, modal);
                 builder.setEventSink(builder);
                 target.add(modal.setContent(builder.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
                 modal.header(new StringResourceModel("mergeLinkedAccounts.title", model));
@@ -179,15 +177,14 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 IModel<AnyWrapper<GroupTO>> formModel = new CompoundPropertyModel<>(
-                    new AnyWrapper<>(modelObject));
+                        new AnyWrapper<>(modelObject));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
-                    modal,
-                    pageRef,
-                    formModel.getObject().getInnerObject(),
-                    "resource",
-                    false)));
+                        pageRef,
+                        formModel.getObject().getInnerObject(),
+                        "resource",
+                        false)));
 
                 modal.header(new Model<>(header));
 
@@ -222,15 +219,14 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             @Override
             public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                 final IModel<AnyWrapper<AnyObjectTO>> formModel = new CompoundPropertyModel<>(
-                    new AnyWrapper<>(modelObject));
+                        new AnyWrapper<>(modelObject));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
-                    modal,
-                    pageRef,
-                    formModel.getObject().getInnerObject(),
-                    "resource",
-                    false)));
+                        pageRef,
+                        formModel.getObject().getInnerObject(),
+                        "resource",
+                        false)));
 
                 modal.header(new Model<>(header));
 

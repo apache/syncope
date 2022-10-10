@@ -33,14 +33,10 @@ public class DashboardAccessTokensPanel extends Panel {
     public DashboardAccessTokensPanel(final String id, final PageReference pageRef) {
         super(id);
 
-        WizardMgtPanel<AccessTokenTO> accessTokens = new AccessTokenDirectoryPanel.Builder(pageRef) {
-
-            private static final long serialVersionUID = -5960765294082359003L;
-
-        }.disableCheckBoxes().build("accessTokens");
+        WizardMgtPanel<AccessTokenTO> accessTokens = new AccessTokenDirectoryPanel.Builder(pageRef).
+                disableCheckBoxes().build("accessTokens");
         MetaDataRoleAuthorizationStrategy.authorize(
                 accessTokens, Component.RENDER, IdRepoEntitlement.ACCESS_TOKEN_LIST);
         add(accessTokens);
     }
-
 }

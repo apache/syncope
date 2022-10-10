@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.client.console.topology;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.annotations.IdMPage;
@@ -28,9 +26,6 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Connectors;
 import org.apache.syncope.client.console.pages.Resources;
 import org.apache.syncope.client.console.panels.ConnidLocations;
-import org.apache.syncope.client.console.tasks.SchedTasks;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
@@ -54,28 +49,7 @@ public class TabularTopology extends BasePage {
     }
 
     protected List<ITab> buildTabList() {
-        final List<ITab> tabs = new ArrayList<>();
-
-        tabs.add(new AbstractTab(new Model<>("CustomTasks")) {
-
-            private static final long serialVersionUID = -6815067322125799251L;
-
-            @Override
-            public Panel getPanel(final String panelId) {
-                BaseModal<Serializable> schedTaskModal = new BaseModal<>(Constants.OUTER) {
-
-                    private static final long serialVersionUID = -1673561782333149836L;
-
-                    @Override
-                    protected void onConfigure() {
-                        super.onConfigure();
-                        setFooterVisible(false);
-                    }
-                };
-                schedTaskModal.size(Modal.Size.Large);
-                return new SchedTasks(schedTaskModal, getPageReference(), true, panelId);
-            }
-        });
+        List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new Model<>("Resources")) {
 

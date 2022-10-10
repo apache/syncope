@@ -41,9 +41,28 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
         @UniqueConstraint(columnNames = { "owner" }))
 public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthProfile {
 
+    private static final long serialVersionUID = 57352617217394093L;
+
     public static final String TABLE = "AuthProfile";
 
-    private static final long serialVersionUID = 57352617217394093L;
+    protected static final TypeReference<List<GoogleMfaAuthToken>> GOOGLE_MFA_TOKENS_TYPEREF =
+            new TypeReference<List<GoogleMfaAuthToken>>() {
+    };
+
+    protected static final TypeReference<List<GoogleMfaAuthAccount>> GOOGLE_MFA_ACCOUNTS_TYPEREF =
+            new TypeReference<List<GoogleMfaAuthAccount>>() {
+    };
+
+    protected static final TypeReference<List<U2FDevice>> U2F_TYPEREF = new TypeReference<List<U2FDevice>>() {
+    };
+
+    protected static final TypeReference<List<ImpersonationAccount>> IMPERSONATION_TYPEREF =
+            new TypeReference<List<ImpersonationAccount>>() {
+    };
+
+    protected static final TypeReference<List<WebAuthnDeviceCredential>> WEBAUTHN_TYPEREF =
+            new TypeReference<List<WebAuthnDeviceCredential>>() {
+    };
 
     @Column(nullable = false)
     private String owner;
@@ -76,8 +95,7 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public List<GoogleMfaAuthToken> getGoogleMfaAuthTokens() {
         return Optional.ofNullable(googleMfaAuthTokens).
-                map(v -> POJOHelper.deserialize(v, new TypeReference<List<GoogleMfaAuthToken>>() {
-        })).orElseGet(() -> new ArrayList<>(0));
+                map(v -> POJOHelper.deserialize(v, GOOGLE_MFA_TOKENS_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
     }
 
     @Override
@@ -88,8 +106,7 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts() {
         return Optional.ofNullable(googleMfaAuthAccounts).
-                map(v -> POJOHelper.deserialize(v, new TypeReference<List<GoogleMfaAuthAccount>>() {
-        })).orElseGet(() -> new ArrayList<>(0));
+                map(v -> POJOHelper.deserialize(v, GOOGLE_MFA_ACCOUNTS_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
     }
 
     @Override
@@ -100,8 +117,7 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public List<U2FDevice> getU2FRegisteredDevices() {
         return Optional.ofNullable(u2fRegisteredDevices).
-                map(v -> POJOHelper.deserialize(v, new TypeReference<List<U2FDevice>>() {
-        })).orElseGet(() -> new ArrayList<>(0));
+                map(v -> POJOHelper.deserialize(v, U2F_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
     }
 
     @Override
@@ -112,8 +128,7 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public List<ImpersonationAccount> getImpersonationAccounts() {
         return Optional.ofNullable(impersonationAccounts).
-                map(v -> POJOHelper.deserialize(v, new TypeReference<List<ImpersonationAccount>>() {
-        })).orElseGet(() -> new ArrayList<>(0));
+                map(v -> POJOHelper.deserialize(v, IMPERSONATION_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
     }
 
     @Override
@@ -124,8 +139,7 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials() {
         return Optional.ofNullable(webAuthnDeviceCredentials).
-                map(v -> POJOHelper.deserialize(v, new TypeReference<List<WebAuthnDeviceCredential>>() {
-        })).orElseGet(() -> new ArrayList<>(0));
+                map(v -> POJOHelper.deserialize(v, WEBAUTHN_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
     }
 
     @Override

@@ -46,9 +46,12 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 @Table(name = JPAAuthModule.TABLE)
 public class JPAAuthModule extends AbstractProvidedKeyEntity implements AuthModule {
 
+    private static final long serialVersionUID = 5681033638234853077L;
+
     public static final String TABLE = "AuthModule";
 
-    private static final long serialVersionUID = 5681033638234853077L;
+    protected static final TypeReference<List<Item>> TYPEREF = new TypeReference<List<Item>>() {
+    };
 
     private String description;
 
@@ -123,9 +126,7 @@ public class JPAAuthModule extends AbstractProvidedKeyEntity implements AuthModu
             getItems().clear();
         }
         if (items != null) {
-            getItems().addAll(
-                    POJOHelper.deserialize(items, new TypeReference<List<Item>>() {
-                    }));
+            getItems().addAll(POJOHelper.deserialize(items, TYPEREF));
         }
     }
 

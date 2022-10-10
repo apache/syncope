@@ -82,6 +82,7 @@ public class AccessTokenDirectoryPanel
     @Override
     protected List<IColumn<AccessTokenTO, String>> getColumns() {
         List<IColumn<AccessTokenTO, String>> columns = new ArrayList<>();
+
         columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this),
                 Constants.KEY_FIELD_NAME,
@@ -118,7 +119,7 @@ public class AccessTokenDirectoryPanel
 
     @Override
     public ActionsPanel<AccessTokenTO> getActions(final IModel<AccessTokenTO> model) {
-        final ActionsPanel<AccessTokenTO> panel = super.getActions(model);
+        ActionsPanel<AccessTokenTO> panel = super.getActions(model);
 
         panel.add(new ActionLink<>() {
 
@@ -146,7 +147,7 @@ public class AccessTokenDirectoryPanel
         return List.of();
     }
 
-    public abstract static class Builder
+    public static class Builder
             extends DirectoryPanel.Builder<AccessTokenTO, AccessTokenTO, AccessTokenRestClient> {
 
         private static final long serialVersionUID = 5088962796986706805L;
@@ -164,8 +165,6 @@ public class AccessTokenDirectoryPanel
     protected static class AccessTokenDataProvider extends DirectoryDataProvider<AccessTokenTO> {
 
         private static final long serialVersionUID = 6267494272884913376L;
-
-        private final AccessTokenRestClient restClient = new AccessTokenRestClient();
 
         public AccessTokenDataProvider(final int paginatorRows) {
             super(paginatorRows);

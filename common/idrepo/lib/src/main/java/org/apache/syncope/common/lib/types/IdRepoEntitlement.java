@@ -240,6 +240,8 @@ public final class IdRepoEntitlement {
 
     public static final String DELEGATION_DELETE = "DELEGATION_DELETE";
 
+    public static final String COMMAND_RUN = "COMMAND_RUN";
+
     public static final String LOGGER_LIST = "LOGGER_LIST";
 
     public static final String LOGGER_UPDATE = "LOGGER_UPDATE";

@@ -299,8 +299,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public TaskUtilsFactory taskUtilsFactory(final @Lazy EntityFactory entityFactory) {
-        return new JPATaskUtilsFactory(entityFactory);
+    public TaskUtilsFactory taskUtilsFactory() {
+        return new JPATaskUtilsFactory();
     }
 
     @ConditionalOnMissingBean
@@ -581,13 +581,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public RealmDAO realmDAO(
-            final @Lazy RoleDAO roleDAO,
-            final @Lazy CASSPClientAppDAO casSPClientAppDAO,
-            final @Lazy OIDCRPClientAppDAO oidcRPClientAppDAO,
-            final @Lazy SAML2SPClientAppDAO saml2SPClientAppDAO) {
-
-        return new JPARealmDAO(roleDAO, casSPClientAppDAO, oidcRPClientAppDAO, saml2SPClientAppDAO);
+    public RealmDAO realmDAO(final @Lazy RoleDAO roleDAO) {
+        return new JPARealmDAO(roleDAO);
     }
 
     @ConditionalOnMissingBean
@@ -678,14 +673,19 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public TaskDAO taskDAO(final RemediationDAO remediationDAO) {
-        return new JPATaskDAO(remediationDAO);
+    public TaskDAO taskDAO(
+            final RealmDAO realmDAO,
+            final RemediationDAO remediationDAO,
+            final TaskUtilsFactory taskUtilsFactory,
+            final SecurityProperties securityProperties) {
+
+        return new JPATaskDAO(realmDAO, remediationDAO, taskUtilsFactory, securityProperties);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public TaskExecDAO taskExecDAO(final TaskDAO taskDAO) {
-        return new JPATaskExecDAO(taskDAO);
+    public TaskExecDAO taskExecDAO(final TaskDAO taskDAO, final TaskUtilsFactory taskUtilsFactory) {
+        return new JPATaskExecDAO(taskDAO, taskUtilsFactory);
     }
 
     @ConditionalOnMissingBean

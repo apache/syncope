@@ -74,6 +74,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
     private static final SortParam<String> REST_SORT = new SortParam<>("event_date", false);
 
     private EntityTO currentEntity;
+
     private AuditElements.EventCategoryType type;
 
     private String category;
@@ -90,7 +91,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
     private AjaxDropDownChoicePanel<AuditEntry> afterVersionsPanel;
 
-    private AjaxLink<Void> restore;
+    private final AjaxLink<Void> restore;
 
     private static class SortingNodeFactory extends JsonNodeFactory {
 
@@ -156,6 +157,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
             registerModule(new SimpleModule().addSerializer(new SortedSetJsonSerializer(cast(Set.class)))).
             registerModule(new JavaTimeModule());
 
+    @SuppressWarnings("unchecked")
     public AuditHistoryDetails(
             final String id,
             final EntityTO currentEntity,
@@ -187,10 +189,10 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
             @Override
             public AuditEntry getObject(final String id, final IModel<? extends List<? extends AuditEntry>> choices) {
-                return choices.getObject().stream()
-                        .filter(c -> StringUtils.isNotBlank(id)
-                                && Long.valueOf(id) == c.getDate().toInstant().toEpochMilli()).findFirst()
-                        .orElse(null);
+                return choices.getObject().stream().
+                        filter(c -> StringUtils.isNotBlank(id)
+                        && Long.parseLong(id) == c.getDate().toInstant().toEpochMilli()).
+                        findFirst().orElse(null);
             }
         };
         // add also select to choose with which version compare
@@ -213,10 +215,10 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
                 AuditHistoryDetails.this.addOrReplace(new JsonDiffPanel(toJSON(beforeEntry, reference),
                         toJSON(afterEntry, reference)));
                 // change after audit entries in order to match only the ones newer than the current after one
-                afterVersionsPanel.setChoices(auditEntries.stream().filter(ae ->
-                                ae.getDate().isAfter(beforeEntry.getDate())
-                                        || ae.getDate().isEqual(beforeEntry.getDate()))
-                        .collect(Collectors.toList()));
+                afterVersionsPanel.setChoices(auditEntries.stream().
+                        filter(ae -> ae.getDate().isAfter(beforeEntry.getDate())
+                        || ae.getDate().isEqual(beforeEntry.getDate())).
+                        collect(Collectors.toList()));
                 // set the new after entry
                 afterVersionsPanel.setModelObject(afterEntry);
                 target.add(AuditHistoryDetails.this);
@@ -232,13 +234,13 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
             @Override
             protected void onEvent(final AjaxRequestTarget target) {
-                AuditHistoryDetails.this.addOrReplace(
-                        new JsonDiffPanel(toJSON(beforeVersionsPanel.getModelObject() == null
+                AuditHistoryDetails.this.addOrReplace(new JsonDiffPanel(
+                        toJSON(beforeVersionsPanel.getModelObject() == null
                                 ? latestAuditEntry
                                 : beforeVersionsPanel.getModelObject(), reference),
-                                toJSON(afterVersionsPanel.getModelObject() == null
-                                        ? after
-                                        : buildAfterAuditEntry(afterVersionsPanel.getModelObject()), reference)));
+                        toJSON(afterVersionsPanel.getModelObject() == null
+                                ? after
+                                : buildAfterAuditEntry(afterVersionsPanel.getModelObject()), reference)));
                 target.add(AuditHistoryDetails.this);
             }
         });
@@ -268,7 +270,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         };
         MetaDataRoleAuthorizationStrategy.authorize(restore, ENABLE, auditRestoreEntitlement);
         add(restore);
-        
+
         initDiff();
     }
 
@@ -294,9 +296,9 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         addOrReplace(new JsonDiffPanel(toJSON(latestAuditEntry, reference), toJSON(after, reference)));
 
         beforeVersionsPanel.setChoices(auditEntries);
-        afterVersionsPanel.setChoices(auditEntries.stream().filter(ae ->
-                ae.getDate().isAfter(after.getDate()) || ae.getDate().isEqual(after.getDate())).collect(
-                Collectors.toList()));
+        afterVersionsPanel.setChoices(auditEntries.stream().
+                filter(ae -> ae.getDate().isAfter(after.getDate()) || ae.getDate().isEqual(after.getDate())).
+                collect(Collectors.toList()));
 
         beforeVersionsPanel.setModelObject(latestAuditEntry);
         afterVersionsPanel.setModelObject(after);

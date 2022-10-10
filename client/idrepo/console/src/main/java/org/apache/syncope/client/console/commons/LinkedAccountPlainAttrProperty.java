@@ -18,20 +18,15 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@XmlRootElement
-@XmlType
 public class LinkedAccountPlainAttrProperty implements Serializable, Comparable<LinkedAccountPlainAttrProperty> {
 
     private static final long serialVersionUID = -5309050337675968950L;
@@ -50,9 +45,8 @@ public class LinkedAccountPlainAttrProperty implements Serializable, Comparable<
         this.schema = schema;
     }
 
-    @XmlElementWrapper(name = "values")
-    @XmlElement(name = "value")
-    @JsonProperty("values")
+    @JacksonXmlElementWrapper(localName = "values")
+    @JacksonXmlProperty(localName = "value")
     public List<String> getValues() {
         return values;
     }

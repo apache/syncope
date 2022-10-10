@@ -58,6 +58,10 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
 
     public static final String TABLE = "ConnInstance";
 
+    protected static final TypeReference<Set<ConnectorCapability>> TYPEREF =
+            new TypeReference<Set<ConnectorCapability>>() {
+    };
+
     private static final int DEFAULT_TIMEOUT = 10;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
@@ -246,9 +250,7 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
             getCapabilities().clear();
         }
         if (capabilities != null) {
-            getCapabilities().addAll(
-                    POJOHelper.deserialize(capabilities, new TypeReference<Set<ConnectorCapability>>() {
-                    }));
+            getCapabilities().addAll(POJOHelper.deserialize(capabilities, TYPEREF));
         }
     }
 

@@ -252,7 +252,9 @@ components:
 * <<propagationactions,propagation>>, <<pushactions,push>>, <<pullactions,pull>> and <<logicactions,logic>> actions
 * <<push-correlation-rules,push>> / <<pull-correlation-rules,pull>> correlation rules
 * <<pull-mode,reconciliation filter builders>>
-* <<tasks-custom,custom tasks>>
+* <<commands,commands>>
+* <<tasks-macro,macros>>
+* <<tasks-scheduled,scheduled tasks>>
 * <<reportlets,reportlets>>
 * <<account-rules,account>> and <<password-rules,password>> rules for policies
 * <<plain,plain schema validators>>
@@ -379,10 +381,10 @@ as explained <<extending-configuration,above>>.
 
 It is also required to initialize the Elasticsearch indexes: add a new Java <<implementations,implementation>> for
 `TASKJOB_DELEGATE` and use `org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex` as class. +
-Then, create a new <<tasks-custom, custom task>>, select the implementation just created as job delegate and execute it.
+Then, create a new <<tasks-scheduled, schedyled task>>, select the implementation just created as job delegate and execute it.
 
 [TIP]
-The `org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex` custom task created above is not meant for
+The `org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex` task created above is not meant for
 scheduled execution; rather, it can be run every time you want to blank and re-create the Elasticsearch indexes
 starting from Syncope's users, groups and any objects.
 

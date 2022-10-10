@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,9 @@ public class TaskExecTest extends AbstractTest {
 
     @Autowired
     private TaskDAO taskDAO;
+
+    @Autowired
+    private TaskUtilsFactory taskUtilsFactory;
 
     @Test
     public void findAll() {
@@ -74,7 +78,7 @@ public class TaskExecTest extends AbstractTest {
         String faultyMessage = "A faulty message";
         faultyMessage = faultyMessage.replace('a', '\0');
 
-        TaskExec<PropagationTask> exec = entityFactory.newTaskExec(TaskType.PROPAGATION);
+        TaskExec<PropagationTask> exec = taskUtilsFactory.getInstance(TaskType.PROPAGATION).newTaskExec();
         exec.setStart(OffsetDateTime.now());
         exec.setEnd(OffsetDateTime.now());
         exec.setStatus(ExecStatus.SUCCESS.name());

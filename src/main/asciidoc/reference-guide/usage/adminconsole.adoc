@@ -101,6 +101,14 @@ The realms page provides the designated administrators with the power to manage 
 
 image::realmsUser.png[console-realms-user]
 
+[discrete]
+===== Engagements
+
+From the engagements page it is possible to administer <<tasks-scheduled,scheduled tasks>>, <<commands,commands>> and
+<<tasks-macro,macros>>.
+
+image::engagements.png[console-engagements]
+
 [[console-reports]]
 [discrete]
 ===== Reports

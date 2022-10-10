@@ -49,7 +49,6 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
@@ -126,8 +125,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     protected final TaskUtilsFactory taskUtilsFactory;
 
-    protected final EntityFactory entityFactory;
-
     protected final OutboundMatcher outboundMatcher;
 
     protected final PlainAttrValidationManager validator;
@@ -148,7 +145,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final TaskDataBinder taskDataBinder,
             final AnyUtilsFactory anyUtilsFactory,
             final TaskUtilsFactory taskUtilsFactory,
-            final EntityFactory entityFactory,
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator) {
 
@@ -165,7 +161,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         this.taskDataBinder = taskDataBinder;
         this.anyUtilsFactory = anyUtilsFactory;
         this.taskUtilsFactory = taskUtilsFactory;
-        this.entityFactory = entityFactory;
         this.outboundMatcher = outboundMatcher;
         this.validator = validator;
     }
@@ -496,7 +491,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         OffsetDateTime start = OffsetDateTime.now();
 
-        TaskExec<PropagationTask> exec = entityFactory.newTaskExec(TaskType.PROPAGATION);
+        TaskExec<PropagationTask> exec = taskUtilsFactory.getInstance(TaskType.PROPAGATION).newTaskExec();
         exec.setStatus(ExecStatus.CREATED.name());
         exec.setExecutor(executor);
 
@@ -696,7 +691,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final PropagationReporter reporter,
             final String executor) {
 
-        TaskExec<PropagationTask> execution = entityFactory.newTaskExec(TaskType.PROPAGATION);
+        TaskExec<PropagationTask> execution = taskUtilsFactory.getInstance(TaskType.PROPAGATION).newTaskExec();
         execution.setStatus(ExecStatus.NOT_ATTEMPTED.name());
         execution.setExecutor(executor);
         execution.setStart(OffsetDateTime.now());
@@ -764,7 +759,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             return Optional.empty();
         }
 
-        PropagationTask task = entityFactory.newEntity(PropagationTask.class);
+        PropagationTask task = taskUtilsFactory.getInstance(TaskType.PROPAGATION).newTask();
         task.setResource(resourceDAO.find(resource.getKey()));
         task.setObjectClassName(taskInfo.getObjectClass().getObjectClassValue());
         task.setAnyTypeKind(taskInfo.getAnyTypeKind());

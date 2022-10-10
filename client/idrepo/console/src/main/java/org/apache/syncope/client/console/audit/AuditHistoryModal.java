@@ -37,7 +37,7 @@ public abstract class AuditHistoryModal<T extends EntityTO> extends Panel implem
 
         super(BaseModal.CONTENT_ID);
 
-        add(new AuditHistoryDetails(
+        add(new AuditHistoryDetails<>(
                 "history",
                 entity,
                 type,

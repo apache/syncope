@@ -25,7 +25,9 @@ import java.time.OffsetDateTime;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@Schema(allOf = { TaskTO.class }, subTypes = { ProvisioningTaskTO.class }, discriminatorProperty = "_class")
+@Schema(allOf = { TaskTO.class },
+        subTypes = { ProvisioningTaskTO.class, MacroTaskTO.class },
+        discriminatorProperty = "_class")
 public class SchedTaskTO extends TaskTO implements NamedEntityTO {
 
     private static final long serialVersionUID = -5722284116974636425L;

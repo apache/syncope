@@ -62,6 +62,9 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
 
     public static final String TABLE = "SyncopeRole";
 
+    protected static final TypeReference<Set<String>> TYPEREF = new TypeReference<Set<String>>() {
+    };
+
     @Lob
     private String entitlements;
 
@@ -177,8 +180,7 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
         }
         if (entitlements != null) {
             getEntitlements().addAll(
-                    POJOHelper.deserialize(entitlements, new TypeReference<Set<String>>() {
-                    }));
+                    POJOHelper.deserialize(entitlements, TYPEREF));
         }
     }
 

@@ -48,31 +48,29 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
 
     protected final BaseModal<?> baseModal;
 
-    private final MultilevelPanel multiLevelPanelRef;
+    protected final MultilevelPanel multiLevelPanelRef;
 
     protected TaskDirectoryPanel(
-            final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanelRef, final PageReference pageRef) {
-        super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, false);
-        this.baseModal = baseModal;
-        this.multiLevelPanelRef = multiLevelPanelRef;
-        restClient = new TaskRestClient();
-        setShowResultPanel(false);
-    }
-
-    protected TaskDirectoryPanel(
-            final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanelRef, final PageReference pageRef,
+            final BaseModal<?> baseModal,
+            final MultilevelPanel multiLevelPanelRef,
+            final PageReference pageRef,
             final boolean wizardInModal) {
-        super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, wizardInModal);
-        this.baseModal = baseModal;
-        this.multiLevelPanelRef = multiLevelPanelRef;
-        restClient = new TaskRestClient();
-        setShowResultPanel(false);
+
+        this(MultilevelPanel.FIRST_LEVEL_ID, baseModal, multiLevelPanelRef, pageRef, wizardInModal);
+    }
+
+    protected TaskDirectoryPanel(final String id, final PageReference pageRef) {
+        this(id, null, null, pageRef, false);
     }
 
     protected TaskDirectoryPanel(
-            final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanelRef, final PageReference pageRef,
-            final String id) {
-        super(id, pageRef, false);
+            final String id,
+            final BaseModal<?> baseModal,
+            final MultilevelPanel multiLevelPanelRef,
+            final PageReference pageRef,
+            final boolean wizardInModal) {
+
+        super(id, pageRef, wizardInModal);
         this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         restClient = new TaskRestClient();
@@ -81,10 +79,10 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
 
     @Override
     protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<T, String> resultTableBuilder) {
-        resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
+        resultTableBuilder.setMultiLevelPanel(multiLevelPanelRef);
     }
 
-    protected abstract void viewTask(T taskTO, AjaxRequestTarget target);
+    protected abstract void viewTaskExecs(T taskTO, AjaxRequestTarget target);
 
     protected abstract static class TasksProvider<T extends TaskTO> extends DirectoryDataProvider<T> {
 
@@ -114,7 +112,7 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
         if (event.getPayload() instanceof ExitEvent) {
-            final AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
+            AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
             baseModal.show(false);
             baseModal.close(target);
         }

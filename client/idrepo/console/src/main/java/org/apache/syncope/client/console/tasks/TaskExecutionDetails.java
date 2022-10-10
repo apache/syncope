@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.tasks;
 
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -34,13 +33,13 @@ public class TaskExecutionDetails<T extends TaskTO> extends MultilevelPanel.Seco
 
     private static final long serialVersionUID = -4110576026663173545L;
 
-    public TaskExecutionDetails(final BaseModal<?> baseModal, final T taskTO, final PageReference pageRef) {
+    public TaskExecutionDetails(final T taskTO, final PageReference pageRef) {
         super();
 
-        final MultilevelPanel mlp = new MultilevelPanel("executions");
+        MultilevelPanel mlp = new MultilevelPanel("executions");
         add(mlp);
 
-        mlp.setFirstLevel(new ExecutionsDirectoryPanel(baseModal, mlp, taskTO.getKey(), new TaskRestClient(), pageRef) {
+        mlp.setFirstLevel(new ExecutionsDirectoryPanel(mlp, taskTO.getKey(), new TaskRestClient(), pageRef) {
 
             private static final long serialVersionUID = 5691719817252887541L;
 
@@ -49,6 +48,7 @@ public class TaskExecutionDetails<T extends TaskTO> extends MultilevelPanel.Seco
                     final String title,
                     final MultilevelPanel.SecondLevel slevel,
                     final AjaxRequestTarget target) {
+
                 mlp.next(title, slevel, target);
             }
         });

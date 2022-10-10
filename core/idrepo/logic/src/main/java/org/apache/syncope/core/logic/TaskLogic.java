@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ArrayUtils;
@@ -34,6 +35,7 @@ import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
+import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
@@ -52,6 +54,9 @@ import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Notification;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
@@ -69,6 +74,7 @@ import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
@@ -124,6 +130,13 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         this.taskUtilsFactory = taskUtilsFactory;
     }
 
+    protected void securityChecks(final String entitlement, final String realm) {
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(entitlement);
+        if (authRealms.stream().noneMatch(r -> realm.startsWith(r))) {
+            throw new DelegatedAdministrationException(realm, MacroTask.class.getSimpleName(), null);
+        }
+    }
+
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_CREATE + "')")
     public <T extends SchedTaskTO> T createSchedTask(final TaskType type, final T taskTO) {
         TaskUtils taskUtils = taskUtilsFactory.getInstance(taskTO);
@@ -132,6 +145,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             sce.getElements().add("Found " + type + ", expected " + taskUtils.getType());
             throw sce;
         }
+
+        if (taskUtils.getType() == TaskType.MACRO) {
+            securityChecks(IdRepoEntitlement.TASK_CREATE, ((MacroTaskTO) taskTO).getRealm());
+        }
+
         SchedTask task = binder.createSchedTask(taskTO, taskUtils);
         task = taskDAO.save(task);
 
@@ -166,6 +184,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             throw sce;
         }
 
+        if (taskUtils.getType() == TaskType.MACRO) {
+            securityChecks(IdRepoEntitlement.TASK_UPDATE, ((MacroTask) task).getRealm().getFullPath());
+            securityChecks(IdRepoEntitlement.TASK_UPDATE, ((MacroTaskTO) taskTO).getRealm());
+        }
+
         binder.updateSchedTask(task, taskTO, taskUtils);
         task = taskDAO.save(task);
         try {
@@ -187,7 +210,6 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")
     @Transactional(readOnly = true)
-    @SuppressWarnings("unchecked")
     public <T extends TaskTO> Pair<Integer, List<T>> search(
             final TaskType type,
             final String resource,
@@ -204,12 +226,32 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 throw new IllegalArgumentException("type is required");
             }
 
+            ExternalResource resourceObj = resourceDAO.find(resource);
+            if (resource != null && resourceObj == null) {
+                throw new IllegalArgumentException("Missing External Resource: " + resource);
+            }
+
+            Notification notificationObj = notificationDAO.find(notification);
+            if (notification != null && notificationObj == null) {
+                throw new IllegalArgumentException("Missing Notification: " + notification);
+            }
+
             int count = taskDAO.count(
-                    type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, entityKey);
+                    type,
+                    resourceObj,
+                    notificationObj,
+                    anyTypeKind,
+                    entityKey);
 
             List<T> result = taskDAO.findAll(
-                    type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, entityKey,
-                    page, size, orderByClauses).stream().
+                    type,
+                    resourceObj,
+                    notificationObj,
+                    anyTypeKind,
+                    entityKey,
+                    page,
+                    size,
+                    orderByClauses).stream().
                     <T>map(task -> binder.getTaskTO(task, taskUtilsFactory.getInstance(type), details)).
                     collect(Collectors.toList());
 
@@ -236,6 +278,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             throw sce;
         }
 
+        if (taskUtils.getType() == TaskType.MACRO) {
+            securityChecks(IdRepoEntitlement.TASK_READ, ((MacroTask) task).getRealm().getFullPath());
+        }
+
         return binder.getTaskTO(task, taskUtilsFactory.getInstance(task), details);
     }
 
@@ -249,11 +295,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             throw sce;
         }
 
-        TaskUtils taskUtil = taskUtilsFactory.getInstance(task);
+        TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
         String executor = AuthContextUtils.getUsername();
 
         ExecTO result = null;
-        switch (taskUtil.getType()) {
+        switch (taskUtils.getType()) {
             case PROPAGATION:
                 PropagationTask propagationTask = (PropagationTask) task;
                 PropagationTaskInfo taskInfo = new PropagationTaskInfo(
@@ -281,6 +327,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             case SCHEDULED:
             case PULL:
             case PUSH:
+            case MACRO:
+                if (taskUtils.getType() == TaskType.MACRO) {
+                    securityChecks(IdRepoEntitlement.TASK_EXECUTE, ((MacroTask) task).getRealm().getFullPath());
+                }
+
                 if (!((SchedTask) task).isActive()) {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
                     sce.getElements().add("Task " + key + " is not active");
@@ -337,6 +388,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             throw sce;
         }
 
+        if (taskUtils.getType() == TaskType.MACRO) {
+            securityChecks(IdRepoEntitlement.TASK_DELETE, ((MacroTask) task).getRealm().getFullPath());
+        }
+
         T taskToDelete = binder.getTaskTO(task, taskUtils, true);
 
         if (TaskType.SCHEDULED == taskUtils.getType()
@@ -357,10 +412,14 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
+        if (task instanceof MacroTask) {
+            securityChecks(IdRepoEntitlement.TASK_READ, ((MacroTask) task).getRealm().getFullPath());
+        }
+
         Integer count = taskExecDAO.count(task);
 
         List<ExecTO> result = taskExecDAO.findAll(task, page, size, orderByClauses).stream().
-                map(taskExec -> binder.getExecTO(taskExec)).collect(Collectors.toList());
+                map(exec -> binder.getExecTO(exec)).collect(Collectors.toList());
 
         return Pair.of(count, result);
     }
@@ -369,18 +428,36 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @Override
     public List<ExecTO> listRecentExecutions(final int max) {
         return taskExecDAO.findRecent(max).stream().
-                map(taskExec -> binder.getExecTO(taskExec)).collect(Collectors.toList());
+                map(exec -> {
+                    try {
+                        if (exec.getTask() instanceof MacroTask) {
+                            securityChecks(IdRepoEntitlement.TASK_DELETE,
+                                    ((MacroTask) exec.getTask()).getRealm().getFullPath());
+                        }
+
+                        return binder.getExecTO(exec);
+                    } catch (DelegatedAdministrationException e) {
+                        LOG.error("Skip executions for command task", e);
+                        return null;
+                    }
+                }).
+                filter(Objects::nonNull).
+                collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")
     @Override
     public ExecTO deleteExecution(final String execKey) {
-        TaskExec<?> taskExec = taskExecDAO.find(execKey).
+        TaskExec<?> exec = taskExecDAO.find(execKey).
                 orElseThrow(() -> new NotFoundException("Task execution " + execKey));
 
-        ExecTO taskExecutionToDelete = binder.getExecTO(taskExec);
-        taskExecDAO.delete(taskExec);
-        return taskExecutionToDelete;
+        if (exec.getTask() instanceof MacroTask) {
+            securityChecks(IdRepoEntitlement.TASK_DELETE, ((MacroTask) exec.getTask()).getRealm().getFullPath());
+        }
+
+        ExecTO executionToDelete = binder.getExecTO(exec);
+        taskExecDAO.delete(exec);
+        return executionToDelete;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")
@@ -402,6 +479,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             batchResponseItems.add(item);
 
             try {
+                if (exec.getTask() instanceof MacroTask) {
+                    securityChecks(IdRepoEntitlement.TASK_DELETE,
+                            ((MacroTask) exec.getTask()).getRealm().getFullPath());
+                }
+
                 taskExecDAO.delete(exec);
                 item.setStatus(Response.Status.OK.getStatusCode());
             } catch (Exception e) {
@@ -435,6 +517,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     public JobTO getJob(final String key) {
         Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
+        if (task instanceof MacroTask) {
+            securityChecks(IdRepoEntitlement.TASK_READ, ((MacroTask) task).getRealm().getFullPath());
+        }
+
         JobTO jobTO = null;
         try {
             jobTO = getJobTO(JobNamer.getJobKey(task), false);
@@ -455,6 +541,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @Override
     public void actionJob(final String key, final JobAction action) {
         Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
+
+        if (task instanceof MacroTask) {
+            securityChecks(IdRepoEntitlement.TASK_EXECUTE, ((MacroTask) task).getRealm().getFullPath());
+        }
 
         doActionJob(JobNamer.getJobKey(task), action);
     }

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.api.utils;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
@@ -26,6 +25,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeConstants;
 
 public final class RealmUtils {
 
@@ -88,31 +88,32 @@ public final class RealmUtils {
         }
     }
 
-    public static class DynRealmsPredicate implements Predicate<String> {
+    private static final Predicate<String> DYN_REALMS_PREDICATE = new Predicate<String>() {
 
         @Override
         public boolean test(final String realm) {
-            return !realm.startsWith("/");
+            return !realm.startsWith(SyncopeConstants.ROOT_REALM);
         }
-    }
+    };
 
     public static Set<String> getEffective(final Set<String> allowedRealms, final String requestedRealm) {
         Pair<Set<String>, Set<String>> normalized = normalize(allowedRealms);
 
-        Collection<String> requested = Arrays.asList(requestedRealm);
+        Set<String> requested = Set.of(requestedRealm);
+
+        StartsWithPredicate normalizedFilter = new StartsWithPredicate(normalized.getLeft());
+        StartsWithPredicate requestedFilter = new StartsWithPredicate(requested);
 
         Set<String> effective = new HashSet<>();
-        effective.addAll(requested.stream().
-                filter(new StartsWithPredicate(normalized.getLeft())).collect(Collectors.toSet()));
-        effective.addAll(normalized.getLeft().stream().
-                filter(new StartsWithPredicate(requested)).collect(Collectors.toSet()));
+        effective.addAll(requested.stream().filter(normalizedFilter).collect(Collectors.toSet()));
+        effective.addAll(normalized.getLeft().stream().filter(requestedFilter).collect(Collectors.toSet()));
 
         // includes group ownership
         effective.addAll(normalized.getRight());
 
         // includes dynamic realms
         if (allowedRealms != null) {
-            effective.addAll(allowedRealms.stream().filter(new DynRealmsPredicate()).collect(Collectors.toSet()));
+            effective.addAll(allowedRealms.stream().filter(DYN_REALMS_PREDICATE).collect(Collectors.toSet()));
         }
 
         return effective;

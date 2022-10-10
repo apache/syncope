@@ -126,6 +126,9 @@ public class ITImplementationLookup implements ImplementationLookup {
     private static final Set<Class<?>> PROVISION_SORTER_CLASSES =
             Set.of(DefaultProvisionSorter.class);
 
+    private static final Set<Class<?>> COMMAND_CLASSES =
+            Set.of(TestCommand.class);
+
     private static final Map<String, Set<String>> CLASS_NAMES = new HashMap<>() {
 
         private static final long serialVersionUID = 3109256773218160485L;
@@ -210,6 +213,10 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames = ITImplementationLookup.PROVISION_SORTER_CLASSES.stream().
                     map(Class::getName).collect(Collectors.toSet());
             put(IdMImplementationType.PROVISION_SORTER, classNames);
+
+            classNames = ITImplementationLookup.COMMAND_CLASSES.stream().
+                    map(Class::getName).collect(Collectors.toSet());
+            put(IdRepoImplementationType.COMMAND, classNames);
         }
     };
 

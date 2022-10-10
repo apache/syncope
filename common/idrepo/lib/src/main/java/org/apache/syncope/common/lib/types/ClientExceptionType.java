@@ -22,7 +22,6 @@ import javax.ws.rs.core.Response;
 
 public enum ClientExceptionType {
 
-    AssociatedAnys(Response.Status.BAD_REQUEST),
     AssociatedResources(Response.Status.BAD_REQUEST),
     Composite(Response.Status.BAD_REQUEST),
     ConcurrentModification(Response.Status.PRECONDITION_FAILED),
@@ -70,6 +69,7 @@ public enum ClientExceptionType {
     InvalidRequest(Response.Status.BAD_REQUEST),
     InvalidValues(Response.Status.BAD_REQUEST),
     NotFound(Response.Status.NOT_FOUND),
+    RealmContains(Response.Status.BAD_REQUEST),
     RequiredValuesMissing(Response.Status.BAD_REQUEST),
     RESTValidation(Response.Status.BAD_REQUEST),
     GroupOwnership(Response.Status.BAD_REQUEST),
@@ -77,6 +77,7 @@ public enum ClientExceptionType {
     Scheduling(Response.Status.BAD_REQUEST),
     DelegatedAdministration(Response.Status.FORBIDDEN),
     Reconciliation(Response.Status.BAD_REQUEST),
+    RunError(Response.Status.INTERNAL_SERVER_ERROR),
     Unknown(Response.Status.BAD_REQUEST),
     Workflow(Response.Status.BAD_REQUEST);
 

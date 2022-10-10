@@ -68,10 +68,10 @@ public class NotificationTasks extends Panel implements ModalPanel {
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
-            protected void viewTask(final NotificationTaskTO taskTO, final AjaxRequestTarget target) {
+            protected void viewTaskExecs(final NotificationTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
                         new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
-                        new TaskExecutionDetails<>(null, taskTO, pageReference), target);
+                        new TaskExecutionDetails<>(taskTO, pageReference), target);
             }
 
             @Override
@@ -82,7 +82,6 @@ public class NotificationTasks extends Panel implements ModalPanel {
                         new StringResourceModel("content", this).setParameters(format.name()).getObject(),
                         new NotificationMailBodyDetails(content), target);
             }
-
         });
     }
 }

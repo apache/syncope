@@ -42,9 +42,16 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 @Table(name = JPASAML2SPClientApp.TABLE)
 public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPClientApp {
 
+    private static final long serialVersionUID = 6422422526695279794L;
+
     public static final String TABLE = "SAML2SPClientApp";
 
-    private static final long serialVersionUID = 6422422526695279794L;
+    protected static final TypeReference<Set<String>> STRING_TYPEREF = new TypeReference<Set<String>>() {
+    };
+
+    protected static final TypeReference<List<XmlSecAlgorithm>> XMLSECAGO_TYPEREF =
+            new TypeReference<List<XmlSecAlgorithm>>() {
+    };
 
     @Column(unique = true, nullable = false)
     private String entityId;
@@ -289,45 +296,31 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
         }
         if (assertionAudiences != null) {
             getAssertionAudiences().addAll(
-                    POJOHelper.deserialize(assertionAudiences,
-                            new TypeReference<Set<String>>() {
-                    }));
+                    POJOHelper.deserialize(assertionAudiences, STRING_TYPEREF));
         }
         if (signingSignatureAlgorithms != null) {
             getSigningSignatureAlgorithms().addAll(
-                    POJOHelper.deserialize(signingSignatureAlgorithms,
-                            new TypeReference<List<XmlSecAlgorithm>>() {
-                    }));
+                    POJOHelper.deserialize(signingSignatureAlgorithms, XMLSECAGO_TYPEREF));
         }
         if (signingSignatureReferenceDigestMethods != null) {
             getSigningSignatureReferenceDigestMethods().addAll(
-                    POJOHelper.deserialize(signingSignatureReferenceDigestMethods,
-                            new TypeReference<List<XmlSecAlgorithm>>() {
-                    }));
+                    POJOHelper.deserialize(signingSignatureReferenceDigestMethods, XMLSECAGO_TYPEREF));
         }
         if (encryptionDataAlgorithms != null) {
             getEncryptionDataAlgorithms().addAll(
-                    POJOHelper.deserialize(encryptionDataAlgorithms,
-                            new TypeReference<List<XmlSecAlgorithm>>() {
-                    }));
+                    POJOHelper.deserialize(encryptionDataAlgorithms, XMLSECAGO_TYPEREF));
         }
         if (encryptionKeyAlgorithms != null) {
             getEncryptionKeyAlgorithms().addAll(
-                    POJOHelper.deserialize(encryptionKeyAlgorithms,
-                            new TypeReference<List<XmlSecAlgorithm>>() {
-                    }));
+                    POJOHelper.deserialize(encryptionKeyAlgorithms, XMLSECAGO_TYPEREF));
         }
         if (signingSignatureBlackListedAlgorithms != null) {
             getSigningSignatureBlackListedAlgorithms().addAll(
-                    POJOHelper.deserialize(signingSignatureBlackListedAlgorithms,
-                            new TypeReference<List<XmlSecAlgorithm>>() {
-                    }));
+                    POJOHelper.deserialize(signingSignatureBlackListedAlgorithms, XMLSECAGO_TYPEREF));
         }
         if (encryptionBlackListedAlgorithms != null) {
             getEncryptionBlackListedAlgorithms().addAll(
-                    POJOHelper.deserialize(encryptionBlackListedAlgorithms,
-                            new TypeReference<List<XmlSecAlgorithm>>() {
-                    }));
+                    POJOHelper.deserialize(encryptionBlackListedAlgorithms, XMLSECAGO_TYPEREF));
         }
     }
 

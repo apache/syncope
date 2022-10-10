@@ -16,6 +16,22 @@
 // specific language governing permissions and limitations
 // under the License.
 //
+=== Commands
+
+A Command is defined via an <<implementations,Implementation>> of type `COMMAND`, providing a Java or Groovy class
+for the 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/Command.java[Command^],
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/Command.java[Command^],
+endif::[]
+interface, designed to optionally take parameters.
+
+The typical use case is to encapsulate, in a single logical unit, the equivalent of two or more <<rest,REST>> calls.
+
+Once defined, Commands can be executed via dedicated REST endpoints, or via <<engagements,Console UI>>.
+
 === Tasks
 
 Tasks control the effective operations that are ongoing in the <<core>>.
@@ -173,12 +189,27 @@ and are permanently saved - for later re-execution or for examining the executio
  set on the related <<notifications,notification>>.
 ====
 
-[[tasks-custom]]
-==== Custom
+[[tasks-macro]]
+==== Macros
 
-Custom tasks allow for the injection of logic into the <<core>> in the area of execution and scheduling.
+Macro tasks are meant to group one or more <<commands>> into a given execution sequence, alongside with
+arguments required to run.
 
-When defining a custom task, the following information must be provided:
+When defining a macro task, the following information must be provided:
+
+* commands to run, with their args
+* <<realms,Realm>> for <<delegated-administration,delegated administration>> to restrict the set of users entitled to
+list, update or execute the given macro task
+* scheduling information:
+** when to start
+** http://www.quartz-scheduler.org/documentation/quartz-2.2.x/tutorials/crontrigger.html[cron expression^]
+
+[[tasks-scheduled]]
+==== Scheduled
+
+Scheduled tasks allow for the injection of custom logic into the <<core>> in the area of execution and scheduling.
+
+When defining a scheduled task, the following information must be provided:
 
 * job delegate class: Java class extending
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -194,7 +225,7 @@ providing the custom logic to execute
 
 [TIP]
 ====
-Custom tasks are ideal for implementing periodic checks or clean-up operations, possibly in coordination with other
+Scheduled tasks are ideal for implementing periodic checks or clean-up operations, possibly in coordination with other
 components; some examples:
 
 * move users from "pending delete" to "deleted" status 15 days after they reached the "pending delete" status (requires

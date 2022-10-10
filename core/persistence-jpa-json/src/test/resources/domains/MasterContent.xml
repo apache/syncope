@@ -680,10 +680,14 @@ under the License.
   <VirSchema id="virtualdata" READONLY="0" anyTypeClass_id="minimal user"
              resource_id="resource-db-virattr" anyType_id="USER" extAttrName="USERNAME"/>
 
+  <Implementation id="MacroRunJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.logic.job.MacroRunJobDelegate"/>
+
   <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
   <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate"/>
+
   <PropagationTask id="1e697572-b896-484c-ae7f-0c8f63fcbc6c" operation="UPDATE"
                    objectClassName="__ACCOUNT__" resource_id="ws-target-resource-2" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
                    propagationData='{"attributes":[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]}'/>

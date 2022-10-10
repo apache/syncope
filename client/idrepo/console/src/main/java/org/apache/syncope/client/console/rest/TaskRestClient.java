@@ -32,8 +32,6 @@ import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.common.lib.to.PullTaskTO;
-import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -144,26 +142,33 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return list.getResult();
     }
 
-    @SuppressWarnings("unchecked")
     public static <T extends TaskTO> List<T> list(
-            final Class<T> reference, final int page, final int size, final SortParam<String> sort) {
+            final TaskType taskType, final int page, final int size, final SortParam<String> sort) {
 
-        return (List<T>) getService(TaskService.class).
-                search(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).
-                        orderBy(toOrderBy(sort)).build()).getResult();
+        return getService(TaskService.class).<T>search(
+                new TaskQuery.Builder(taskType).
+                        page(page).
+                        size(size).
+                        orderBy(toOrderBy(sort)).
+                        build()).
+                getResult();
     }
 
-    @SuppressWarnings("unchecked")
     public static <T extends TaskTO> List<T> list(
             final String resource,
-            final Class<T> reference,
+            final TaskType taskType,
             final int page,
             final int size,
             final SortParam<String> sort) {
 
-        return (List<T>) getService(TaskService.class).
-                search(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).resource(resource).
-                        orderBy(toOrderBy(sort)).build()).getResult();
+        return getService(TaskService.class).<T>search(
+                new TaskQuery.Builder(taskType).
+                        page(page).
+                        size(size).
+                        resource(resource).
+                        orderBy(toOrderBy(sort)).
+                        build()).
+                getResult();
     }
 
     @Override
@@ -173,22 +178,6 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return getService(TaskService.class).
                 listExecutions(new ExecListQuery.Builder().key(taskKey).page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).getResult();
-    }
-
-    private static TaskType getTaskType(final Class<?> reference) {
-        TaskType result = null;
-        if (PropagationTaskTO.class.equals(reference)) {
-            result = TaskType.PROPAGATION;
-        } else if (NotificationTaskTO.class.equals(reference)) {
-            result = TaskType.NOTIFICATION;
-        } else if (SchedTaskTO.class.equals(reference)) {
-            result = TaskType.SCHEDULED;
-        } else if (PullTaskTO.class.equals(reference)) {
-            result = TaskType.PULL;
-        } else if (PushTaskTO.class.equals(reference)) {
-            result = TaskType.PUSH;
-        }
-        return result;
     }
 
     public static PropagationTaskTO readPropagationTask(final String taskKey) {

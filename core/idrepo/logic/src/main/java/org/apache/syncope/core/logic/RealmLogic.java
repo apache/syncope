@@ -36,9 +36,13 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
+import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -60,6 +64,14 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     protected final AnySearchDAO searchDAO;
 
+    protected final TaskDAO taskDAO;
+
+    protected final CASSPClientAppDAO casSPClientAppDAO;
+
+    protected final OIDCRPClientAppDAO oidcRPClientAppDAO;
+
+    protected final SAML2SPClientAppDAO saml2SPClientAppDAO;
+
     protected final RealmDataBinder binder;
 
     protected final PropagationManager propagationManager;
@@ -69,12 +81,20 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     public RealmLogic(
             final RealmDAO realmDAO,
             final AnySearchDAO searchDAO,
+            final TaskDAO taskDAO,
+            final CASSPClientAppDAO casSPClientAppDAO,
+            final OIDCRPClientAppDAO oidcRPClientAppDAO,
+            final SAML2SPClientAppDAO saml2SPClientAppDAO,
             final RealmDataBinder binder,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor) {
 
         this.realmDAO = realmDAO;
         this.searchDAO = searchDAO;
+        this.taskDAO = taskDAO;
+        this.casSPClientAppDAO = casSPClientAppDAO;
+        this.oidcRPClientAppDAO = oidcRPClientAppDAO;
+        this.saml2SPClientAppDAO = saml2SPClientAppDAO;
         this.binder = binder;
         this.propagationManager = propagationManager;
         this.taskExecutor = taskExecutor;
@@ -212,14 +232,21 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         int users = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.USER);
         int groups = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.GROUP);
         int anyObjects = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
+        int macroTasks = taskDAO.findByRealm(realm).size();
+        int clientApps = casSPClientAppDAO.findByRealm(realm).size()
+                + saml2SPClientAppDAO.findByRealm(realm).size()
+                + oidcRPClientAppDAO.findByRealm(realm).size();
 
-        if (users + groups + anyObjects > 0) {
-            SyncopeClientException containedAnys = SyncopeClientException.build(ClientExceptionType.AssociatedAnys);
-            containedAnys.getElements().add(users + " user(s)");
-            containedAnys.getElements().add(groups + " group(s)");
-            containedAnys.getElements().add(anyObjects + " anyObject(s)");
-            throw containedAnys;
+        if (users + groups + anyObjects + macroTasks + clientApps > 0) {
+            SyncopeClientException realmContains = SyncopeClientException.build(ClientExceptionType.RealmContains);
+            realmContains.getElements().add(users + " user(s)");
+            realmContains.getElements().add(groups + " group(s)");
+            realmContains.getElements().add(anyObjects + " anyObject(s)");
+            realmContains.getElements().add(macroTasks + " command task(s)");
+            realmContains.getElements().add(clientApps + " client app(s)");
+            throw realmContains;
         }
+
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);

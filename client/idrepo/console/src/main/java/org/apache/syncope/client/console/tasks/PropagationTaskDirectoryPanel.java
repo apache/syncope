@@ -61,14 +61,15 @@ public abstract class PropagationTaskDirectoryPanel
             final MultilevelPanel multiLevelPanelRef,
             final String resource,
             final PageReference pageRef) {
-        super(baseModal, multiLevelPanelRef, pageRef);
+
+        super(baseModal, multiLevelPanelRef, pageRef, false);
         this.resource = resource;
         initResultTable();
     }
 
     @Override
     protected List<IColumn<PropagationTaskTO, String>> getColumns() {
-        final List<IColumn<PropagationTaskTO, String>> columns = new ArrayList<>();
+        List<IColumn<PropagationTaskTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
@@ -81,7 +82,7 @@ public abstract class PropagationTaskDirectoryPanel
                     new StringResourceModel("resource", this), "resource", "resource"));
         } else {
             columns.add(new PropertyColumn<>(
-                new StringResourceModel("anyTypeKind", this), "anyTypeKind", "anyTypeKind") {
+                    new StringResourceModel("anyTypeKind", this), "anyTypeKind", "anyTypeKind") {
 
                 private static final long serialVersionUID = 3344577098912281394L;
 
@@ -110,6 +111,7 @@ public abstract class PropagationTaskDirectoryPanel
 
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));
+
         return columns;
     }
 
@@ -125,7 +127,7 @@ public abstract class PropagationTaskDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
                 PropagationTaskDirectoryPanel.this.getTogglePanel().close(target);
-                viewTask(taskTO, target);
+                viewTaskExecs(taskTO, target);
             }
         }, ActionLink.ActionType.VIEW_EXECUTIONS, IdRepoEntitlement.TASK_READ);
 

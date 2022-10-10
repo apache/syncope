@@ -116,6 +116,7 @@ import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
+import org.apache.syncope.common.rest.api.service.CommandService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DelegationService;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
@@ -348,6 +349,8 @@ public abstract class AbstractITCase {
 
     protected static DelegationService DELEGATION_SERVICE;
 
+    protected static CommandService COMMAND_SERVICE;
+
     protected static SRARouteService SRA_ROUTE_SERVICE;
 
     protected static SAML2SP4UIService SAML2SP4UI_SERVICE;
@@ -453,6 +456,7 @@ public abstract class AbstractITCase {
         IMPLEMENTATION_SERVICE = ADMIN_CLIENT.getService(ImplementationService.class);
         REMEDIATION_SERVICE = ADMIN_CLIENT.getService(RemediationService.class);
         DELEGATION_SERVICE = ADMIN_CLIENT.getService(DelegationService.class);
+        COMMAND_SERVICE = ADMIN_CLIENT.getService(CommandService.class);
         SRA_ROUTE_SERVICE = ADMIN_CLIENT.getService(SRARouteService.class);
         SAML2SP4UI_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIService.class);
         SAML2SP4UI_IDP_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIIdPService.class);

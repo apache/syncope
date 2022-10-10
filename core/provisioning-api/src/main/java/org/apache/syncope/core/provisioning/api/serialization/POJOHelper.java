@@ -72,6 +72,18 @@ public final class POJOHelper {
         return result;
     }
 
+    public static <T extends Object> String serialize(final T object, final TypeReference<T> reference) {
+        String result = null;
+
+        try {
+            result = MAPPER.writerFor(reference).writeValueAsString(object);
+        } catch (Exception e) {
+            LOG.error("During serialization", e);
+        }
+
+        return result;
+    }
+
     public static <T extends Object> T deserialize(final String serialized, final Class<T> reference) {
         T result = null;
 

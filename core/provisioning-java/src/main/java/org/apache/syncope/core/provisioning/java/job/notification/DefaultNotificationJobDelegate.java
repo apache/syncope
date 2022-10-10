@@ -27,9 +27,9 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -50,7 +50,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
 
     protected final JavaMailSender mailSender;
 
-    protected final EntityFactory entityFactory;
+    protected final TaskUtilsFactory taskUtilsFactory;
 
     protected final AuditManager auditManager;
 
@@ -65,13 +65,13 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
     public DefaultNotificationJobDelegate(
             final TaskDAO taskDAO,
             final JavaMailSender mailSender,
-            final EntityFactory entityFactory,
+            final TaskUtilsFactory taskUtilsFactory,
             final AuditManager auditManager,
             final NotificationManager notificationManager) {
 
         this.taskDAO = taskDAO;
         this.mailSender = mailSender;
-        this.entityFactory = entityFactory;
+        this.taskUtilsFactory = taskUtilsFactory;
         this.auditManager = auditManager;
         this.notificationManager = notificationManager;
     }
@@ -94,7 +94,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
     @Transactional
     @Override
     public TaskExec<NotificationTask> executeSingle(final NotificationTask task, final String executor) {
-        TaskExec<NotificationTask> execution = entityFactory.newTaskExec(TaskType.NOTIFICATION);
+        TaskExec<NotificationTask> execution = taskUtilsFactory.getInstance(TaskType.NOTIFICATION).newTaskExec();
         execution.setTask(task);
         execution.setStart(OffsetDateTime.now());
         execution.setExecutor(executor);

@@ -37,7 +37,7 @@ public abstract class PushTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
             final MultilevelPanel multiLevelPanelRef,
             final String resource,
             final PageReference pageRef) {
-        super(baseModal, multiLevelPanelRef, TaskType.PUSH, PushTaskTO.class, resource, pageRef);
+        super(baseModal, multiLevelPanelRef, TaskType.PUSH, new PushTaskTO(), resource, pageRef);
     }
 
     @Override
@@ -47,6 +47,6 @@ public abstract class PushTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
 
     @Override
     protected ProvisioningTasksProvider<PushTaskTO> dataProvider() {
-        return new ProvisioningTasksProvider<>(reference, TaskType.PUSH, rows);
+        return new ProvisioningTasksProvider<>(TaskType.PUSH, rows);
     }
 }

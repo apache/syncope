@@ -78,6 +78,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
     public ReportletDirectoryPanel(
             final BaseModal<ReportTO> baseModal, final String report, final PageReference pageRef) {
+
         super(BaseModal.CONTENT_ID, pageRef, false);
 
         disableCheckBoxes();
@@ -88,8 +89,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         enableUtilityButton();
 
-        this.addNewItemPanelBuilder(
-                new ReportletWizardBuilder(report, new ReportletWrapper(true), pageRef), true);
+        addNewItemPanelBuilder(new ReportletWizardBuilder(report, new ReportletWrapper(true), pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.REPORT_UPDATE);
         initResultTable();
@@ -103,15 +103,15 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                 new StringResourceModel("reportlet", this), "implementationKey", "implementationKey"));
 
         columns.add(new AbstractColumn<>(
-            new StringResourceModel("configuration", this)) {
+                new StringResourceModel("configuration", this)) {
 
             private static final long serialVersionUID = -4008579357070833846L;
 
             @Override
             public void populateItem(
-                final Item<ICellPopulator<ReportletWrapper>> cellItem,
-                final String componentId,
-                final IModel<ReportletWrapper> rowModel) {
+                    final Item<ICellPopulator<ReportletWrapper>> cellItem,
+                    final String componentId,
+                    final IModel<ReportletWrapper> rowModel) {
 
                 if (rowModel.getObject().getConf() == null) {
                     cellItem.add(new Label(componentId, ""));
@@ -139,17 +139,18 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                     SyncopeConsoleSession.get().info(getString("noConf"));
                 } else {
                     send(ReportletDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                            new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                 }
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REPORT_UPDATE);
+
         panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
-                final ReportletConf reportlet = model.getObject().getConf();
+                ReportletConf reportlet = model.getObject().getConf();
                 try {
                     ReportTO actual = ReportRestClient.read(report);
                     actual.getReportlets().remove(model.getObject().getImplementationKey());
@@ -170,7 +171,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
     @Override
     public ActionsPanel<Serializable> getHeader(final String componentId) {
-        final ActionsPanel<Serializable> panel = new ActionsPanel<>(componentId, null);
+        ActionsPanel<Serializable> panel = new ActionsPanel<>(componentId, null);
 
         panel.add(new ActionLink<>() {
 
@@ -182,7 +183,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                     customActionOnFinishCallback(target);
                 }
             }
-        }, ActionLink.ActionType.RELOAD, IdRepoEntitlement.TASK_LIST).hideLabel();
+        }, ActionLink.ActionType.RELOAD, IdRepoEntitlement.REPORT_READ).hideLabel();
         return panel;
     }
 
@@ -199,6 +200,16 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
     @Override
     protected String paginatorRowsKey() {
         return IdRepoConstants.PREF_REPORTLET_PAGINATOR_ROWS;
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        super.onEvent(event);
+        if (event.getPayload() instanceof ExitEvent) {
+            AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
+            baseModal.show(false);
+            baseModal.close(target);
+        }
     }
 
     protected class ReportDataProvider extends DirectoryDataProvider<ReportletWrapper> {
@@ -247,23 +258,13 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         @Override
         public long size() {
-            final ReportTO actual = ReportRestClient.read(report);
+            ReportTO actual = ReportRestClient.read(report);
             return getReportletWrappers(actual).size();
         }
 
         @Override
         public IModel<ReportletWrapper> model(final ReportletWrapper object) {
             return new CompoundPropertyModel<>(object);
-        }
-    }
-
-    @Override
-    public void onEvent(final IEvent<?> event) {
-        super.onEvent(event);
-        if (event.getPayload() instanceof ExitEvent) {
-            AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
-            baseModal.show(false);
-            baseModal.close(target);
         }
     }
 }

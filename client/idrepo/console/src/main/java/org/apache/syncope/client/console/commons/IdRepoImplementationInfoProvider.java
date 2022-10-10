@@ -123,6 +123,10 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
                 templateClassName = "MyItemTransformer";
                 break;
 
+            case IdRepoImplementationType.COMMAND:
+                templateClassName = "MyCommand";
+                break;
+
             default:
         }
 
@@ -163,7 +167,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
-                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }

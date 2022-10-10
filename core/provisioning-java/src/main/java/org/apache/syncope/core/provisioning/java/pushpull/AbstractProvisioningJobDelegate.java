@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -55,37 +56,6 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
     private static final String LINKED_ACCOUNT = "LINKED_ACCOUNT";
 
     /**
-     * Helper method to invoke logging per provisioning result, for the given trace level.
-     *
-     * @param results provisioning results
-     * @param level trace level
-     * @return report as string
-     */
-    public static String generate(final Collection<ProvisioningReport> results, final TraceLevel level) {
-        StringBuilder sb = new StringBuilder();
-
-        results.stream().map(result -> {
-            if (level == TraceLevel.SUMMARY) {
-                // No per entry log in this case.
-                return null;
-            } else if (level == TraceLevel.FAILURES && result.getStatus() == ProvisioningReport.Status.FAILURE) {
-                // only report failures
-                return String.format("Failed %s (key/name): %s/%s with message: %s",
-                        result.getOperation(), result.getKey(), result.getName(), result.getMessage());
-            } else {
-                // All
-                return String.format("%s %s (key/name): %s/%s %s",
-                        result.getOperation(), result.getStatus(), result.getKey(), result.getName(),
-                        StringUtils.isBlank(result.getMessage())
-                        ? StringUtils.EMPTY
-                        : "with message: " + result.getMessage());
-            }
-        }).filter(Objects::nonNull).forEach(report -> sb.append(report).append('\n'));
-
-        return sb.toString();
-    }
-
-    /**
      * ConnInstance loader.
      */
     @Autowired
@@ -102,6 +72,9 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
      */
     @Autowired
     protected ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    protected EntityFactory entityFactory;
 
     /**
      * Policy DAO.
@@ -127,6 +100,37 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
             perContextProvisionSorter = Optional.of(new DefaultProvisionSorter());
         }
         return perContextProvisionSorter.get();
+    }
+
+    /**
+     * Helper method to invoke logging per provisioning result, for the given trace level.
+     *
+     * @param results provisioning results
+     * @param level trace level
+     * @return report as string
+     */
+    protected String generate(final Collection<ProvisioningReport> results, final TraceLevel level) {
+        StringBuilder sb = new StringBuilder();
+
+        results.stream().map(result -> {
+            if (level == TraceLevel.SUMMARY) {
+                // No per entry log in this case.
+                return null;
+            } else if (level == TraceLevel.FAILURES && result.getStatus() == ProvisioningReport.Status.FAILURE) {
+                // only report failures
+                return String.format("Failed %s (key/name): %s/%s with message: %s",
+                        result.getOperation(), result.getKey(), result.getName(), result.getMessage());
+            } else {
+                // All
+                return String.format("%s %s (key/name): %s/%s %s",
+                        result.getOperation(), result.getStatus(), result.getKey(), result.getName(),
+                        StringUtils.isBlank(result.getMessage())
+                        ? StringUtils.EMPTY
+                        : "with message: " + result.getMessage());
+            }
+        }).filter(Objects::nonNull).forEach(report -> sb.append(report).append('\n'));
+
+        return sb.toString();
     }
 
     /**

@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Exec;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -102,7 +101,6 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final TaskDataBinder taskDataBinder,
             final AnyUtilsFactory anyUtilsFactory,
             final TaskUtilsFactory taskUtilsFactory,
-            final EntityFactory entityFactory,
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
             final ThreadPoolTaskExecutor taskExecutor) {
@@ -120,7 +118,6 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 taskDataBinder,
                 anyUtilsFactory,
                 taskUtilsFactory,
-                entityFactory,
                 outboundMatcher,
                 validator);
         this.taskExecutor = taskExecutor;

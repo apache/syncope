@@ -40,7 +40,7 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
             final String resource,
             final PageReference pageRef) {
 
-        super(baseModal, multiLevelPanelRef, TaskType.PULL, PullTaskTO.class, resource, pageRef);
+        super(baseModal, multiLevelPanelRef, TaskType.PULL, new PullTaskTO(), resource, pageRef);
     }
 
     @Override
@@ -50,7 +50,7 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
 
     @Override
     protected ProvisioningTasksProvider<PullTaskTO> dataProvider() {
-        return new ProvisioningTasksProvider<>(reference, TaskType.PULL, rows);
+        return new ProvisioningTasksProvider<>(TaskType.PULL, rows);
     }
 
     @Override

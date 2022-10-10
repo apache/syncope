@@ -120,7 +120,7 @@ public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
             @Override
             public void onClick(final AjaxRequestTarget target, final I ignore) {
                 send(AuthProfileItemDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.AUTH_PROFILE_UPDATE);
 
@@ -178,11 +178,11 @@ public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
         }
     }
 
-    private class AuthProfileItemWizardBuilder extends AuthProfileWizardBuilder<I> {
+    protected class AuthProfileItemWizardBuilder extends AuthProfileWizardBuilder<I> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -7174537333960225216L;
 
-        AuthProfileItemWizardBuilder(final PageReference pageRef) {
+        protected AuthProfileItemWizardBuilder(final PageReference pageRef) {
             super(defaultItem(), new StepModel<>(), pageRef);
         }
 

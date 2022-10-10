@@ -96,9 +96,12 @@ body {
   }
 }
 
+/* JSON diff
+============================================================================= */
+
 .json-diff-header {
   text-align: center;
-  
+
   display: table;
   width: 100%;
   table-layout: fixed;
@@ -108,4 +111,8 @@ body {
 .json-diff-item {
   display: table-cell;
   vertical-align: middle;
+}
+
+.running-col {
+  width: 65px;
 }

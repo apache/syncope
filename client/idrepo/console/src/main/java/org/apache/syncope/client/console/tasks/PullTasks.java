@@ -33,10 +33,11 @@ public class PullTasks extends AbstractTasks {
     private static final long serialVersionUID = -4013796607157549641L;
 
     public <T extends AnyTO> PullTasks(
-            final BaseModal<?> baseModal, final PageReference pageRef, final String resource) {
+            final BaseModal<?> baseModal, final String resource, final PageReference pageRef) {
+
         super(BaseModal.CONTENT_ID);
 
-        final MultilevelPanel mlp = new MultilevelPanel("tasks");
+        MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
         mlp.setFirstLevel(new PullTaskDirectoryPanel(baseModal, mlp, resource, pageRef) {
@@ -44,10 +45,11 @@ public class PullTasks extends AbstractTasks {
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
-            protected void viewTask(final PullTaskTO taskTO, final AjaxRequestTarget target) {
+            protected void viewTaskExecs(final PullTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
                         new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
-                        new TaskExecutionDetails<>(baseModal, taskTO, pageRef), target);
+                        new TaskExecutionDetails<>(taskTO, pageRef),
+                        target);
             }
         });
     }

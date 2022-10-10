@@ -35,5 +35,4 @@ public class ExecMessageModal extends Panel implements ModalPanel {
         super(id);
         add(new Label("executionMessage", executionMessage).setOutputMarkupId(true));
     }
-
 }

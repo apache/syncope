@@ -227,13 +227,12 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                 target.ifPresent(this::customActionOnCancelCallback);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                target.ifPresent(ajaxRequestTarget ->
-                    ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
+                target.ifPresent(t -> ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(t));
 
                 if (wizardInModal && showResultPanel) {
                     modal.setContent(new ResultPanel<>(
-                        item,
-                        AjaxWizard.NewItemFinishEvent.class.cast(newItemEvent).getResult()) {
+                            item,
+                            AjaxWizard.NewItemFinishEvent.class.cast(newItemEvent).getResult()) {
 
                         private static final long serialVersionUID = -2630573849050255233L;
 
@@ -243,8 +242,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                         }
 
                         @Override
-                        protected Panel customResultBody(final String panelId, final T item, 
+                        protected Panel customResultBody(
+                                final String panelId,
+                                final T item,
                                 final Serializable result) {
+
                             return WizardMgtPanel.this.customResultBody(panelId, item, result);
                         }
                     });

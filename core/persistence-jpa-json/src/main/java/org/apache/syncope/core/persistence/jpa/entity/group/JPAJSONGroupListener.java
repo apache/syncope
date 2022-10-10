@@ -32,10 +32,13 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public class JPAJSONGroupListener extends JPAJSONEntityListener<Group> {
 
+    protected static final TypeReference<List<JPAJSONGPlainAttr>> TYPEREF =
+            new TypeReference<List<JPAJSONGPlainAttr>>() {
+    };
+
     @Override
     protected List<? extends JSONPlainAttr<Group>> getAttrs(final String plainAttrsJSON) {
-        return POJOHelper.deserialize(plainAttrsJSON, new TypeReference<List<JPAJSONGPlainAttr>>() {
-        });
+        return POJOHelper.deserialize(plainAttrsJSON, TYPEREF);
     }
 
     @PostLoad

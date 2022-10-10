@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api;
+package org.apache.syncope.core.logic.api;
 
 import java.util.List;
 import org.apache.syncope.common.lib.request.AnyCR;

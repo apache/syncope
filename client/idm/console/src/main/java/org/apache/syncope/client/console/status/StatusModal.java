@@ -36,7 +36,6 @@ public abstract class StatusModal<T extends EntityTO> extends Panel implements M
     protected final DirectoryPanel<StatusBean, StatusBean, ?, ?> directoryPanel;
 
     public StatusModal(
-            final BaseModal<?> baseModal,
             final PageReference pageReference,
             final T entity,
             final String itemKeyFieldName,
@@ -44,17 +43,15 @@ public abstract class StatusModal<T extends EntityTO> extends Panel implements M
 
         super(BaseModal.CONTENT_ID);
 
-        final MultilevelPanel mlp = new MultilevelPanel("status");
+        MultilevelPanel mlp = new MultilevelPanel("status");
         mlp.setOutputMarkupId(true);
-        this.directoryPanel = getStatusDirectoryPanel(
-                mlp, baseModal, pageReference, entity, itemKeyFieldName, statusOnly);
-        add(mlp.setFirstLevel(this.directoryPanel));
+        directoryPanel = getStatusDirectoryPanel(mlp, pageReference, entity, itemKeyFieldName, statusOnly);
+        add(mlp.setFirstLevel(directoryPanel));
     }
 
     protected abstract DirectoryPanel<
         StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?>> getStatusDirectoryPanel(
             MultilevelPanel mlp,
-            BaseModal<?> baseModal,
             PageReference pageReference,
             T entity,
             String itemKeyFieldName,

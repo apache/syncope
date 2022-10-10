@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.status.ResourceStatusModal;
 import org.apache.syncope.client.console.tasks.PropagationTasks;
 import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.tasks.PushTasks;
-import org.apache.syncope.client.console.tasks.SchedTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.console.wizards.resources.ConnectorWizardBuilder;
@@ -62,7 +61,6 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class TopologyTogglePanel extends TogglePanel<Serializable> {
@@ -190,25 +188,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         fragment.add(reload);
         MetaDataRoleAuthorizationStrategy.authorize(reload, RENDER, IdMEntitlement.CONNECTOR_RELOAD);
 
-        AjaxLink<String> tasks = new IndicatingAjaxLink<>("tasks") {
-
-            private static final long serialVersionUID = 3776750333491622263L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                target.add(schedTaskModal.setContent(new SchedTasks(schedTaskModal, pageRef)));
-                schedTaskModal.header(new ResourceModel("task.custom.list"));
-                schedTaskModal.show(true);
-            }
-
-            @Override
-            public String getAjaxIndicatorMarkupId() {
-                return Constants.VEIL_INDICATOR_MARKUP_ID;
-            }
-        };
-        fragment.add(tasks);
-        MetaDataRoleAuthorizationStrategy.authorize(tasks, RENDER, IdRepoEntitlement.TASK_LIST);
-
         return fragment;
     }
 
@@ -313,8 +292,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                         build(BaseModal.CONTENT_ID,
                                 SyncopeConsoleSession.get().
                                         owns(IdMEntitlement.CONNECTOR_UPDATE, connInstance.getAdminRealm())
-                                        ? AjaxWizard.Mode.EDIT
-                                        : AjaxWizard.Mode.READONLY)));
+                                ? AjaxWizard.Mode.EDIT
+                                : AjaxWizard.Mode.READONLY)));
 
                 modal.header(
                         new Model<>(MessageFormat.format(getString("connector.edit"), connInstance.getDisplayName())));
@@ -419,8 +398,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                         build(BaseModal.CONTENT_ID,
                                 SyncopeConsoleSession.get().
                                         owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())
-                                        ? AjaxWizard.Mode.EDIT
-                                        : AjaxWizard.Mode.READONLY)));
+                                ? AjaxWizard.Mode.EDIT
+                                : AjaxWizard.Mode.READONLY)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
                 modal.show(true);
@@ -441,8 +420,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 ResourceTO modelObject = ResourceRestClient.read(node.getKey());
-                target.add(propTaskModal.setContent(
-                        new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
+                target.add(propTaskModal.setContent(new ResourceStatusModal(pageRef, modelObject)));
                 propTaskModal.header(
                         new Model<>(MessageFormat.format(getString("resource.reconciliation"), node.getKey())));
                 propTaskModal.show(true);
@@ -540,7 +518,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(schedTaskModal.setContent(new PullTasks(schedTaskModal, pageRef, node.getKey())));
+                target.add(schedTaskModal.setContent(new PullTasks(schedTaskModal, node.getKey(), pageRef)));
                 schedTaskModal.header(new Model<>(MessageFormat.format(getString("task.pull.list"), node.getKey())));
                 schedTaskModal.show(true);
             }
@@ -559,7 +537,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(schedTaskModal.setContent(new PushTasks(schedTaskModal, pageRef, node.getKey())));
+                target.add(schedTaskModal.setContent(new PushTasks(schedTaskModal, node.getKey(), pageRef)));
                 schedTaskModal.header(new Model<>(MessageFormat.format(getString("task.push.list"), node.getKey())));
                 schedTaskModal.show(true);
             }
