@@ -59,8 +59,8 @@ persistence.remoteCommitProvider=tcp(Addresses=10.0.1.10;10.0.1.11)
 ===== Quartz
 
 The http://www.quartz-scheduler.org[Quartz^] scheduler is largely used within <<core>> to schedule the execution
-of jobs, including <<tasks-pull,pull>>, <<tasks-push,push>>, <<tasks-notification,notification>> and 
-<<tasks-custom,custom>> tasks, and <<reportlets,reportlets>>.
+of jobs, including <<tasks-pull,pull>>, <<tasks-push,push>>, <<tasks-notification,notification>>, <<tasks-macro,macro>> and 
+<<tasks-scheduled,scheduled>> tasks, and <<reportlets,reportlets>>.
 
 By default, Quartz is configured for
 http://www.quartz-scheduler.org/documentation/quartz-2.2.x/configuration/ConfigJDBCJobStoreClustering.html[clustering^],
