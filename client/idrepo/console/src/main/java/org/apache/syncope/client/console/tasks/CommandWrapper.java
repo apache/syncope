@@ -45,4 +45,9 @@ public class CommandWrapper implements Serializable {
         this.command = command;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "CommandWrapper{" + "isNew=" + isNew + ", command=" + command + '}';
+    }
 }

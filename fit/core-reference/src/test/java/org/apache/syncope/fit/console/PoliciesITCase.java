@@ -493,8 +493,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
 
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
-                Modal.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
         Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer");
@@ -508,10 +507,11 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         formTester.setValue("view:rule:dropDownChoiceField", "0");
         formTester.submit("buttons:next");
 
-        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
+        formTester = TESTER.newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
                 + "outer:form:content:container:content:wizard:form");
         formTester.submit("buttons:finish");
-
+        
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 

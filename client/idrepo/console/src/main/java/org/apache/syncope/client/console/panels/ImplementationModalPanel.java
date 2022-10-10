@@ -95,8 +95,8 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
         if (viewMode == ViewMode.JSON_BODY && StringUtils.isNotBlank(implementation.getBody())) {
             try {
                 JsonNode node = MAPPER.readTree(implementation.getBody());
-                if (node.has("@class")) {
-                    jsonClass.setModelObject(node.get("@class").asText());
+                if (node.has("_class")) {
+                    jsonClass.setModelObject(node.get("_class").asText());
                 }
             } catch (IOException e) {
                 LOG.error("Could not parse as JSON payload: {}", implementation.getBody(), e);

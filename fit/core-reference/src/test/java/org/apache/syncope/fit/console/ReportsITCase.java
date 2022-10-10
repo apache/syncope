@@ -105,7 +105,7 @@ public class ReportsITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
-                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:3:action:action");
+                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertModelValue(
                 "body:content:tabbedPanel:panel:secondLevelContainer:title", "Executions of report 'test'");
@@ -144,7 +144,7 @@ public class ReportsITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
-                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
+                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
         TESTER.assertModelValue(
                 "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:"

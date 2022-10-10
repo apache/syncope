@@ -33,7 +33,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,9 +72,6 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 "body:toggle:container:content:togglePanelContainer:container:actions:push",
                 AjaxLink.class);
         TESTER.executeAjaxEvent("body:syncope", Constants.ON_CLICK);
-        TESTER.assertComponent(
-                "body:toggle:container:content:togglePanelContainer:container:actions:tasks",
-                AjaxLink.class);
         TESTER.executeAjaxEvent("body:conns:0:conns:3:conn", Constants.ON_CLICK);
         TESTER.assertComponent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:create",
@@ -310,7 +306,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:3:action:action");
+                + "actions:actions:actionRepeater:4:action:action");
 
         TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
@@ -474,35 +470,6 @@ public class TopologyITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void createSchedTask() {
-        TESTER.executeAjaxEvent("body:syncope", Constants.ON_CLICK);
-        TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:tasks");
-        TESTER.clickLink(
-                "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
-                + "container:content:add");
-
-        FormTester formTester = TESTER.newFormTester(
-                "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
-                + "container:content:wizard:form");
-        formTester.setValue("view:name:textField", "test");
-        formTester.select("view:jobDelegate:dropDownChoiceField", 0);
-
-        formTester.submit("buttons:next");
-        TESTER.cleanupFeedbackMessages();
-
-        formTester = TESTER.newFormTester(
-                "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
-                + "container:content:wizard:form");
-
-        TESTER.assertComponent(
-                "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
-                + "first:container:content:wizard:form:view:schedule:seconds:textField", TextField.class);
-
-        formTester.submit("buttons:finish");
-        TESTER.cleanupFeedbackMessages();
-    }
-
-    @Test
     public void addGroupTemplate() {
         Component component = findComponentByProp("key", "body:resources", "resource-testdb");
         assertNotNull(component);
@@ -516,7 +483,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.clickLink(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:4:action:action");
+                + "actions:actions:actionRepeater:3:action:action");
 
         TESTER.assertComponent(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
