@@ -95,26 +95,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 public class UserIssuesITCase extends AbstractITCase {
 
     @Test
-    public void issueSYNCOPE1699() throws Exception {
-        UserTO userTO = createUser(UserITCase.getUniqueSample("syncope1669@apache.org")).getEntity();
-
-        UserUR req = new UserUR();
-        req.setUsername(new StringReplacePatchItem.Builder().value("newUsername" + getUUIDString()).build());
-
-        WebClient webClient = WebClient.create(ADDRESS + "/users/" + userTO.getKey(), ADMIN_UNAME, ADMIN_PWD, null).
-            accept(MediaType.APPLICATION_JSON_TYPE).
-            type(MediaType.APPLICATION_JSON_TYPE);
-
-        Response response = webClient.invoke("PATCH", JSON_MAPPER.writeValueAsString(req));
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-
-        // Key is mismatched in the path parameter and the request body.
-        req.setKey(UUID.randomUUID().toString());
-        response = webClient.invoke("PATCH", JSON_MAPPER.writeValueAsString(req));
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-    }
-    
-    @Test
     public void issue186() {
         // 1. create an user with strict mandatory attributes only
         UserCR userCR = new UserCR();
@@ -1575,5 +1555,30 @@ public class UserIssuesITCase extends AbstractITCase {
         assertFalse(userTO.getResources().contains(RESOURCE_NAME_TESTDB), "Should not contain removed resources");
         assertFalse(userTO.getAuxClasses().contains("csv"), "Should not contain removed auxiliary classes");
         assertFalse(userTO.getRoles().contains("Other"), "Should not contain removed roles");
+    }
+
+    @Test
+    public void issueSYNCOPE1699() throws Exception {
+        UserTO userTO = createUser(UserITCase.getUniqueSample("syncope1669@apache.org")).getEntity();
+
+        UserUR req = new UserUR();
+        req.setUsername(new StringReplacePatchItem.Builder().value("newUsername" + getUUIDString()).build());
+
+        WebClient webClient = WebClient.create(ADDRESS + "/users/" + userTO.getKey(), ADMIN_UNAME, ADMIN_PWD, null).
+                accept(MediaType.APPLICATION_JSON_TYPE).
+                type(MediaType.APPLICATION_JSON_TYPE);
+
+        Response response = webClient.invoke("PATCH", JSON_MAPPER.writeValueAsString(req));
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Key is mismatched in the path parameter and the request body.
+        req.setKey(UUID.randomUUID().toString());
+        response = webClient.invoke("PATCH", JSON_MAPPER.writeValueAsString(req));
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        
+        // reading user by its username still works
+        userTO = USER_SERVICE.read(userTO.getKey());
+        userTO = USER_SERVICE.read(userTO.getUsername());
+        assertNotNull(userTO);
     }
 }
