@@ -27,12 +27,14 @@ import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.panels.ToggleableTarget;
 import org.apache.syncope.client.console.policies.PolicyRuleWrapper;
 import org.apache.syncope.client.console.reports.ReportletWrapper;
+import org.apache.syncope.client.console.tasks.CommandWrapper;
 import org.apache.syncope.client.console.wizards.any.GroupWrapper;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.command.CommandTO;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -104,6 +106,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((PolicyRuleWrapper) modelObject).getImplementationKey();
         } else if (modelObject instanceof ReportletWrapper) {
             header = ((ReportletWrapper) modelObject).getImplementationKey();
+        } else if (modelObject instanceof CommandWrapper) {
+            header = ((CommandWrapper) modelObject).getCommand().getKey();
         } else if (modelObject instanceof JobTO) {
             header = ((JobTO) modelObject).getRefKey() == null
                     ? ((JobTO) modelObject).getRefDesc() : ((JobTO) modelObject).getRefKey();
@@ -111,6 +115,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((ToggleableTarget) modelObject).getAnyType();
         } else if (modelObject instanceof Domain) {
             header = ((Domain) modelObject).getKey();
+        } else if (modelObject instanceof CommandTO) {
+            header = ((CommandTO) modelObject).getKey();
         } else if (modelObject instanceof NamedEntityTO) {
             header = ((NamedEntityTO) modelObject).getName();
         } else if (modelObject instanceof EntityTO) {

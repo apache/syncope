@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.CommandQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.TestCommand;
 import org.apache.syncope.fit.core.reference.TestCommandArgs;
@@ -65,7 +66,7 @@ public class CommandITCase extends AbstractITCase {
 
     @Test
     public void listCommands() {
-        PagedResult<CommandTO> commands = COMMAND_SERVICE.list(1, 100);
+        PagedResult<CommandTO> commands = COMMAND_SERVICE.search(new CommandQuery.Builder().page(1).size(100).build());
         assertEquals(1, commands.getTotalCount());
         assertEquals(1, commands.getResult().size());
 
@@ -77,7 +78,8 @@ public class CommandITCase extends AbstractITCase {
 
     @Test
     public void runCommand() {
-        CommandTO command = COMMAND_SERVICE.list(1, 1).getResult().get(0);
+        CommandTO command = COMMAND_SERVICE.search(
+                new CommandQuery.Builder().page(1).size(1).build()).getResult().get(0);
         TestCommandArgs args = ((TestCommandArgs) command.getArgs());
         args.setPrinterName("printer124");
 

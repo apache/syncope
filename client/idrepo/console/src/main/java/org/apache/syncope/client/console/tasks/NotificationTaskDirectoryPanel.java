@@ -67,7 +67,7 @@ public abstract class NotificationTaskDirectoryPanel
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef) {
 
-        super(null, multiLevelPanelRef, pageRef);
+        super(null, multiLevelPanelRef, pageRef, false);
         this.notification = notification;
         this.anyTypeKind = anyTypeKind;
         this.entityKey = entityKey;
@@ -78,7 +78,7 @@ public abstract class NotificationTaskDirectoryPanel
 
     @Override
     protected List<IColumn<NotificationTaskTO, String>> getColumns() {
-        final List<IColumn<NotificationTaskTO, String>> columns = new ArrayList<>();
+        List<IColumn<NotificationTaskTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this), Constants.KEY_FIELD_NAME));
@@ -100,6 +100,7 @@ public abstract class NotificationTaskDirectoryPanel
 
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));
+
         return columns;
     }
 
@@ -114,7 +115,7 @@ public abstract class NotificationTaskDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
-                viewTask(taskTO, target);
+                viewTaskExecs(taskTO, target);
             }
         }, ActionLink.ActionType.VIEW, IdRepoEntitlement.TASK_READ);
         panel.add(new ActionLink<>() {

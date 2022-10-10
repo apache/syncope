@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.console.tasks.ExecutionsDirectoryPanel.ExecProvider;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -54,29 +53,18 @@ public abstract class ExecutionsDirectoryPanel
 
     private static final long serialVersionUID = 2039393934721149162L;
 
-    private final BaseModal<?> baseModal;
+    protected final MultilevelPanel multiLevelPanelRef;
 
-    private final MultilevelPanel multiLevelPanelRef;
-
-    private final String key;
+    protected final String key;
 
     public ExecutionsDirectoryPanel(
             final MultilevelPanel multiLevelPanelRef,
             final String key,
             final ExecutionRestClient executionRestClient,
             final PageReference pageRef) {
-        this(null, multiLevelPanelRef, key, executionRestClient, pageRef);
-    }
 
-    public ExecutionsDirectoryPanel(
-            final BaseModal<?> baseModal,
-            final MultilevelPanel multiLevelPanelRef,
-            final String key,
-            final ExecutionRestClient executionRestClient,
-            final PageReference pageRef) {
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, false);
 
-        this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         restClient = executionRestClient;
         setOutputMarkupId(true);
@@ -86,14 +74,14 @@ public abstract class ExecutionsDirectoryPanel
 
     @Override
     protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<ExecTO, String> resultTableBuilder) {
-        resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
+        resultTableBuilder.setMultiLevelPanel(multiLevelPanelRef);
     }
 
     protected abstract void next(String title, SecondLevel secondLevel, AjaxRequestTarget target);
 
     @Override
     protected List<IColumn<ExecTO, String>> getColumns() {
-        final List<IColumn<ExecTO, String>> columns = new ArrayList<>();
+        List<IColumn<ExecTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this),
@@ -112,8 +100,7 @@ public abstract class ExecutionsDirectoryPanel
 
     @Override
     public ActionsPanel<ExecTO> getActions(final IModel<ExecTO> model) {
-        final ActionsPanel<ExecTO> panel = super.getActions(model);
-        final ExecTO taskExecutionTO = model.getObject();
+        ActionsPanel<ExecTO> panel = super.getActions(model);
 
         panel.add(new ActionLink<>() {
 
@@ -123,9 +110,10 @@ public abstract class ExecutionsDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                 ExecutionsDirectoryPanel.this.getTogglePanel().close(target);
                 next(new StringResourceModel("execution.view", ExecutionsDirectoryPanel.this, model).
-                    getObject(), new ExecMessage(model.getObject().getMessage()), target);
+                        getObject(), new ExecMessage(model.getObject().getMessage()), target);
             }
         }, ActionLink.ActionType.VIEW, IdRepoEntitlement.TASK_READ);
+
         panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -134,7 +122,7 @@ public abstract class ExecutionsDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                 ExecutionsDirectoryPanel.this.getTogglePanel().close(target);
                 try {
-                    restClient.deleteExecution(taskExecutionTO.getKey());
+                    restClient.deleteExecution(model.getObject().getKey());
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {

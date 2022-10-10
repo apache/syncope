@@ -24,7 +24,6 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
@@ -43,11 +42,10 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
     private Model<String> typeModel = new Model<>();
 
     public ResourceStatusModal(
-            final BaseModal<?> baseModal,
-            final PageReference pageReference,
+            final PageReference pageRef,
             final ResourceTO resource) {
 
-        super(baseModal, pageReference, resource, null, false);
+        super(pageRef, resource, null, false);
 
         List<String> availableAnyTypes = resource.getProvisions().stream().
                 map(Provision::getAnyType).
@@ -76,12 +74,11 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
     protected DirectoryPanel<
         StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?>> getStatusDirectoryPanel(
             final MultilevelPanel mlp,
-            final BaseModal<?> baseModal,
             final PageReference pageReference,
             final ResourceTO entity,
             final String itemKeyFieldName,
             final boolean statusOnly) {
 
-        return new ResourceStatusDirectoryPanel(baseModal, mlp, pageReference, null, entity);
+        return new ResourceStatusDirectoryPanel(mlp, pageReference, null, entity);
     }
 }

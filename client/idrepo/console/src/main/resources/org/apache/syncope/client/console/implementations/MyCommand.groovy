@@ -22,13 +22,9 @@ import org.apache.syncope.common.lib.command.CommandArgs
 import org.apache.syncope.core.logic.api.Command
 
 @CompileStatic
-class MyCommand implements Command<MyCommandArgs> {
+class MyCommand implements Command<CommandArgs> {
 
-  @CompileStatic
-  class MyCommandArgs implements CommandArgs {
-  }
-  
-  String run(MyCommandArgs args) {
+  String run(CommandArgs args) {
     return "SUCCESS"
   }
 }

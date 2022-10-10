@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,6 +27,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
+import org.apache.syncope.client.console.commons.KeywordSearchEvent;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
@@ -184,6 +184,27 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
         return panel;
     }
 
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof KeywordSearchEvent) {
+            KeywordSearchEvent payload = KeywordSearchEvent.class.cast(event.getPayload());
+
+            keyword = payload.getKeyword();
+            if (StringUtils.isNotBlank(keyword)) {
+                if (!StringUtils.startsWith(keyword, "*")) {
+                    keyword = "*" + keyword;
+                }
+                if (!StringUtils.endsWith(keyword, "*")) {
+                    keyword += "*";
+                }
+            }
+
+            updateResultTable(payload.getTarget());
+        } else {
+            super.onEvent(event);
+        }
+    }
+
     protected final class SchemaProvider extends DirectoryDataProvider<SchemaTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
@@ -216,50 +237,6 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
         @Override
         public IModel<SchemaTO> model(final SchemaTO object) {
             return new CompoundPropertyModel<>(object);
-        }
-    }
-
-    @Override
-    public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof SchemaSearchEvent) {
-            SchemaSearchEvent payload = SchemaSearchEvent.class.cast(event.getPayload());
-            AjaxRequestTarget target = payload.getTarget();
-
-            keyword = payload.getKeyword();
-            if (StringUtils.isNotBlank(keyword)) {
-                if (!StringUtils.startsWith(keyword, "*")) {
-                    keyword = "*" + keyword;
-                }
-                if (!StringUtils.endsWith(keyword, "*")) {
-                    keyword += "*";
-                }
-            }
-
-            updateResultTable(target);
-        } else {
-            super.onEvent(event);
-        }
-    }
-
-    public static class SchemaSearchEvent implements Serializable {
-
-        private static final long serialVersionUID = -282052400565266028L;
-
-        private final AjaxRequestTarget target;
-
-        private final String keyword;
-
-        SchemaSearchEvent(final AjaxRequestTarget target, final String keyword) {
-            this.target = target;
-            this.keyword = keyword;
-        }
-
-        public AjaxRequestTarget getTarget() {
-            return target;
-        }
-
-        public String getKeyword() {
-            return keyword;
         }
     }
 }

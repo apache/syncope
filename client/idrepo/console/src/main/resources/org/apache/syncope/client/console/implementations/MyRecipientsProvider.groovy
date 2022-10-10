@@ -17,7 +17,7 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator
+import java.util.Set
 import org.apache.syncope.core.persistence.api.entity.Notification
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider
 
@@ -26,6 +26,6 @@ class MyRecipientsProvider implements RecipientsProvider {
   
   @Override
   Set<String> provideRecipients(Notification notification) {
-    return List.of();
+    return Set.of();
   }
 }

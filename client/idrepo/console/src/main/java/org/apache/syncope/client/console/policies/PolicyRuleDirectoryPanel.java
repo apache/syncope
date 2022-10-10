@@ -108,21 +108,21 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
     @Override
     protected List<IColumn<PolicyRuleWrapper, String>> getColumns() {
-        final List<IColumn<PolicyRuleWrapper, String>> columns = new ArrayList<>();
+        List<IColumn<PolicyRuleWrapper, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("rule", this), "implementationKey", "implementationKey"));
 
         columns.add(new AbstractColumn<>(
-            new StringResourceModel("configuration", this)) {
+                new StringResourceModel("configuration", this)) {
 
             private static final long serialVersionUID = -4008579357070833846L;
 
             @Override
             public void populateItem(
-                final Item<ICellPopulator<PolicyRuleWrapper>> cellItem,
-                final String componentId,
-                final IModel<PolicyRuleWrapper> rowModel) {
+                    final Item<ICellPopulator<PolicyRuleWrapper>> cellItem,
+                    final String componentId,
+                    final IModel<PolicyRuleWrapper> rowModel) {
 
                 if (rowModel.getObject().getConf() == null) {
                     cellItem.add(new Label(componentId, ""));
@@ -131,6 +131,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                 }
             }
         });
+
         return columns;
     }
 
@@ -150,10 +151,11 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                     ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 } else {
                     send(PolicyRuleDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                            new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
                 }
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.POLICY_UPDATE);
+
         panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -183,7 +185,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
     @Override
     public ActionsPanel<Serializable> getHeader(final String componentId) {
-        final ActionsPanel<Serializable> panel = new ActionsPanel<>(componentId, null);
+        ActionsPanel<Serializable> panel = new ActionsPanel<>(componentId, null);
 
         panel.add(new ActionLink<>() {
 
@@ -196,6 +198,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                 }
             }
         }, ActionLink.ActionType.RELOAD, IdRepoEntitlement.POLICY_LIST).hideLabel();
+
         return panel;
     }
 
@@ -251,7 +254,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
         @Override
         public Iterator<PolicyRuleWrapper> iterator(final long first, final long count) {
-            final T actual = PolicyRestClient.read(type, policy);
+            T actual = PolicyRestClient.read(type, policy);
 
             List<PolicyRuleWrapper> rules = actual instanceof ComposablePolicy
                     ? getPolicyRuleWrappers((ComposablePolicy) actual)
@@ -263,7 +266,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
         @Override
         public long size() {
-            final T actual = PolicyRestClient.read(type, policy);
+            T actual = PolicyRestClient.read(type, policy);
             return actual instanceof ComposablePolicy
                     ? getPolicyRuleWrappers((ComposablePolicy) actual).size()
                     : 0;

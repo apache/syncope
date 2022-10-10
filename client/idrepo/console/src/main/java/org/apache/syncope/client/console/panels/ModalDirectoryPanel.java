@@ -24,7 +24,7 @@ import org.apache.wicket.PageReference;
 
 public class ModalDirectoryPanel<T extends Serializable> extends AbstractModalPanel<T> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -2882969833580638049L;
 
     public ModalDirectoryPanel(
             final BaseModal<T> modal, final DirectoryPanel<?, ?, ?, ?> directoryPanel, final PageReference pageRef) {

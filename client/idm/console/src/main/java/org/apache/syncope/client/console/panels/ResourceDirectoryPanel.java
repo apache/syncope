@@ -257,10 +257,10 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                target.add(schedTaskModal.setContent(new PullTasks(schedTaskModal, pageRef,
-                        ((ResourceTO) model.getObject()).getKey())));
-                schedTaskModal.header(new Model<>(MessageFormat.format(getString("task.pull.list"),
-                        ((ResourceTO) model.getObject()).getKey())));
+                target.add(schedTaskModal.setContent(new PullTasks(
+                        schedTaskModal, ((ResourceTO) model.getObject()).getKey(), pageRef)));
+                schedTaskModal.header(new Model<>(
+                        MessageFormat.format(getString("task.pull.list"), ((ResourceTO) model.getObject()).getKey())));
                 schedTaskModal.show(true);
             }
         }, ActionLink.ActionType.PULL_TASKS, IdRepoEntitlement.TASK_LIST);
@@ -271,10 +271,10 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                target.add(schedTaskModal.setContent(new PushTasks(schedTaskModal, pageRef,
-                        ((ResourceTO) model.getObject()).getKey())));
-                schedTaskModal.header(new Model<>(MessageFormat.format(getString("task.push.list"),
-                        ((ResourceTO) model.getObject()).getKey())));
+                target.add(schedTaskModal.setContent(new PushTasks(
+                        schedTaskModal, ((ResourceTO) model.getObject()).getKey(), pageRef)));
+                schedTaskModal.header(new Model<>(
+                        MessageFormat.format(getString("task.push.list"), ((ResourceTO) model.getObject()).getKey())));
                 schedTaskModal.show(true);
             }
         }, ActionLink.ActionType.PUSH_TASKS, IdRepoEntitlement.TASK_LIST);
@@ -286,8 +286,7 @@ public class ResourceDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 ResourceTO modelObject = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
-                target.add(propTaskModal.setContent(
-                        new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
+                target.add(propTaskModal.setContent(new ResourceStatusModal(pageRef, modelObject)));
                 propTaskModal.header(new Model<>(MessageFormat.format(getString("resource.reconciliation"),
                         ((ResourceTO) model.getObject()).getKey())));
                 propTaskModal.show(true);

@@ -57,7 +57,7 @@ import org.apache.wicket.model.StringResourceModel;
 public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
         extends DirectoryPanel<T, T, DirectoryDataProvider<T>, ClientAppRestClient> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 4100100988730985059L;
 
     private final ClientAppType type;
 
@@ -123,8 +123,8 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
                 send(ClientAppDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(
-                        ClientAppRestClient.read(type, model.getObject().getKey()), target));
+                        new AjaxWizard.EditItemActionEvent<>(
+                                ClientAppRestClient.read(type, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.CLIENTAPP_UPDATE);
 
@@ -136,9 +136,9 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
             public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
                 model.setObject(ClientAppRestClient.read(type, model.getObject().getKey()));
                 target.add(propertiesModal.setContent(new ModalDirectoryPanel<>(
-                    propertiesModal,
-                    new ClientAppPropertiesDirectoryPanel<>("panel", propertiesModal, type, model, pageRef),
-                    pageRef)));
+                        propertiesModal,
+                        new ClientAppPropertiesDirectoryPanel<>("panel", propertiesModal, type, model, pageRef),
+                        pageRef)));
                 propertiesModal.header(new Model<>(getString("properties.title", model)));
                 propertiesModal.show(true);
             }
@@ -154,7 +154,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
                 clone.setKey(null);
                 clone.setClientAppId(null);
                 send(ClientAppDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(clone, target));
+                        new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
         }, ActionLink.ActionType.CLONE, AMEntitlement.CLIENTAPP_CREATE);
 

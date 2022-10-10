@@ -20,8 +20,8 @@ package org.apache.syncope.client.console.policies;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
@@ -50,6 +50,19 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
     private static final long serialVersionUID = 5945391813567245081L;
 
     private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+
+    private final LoadableDetachableModel<Map<String, List<ImplementationTO>>> rules = new LoadableDetachableModel<>() {
+
+        private static final long serialVersionUID = 4659376149825914247L;
+
+        @Override
+        protected Map<String, List<ImplementationTO>> load() {
+            return Map.of(IdRepoImplementationType.ACCOUNT_RULE,
+                    ImplementationRestClient.list(IdRepoImplementationType.ACCOUNT_RULE),
+                    IdRepoImplementationType.PASSWORD_RULE,
+                    ImplementationRestClient.list(IdRepoImplementationType.PASSWORD_RULE));
+        }
+    };
 
     private final String policy;
 
@@ -83,16 +96,17 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
             throw new IllegalStateException("Non composable policy");
         }
 
-        if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
-            ImplementationTO rule = ImplementationRestClient.read(implementationType,
-                    modelObject.getImplementationKey());
-            try {
-                rule.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
-                ImplementationRestClient.update(rule);
-            } catch (Exception e) {
-                throw new WicketRuntimeException(e);
-            }
-        }
+        rules.getObject().get(implementationType).stream().
+                filter(r -> r.getKey().equals(modelObject.getImplementationKey())).
+                findFirst().
+                ifPresent(rule -> {
+                    try {
+                        rule.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
+                        ImplementationRestClient.update(rule);
+                    } catch (Exception e) {
+                        throw new WicketRuntimeException(e);
+                    }
+                });
 
         if (modelObject.isNew()) {
             composable.getRules().add(modelObject.getImplementationKey());
@@ -118,24 +132,11 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
         public Profile(final PolicyRuleWrapper rule) {
             this.rule = rule;
 
-            final AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>(
+            AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>(
                     "rule", "rule", new PropertyModel<>(rule, "implementationKey"));
 
-            List<String> choices;
-            switch (type) {
-                case ACCOUNT:
-                    choices = ImplementationRestClient.list(IdRepoImplementationType.ACCOUNT_RULE).stream().
-                            map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
-                    break;
-
-                case PASSWORD:
-                    choices = ImplementationRestClient.list(IdRepoImplementationType.PASSWORD_RULE).stream().
-                            map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
-                    break;
-
-                default:
-                    choices = new ArrayList<>();
-            }
+            List<String> choices = rules.getObject().get(implementationType).stream().
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
 
             conf.setChoices(choices);
             conf.addRequiredLabel();
@@ -147,16 +148,19 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
 
                 @Override
                 protected void onEvent(final AjaxRequestTarget target) {
-                    ImplementationTO impl = ImplementationRestClient.read(implementationType, conf.getModelObject());
-                    rule.setImplementationEngine(impl.getEngine());
-                    if (impl.getEngine() == ImplementationEngine.JAVA) {
-                        try {
-                            RuleConf ruleConf = MAPPER.readValue(impl.getBody(), RuleConf.class);
-                            rule.setConf(ruleConf);
-                        } catch (Exception e) {
-                            LOG.error("During deserialization", e);
-                        }
-                    }
+                    rules.getObject().get(implementationType).stream().
+                            filter(r -> r.getKey().equals(conf.getModelObject())).
+                            findFirst().
+                            ifPresent(impl -> {
+                                rule.setImplementationEngine(impl.getEngine());
+                                if (impl.getEngine() == ImplementationEngine.JAVA) {
+                                    try {
+                                        rule.setConf(MAPPER.readValue(impl.getBody(), RuleConf.class));
+                                    } catch (Exception e) {
+                                        LOG.error("During deserialization", e);
+                                    }
+                                }
+                            });
                 }
             });
             add(conf);

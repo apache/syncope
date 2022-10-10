@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.status;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -32,25 +31,23 @@ public class AnyStatusModal<T extends AnyTO> extends StatusModal<T> {
     private static final long serialVersionUID = 1066124171682570080L;
 
     public AnyStatusModal(
-            final BaseModal<?> baseModal,
             final PageReference pageReference,
             final T anyTO,
             final String itemKeyFieldName,
             final boolean statusOnly) {
 
-        super(baseModal, pageReference, anyTO, itemKeyFieldName, statusOnly);
+        super(pageReference, anyTO, itemKeyFieldName, statusOnly);
     }
 
     @Override
     protected DirectoryPanel<
         StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?>> getStatusDirectoryPanel(
             final MultilevelPanel mlp,
-            final BaseModal<?> baseModal,
             final PageReference pageReference,
             final T entity,
             final String itemKeyFieldName,
             final boolean statusOnly) {
 
-        return new AnyStatusDirectoryPanel(baseModal, mlp, pageReference, entity, itemKeyFieldName, statusOnly);
+        return new AnyStatusDirectoryPanel(mlp, pageReference, entity, itemKeyFieldName, statusOnly);
     }
 }

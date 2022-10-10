@@ -225,7 +225,7 @@ public class JobWidget extends BaseWidget {
     }
 
     private List<ITab> buildTabList(final PageReference pageRef) {
-        final List<ITab> tabs = new ArrayList<>();
+        List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new ResourceModel("available")) {
 
@@ -324,9 +324,9 @@ public class JobWidget extends BaseWidget {
 
                 @Override
                 public void populateItem(
-                    final Item<ICellPopulator<JobTO>> cellItem,
-                    final String componentId,
-                    final IModel<JobTO> rowModel) {
+                        final Item<ICellPopulator<JobTO>> cellItem,
+                        final String componentId,
+                        final IModel<JobTO> rowModel) {
 
                     JobTO jobTO = rowModel.getObject();
                     JobActionPanel panel = new JobActionPanel(componentId, jobTO, true, JobWidget.this);
@@ -335,17 +335,17 @@ public class JobWidget extends BaseWidget {
                     switch (jobTO.getType()) {
                         case TASK:
                             roles = String.format("%s,%s",
-                                IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE);
+                                    IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE);
                             break;
 
                         case REPORT:
                             roles = String.format("%s,%s",
-                                IdRepoEntitlement.REPORT_EXECUTE, IdRepoEntitlement.REPORT_UPDATE);
+                                    IdRepoEntitlement.REPORT_EXECUTE, IdRepoEntitlement.REPORT_UPDATE);
                             break;
 
                         case NOTIFICATION:
                             roles = String.format("%s,%s",
-                                IdRepoEntitlement.NOTIFICATION_EXECUTE, IdRepoEntitlement.NOTIFICATION_UPDATE);
+                                    IdRepoEntitlement.NOTIFICATION_EXECUTE, IdRepoEntitlement.NOTIFICATION_UPDATE);
                             break;
 
                         default:
@@ -358,7 +358,7 @@ public class JobWidget extends BaseWidget {
 
                 @Override
                 public String getCssClass() {
-                    return "col-xs-1";
+                    return "running-col";
                 }
             });
 
@@ -390,9 +390,9 @@ public class JobWidget extends BaseWidget {
                             target.add(jobModal.setContent(rwb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
                             jobModal.header(new StringResourceModel(
-                                "any.edit",
-                                AvailableJobsPanel.this,
-                                new Model<>(reportTO)));
+                                    "any.edit",
+                                    AvailableJobsPanel.this,
+                                    new Model<>(reportTO)));
 
                             jobModal.show(true);
                             break;
@@ -403,21 +403,21 @@ public class JobWidget extends BaseWidget {
                                 schedTaskTO = TaskRestClient.readTask(TaskType.PULL, jobTO.getRefKey());
                             } catch (Exception e) {
                                 LOG.debug("Failed to read {} as {}, attempting {}",
-                                    jobTO.getRefKey(), TaskType.PULL, TaskType.PUSH, e);
+                                        jobTO.getRefKey(), TaskType.PULL, TaskType.PUSH, e);
                                 schedTaskTO = TaskRestClient.readTask(TaskType.PUSH, jobTO.getRefKey());
                             }
 
                             SchedTaskWizardBuilder<ProvisioningTaskTO> swb =
-                                new SchedTaskWizardBuilder<>(schedTaskTO instanceof PullTaskTO
-                                    ? TaskType.PULL : TaskType.PUSH, schedTaskTO, pageRef);
+                                    new SchedTaskWizardBuilder<>(schedTaskTO instanceof PullTaskTO
+                                            ? TaskType.PULL : TaskType.PUSH, schedTaskTO, pageRef);
                             swb.setEventSink(AvailableJobsPanel.this);
 
                             target.add(jobModal.setContent(swb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
                             jobModal.header(new StringResourceModel(
-                                "any.edit",
-                                AvailableJobsPanel.this,
-                                new Model<>(schedTaskTO)));
+                                    "any.edit",
+                                    AvailableJobsPanel.this,
+                                    new Model<>(schedTaskTO)));
 
                             jobModal.show(true);
                             break;
@@ -451,14 +451,14 @@ public class JobWidget extends BaseWidget {
                                 final ReportTO reportTO = ReportRestClient.read(jobTO.getRefKey());
 
                                 target.add(AvailableJobsPanel.this.reportModal.setContent(
-                                    new ReportletDirectoryPanel(reportModal, jobTO.getRefKey(), pageRef)));
+                                        new ReportletDirectoryPanel(reportModal, jobTO.getRefKey(), pageRef)));
 
                                 MetaDataRoleAuthorizationStrategy.authorize(
-                                    reportModal.getForm(),
-                                    ENABLE, IdRepoEntitlement.REPORT_UPDATE);
+                                        reportModal.getForm(),
+                                        ENABLE, IdRepoEntitlement.REPORT_UPDATE);
 
                                 reportModal.header(new StringResourceModel(
-                                    "reportlet.conf", AvailableJobsPanel.this, new Model<>(reportTO)));
+                                        "reportlet.conf", AvailableJobsPanel.this, new Model<>(reportTO)));
 
                                 reportModal.show(true);
 
@@ -476,7 +476,7 @@ public class JobWidget extends BaseWidget {
                 @Override
                 protected boolean statusCondition(final JobTO modelObject) {
                     return !(null != jobTO.getType() && (JobType.TASK.equals(jobTO.getType())
-                        || JobType.NOTIFICATION.equals(jobTO.getType())));
+                            || JobType.NOTIFICATION.equals(jobTO.getType())));
                 }
 
             }, ActionType.COMPOSE, IdRepoEntitlement.TASK_UPDATE);
@@ -518,8 +518,8 @@ public class JobWidget extends BaseWidget {
                 @Override
                 protected boolean statusCondition(final JobTO modelObject) {
                     return (null != jobTO.getType()
-                        && !JobType.NOTIFICATION.equals(jobTO.getType())
-                        && (jobTO.isScheduled() && !jobTO.isRunning()));
+                            && !JobType.NOTIFICATION.equals(jobTO.getType())
+                            && (jobTO.isScheduled() && !jobTO.isRunning()));
                 }
             }, ActionLink.ActionType.DELETE, IdRepoEntitlement.TASK_DELETE, true);
 
@@ -625,7 +625,7 @@ public class JobWidget extends BaseWidget {
 
         @Override
         public ActionsPanel<ExecTO> getActions(final IModel<ExecTO> model) {
-            final ActionsPanel<ExecTO> panel = super.getActions(model);
+            ActionsPanel<ExecTO> panel = super.getActions(model);
 
             panel.add(new ActionLink<>() {
 
@@ -639,6 +639,7 @@ public class JobWidget extends BaseWidget {
                     target.add(detailModal);
                 }
             }, ActionLink.ActionType.VIEW, IdRepoEntitlement.TASK_READ);
+
             return panel;
         }
 

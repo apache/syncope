@@ -28,6 +28,8 @@ public interface JAXRSService {
 
     String PARAM_ORDERBY = "orderby";
 
+    String PARAM_KEYWORD = "keyword";
+
     String PARAM_RESOURCE = "resource";
 
     String PARAM_NOTIFICATION = "notification";

@@ -157,6 +157,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
             registerModule(new SimpleModule().addSerializer(new SortedSetJsonSerializer(cast(Set.class)))).
             registerModule(new JavaTimeModule());
 
+    @SuppressWarnings("unchecked")
     public AuditHistoryDetails(
             final String id,
             final EntityTO currentEntity,

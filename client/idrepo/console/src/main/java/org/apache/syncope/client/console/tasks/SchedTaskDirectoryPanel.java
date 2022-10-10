@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -79,95 +80,33 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    protected TaskType taskType;
+    protected final TaskType taskType;
 
-    protected final Class<T> reference;
+    protected final T schedTaskTO;
 
-    protected T schedTaskTO;
-
-    private final TaskStartAtTogglePanel startAt;
+    protected final TaskStartAtTogglePanel startAt;
 
     protected final TemplatesTogglePanel templates;
 
     protected SchedTaskDirectoryPanel(
+            final String id,
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final TaskType taskType,
-            final Class<T> reference,
-            final PageReference pageRef) {
-
-        super(baseModal, multiLevelPanelRef, pageRef);
-        this.taskType = taskType;
-        this.reference = reference;
-
-        try {
-            schedTaskTO = reference.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            LOG.error("Failure instantiating task", e);
-        }
-
-        this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(taskType, schedTaskTO, pageRef), true);
-
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.TASK_CREATE);
-
-        enableUtilityButton();
-        setFooterVisibility(false);
-
-        initResultTable();
-
-        container.add(new IndicatorAjaxTimerBehavior(Duration.of(10, ChronoUnit.SECONDS)) {
-
-            private static final long serialVersionUID = -4661303265651934868L;
-
-            @Override
-            protected void onTimer(final AjaxRequestTarget target) {
-                container.modelChanged();
-                target.add(container);
-            }
-        });
-
-        startAt = new TaskStartAtTogglePanel(container, pageRef);
-        addInnerObject(startAt);
-
-        templates = new TemplatesTogglePanel(getActualId(), this, pageRef) {
-
-            private static final long serialVersionUID = -8765794727538618705L;
-
-            @Override
-            protected Serializable onApplyInternal(
-                    final TemplatableTO targetObject, final String type, final AnyTO anyTO) {
-
-                targetObject.getTemplates().put(type, anyTO);
-                TaskRestClient.update(taskType, SchedTaskTO.class.cast(targetObject));
-                return targetObject;
-            }
-        };
-        addInnerObject(templates);
-    }
-
-    protected SchedTaskDirectoryPanel(
-            final BaseModal<?> baseModal,
-            final MultilevelPanel multiLevelPanelRef,
-            final TaskType taskType,
-            final Class<T> reference,
+            final T newTaskTO,
             final PageReference pageRef,
             final boolean wizardInModal) {
 
-        super(baseModal, multiLevelPanelRef, pageRef, wizardInModal);
+        super(id, baseModal, multiLevelPanelRef, pageRef, wizardInModal);
         this.taskType = taskType;
-        this.reference = reference;
+        this.schedTaskTO = newTaskTO;
 
-        try {
-            schedTaskTO = reference.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            LOG.error("Failure instantiating task", e);
-        }
+        modal.size(Modal.Size.Large);
 
-        this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(taskType, schedTaskTO, pageRef), true);
+        addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(taskType, schedTaskTO, pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.TASK_CREATE);
 
-        enableUtilityButton();
         setFooterVisibility(false);
 
         initResultTable();
@@ -202,7 +141,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         addInnerObject(templates);
     }
 
-    protected List<IColumn<T, String>> getFieldColumns() {
+    protected List<IColumn<T, String>> getHeadingFieldColumns() {
         List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<>(
@@ -212,30 +151,11 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 new StringResourceModel(Constants.NAME_FIELD_NAME, this),
                 Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
 
-        columns.add(new PropertyColumn<>(
-            new StringResourceModel("jobDelegate", this), "jobDelegate", "jobDelegate") {
+        return columns;
+    }
 
-            private static final long serialVersionUID = -3223917055078733093L;
-
-            @Override
-            public void populateItem(
-                final Item<ICellPopulator<T>> item,
-                final String componentId,
-                final IModel<T> rowModel) {
-
-                IModel<?> model = getDataModel(rowModel);
-                if (model != null && model.getObject() instanceof String) {
-                    String value = String.class.cast(model.getObject());
-                    if (value.length() > 20) {
-                        item.add(new Label(componentId, new Model<>("..." + value.substring(value.length() - 17))));
-                    } else {
-                        item.add(new Label(componentId, getDataModel(rowModel)));
-                    }
-                } else {
-                    super.populateItem(item, componentId, rowModel);
-                }
-            }
-        });
+    protected List<IColumn<T, String>> getTrailingFieldColumns() {
+        List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("lastExec", this), null, "lastExec"));
@@ -255,17 +175,17 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
             @Override
             public void populateItem(
-                final Item<ICellPopulator<T>> cellItem,
-                final String componentId,
-                final IModel<T> rowModel) {
+                    final Item<ICellPopulator<T>> cellItem,
+                    final String componentId,
+                    final IModel<T> rowModel) {
 
                 Component panel;
                 try {
                     JobTO jobTO = TaskRestClient.getJob(rowModel.getObject().getKey());
                     panel = new JobActionPanel(componentId, jobTO, false, SchedTaskDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(
-                        panel, WebPage.ENABLE,
-                        String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));
+                            panel, WebPage.ENABLE,
+                            String.format("%s,%s", IdRepoEntitlement.TASK_EXECUTE, IdRepoEntitlement.TASK_UPDATE));
                 } catch (Exception e) {
                     LOG.error("Could not get job for task {}", rowModel.getObject().getKey(), e);
                     panel = new Label(componentId, Model.of());
@@ -275,25 +195,60 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
             @Override
             public String getCssClass() {
-                return "col-xs-1";
+                return "running-col";
             }
         });
 
         return columns;
     }
 
+    protected List<IColumn<T, String>> getFieldColumns() {
+        List<IColumn<T, String>> columns = new ArrayList<>();
+
+        columns.addAll(getHeadingFieldColumns());
+
+        columns.add(new PropertyColumn<>(new StringResourceModel("jobDelegate", this), "jobDelegate", "jobDelegate") {
+
+            private static final long serialVersionUID = -3223917055078733093L;
+
+            @Override
+            public void populateItem(
+                    final Item<ICellPopulator<T>> item,
+                    final String componentId,
+                    final IModel<T> rowModel) {
+
+                IModel<?> model = getDataModel(rowModel);
+                if (model != null && model.getObject() instanceof String) {
+                    String value = String.class.cast(model.getObject());
+                    if (value.length() > 20) {
+                        item.add(new Label(componentId, new Model<>("..." + value.substring(value.length() - 17))));
+                    } else {
+                        item.add(new Label(componentId, getDataModel(rowModel)));
+                    }
+                } else {
+                    super.populateItem(item, componentId, rowModel);
+                }
+            }
+        });
+
+        columns.addAll(getTrailingFieldColumns());
+
+        return columns;
+    }
+
     @Override
     protected final List<IColumn<T, String>> getColumns() {
-        final List<IColumn<T, String>> columns = new ArrayList<>();
+        List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.addAll(getFieldColumns());
+
         return columns;
     }
 
     @Override
     public ActionsPanel<T> getActions(final IModel<T> model) {
-        final ActionsPanel<T> panel = super.getActions(model);
-        final T taskTO = model.getObject();
+        ActionsPanel<T> panel = super.getActions(model);
+        T taskTO = model.getObject();
 
         panel.add(new ActionLink<>() {
 
@@ -302,7 +257,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
-                viewTask(taskTO, target);
+                viewTaskExecs(taskTO, target);
             }
         }, ActionLink.ActionType.VIEW_EXECUTIONS, IdRepoEntitlement.TASK_READ);
 
@@ -314,12 +269,12 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(
-                        TaskRestClient.readTask(taskType, model.getObject().getKey()),
-                        target).setResourceModel(
-                        new StringResourceModel("inner.task.edit",
-                            SchedTaskDirectoryPanel.this,
-                            Model.of(Pair.of(ActionLink.ActionType.EDIT, model.getObject())))));
+                        new AjaxWizard.EditItemActionEvent<>(
+                                TaskRestClient.readTask(taskType, model.getObject().getKey()),
+                                target).setResourceModel(
+                                new StringResourceModel("inner.task.edit",
+                                        SchedTaskDirectoryPanel.this,
+                                        Model.of(Pair.of(ActionLink.ActionType.EDIT, model.getObject())))));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.TASK_UPDATE);
 
@@ -333,12 +288,14 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 final T clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(clone, target).setResourceModel(
-                        new StringResourceModel("inner.task.clone",
-                            SchedTaskDirectoryPanel.this,
-                            Model.of(Pair.of(ActionLink.ActionType.CLONE, model.getObject())))));
+                        new AjaxWizard.EditItemActionEvent<>(clone, target).setResourceModel(
+                                new StringResourceModel("inner.task.clone",
+                                        SchedTaskDirectoryPanel.this,
+                                        Model.of(Pair.of(ActionLink.ActionType.CLONE, model.getObject())))));
             }
         }, ActionLink.ActionType.CLONE, IdRepoEntitlement.TASK_CREATE);
+
+        addFurtherActions(panel, model);
 
         panel.add(new ActionLink<>() {
 
@@ -351,8 +308,6 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 startAt.toggle(target, true);
             }
         }, ActionLink.ActionType.EXECUTE, IdRepoEntitlement.TASK_EXECUTE);
-
-        addFurtherActions(panel, model);
 
         panel.add(new ActionLink<>() {
 
@@ -395,19 +350,16 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     @Override
     protected SchedTasksProvider<T> dataProvider() {
-        return new SchedTasksProvider<>(reference, taskType, rows);
+        return new SchedTasksProvider<>(taskType, rows);
     }
 
     protected static class SchedTasksProvider<T extends SchedTaskTO> extends TaskDataProvider<T> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
-        private final Class<T> reference;
-
-        public SchedTasksProvider(final Class<T> reference, final TaskType taskType, final int paginatorRows) {
+        public SchedTasksProvider(final TaskType taskType, final int paginatorRows) {
             super(paginatorRows, taskType);
             setSort(Constants.NAME_FIELD_NAME, SortOrder.ASCENDING);
-            this.reference = reference;
         }
 
         @Override
@@ -418,8 +370,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         @Override
         public Iterator<T> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return TaskRestClient.list(
-                    reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
+            return TaskRestClient.<T>list(
+                    taskType, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }
     }

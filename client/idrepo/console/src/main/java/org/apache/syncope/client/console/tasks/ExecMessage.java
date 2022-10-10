@@ -28,6 +28,15 @@ public class ExecMessage extends MultilevelPanel.SecondLevel {
 
     public ExecMessage(final String message) {
         super();
+        init(message);
+    }
+
+    public ExecMessage(final String id, final String message) {
+        super(id);
+        init(message);
+    }
+
+    protected void init(final String message) {
         add(new Label("message", Model.of(message)).setOutputMarkupId(true));
     }
 }

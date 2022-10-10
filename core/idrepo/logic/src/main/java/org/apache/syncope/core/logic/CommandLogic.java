@@ -53,10 +53,12 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_LIST + "')")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<CommandTO>> list(final int page, final int size) {
-        int count = (int) implementationDAO.findByType(IdRepoImplementationType.COMMAND).stream().count();
+    public Pair<Integer, List<CommandTO>> search(final int page, final int size, final String keyword) {
+        List<Implementation> result = implementationDAO.findByTypeAndKeyword(IdRepoImplementationType.COMMAND, keyword);
 
-        List<CommandTO> commands = implementationDAO.findByType(IdRepoImplementationType.COMMAND).stream().
+        int count = result.size();
+
+        List<CommandTO> commands = result.stream().
                 skip((page - 1) * size).
                 limit(size).
                 map(command -> {
@@ -72,6 +74,22 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
                 collect(Collectors.toList());
 
         return Pair.of(count, commands);
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_READ + "')")
+    @Transactional(readOnly = true)
+    public CommandTO read(final String key) {
+        Implementation impl = Optional.ofNullable(implementationDAO.find(key)).
+                orElseThrow(() -> new NotFoundException("Implementation " + key));
+
+        try {
+            return new CommandTO.Builder(impl.getKey()).
+                    args(ImplementationManager.emptyArgs(impl)).build();
+        } catch (Exception e) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementation);
+            sce.getElements().add("Could not build " + impl.getKey());
+            throw sce;
+        }
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.COMMAND_RUN + "')")

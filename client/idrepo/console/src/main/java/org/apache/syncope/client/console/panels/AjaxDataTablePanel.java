@@ -80,8 +80,6 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
         private MultilevelPanel multiLevelPanel;
 
-        private BaseModal<?> baseModal;
-
         public Builder(final ISortableDataProvider<T, S> provider, final PageReference pageRef) {
             this.dataProvider = provider;
             this.pageRef = pageRef;
@@ -152,9 +150,8 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             return checkBoxEnabled && batchExecutor != null && !batches.isEmpty();
         }
 
-        public void setMultiLevelPanel(final BaseModal<?> baseModal, final MultilevelPanel multiLevelPanel) {
+        public void setMultiLevelPanel(final MultilevelPanel multiLevelPanel) {
             this.multiLevelPanel = multiLevelPanel;
-            this.baseModal = baseModal;
         }
 
         protected ActionsPanel<T> getActions(final IModel<T> model) {
@@ -213,7 +210,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
         }
 
         dataTable = new AjaxFallbackDataTable<>(
-            "dataTable", builder.columns, builder.dataProvider, builder.rowsPerPage, builder.container) {
+                "dataTable", builder.columns, builder.dataProvider, builder.rowsPerPage, builder.container) {
 
             private static final long serialVersionUID = -7370603907251344224L;
 

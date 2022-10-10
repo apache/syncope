@@ -54,7 +54,7 @@ public class Reports extends BasePage {
     }
 
     private List<ITab> buildTabList() {
-        final List<ITab> tabs = new ArrayList<>();
+        List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new ResourceModel("reports")) {
 
@@ -68,7 +68,7 @@ public class Reports extends BasePage {
                     private static final long serialVersionUID = -2195387360323687302L;
 
                     @Override
-                    protected void viewReport(final ReportTO reportTO, final AjaxRequestTarget target) {
+                    protected void viewReportExecs(final ReportTO reportTO, final AjaxRequestTarget target) {
                         mlp.next(
                                 new StringResourceModel("report.view", this, new Model<>(reportTO)).getObject(),
                                 new ReportExecutionDetails(reportTO, getPageReference()),
@@ -88,6 +88,7 @@ public class Reports extends BasePage {
                 return new ReportTemplateDirectoryPanel(panelId, getPageReference());
             }
         });
+
         return tabs;
     }
 }

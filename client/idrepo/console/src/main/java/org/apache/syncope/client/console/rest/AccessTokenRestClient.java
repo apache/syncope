@@ -46,5 +46,4 @@ public class AccessTokenRestClient extends BaseRestClient {
                 new AccessTokenQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
                 getResult();
     }
-
 }

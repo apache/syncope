@@ -21,19 +21,19 @@ package org.apache.syncope.common.rest.api.service;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import javax.validation.constraints.Min;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.command.CommandOutput;
 import org.apache.syncope.common.lib.command.CommandTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.CommandQuery;
 
 /**
  * REST operations for commands.
@@ -48,15 +48,23 @@ public interface CommandService extends JAXRSService {
     /**
      * Returns a paged list of all commands.
      *
-     * @param page search page
-     * @param size search page size
+     * @param query query conditions
      * @return list of all commands.
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    PagedResult<CommandTO> list(
-            @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue("1") int page,
-            @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue("25") int size);
+    PagedResult<CommandTO> search(@BeanParam CommandQuery query);
+
+    /**
+     * Returns the command for the given key, if found.
+     *
+     * @param key command key
+     * @return the command for the given key, if found
+     */
+    @GET
+    @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    CommandTO read(@PathParam("key") String key);
 
     /**
      * Runs the given command with the given arguments and returns the resulting output.
@@ -64,8 +72,8 @@ public interface CommandService extends JAXRSService {
      * @param command command to run, with arguments
      * @return command output
      */
-    @Path("{key}")
     @POST
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     CommandOutput run(CommandTO command);
