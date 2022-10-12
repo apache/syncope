@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-
 import javax.naming.NamingException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
