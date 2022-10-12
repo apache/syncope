@@ -61,20 +61,18 @@ public abstract class AbstractService implements JAXRSService {
 
     protected String getActualKey(final AnyDAO<?> dao, final String pretendingKey) {
         String actualKey = pretendingKey;
-        if (uriInfo.getPathParameters(true).containsKey("key")) {
-            final String keyInPath = uriInfo.getPathParameters(true).get("key").get(0);
-            if (actualKey == null) {
-                actualKey = keyInPath;
-            } else if (!actualKey.equals(keyInPath)) {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
-                sce.getElements().add("Key specified in request does not match key in the path");
-                throw sce;
-            }
-        }
         if (actualKey == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
             sce.getElements().add("Key is null");
             throw sce;
+        }
+        if (uriInfo.getPathParameters(true).containsKey("key")) {
+            final String keyInPath = uriInfo.getPathParameters(true).get("key").get(0);
+            if (!actualKey.equals(keyInPath)) {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
+                sce.getElements().add("Key specified in request does not match key in the path");
+                throw sce;
+            }
         }
         if (!SyncopeConstants.UUID_PATTERN.matcher(actualKey).matches()) {
             actualKey = dao.findKey(actualKey);
