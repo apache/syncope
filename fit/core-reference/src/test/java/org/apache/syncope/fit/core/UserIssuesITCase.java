@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+
 import javax.naming.NamingException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
@@ -106,6 +108,11 @@ public class UserIssuesITCase extends AbstractITCase {
 
         Response response = webClient.invoke("PATCH", JSON_MAPPER.writeValueAsString(req));
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Key is mismatched in the path parameter and the request body.
+        req.setKey(UUID.randomUUID().toString());
+        response = webClient.invoke("PATCH", JSON_MAPPER.writeValueAsString(req));
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
     }
     
     @Test
