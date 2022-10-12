@@ -35,11 +35,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import javax.naming.NamingException;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -91,6 +94,26 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 public class UserIssuesITCase extends AbstractITCase {
 
+    @Test
+    public void issueSYNCOPE1699() throws Exception {
+        UserTO userTO = createUser(UserITCase.getUniqueSample("syncope1669@apache.org")).getEntity();
+
+        UserUR req = new UserUR();
+        req.setUsername(new StringReplacePatchItem.Builder().value("newUsername" + getUUIDString()).build());
+
+        WebClient webClient = WebClient.create(ADDRESS + "/users/" + userTO.getKey(), ADMIN_UNAME, ADMIN_PWD, null).
+            accept(MediaType.APPLICATION_JSON_TYPE).
+            type(MediaType.APPLICATION_JSON_TYPE);
+
+        Response response = webClient.invoke("PATCH", JSON_MAPPER.writeValueAsString(req));
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        // Key is mismatched in the path parameter and the request body.
+        req.setKey(UUID.randomUUID().toString());
+        response = webClient.invoke("PATCH", JSON_MAPPER.writeValueAsString(req));
+        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+    }
+    
     @Test
     public void issue186() {
         // 1. create an user with strict mandatory attributes only
