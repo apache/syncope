@@ -2,6 +2,23 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.0-M1
+================================================================================
+
+** Bug
+    * [SYNCOPE-1693] - Must change password submit on console leads to errors
+    * [SYNCOPE-1698] - Aux classes number doubles when saving external resource
+
+** New Feature
+    * [SYNCOPE-1692] - Incremental propagation
+    * [SYNCOPE-1697] - Commands & Macros
+
+** Improvement
+    * [SYNCOPE-1665] - In enduser manage provisioning result on create/update and set feedback accordingly
+    * [SYNCOPE-1694] - Optimize creation of Implementation instances
+    * [SYNCOPE-1695] - History console view improvements
+    * [SYNCOPE-1699] - Extract key from path for UserUpdate ops if undefined in request body
+
 Release Notes - Syncope - Version 3.0.0-M0
 ================================================================================
 
