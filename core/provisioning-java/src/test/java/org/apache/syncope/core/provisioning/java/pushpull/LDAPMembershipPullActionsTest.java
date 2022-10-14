@@ -197,7 +197,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         entity = new GroupTO();
 
         when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
-        when(externalResource.getProvision(anyString())).thenAnswer(ic -> Optional.of(mock(Provision.class)));
+        when(externalResource.getProvisionByAnyType(anyString())).thenAnswer(ic -> Optional.of(mock(Provision.class)));
 
         ldapMembershipPullActions.after(profile, syncDelta, entity, result);
 
@@ -212,7 +212,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         List<String> expected = List.of(expectedUid);
 
         when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
-        when(externalResource.getProvision(anyString())).thenAnswer(ic -> Optional.empty());
+        when(externalResource.getProvisionByAnyType(anyString())).thenAnswer(ic -> Optional.empty());
         when(inboundMatcher.match(any(AnyType.class), anyString(), any(ExternalResource.class), any(Connector.class))).
                 thenReturn(Optional.of(new PullMatch(MatchType.ANY, user)));
 

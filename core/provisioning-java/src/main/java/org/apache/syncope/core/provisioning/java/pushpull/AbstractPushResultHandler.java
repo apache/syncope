@@ -212,7 +212,8 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         try {
             any = getAnyUtils().dao().authFind(anyKey);
 
-            Provision provision = profile.getTask().getResource().getProvision(any.getType().getKey()).orElse(null);
+            Provision provision = profile.getTask().getResource().
+                    getProvisionByAnyType(any.getType().getKey()).orElse(null);
             if (provision == null) {
                 throw new JobExecutionException("No provision found on " + profile.getTask().getResource() + " for "
                         + any.getType().getKey());

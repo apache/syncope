@@ -110,7 +110,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
             return;
         }
 
-        Optional<Provision> groupProvision = taskInfo.getResource().getProvision(AnyTypeKind.GROUP.name());
+        Optional<Provision> groupProvision = taskInfo.getResource().getProvisionByAnyType(AnyTypeKind.GROUP.name());
         if (groupProvision.isPresent() && groupProvision.get().getMapping() != null
                 && StringUtils.isNotBlank(groupProvision.get().getMapping().getConnObjectLink())) {
 

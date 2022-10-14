@@ -468,7 +468,7 @@ public class DefaultPropagationManager implements PropagationManager {
         propByRes.asMap().forEach((resourceKey, operation) -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
             Provision provision = Optional.ofNullable(resource).
-                    flatMap(externalResource -> externalResource.getProvision(any.getType().getKey())).orElse(null);
+                    flatMap(r -> r.getProvisionByAnyType(any.getType().getKey())).orElse(null);
             Stream<Item> mappingItems = provision == null
                     ? Stream.empty()
                     : MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
@@ -514,7 +514,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
                 Provision provision = account == null || account.getResource() == null
                         ? null
-                        : account.getResource().getProvision(AnyTypeKind.USER.name()).orElse(null);
+                        : account.getResource().getProvisionByAnyType(AnyTypeKind.USER.name()).orElse(null);
                 Stream<Item> mappingItems = provision == null
                         ? Stream.empty()
                         : MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
@@ -621,7 +621,7 @@ public class DefaultPropagationManager implements PropagationManager {
         anyUtilsFactory.getInstance(kind).dao().findAllResourceKeys(key).stream().
                 map(resourceDAO::find).
                 filter(resource -> !excludedResources.contains(resource.getKey())
-                && resource.getProvision(any.getType().getKey()).isPresent()
+                && resource.getProvisionByAnyType(any.getType().getKey()).isPresent()
                 && resource.getPropagationPolicy() != null && resource.getPropagationPolicy().isUpdateDelta()).
                 forEach(resource -> {
                     Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromAny(
@@ -630,7 +630,7 @@ public class DefaultPropagationManager implements PropagationManager {
                             changePwd,
                             enable,
                             resource,
-                            resource.getProvision(any.getType().getKey()).get());
+                            resource.getProvisionByAnyType(any.getType().getKey()).get());
                     attrs.put(
                             Pair.of(resource.getKey(), preparedAttrs.getLeft()),
                             preparedAttrs.getRight());
@@ -639,7 +639,7 @@ public class DefaultPropagationManager implements PropagationManager {
         if (any instanceof User) {
             ((User) any).getLinkedAccounts().stream().
                     filter(account -> !excludedResources.contains(account.getResource().getKey())
-                    && account.getResource().getProvision(any.getType().getKey()).isPresent()
+                    && account.getResource().getProvisionByAnyType(any.getType().getKey()).isPresent()
                     && account.getResource().getPropagationPolicy() != null
                     && account.getResource().getPropagationPolicy().isUpdateDelta()).
                     forEach(account -> {
@@ -648,7 +648,7 @@ public class DefaultPropagationManager implements PropagationManager {
                                 account,
                                 password,
                                 true,
-                                account.getResource().getProvision(any.getType().getKey()).get());
+                                account.getResource().getProvisionByAnyType(any.getType().getKey()).get());
                         attrs.put(
                                 Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()),
                                 preparedAttrs);

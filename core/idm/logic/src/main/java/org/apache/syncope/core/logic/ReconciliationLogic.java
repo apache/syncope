@@ -177,7 +177,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceKey + "'");
         }
-        Provision provision = resource.getProvision(anyType.getKey()).
+        Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                 orElseThrow(() -> new NotFoundException(
                 "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
         if (provision.getMapping() == null) {

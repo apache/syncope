@@ -443,7 +443,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     }
 
     protected boolean isPasswordMapped(final ExternalResource resource) {
-        return resource.getProvision(anyTypeDAO.findUser().getKey()).
+        return resource.getProvisionByAnyType(AnyTypeKind.USER.name()).
                 filter(provision -> provision.getMapping() != null).
                 map(provision -> provision.getMapping().getItems().stream().anyMatch(Item::isPassword)).
                 orElse(false);
@@ -747,7 +747,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             propByRes.addAll(
                     ResourceOperation.UPDATE,
                     anyUtils.getAllResources(saved).stream().
-                            map(resource -> resource.getProvision(saved.getType().getKey()).
+                            map(resource -> resource.getProvisionByAnyType(saved.getType().getKey()).
                             filter(mappingManager::hasMustChangePassword).
                             map(provision -> resource.getKey()).
                             orElse(null)).

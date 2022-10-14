@@ -66,7 +66,6 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ExternalResourceCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.identityconnectors.framework.common.objects.ObjectClass;
 
 /**
  * Resource for propagation and pull.
@@ -202,15 +201,15 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-    public Optional<Provision> getProvision(final String anyType) {
+    public Optional<Provision> getProvisionByAnyType(final String anyType) {
         return getProvisions().stream().
                 filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
     }
 
     @Override
-    public Optional<Provision> getProvision(final ObjectClass objectClass) {
+    public Optional<Provision> getProvisionByObjectClass(final String objectClass) {
         return getProvisions().stream().
-                filter(provision -> provision.getObjectClass().equals(objectClass.getObjectClassValue())).findFirst();
+                filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
     }
 
     @Override

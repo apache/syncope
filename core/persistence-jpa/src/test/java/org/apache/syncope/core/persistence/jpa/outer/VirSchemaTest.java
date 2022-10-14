@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -51,7 +52,7 @@ public class VirSchemaTest extends AbstractTest {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
         assertTrue(virSchemaDAO.find(resource).isEmpty());
-        assertTrue(virSchemaDAO.find(resource.getKey(), anyTypeDAO.findUser().getKey()).isEmpty());
+        assertTrue(virSchemaDAO.find(resource.getKey(), AnyTypeKind.USER.name()).isEmpty());
 
         VirSchema virSchema = entityFactory.newEntity(VirSchema.class);
         virSchema.setKey("vSchema");
@@ -71,8 +72,8 @@ public class VirSchemaTest extends AbstractTest {
         assertFalse(virSchemaDAO.find(resource).isEmpty());
         assertTrue(virSchemaDAO.find(resource).contains(virSchema.getKey()));
 
-        assertFalse(virSchemaDAO.find(resource.getKey(), anyTypeDAO.findUser().getKey()).isEmpty());
-        assertTrue(virSchemaDAO.find(resource.getKey(), anyTypeDAO.findUser().getKey()).contains(virSchema));
+        assertFalse(virSchemaDAO.find(resource.getKey(), AnyTypeKind.USER.name()).isEmpty());
+        assertTrue(virSchemaDAO.find(resource.getKey(), AnyTypeKind.USER.name()).contains(virSchema));
 
         Item item = virSchema.asLinkingMappingItem();
         assertNotNull(item);

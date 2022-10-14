@@ -200,7 +200,7 @@ abstract class AbstractAnyDataBinder {
         Map<String, ConnObject> onResources = new HashMap<>();
 
         resources.stream().map(resourceDAO::find).filter(Objects::nonNull).forEach(resource -> {
-            resource.getProvision(any.getType().getKey()).
+            resource.getProvisionByAnyType(any.getType().getKey()).
                     ifPresent(provision -> MappingUtils.getConnObjectKeyItem(provision).ifPresent(keyItem -> {
 
                 Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
@@ -319,7 +319,7 @@ abstract class AbstractAnyDataBinder {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         resources.forEach(resource -> {
-            Optional<Provision> provision = resource.getProvision(any.getType().getKey());
+            Optional<Provision> provision = resource.getProvisionByAnyType(any.getType().getKey());
             if (resource.isEnforceMandatoryCondition() && provision.isPresent()) {
                 List<String> missingAttrNames = evaluateMandatoryCondition(resource, provision.get(), any);
                 if (!missingAttrNames.isEmpty()) {

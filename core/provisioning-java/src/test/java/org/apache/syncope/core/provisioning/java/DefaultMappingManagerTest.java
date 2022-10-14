@@ -92,7 +92,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
     public void prepareAttrsForUser() {
         User bellini = userDAO.findByUsername("bellini");
         ExternalResource ldap = resourceDAO.find("resource-ldap");
-        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        Provision provision = ldap.getProvisionByAnyType(AnyTypeKind.USER.name()).get();
 
         assertNotEquals(CipherAlgorithm.AES, bellini.getCipherAlgorithm());
 
@@ -171,7 +171,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
     public void prepareAttrsForLinkedAccount() {
         User vivaldi = userDAO.findByUsername("vivaldi");
         ExternalResource ldap = resourceDAO.find("resource-ldap");
-        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        Provision provision = ldap.getProvisionByAnyType(AnyTypeKind.USER.name()).get();
 
         LinkedAccount account = entityFactory.newEntity(LinkedAccount.class);
         account.setConnObjectKeyValue("admin");
@@ -281,7 +281,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
 
         // 3. check propagation attrs
         ExternalResource csv = resourceDAO.find("resource-csv");
-        Provision provision = csv.getProvision(AnyTypeKind.USER.name()).get();
+        Provision provision = csv.getProvisionByAnyType(AnyTypeKind.USER.name()).get();
         assertNotNull(provision);
 
         Pair<String, Set<Attribute>> attrs = mappingManager.prepareAttrsFromAny(

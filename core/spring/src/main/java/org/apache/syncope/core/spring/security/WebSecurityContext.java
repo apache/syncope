@@ -23,7 +23,6 @@ import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -171,7 +170,6 @@ public class WebSecurityContext {
             final RealmDAO realmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
-            final AnyTypeDAO anyTypeDAO,
             final AnySearchDAO anySearchDAO,
             final AccessTokenDAO accessTokenDAO,
             final ConfParamOps confParamOps,
@@ -187,7 +185,6 @@ public class WebSecurityContext {
                 realmDAO,
                 userDAO,
                 groupDAO,
-                anyTypeDAO,
                 anySearchDAO,
                 accessTokenDAO,
                 confParamOps,

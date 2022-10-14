@@ -736,10 +736,10 @@ public class DefaultMappingManager implements MappingManager {
 
                     case "userOwner":
                     case "groupOwner":
-                        Mapping uMappingTO = provision.getAnyType().equals(anyTypeDAO.findUser().getKey())
+                        Mapping uMappingTO = provision.getAnyType().equals(AnyTypeKind.USER.name())
                                 ? provision.getMapping()
                                 : null;
-                        Mapping gMappingTO = provision.getAnyType().equals(anyTypeDAO.findGroup().getKey())
+                        Mapping gMappingTO = provision.getAnyType().equals(AnyTypeKind.GROUP.name())
                                 ? provision.getMapping()
                                 : null;
 

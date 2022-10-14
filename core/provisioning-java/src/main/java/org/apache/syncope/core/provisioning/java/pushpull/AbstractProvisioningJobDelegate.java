@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -404,11 +405,11 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         }
 
         // Summary, also to be included for FAILURE and ALL, so create it anyway.
-        boolean includeUser = resource.getProvision(anyTypeDAO.findUser().getKey()).isPresent();
-        boolean includeGroup = resource.getProvision(anyTypeDAO.findGroup().getKey()).isPresent();
+        boolean includeUser = resource.getProvisionByAnyType(AnyTypeKind.USER.name()).isPresent();
+        boolean includeGroup = resource.getProvisionByAnyType(AnyTypeKind.GROUP.name()).isPresent();
         boolean includeAnyObject = resource.getProvisions().stream().anyMatch(
-                provision -> !provision.getAnyType().equals(anyTypeDAO.findUser().getKey())
-                && !provision.getAnyType().equals(anyTypeDAO.findGroup().getKey()));
+                provision -> !provision.getAnyType().equals(AnyTypeKind.USER.name())
+                && !provision.getAnyType().equals(AnyTypeKind.GROUP.name()));
         boolean includeRealm = resource.getOrgUnit() != null;
 
         if (includeUser) {

@@ -149,7 +149,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 LOG.debug("Invalid {} specified {}, ignoring...",
                         AnyType.class.getSimpleName(), provisionTO.getAnyType());
             } else {
-                Provision provision = resource.getProvision(anyType.getKey()).orElse(null);
+                Provision provision = resource.getProvisionByAnyType(anyType.getKey()).orElse(null);
                 if (provision == null) {
                     provision = new Provision();
                     provision.setAnyType(anyType.getKey());

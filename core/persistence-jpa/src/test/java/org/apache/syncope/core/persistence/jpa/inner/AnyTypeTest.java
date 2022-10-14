@@ -116,6 +116,6 @@ public class AnyTypeTest extends AbstractTest {
 
     @Test
     public void deleteInvalid() {
-        assertThrows(IllegalArgumentException.class, () -> anyTypeDAO.delete(anyTypeDAO.findUser().getKey()));
+        assertThrows(IllegalArgumentException.class, () -> anyTypeDAO.delete(AnyTypeKind.USER.name()));
     }
 }

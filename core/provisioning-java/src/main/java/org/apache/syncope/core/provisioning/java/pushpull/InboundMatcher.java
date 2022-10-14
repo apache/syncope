@@ -140,7 +140,7 @@ public class InboundMatcher {
             final ExternalResource resource,
             final Connector connector) {
 
-        Optional<Provision> provision = resource.getProvision(anyType.getKey());
+        Optional<Provision> provision = resource.getProvisionByAnyType(anyType.getKey());
         if (provision.isEmpty()) {
             return Optional.empty();
         }

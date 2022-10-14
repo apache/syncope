@@ -113,7 +113,7 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
                 LOG.debug("Found in cache: {}={}", cacheKey, cacheValue);
                 result.put(schema, cacheValue.getValues());
             } else if (schema.getAnyType().equals(any.getType())) {
-                schema.getResource().getProvision(schema.getAnyType().getKey()).ifPresent(provision -> {
+                schema.getResource().getProvisionByAnyType(schema.getAnyType().getKey()).ifPresent(provision -> {
                     Set<VirSchema> schemasToRead = toRead.get(Pair.of(schema.getResource(), provision));
                     if (schemasToRead == null) {
                         schemasToRead = new HashSet<>();

@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
-import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public interface ExternalResource extends ProvidedKeyEntity {
 
@@ -105,9 +104,9 @@ public interface ExternalResource extends ProvidedKeyEntity {
 
     void setRandomPwdIfNotProvided(boolean condition);
 
-    Optional<Provision> getProvision(String anyType);
+    Optional<Provision> getProvisionByAnyType(String anyType);
 
-    Optional<Provision> getProvision(ObjectClass objectClass);
+    Optional<Provision> getProvisionByObjectClass(String objectClass);
 
     List<Provision> getProvisions();
 

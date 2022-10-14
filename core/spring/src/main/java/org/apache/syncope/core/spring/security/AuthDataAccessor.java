@@ -43,7 +43,6 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -52,7 +51,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -104,8 +102,6 @@ public class AuthDataAccessor {
 
     protected final GroupDAO groupDAO;
 
-    protected final AnyTypeDAO anyTypeDAO;
-
     protected final AnySearchDAO anySearchDAO;
 
     protected final AccessTokenDAO accessTokenDAO;
@@ -131,7 +127,6 @@ public class AuthDataAccessor {
             final RealmDAO realmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
-            final AnyTypeDAO anyTypeDAO,
             final AnySearchDAO anySearchDAO,
             final AccessTokenDAO accessTokenDAO,
             final ConfParamOps confParamOps,
@@ -146,7 +141,6 @@ public class AuthDataAccessor {
         this.realmDAO = realmDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
-        this.anyTypeDAO = anyTypeDAO;
         this.anySearchDAO = anySearchDAO;
         this.accessTokenDAO = accessTokenDAO;
         this.confParamOps = confParamOps;
@@ -289,13 +283,12 @@ public class AuthDataAccessor {
             ExternalResource resource = itor.next();
             String connObjectKey = null;
             try {
-                AnyType userType = anyTypeDAO.findUser();
-                Provision provision = resource.getProvision(userType.getKey()).
+                Provision provision = resource.getProvisionByAnyType(AnyTypeKind.USER.name()).
                         orElseThrow(() -> new AccountNotFoundException(
-                        "Unable to locate provision for user type " + userType.getKey()));
+                        "Unable to locate provision for user type " + AnyTypeKind.USER.name()));
                 connObjectKey = mappingManager.getConnObjectKeyValue(user, resource, provision).
                         orElseThrow(() -> new AccountNotFoundException(
-                        "Unable to locate conn object key value for " + userType.getKey()));
+                        "Unable to locate conn object key value for " + AnyTypeKind.USER.name()));
                 Uid uid = connectorManager.getConnector(resource).authenticate(connObjectKey, password, null);
                 if (uid != null) {
                     authenticated = true;

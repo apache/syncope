@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.BackOffStrategy;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -90,7 +91,7 @@ public class PolicyTest extends AbstractTest {
         PullPolicy pullPolicy = policyDAO.find("880f8553-069b-4aed-9930-2cd53873f544");
         assertNotNull(pullPolicy);
 
-        PullCorrelationRuleEntity pullCR = pullPolicy.getCorrelationRule(anyTypeDAO.findUser().getKey()).orElse(null);
+        PullCorrelationRuleEntity pullCR = pullPolicy.getCorrelationRule(AnyTypeKind.USER.name()).orElse(null);
         assertNotNull(pullCR);
         DefaultPullCorrelationRuleConf pullCRConf =
                 POJOHelper.deserialize(pullCR.getImplementation().getBody(), DefaultPullCorrelationRuleConf.class);
@@ -102,7 +103,7 @@ public class PolicyTest extends AbstractTest {
         PushPolicy pushPolicy = policyDAO.find("fb6530e5-892d-4f47-a46b-180c5b6c5c83");
         assertNotNull(pushPolicy);
 
-        PushCorrelationRuleEntity pushCR = pushPolicy.getCorrelationRule(anyTypeDAO.findUser().getKey()).orElse(null);
+        PushCorrelationRuleEntity pushCR = pushPolicy.getCorrelationRule(AnyTypeKind.USER.name()).orElse(null);
         assertNotNull(pushCR);
         DefaultPushCorrelationRuleConf pushCRConf =
                 POJOHelper.deserialize(pushCR.getImplementation().getBody(), DefaultPushCorrelationRuleConf.class);
@@ -214,9 +215,9 @@ public class PolicyTest extends AbstractTest {
 
         assertNotNull(pullPolicy);
         assertEquals(pullURuleName,
-                pullPolicy.getCorrelationRule(anyTypeDAO.findUser().getKey()).get().getImplementation().getKey());
+                pullPolicy.getCorrelationRule(AnyTypeKind.USER.name()).get().getImplementation().getKey());
         assertEquals(pullGRuleName,
-                pullPolicy.getCorrelationRule(anyTypeDAO.findGroup().getKey()).get().getImplementation().getKey());
+                pullPolicy.getCorrelationRule(AnyTypeKind.GROUP.name()).get().getImplementation().getKey());
     }
 
     @Test
@@ -258,9 +259,9 @@ public class PolicyTest extends AbstractTest {
 
         assertNotNull(pushPolicy);
         assertEquals(pushURuleName,
-                pushPolicy.getCorrelationRule(anyTypeDAO.findUser().getKey()).get().getImplementation().getKey());
+                pushPolicy.getCorrelationRule(AnyTypeKind.USER.name()).get().getImplementation().getKey());
         assertEquals(pushGRuleName,
-                pushPolicy.getCorrelationRule(anyTypeDAO.findGroup().getKey()).get().getImplementation().getKey());
+                pushPolicy.getCorrelationRule(AnyTypeKind.GROUP.name()).get().getImplementation().getKey());
     }
 
     @Test

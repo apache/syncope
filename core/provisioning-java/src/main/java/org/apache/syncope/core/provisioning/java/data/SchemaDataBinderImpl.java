@@ -356,7 +356,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             sce.getElements().add("AnyType " + schemaTO.getAnyType() + " not found");
             throw sce;
         }
-        Provision provision = resource.getProvision(anyType.getKey()).orElse(null);
+        Provision provision = resource.getProvisionByAnyType(anyType.getKey()).orElse(null);
         if (provision == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSchemaDefinition);
             sce.getElements().add("Provision for AnyType" + schemaTO.getAnyType()

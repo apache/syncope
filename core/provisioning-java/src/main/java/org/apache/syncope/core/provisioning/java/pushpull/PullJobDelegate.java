@@ -336,6 +336,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             handler.setProfile(profile);
             handler.setPullExecutor(this);
 
+            boolean setSyncTokens = false;
             try {
                 Set<String> moreAttrsToGet = new HashSet<>();
                 profile.getActions().forEach(a -> moreAttrsToGet.addAll(a.moreAttrsToGet(profile, provision)));
@@ -361,9 +362,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                                 options);
 
                         if (!dryRun) {
-                            provision.setSyncToken(
-                                    ConnObjectUtils.toString(latestSyncTokens.get(provision.getObjectClass())));
-                            resourceDAO.save(pullTask.getResource());
+                            setSyncTokens = true;
                         }
                         break;
 
@@ -396,6 +395,14 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 }
             } catch (Throwable t) {
                 throw new JobExecutionException("While pulling from connector", t);
+            } finally {
+                if (setSyncTokens) {
+                    latestSyncTokens.forEach((objectClass, syncToken) -> {
+                        pullTask.getResource().getProvisionByObjectClass(objectClass).
+                                ifPresent(p -> p.setSyncToken(ConnObjectUtils.toString(syncToken)));
+                    });
+                    resourceDAO.save(pullTask.getResource());
+                }
             }
         }
         try {

@@ -285,7 +285,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
 
             AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
             anyUtils.getAllResources(any).forEach(resource -> {
-                Provision provision = resource.getProvision(any.getType().getKey()).orElse(null);
+                Provision provision = resource.getProvisionByAnyType(any.getType().getKey()).orElse(null);
                 Optional<Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
                 String connObjectKeyValue = connObjectKeyItem.isPresent()
                         ? mappingManager.getConnObjectKeyValue(any, resource, provision).get()

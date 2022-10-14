@@ -30,9 +30,9 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -57,9 +57,6 @@ public class ResourceTest extends AbstractTest {
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
-
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -108,7 +105,7 @@ public class ResourceTest extends AbstractTest {
         resource.setConnector(connector);
 
         Provision provision = new Provision();
-        provision.setAnyType(anyTypeDAO.findUser().getKey());
+        provision.setAnyType(AnyTypeKind.USER.name());
         provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resource.getProvisions().add(provision);
 
@@ -142,7 +139,7 @@ public class ResourceTest extends AbstractTest {
         ExternalResource actual = resourceDAO.save(resource);
         entityManager().flush();
         assertNotNull(actual);
-        assertNotNull(actual.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping());
+        assertNotNull(actual.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping());
 
         entityManager().flush();
         resourceDAO.detach(actual);
@@ -170,8 +167,8 @@ public class ResourceTest extends AbstractTest {
         assertTrue(resource.getConnector().equals(connector));
 
         // check mappings
-        List<Item> items = resource.getProvision(
-                anyTypeDAO.findUser().getKey()).get().getMapping().getItems();
+        List<Item> items = resource.getProvisionByAnyType(
+                AnyTypeKind.USER.name()).get().getMapping().getItems();
         assertNotNull(items);
         assertEquals(5, items.size());
 
@@ -240,13 +237,14 @@ public class ResourceTest extends AbstractTest {
         ExternalResource csv = resourceDAO.find("resource-csv");
         assertNotNull(csv);
 
-        int origMapItems = csv.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems().size();
+        int origMapItems = csv.getProvisionByAnyType(
+                AnyTypeKind.USER.name()).get().getMapping().getItems().size();
 
         Item newMapItem = new Item();
         newMapItem.setIntAttrName("TEST");
         newMapItem.setExtAttrName("TEST");
         newMapItem.setPurpose(MappingPurpose.PROPAGATION);
-        csv.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().add(newMapItem);
+        csv.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().add(newMapItem);
 
         resourceDAO.save(csv);
         entityManager().flush();
@@ -255,6 +253,6 @@ public class ResourceTest extends AbstractTest {
         assertNotNull(csv);
         assertEquals(
                 origMapItems + 1,
-                csv.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems().size());
+                csv.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().size());
     }
 }

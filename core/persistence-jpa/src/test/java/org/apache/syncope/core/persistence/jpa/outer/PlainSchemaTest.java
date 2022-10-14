@@ -32,10 +32,10 @@ import java.util.stream.Stream;
 import javax.persistence.EntityExistsException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -58,9 +58,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class PlainSchemaTest extends AbstractTest {
-
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -123,7 +120,7 @@ public class PlainSchemaTest extends AbstractTest {
         // fullname is mapped as ConnObjectKey for ws-target-resource-2, need to swap it otherwise validation errors 
         // will be raised
         resourceDAO.find("ws-target-resource-2").
-                getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems().
+                getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().
                 forEach(item -> {
                     if ("fullname".equals(item.getIntAttrName())) {
                         item.setConnObjectKey(false);
@@ -192,12 +189,12 @@ public class PlainSchemaTest extends AbstractTest {
     @Test
     public void deleteFirstname() {
         int pre = resourceDAO.find("resource-db-pull").
-                getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems().size();
+                getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().size();
 
         plainSchemaDAO.delete("firstname");
         assertNull(plainSchemaDAO.find("firstname"));
 
         assertEquals(pre - 1, resourceDAO.find("resource-db-pull").
-                getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems().size());
+                getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().size());
     }
 }

@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
@@ -165,7 +166,7 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
         }
 
         Optional<Provision> provision = profile.getTask().getResource().
-                getProvision(anyTypeDAO.findUser().getKey()).filter(p -> p.getMapping() != null);
+                getProvisionByAnyType(AnyTypeKind.USER.name()).filter(p -> p.getMapping() != null);
         if (provision.isEmpty()) {
             super.after(profile, delta, entity, result);
         }

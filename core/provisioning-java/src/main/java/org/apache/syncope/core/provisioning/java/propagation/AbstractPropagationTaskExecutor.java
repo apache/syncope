@@ -197,7 +197,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         Uid result = connector.create(taskInfo.getObjectClass(), attributes, null, propagationAttempted);
 
-        taskInfo.getResource().getProvision(taskInfo.getAnyType()).
+        taskInfo.getResource().getProvisionByAnyType(taskInfo.getAnyType()).
                 filter(provision -> provision.getUidOnCreate() != null).
                 ifPresent(provision -> anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind()).addAttr(
                 validator,
@@ -511,7 +511,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         Uid uid = null;
         Result result;
         try {
-            provision = taskInfo.getResource().getProvision(taskInfo.getObjectClass()).orElse(null);
+            provision = taskInfo.getResource().
+                    getProvisionByObjectClass(taskInfo.getObjectClass().getObjectClassValue()).orElse(null);
             orgUnit = taskInfo.getResource().getOrgUnit();
 
             if (taskInfo.getBeforeObj().isEmpty()) {

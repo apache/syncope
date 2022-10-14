@@ -206,7 +206,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             if (anyType == null) {
                 throw new NotFoundException("AnyType '" + anyTypeKey + '\'');
             }
-            Provision provision = resource.getProvision(anyType.getKey()).
+            Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                     orElseThrow(() -> new NotFoundException(
                     "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
 
@@ -239,7 +239,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             if (anyType == null) {
                 throw new NotFoundException("AnyType '" + anyTypeKey + '\'');
             }
-            Provision provision = resource.getProvision(anyType.getKey()).
+            Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                     orElseThrow(() -> new NotFoundException(
                     "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
 
@@ -302,7 +302,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceKey + "'");
         }
-        Provision provision = resource.getProvision(anyType.getKey()).
+        Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                 orElseThrow(() -> new NotFoundException(
                 "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
         if (provision.getMapping() == null) {

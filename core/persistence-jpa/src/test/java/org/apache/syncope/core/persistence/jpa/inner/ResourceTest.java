@@ -32,11 +32,11 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -58,9 +58,6 @@ public class ResourceTest extends AbstractTest {
     @Autowired
     private ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
-
     @Test
     public void findById() {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
@@ -71,7 +68,7 @@ public class ResourceTest extends AbstractTest {
         assertEquals("net.tirasa.connid.bundles.soap.WebServiceConnector", connector.getConnectorName());
         assertEquals("net.tirasa.connid.bundles.soap", connector.getBundleName());
 
-        Mapping mapping = resource.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping();
+        Mapping mapping = resource.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping();
         assertFalse(mapping.getItems().isEmpty());
 
         assertTrue(mapping.getItems().stream().
@@ -117,7 +114,7 @@ public class ResourceTest extends AbstractTest {
     public void getConnObjectKey() {
         ExternalResource resource = resourceDAO.find("ws-target-resource-2");
         assertNotNull(resource);
-        assertEquals("fullname", resource.getProvision(anyTypeDAO.findUser().getKey()).get().
+        assertEquals("fullname", resource.getProvisionByAnyType(AnyTypeKind.USER.name()).get().
                 getMapping().getConnObjectKeyItem().get().getIntAttrName());
     }
 
@@ -128,7 +125,7 @@ public class ResourceTest extends AbstractTest {
         resource.setPropagationPriority(2);
 
         Provision provision = new Provision();
-        provision.setAnyType(anyTypeDAO.findUser().getKey());
+        provision.setAnyType(AnyTypeKind.USER.name());
         provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resource.getProvisions().add(provision);
 
@@ -149,8 +146,10 @@ public class ResourceTest extends AbstractTest {
         entityManager().flush();
         assertNotNull(actual);
         assertNotNull(actual.getConnector());
-        assertNotNull(actual.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping());
-        assertFalse(actual.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems().isEmpty());
+        assertNotNull(actual.getProvisionByAnyType(AnyTypeKind.USER.name()).
+                get().getMapping());
+        assertFalse(actual.getProvisionByAnyType(AnyTypeKind.USER.name()).
+                get().getMapping().getItems().isEmpty());
         assertEquals(Integer.valueOf(2), actual.getPropagationPriority());
     }
 
@@ -164,7 +163,7 @@ public class ResourceTest extends AbstractTest {
             resource.setConnector(connector);
 
             Provision provision = new Provision();
-            provision.setAnyType(anyTypeDAO.findUser().getKey());
+            provision.setAnyType(AnyTypeKind.USER.name());
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
 
@@ -190,7 +189,7 @@ public class ResourceTest extends AbstractTest {
             resource.setConnector(connector);
 
             Provision provision = new Provision();
-            provision.setAnyType(anyTypeDAO.findUser().getKey());
+            provision.setAnyType(AnyTypeKind.USER.name());
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
 
@@ -217,7 +216,7 @@ public class ResourceTest extends AbstractTest {
             resource.setKey("invalidProvision");
 
             Provision provision = new Provision();
-            provision.setAnyType(anyTypeDAO.findUser().getKey());
+            provision.setAnyType(AnyTypeKind.USER.name());
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
 
@@ -231,7 +230,7 @@ public class ResourceTest extends AbstractTest {
             mapping.setConnObjectKeyItem(connObjectKey);
 
             provision = new Provision();
-            provision.setAnyType(anyTypeDAO.findGroup().getKey());
+            provision.setAnyType(AnyTypeKind.GROUP.name());
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
 
@@ -250,7 +249,7 @@ public class ResourceTest extends AbstractTest {
         resource.setPropagationPriority(2);
 
         Provision provision = new Provision();
-        provision.setAnyType(anyTypeDAO.findUser().getKey());
+        provision.setAnyType(AnyTypeKind.USER.name());
         provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resource.getProvisions().add(provision);
 
@@ -284,7 +283,7 @@ public class ResourceTest extends AbstractTest {
         resource.setConnector(connector);
 
         Provision provision = new Provision();
-        provision.setAnyType(anyTypeDAO.findUser().getKey());
+        provision.setAnyType(AnyTypeKind.USER.name());
         provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resource.getProvisions().add(provision);
 
@@ -314,7 +313,8 @@ public class ResourceTest extends AbstractTest {
         entityManager().flush();
         assertNotNull(actual);
 
-        assertEquals(3, actual.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems().size());
+        assertEquals(3, actual.getProvisionByAnyType(AnyTypeKind.USER.name()).
+                get().getMapping().getItems().size());
     }
 
     @Test

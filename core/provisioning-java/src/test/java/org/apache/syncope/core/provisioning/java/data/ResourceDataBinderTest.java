@@ -91,10 +91,10 @@ public class ResourceDataBinderTest extends AbstractTest {
 
         Set<Item> beforeUserIdMappings = new HashSet<>();
         for (ExternalResource res : resourceDAO.findAll()) {
-            if (res.getProvision(anyTypeDAO.findUser().getKey()).isPresent()
-                    && res.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping() != null) {
+            if (res.getProvisionByAnyType(AnyTypeKind.USER.name()).isPresent()
+                    && res.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping() != null) {
 
-                for (Item mapItem : res.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems()) {
+                for (Item mapItem : res.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems()) {
                     if (userId.getKey().equals(mapItem.getIntAttrName())) {
                         beforeUserIdMappings.add(mapItem);
                     }
@@ -127,8 +127,8 @@ public class ResourceDataBinderTest extends AbstractTest {
         resource = resourceDAO.save(resource);
         entityManager().flush();
         assertNotNull(resource);
-        assertNotNull(resource.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping());
-        assertEquals(1, resource.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems().size());
+        assertNotNull(resource.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping());
+        assertEquals(1, resource.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().size());
 
         ExternalResource actual = resourceDAO.find("resource-issue42");
         entityManager().flush();
@@ -139,10 +139,10 @@ public class ResourceDataBinderTest extends AbstractTest {
 
         Set<Item> afterUserIdMappings = new HashSet<>();
         for (ExternalResource res : resourceDAO.findAll()) {
-            if (res.getProvision(anyTypeDAO.findUser().getKey()).isPresent()
-                    && res.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping() != null) {
+            if (res.getProvisionByAnyType(AnyTypeKind.USER.name()).isPresent()
+                    && res.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping() != null) {
 
-                for (Item mapItem : res.getProvision(anyTypeDAO.findUser().getKey()).get().getMapping().getItems()) {
+                for (Item mapItem : res.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems()) {
                     if (userId.getKey().equals(mapItem.getIntAttrName())) {
                         afterUserIdMappings.add(mapItem);
                     }
