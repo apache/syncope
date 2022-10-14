@@ -36,8 +36,8 @@ under the License.
         It is good practice to <a href="#Verifying_Releases">verify the integrity</a> of the distribution files.
       </p>
 
-      <subsection name="3.0.0-M0 Maggiore">
-        <p>Release date: August 5th 2022</p>
+      <subsection name="3.0.0-M1 Maggiore">
+        <p>Release date: October 14th 2022</p>
         <p>
           <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Maggiore">Release notes</a>
         </p>
@@ -61,20 +61,20 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.0-M0/syncope-3.0.0-M0-source-release.zip">syncope-3.0.0-M0-source-release.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.0-M1/syncope-3.0.0-M1-source-release.zip">syncope-3.0.0-M1-source-release.zip</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/3.0.0-M0/syncope-3.0.0-M0-source-release.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/3.0.0-M0/syncope-3.0.0-M0-source-release.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/3.0.0-M1/syncope-3.0.0-M1-source-release.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/3.0.0-M1/syncope-3.0.0-M1-source-release.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.0-M0/syncope-standalone-3.0.0-M0-distribution.zip">syncope-standalone-3.0.0-M0-distribution.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.0-M1/syncope-standalone-3.0.0-M1-distribution.zip">syncope-standalone-3.0.0-M1-distribution.zip</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/3.0.0-M0/syncope-standalone-3.0.0-M0-distribution.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/3.0.0-M0/syncope-standalone-3.0.0-M0-distribution.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/3.0.0-M1/syncope-standalone-3.0.0-M1-distribution.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/3.0.0-M1/syncope-standalone-3.0.0-M1-distribution.zip.sha512">sha512</a>
               </td>
             </tr>
           </tbody>
