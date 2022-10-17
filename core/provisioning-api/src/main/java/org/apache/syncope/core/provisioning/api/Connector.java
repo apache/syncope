@@ -97,7 +97,7 @@ public interface Connector {
      * @param modifications attribute modifications to apply
      * @param options ConnId's OperationOptions
      * @param propagationAttempted if creation is actually performed (based on connector instance's capabilities)
-     * @return
+     * @return the applied modifications
      */
     Set<AttributeDelta> updateDelta(
             ObjectClass objectClass,

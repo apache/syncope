@@ -397,10 +397,9 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 throw new JobExecutionException("While pulling from connector", t);
             } finally {
                 if (setSyncTokens) {
-                    latestSyncTokens.forEach((objectClass, syncToken) -> {
-                        pullTask.getResource().getProvisionByObjectClass(objectClass).
-                                ifPresent(p -> p.setSyncToken(ConnObjectUtils.toString(syncToken)));
-                    });
+                    latestSyncTokens.forEach((objectClass, syncToken) -> pullTask.getResource().
+                            getProvisionByObjectClass(objectClass).
+                            ifPresent(p -> p.setSyncToken(ConnObjectUtils.toString(syncToken))));
                     resourceDAO.save(pullTask.getResource());
                 }
             }
