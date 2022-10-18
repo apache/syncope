@@ -242,6 +242,15 @@ under the License.
           <include>banner.txt</include>
         </includes>
       </resource>
+
+      <resource>
+        <directory>${basedir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE</include>
+          <include>NOTICE</include>
+        </includes>
+      </resource>
     </resources>
     
     <testResources>
@@ -362,14 +371,26 @@ under the License.
       <id>apache-release</id>
 
       <build>
-        <plugins>      
+        <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-deploy-plugin</artifactId>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-          </plugin>           
+            <artifactId>maven-source-plugin</artifactId>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+                <configuration>
+                  <includes>
+                    <include>${basedir}/LICENSE</include>
+                    <include>${basedir}/NOTICE</include>
+                  </includes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>
