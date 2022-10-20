@@ -34,6 +34,7 @@ under the License.
   <packaging>jar</packaging>
   
   <properties>
+    <orm>pgjsonb</orm>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
 
@@ -101,7 +102,7 @@ under the License.
           </dependency>
         </dependencies>
         <configuration>
-          <persistenceXmlFile>${project.basedir}/src/main/resources/persistence-enhance.xml</persistenceXmlFile> 
+          <persistenceXmlFile>${project.build.directory}/classes/persistence-enhance.xml</persistenceXmlFile> 
           <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
           <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
           <connectionProperties>
@@ -187,9 +188,15 @@ under the License.
     </profile>
     
     <profile>
-      <id>schemagen</id>
+      <id>openjpa</id>
       
       <properties>
+        <!-- possible values: sql | schema -->
+        <action>sql</action>
+
+        <!-- possible values: pgjsonb | myjson | ojson -->
+        <orm>ojson</orm>
+
         <skipTests>true</skipTests>
       </properties>
       
@@ -206,7 +213,7 @@ under the License.
                 <id>schemagen</id>
                 <phase>process-classes</phase>
                 <goals>
-                  <goal>schema</goal>
+                  <goal>${action}</goal>
                 </goals>
               </execution>
             </executions>
@@ -423,6 +430,115 @@ under the License.
               </execution>
               <execution>
                 <id>stop-mysql</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+        
+        <testResources>
+          <testResource>
+            <directory>src/test/resources</directory>
+            <filtering>true</filtering>
+          </testResource>
+        </testResources>
+      </build>
+    </profile>
+
+    <profile>
+      <id>ojson</id>
+
+      <dependencies>
+        <dependency>
+          <groupId>com.oracle.database.jdbc</groupId>
+          <artifactId>ojdbc11</artifactId>
+          <version>${jdbc.oracle.version}</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+        
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>add-test-source</id>
+                <phase>generate-test-sources</phase>
+                <goals>
+                  <goal>add-test-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${basedir}/../persistence-jpa/src/test/java</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+      
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/*Test.java</include>
+              </includes>
+              <excludedGroups>multitenancy,plainAttrTable</excludedGroups>
+              <systemProperties>
+                <profileId>${project.activeProfiles[0].id}</profileId>
+                <CORE_PROPERTIES>classpath:core-ojson.properties,classpath:core-ojson-test.properties</CORE_PROPERTIES>
+                <DB_CONTAINER_IP>${docker.container.oracle.ip}</DB_CONTAINER_IP>
+              </systemProperties>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <alias>oracle</alias>
+                  <name>gvenzl/oracle-xe:21-slim</name>
+                  <run>
+                    <env>
+                      <ORACLE_PASSWORD>password</ORACLE_PASSWORD>
+                      <APP_USER>syncope</APP_USER>
+                      <APP_USER_PASSWORD>syncope</APP_USER_PASSWORD>
+                    </env>
+                    <wait>
+                      <log>DATABASE IS READY TO USE</log>
+                      <time>120000</time>
+                    </wait>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-oracle</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-oracle</id>
                 <phase>post-integration-test</phase>
                 <goals>
                   <goal>stop</goal>

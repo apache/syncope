@@ -2380,6 +2380,7 @@ under the License.
                 <postgresqlJDBC>${jdbc.postgresql.version}</postgresqlJDBC>
                 <mysqlJDBC>${jdbc.mysql.version}</mysqlJDBC>
                 <mariadbJDBC>${jdbc.mariadb.version}</mariadbJDBC>
+                <oracleJDBC>${jdbc.oracle.version}</oracleJDBC>
                 <sqlserverJDBC>${jdbc.mssql.version}</sqlserverJDBC>
                 <year>${year}</year>
                 <numbered>true</numbered>
