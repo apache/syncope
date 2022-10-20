@@ -22,3 +22,7 @@ CREATE TABLE AuditEntry (
   MESSAGE CLOB CHECK (MESSAGE IS JSON) NOT NULL,
   THROWABLE CLOB
 );
+
+-- The following index require Oracle TEXT to be installed on the given Oracle database:
+-- http://dbaflavours.blogspot.com/2012/09/ora-29833-indextype-does-not-exist_18.html
+CREATE SEARCH INDEX AuditEntry_MESSAGE_Index ON AuditEntry(MESSAGE) FOR JSON;

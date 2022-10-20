@@ -18,5 +18,20 @@
 //
 === Upgrade from 2.1
 
-[WARNING]
-TODO
+The distance between earlier releases and Syncope 3.0 Maggiore is relevant under different aspects: architecture,
+technology, project organization and naturally internal data representation.
+
+For this reason [.underline]#there is no practical way to migrate an old project# to Syncope 3.0.
+
+It is possible, however, to setup a new Syncope 3.0 project, replicate configurations and finally migrate the existing
+data. Here is the outlined approach:
+
+. create a new Maven project based on Syncope 3.0
+. update code customization and extensions made from your previous Syncope project to the new classes and interfaces
+provided by Syncope 3.0
+. with both projects up and running:
+    .. download relevant configurations - especially connectors and resources - via REST from your previous Syncope
+project
+    .. upload via REST to the new Syncope 3.0 project
+    .. configure a new REST resource in the new Syncope 3.0 project to pull users, groups and any objects from your
+previous Syncope project

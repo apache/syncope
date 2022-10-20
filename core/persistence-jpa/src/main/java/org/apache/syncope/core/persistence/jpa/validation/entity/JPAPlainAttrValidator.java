@@ -43,8 +43,8 @@ public class JPAPlainAttrValidator extends AbstractValidator<PlainAttrCheck, Pla
             }
 
             if (!isValid) {
-                LOG.error("Invalid values for attribute " + attr + ": "
-                        + "schema=" + attr.getSchema().getKey() + ", values={}", attr.getValuesAsStrings());
+                LOG.error("Invalid values for attribute schema={}, values={}",
+                        attr.getSchema().getKey(), attr.getValuesAsStrings());
 
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidValueList,

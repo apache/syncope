@@ -817,8 +817,8 @@ under the License.
       <id>myjson-it</id>
 
       <properties>
-        <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
-        <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
+        <jdbcdriver.groupId>com.mysql</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>mysql-connector-j</jdbcdriver.artifactId>
 
         <spring.profiles.active>embedded,myjson</spring.profiles.active>
       </properties>
@@ -831,8 +831,8 @@ under the License.
         </dependency>
     
         <dependency>
-          <groupId>mysql</groupId>
-          <artifactId>mysql-connector-java</artifactId>
+          <groupId>com.mysql</groupId>
+          <artifactId>mysql-connector-j</artifactId>
           <version>${jdbc.mysql.version}</version>
           <scope>test</scope>
         </dependency>
@@ -935,16 +935,16 @@ under the License.
       <id>mysql-it</id>
 
       <properties>
-        <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
-        <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
+        <jdbcdriver.groupId>com.mysql</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>mysql-connector-j</jdbcdriver.artifactId>
 
         <spring.profiles.active>embedded,mysql</spring.profiles.active>
       </properties>
 
       <dependencies>
         <dependency>
-          <groupId>mysql</groupId>
-          <artifactId>mysql-connector-java</artifactId>
+          <groupId>com.mysql</groupId>
+          <artifactId>mysql-connector-j</artifactId>
           <version>${jdbc.mysql.version}</version>
           <scope>test</scope>
         </dependency>
