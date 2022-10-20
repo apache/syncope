@@ -26,35 +26,35 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 
-public class ResourceProvision implements ToggleableTarget {
+public class ResourceProvisionPanelObj implements ToggleableTarget {
 
     private static final long serialVersionUID = 1103991919577739952L;
 
-    private Provision provisionTO;
+    private ResourceProvision provisionTO;
 
     private OrgUnit orgUnitTO;
 
     private List<Item> items;
 
-    public ResourceProvision() {
+    public ResourceProvisionPanelObj() {
         this.items = new ArrayList<>();
     }
 
-    public ResourceProvision(final Provision provisionTO) {
+    public ResourceProvisionPanelObj(final ResourceProvision provisionTO) {
         setProvisionTO(provisionTO);
     }
 
-    public ResourceProvision(final OrgUnit orgUnitTO) {
+    public ResourceProvisionPanelObj(final OrgUnit orgUnitTO) {
         setOrgUnitTO(orgUnitTO);
     }
 
-    public Provision getProvisionTO() {
+    public ResourceProvision getProvisionTO() {
         return provisionTO;
     }
 
-    public final void setProvisionTO(final Provision provisionTO) {
+    public final void setProvisionTO(final ResourceProvision provisionTO) {
         this.provisionTO = provisionTO;
         this.orgUnitTO = null;
 
@@ -103,7 +103,7 @@ public class ResourceProvision implements ToggleableTarget {
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyType)) {
             setOrgUnitTO(new OrgUnit());
         } else {
-            setProvisionTO(new Provision());
+            setProvisionTO(new ResourceProvision());
             getProvisionTO().setAnyType(anyType);
             getProvisionTO().setMapping(new Mapping());
         }
@@ -129,7 +129,7 @@ public class ResourceProvision implements ToggleableTarget {
 
     public boolean isIgnoreCaseMatch() {
         return Optional.ofNullable(provisionTO).
-                map(Provision::isIgnoreCaseMatch).orElseGet(() -> orgUnitTO.isIgnoreCaseMatch());
+                map(ResourceProvision::isIgnoreCaseMatch).orElseGet(() -> orgUnitTO.isIgnoreCaseMatch());
     }
 
     public void setIgnoreCaseMatch(final boolean ignoreCaseMatch) {

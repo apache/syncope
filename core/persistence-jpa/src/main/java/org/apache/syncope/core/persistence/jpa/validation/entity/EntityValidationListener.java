@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.DynMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
+import org.apache.syncope.core.persistence.api.entity.Provisionable;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
@@ -62,6 +63,7 @@ public class EntityValidationListener {
                         && !GroupableRelatable.class.equals(interf)
                         && !Any.class.equals(interf)
                         && !DynMembership.class.equals(interf)
+                        && !Provisionable.class.equals(interf)
                         && Entity.class.isAssignableFrom(interf)) {
 
                     entityInt = interf;

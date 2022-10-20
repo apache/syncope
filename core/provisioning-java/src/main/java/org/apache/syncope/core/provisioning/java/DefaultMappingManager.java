@@ -43,8 +43,8 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -242,7 +242,7 @@ public class DefaultMappingManager implements MappingManager {
      * @param connObjectKey connector object key
      * @return the value to be propagated as __NAME__
      */
-    protected Name evaluateNAME(final Any<?> any, final Provision provision, final String connObjectKey) {
+    protected Name evaluateNAME(final Any<?> any, final ResourceProvision provision, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
             // LOG error but avoid to throw exception: leave it to the external resource
             LOG.warn("Missing ConnObjectKey value for {}: ", any.getType().getKey());
@@ -300,7 +300,7 @@ public class DefaultMappingManager implements MappingManager {
             final boolean changePwd,
             final Boolean enable,
             final ExternalResource resource,
-            final Provision provision) {
+            final ResourceProvision provision) {
 
         LOG.debug("Preparing resource attributes for {} with provision {} for attributes {}",
                 any, provision, any.getPlainAttrs());
@@ -366,7 +366,7 @@ public class DefaultMappingManager implements MappingManager {
             final LinkedAccount account,
             final String password,
             final boolean changePwd,
-            final Provision provision) {
+            final ResourceProvision provision) {
 
         LOG.debug("Preparing resource attributes for linked account {} of user {} with provision {} "
                 + "for user attributes {} with override {}",
@@ -542,7 +542,7 @@ public class DefaultMappingManager implements MappingManager {
     @Override
     public Pair<String, Attribute> prepareAttr(
             final ExternalResource resource,
-            final Provision provision,
+            final ResourceProvision provision,
             final Item item,
             final Any<?> any,
             final String password,
@@ -626,7 +626,7 @@ public class DefaultMappingManager implements MappingManager {
     @Override
     public Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
             final ExternalResource resource,
-            final Provision provision,
+            final ResourceProvision provision,
             final Item mapItem,
             final IntAttrName intAttrName,
             final AttrSchemaType schemaType,
@@ -884,7 +884,7 @@ public class DefaultMappingManager implements MappingManager {
 
     protected String getGroupOwnerValue(
             final ExternalResource resource,
-            final Provision provision,
+            final ResourceProvision provision,
             final Any<?> any) {
 
         Optional<Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
@@ -911,7 +911,7 @@ public class DefaultMappingManager implements MappingManager {
     public Optional<String> getConnObjectKeyValue(
             final Any<?> any,
             final ExternalResource resource,
-            final Provision provision) {
+            final ResourceProvision provision) {
 
         Optional<Item> connObjectKeyItem = provision.getMapping().getConnObjectKeyItem();
         if (connObjectKeyItem.isEmpty()) {
@@ -1141,7 +1141,7 @@ public class DefaultMappingManager implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public boolean hasMustChangePassword(final Provision provision) {
+    public boolean hasMustChangePassword(final ResourceProvision provision) {
         return provision != null && provision.getMapping() != null
                 && provision.getMapping().getItems().stream().
                         anyMatch(mappingItem -> "mustChangePassword".equals(mappingItem.getIntAttrName()));

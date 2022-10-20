@@ -41,11 +41,11 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -140,7 +140,7 @@ public class MultitenancyITCase extends AbstractITCase {
         resource.setConnector(conn.getKey());
 
         try {
-            Provision provisionTO = new Provision();
+            ResourceProvision provisionTO = new ResourceProvision();
             provisionTO.setAnyType(AnyTypeKind.USER.name());
             provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provisionTO);

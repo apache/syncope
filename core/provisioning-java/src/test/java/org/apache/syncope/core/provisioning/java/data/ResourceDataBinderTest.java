@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
@@ -107,7 +107,7 @@ public class ResourceDataBinderTest extends AbstractTest {
         resourceTO.setConnector("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
         resourceTO.setEnforceMandatoryCondition(true);
 
-        Provision provisionTO = new Provision();
+        ResourceProvision provisionTO = new ResourceProvision();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
         provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);

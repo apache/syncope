@@ -56,7 +56,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
     /**
      * External resource provisioning configuration instance to be updated.
      */
-    private final ResourceProvision provision;
+    private final ResourceProvisionPanelObj provision;
 
     private final LoadableDetachableModel<List<String>> extAttrNames;
 
@@ -74,7 +74,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
             final String id,
             final ResourceTO resourceTO,
             final String adminRealm,
-            final ResourceProvision provision,
+            final ResourceProvisionPanelObj provision,
             final ItemTransformersTogglePanel itemTransformers,
             final JEXLTransformersTogglePanel jexlTransformers) {
 

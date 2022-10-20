@@ -44,8 +44,8 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -99,7 +99,7 @@ public class VirAttrITCase extends AbstractITCase {
     public void issueSYNCOPE260() {
         // create new virtual schema for the resource below
         ResourceTO ws2 = RESOURCE_SERVICE.read(RESOURCE_NAME_WS2);
-        Provision provision = ws2.getProvision(AnyTypeKind.USER.name()).get();
+        ResourceProvision provision = ws2.getProvision(AnyTypeKind.USER.name()).get();
         assertNotNull(provision);
 
         VirSchemaTO virSchema = new VirSchemaTO();
@@ -270,7 +270,7 @@ public class VirAttrITCase extends AbstractITCase {
             assertNotNull(csv.getProvisions().get(0).getMapping());
 
             // create new virtual schema for the resource below
-            Provision provision = csv.getProvision(AnyTypeKind.USER.name()).get();
+            ResourceProvision provision = csv.getProvision(AnyTypeKind.USER.name()).get();
             assertNotNull(provision);
 
             VirSchemaTO virSchema = new VirSchemaTO();
@@ -481,7 +481,7 @@ public class VirAttrITCase extends AbstractITCase {
             resourceTO.setKey(resourceName);
             resourceTO.setConnector("be24b061-019d-4e3e-baf0-0a6d0a45cb9c");
 
-            Provision provisionTO = new Provision();
+            ResourceProvision provisionTO = new ResourceProvision();
             provisionTO.setAnyType(AnyTypeKind.USER.name());
             provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resourceTO.getProvisions().add(provisionTO);
@@ -613,7 +613,7 @@ public class VirAttrITCase extends AbstractITCase {
     public void issueSYNCOPE691() {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         try {
-            Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
+            ResourceProvision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
             assertNotNull(provision);
             provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
             provision.getVirSchemas().clear();

@@ -30,8 +30,8 @@ import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
@@ -131,7 +131,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean handle(final SyncDelta delta) {
-        Provision provision = null;
+        ResourceProvision provision = null;
         try {
             provision = profile.getTask().getResource().
                     getProvisionByObjectClass(delta.getObject().getObjectClass().getObjectClassValue()).
@@ -196,7 +196,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             final UnmatchingRule rule,
             final SyncDelta delta,
             final AnyTypeKind anyTypeKind,
-            final Provision provision) throws JobExecutionException {
+            final ResourceProvision provision) throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
@@ -299,7 +299,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     protected List<ProvisioningReport> update(
             final SyncDelta delta,
             final List<PullMatch> matches,
-            final Provision provision) throws JobExecutionException {
+            final ResourceProvision provision) throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
@@ -403,7 +403,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             final MatchingRule matchingRule,
             final SyncDelta delta,
             final List<PullMatch> matches,
-            final Provision provision)
+            final ResourceProvision provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
@@ -517,7 +517,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     protected List<ProvisioningReport> link(
             final SyncDelta delta,
             final List<PullMatch> matches,
-            final Provision provision,
+            final ResourceProvision provision,
             final boolean unlink)
             throws JobExecutionException {
 
@@ -622,7 +622,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     protected List<ProvisioningReport> delete(
             final SyncDelta delta,
             final List<PullMatch> matches,
-            final Provision provision)
+            final ResourceProvision provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformDelete()) {
@@ -706,7 +706,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     protected List<ProvisioningReport> ignore(
             final SyncDelta delta,
             final List<PullMatch> matches,
-            final Provision provision,
+            final ResourceProvision provision,
             final boolean matching,
             final String... message)
             throws JobExecutionException {
@@ -757,7 +757,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             final SyncDelta delta,
             final List<PullMatch> matches,
             final AnyTypeKind anyTypeKind,
-            final Provision provision) throws JobExecutionException {
+            final ResourceProvision provision) throws JobExecutionException {
 
         if (matches.isEmpty()) {
             LOG.debug("Nothing to do");
@@ -842,7 +842,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     protected void handleLinkedAccounts(
             final SyncDelta delta,
             final List<PullMatch> matches,
-            final Provision provision) throws JobExecutionException {
+            final ResourceProvision provision) throws JobExecutionException {
 
         if (matches.isEmpty()) {
             LOG.debug("Nothing to do");
@@ -863,7 +863,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
      */
     protected void doHandle(
             final SyncDelta delta,
-            final Provision provision,
+            final ResourceProvision provision,
             final AnyTypeKind anyTypeKind) throws JobExecutionException {
 
         LOG.debug("Process {} for {} as {}",

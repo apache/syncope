@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -31,7 +31,7 @@ import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 public class DummyPushCorrelationRule implements PushCorrelationRule {
 
     @Override
-    public Filter getFilter(final Any<?> any, final ExternalResource resource, final Provision provision) {
+    public Filter getFilter(final Any<?> any, final ExternalResource resource, final ResourceProvision provision) {
         return FilterBuilder.equalTo(new Uid(null));
     }
 }

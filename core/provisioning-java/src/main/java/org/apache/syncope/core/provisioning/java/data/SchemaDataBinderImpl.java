@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -356,7 +356,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             sce.getElements().add("AnyType " + schemaTO.getAnyType() + " not found");
             throw sce;
         }
-        Provision provision = resource.getProvisionByAnyType(anyType.getKey()).orElse(null);
+        ResourceProvision provision = resource.getProvisionByAnyType(anyType.getKey()).orElse(null);
         if (provision == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSchemaDefinition);
             sce.getElements().add("Provision for AnyType" + schemaTO.getAnyType()

@@ -28,8 +28,8 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnObject;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
@@ -51,7 +51,7 @@ public class ConnObjects extends Panel implements ModalPanel {
         super(BaseModal.CONTENT_ID);
 
         List<String> availableAnyTypes = resource.getProvisions().stream().
-                map(Provision::getAnyType).
+                map(ResourceProvision::getAnyType).
                 sorted(AnyTypeRestClient.KEY_COMPARATOR).
                 collect(Collectors.toList());
         if (resource.getOrgUnit() != null) {

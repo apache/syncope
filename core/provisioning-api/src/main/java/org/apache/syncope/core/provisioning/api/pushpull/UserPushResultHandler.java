@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 
 public interface UserPushResultHandler extends SyncopePushResultHandler {
 
-    boolean handle(LinkedAccount account, Provision provision);
+    boolean handle(LinkedAccount account, ResourceProvision provision);
 }

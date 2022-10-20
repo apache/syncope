@@ -48,7 +48,7 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -698,7 +698,7 @@ public class ConnectorITCase extends AbstractITCase {
 
             resourceTO.getConfOverride().addAll(conf);
 
-            Provision provisionTO = new Provision();
+            ResourceProvision provisionTO = new ResourceProvision();
             provisionTO.setAnyType(AnyTypeKind.USER.name());
             provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resourceTO.getProvisions().add(provisionTO);

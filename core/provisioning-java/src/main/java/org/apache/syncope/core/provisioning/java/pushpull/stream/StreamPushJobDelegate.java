@@ -23,9 +23,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -78,7 +78,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             final List<String> columns,
             final List<String> propagationActions) throws JobExecutionException {
 
-        Provision provision = new Provision();
+        ResourceProvision provision = new ResourceProvision();
         provision.setAnyType(anyType.getKey());
         provision.setObjectClass(anyType.getKey());
 

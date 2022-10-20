@@ -36,7 +36,7 @@ public abstract class ObjectTypeTogglePanel extends TogglePanel<Serializable> {
 
     ObjectTypeTogglePanel(
             final String id,
-            final ResourceProvision resourceProvision,
+            final ResourceProvisionPanelObj resourceProvision,
             final LoadableDetachableModel<List<String>> anyTypes,
             final PageReference pageRef) {
 

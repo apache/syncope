@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Optional;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -44,11 +44,11 @@ public interface PullCorrelationRule {
      * @param provision resource provision
      * @return search condition.
      */
-    SearchCond getSearchCond(SyncDelta syncDelta, Provision provision);
+    SearchCond getSearchCond(SyncDelta syncDelta, ResourceProvision provision);
 
     /**
      * Create matching information for the given Any, found matching for the given
-     * {@link SyncDelta} and {@link Provision}.
+     * {@link SyncDelta} and {@link ResourceProvision}.
      * For users, this might end with creating / updating / deleting a
      * {@link org.apache.syncope.core.persistence.api.entity.user.LinkedAccount}.
      *
@@ -57,13 +57,13 @@ public interface PullCorrelationRule {
      * @param provision resource provision
      * @return matching information
      */
-    default PullMatch matching(Any<?> any, SyncDelta syncDelta, Provision provision) {
+    default PullMatch matching(Any<?> any, SyncDelta syncDelta, ResourceProvision provision) {
         return new PullMatch(MatchType.ANY, any);
     }
 
     /**
      * Optionally create matching information in case no matching Any was found for the given
-     * {@link SyncDelta} and {@link Provision}.
+     * {@link SyncDelta} and {@link ResourceProvision}.
      * For users, this might end with creating a
      * {@link org.apache.syncope.core.persistence.api.entity.user.LinkedAccount}.
      *
@@ -71,7 +71,7 @@ public interface PullCorrelationRule {
      * @param provision resource provision
      * @return matching information
      */
-    default Optional<PullMatch> unmatching(SyncDelta syncDelta, Provision provision) {
+    default Optional<PullMatch> unmatching(SyncDelta syncDelta, ResourceProvision provision) {
         return Optional.of(NO_MATCH);
     }
 }

@@ -36,11 +36,11 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -165,7 +165,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         this.connectorManager = connectorManager;
     }
 
-    protected Triple<AnyType, ExternalResource, Provision> getProvision(
+    protected Triple<AnyType, ExternalResource, ResourceProvision> getProvision(
             final String anyTypeKey, final String resourceKey) {
 
         AnyType anyType = anyTypeDAO.find(anyTypeKey);
@@ -177,7 +177,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceKey + "'");
         }
-        Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
+        
+        ResourceProvision provision = resource.getProvisionByAnyType(anyType.getKey()).
                 orElseThrow(() -> new NotFoundException(
                 "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
         if (provision.getMapping() == null) {
@@ -205,7 +206,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final Any<?> any,
             final Item connObjectKeyItem,
             final ExternalResource resource,
-            final Provision provision) {
+            final ResourceProvision provision) {
 
         Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
                 any, null, false, true, resource, provision);
@@ -215,14 +216,14 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     protected ConnObject getOnSyncope(
             final LinkedAccount account,
             final Item connObjectKeyItem,
-            final Provision provision) {
+            final ResourceProvision provision) {
 
         Set<Attribute> attrs = mappingManager.prepareAttrsFromLinkedAccount(
                 account.getOwner(), account, null, false, provision);
         return getOnSyncope(connObjectKeyItem, account.getConnObjectKeyValue(), attrs);
     }
 
-    protected Any<?> getAny(final Provision provision, final AnyTypeKind anyTypeKind, final String anyKey) {
+    protected Any<?> getAny(final ResourceProvision provision, final AnyTypeKind anyTypeKind, final String anyKey) {
         AnyDAO<Any<?>> dao = anyUtilsFactory.getInstance(anyTypeKind).dao();
         Any<?> any = SyncopeConstants.UUID_PATTERN.matcher(anyKey).matches()
                 ? dao.authFind(anyKey)
@@ -240,7 +241,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final String anyKey,
             final Set<String> moreAttrsToGet) {
 
-        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
+        Triple<AnyType, ExternalResource, ResourceProvision> triple = getProvision(anyTypeKey, resourceKey);
 
         Item connObjectKeyItem = MappingUtils.getConnObjectKeyItem(triple.getRight()).
                 orElseThrow(() -> new NotFoundException(
@@ -280,7 +281,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     protected SyncDeltaBuilder syncDeltaBuilder(
             final AnyType anyType,
             final ExternalResource resource,
-            final Provision provision,
+            final ResourceProvision provision,
             final Filter filter,
             final Set<String> moreAttrsToGet) {
 
@@ -318,7 +319,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final Filter filter,
             final Set<String> moreAttrsToGet) {
 
-        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
+        Triple<AnyType, ExternalResource, ResourceProvision> triple = getProvision(anyTypeKey, resourceKey);
 
         SyncDeltaBuilder syncDeltaBuilder = syncDeltaBuilder(
                 triple.getLeft(), triple.getMiddle(), triple.getRight(), filter, moreAttrsToGet);
@@ -377,7 +378,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final String anyKey,
             final PushTaskTO pushTask) {
 
-        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
+        Triple<AnyType, ExternalResource, ResourceProvision> triple = getProvision(anyTypeKey, resourceKey);
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
         List<ProvisioningReport> results = new ArrayList<>();
@@ -411,7 +412,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final Set<String> moreAttrsToGet,
             final PushTaskTO pushTask) {
 
-        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
+        Triple<AnyType, ExternalResource, ResourceProvision> triple = getProvision(anyTypeKey, resourceKey);
 
         SyncDeltaBuilder syncDeltaBuilder = syncDeltaBuilder(
                 triple.getLeft(), triple.getMiddle(), triple.getRight(), filter, moreAttrsToGet);
@@ -467,7 +468,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected List<ProvisioningReport> pull(
             final ExternalResource resource,
-            final Provision provision,
+            final ResourceProvision provision,
             final ReconFilterBuilder reconFilterBuilder,
             final Set<String> moreAttrsToGet,
             final PullTaskTO pullTask) {
@@ -514,7 +515,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final Set<String> moreAttrsToGet,
             final PullTaskTO pullTask) {
 
-        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
+        Triple<AnyType, ExternalResource, ResourceProvision> triple = getProvision(anyTypeKey, resourceKey);
 
         if (triple.getRight().getMapping().getConnObjectKeyItem().isEmpty()) {
             throw new NotFoundException(
@@ -547,7 +548,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final Set<String> moreAttrsToGet,
             final PullTaskTO pullTask) {
 
-        Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
+        Triple<AnyType, ExternalResource, ResourceProvision> triple = getProvision(anyTypeKey, resourceKey);
 
         return pull(
                 triple.getMiddle(),

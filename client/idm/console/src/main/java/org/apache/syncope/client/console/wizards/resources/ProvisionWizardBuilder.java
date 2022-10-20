@@ -32,7 +32,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
@@ -46,7 +46,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvision> {
+public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvisionPanelObj> {
 
     private static final long serialVersionUID = 3739399543837732640L;
 
@@ -63,7 +63,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
 
         private static final long serialVersionUID = -1657800545799468278L;
 
-        ObjectType(final ResourceProvision resourceProvision) {
+        ObjectType(final ResourceProvisionPanelObj resourceProvision) {
             super(new ResourceModel("clazz.title", StringUtils.EMPTY),
                     new ResourceModel("clazz.summary", StringUtils.EMPTY), new Model<>(resourceProvision));
 
@@ -78,7 +78,9 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
             container.add(clazz);
 
             AjaxCheckBoxPanel ignoreCaseMatch = new AjaxCheckBoxPanel(
-                    "ignoreCaseMatch", "ignoreCaseMatch", new PropertyModel<>(resourceProvision, "ignoreCaseMatch"));
+                    "ignoreCaseMatch",
+                    "ignoreCaseMatch",
+                    new PropertyModel<>(resourceProvision, "ignoreCaseMatch"));
             container.add(ignoreCaseMatch);
         }
     }
@@ -102,13 +104,16 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
 
         private static final long serialVersionUID = 5315236191866427500L;
 
-        private final ResourceProvision provision;
+        private final ResourceProvisionPanelObj provision;
 
-        AuxClasses(final ResourceProvision resourceProvision) {
+        AuxClasses(final ResourceProvisionPanelObj resourceProvision) {
             this.provision = resourceProvision;
 
             setTitleModel(new ResourceModel("auxClasses.title"));
-            setSummaryModel(new StringResourceModel("auxClasses.summary", this, new Model<>(resourceProvision)));
+            setSummaryModel(new StringResourceModel(
+                    "auxClasses.summary",
+                    this,
+                    new Model<>(resourceProvision)));
             add(new ProvisionAuxClassesPanel("auxClasses", resourceProvision.getProvisionTO()));
         }
 
@@ -138,7 +143,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
 
         private static final long serialVersionUID = 2359955465172450478L;
 
-        ConnObjectLink(final ResourceProvision resourceProvision) {
+        ConnObjectLink(final ResourceProvisionPanelObj resourceProvision) {
             super(new ResourceModel("link.title", StringUtils.EMPTY),
                     new ResourceModel("link.summary", StringUtils.EMPTY));
 
@@ -153,7 +158,9 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
 
             final AjaxCheckBoxPanel connObjectLinkCheckbox = new AjaxCheckBoxPanel(
                     "connObjectLinkCheckbox",
-                    new ResourceModel("connObjectLinkCheckbox", "connObjectLinkCheckbox").getObject(),
+                    new ResourceModel(
+                            "connObjectLinkCheckbox",
+                            "connObjectLinkCheckbox").getObject(),
                     new Model<>(connObjectLinkEnabled),
                     false);
             connObjectLinkCheckbox.setEnabled(true);
@@ -192,13 +199,15 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
      * @param pageRef Caller page reference.
      */
     public ProvisionWizardBuilder(final ResourceTO resourceTO, final String adminRealm, final PageReference pageRef) {
-        super(new ResourceProvision(), pageRef);
+        super(new ResourceProvisionPanelObj(), pageRef);
         this.resourceTO = resourceTO;
         this.adminRealm = adminRealm;
     }
 
     @Override
-    protected WizardModel buildModelSteps(final ResourceProvision resourceProvision, final WizardModel wizardModel) {
+    protected WizardModel buildModelSteps(
+            final ResourceProvisionPanelObj resourceProvision,
+            final WizardModel wizardModel) {
         wizardModel.add(new ObjectType(resourceProvision));
         wizardModel.add(new AuxClasses(resourceProvision));
 
@@ -222,14 +231,14 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
     }
 
     @Override
-    protected Serializable onApplyInternal(final ResourceProvision resourceProvision) {
+    protected Serializable onApplyInternal(final ResourceProvisionPanelObj resourceProvision) {
         if (resourceProvision.getOrgUnitTO() != null) {
             this.resourceTO.setOrgUnit(resourceProvision.getOrgUnitTO());
 
             this.resourceTO.getOrgUnit().getItems().clear();
             this.resourceTO.getOrgUnit().getItems().addAll(resourceProvision.getItems());
         } else if (resourceProvision.getProvisionTO() != null) {
-            final List<Provision> provisions;
+            final List<ResourceProvision> provisions;
             if (resourceProvision.getKey() == null) {
                 provisions = this.resourceTO.getProvisions().stream().
                         filter(object -> !resourceProvision.getAnyType().equals(object.getAnyType())).
@@ -240,7 +249,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
                         collect(Collectors.toList());
             }
 
-            Provision provisionTO = resourceProvision.getProvisionTO();
+            ResourceProvision provisionTO = resourceProvision.getProvisionTO();
             provisionTO.getMapping().getItems().clear();
             provisionTO.getMapping().getItems().addAll(resourceProvision.getItems());
             provisions.add(provisionTO);

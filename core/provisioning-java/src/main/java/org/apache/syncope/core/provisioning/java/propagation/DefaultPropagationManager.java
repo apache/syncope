@@ -37,7 +37,7 @@ import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -362,7 +362,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final Any<?> any,
             final ExternalResource resource,
             final ResourceOperation operation,
-            final Provision provision,
+            final ResourceProvision provision,
             final Stream<Item> mappingItems,
             final Pair<String, Set<Attribute>> preparedAttrs) {
 
@@ -467,7 +467,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
         propByRes.asMap().forEach((resourceKey, operation) -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
-            Provision provision = Optional.ofNullable(resource).
+            ResourceProvision provision = Optional.ofNullable(resource).
                     flatMap(r -> r.getProvisionByAnyType(any.getType().getKey())).orElse(null);
             Stream<Item> mappingItems = provision == null
                     ? Stream.empty()
@@ -512,7 +512,7 @@ public class DefaultPropagationManager implements PropagationManager {
                             user, resourceDAO.find(accountInfo.getLeft()), accountInfo.getRight());
                 }
 
-                Provision provision = account == null || account.getResource() == null
+                ResourceProvision provision = account == null || account.getResource() == null
                         ? null
                         : account.getResource().getProvisionByAnyType(AnyTypeKind.USER.name()).orElse(null);
                 Stream<Item> mappingItems = provision == null

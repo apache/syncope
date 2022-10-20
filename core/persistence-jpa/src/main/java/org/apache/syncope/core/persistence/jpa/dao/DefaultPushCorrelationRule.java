@@ -28,7 +28,7 @@ import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.search.ConnObjectTOFiqlSearchConditionBuilder;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRuleConfClass;
@@ -70,7 +70,7 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
     }
 
     @Override
-    public Filter getFilter(final Any<?> any, final ExternalResource resource, final Provision provision) {
+    public Filter getFilter(final Any<?> any, final ExternalResource resource, final ResourceProvision provision) {
         List<Filter> filters = new ArrayList<>();
 
         provision.getMapping().getItems().stream().filter(
@@ -106,7 +106,7 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
     }
 
     @Override
-    public String getFIQL(final ConnectorObject connectorObject, final Provision provision) {
+    public String getFIQL(final ConnectorObject connectorObject, final ResourceProvision provision) {
         List<CompleteCondition> conditions = new ArrayList<>();
 
         provision.getMapping().getItems().stream().filter(

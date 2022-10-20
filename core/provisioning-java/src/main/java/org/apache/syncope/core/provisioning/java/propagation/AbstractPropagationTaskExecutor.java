@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -506,7 +506,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ConnectorObject beforeObj = null;
         ConnectorObject afterObj = null;
 
-        Provision provision = null;
+        ResourceProvision provision = null;
         OrgUnit orgUnit = null;
         Uid uid = null;
         Result result;
@@ -786,7 +786,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected ConnectorObject getRemoteObject(
             final PropagationTaskInfo taskInfo,
             final Connector connector,
-            final Provision provision,
+            final ResourceProvision provision,
             final List<PropagationActions> actions,
             final boolean latest) {
 

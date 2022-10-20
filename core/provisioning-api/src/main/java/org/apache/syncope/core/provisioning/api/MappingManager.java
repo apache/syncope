@@ -25,8 +25,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -46,7 +46,7 @@ public interface MappingManager {
      * @param provision provision information
      * @return connObjectKey internal value
      */
-    Optional<String> getConnObjectKeyValue(Any<?> any, ExternalResource resource, Provision provision);
+    Optional<String> getConnObjectKeyValue(Any<?> any, ExternalResource resource, ResourceProvision provision);
 
     /**
      * Get connObjectKey internal value.
@@ -72,7 +72,7 @@ public interface MappingManager {
      */
     Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
             ExternalResource resource,
-            Provision provision,
+            ResourceProvision provision,
             Item mapItem,
             IntAttrName intAttrName,
             AttrSchemaType schemaType,
@@ -95,7 +95,7 @@ public interface MappingManager {
      */
     Pair<String, Attribute> prepareAttr(
             ExternalResource resource,
-            Provision provision,
+            ResourceProvision provision,
             Item item,
             Any<?> any,
             String password,
@@ -120,7 +120,7 @@ public interface MappingManager {
             boolean changePwd,
             Boolean enable,
             ExternalResource resource,
-            Provision provision);
+            ResourceProvision provision);
 
     /**
      * Prepare attributes for sending to a connector instance.
@@ -133,7 +133,7 @@ public interface MappingManager {
      * @return prepared attributes
      */
     Set<Attribute> prepareAttrsFromLinkedAccount(
-            User user, LinkedAccount account, String password, boolean changePwd, Provision provision);
+            User user, LinkedAccount account, String password, boolean changePwd, ResourceProvision provision);
 
     /**
      * Prepare attributes for sending to a connector instance.
@@ -166,10 +166,10 @@ public interface MappingManager {
     void setIntValues(Item orgUnitItem, Attribute attr, RealmTO realmTO);
 
     /**
-     * Checks if there is a mapping item in the given {@link Provision} for {@code mustChangePassword}.
+     * Checks if there is a mapping item in the given {@link ResourceProvision} for {@code mustChangePassword}.
      *
      * @param provision provision
      * @return if there is a mapping item in the given provision for {@code mustChangePassword}
      */
-    boolean hasMustChangePassword(Provision provision);
+    boolean hasMustChangePassword(ResourceProvision provision);
 }

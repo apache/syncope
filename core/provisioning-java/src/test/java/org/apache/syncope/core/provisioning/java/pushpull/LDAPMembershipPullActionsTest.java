@@ -40,8 +40,8 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.Mapping;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
@@ -108,7 +108,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     private ExternalResource resource;
 
     @Mock
-    private Provision provision;
+    private ResourceProvision provision;
 
     @Mock
     private Connector connector;

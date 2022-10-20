@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.report.ReconciliationReportletConf;
 import org.apache.syncope.common.lib.report.ReconciliationReportletConf.Feature;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -285,7 +285,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
 
             AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
             anyUtils.getAllResources(any).forEach(resource -> {
-                Provision provision = resource.getProvisionByAnyType(any.getType().getKey()).orElse(null);
+                ResourceProvision provision = resource.getProvisionByAnyType(any.getType().getKey()).orElse(null);
                 Optional<Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
                 String connObjectKeyValue = connObjectKeyItem.isPresent()
                         ? mappingManager.getConnObjectKeyValue(any, resource, provision).get()

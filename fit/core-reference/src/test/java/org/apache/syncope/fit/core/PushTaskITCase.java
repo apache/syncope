@@ -41,9 +41,9 @@ import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -388,7 +388,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             resourceTO.setKey(resourceName);
             resourceTO.setConnector("74141a3b-0762-4720-a4aa-fc3e374ef3ef");
 
-            Provision provisionTO = new Provision();
+            ResourceProvision provisionTO = new ResourceProvision();
             provisionTO.setAnyType(AnyTypeKind.GROUP.name());
             provisionTO.setObjectClass(ObjectClass.GROUP_NAME);
             provisionTO.getAuxClasses().add(typeClass.getKey());

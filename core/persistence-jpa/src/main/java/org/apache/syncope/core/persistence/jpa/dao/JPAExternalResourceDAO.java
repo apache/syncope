@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -119,7 +119,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     }
 
     @Override
-    public List<Provision> findProvisionsByAuxClass(final AnyTypeClass anyTypeClass) {
+    public List<ResourceProvision> findProvisionsByAuxClass(final AnyTypeClass anyTypeClass) {
         return findAll().stream().
                 flatMap(resource -> resource.getProvisions().stream()).
                 filter(provision -> provision.getAuxClasses().contains(anyTypeClass.getKey())).

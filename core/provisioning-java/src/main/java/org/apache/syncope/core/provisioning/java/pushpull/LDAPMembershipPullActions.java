@@ -30,8 +30,8 @@ import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -178,7 +178,7 @@ public class LDAPMembershipPullActions implements PullActions {
             return;
         }
 
-        Optional<Provision> provision = profile.getTask().getResource().
+        Optional<ResourceProvision> provision = profile.getTask().getResource().
                 getProvisionByAnyType(AnyTypeKind.USER.name()).filter(p -> p.getMapping() != null);
         if (provision.isEmpty()) {
             PullActions.super.after(profile, delta, entity, result);

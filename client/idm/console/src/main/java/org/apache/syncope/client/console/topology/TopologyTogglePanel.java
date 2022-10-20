@@ -36,15 +36,15 @@ import org.apache.syncope.client.console.tasks.PushTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.console.wizards.resources.ConnectorWizardBuilder;
-import org.apache.syncope.client.console.wizards.resources.ResourceProvision;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;
+import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanelObj;
 import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
@@ -154,8 +154,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     @Override
     protected String getTargetKey(final Serializable modelObject) {
         String key = super.getTargetKey(modelObject);
-        if (modelObject instanceof ResourceProvision) {
-            key = ((ResourceProvision) modelObject).getKey();
+        if (modelObject instanceof ResourceProvisionPanelObj) {
+            key = ((ResourceProvisionPanelObj) modelObject).getKey();
         } else if (modelObject instanceof TopologyNode) {
             key = ((TopologyNode) modelObject).getKey();
         }
@@ -608,7 +608,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     ResourceTO resource = ResourceRestClient.read(node.getKey());
                     resource.setKey("Copy of " + node.getKey());
 
-                    for (Provision provision : resource.getProvisions()) {
+                    for (ResourceProvision provision : resource.getProvisions()) {
                         if (provision.getMapping() != null) {
                             provision.getMapping().getLinkingItems().clear();
                         }

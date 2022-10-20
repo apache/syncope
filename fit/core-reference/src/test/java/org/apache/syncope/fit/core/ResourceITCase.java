@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -62,7 +62,7 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceKey);
         resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
 
-        Provision provisionTO = new Provision();
+        ResourceProvision provisionTO = new ResourceProvision();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
         provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);
@@ -119,7 +119,7 @@ public class ResourceITCase extends AbstractITCase {
         String resourceKey = "overriding-conn-conf-target-resource-create";
         ResourceTO resourceTO = new ResourceTO();
 
-        Provision provisionTO = new Provision();
+        ResourceProvision provisionTO = new ResourceProvision();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
         provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);
@@ -178,7 +178,7 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceKey);
         resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
 
-        Provision provisionTO = new Provision();
+        ResourceProvision provisionTO = new ResourceProvision();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
         provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);
@@ -193,7 +193,7 @@ public class ResourceITCase extends AbstractITCase {
         item.setPurpose(MappingPurpose.PROPAGATION);
         mapping.setConnObjectKeyItem(item);
 
-        provisionTO = new Provision();
+        provisionTO = new ResourceProvision();
         provisionTO.setAnyType(AnyTypeKind.GROUP.name());
         provisionTO.setObjectClass(ObjectClass.GROUP_NAME);
         resourceTO.getProvisions().add(provisionTO);
@@ -232,7 +232,7 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceKey);
         resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
 
-        Provision provisionTO = new Provision();
+        ResourceProvision provisionTO = new ResourceProvision();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
         provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);
@@ -268,7 +268,7 @@ public class ResourceITCase extends AbstractITCase {
             resourceTO.setKey(resourceKey);
             resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
 
-            Provision provisionTO = new Provision();
+            ResourceProvision provisionTO = new ResourceProvision();
             provisionTO.setAnyType(AnyTypeKind.USER.name());
             provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resourceTO.getProvisions().add(provisionTO);
@@ -299,7 +299,7 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
         resourceTO.setPasswordPolicy("986d1236-3ac5-4a19-810c-5ab21d79cba1");
 
-        Provision provisionTO = new Provision();
+        ResourceProvision provisionTO = new ResourceProvision();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
         provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);
@@ -345,7 +345,7 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceKey);
         resourceTO.setConnector("5aa5b8be-7521-481a-9651-c557aea078c1");
 
-        Provision provisionTO = new Provision();
+        ResourceProvision provisionTO = new ResourceProvision();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
         provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);
@@ -503,7 +503,7 @@ public class ResourceITCase extends AbstractITCase {
         ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBVIRATTR);
         assertNotNull(resource);
 
-        Optional<Provision> provision = resource.getProvision(AnyTypeKind.USER.name());
+        Optional<ResourceProvision> provision = resource.getProvision(AnyTypeKind.USER.name());
         assertTrue(provision.isPresent());
         assertFalse(provision.get().getMapping().getItems().isEmpty());
         assertFalse(provision.get().getMapping().getLinkingItems().isEmpty());
@@ -588,7 +588,7 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(name);
         resourceTO.setConnector("74141a3b-0762-4720-a4aa-fc3e374ef3ef");
 
-        Provision provisionTO = new Provision();
+        ResourceProvision provisionTO = new ResourceProvision();
         provisionTO.setAnyType(AnyTypeKind.GROUP.name());
         provisionTO.setObjectClass(ObjectClass.GROUP_NAME);
         resourceTO.getProvisions().add(provisionTO);
@@ -633,7 +633,7 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceKey);
         resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
 
-        Provision provisionTO = new Provision();
+        ResourceProvision provisionTO = new ResourceProvision();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
         provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);
@@ -677,7 +677,7 @@ public class ResourceITCase extends AbstractITCase {
         String connector = RESOURCE_SERVICE.read("ws-target-resource-1").getConnector();
         resource.setConnector(connector);
 
-        Provision provision = new Provision();
+        ResourceProvision provision = new ResourceProvision();
         provision.setAnyType(AnyTypeKind.USER.name());
         provision.setObjectClass("__ACCOUNT__");
         resource.getProvisions().add(provision);
@@ -707,7 +707,7 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceKey);
         resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
 
-        Provision provisionTO = new Provision();
+        ResourceProvision provisionTO = new ResourceProvision();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
         provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);

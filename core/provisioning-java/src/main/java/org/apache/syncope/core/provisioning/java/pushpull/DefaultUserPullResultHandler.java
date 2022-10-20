@@ -35,8 +35,8 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -143,7 +143,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     protected void handleLinkedAccounts(
             final SyncDelta delta,
             final List<PullMatch> matches,
-            final Provision provision) throws JobExecutionException {
+            final ResourceProvision provision) throws JobExecutionException {
 
         for (PullMatch match : matches) {
             User user = (User) match.getAny();
@@ -319,12 +319,17 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             final SyncDelta delta,
             final User user,
             final LinkedAccountTO accountTO,
-            final Provision provision)
+            final ResourceProvision provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
-            end(AnyTypeKind.USER.name(), UnmatchingRule.toEventName(rule), Result.SUCCESS, null, null, delta);
+            end(AnyTypeKind.USER.name(),
+                    UnmatchingRule.toEventName(rule),
+                    Result.SUCCESS,
+                    null,
+                    null,
+                    delta);
             return Optional.empty();
         }
 
@@ -435,7 +440,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     protected Optional<ProvisioningReport> update(
             final SyncDelta delta,
             final LinkedAccount account,
-            final Provision provision)
+            final ResourceProvision provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
@@ -555,7 +560,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     protected Optional<ProvisioningReport> delete(
             final SyncDelta delta,
             final LinkedAccount account,
-            final Provision provision)
+            final ResourceProvision provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformDelete()) {

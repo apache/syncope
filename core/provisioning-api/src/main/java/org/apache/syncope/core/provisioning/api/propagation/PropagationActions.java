@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.api.propagation;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -46,7 +46,7 @@ public interface PropagationActions {
      * @param provision Any provisioning information
      * @return additional attributes to include in the result from the underlying connector
      */
-    default Set<String> moreAttrsToGet(Optional<PropagationTaskInfo> taskInfo, Provision provision) {
+    default Set<String> moreAttrsToGet(Optional<PropagationTaskInfo> taskInfo, ResourceProvision provision) {
         return Set.of();
     }
 

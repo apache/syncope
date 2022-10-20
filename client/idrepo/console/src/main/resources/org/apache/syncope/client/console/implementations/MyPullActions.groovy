@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.to.LinkedAccountTO
 import org.apache.syncope.common.lib.to.RealmTO
 import org.apache.syncope.common.lib.to.EntityTO
 import org.apache.syncope.common.lib.to.OrgUnit
-import org.apache.syncope.common.lib.to.Provision
+import org.apache.syncope.common.lib.to.ResourceProvision
 import org.apache.syncope.common.lib.to.ProvisioningReport
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException
@@ -43,7 +43,7 @@ class MyPullActions implements PullActions {
   }
 
   @Override
-  Set<String> moreAttrsToGet(ProvisioningProfile profile, Provision provision) {
+  Set<String> moreAttrsToGet(ProvisioningProfile profile, ResourceProvision provision) {
     return Set.of();
   }
   

@@ -28,7 +28,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -48,7 +48,7 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
         super(pageRef, resource, null, false);
 
         List<String> availableAnyTypes = resource.getProvisions().stream().
-                map(Provision::getAnyType).
+                map(ResourceProvision::getAnyType).
                 sorted(AnyTypeRestClient.KEY_COMPARATOR).
                 collect(Collectors.toList());
 

@@ -76,10 +76,10 @@ import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.RemediationTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -492,7 +492,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // 0. reset sync token and set MappingItemTransformer
         ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
-        Provision provision = resource.getProvision(PRINTER).get();
+        ResourceProvision provision = resource.getProvision(PRINTER).get();
         assertNotNull(provision);
 
         ImplementationTO transformer = null;
@@ -744,7 +744,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         ldap.setKey("ldapForRemediation");
 
-        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        ResourceProvision provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
         provision.getMapping().getItems().removeIf(item -> "userId".equals(item.getIntAttrName()));
         provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getIntAttrName()));
         provision.getVirSchemas().clear();
@@ -830,7 +830,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         ldap.setKey("ldapForRemediationSinglePull");
 
-        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
+        ResourceProvision provision = ldap.getProvision(AnyTypeKind.USER.name()).get();
         provision.getMapping().getItems().removeIf(item -> "userId".equals(item.getIntAttrName()));
         provision.getMapping().getItems().removeIf(item -> "email".equals(item.getIntAttrName()));
         provision.getVirSchemas().clear();

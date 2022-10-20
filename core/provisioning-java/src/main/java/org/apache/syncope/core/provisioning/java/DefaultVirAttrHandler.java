@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -103,7 +103,7 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
 
         Map<VirSchema, List<String>> result = new HashMap<>();
 
-        Map<Pair<ExternalResource, Provision>, Set<VirSchema>> toRead = new HashMap<>();
+        Map<Pair<ExternalResource, ResourceProvision>, Set<VirSchema>> toRead = new HashMap<>();
 
         schemas.stream().filter(schema -> resources.contains(schema.getResource())).forEach(schema -> {
             VirAttrCacheKey cacheKey = new VirAttrCacheKey(any.getType().getKey(), any.getKey(), schema.getKey());

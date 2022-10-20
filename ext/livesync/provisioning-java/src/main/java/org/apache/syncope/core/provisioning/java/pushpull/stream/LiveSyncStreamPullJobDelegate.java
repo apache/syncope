@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -39,7 +39,7 @@ public class LiveSyncStreamPullJobDelegate extends AbstractStreamPullJobDelegate
     @Override
     protected void stream(
             final Connector connector,
-            final Provision provision,
+            final ResourceProvision provision,
             final SyncopePullResultHandler handler,
             final Stream<Item> mapItems,
             final Set<String> moreAttrsToGet) {

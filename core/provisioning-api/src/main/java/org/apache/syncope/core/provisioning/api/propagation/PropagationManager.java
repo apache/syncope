@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -161,7 +161,7 @@ public interface PropagationManager {
             Any<?> any,
             ExternalResource resource,
             ResourceOperation operation,
-            Provision provision,
+            ResourceProvision provision,
             Stream<Item> mappingItems,
             Pair<String, Set<Attribute>> preparedAttrs);
 

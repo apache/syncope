@@ -29,7 +29,7 @@ import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -110,7 +110,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
             return;
         }
 
-        Optional<Provision> groupProvision = taskInfo.getResource().getProvisionByAnyType(AnyTypeKind.GROUP.name());
+        Optional<ResourceProvision> groupProvision = taskInfo.getResource().getProvisionByAnyType(AnyTypeKind.GROUP.name());
         if (groupProvision.isPresent() && groupProvision.get().getMapping() != null
                 && StringUtils.isNotBlank(groupProvision.get().getMapping().getConnObjectLink())) {
 

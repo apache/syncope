@@ -75,8 +75,8 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -1046,7 +1046,7 @@ public class GroupITCase extends AbstractITCase {
             newLDAP.setKey("new-ldap");
             newLDAP.setPropagationPriority(0);
 
-            for (Provision provision : newLDAP.getProvisions()) {
+            for (ResourceProvision provision : newLDAP.getProvisions()) {
                 provision.getVirSchemas().clear();
             }
 

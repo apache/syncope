@@ -29,7 +29,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -45,9 +45,9 @@ public class ProvisionAuxClassesPanel extends Panel {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProvisionAuxClassesPanel.class);
 
-    private final Provision provision;
+    private final ResourceProvision provision;
 
-    public ProvisionAuxClassesPanel(final String id, final Provision provision) {
+    public ProvisionAuxClassesPanel(final String id, final ResourceProvision provision) {
         super(id);
         setOutputMarkupId(true);
 

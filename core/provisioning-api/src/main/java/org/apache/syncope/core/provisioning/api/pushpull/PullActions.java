@@ -24,9 +24,9 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
@@ -55,7 +55,7 @@ public interface PullActions extends ProvisioningActions {
      * @param provision Any provisioning information
      * @return additional attributes to include in the result from the underlying connector
      */
-    default Set<String> moreAttrsToGet(ProvisioningProfile<?, ?> profile, Provision provision) {
+    default Set<String> moreAttrsToGet(ProvisioningProfile<?, ?> profile, ResourceProvision provision) {
         return Set.of();
     }
 

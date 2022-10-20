@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java.pushpull.stream;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
@@ -32,7 +32,7 @@ public class StreamPullJobDelegate extends AbstractStreamPullJobDelegate {
     @Override
     protected void stream(
             final Connector connector,
-            final Provision provision,
+            final ResourceProvision provision,
             final SyncopePullResultHandler handler,
             final Stream<Item> mapItems,
             final Set<String> moreAttrsToGet) {

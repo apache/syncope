@@ -39,6 +39,8 @@ under the License.
 
   <modules>
     <module>provisioning-java</module>
+    <module>persistence-api</module>
+    <module>persistence-jpa</module>
   </modules>
 
 </project>

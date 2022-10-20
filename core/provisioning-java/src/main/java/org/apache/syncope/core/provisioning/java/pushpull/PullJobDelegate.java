@@ -32,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
@@ -311,7 +311,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         ProvisionSorter provisionSorter = getProvisionSorter(pullTask);
 
         GroupPullResultHandler ghandler = buildGroupHandler();
-        for (Provision provision : pullTask.getResource().getProvisions().stream().
+        for (ResourceProvision provision : pullTask.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
                 collect(Collectors.toList())) {
 

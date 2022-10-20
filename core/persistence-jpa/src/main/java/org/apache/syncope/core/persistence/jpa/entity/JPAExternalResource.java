@@ -46,7 +46,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -74,7 +74,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 @Table(name = JPAExternalResource.TABLE)
 @ExternalResourceCheck
 @Cacheable
-public class JPAExternalResource extends AbstractProvidedKeyEntity implements ExternalResource {
+public class JPAExternalResource extends AbstractProvisionable<ResourceProvision> implements ExternalResource {
 
     private static final long serialVersionUID = -6937712883512073278L;
 
@@ -82,10 +82,6 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     protected static final TypeReference<Set<ConnectorCapability>> CAPABILITY_TYPEREF =
             new TypeReference<Set<ConnectorCapability>>() {
-    };
-
-    protected static final TypeReference<List<Provision>> PROVISION_TYPEREF =
-            new TypeReference<List<Provision>>() {
     };
 
     /**
@@ -123,10 +119,6 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @NotNull
     private TraceLevel deleteTraceLevel = TraceLevel.FAILURES;
 
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private TraceLevel provisioningTraceLevel = TraceLevel.FAILURES;
-
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPasswordPolicy passwordPolicy;
 
@@ -159,12 +151,6 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @Transient
     private final Set<ConnectorCapability> capabilitiesOverrideSet = new HashSet<>();
-
-    @Lob
-    private String provisions;
-
-    @Transient
-    private final List<Provision> provisionList = new ArrayList<>();
 
     @Lob
     private String orgUnit;
@@ -200,24 +186,6 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
         this.connector = (JPAConnInstance) connector;
     }
 
-    @Override
-    public Optional<Provision> getProvisionByAnyType(final String anyType) {
-        return getProvisions().stream().
-                filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
-    }
-
-    @Override
-    public Optional<Provision> getProvisionByObjectClass(final String objectClass) {
-        return getProvisions().stream().
-                filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
-    }
-
-    @Override
-    public List<Provision> getProvisions() {
-        return provisionList;
-    }
-
-    @Override
     public OrgUnit getOrgUnit() {
         return Optional.ofNullable(orgUnit).map(ou -> POJOHelper.deserialize(ou, OrgUnit.class)).orElse(null);
     }
@@ -258,7 +226,6 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-
     public TraceLevel getDeleteTraceLevel() {
         return deleteTraceLevel;
     }
@@ -276,16 +243,6 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @Override
     public void setUpdateTraceLevel(final TraceLevel updateTraceLevel) {
         this.updateTraceLevel = updateTraceLevel;
-    }
-
-    @Override
-    public TraceLevel getProvisioningTraceLevel() {
-        return provisioningTraceLevel;
-    }
-
-    @Override
-    public void setProvisioningTraceLevel(final TraceLevel provisioningTraceLevel) {
-        this.provisioningTraceLevel = provisioningTraceLevel;
     }
 
     @Override
@@ -399,15 +356,12 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     protected void json2list(final boolean clearFirst) {
+        super.json2list(clearFirst);
         if (clearFirst) {
             getCapabilitiesOverride().clear();
-            getProvisions().clear();
         }
         if (capabilitiesOverride != null) {
             getCapabilitiesOverride().addAll(POJOHelper.deserialize(capabilitiesOverride, CAPABILITY_TYPEREF));
-        }
-        if (provisions != null) {
-            getProvisions().addAll(POJOHelper.deserialize(provisions, PROVISION_TYPEREF));
         }
     }
 
@@ -424,8 +378,9 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @PrePersist
     @PreUpdate
+    @Override
     public void list2json() {
+        super.list2json();
         capabilitiesOverride = POJOHelper.serialize(getCapabilitiesOverride());
-        provisions = POJOHelper.serialize(getProvisions());
     }
 }

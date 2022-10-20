@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
@@ -52,7 +52,7 @@ public class DefaultPullCorrelationRule implements PullCorrelationRule {
     }
 
     @Override
-    public SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
+    public SearchCond getSearchCond(final SyncDelta syncDelta, final ResourceProvision provision) {
         Map<String, Item> mappingItems = provision.getMapping().getItems().stream().
                 collect(Collectors.toMap(Item::getIntAttrName, Function.identity()));
 

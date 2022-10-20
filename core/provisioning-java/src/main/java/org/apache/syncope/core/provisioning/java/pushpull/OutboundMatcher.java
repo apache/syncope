@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -90,7 +90,7 @@ public class OutboundMatcher {
         this.virAttrHandler = virAttrHandler;
     }
 
-    protected Optional<PushCorrelationRule> rule(final ExternalResource resource, final Provision provision) {
+    protected Optional<PushCorrelationRule> rule(final ExternalResource resource, final ResourceProvision provision) {
         Optional<? extends PushCorrelationRuleEntity> correlationRule = resource.getPushPolicy() == null
                 ? Optional.empty()
                 : resource.getPushPolicy().getCorrelationRule(provision.getAnyType());
@@ -114,7 +114,7 @@ public class OutboundMatcher {
     public String getFIQL(
             final ConnectorObject connectorObject,
             final ExternalResource resource,
-            final Provision provision) {
+            final ResourceProvision provision) {
 
         return rule(resource, provision).
                 map(rule -> rule.getFIQL(connectorObject, provision)).
@@ -124,7 +124,7 @@ public class OutboundMatcher {
     public List<ConnectorObject> match(
             final PropagationTaskInfo taskInfo,
             final Connector connector,
-            final Provision provision,
+            final ResourceProvision provision,
             final List<PropagationActions> actions,
             final String connObjectKeyValue) {
 
@@ -193,7 +193,7 @@ public class OutboundMatcher {
             final Connector connector,
             final Any<?> any,
             final ExternalResource resource,
-            final Provision provision,
+            final ResourceProvision provision,
             final Optional<String[]> moreAttrsToGet,
             final Item... linkingItems) {
 
@@ -248,7 +248,7 @@ public class OutboundMatcher {
             final Connector connector,
             final Filter filter,
             final ExternalResource resource,
-            final Provision provision,
+            final ResourceProvision provision,
             final Optional<String[]> moreAttrsToGet,
             final Optional<Collection<Item>> linkingItems) {
 
@@ -290,7 +290,7 @@ public class OutboundMatcher {
             final Item connObjectKeyItem,
             final String connObjectKeyValue,
             final ExternalResource resource,
-            final Provision provision,
+            final ResourceProvision provision,
             final Optional<String[]> moreAttrsToGet,
             final Optional<Collection<Item>> linkingItems) {
 

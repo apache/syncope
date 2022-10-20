@@ -28,8 +28,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.lib.types.MatchingRule;
@@ -181,7 +181,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public boolean handle(final LinkedAccount account, final Provision provision) {
+    public boolean handle(final LinkedAccount account, final ResourceProvision provision) {
         try {
             doHandle(account, provision);
             return true;
@@ -211,7 +211,10 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
         }
     }
 
-    protected void doHandle(final LinkedAccount account, final Provision provision) throws JobExecutionException {
+    protected void doHandle(
+            final LinkedAccount account,
+            final ResourceProvision provision)
+            throws JobExecutionException {
         ProvisioningReport result = new ProvisioningReport();
         profile.getResults().add(result);
 

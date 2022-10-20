@@ -19,10 +19,9 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -32,7 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 
-public interface ExternalResource extends ProvidedKeyEntity {
+public interface ExternalResource extends Provisionable<ResourceProvision> {
 
     ConnInstance getConnector();
 
@@ -84,10 +83,6 @@ public interface ExternalResource extends ProvidedKeyEntity {
 
     void setDeleteTraceLevel(TraceLevel deleteTraceLevel);
 
-    TraceLevel getProvisioningTraceLevel();
-
-    void setProvisioningTraceLevel(TraceLevel provisioningTraceLevel);
-
     boolean add(Implementation propagationAction);
 
     List<? extends Implementation> getPropagationActions();
@@ -103,12 +98,6 @@ public interface ExternalResource extends ProvidedKeyEntity {
     boolean isRandomPwdIfNotProvided();
 
     void setRandomPwdIfNotProvided(boolean condition);
-
-    Optional<Provision> getProvisionByAnyType(String anyType);
-
-    Optional<Provision> getProvisionByObjectClass(String objectClass);
-
-    List<Provision> getProvisions();
 
     OrgUnit getOrgUnit();
 

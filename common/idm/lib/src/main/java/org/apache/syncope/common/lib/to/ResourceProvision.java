@@ -18,54 +18,33 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.policy.PolicyTO;
 
-public class Provision implements Serializable {
+@Schema(allOf = { AbstractProvision.class }, discriminatorProperty = "_class")
+public class ResourceProvision extends AbstractProvision {
 
-    private static final long serialVersionUID = 8298910216218007927L;
-
-    private String anyType;
-
-    private String objectClass;
-
-    private final List<String> auxClasses = new ArrayList<>();
-
+    private static final long serialVersionUID = -346966554338702676L;
     private String syncToken;
-
-    private boolean ignoreCaseMatch;
 
     private String uidOnCreate;
 
-    private Mapping mapping;
-
     private final List<String> virSchemas = new ArrayList<>();
 
-    public String getAnyType() {
-        return anyType;
-    }
-
-    public void setAnyType(final String anyType) {
-        this.anyType = anyType;
-    }
-
-    public String getObjectClass() {
-        return objectClass;
-    }
-
-    public void setObjectClass(final String objectClass) {
-        this.objectClass = objectClass;
-    }
-
-    @JacksonXmlElementWrapper(localName = "auxClasses")
-    @JacksonXmlProperty(localName = "class")
-    public List<String> getAuxClasses() {
-        return auxClasses;
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.ResourceProvision")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
     }
 
     public String getSyncToken() {
@@ -76,14 +55,6 @@ public class Provision implements Serializable {
         this.syncToken = syncToken;
     }
 
-    public boolean isIgnoreCaseMatch() {
-        return ignoreCaseMatch;
-    }
-
-    public void setIgnoreCaseMatch(final boolean ignoreCaseMatch) {
-        this.ignoreCaseMatch = ignoreCaseMatch;
-    }
-
     public String getUidOnCreate() {
         return uidOnCreate;
     }
@@ -91,15 +62,7 @@ public class Provision implements Serializable {
     public void setUidOnCreate(final String uidOnCreate) {
         this.uidOnCreate = uidOnCreate;
     }
-
-    public Mapping getMapping() {
-        return mapping;
-    }
-
-    public void setMapping(final Mapping mapping) {
-        this.mapping = mapping;
-    }
-
+    
     @JacksonXmlElementWrapper(localName = "virSchemas")
     @JacksonXmlProperty(localName = "virSchema")
     public List<String> getVirSchemas() {
@@ -117,15 +80,11 @@ public class Provision implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        Provision other = (Provision) obj;
+        ResourceProvision other = (ResourceProvision) obj;
         return new EqualsBuilder().
-                append(ignoreCaseMatch, other.ignoreCaseMatch).
-                append(anyType, other.anyType).
-                append(objectClass, other.objectClass).
-                append(auxClasses, other.auxClasses).
+                appendSuper(super.equals(other)).
                 append(syncToken, other.syncToken).
                 append(uidOnCreate, other.uidOnCreate).
-                append(mapping, other.mapping).
                 append(virSchemas, other.virSchemas).
                 build();
     }
@@ -133,13 +92,9 @@ public class Provision implements Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                append(anyType).
-                append(objectClass).
-                append(auxClasses).
+                appendSuper(super.hashCode()).
                 append(syncToken).
-                append(ignoreCaseMatch).
                 append(uidOnCreate).
-                append(mapping).
                 append(virSchemas).
                 build();
     }

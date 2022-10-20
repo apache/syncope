@@ -17,7 +17,7 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.common.lib.to.Provision
+import org.apache.syncope.common.lib.to.ResourceProvision
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule
 import org.apache.syncope.core.persistence.api.entity.Any
 import org.apache.syncope.core.persistence.api.entity.ExternalResource
@@ -32,7 +32,7 @@ import org.identityconnectors.framework.common.objects.filter.FilterBuilder
 class TestPushRule implements PushCorrelationRule {
 
   @Override
-  Filter getFilter(final Any<?> any, final ExternalResource resource, final Provision provision) {
+  Filter getFilter(final Any<?> any, final ExternalResource resource, final ResourceProvision provision) {
     return FilterBuilder.equalTo(
       AttributeBuilder.build("email", any.getPlainAttr("email").get().getValuesAsStrings().get(0)));
   }

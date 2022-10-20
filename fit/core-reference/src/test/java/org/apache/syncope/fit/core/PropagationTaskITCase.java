@@ -71,10 +71,10 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.RelationshipTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -213,7 +213,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         // 0. Set propagation JEXL MappingItemTransformer
         ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
-        Provision provision = resource.getProvision(PRINTER).get();
+        ResourceProvision provision = resource.getProvision(PRINTER).get();
         assertNotNull(provision);
 
         Optional<Item> mappingItem = provision.getMapping().getItems().stream().
@@ -251,7 +251,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         ldap.setKey("ldapWithPrivileges");
 
-        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
+        ResourceProvision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
         provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getIntAttrName()));
         provision.getVirSchemas().clear();
 
@@ -681,7 +681,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         try {
             // 1. clone the LDAP resource and add some sensible mappings
-            Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
+            ResourceProvision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
             assertNotNull(provision);
             provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
             provision.getVirSchemas().clear();
@@ -788,12 +788,12 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         UserTO userTO = null;
         try {
             // 1. clone the LDAP resource and add some sensible mappings
-            Provision provisionGroup =
+            ResourceProvision provisionGroup =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.GROUP.name()).orElse(null));
             assertNotNull(provisionGroup);
             provisionGroup.getVirSchemas().clear();
 
-            Provision provisionUser =
+            ResourceProvision provisionUser =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).orElse(null));
             assertNotNull(provisionUser);
             provisionUser.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
@@ -878,7 +878,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         try {
             // 1. clone the LDAP resource and add the relationships mapping
-            Provision provisionUser =
+            ResourceProvision provisionUser =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).orElse(null));
             assertNotNull(provisionUser);
             provisionUser.getVirSchemas().clear();
@@ -938,7 +938,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         try {
             // 1. clone the LDAP resource and add some sensible mappings
-            Provision provisionGroup =
+            ResourceProvision provisionGroup =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.GROUP.name()).orElse(null));
             assertNotNull(provisionGroup);
             provisionGroup.getVirSchemas().clear();

@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -92,12 +92,12 @@ public abstract class AbstractStreamPullJobDelegate extends PullJobDelegate impl
         return pullPolicy;
     }
 
-    protected Provision provision(
+    protected ResourceProvision provision(
             final AnyType anyType,
             final String keyColumn,
             final List<String> columns) throws JobExecutionException {
 
-        Provision provision = new Provision();
+        ResourceProvision provision = new ResourceProvision();
         provision.setAnyType(anyType.getKey());
         provision.setObjectClass(anyType.getKey());
 
@@ -140,7 +140,7 @@ public abstract class AbstractStreamPullJobDelegate extends PullJobDelegate impl
             final ConflictResolutionAction conflictResolutionAction,
             final String pullCorrelationRule) throws JobExecutionException {
 
-        Provision provision = provision(anyType, keyColumn, columns);
+        ResourceProvision provision = provision(anyType, keyColumn, columns);
 
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("StreamPull_" + SecureRandomUtils.generateRandomUUID().toString());
@@ -153,7 +153,7 @@ public abstract class AbstractStreamPullJobDelegate extends PullJobDelegate impl
 
     protected abstract void stream(
             Connector connector,
-            Provision provision,
+            ResourceProvision provision,
             SyncopePullResultHandler handler,
             Stream<Item> mapItems,
             Set<String> moreAttrsToGet);
@@ -173,7 +173,7 @@ public abstract class AbstractStreamPullJobDelegate extends PullJobDelegate impl
         try {
             ExternalResource resource =
                     externalResource(anyType, keyColumn, columns, conflictResolutionAction, pullCorrelationRule);
-            Provision provision = resource.getProvisions().get(0);
+            ResourceProvision provision = resource.getProvisions().get(0);
 
             PullTask pullTask = entityFactory.newEntity(PullTask.class);
             pullTask.setResource(resource);

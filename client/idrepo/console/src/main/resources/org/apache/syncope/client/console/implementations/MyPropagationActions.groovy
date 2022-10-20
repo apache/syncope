@@ -21,7 +21,7 @@ import groovy.transform.CompileStatic
 import java.util.Optional
 import java.util.Set
 import org.apache.syncope.common.lib.to.OrgUnit
-import org.apache.syncope.common.lib.to.Provision
+import org.apache.syncope.common.lib.to.ResourceProvision
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
@@ -36,7 +36,7 @@ class MyPropagationActions implements PropagationActions {
   }
 
   @Override
-  Set<String> moreAttrsToGet(Optional<PropagationTask> task, Provision provision) {
+  Set<String> moreAttrsToGet(Optional<PropagationTask> task, ResourceProvision provision) {
     return Set.of();
   }
 

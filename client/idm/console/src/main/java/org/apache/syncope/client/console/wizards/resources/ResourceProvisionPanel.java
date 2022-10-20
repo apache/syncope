@@ -56,17 +56,17 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
     private final ResourceTO resourceTO;
 
-    private final List<ResourceProvision> provisions;
+    private final List<ResourceProvisionPanelObj> provisions;
 
     private final ObjectTypeTogglePanel objectTypeTogglePanel;
 
-    private final WizardMgtPanel<ResourceProvision> list;
+    private final WizardMgtPanel<ResourceProvisionPanelObj> list;
 
     private final ProvisionWizardBuilder wizard;
 
-    private final AjaxLink<ResourceProvision> addAjaxLink;
+    private final AjaxLink<ResourceProvisionPanelObj> addAjaxLink;
 
-    protected ActionLinksTogglePanel<ResourceProvision> actionTogglePanel;
+    protected ActionLinksTogglePanel<ResourceProvisionPanelObj> actionTogglePanel;
 
     public ResourceProvisionPanel(
             final BaseModal<Serializable> modal,
@@ -84,14 +84,14 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
         wizard = new ProvisionWizardBuilder(resourceTO, adminRealm, pageRef);
 
-        ListViewPanel.Builder<ResourceProvision> builder = new ListViewPanel.Builder<>(
-            ResourceProvision.class, pageRef) {
+        ListViewPanel.Builder<ResourceProvisionPanelObj> builder = new ListViewPanel.Builder<>(
+            ResourceProvisionPanelObj.class, pageRef) {
 
             private static final long serialVersionUID = 4907732721283972943L;
 
             @Override
-            protected ResourceProvision getActualItem(
-                final ResourceProvision item, final List<ResourceProvision> list) {
+            protected ResourceProvisionPanelObj getActualItem(
+                    final ResourceProvisionPanelObj item, final List<ResourceProvisionPanelObj> list) {
 
                 return Optional.ofNullable(item).flatMap(resourceProvision -> list.stream()
                     .filter(in -> ((resourceProvision.getKey() == null && in.getKey() == null)
@@ -125,16 +125,16 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             }
 
             @Override
-            protected ActionLinksTogglePanel<ResourceProvision> getTogglePanel() {
+            protected ActionLinksTogglePanel<ResourceProvisionPanelObj> getTogglePanel() {
                 return actionTogglePanel;
             }
         };
 
         provisions = new ArrayList<>();
         if (resourceTO.getOrgUnit() != null) {
-            provisions.add(new ResourceProvision(resourceTO.getOrgUnit()));
+            provisions.add(new ResourceProvisionPanelObj(resourceTO.getOrgUnit()));
         }
-        resourceTO.getProvisions().forEach(provision -> provisions.add(new ResourceProvision(provision)));
+        resourceTO.getProvisions().forEach(provision -> provisions.add(new ResourceProvisionPanelObj(provision)));
         // keep list ordered - SYNCOPE-1154
         sortProvisions();
 
@@ -147,7 +147,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             private static final long serialVersionUID = -3722207913631435504L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
+            public void onClick(final AjaxRequestTarget target, final ResourceProvisionPanelObj provision) {
                 try {
                     send(ResourceProvisionPanel.this, Broadcast.DEPTH,
                         new AjaxWizard.NewItemActionEvent<>(provision, 1, target).setResourceModel(
@@ -166,7 +166,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     private static final long serialVersionUID = -7780999687733432439L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
+                    public void onClick(final AjaxRequestTarget target, final ResourceProvisionPanelObj provision) {
                         try {
                             ResourceRestClient.setLatestSyncToken(resourceTO.getKey(), provision.getAnyType());
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
@@ -183,7 +183,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     private static final long serialVersionUID = -7780999687733432439L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
+                    public void onClick(final AjaxRequestTarget target, final ResourceProvisionPanelObj provision) {
                         try {
                             ResourceRestClient.removeSyncToken(resourceTO.getKey(), provision.getAnyType());
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
@@ -200,7 +200,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     private static final long serialVersionUID = -3722207913631435544L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
+                    public void onClick(final AjaxRequestTarget target, final ResourceProvisionPanelObj provision) {
                         if (provision.getOrgUnitTO() != null) {
                             resourceTO.setOrgUnit(null);
                         } else if (provision.getProvisionTO() != null) {
@@ -234,7 +234,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
         // ----------------------------------------------------------------------
         // toggle panel, used to choose 'type' before starting wizard - SYNCOPE-1167
-        final ResourceProvision provision = new ResourceProvision();
+        final ResourceProvisionPanelObj provision = new ResourceProvisionPanelObj();
         provision.setAnyType("");
         objectTypeTogglePanel = new ObjectTypeTogglePanel("objectTypeToggle", provision, getAnyTypes(), pageRef) {
 

@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.ItemContainer;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -149,9 +149,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 LOG.debug("Invalid {} specified {}, ignoring...",
                         AnyType.class.getSimpleName(), provisionTO.getAnyType());
             } else {
-                Provision provision = resource.getProvisionByAnyType(anyType.getKey()).orElse(null);
+                ResourceProvision provision = resource.getProvisionByAnyType(anyType.getKey()).orElse(null);
                 if (provision == null) {
-                    provision = new Provision();
+                    provision = new ResourceProvision();
                     provision.setAnyType(anyType.getKey());
                     resource.getProvisions().add(provision);
                 }
@@ -243,8 +243,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         });
 
         // 2. remove all provisions not contained in the TO
-        for (Iterator<Provision> itor = resource.getProvisions().iterator(); itor.hasNext();) {
-            Provision provision = itor.next();
+        for (Iterator<ResourceProvision> itor = resource.getProvisions().iterator(); itor.hasNext();) {
+            ResourceProvision provision = itor.next();
             if (resourceTO.getProvision(provision.getAnyType()).isEmpty()) {
                 virSchemaDAO.find(resource.getKey(), provision.getAnyType()).
                         forEach(schema -> virSchemaDAO.delete(schema.getKey()));
@@ -621,7 +621,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         // set the provision information
         resource.getProvisions().forEach(provision -> {
-            Provision provisionTO = new Provision();
+            ResourceProvision provisionTO = new ResourceProvision();
             provisionTO.setAnyType(provision.getAnyType());
             provisionTO.setObjectClass(provision.getObjectClass());
             provisionTO.getAuxClasses().addAll(provision.getAuxClasses());

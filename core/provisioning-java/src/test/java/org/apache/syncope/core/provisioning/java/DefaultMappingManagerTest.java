@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
@@ -92,7 +92,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
     public void prepareAttrsForUser() {
         User bellini = userDAO.findByUsername("bellini");
         ExternalResource ldap = resourceDAO.find("resource-ldap");
-        Provision provision = ldap.getProvisionByAnyType(AnyTypeKind.USER.name()).get();
+        ResourceProvision provision = ldap.getProvisionByAnyType(AnyTypeKind.USER.name()).get();
 
         assertNotEquals(CipherAlgorithm.AES, bellini.getCipherAlgorithm());
 
@@ -171,7 +171,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
     public void prepareAttrsForLinkedAccount() {
         User vivaldi = userDAO.findByUsername("vivaldi");
         ExternalResource ldap = resourceDAO.find("resource-ldap");
-        Provision provision = ldap.getProvisionByAnyType(AnyTypeKind.USER.name()).get();
+        ResourceProvision provision = ldap.getProvisionByAnyType(AnyTypeKind.USER.name()).get();
 
         LinkedAccount account = entityFactory.newEntity(LinkedAccount.class);
         account.setConnObjectKeyValue("admin");
@@ -281,7 +281,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
 
         // 3. check propagation attrs
         ExternalResource csv = resourceDAO.find("resource-csv");
-        Provision provision = csv.getProvisionByAnyType(AnyTypeKind.USER.name()).get();
+        ResourceProvision provision = csv.getProvisionByAnyType(AnyTypeKind.USER.name()).get();
         assertNotNull(provision);
 
         Pair<String, Set<Attribute>> attrs = mappingManager.prepareAttrsFromAny(

@@ -22,8 +22,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
@@ -42,7 +42,7 @@ public class StreamGroupPushResultHandler extends DefaultGroupPushResultHandler 
 
     @Override
     protected void provision(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
-        Provision provision = profile.getTask().getResource().getProvisions().get(0);
+        ResourceProvision provision = profile.getTask().getResource().getProvisions().get(0);
 
         Stream<Item> items = MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
 

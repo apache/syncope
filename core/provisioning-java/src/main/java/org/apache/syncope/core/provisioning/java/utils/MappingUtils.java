@@ -30,7 +30,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
@@ -53,7 +53,7 @@ public final class MappingUtils {
 
     private static final Map<String, ItemTransformer> PER_CONTEXT_ITEM_TRANSFORMERS = new ConcurrentHashMap<>();
 
-    public static Optional<Item> getConnObjectKeyItem(final Provision provision) {
+    public static Optional<Item> getConnObjectKeyItem(final ResourceProvision provision) {
         Mapping mapping = null;
         if (provision != null) {
             mapping = provision.getMapping();
@@ -85,7 +85,9 @@ public final class MappingUtils {
                 || StringUtils.isNotBlank(item.getPullJEXLTransformer())) {
 
             JEXLItemTransformer jexlTransformer = (JEXLItemTransformer) ApplicationContextProvider.getBeanFactory().
-                    createBean(JEXLItemTransformerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                    createBean(JEXLItemTransformerImpl.class,
+                            AbstractBeanDefinition.AUTOWIRE_BY_NAME,
+                            false);
 
             jexlTransformer.setPropagationJEXL(item.getPropagationJEXLTransformer());
             jexlTransformer.setPullJEXL(item.getPullJEXLTransformer());

@@ -40,8 +40,8 @@ import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RelationshipTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -277,7 +277,7 @@ abstract class AbstractAnyDataBinder {
     }
 
     protected List<String> evaluateMandatoryCondition(
-            final ExternalResource resource, final Provision provision, final Any<?> any) {
+            final ExternalResource resource, final ResourceProvision provision, final Any<?> any) {
 
         List<String> missingAttrNames = new ArrayList<>();
 
@@ -319,7 +319,7 @@ abstract class AbstractAnyDataBinder {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         resources.forEach(resource -> {
-            Optional<Provision> provision = resource.getProvisionByAnyType(any.getType().getKey());
+            Optional<ResourceProvision> provision = resource.getProvisionByAnyType(any.getType().getKey());
             if (resource.isEnforceMandatoryCondition() && provision.isPresent()) {
                 List<String> missingAttrNames = evaluateMandatoryCondition(resource, provision.get(), any);
                 if (!missingAttrNames.isEmpty()) {

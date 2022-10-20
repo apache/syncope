@@ -38,8 +38,8 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -185,7 +185,7 @@ public class ConnObjectUtils {
             final ConnectorObject obj,
             final PullTask pullTask,
             final AnyTypeKind anyTypeKind,
-            final Provision provision,
+            final ResourceProvision provision,
             final boolean generatePasswordIfPossible) {
 
         AnyTO anyTO = getAnyTOFromConnObject(obj, pullTask, anyTypeKind, provision);
@@ -248,7 +248,7 @@ public class ConnObjectUtils {
             final AnyTO original,
             final PullTask pullTask,
             final AnyTypeKind anyTypeKind,
-            final Provision provision) {
+            final ResourceProvision provision) {
 
         AnyTO updated = getAnyTOFromConnObject(obj, pullTask, anyTypeKind, provision);
         updated.setKey(key);
@@ -322,7 +322,7 @@ public class ConnObjectUtils {
             final ConnectorObject obj,
             final PullTask pullTask,
             final AnyTypeKind anyTypeKind,
-            final Provision provision) {
+            final ResourceProvision provision) {
 
         T anyTO = anyUtilsFactory.getInstance(anyTypeKind).newAnyTO();
         anyTO.setType(provision.getAnyType());

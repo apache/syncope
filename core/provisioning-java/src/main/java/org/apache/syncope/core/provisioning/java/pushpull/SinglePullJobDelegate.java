@@ -25,9 +25,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.MatchingRule;
@@ -64,7 +64,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
     @Override
     public List<ProvisioningReport> pull(
             final ExternalResource resource,
-            final Provision provision,
+            final ResourceProvision provision,
             final Connector connector,
             final ReconFilterBuilder reconFilterBuilder,
             final Set<String> moreAttrsToGet,

@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
@@ -124,7 +124,7 @@ public class ResourceTest extends AbstractTest {
         resource.setKey("ws-target-resource-basic-save");
         resource.setPropagationPriority(2);
 
-        Provision provision = new Provision();
+        ResourceProvision provision = new ResourceProvision();
         provision.setAnyType(AnyTypeKind.USER.name());
         provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resource.getProvisions().add(provision);
@@ -162,7 +162,7 @@ public class ResourceTest extends AbstractTest {
             ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
             resource.setConnector(connector);
 
-            Provision provision = new Provision();
+            ResourceProvision provision = new ResourceProvision();
             provision.setAnyType(AnyTypeKind.USER.name());
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
@@ -188,7 +188,7 @@ public class ResourceTest extends AbstractTest {
             ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
             resource.setConnector(connector);
 
-            Provision provision = new Provision();
+            ResourceProvision provision = new ResourceProvision();
             provision.setAnyType(AnyTypeKind.USER.name());
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
@@ -215,7 +215,7 @@ public class ResourceTest extends AbstractTest {
             ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
             resource.setKey("invalidProvision");
 
-            Provision provision = new Provision();
+            ResourceProvision provision = new ResourceProvision();
             provision.setAnyType(AnyTypeKind.USER.name());
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
@@ -229,7 +229,7 @@ public class ResourceTest extends AbstractTest {
             connObjectKey.setPurpose(MappingPurpose.BOTH);
             mapping.setConnObjectKeyItem(connObjectKey);
 
-            provision = new Provision();
+            provision = new ResourceProvision();
             provision.setAnyType(AnyTypeKind.GROUP.name());
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
@@ -248,7 +248,7 @@ public class ResourceTest extends AbstractTest {
         resource.setKey("ws-target-resource-virtual-mapping");
         resource.setPropagationPriority(2);
 
-        Provision provision = new Provision();
+        ResourceProvision provision = new ResourceProvision();
         provision.setAnyType(AnyTypeKind.USER.name());
         provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resource.getProvisions().add(provision);
@@ -282,7 +282,7 @@ public class ResourceTest extends AbstractTest {
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
         resource.setConnector(connector);
 
-        Provision provision = new Provision();
+        ResourceProvision provision = new ResourceProvision();
         provision.setAnyType(AnyTypeKind.USER.name());
         provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resource.getProvisions().add(provision);

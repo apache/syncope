@@ -18,14 +18,14 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.common.lib.to.Provision
+import org.apache.syncope.common.lib.to.ResourceProvision
 import org.apache.syncope.core.provisioning.api.ProvisionSorter
 
 @CompileStatic
 class MyProvisionSorter implements ProvisionSorter {
  
   @Override
-  int compare(Provision provision1, Provision provision2) {
+  int compare(ResourceProvision provision1, ResourceProvision provision2) {
     return 0;
   }
 }

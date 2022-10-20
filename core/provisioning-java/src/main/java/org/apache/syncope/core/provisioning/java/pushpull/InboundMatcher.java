@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
@@ -140,7 +140,7 @@ public class InboundMatcher {
             final ExternalResource resource,
             final Connector connector) {
 
-        Optional<Provision> provision = resource.getProvisionByAnyType(anyType.getKey());
+        Optional<ResourceProvision> provision = resource.getProvisionByAnyType(anyType.getKey());
         if (provision.isEmpty()) {
             return Optional.empty();
         }
@@ -336,7 +336,7 @@ public class InboundMatcher {
 
     protected List<PullMatch> matchByCorrelationRule(
             final SyncDelta syncDelta,
-            final Provision provision,
+            final ResourceProvision provision,
             final PullCorrelationRule rule,
             final AnyTypeKind type) {
 
@@ -357,7 +357,7 @@ public class InboundMatcher {
         return result;
     }
 
-    protected Optional<PullCorrelationRule> rule(final ExternalResource resource, final Provision provision) {
+    protected Optional<PullCorrelationRule> rule(final ExternalResource resource, final ResourceProvision provision) {
         Optional<? extends PullCorrelationRuleEntity> correlationRule = resource.getPullPolicy() == null
                 ? Optional.empty()
                 : resource.getPullPolicy().getCorrelationRule(provision.getAnyType());
@@ -390,7 +390,7 @@ public class InboundMatcher {
     public List<PullMatch> match(
             final SyncDelta syncDelta,
             final ExternalResource resource,
-            final Provision provision,
+            final ResourceProvision provision,
             final AnyTypeKind anyTypeKind) {
 
         Optional<PullCorrelationRule> rule = rule(resource, provision);

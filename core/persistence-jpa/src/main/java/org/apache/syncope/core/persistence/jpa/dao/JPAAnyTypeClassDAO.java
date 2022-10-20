@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -125,8 +125,8 @@ public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass> implements Any
             }
         }
 
-        for (Provision provision : resourceDAO.findProvisionsByAuxClass(anyTypeClass)) {
-            provision.getAuxClasses().remove(anyTypeClass.getKey());
+        for (ResourceProvision resourceProvision : resourceDAO.findProvisionsByAuxClass(anyTypeClass)) {
+            resourceProvision.getAuxClasses().remove(anyTypeClass.getKey());
         }
 
         entityManager().remove(anyTypeClass);

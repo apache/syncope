@@ -47,7 +47,7 @@ public class ResourceTO implements EntityTO {
      */
     private String connectorDisplayName;
 
-    private final List<Provision> provisions = new ArrayList<>();
+    private final List<ResourceProvision> provisions = new ArrayList<>();
 
     private OrgUnit orgUnit;
 
@@ -229,13 +229,13 @@ public class ResourceTO implements EntityTO {
     }
 
     @JsonIgnore
-    public Optional<Provision> getProvision(final String anyType) {
+    public Optional<ResourceProvision> getProvision(final String anyType) {
         return provisions.stream().filter(
                 provision -> anyType != null && anyType.equals(provision.getAnyType())).
                 findFirst();
     }
 
-    public List<Provision> getProvisions() {
+    public List<ResourceProvision> getProvisions() {
         return provisions;
     }
 

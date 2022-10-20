@@ -17,7 +17,7 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.common.lib.to.Provision
+import org.apache.syncope.common.lib.to.ResourceProvision
 import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond
 import org.identityconnectors.framework.common.objects.SyncDelta
@@ -26,7 +26,7 @@ import org.identityconnectors.framework.common.objects.SyncDelta
 class MyPullCorrelationRule implements PullCorrelationRule {
 
   @Override
-  SearchCond getSearchCond(SyncDelta syncDelta, Provision provision) {
+  SearchCond getSearchCond(SyncDelta syncDelta, ResourceProvision provision) {
     
   }
 }

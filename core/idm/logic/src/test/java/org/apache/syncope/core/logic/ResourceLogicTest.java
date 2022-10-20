@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.OrgUnit;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -84,7 +84,7 @@ public class ResourceLogicTest extends AbstractTest {
         resourceTO.setKey(resourceKey);
         resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
 
-        Provision provisionTO = new Provision();
+        ResourceProvision provisionTO = new ResourceProvision();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
         provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);

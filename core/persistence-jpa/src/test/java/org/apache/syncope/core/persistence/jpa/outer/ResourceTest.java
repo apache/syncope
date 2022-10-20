@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
-import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -104,7 +104,7 @@ public class ResourceTest extends AbstractTest {
 
         resource.setConnector(connector);
 
-        Provision provision = new Provision();
+        ResourceProvision provision = new ResourceProvision();
         provision.setAnyType(AnyTypeKind.USER.name());
         provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resource.getProvisions().add(provision);
