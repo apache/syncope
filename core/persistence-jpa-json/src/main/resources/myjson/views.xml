@@ -51,7 +51,7 @@ under the License.
     CREATE VIEW user_search AS
 
     SELECT u.id as any_id, u.*, attrs.*
-    FROM SyncopeUser u, JSON_TABLE(COALESCE(plainAttrs, '[{}]'), '$[*]' COLUMNS (
+    FROM SyncopeUser u LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[{}]'), '$[*]' COLUMNS (
     plainSchema VARCHAR(255) PATH '$.schema',
     NESTED PATH '$.values[*]' COLUMNS (
     binaryValue LONGBLOB PATH '$.binaryValue',
@@ -61,7 +61,7 @@ under the License.
     longValue BIGINT(20) PATH '$.longValue',
     stringValue VARCHAR(255) PATH '$.stringValue'),
     attrUniqueValue JSON PATH '$.uniqueValue')
-    ) AS attrs
+    ) AS attrs ON 1=1
   </entry>
   <entry key="user_search_urelationship">
     CREATE VIEW user_search_urelationship AS
@@ -121,7 +121,7 @@ under the License.
     CREATE VIEW anyObject_search AS
  
     SELECT a.id as any_id, a.*, attrs.*
-    FROM AnyObject a, JSON_TABLE(COALESCE(plainAttrs, '[{}]'), '$[*]' COLUMNS (
+    FROM AnyObject a LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[{}]'), '$[*]' COLUMNS (
     plainSchema VARCHAR(255) PATH '$.schema',
     NESTED PATH '$.values[*]' COLUMNS (
     binaryValue LONGBLOB PATH '$.binaryValue',
@@ -131,7 +131,7 @@ under the License.
     longValue BIGINT(20) PATH '$.longValue',
     stringValue VARCHAR(255) PATH '$.stringValue'),
     attrUniqueValue JSON PATH '$.uniqueValue')
-    ) AS attrs
+    ) AS attrs ON 1=1
   </entry>
   <entry key="anyObject_search_arelationship">
     CREATE VIEW anyObject_search_arelationship AS
@@ -171,7 +171,7 @@ under the License.
     CREATE VIEW group_search AS
  
     SELECT g.id as any_id, g.*, attrs.*
-    FROM SyncopeGroup g, JSON_TABLE(COALESCE(plainAttrs, '[{}]'), '$[*]' COLUMNS (
+    FROM SyncopeGroup g LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[{}]'), '$[*]' COLUMNS (
     plainSchema VARCHAR(255) PATH '$.schema',
     NESTED PATH '$.values[*]' COLUMNS (
     binaryValue LONGBLOB PATH '$.binaryValue',
@@ -181,7 +181,7 @@ under the License.
     longValue BIGINT(20) PATH '$.longValue',
     stringValue VARCHAR(255) PATH '$.stringValue'),
     attrUniqueValue JSON PATH '$.uniqueValue')
-    ) AS attrs
+    ) AS attrs ON 1=1
   </entry>
   <entry key="group_search_auxClass">
     CREATE VIEW group_search_auxClass AS
