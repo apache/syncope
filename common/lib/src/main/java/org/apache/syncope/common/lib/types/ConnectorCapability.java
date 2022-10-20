@@ -29,6 +29,7 @@ public enum ConnectorCapability {
     AUTHENTICATE,
     CREATE,
     UPDATE,
+    UPDATE_DELTA,
     DELETE,
     SEARCH,
     SYNC;

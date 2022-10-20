@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -150,6 +151,9 @@ abstract class AbstractAnyDataBinder {
     @Autowired
     protected OutboundMatcher outboundMatcher;
 
+    @Autowired
+    protected PlainAttrValidationManager validator;
+
     protected void setRealm(final Any<?> any, final AnyPatch anyPatch) {
         if (anyPatch.getRealm() != null && StringUtils.isNotBlank(anyPatch.getRealm().getValue())) {
             Realm newRealm = realmDAO.findByFullPath(anyPatch.getRealm().getValue());
@@ -234,7 +238,7 @@ abstract class AbstractAnyDataBinder {
                 LOG.debug("Null value for {}, ignoring", schema.getKey());
             } else {
                 try {
-                    attr.add(value, anyUtils);
+                    attr.add(validator, value, anyUtils);
                 } catch (InvalidPlainAttrValueException e) {
                     String valueToPrint = value.length() > 40
                             ? value.substring(0, 20) + "..."

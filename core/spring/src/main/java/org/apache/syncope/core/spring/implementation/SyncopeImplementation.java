@@ -16,14 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.attrvalue.validation;
+package org.apache.syncope.core.spring.implementation;
 
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface Validator {
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SyncopeImplementation {
 
-    void setSchema(PlainSchema schema);
-
-    void validate(String value, PlainAttrValue attrValue);
+    InstanceScope scope() default InstanceScope.PER_CONTEXT;
 }

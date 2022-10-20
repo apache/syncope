@@ -23,8 +23,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -33,9 +35,11 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.LinkingMappingItem;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -45,7 +49,7 @@ import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.SearchResult;
@@ -77,6 +81,10 @@ public class OutboundMatcher {
     @Autowired
     private VirAttrHandler virAttrHandler;
 
+    private final Map<String, PropagationActions> perContextActions = new ConcurrentHashMap<>();
+
+    private final Map<String, PushCorrelationRule> perContextPushCorrelationRules = new ConcurrentHashMap<>();
+
     private Optional<PushCorrelationRule> rule(final Provision provision) {
         Optional<? extends PushCorrelationRuleEntity> correlationRule = provision.getResource().getPushPolicy() == null
                 ? Optional.empty()
@@ -84,10 +92,14 @@ public class OutboundMatcher {
 
         Optional<PushCorrelationRule> rule = Optional.empty();
         if (correlationRule.isPresent()) {
+            Implementation impl = correlationRule.get().getImplementation();
             try {
-                rule = ImplementationManager.buildPushCorrelationRule(correlationRule.get().getImplementation());
+                rule = ImplementationManager.buildPushCorrelationRule(
+                        impl,
+                        () -> perContextPushCorrelationRules.get(impl.getKey()),
+                        instance -> perContextPushCorrelationRules.put(impl.getKey(), instance));
             } catch (Exception e) {
-                LOG.error("While building {}", correlationRule.get().getImplementation(), e);
+                LOG.error("While building {}", impl, e);
             }
         }
 
@@ -149,6 +161,23 @@ public class OutboundMatcher {
         return result;
     }
 
+    protected List<PropagationActions> getPropagationActions(final ExternalResource resource) {
+        List<PropagationActions> result = new ArrayList<>();
+
+        resource.getPropagationActions().forEach(impl -> {
+            try {
+                result.add(ImplementationManager.build(
+                        impl,
+                        () -> perContextActions.get(impl.getKey()),
+                        instance -> perContextActions.put(impl.getKey(), instance)));
+            } catch (Exception e) {
+                LOG.error("While building {}", impl, e);
+            }
+        });
+
+        return result;
+    }
+
     @Transactional(readOnly = true)
     public List<ConnectorObject> match(
             final Connector connector,
@@ -157,19 +186,11 @@ public class OutboundMatcher {
             final Optional<String[]> moreAttrsToGet,
             final LinkingMappingItem... linkingItems) {
 
-        Set<String> matgFromPropagationActions = new HashSet<>();
-        provision.getResource().getPropagationActions().forEach(impl -> {
-            try {
-                matgFromPropagationActions.addAll(
-                        ImplementationManager.<PropagationActions>build(impl).
-                                moreAttrsToGet(Optional.empty(), provision));
-            } catch (Exception e) {
-                LOG.error("While building {}", impl, e);
-            }
-        });
+        Stream<String> matgFromPropagationActions = getPropagationActions(provision.getResource()).stream().
+                flatMap(a -> a.moreAttrsToGet(Optional.empty(), provision).stream());
         Optional<String[]> effectiveMATG = Optional.of(Stream.concat(
                 moreAttrsToGet.map(Stream::of).orElse(Stream.empty()),
-                matgFromPropagationActions.stream()).toArray(String[]::new));
+                matgFromPropagationActions).toArray(String[]::new));
 
         Optional<PushCorrelationRule> rule = rule(provision);
 

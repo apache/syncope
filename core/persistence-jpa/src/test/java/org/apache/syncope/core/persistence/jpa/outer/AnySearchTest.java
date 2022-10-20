@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -74,6 +75,9 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private PlainAttrValidationManager validator;
 
     @Test
     public void searchByDynMembership() {
@@ -201,14 +205,14 @@ public class AnySearchTest extends AbstractTest {
         GPlainAttr title = entityFactory.newEntity(GPlainAttr.class);
         title.setOwner(group);
         title.setSchema(plainSchemaDAO.find("title"));
-        title.add("syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        title.add(validator, "syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         group.add(title);
 
         // unique
         GPlainAttr originalName = entityFactory.newEntity(GPlainAttr.class);
         originalName.setOwner(group);
         originalName.setSchema(plainSchemaDAO.find("originalName"));
-        originalName.add("syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        originalName.add(validator, "syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         group.add(originalName);
 
         groupDAO.save(group);

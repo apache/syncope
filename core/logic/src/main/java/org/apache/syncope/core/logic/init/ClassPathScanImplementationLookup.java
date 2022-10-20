@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
@@ -134,7 +134,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(PropagationActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PullActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushActions.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PlainAttrValueValidator.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(RecipientsProvider.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AuditAppender.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ProvisionSorter.class));
@@ -234,7 +234,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(ImplementationType.PUSH_ACTIONS).add(bd.getBeanClassName());
                 }
 
-                if (Validator.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                if (PlainAttrValueValidator.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(ImplementationType.VALIDATOR).add(bd.getBeanClassName());
                 }
 

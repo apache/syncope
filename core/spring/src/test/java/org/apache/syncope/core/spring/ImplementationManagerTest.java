@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.spring;
+package org.apache.syncope.core.spring.implementation;
 
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -66,8 +66,8 @@ public class ImplementationManagerTest {
         String body = POJOHelper.serialize(createBaseDefaultPasswordRuleConf());
 
         assertTimeoutPreemptively(Duration.ofSeconds(30), () -> {
-            TestImplementation implementation = new TestImplementation();
-            implementation.setBody(body);
+            TestImplementation impl = new TestImplementation();
+            impl.setBody(body);
             ReentrantLock lock = new ReentrantLock();
             lock.lock();
             AtomicInteger runningThreads = new AtomicInteger(0);
@@ -81,8 +81,11 @@ public class ImplementationManagerTest {
                             Thread.yield();
                         }
                         try {
-                            ImplementationManager.buildPasswordRule(implementation).
-                                    orElseThrow(() -> new IllegalStateException("No implementation returned"));
+                            ImplementationManager.buildPasswordRule(
+                                    impl,
+                                    () -> null,
+                                    instance -> {
+                                    }).orElseThrow(() -> new IllegalStateException("No implementation returned"));
                         } catch (Exception e) {
                             errorMessages.add(e.getLocalizedMessage());
                             errorCount.incrementAndGet();

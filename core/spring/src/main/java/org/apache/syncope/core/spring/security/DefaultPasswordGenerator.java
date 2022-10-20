@@ -20,11 +20,15 @@ package org.apache.syncope.core.spring.security;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
+import org.apache.syncope.core.persistence.api.dao.PasswordRule;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.spring.policy.PolicyPattern;
 import org.slf4j.Logger;
@@ -47,6 +51,8 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
 
     private static final int MIN_LENGTH_IF_ZERO = 8;
 
+    protected final Map<String, PasswordRule> perContextPasswordRules = new ConcurrentHashMap<>();
+
     @Transactional(readOnly = true)
     @Override
     public String generate(final ExternalResource resource) throws InvalidPasswordRuleConf {
@@ -59,23 +65,33 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
         return generate(policies);
     }
 
+    protected List<PasswordRule> getPasswordRules(final PasswordPolicy policy) {
+        List<PasswordRule> result = new ArrayList<>();
+
+        for (Implementation impl : policy.getRules()) {
+            try {
+                ImplementationManager.buildPasswordRule(
+                        impl,
+                        () -> perContextPasswordRules.get(impl.getKey()),
+                        instance -> perContextPasswordRules.put(impl.getKey(), instance)).
+                        ifPresent(result::add);
+            } catch (Exception e) {
+                LOG.warn("While building {}", impl, e);
+            }
+        }
+
+        return result;
+    }
+
     @Override
     public String generate(final List<PasswordPolicy> policies) throws InvalidPasswordRuleConf {
-        List<DefaultPasswordRuleConf> defaultRuleConfs = new ArrayList<>();
+        List<DefaultPasswordRuleConf> ruleConfs = new ArrayList<>();
 
-        policies.stream().forEach(policy -> policy.getRules().forEach(impl -> {
-            try {
-                ImplementationManager.buildPasswordRule(impl).ifPresent(rule -> {
-                    if (rule.getConf() instanceof DefaultPasswordRuleConf) {
-                        defaultRuleConfs.add((DefaultPasswordRuleConf) rule.getConf());
-                    }
-                });
-            } catch (Exception e) {
-                LOG.error("Invalid {}, ignoring...", impl, e);
-            }
-        }));
+        policies.stream().forEach(policy -> getPasswordRules(policy).stream().
+                filter(rule -> rule.getConf() instanceof DefaultPasswordRuleConf).
+                forEach(rule -> ruleConfs.add((DefaultPasswordRuleConf) rule.getConf())));
 
-        DefaultPasswordRuleConf ruleConf = merge(defaultRuleConfs);
+        DefaultPasswordRuleConf ruleConf = merge(ruleConfs);
         check(ruleConf);
         return generate(ruleConf);
     }

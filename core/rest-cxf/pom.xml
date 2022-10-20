@@ -100,12 +100,16 @@ under the License.
       <artifactId>cxf-rt-rs-client</artifactId>
     </dependency> 
     <dependency>
+      <groupId>com.fasterxml.woodstox</groupId>
+      <artifactId>woodstox-core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope.common</groupId>
       <artifactId>syncope-common-rest-api</artifactId>
       <version>${project.version}</version>
       <classifier>javadoc</classifier>
     </dependency>
-    
+
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-logic</artifactId>

@@ -36,6 +36,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -61,7 +62,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO {
@@ -95,6 +95,9 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
+
+    @Autowired
+    protected PlainAttrValidationManager validator;
 
     protected SearchCond buildEffectiveCond(
             final SearchCond cond,
@@ -190,7 +193,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                     && cond.getType() != AttrCond.Type.ISNULL
                     && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
-                ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);
+                validator.validate(schema, cond.getExpression(), attrValue);
             }
         } catch (ValidationException e) {
             throw new IllegalArgumentException("Could not validate expression " + cond.getExpression());
@@ -252,7 +255,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                 && computed.getType() != AttrCond.Type.ISNOTNULL) {
 
             try {
-                ((JPAPlainSchema) schema).validator().validate(computed.getExpression(), attrValue);
+                validator.validate(schema, computed.getExpression(), attrValue);
             } catch (ValidationException e) {
                 throw new IllegalArgumentException("Could not validate expression " + computed.getExpression());
             }

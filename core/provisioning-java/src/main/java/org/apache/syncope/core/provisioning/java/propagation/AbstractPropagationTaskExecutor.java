@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TraceLevel;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -67,7 +68,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -165,6 +166,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     @Autowired
     protected OutboundMatcher outboundMatcher;
 
+    @Autowired
+    protected PlainAttrValidationManager validator;
+
     @Override
     public void expireRetryTemplate(final String resource) {
         retryTemplates.remove(resource);
@@ -223,8 +227,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             task.getResource().getProvision(task.getAnyType()).ifPresent(provision -> {
                 if (provision.getUidOnCreate() != null) {
-                    anyUtilsFactory.getInstance(task.getAnyTypeKind()).
-                            addAttr(task.getEntityKey(), provision.getUidOnCreate(), result.getUidValue());
+                    anyUtilsFactory.getInstance(task.getAnyTypeKind()).addAttr(validator,
+                            task.getEntityKey(),
+                            provision.getUidOnCreate(),
+                            result.getUidValue());
                 }
             });
         } else {

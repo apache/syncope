@@ -77,7 +77,7 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationManager
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
-import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -163,6 +163,8 @@ public class DefaultNotificationManager implements NotificationManager {
     @Autowired
     private SearchCondVisitor searchCondVisitor;
 
+    private Optional<RecipientsProvider> perContextRecipientsProvider = Optional.empty();
+
     @Transactional(readOnly = true)
     @Override
     public long getMaxRetries() {
@@ -218,8 +220,11 @@ public class DefaultNotificationManager implements NotificationManager {
 
         if (notification.getRecipientsProvider() != null) {
             try {
-                RecipientsProvider recipientsProvider =
-                        ImplementationManager.build(notification.getRecipientsProvider());
+                RecipientsProvider recipientsProvider = ImplementationManager.build(
+                        notification.getRecipientsProvider(),
+                        () -> perContextRecipientsProvider.orElse(null),
+                        instance -> perContextRecipientsProvider = Optional.of(instance));
+
                 recipientEmails.addAll(recipientsProvider.provideRecipients(notification));
             } catch (Exception e) {
                 LOG.error("While building {}", notification.getRecipientsProvider(), e);

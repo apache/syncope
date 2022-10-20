@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.outer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
@@ -42,6 +43,9 @@ public class ConfTest extends AbstractTest {
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
 
+    @Autowired
+    private PlainAttrValidationManager validator;
+
     private void add(final CPlainAttr newAttr, final String value) {
         PlainAttrValue attrValue;
         if (newAttr.getSchema().isUniqueConstraint()) {
@@ -50,7 +54,7 @@ public class ConfTest extends AbstractTest {
         } else {
             attrValue = entityFactory.newEntity(CPlainAttrValue.class);
         }
-        newAttr.add(value, attrValue);
+        newAttr.add(validator, value, attrValue);
     }
 
     @Test

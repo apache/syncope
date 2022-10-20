@@ -349,10 +349,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.setProvisioningTraceLevel(resourceTO.getProvisioningTraceLevel());
 
         resource.setPasswordPolicy(resourceTO.getPasswordPolicy() == null
-                ? null : (PasswordPolicy) policyDAO.find(resourceTO.getPasswordPolicy()));
+                ? null : policyDAO.<PasswordPolicy>find(resourceTO.getPasswordPolicy()));
 
         resource.setAccountPolicy(resourceTO.getAccountPolicy() == null
-                ? null : (AccountPolicy) policyDAO.find(resourceTO.getAccountPolicy()));
+                ? null : policyDAO.<AccountPolicy>find(resourceTO.getAccountPolicy()));
 
         if (resource.getPropagationPolicy() != null
                 && !resource.getPropagationPolicy().getKey().equals(resourceTO.getPropagationPolicy())) {
@@ -360,13 +360,13 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             propagationTaskExecutor.expireRetryTemplate(resource.getKey());
         }
         resource.setPropagationPolicy(resourceTO.getPropagationPolicy() == null
-                ? null : (PropagationPolicy) policyDAO.find(resourceTO.getPropagationPolicy()));
+                ? null : policyDAO.<PropagationPolicy>find(resourceTO.getPropagationPolicy()));
 
         resource.setPullPolicy(resourceTO.getPullPolicy() == null
-                ? null : (PullPolicy) policyDAO.find(resourceTO.getPullPolicy()));
+                ? null : policyDAO.<PullPolicy>find(resourceTO.getPullPolicy()));
 
         resource.setPushPolicy(resourceTO.getPushPolicy() == null
-                ? null : (PushPolicy) policyDAO.find(resourceTO.getPushPolicy()));
+                ? null : policyDAO.<PushPolicy>find(resourceTO.getPushPolicy()));
 
         if (resourceTO.getProvisionSorter() == null) {
             resource.setProvisionSorter(null);

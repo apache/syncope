@@ -22,7 +22,9 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -52,6 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -60,7 +63,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.ImplementationManager;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -112,6 +115,8 @@ public class InboundMatcher {
 
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
+
+    private final Map<String, PullCorrelationRule> perContextPullCorrelationRules = new ConcurrentHashMap<>();
 
     public Optional<PullMatch> match(
             final AnyType anyType,
@@ -339,6 +344,27 @@ public class InboundMatcher {
         return result;
     }
 
+    protected Optional<PullCorrelationRule> rule(final Provision provision) {
+        Optional<? extends PullCorrelationRuleEntity> correlationRule = provision.getResource().getPullPolicy() == null
+                ? Optional.empty()
+                : provision.getResource().getPullPolicy().getCorrelationRule(provision.getAnyType());
+
+        Optional<PullCorrelationRule> rule = Optional.empty();
+        if (correlationRule.isPresent()) {
+            Implementation impl = correlationRule.get().getImplementation();
+            try {
+                rule = ImplementationManager.buildPullCorrelationRule(
+                        impl,
+                        () -> perContextPullCorrelationRules.get(impl.getKey()),
+                        instance -> perContextPullCorrelationRules.put(impl.getKey(), instance));
+            } catch (Exception e) {
+                LOG.error("While building {}", impl, e);
+            }
+        }
+
+        return rule;
+    }
+
     /**
      * Finds internal entities based on external attributes and mapping.
      *
@@ -347,18 +373,7 @@ public class InboundMatcher {
      * @return list of matching users' / groups' / any objects' keys
      */
     public List<PullMatch> match(final SyncDelta syncDelta, final Provision provision) {
-        Optional<? extends PullCorrelationRuleEntity> correlationRule = provision.getResource().getPullPolicy() == null
-                ? Optional.empty()
-                : provision.getResource().getPullPolicy().getCorrelationRule(provision.getAnyType());
-
-        Optional<PullCorrelationRule> rule = Optional.empty();
-        if (correlationRule.isPresent()) {
-            try {
-                rule = ImplementationManager.buildPullCorrelationRule(correlationRule.get().getImplementation());
-            } catch (Exception e) {
-                LOG.error("While building {}", correlationRule.get().getImplementation(), e);
-            }
-        }
+        Optional<PullCorrelationRule> rule = rule(provision);
 
         List<PullMatch> result = Collections.emptyList();
         try {
@@ -442,7 +457,7 @@ public class InboundMatcher {
 
             case "name":
                 if (orgUnit.isIgnoreCaseMatch()) {
-                    final String realmName = connObjectKey;
+                    String realmName = connObjectKey;
                     result.addAll(realmDAO.findAll().stream().
                             filter(r -> r.getName().equalsIgnoreCase(realmName)).collect(Collectors.toList()));
                 } else {

@@ -22,13 +22,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public class URLValidator extends AbstractValidator {
 
     private static final long serialVersionUID = 792457177290331518L;
 
     @Override
-    protected void doValidate(final PlainAttrValue attrValue) {
+    protected void doValidate(final PlainSchema schema, final PlainAttrValue attrValue) {
         try {
             new URL(attrValue.getStringValue());
         } catch (MalformedURLException e) {
