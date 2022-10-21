@@ -598,7 +598,8 @@ public class AuditITCase extends AbstractITCase {
                             .entityKey(pullFromLDAP.getKey())
                             .page(1)
                             .size(10)
-                            .events(List.of("create", "update", "matchingrule_update", "unmatchingrule_assign",
+                            .events(List.of(
+                                    "create", "update", "matchingrule_update", "unmatchingrule_assign",
                                     "unmatchingrule_provision"))
                             .result(AuditElements.Result.SUCCESS)
                             .build()).getTotalCount());

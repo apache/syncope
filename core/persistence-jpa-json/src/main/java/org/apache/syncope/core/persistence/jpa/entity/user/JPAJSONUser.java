@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -48,7 +47,6 @@ public class JPAJSONUser extends JPAUser implements JSONAttributable<User>, User
 
     private static final long serialVersionUID = -8543654943709531885L;
 
-    @Lob
     private String plainAttrs;
 
     @Transient

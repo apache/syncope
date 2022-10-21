@@ -18,20 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.List;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
-public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
+public class OJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
 
-    public MyJPAJSONAnyDAO(final PlainSchemaDAO plainSchemaDAO) {
+    public OJPAJSONAnyDAO(final PlainSchemaDAO plainSchemaDAO) {
         super(plainSchemaDAO);
     }
 
@@ -41,34 +39,41 @@ public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
     }
 
     @Override
+    protected Object getAttrValue(
+            final PlainSchema schema,
+            final PlainAttrValue attrValue,
+            final boolean ignoreCaseMatch) {
+
+        return schema.getType() == AttrSchemaType.Boolean
+                ? BooleanUtils.toStringTrueFalse(attrValue.getBooleanValue())
+                : schema.getType() == AttrSchemaType.String && ignoreCaseMatch
+                ? StringUtils.lowerCase(attrValue.getStringValue())
+                : attrValue.getValue();
+    }
+
+    @Override
     protected String attrValueMatch(
             final AnyUtils anyUtils,
             final PlainSchema schema,
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
+        StringBuilder query = new StringBuilder("plainSchema = ? AND ");
+
         Pair<String, Boolean> schemaInfo = schemaInfo(schema.getType(), ignoreCaseMatch);
-        if (schemaInfo.getRight()) {
-            return "plainSchema = ? "
-                    + "AND "
-                    + (schemaInfo.getRight() ? "LOWER(" : "")
-                    + (schema.isUniqueConstraint()
-                    ? "attrUniqueValue ->> '$." + schemaInfo.getLeft() + '\''
-                    : schemaInfo.getLeft())
-                    + (schemaInfo.getRight() ? ")" : "")
-                    + " = "
-                    + (schemaInfo.getRight() ? "LOWER(" : "")
-                    + '?'
-                    + (schemaInfo.getRight() ? ")" : "");
+        query.append(schemaInfo.getRight() ? "LOWER(" : "");
+
+        if (schema.isUniqueConstraint()) {
+            query.append("u").append(schemaInfo.getLeft());
         } else {
-            PlainAttr<?> container = anyUtils.newPlainAttr();
-            container.setSchema(schema);
-            if (attrValue instanceof PlainAttrUniqueValue) {
-                container.setUniqueValue((PlainAttrUniqueValue) attrValue);
-            } else {
-                ((JSONPlainAttr) container).add(attrValue);
-            }
-            return "JSON_CONTAINS(plainAttrs, '" + POJOHelper.serialize(List.of(container)).replace("'", "''") + "')";
+            query.append("JSON_VALUE(").append(schemaInfo.getLeft()).append(", '$[*]')");
         }
+
+        query.append(schemaInfo.getRight() ? ")" : "").
+                append(" = ").
+                append(schemaInfo.getRight() ? "LOWER(" : "").
+                append('?').append(schemaInfo.getRight() ? ")" : "");
+
+        return query.toString();
     }
 }

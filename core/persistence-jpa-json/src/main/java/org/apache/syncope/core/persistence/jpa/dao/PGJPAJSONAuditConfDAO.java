@@ -26,7 +26,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public class PGJPAJSONAuditConfDAO extends AbstractJPAJSONLoggerDAO {
 
-    private static class PGMessageCriteriaBuilder extends JSONMessageCriteriaBuilder {
+    protected static class PGMessageCriteriaBuilder extends JSONMessageCriteriaBuilder {
 
         @Override
         protected String doBuild(final List<ObjectNode> containers) {

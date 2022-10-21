@@ -171,10 +171,10 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findByPlainAttrBooleanValue() {
-        final UPlainAttrValue coolValue = entityFactory.newEntity(UPlainAttrValue.class);
+        UPlainAttrValue coolValue = entityFactory.newEntity(UPlainAttrValue.class);
         coolValue.setBooleanValue(true);
 
-        final List<User> list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("cool"), coolValue, false);
+        List<User> list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("cool"), coolValue, false);
         assertEquals(1, list.size());
     }
 

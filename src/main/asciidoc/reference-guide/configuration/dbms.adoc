@@ -240,7 +240,7 @@ This assumes that you have a MariaDB instance running on localhost, listening on
 ==== Oracle Database
 
 [NOTE]
-Apache Syncope {docVersion} is verified with Oracle database >= 11g and JDBC driver >= ojdbc8 12.2.0.1.
+Apache Syncope {docVersion} is verified with Oracle database >= 19c and JDBC driver >= ojdbc11 {oracleJDBC}.
 
 Create
 
@@ -267,6 +267,59 @@ provisioning.quartz.sql=tables_oracle.sql
 as `core/src/main/resources/core-oracle.properties`.
 
 Do not forget to include `oracle` as 
+https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+for the Core application.
+
+[WARNING]
+This assumes that you have an Oracle instance running on localhost, listening on its default port 1521 with a database
+`syncope` under tablespace `SYNCOPE`, fully accessible by user `syncope` with password `syncope`.
+
+==== Oracle Database (JSON)
+
+[NOTE]
+With the configurations reported below, Apache Syncope will leverage the
+https://docs.oracle.com/en/database/oracle/oracle-database/19/adjsn/[JSON^] features.
+
+[NOTE]
+Apache Syncope {docVersion} is verified with Oracle database >= 19c and JDBC driver >= ojdbc11 {oracleJDBC}.
+
+Add the following dependency to `core/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.core</groupId>
+  <artifactId>syncope-core-persistence-jpa-json</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
+Create
+
+[source]
+....
+persistence.indexesXML=classpath:ojson/indexes.xml
+persistence.viewsXML=classpath:ojson/views.xml
+
+persistence.domain[0].key=Master
+persistence.domain[0].jdbcDriver=oracle.jdbc.OracleDriver
+persistence.domain[0].jdbcURL=jdbc:postgresql://${DB_CONTAINER_IP}:5432/syncope?stringtype=unspecified
+persistence.domain[0].schema=SYNCOPE
+persistence.domain[0].dbUsername=syncope
+persistence.domain[0].dbPassword=syncope
+persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.OracleDictionary
+persistence.domain[0].orm=META-INF/spring-orm-ojson.xml
+persistence.domain[0].auditSql=audit_ojson.sql
+persistence.domain[0].poolMaxActive=10
+persistence.domain[0].poolMinIdle=2
+
+provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.oracle.OracleDelegate
+provisioning.quartz.sql=tables_oracle.sql
+....
+
+as `core/src/main/resources/core-ojson.properties`.
+
+Do not forget to include `ojson` as 
 https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 

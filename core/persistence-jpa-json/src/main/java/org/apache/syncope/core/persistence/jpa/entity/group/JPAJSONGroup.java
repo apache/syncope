@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
@@ -39,7 +38,6 @@ public class JPAJSONGroup extends JPAGroup implements JSONAttributable<Group>, G
 
     private static final long serialVersionUID = -8543654943709531885L;
 
-    @Lob
     private String plainAttrs;
 
     @Transient

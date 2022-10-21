@@ -47,5 +47,5 @@ Apache Syncope {docVersion} is verified with the recent versions of the followin
  . http://www.postgresql.org/[PostgreSQL^] (>= {postgresql}, JDBC driver >= {postgresqlJDBC})
  . https://mariadb.org/[MariaDB^] (>= {mariadb}, JDBC driver >= {mariadbJDBC})
  . http://www.mysql.com/[MySQL^] (>= {mysql}, JDBC driver >= {mysqlJDBC})
- . https://www.oracle.com/database/index.html[Oracle Database^] (>= 11g, JDBC driver >= ojdbc8 12.2.0.1)
- . http://www.microsoft.com/en-us/server-cloud/products/sql-server/[MS SQL Server^] (>= 2017, JDBC driver >= {sqlserverJDBC}8)
+ . https://www.oracle.com/database/index.html[Oracle Database^] (>= 19c, JDBC driver >= ojdbc11 {oracleJDBC})
+ . http://www.microsoft.com/en-us/server-cloud/products/sql-server/[MS SQL Server^] (>= 2017, JDBC driver >= {sqlserverJDBC}11)

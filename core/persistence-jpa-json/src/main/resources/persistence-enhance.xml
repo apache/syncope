@@ -24,7 +24,7 @@ under the License.
              version="2.0">
   
   <persistence-unit name="Master">
-    <mapping-file>META-INF/spring-orm-pgjsonb.xml</mapping-file>
+    <mapping-file>META-INF/spring-orm-${orm}.xml</mapping-file>
     <validation-mode>NONE</validation-mode>
   </persistence-unit>
   

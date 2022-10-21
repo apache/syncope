@@ -34,6 +34,7 @@ import org.apache.commons.jexl3.parser.ParserConstants;
 import org.apache.commons.jexl3.parser.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
@@ -58,13 +59,15 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
         this.plainSchemaDAO = plainSchemaDAO;
     }
 
-    protected abstract String queryBegin(String table);
+    protected String view(final String table) {
+        return StringUtils.containsIgnoreCase(table, AnyTypeKind.USER.name())
+                ? "user_search"
+                : StringUtils.containsIgnoreCase(table, AnyTypeKind.GROUP.name())
+                ? "group_search"
+                : "anyObject_search";
+    }
 
-    protected abstract String attrValueMatch(
-            AnyUtils anyUtils,
-            PlainSchema schema,
-            PlainAttrValue attrValue,
-            boolean ignoreCaseMatch);
+    protected abstract String queryBegin(String table);
 
     protected Pair<String, Boolean> schemaInfo(final AttrSchemaType schemaType, final boolean ignoreCaseMatch) {
         String key;
@@ -99,6 +102,20 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
         return Pair.of(key, lower);
     }
 
+    protected abstract String attrValueMatch(
+            AnyUtils anyUtils,
+            PlainSchema schema,
+            PlainAttrValue attrValue,
+            boolean ignoreCaseMatch);
+
+    protected Object getAttrValue(
+            final PlainSchema schema,
+            final PlainAttrValue attrValue,
+            final boolean ignoreCaseMatch) {
+
+        return attrValue.getValue();
+    }
+
     protected <A extends Any<?>> List<A> buildResult(final AnyUtils anyUtils, final List<Object> queryResult) {
         List<A> result = new ArrayList<>();
         queryResult.forEach(anyKey -> {
@@ -131,7 +148,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
                 queryBegin(table)
                 + "WHERE " + attrValueMatch(anyUtils, schema, attrValue, ignoreCaseMatch));
         query.setParameter(1, schema.getKey());
-        query.setParameter(2, attrValue.getValue());
+        query.setParameter(2, getAttrValue(schema, attrValue, ignoreCaseMatch));
 
         return buildResult(anyUtils, query.getResultList());
     }
@@ -167,8 +184,8 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
      * @param literals literals/tokens
      * @return split value
      */
-    private static List<String> split(final String attrValue, final List<String> literals) {
-        final List<String> attrValues = new ArrayList<>();
+    protected List<String> split(final String attrValue, final List<String> literals) {
+        List<String> attrValues = new ArrayList<>();
 
         if (literals.isEmpty()) {
             attrValues.add(attrValue);
@@ -303,7 +320,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
 
                     List<Object> queryParams = new ArrayList<>();
                     queryParams.add(schema.getKey());
-                    queryParams.add(attrValues.get(i));
+                    queryParams.add(getAttrValue(schema, attrValue, ignoreCaseMatch));
 
                     clauses.put(bld.toString(), queryParams);
                 }

@@ -22,7 +22,6 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.test.context.ContextCustomizer;
 import org.springframework.test.context.MergedContextConfiguration;
 import org.springframework.test.context.support.TestPropertySourceUtils;
@@ -33,26 +32,39 @@ public class JPAJSONTestContextCustomizer implements ContextCustomizer {
         if (ctx instanceof BeanDefinitionRegistry) {
             return (BeanDefinitionRegistry) ctx;
         }
-        if (ctx instanceof AbstractApplicationContext) {
-            return (BeanDefinitionRegistry) ((AbstractApplicationContext) ctx).getBeanFactory();
+        if (ctx instanceof ConfigurableApplicationContext) {
+            return (BeanDefinitionRegistry) ((ConfigurableApplicationContext) ctx).getBeanFactory();
         }
         throw new IllegalStateException("Could not locate BeanDefinitionRegistry");
     }
 
     @Override
     public void customizeContext(final ConfigurableApplicationContext ctx, final MergedContextConfiguration cfg) {
-        if ("pgjsonb".equals(System.getProperty("profileId"))) {
-            TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
-                    ctx,
-                    "provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.PostgreSQLDelegate");
-        } else if ("myjson".equals(System.getProperty("profileId"))) {
-            TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
-                    ctx,
-                    "provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.StdJDBCDelegate");
+        switch (System.getProperty("profileId")) {
+            case "pgjsonb":
+                TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                        ctx,
+                        "provisioning.quartz.sql=tables_postgres.sql");
+                break;
+
+            case "myjson":
+                TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                        ctx,
+                        "provisioning.quartz.sql=tables_mysql_innodb.sql");
+                break;
+
+            case "ojson":
+                TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
+                        ctx,
+                        "provisioning.quartz.sql=tables_oracle.sql");
+                break;
+
+            default:
         }
 
         AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(getBeanDefinitionRegistry(ctx));
         reader.registerBean(PGJPAJSONPersistenceContext.class, "PGJPAJSONPersistenceContext");
         reader.registerBean(MyJPAJSONPersistenceContext.class, "MyJPAJSONPersistenceContext");
+        reader.registerBean(OJPAJSONPersistenceContext.class, "OJPAJSONPersistenceContext");
     }
 }

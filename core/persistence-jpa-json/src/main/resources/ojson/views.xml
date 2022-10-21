@@ -51,17 +51,23 @@ under the License.
     CREATE VIEW user_search AS
 
     SELECT u.id as any_id, u.*, attrs.*
-    FROM SyncopeUser u LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[{}]'), '$[*]' COLUMNS (
-    plainSchema VARCHAR(255) PATH '$.schema',
-    NESTED PATH '$.values[*]' COLUMNS (
-    binaryValue LONGBLOB PATH '$.binaryValue',
-    booleanValue INT PATH '$.booleanValue',
-    dateValue VARCHAR(32) PATH '$.dateValue',
-    doubleValue DOUBLE PATH '$.doubleValue',
-    longValue BIGINT(20) PATH '$.longValue',
-    stringValue VARCHAR(255) PATH '$.stringValue'),
-    attrUniqueValue JSON PATH '$.uniqueValue')
-    ) AS attrs ON 1=1
+    FROM SyncopeUser u LEFT OUTER JOIN JSON_TABLE(u.plainAttrs, '$[*]' COLUMNS (
+    plainSchema PATH '$.schema', 
+    NESTED PATH '$.uniqueValue' COLUMNS(
+    ubinaryValue PATH '$.binaryValue', 
+    ubooleanValue PATH '$.booleanValue',
+    udateValue PATH '$.dateValue',
+    ulongValue PATH '$.longValue',
+    udoubleValue PATH '$.doubleValue',
+    ustringValue PATH '$.stringValue'),
+    NESTED PATH '$.values[*]' COLUMNS(
+    binaryValue FORMAT JSON WITH WRAPPER PATH '$.binaryValue',
+    booleanValue FORMAT JSON WITH WRAPPER PATH '$.booleanValue',
+    dateValue FORMAT JSON WITH WRAPPER PATH '$.dateValue',
+    longValue FORMAT JSON WITH WRAPPER PATH '$.longValue',
+    doubleValue FORMAT JSON WITH WRAPPER PATH '$.doubleValue',
+    stringValue FORMAT JSON WITH WRAPPER PATH '$.stringValue')
+    )) AS attrs ON 1=1
   </entry>
   <entry key="user_search_urelationship">
     CREATE VIEW user_search_urelationship AS
@@ -121,17 +127,23 @@ under the License.
     CREATE VIEW anyObject_search AS
  
     SELECT a.id as any_id, a.*, attrs.*
-    FROM AnyObject a LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[{}]'), '$[*]' COLUMNS (
-    plainSchema VARCHAR(255) PATH '$.schema',
-    NESTED PATH '$.values[*]' COLUMNS (
-    binaryValue LONGBLOB PATH '$.binaryValue',
-    booleanValue INT PATH '$.booleanValue',
-    dateValue VARCHAR(32) PATH '$.dateValue',
-    doubleValue DOUBLE PATH '$.doubleValue',
-    longValue BIGINT(20) PATH '$.longValue',
-    stringValue VARCHAR(255) PATH '$.stringValue'),
-    attrUniqueValue JSON PATH '$.uniqueValue')
-    ) AS attrs ON 1=1
+    FROM AnyObject a LEFT OUTER JOIN JSON_TABLE(a.plainAttrs, '$[*]' COLUMNS (
+    plainSchema PATH '$.schema', 
+    NESTED PATH '$.uniqueValue' COLUMNS(
+    ubinaryValue PATH '$.binaryValue', 
+    ubooleanValue PATH '$.booleanValue',
+    udateValue PATH '$.dateValue',
+    ulongValue PATH '$.longValue',
+    udoubleValue PATH '$.doubleValue',
+    ustringValue PATH '$.stringValue'),
+    NESTED PATH '$.values[*]' COLUMNS(
+    binaryValue FORMAT JSON WITH WRAPPER PATH '$.binaryValue',
+    booleanValue FORMAT JSON WITH WRAPPER PATH '$.booleanValue',
+    dateValue FORMAT JSON WITH WRAPPER PATH '$.dateValue',
+    longValue FORMAT JSON WITH WRAPPER PATH '$.longValue',
+    doubleValue FORMAT JSON WITH WRAPPER PATH '$.doubleValue',
+    stringValue FORMAT JSON WITH WRAPPER PATH '$.stringValue')
+    )) AS attrs ON 1=1
   </entry>
   <entry key="anyObject_search_arelationship">
     CREATE VIEW anyObject_search_arelationship AS
@@ -171,17 +183,23 @@ under the License.
     CREATE VIEW group_search AS
  
     SELECT g.id as any_id, g.*, attrs.*
-    FROM SyncopeGroup g LEFT OUTER JOIN JSON_TABLE(COALESCE(plainAttrs, '[{}]'), '$[*]' COLUMNS (
-    plainSchema VARCHAR(255) PATH '$.schema',
-    NESTED PATH '$.values[*]' COLUMNS (
-    binaryValue LONGBLOB PATH '$.binaryValue',
-    booleanValue INT PATH '$.booleanValue',
-    dateValue VARCHAR(32) PATH '$.dateValue',
-    doubleValue DOUBLE PATH '$.doubleValue',
-    longValue BIGINT(20) PATH '$.longValue',
-    stringValue VARCHAR(255) PATH '$.stringValue'),
-    attrUniqueValue JSON PATH '$.uniqueValue')
-    ) AS attrs ON 1=1
+    FROM SyncopeGroup g LEFT OUTER JOIN JSON_TABLE(g.plainAttrs, '$[*]' COLUMNS (
+    plainSchema PATH '$.schema', 
+    NESTED PATH '$.uniqueValue' COLUMNS(
+    ubinaryValue PATH '$.binaryValue', 
+    ubooleanValue PATH '$.booleanValue',
+    udateValue PATH '$.dateValue',
+    ulongValue PATH '$.longValue',
+    udoubleValue PATH '$.doubleValue',
+    ustringValue PATH '$.stringValue'),
+    NESTED PATH '$.values[*]' COLUMNS(
+    binaryValue FORMAT JSON WITH WRAPPER PATH '$.binaryValue',
+    booleanValue FORMAT JSON WITH WRAPPER PATH '$.booleanValue',
+    dateValue FORMAT JSON WITH WRAPPER PATH '$.dateValue',
+    longValue FORMAT JSON WITH WRAPPER PATH '$.longValue',
+    doubleValue FORMAT JSON WITH WRAPPER PATH '$.doubleValue',
+    stringValue FORMAT JSON WITH WRAPPER PATH '$.stringValue')
+    )) AS attrs ON 1=1
   </entry>
   <entry key="group_search_auxClass">
     CREATE VIEW group_search_auxClass AS

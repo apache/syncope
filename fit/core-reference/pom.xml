@@ -1133,17 +1133,23 @@ under the License.
     </profile>
 
     <profile>
-      <id>oracle-it</id>
+      <id>ojson-it</id>
 
       <properties>
         <jdbcdriver.groupId>com.oracle.database.jdbc</jdbcdriver.groupId>
         <jdbcdriver.artifactId>ojdbc11</jdbcdriver.artifactId>
         <cargo.deployable.ping.timeout>120000</cargo.deployable.ping.timeout>
 
-        <spring.profiles.active>embedded,oracle</spring.profiles.active>
+        <spring.profiles.active>embedded,ojson</spring.profiles.active>
       </properties>
 
       <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-persistence-jpa-json</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
         <dependency>
           <groupId>com.oracle.database.jdbc</groupId>
           <artifactId>ojdbc11</artifactId>
@@ -1174,7 +1180,7 @@ under the License.
               <images>
                 <image>
                   <alias>oracle</alias>
-                  <name>gvenzl/oracle-xe:18-slim</name>
+                  <name>gvenzl/oracle-xe:21-slim</name>
                   <run>
                     <env>
                       <ORACLE_PASSWORD>password</ORACLE_PASSWORD>
@@ -1231,10 +1237,110 @@ under the License.
 
         <resources>
           <resource>
-            <directory>src/main/resources/oracle</directory>
+            <directory>${basedir}/../../core/persistence-jpa-json/src/test/resources/domains</directory>
+            <targetPath>${project.build.outputDirectory}/domains</targetPath>
             <filtering>true</filtering>
           </resource>
         </resources>
+      </build>      
+    </profile>
+
+    <profile>
+      <id>oracle-it</id>
+
+      <properties>
+        <jdbcdriver.groupId>com.oracle.database.jdbc</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>ojdbc11</jdbcdriver.artifactId>
+        <cargo.deployable.ping.timeout>120000</cargo.deployable.ping.timeout>
+
+        <spring.profiles.active>embedded,oracle</spring.profiles.active>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>com.oracle.database.jdbc</groupId>
+          <artifactId>ojdbc11</artifactId>
+          <version>${jdbc.oracle.version}</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <includes>
+                <include>**/org/apache/syncope/fit/core/*ITCase.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <alias>oracle</alias>
+                  <name>gvenzl/oracle-xe:21-slim</name>
+                  <run>
+                    <env>
+                      <ORACLE_PASSWORD>password</ORACLE_PASSWORD>
+                      <APP_USER>syncope</APP_USER>
+                      <APP_USER_PASSWORD>syncope</APP_USER_PASSWORD>
+                    </env>
+                    <wait>
+                      <log>DATABASE IS READY TO USE</log>
+                      <time>120000</time>
+                    </wait>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>buid-oracle</id>
+                <phase>initialize</phase>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>start-oracle</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-oracle</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven3-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <container>
+                <systemProperties>
+                  <DB_CONTAINER_IP>${docker.container.oracle.ip}</DB_CONTAINER_IP>
+                </systemProperties>
+              </container>
+            </configuration>
+          </plugin>
+        </plugins>
       </build>
     </profile>
 

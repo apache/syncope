@@ -72,6 +72,11 @@ import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
  */
 public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
+    protected static final String SELECT_COLS_FROM_VIEW =
+            "any_id,creationContext,creationDate,creator,lastChangeContext,"
+            + "lastChangeDate,lastModifier,status,changePwdDate,cipherAlgorithm,failedLogins,"
+            + "lastLoginDate,mustChangePassword,suspended,username";
+
     public JPAAnySearchDAO(
             final RealmDAO realmDAO,
             final DynRealmDAO dynRealmDAO,

@@ -170,11 +170,11 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 try {
                     switch (schema.getType()) {
                         case Long:
-                            Long.parseLong(value);
+                            Long.valueOf(value);
                             break;
 
                         case Double:
-                            Double.parseDouble(value);
+                            Double.valueOf(value);
                             break;
 
                         case Boolean:
@@ -193,7 +193,6 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             }
 
             switch (cond.getType()) {
-
                 case ISNULL:
                     // shouldn't occour: processed before
                     break;

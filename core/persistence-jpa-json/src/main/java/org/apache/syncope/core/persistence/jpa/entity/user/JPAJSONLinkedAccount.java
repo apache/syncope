@@ -24,7 +24,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
@@ -42,7 +41,6 @@ public class JPAJSONLinkedAccount extends JPALinkedAccount implements JSONAttrib
 
     private static final long serialVersionUID = 7495284980208765032L;
 
-    @Lob
     private String plainAttrs;
 
     @Transient

@@ -61,15 +61,15 @@ public class PGJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
                     + (schemaInfo.getRight() ? "LOWER(" : "")
                     + '?'
                     + (schemaInfo.getRight() ? ")" : "");
-        } else {
-            PlainAttr<?> container = anyUtils.newPlainAttr();
-            container.setSchema(schema);
-            if (attrValue instanceof PlainAttrUniqueValue) {
-                container.setUniqueValue((PlainAttrUniqueValue) attrValue);
-            } else {
-                ((JSONPlainAttr) container).add(attrValue);
-            }
-            return "plainAttrs::jsonb @> '" + POJOHelper.serialize(List.of(container)).replace("'", "''") + "'::jsonb";
         }
+
+        PlainAttr<?> container = anyUtils.newPlainAttr();
+        container.setSchema(schema);
+        if (attrValue instanceof PlainAttrUniqueValue) {
+            container.setUniqueValue((PlainAttrUniqueValue) attrValue);
+        } else {
+            ((JSONPlainAttr) container).add(attrValue);
+        }
+        return "plainAttrs::jsonb @> '" + POJOHelper.serialize(List.of(container)).replace("'", "''") + "'::jsonb";
     }
 }

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
@@ -38,16 +39,12 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
-public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
+public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
-    public MyJPAJSONAnySearchDAO(
+    public OJPAJSONAnySearchDAO(
             final RealmDAO realmDAO,
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
@@ -87,8 +84,9 @@ public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
                 if (svs.nonMandatorySchemas || obs.nonMandatorySchemas) {
                     where.append(", (SELECT ").append(SELECT_COLS_FROM_VIEW).append(",plainSchema,"
-                            + "binaryValue,booleanValue,dateValue,doubleValue,longValue,stringValue,attrUniqueValue "
-                            + "FROM ").append(searchView.name);
+                            + "ubinaryValue,ubooleanValue,udateValue,udoubleValue,ulongValue,ustringValue,"
+                            + "binaryValue,booleanValue,dateValue,doubleValue,longValue,stringValue FROM ").
+                            append(searchView.name);
                     searchViewAddedToWhere = true;
 
                     attrs.forEach(field -> {
@@ -97,23 +95,28 @@ public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                         } else {
                             attrWhere.append(" OR ");
                         }
-                        attrWhere.append("JSON_CONTAINS(plainAttrs, '[{\"schema\":\"").append(field).append("\"}]')");
+                        attrWhere.append("JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").append(field).append("\")')");
 
-                        nullAttrWhere.append(" UNION SELECT DISTINCT ").append(SELECT_COLS_FROM_VIEW).append(", ").
+                        nullAttrWhere.append(" UNION SELECT DISTINCT ").append(SELECT_COLS_FROM_VIEW).append(",").
                                 append("'").append(field).append("'").append(" AS plainSchema, ").
+                                append("null AS ubinaryValue, ").
+                                append("null AS ubooleanValue, ").
+                                append("null AS udateValue, ").
+                                append("null AS udoubleValue, ").
+                                append("null AS ulongValue, ").
+                                append("null AS ustringValue, ").
                                 append("null AS binaryValue, ").
                                 append("null AS booleanValue, ").
                                 append("null AS dateValue, ").
                                 append("null AS doubleValue, ").
                                 append("null AS longValue, ").
-                                append("null AS stringValue, ").
-                                append("null AS attrUniqueValue ").
+                                append("null AS stringValue ").
                                 append("FROM ").append(svs.field().name).
                                 append(" WHERE any_id NOT IN ").
                                 append("(SELECT DISTINCT any_id FROM ").
                                 append(svs.field().name).
                                 append(" WHERE ").
-                                append("JSON_CONTAINS(plainAttrs, '[{\"schema\":\"").append(field).append("\"}]'))");
+                                append("JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").append(field).append("\")'))");
                     });
                     where.append(attrWhere).append(nullAttrWhere).append(')');
                 }
@@ -141,7 +144,7 @@ public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         obs.views.add(svs.field());
 
         item.select = svs.field().alias + '.'
-                + (schema.isUniqueConstraint() ? "attrUniqueValue" : key(schema.getType()))
+                + (schema.isUniqueConstraint() ? "u" : "") + key(schema.getType())
                 + " AS " + fieldName;
         item.where = "plainSchema = '" + fieldName + '\'';
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
@@ -167,90 +170,80 @@ public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
             query.append(')');
         } else {
-            if (!not && cond.getType() == AttrCond.Type.EQ) {
-                PlainAttr<?> container = anyUtils.newPlainAttr();
-                container.setSchema(schema);
-                if (attrValue instanceof PlainAttrUniqueValue) {
-                    container.setUniqueValue((PlainAttrUniqueValue) attrValue);
-                } else {
-                    ((JSONPlainAttr) container).add(attrValue);
-                }
+            String key = key(schema.getType());
 
-                query.append("JSON_CONTAINS(plainAttrs, '").
-                        append(POJOHelper.serialize(List.of(container)).replace("'", "''")).
-                        append("')");
+            String value = Optional.ofNullable(attrValue.getDateValue()).
+                    map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
+                    orElseGet(() -> schema.getType() == AttrSchemaType.Boolean
+                    ? BooleanUtils.toStringTrueFalse(attrValue.getBooleanValue())
+                    : cond.getExpression());
+
+            boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
+                    && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
+
+            query.append("plainSchema=?").append(setParameter(parameters, cond.getSchema())).
+                    append(" AND ").
+                    append(lower ? "LOWER(" : "");
+            if (schema.isUniqueConstraint()) {
+                query.append("u").append(key);
             } else {
-                String key = key(schema.getType());
-
-                String value = Optional.ofNullable(attrValue.getDateValue()).
-                        map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
-                        orElse(cond.getExpression());
-
-                boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
-                        && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
-
-                query.append("plainSchema=?").append(setParameter(parameters, cond.getSchema())).
-                        append(" AND ").
-                        append(lower ? "LOWER(" : "").
-                        append(schema.isUniqueConstraint()
-                                ? "attrUniqueValue ->> '$." + key + '\''
-                                : key).
-                        append(lower ? ')' : "");
-
-                switch (cond.getType()) {
-                    case LIKE:
-                    case ILIKE:
-                        if (not) {
-                            query.append("NOT ");
-                        }
-                        query.append(" LIKE ");
-                        break;
-
-                    case GE:
-                        if (not) {
-                            query.append('<');
-                        } else {
-                            query.append(">=");
-                        }
-                        break;
-
-                    case GT:
-                        if (not) {
-                            query.append("<=");
-                        } else {
-                            query.append('>');
-                        }
-                        break;
-
-                    case LE:
-                        if (not) {
-                            query.append('>');
-                        } else {
-                            query.append("<=");
-                        }
-                        break;
-
-                    case LT:
-                        if (not) {
-                            query.append(">=");
-                        } else {
-                            query.append('<');
-                        }
-                        break;
-
-                    case EQ:
-                    case IEQ:
-                    default:
-                        if (not) {
-                            query.append('!');
-                        }
-                        query.append('=');
-                }
-
-                query.append(lower ? "LOWER(" : "").
-                        append('?').append(setParameter(parameters, value)).
-                        append(lower ? ")" : "");
+                query.append("JSON_VALUE(").append(key).append(", '$[*]')");
             }
+            query.append(lower ? ')' : "");
+
+            switch (cond.getType()) {
+                case LIKE:
+                case ILIKE:
+                    if (not) {
+                        query.append("NOT ");
+                    }
+                    query.append(" LIKE ");
+                    break;
+
+                case GE:
+                    if (not) {
+                        query.append('<');
+                    } else {
+                        query.append(">=");
+                    }
+                    break;
+
+                case GT:
+                    if (not) {
+                        query.append("<=");
+                    } else {
+                        query.append('>');
+                    }
+                    break;
+
+                case LE:
+                    if (not) {
+                        query.append('>');
+                    } else {
+                        query.append("<=");
+                    }
+                    break;
+
+                case LT:
+                    if (not) {
+                        query.append(">=");
+                    } else {
+                        query.append('<');
+                    }
+                    break;
+
+                case EQ:
+                case IEQ:
+                default:
+                    if (not) {
+                        query.append('!');
+                    }
+                    query.append('=');
+            }
+
+            query.append(lower ? "LOWER(" : "").
+                    append('?').append(setParameter(parameters, value)).
+                    append(lower ? ")" : "");
         }
     }
 
@@ -276,15 +269,13 @@ public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 new StringBuilder("SELECT DISTINCT any_id FROM ").append(svs.field().name).append(" WHERE ");
         switch (cond.getType()) {
             case ISNOTNULL:
-                query.append("JSON_SEARCH(plainAttrs, 'one', '").
-                        append(checked.getLeft().getKey()).
-                        append("', NULL, '$[*].schema') IS NOT NULL");
+                query.append("JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").
+                        append(checked.getLeft().getKey()).append("\")')");
                 break;
 
             case ISNULL:
-                query.append("JSON_SEARCH(plainAttrs, 'one', '").
-                        append(checked.getLeft().getKey()).
-                        append("', NULL, '$[*].schema') IS NULL");
+                query.append("NOT JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").
+                        append(checked.getLeft().getKey()).append("\")')");
                 break;
 
             default:
