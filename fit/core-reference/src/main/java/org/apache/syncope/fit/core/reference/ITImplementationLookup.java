@@ -41,6 +41,7 @@ import org.apache.syncope.common.lib.report.StaticReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.core.logic.job.MacroRunJobDelegate;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -54,6 +55,8 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValida
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPullCorrelationRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPushCorrelationRule;
+import org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup;
+import org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup;
 import org.apache.syncope.core.provisioning.java.job.report.AuditReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.GroupReportlet;
 import org.apache.syncope.core.provisioning.java.job.report.ReconciliationReportlet;
@@ -68,6 +71,8 @@ import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.DefaultProvisionSorter;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
+import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.policy.DefaultAccountRule;
 import org.apache.syncope.core.spring.policy.DefaultPasswordRule;
 import org.apache.syncope.core.spring.policy.HaveIBeenPwnedPasswordRule;
@@ -160,6 +165,11 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdRepoImplementationType.ITEM_TRANSFORMER, classNames);
 
             classNames = new HashSet<>();
+            classNames.add(MacroRunJobDelegate.class.getName());
+            classNames.add(PullJobDelegate.class.getName());
+            classNames.add(PushJobDelegate.class.getName());
+            classNames.add(ExpiredAccessTokenCleanup.class.getName());
+            classNames.add(ExpiredBatchCleanup.class.getName());
             classNames.add(TestSampleJobDelegate.class.getName());
             put(IdRepoImplementationType.TASKJOB_DELEGATE, classNames);
 
