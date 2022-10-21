@@ -216,28 +216,28 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1472() {
         // 1. assign resource-db-scripted again to Canon MF 8030cn and update twice
-        AnyObjectUR anyObjectPatch = new AnyObjectUR();
-        anyObjectPatch.setKey("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
-        anyObjectPatch.getResources().add(new StringPatchItem.Builder().value(RESOURCE_NAME_DBSCRIPTED).build());
-        anyObjectPatch.getAuxClasses().add(new StringPatchItem.Builder().value("csv").build());
+        AnyObjectUR updateReq = new AnyObjectUR();
+        updateReq.setKey("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
+        updateReq.getResources().add(new StringPatchItem.Builder().value(RESOURCE_NAME_DBSCRIPTED).build());
+        updateReq.getAuxClasses().add(new StringPatchItem.Builder().value("csv").build());
 
         for (int i = 0; i < 2; i++) {
-            updateAnyObject(anyObjectPatch);
+            updateAnyObject(updateReq);
         }
 
         // 2. remove resources and auxiliary classes
-        anyObjectPatch.getResources().clear();
-        anyObjectPatch.getResources().add(new StringPatchItem.Builder()
+        updateReq.getResources().clear();
+        updateReq.getResources().add(new StringPatchItem.Builder()
                 .value(RESOURCE_NAME_DBSCRIPTED)
                 .operation(PatchOperation.DELETE)
                 .build());
-        anyObjectPatch.getAuxClasses().clear();
-        anyObjectPatch.getAuxClasses().add(new StringPatchItem.Builder()
+        updateReq.getAuxClasses().clear();
+        updateReq.getAuxClasses().add(new StringPatchItem.Builder()
                 .value("csv")
                 .operation(PatchOperation.DELETE)
                 .build());
 
-        updateAnyObject(anyObjectPatch);
+        updateAnyObject(updateReq);
 
         AnyObjectTO printer = ANY_OBJECT_SERVICE.read("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertFalse(printer.getResources().contains(RESOURCE_NAME_DBSCRIPTED), "Should not contain removed resources");
