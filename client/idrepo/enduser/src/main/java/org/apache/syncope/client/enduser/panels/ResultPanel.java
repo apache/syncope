@@ -43,6 +43,7 @@ public class ResultPanel extends AbstractResultPanel<String, Serializable> {
         this.pageRef = pageRef;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected Panel customResultBody(final String panelId, final String item, final Serializable errorBeans) {
         return new SimpleListViewPanel.Builder<>(StatusBean.class, pageRef) {
@@ -51,15 +52,10 @@ public class ResultPanel extends AbstractResultPanel<String, Serializable> {
 
             @Override
             protected Component getValueComponent(final String key, final StatusBean bean) {
-                if ("status".equalsIgnoreCase(key)) {
-                    return StatusUtils.getWarningStatusPanel("field");
-                } else {
-                    return super.getValueComponent(key, bean);
-                }
+                return "status".equalsIgnoreCase(key)
+                        ? StatusUtils.getWarningStatusPanel("field")
+                        : super.getValueComponent(key, bean);
             }
-        }.setItems((ArrayList<StatusBean>) errorBeans)
-                .includes("resource", "status")
-                .build(panelId);
+        }.setItems((ArrayList<StatusBean>) errorBeans).includes("resource", "status").build(panelId);
     }
-
 }

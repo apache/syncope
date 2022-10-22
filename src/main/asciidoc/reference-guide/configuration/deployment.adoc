@@ -27,6 +27,23 @@ The only exception is <<secure-remote-access>> that, being based on Spring Cloud
 https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html[Spring WebFlux^] and
 https://projectreactor.io/docs[Project Reactor^], is only available as standalone application.
 
+[CAUTION]
+====
+For all components, please ensure to reference the proper <<keymaster>> instance by including the following properties:
+
+[source,bash]
+----
+keymaster.address=<KEYMASTER_ADDRESS>
+keymaster.username=${anonymousUser}
+keymaster.password=${anonymousKey}
+----
+
+where `<KEYMASTER_ADDRESS>` can be either:
+
+* `protocol://host:port/syncope/rest/keymaster` pointing to the <<core>> instance, in case of _Self Keymaster_;
+* `host:port` (typically `host:2181`) in case Apache Zookeeper is used.
+====
+
 ==== Standalone
 
 Projects generated from Maven archetype feature a dedicated `executable` profile, which will re-package all
