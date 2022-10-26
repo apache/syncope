@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationType;
@@ -44,6 +44,7 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -61,7 +62,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
-import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 
 @Transactional("Master")
@@ -78,6 +78,9 @@ public class TaskTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private RealmDAO realmDAO;
 
     @Autowired
     private ImplementationDAO implementationDAO;
@@ -108,7 +111,7 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void save() {
+    public void savePropagationTask() {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
@@ -135,9 +138,8 @@ public class TaskTest extends AbstractTest {
 
         entityManager().flush();
 
-        resource = resourceDAO.find("ws-target-resource-1");
         assertTrue(taskDAO.findAll(
-                TaskType.PROPAGATION, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
+                TaskType.PROPAGATION, resource, null, null, null, -1, -1, Collections.emptyList()).
                 contains(task));
     }
 
@@ -236,51 +238,45 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void savePullTask() {
-        ExternalResource resource = resourceDAO.find("ws-target-resource-1");
-        assertNotNull(resource);
-
-        AnyTemplatePullTask template = entityFactory.newEntity(AnyTemplatePullTask.class);
-        template.set(new UserTO());
-
         PullTask task = entityFactory.newEntity(PullTask.class);
         task.setName("savePullTask");
         task.setDescription("PullTask description");
         task.setActive(true);
         task.setPullMode(PullMode.FULL_RECONCILIATION);
-        task.add(template);
+        task.setJobDelegate(implementationDAO.find("PullJobDelegate"));
+        task.setDestinationRealm(realmDAO.getRoot());
         task.setCronExpression("BLA BLA");
         task.setMatchingRule(MatchingRule.UPDATE);
         task.setUnmatchingRule(UnmatchingRule.PROVISION);
 
-        // this save() fails because of an invalid Cron Expression
-        InvalidEntityException exception = null;
-        try {
-            taskDAO.save(task);
-        } catch (InvalidEntityException e) {
-            exception = e;
-        }
-        assertNotNull(exception);
-
-        task.setCronExpression(null);
-        // this save() fails because a PullTask requires a target resource
-        exception = null;
-        try {
-            taskDAO.save(task);
-        } catch (InvalidEntityException e) {
-            exception = e;
-        }
-        assertNotNull(exception);
-
-        task.setResource(resource);
-
+        // now adding PullActions
         Implementation pullActions = entityFactory.newEntity(Implementation.class);
         pullActions.setKey("PullActions" + UUID.randomUUID().toString());
         pullActions.setEngine(ImplementationEngine.JAVA);
         pullActions.setType(ImplementationType.PULL_ACTIONS);
         pullActions.setBody(PullActions.class.getName());
         pullActions = implementationDAO.save(pullActions);
+        entityManager().flush();
 
         task.add(pullActions);
+
+        // this save() fails because of an invalid Cron Expression
+        try {
+            taskDAO.save(task);
+            fail();
+        } catch (InvalidEntityException e) {
+            assertNotNull(e);
+        }
+        task.setCronExpression(null);
+
+        // this save() fails because a PullTask requires a target resource
+        try {
+            taskDAO.save(task);
+            fail();
+        } catch (InvalidEntityException e) {
+            assertNotNull(e);
+        }
+        task.setResource(resourceDAO.find("ws-target-resource-1"));
 
         // this save() finally works
         task = taskDAO.save(task);
@@ -329,5 +325,4 @@ public class TaskTest extends AbstractTest {
         assertEquals("issueSYNCOPE144_2", actual.getName());
         assertEquals("issueSYNCOPE144 Description_2", actual.getDescription());
     }
-
 }

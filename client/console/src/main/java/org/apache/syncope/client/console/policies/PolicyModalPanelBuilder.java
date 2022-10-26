@@ -140,7 +140,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
             this.policyTO = policyTO;
 
-            final List<Component> fields = new ArrayList<>();
+            List<Component> fields = new ArrayList<>();
 
             FieldPanel<String> description = new AjaxTextFieldPanel("field", "description",
                     new PropertyModel<>(policyTO, "description"), false);
@@ -148,7 +148,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
             fields.add(description);
 
             if (policyTO instanceof AccountPolicyTO) {
-                fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
                         "field",
                         "maxAuthenticationAttempts",
                         Integer.class,
@@ -165,7 +165,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                         new PropertyModel<>(policyTO, "passthroughResources"),
                         new ListModel<>(resources.getObject())));
             } else if (policyTO instanceof PasswordPolicyTO) {
-                fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
                         "field",
                         "historyLength",
                         Integer.class,
@@ -177,7 +177,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                         new PropertyModel<>(policyTO, "allowNullPassword"),
                         false));
             } else if (policyTO instanceof PropagationPolicyTO) {
-                fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
                         "field",
                         "maxAttempts",
                         Integer.class,
@@ -247,7 +247,6 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                 protected void populateItem(final ListItem<Component> item) {
                     item.add(item.getModelObject());
                 }
-
             });
         }
 

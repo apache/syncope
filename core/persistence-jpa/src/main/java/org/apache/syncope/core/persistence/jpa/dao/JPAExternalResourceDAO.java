@@ -149,6 +149,16 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         return query.getResultList();
     }
 
+    @Override
+    public List<ExternalResource> findByProvisionSorter(final Implementation provisionSorter) {
+        TypedQuery<ExternalResource> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAExternalResource.class.getSimpleName() + " e "
+                + "WHERE e.provisionSorter=:provisionSorter", ExternalResource.class);
+        query.setParameter("provisionSorter", provisionSorter);
+
+        return query.getResultList();
+    }
+
     private StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
         StringBuilder query = new StringBuilder("SELECT e FROM ").
                 append(JPAExternalResource.class.getSimpleName()).
