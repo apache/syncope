@@ -209,6 +209,10 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 inUse = !realmDAO.findByLogicActions(implementation).isEmpty();
                 break;
 
+            case IdMImplementationType.PROVISION_SORTER:
+                inUse = !resourceDAO.findByProvisionSorter(implementation).isEmpty();
+                break;
+
             case IdMImplementationType.PROPAGATION_ACTIONS:
                 inUse = !resourceDAO.findByPropagationActions(implementation).isEmpty();
                 break;

@@ -142,7 +142,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPushPolicy pushPolicy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPAImplementation provisionSorter;
 
     /**

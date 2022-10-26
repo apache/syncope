@@ -37,7 +37,9 @@ public interface ExternalResourceDAO extends DAO<ExternalResource> {
 
     boolean anyItemHaving(Implementation transformer);
 
-    List<ExternalResource> findByPropagationActions(Implementation propagationActions);
+    List<ExternalResource> findByProvisionSorter(Implementation propagationActions);
+
+    List<ExternalResource> findByPropagationActions(Implementation provisionSorter);
 
     List<ExternalResource> findByPolicy(Policy policy);
 

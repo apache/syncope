@@ -145,7 +145,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
             switch (type) {
                 case ACCOUNT:
-                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
                             "field",
                             "maxAuthenticationAttempts",
                             Integer.class,
@@ -164,7 +164,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                     break;
 
                 case PASSWORD:
-                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
                             "field",
                             "historyLength",
                             Integer.class,
@@ -190,7 +190,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                             new PropertyModel<>(policyTO, "updateDelta"),
                             false));
 
-                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
                             "field",
                             "maxAttempts",
                             Integer.class,
@@ -285,6 +285,8 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                             "field",
                             "unauthorizedRedirectUrl",
                             new IModel<>() {
+
+                        private static final long serialVersionUID = 1015030402166681242L;
 
                         @Override
                         public String getObject() {

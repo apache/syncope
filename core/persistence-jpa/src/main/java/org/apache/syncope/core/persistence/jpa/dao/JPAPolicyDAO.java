@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -37,6 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.policy.AbstractPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
@@ -81,18 +83,22 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
     protected final SAML2SPClientAppDAO saml2SPClientAppDAO;
 
+    protected final EntityCacheDAO entityCacheDAO;
+
     public JPAPolicyDAO(
             final RealmDAO realmDAO,
             final ExternalResourceDAO resourceDAO,
             final CASSPClientAppDAO casSPClientAppDAO,
             final OIDCRPClientAppDAO oidcRPClientAppDAO,
-            final SAML2SPClientAppDAO saml2SPClientAppDAO) {
+            final SAML2SPClientAppDAO saml2SPClientAppDAO,
+            final EntityCacheDAO entityCacheDAO) {
 
         this.realmDAO = realmDAO;
         this.resourceDAO = resourceDAO;
         this.casSPClientAppDAO = casSPClientAppDAO;
         this.oidcRPClientAppDAO = oidcRPClientAppDAO;
         this.saml2SPClientAppDAO = saml2SPClientAppDAO;
+        this.entityCacheDAO = entityCacheDAO;
     }
 
     @SuppressWarnings("unchecked")
@@ -168,7 +174,19 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
     @Override
     public <T extends Policy> T save(final T policy) {
-        return entityManager().merge(policy);
+        T merged = entityManager().merge(policy);
+
+        if (policy instanceof AccountPolicy
+                || policy instanceof PasswordPolicy
+                || policy instanceof PropagationPolicy
+                || policy instanceof PullPolicy
+                || policy instanceof PushPolicy) {
+
+            resourceDAO.findByPolicy(policy).
+                    forEach(resource -> entityCacheDAO.evict(JPAExternalResource.class, resource.getKey()));
+        }
+
+        return merged;
     }
 
     @Override

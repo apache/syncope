@@ -21,13 +21,25 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.springframework.transaction.annotation.Transactional;
 
 public class JPAImplementationDAO extends AbstractDAO<Implementation> implements ImplementationDAO {
+
+    protected final ExternalResourceDAO resourceDAO;
+
+    protected final EntityCacheDAO entityCacheDAO;
+
+    public JPAImplementationDAO(final ExternalResourceDAO resourceDAO, final EntityCacheDAO entityCacheDAO) {
+        this.resourceDAO = resourceDAO;
+        this.entityCacheDAO = entityCacheDAO;
+    }
 
     @Transactional(readOnly = true)
     @Override
@@ -73,6 +85,9 @@ public class JPAImplementationDAO extends AbstractDAO<Implementation> implements
         Implementation merged = entityManager().merge(implementation);
 
         ImplementationManager.purge(merged.getKey());
+
+        resourceDAO.findByProvisionSorter(merged).
+                forEach(resource -> entityCacheDAO.evict(JPAExternalResource.class, resource.getKey()));
 
         return merged;
     }

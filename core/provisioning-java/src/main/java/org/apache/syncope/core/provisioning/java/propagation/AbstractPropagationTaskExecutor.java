@@ -384,21 +384,21 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         ExponentialBackOffPolicy eBackOffPolicy = new ExponentialBackOffPolicy();
                         if (params.length > 0) {
                             try {
-                                eBackOffPolicy.setInitialInterval(Long.valueOf(params[0]));
+                                eBackOffPolicy.setInitialInterval(Long.parseLong(params[0]));
                             } catch (NumberFormatException e) {
                                 LOG.error("Could not convert to long: {}", params[0], e);
                             }
                         }
                         if (params.length > 1) {
                             try {
-                                eBackOffPolicy.setMaxInterval(Long.valueOf(params[1]));
+                                eBackOffPolicy.setMaxInterval(Long.parseLong(params[1]));
                             } catch (NumberFormatException e) {
                                 LOG.error("Could not convert to long: {}", params[1], e);
                             }
                         }
                         if (params.length > 2) {
                             try {
-                                eBackOffPolicy.setMultiplier(Double.valueOf(params[2]));
+                                eBackOffPolicy.setMultiplier(Double.parseDouble(params[2]));
                             } catch (NumberFormatException e) {
                                 LOG.error("Could not convert to double: {}", params[2], e);
                             }
@@ -410,21 +410,21 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         ExponentialRandomBackOffPolicy erBackOffPolicy = new ExponentialRandomBackOffPolicy();
                         if (params.length > 0) {
                             try {
-                                erBackOffPolicy.setInitialInterval(Long.valueOf(params[0]));
+                                erBackOffPolicy.setInitialInterval(Long.parseLong(params[0]));
                             } catch (NumberFormatException e) {
                                 LOG.error("Could not convert to long: {}", params[0], e);
                             }
                         }
                         if (params.length > 1) {
                             try {
-                                erBackOffPolicy.setMaxInterval(Long.valueOf(params[1]));
+                                erBackOffPolicy.setMaxInterval(Long.parseLong(params[1]));
                             } catch (NumberFormatException e) {
                                 LOG.error("Could not convert to long: {}", params[1], e);
                             }
                         }
                         if (params.length > 2) {
                             try {
-                                erBackOffPolicy.setMultiplier(Double.valueOf(params[2]));
+                                erBackOffPolicy.setMultiplier(Double.parseDouble(params[2]));
                             } catch (NumberFormatException e) {
                                 LOG.error("Could not convert to double: {}", params[2], e);
                             }
@@ -437,7 +437,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         FixedBackOffPolicy fBackOffPolicy = new FixedBackOffPolicy();
                         if (params.length > 0) {
                             try {
-                                fBackOffPolicy.setBackOffPeriod(Long.valueOf(params[0]));
+                                fBackOffPolicy.setBackOffPeriod(Long.parseLong(params[0]));
                             } catch (NumberFormatException e) {
                                 LOG.error("Could not convert to long: {}", params[0], e);
                             }

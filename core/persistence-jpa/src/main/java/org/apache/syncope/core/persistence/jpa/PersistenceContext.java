@@ -517,8 +517,11 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ImplementationDAO implementationDAO() {
-        return new JPAImplementationDAO();
+    public ImplementationDAO implementationDAO(
+            final @Lazy ExternalResourceDAO resourceDAO,
+            final @Lazy EntityCacheDAO entityCacheDAO) {
+
+        return new JPAImplementationDAO(resourceDAO, entityCacheDAO);
     }
 
     @ConditionalOnMissingBean
@@ -574,9 +577,16 @@ public class PersistenceContext {
             final @Lazy ExternalResourceDAO resourceDAO,
             final @Lazy CASSPClientAppDAO casSPClientAppDAO,
             final @Lazy OIDCRPClientAppDAO oidcRPClientAppDAO,
-            final @Lazy SAML2SPClientAppDAO saml2SPClientAppDAO) {
+            final @Lazy SAML2SPClientAppDAO saml2SPClientAppDAO,
+            final @Lazy EntityCacheDAO entityCacheDAO) {
 
-        return new JPAPolicyDAO(realmDAO, resourceDAO, casSPClientAppDAO, oidcRPClientAppDAO, saml2SPClientAppDAO);
+        return new JPAPolicyDAO(
+                realmDAO,
+                resourceDAO,
+                casSPClientAppDAO,
+                oidcRPClientAppDAO,
+                saml2SPClientAppDAO,
+                entityCacheDAO);
     }
 
     @ConditionalOnMissingBean
