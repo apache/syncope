@@ -422,7 +422,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 resultStatus = Result.FAILURE;
 
                 if (profile.getTask().isRemediation()) {
-                    createRemediation(provision.getAnyType(), req, profile.getTask(), report, delta);
+                    createRemediation(provision.getAnyType(), null, null, req, report, delta);
                 }
             }
 
@@ -541,7 +541,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                 resultStatus = Result.FAILURE;
 
                 if (profile.getTask().isRemediation()) {
-                    createRemediation(provision.getAnyType(), userUR, profile.getTask(), report, delta);
+                    createRemediation(provision.getAnyType(), null, null, userUR, report, delta);
                 }
             }
 
@@ -617,7 +617,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     output = e;
 
                     if (profile.getTask().isRemediation()) {
-                        createRemediation(provision.getAnyType(), req, profile.getTask(), report, delta);
+                        createRemediation(provision.getAnyType(), null, null, req, report, delta);
                     }
                 }
 

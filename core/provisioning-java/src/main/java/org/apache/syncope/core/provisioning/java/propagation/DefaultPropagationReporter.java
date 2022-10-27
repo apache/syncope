@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.java.propagation;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -36,7 +36,7 @@ public class DefaultPropagationReporter implements PropagationReporter {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DefaultPropagationReporter.class);
 
-    protected final List<PropagationStatus> statuses = new ArrayList<>();
+    protected final List<PropagationStatus> statuses = new CopyOnWriteArrayList<>();
 
     protected boolean add(final PropagationStatus status) {
         return statuses.stream().anyMatch(item -> item.getResource().equals(status.getResource()))
