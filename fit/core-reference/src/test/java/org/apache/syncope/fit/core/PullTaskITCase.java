@@ -436,7 +436,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals("odd", userConnObject.getAttr("title").get().getValues().get(0));
         Attr userDn = userConnObject.getAttr(Name.NAME).get();
         updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                userDn.getValues().get(0), Collections.singletonMap("title", (String) null));
+                userDn.getValues().get(0), Collections.singletonMap("title", null));
 
         // SYNCOPE-317
         execProvisioningTask(
@@ -1083,7 +1083,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE307() {
         assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform()));
-        
+
         UserCR userCR = UserITCase.getUniqueSample("s307@apache.org");
         userCR.setUsername("test0");
         userCR.getPlainAttrs().removeIf(attr -> "firstname".equals(attr.getSchema()));

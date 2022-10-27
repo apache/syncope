@@ -70,9 +70,9 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = Throwable.class)
 public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHandler<PullTask, PullActions>
         implements SyncopePullResultHandler {
 
@@ -128,6 +128,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         this.executor = executor;
     }
 
+    @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean handle(final SyncDelta delta) {
         Provision provision = null;
@@ -265,15 +266,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 if (profile.getTask().isRemediation()) {
                     // set to SUCCESS to let the incremental flow go on in case of errors
                     resultStatus = Result.SUCCESS;
-                    createRemediation(
-                            provision.getAnyType(),
-                            null,
-                            anyCR,
-                            null,
-                            taskDAO.exists(TaskType.PULL, profile.getTask().getKey())
-                            ? profile.getTask() : null,
-                            result,
-                            delta);
+                    createRemediation(provision.getAnyType(), null, anyCR, null, result, delta);
                 } else {
                     resultStatus = Result.FAILURE;
                 }
@@ -391,13 +384,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                         if (profile.getTask().isRemediation()) {
                             // set to SUCCESS to let the incremental flow go on in case of errors
                             resultStatus = Result.SUCCESS;
-                            createRemediation(
-                                    provision.getAnyType(),
-                                    anyUR,
-                                    taskDAO.exists(TaskType.PULL, profile.getTask().getKey())
-                                    ? profile.getTask() : null,
-                                    result,
-                                    delta);
+                            createRemediation(provision.getAnyType(), null, null, anyUR, result, delta);
                         } else {
                             resultStatus = Result.FAILURE;
                         }
@@ -695,14 +682,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             // set to SUCCESS to let the incremental flow go on in case of errors
                             resultStatus = Result.SUCCESS;
                             createRemediation(
-                                    provision.getAnyType(),
-                                    match.getAny().getKey(),
-                                    null,
-                                    null,
-                                    taskDAO.exists(TaskType.PULL, profile.getTask().getKey())
-                                    ? profile.getTask() : null,
-                                    result,
-                                    delta);
+                                    provision.getAnyType(), match.getAny().getKey(), null, null, result, delta);
                         }
                     }
 
@@ -989,35 +969,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             final ProvisioningReport result) {
 
         if (ProvisioningReport.Status.FAILURE == result.getStatus() && profile.getTask().isRemediation()) {
-            createRemediation(
-                    result.getAnyType(),
-                    null,
-                    null,
-                    anyUR,
-                    taskDAO.exists(TaskType.PULL, profile.getTask().getKey()) ? profile.getTask() : null,
-                    result,
-                    delta);
+            createRemediation(result.getAnyType(), null, null, anyUR, result, delta);
         }
-    }
-
-    protected void createRemediation(
-            final String anyType,
-            final AnyCR anyCR,
-            final PullTask pullTask,
-            final ProvisioningReport result,
-            final SyncDelta delta) {
-
-        createRemediation(anyType, null, anyCR, null, pullTask, result, delta);
-    }
-
-    protected void createRemediation(
-            final String anyType,
-            final AnyUR anyUR,
-            final PullTask pullTask,
-            final ProvisioningReport result,
-            final SyncDelta delta) {
-
-        createRemediation(anyType, null, null, anyUR, pullTask, result, delta);
     }
 
     protected void createRemediation(
@@ -1025,7 +978,6 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             final String anyKey,
             final AnyCR anyCR,
             final AnyUR anyUR,
-            final PullTask pullTask,
             final ProvisioningReport result,
             final SyncDelta delta) {
 
@@ -1043,7 +995,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         remediation.setError(result.getMessage());
         remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName(delta.getObject().getName().getNameValue());
-        remediation.setPullTask(pullTask);
+        if (taskDAO.exists(TaskType.PULL, profile.getTask().getKey())) {
+            remediation.setPullTask((PullTask) taskDAO.find(TaskType.PULL, profile.getTask().getKey()));
+        }
 
         remediation = remediationDAO.save(remediation);
 

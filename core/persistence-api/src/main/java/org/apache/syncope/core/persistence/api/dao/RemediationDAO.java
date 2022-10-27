@@ -41,5 +41,4 @@ public interface RemediationDAO extends DAO<Remediation> {
     void delete(Remediation remediation);
 
     void delete(String key);
-
 }

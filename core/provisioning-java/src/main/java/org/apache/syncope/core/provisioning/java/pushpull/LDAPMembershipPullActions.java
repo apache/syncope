@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,18 +26,23 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.MembershipUR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PullMatch;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.java.job.SetUMembershipsJob;
+import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
+import org.apache.syncope.core.spring.implementation.InstanceScope;
+import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -46,6 +52,7 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -54,7 +61,8 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions
  */
-public class LDAPMembershipPullActions extends SchedulingPullActions {
+@SyncopeImplementation(scope = InstanceScope.PER_CONTEXT)
+public class LDAPMembershipPullActions implements PullActions {
 
     protected static final Logger LOG = LoggerFactory.getLogger(LDAPMembershipPullActions.class);
 
@@ -65,7 +73,10 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
     protected GroupDAO groupDAO;
 
     @Autowired
-    private InboundMatcher inboundMatcher;
+    protected InboundMatcher inboundMatcher;
+
+    @Autowired
+    protected UserProvisioningManager userProvisioningManager;
 
     protected final Map<String, Set<String>> membershipsBefore = new HashMap<>();
 
@@ -137,7 +148,8 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
             final AnyUR anyUR) throws JobExecutionException {
 
         if (!(entity instanceof GroupTO)) {
-            super.beforeUpdate(profile, delta, entity, anyUR);
+            PullActions.super.beforeUpdate(profile, delta, entity, anyUR);
+            return;
         }
 
         groupDAO.findUMemberships(groupDAO.find(entity.getKey())).forEach(uMembership -> {
@@ -162,13 +174,15 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
             final ProvisioningReport result) throws JobExecutionException {
 
         if (!(entity instanceof GroupTO)) {
-            super.after(profile, delta, entity, result);
+            PullActions.super.after(profile, delta, entity, result);
+            return;
         }
 
         Optional<Provision> provision = profile.getTask().getResource().
                 getProvisionByAnyType(AnyTypeKind.USER.name()).filter(p -> p.getMapping() != null);
         if (provision.isEmpty()) {
-            super.after(profile, delta, entity, result);
+            PullActions.super.after(profile, delta, entity, result);
+            return;
         }
 
         getMembAttrValues(delta, profile.getConnector()).forEach(membValue -> {
@@ -190,15 +204,52 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
         });
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
-        Map<String, Object> jobMap = new HashMap<>();
-        jobMap.put(SetUMembershipsJob.MEMBERSHIPS_BEFORE_KEY, membershipsBefore);
-        jobMap.put(SetUMembershipsJob.MEMBERSHIPS_AFTER_KEY, membershipsAfter);
-        jobMap.put(JobManager.EXECUTOR_KEY, profile.getExecutor());
-        jobMap.put(
-                SetUMembershipsJob.CONTEXT,
-                "PullTask " + profile.getTask().getKey() + " '" + profile.getTask().getName() + "'");
-        schedule(SetUMembershipsJob.class, jobMap);
+        List<UserUR> updateReqs = new ArrayList<>();
+
+        membershipsAfter.forEach((user, groups) -> {
+            UserUR userUR = new UserUR();
+            userUR.setKey(user);
+            updateReqs.add(userUR);
+
+            groups.stream().forEach(group -> {
+                Set<String> before = membershipsBefore.get(user);
+                if (before == null || !before.contains(group)) {
+                    userUR.getMemberships().add(new MembershipUR.Builder(group).
+                            operation(PatchOperation.ADD_REPLACE).
+                            build());
+                }
+            });
+        });
+
+        membershipsBefore.forEach((user, groups) -> {
+            UserUR userUR = updateReqs.stream().
+                    filter(req -> user.equals(req.getKey())).findFirst().
+                    orElseGet(() -> {
+                        UserUR req = new UserUR.Builder(user).build();
+                        updateReqs.add(req);
+                        return req;
+                    });
+
+            groups.forEach(group -> {
+                Set<String> after = membershipsAfter.get(user);
+                if (after == null || !after.contains(group)) {
+                    userUR.getMemberships().add(new MembershipUR.Builder(group).
+                            operation(PatchOperation.DELETE).
+                            build());
+                }
+            });
+        });
+
+        membershipsAfter.clear();
+        membershipsBefore.clear();
+
+        String context = "PullTask " + profile.getTask().getKey() + " '" + profile.getTask().getName() + "'";
+        updateReqs.stream().filter(req -> !req.isEmpty()).forEach(req -> {
+            LOG.debug("About to update memberships for User {}", req.getKey());
+            userProvisioningManager.update(req, true, profile.getExecutor(), context);
+        });
     }
 }

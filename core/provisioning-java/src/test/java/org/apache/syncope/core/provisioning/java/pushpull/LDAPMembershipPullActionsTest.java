@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -68,10 +69,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class LDAPMembershipPullActionsTest extends AbstractTest {
@@ -104,10 +102,13 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     private Map<String, Set<String>> membershipsAfter;
 
     @Mock
-    private ProvisioningTask<?> provisioningTask;
+    private ProvisioningTask<?> pullTask;
 
     @Mock
-    private ExternalResource externalResource;
+    private ExternalResource resource;
+
+    @Mock
+    private Provision provision;
 
     @Mock
     private Connector connector;
@@ -150,8 +151,10 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         connConfProperties = new HashSet<>();
         connConfProperties.add(connConfProperty);
 
-        lenient().when(profile.getTask()).thenAnswer(ic -> provisioningTask);
-        lenient().when(provisioningTask.getResource()).thenReturn(externalResource);
+        lenient().when(profile.getTask()).thenAnswer(ic -> pullTask);
+        lenient().when(pullTask.getResource()).thenReturn(resource);
+        lenient().when(resource.getProvisionByAnyType(anyString())).thenReturn(Optional.of(provision));
+        lenient().when(provision.getMapping()).thenReturn(new Mapping());
         lenient().when(anyTypeDAO.findUser()).thenAnswer(ic -> {
             AnyType userAnyType = mock(AnyType.class);
             lenient().when(userAnyType.getKey()).thenReturn(AnyTypeKind.USER.name());
@@ -193,26 +196,13 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     }
 
     @Test
-    public void afterWithEmptyAttributes(final @Mock Attribute attribute) throws JobExecutionException {
-        entity = new GroupTO();
-
-        when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
-        when(externalResource.getProvisionByAnyType(anyString())).thenAnswer(ic -> Optional.of(mock(Provision.class)));
-
-        ldapMembershipPullActions.after(profile, syncDelta, entity, result);
-
-        assertEquals(List.of(), attribute.getValue());
-    }
-
-    @Test
     public void after() throws JobExecutionException {
-        entity = new UserTO();
+        entity = new GroupTO();
         String expectedUid = UUID.randomUUID().toString();
         Attribute attribute = new Uid(expectedUid);
         List<String> expected = List.of(expectedUid);
 
         when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
-        when(externalResource.getProvisionByAnyType(anyString())).thenAnswer(ic -> Optional.empty());
         when(inboundMatcher.match(any(AnyType.class), anyString(), any(ExternalResource.class), any(Connector.class))).
                 thenReturn(Optional.of(new PullMatch(MatchType.ANY, user)));
 
@@ -221,19 +211,5 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         verify(membershipsAfter).get(anyString());
         verify(membershipsAfter).put(anyString(), any());
         assertEquals(expected, attribute.getValue());
-    }
-
-    @Test
-    public void afterAll(
-            final @Mock Map<String, Object> jobMap,
-            final @Mock SchedulerFactoryBean schedulerFactoryBean,
-            final @Mock Scheduler scheduler) throws JobExecutionException, SchedulerException {
-
-        ReflectionTestUtils.setField(ldapMembershipPullActions, "scheduler", schedulerFactoryBean);
-        when(schedulerFactoryBean.getScheduler()).thenReturn(scheduler);
-
-        ldapMembershipPullActions.afterAll(profile);
-
-        verify(scheduler).scheduleJob(any(), any());
     }
 }
