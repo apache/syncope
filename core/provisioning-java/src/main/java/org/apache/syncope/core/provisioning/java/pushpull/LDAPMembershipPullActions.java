@@ -82,14 +82,6 @@ public class LDAPMembershipPullActions implements PullActions {
 
     protected final Map<String, Set<String>> membershipsAfter = new HashMap<>();
 
-    @Override
-    public SyncDelta preprocess(final ProvisioningProfile<?, ?> profile, final SyncDelta delta) {
-        membershipsBefore.clear();
-        membershipsAfter.clear();
-
-        return PullActions.super.preprocess(profile, delta);
-    }
-
     /**
      * Allows easy subclassing for the ConnId AD connector bundle.
      *
@@ -251,9 +243,12 @@ public class LDAPMembershipPullActions implements PullActions {
             });
         });
 
+        membershipsAfter.clear();
+        membershipsBefore.clear();
+
         String context = "PullTask " + profile.getTask().getKey() + " '" + profile.getTask().getName() + "'";
         updateReqs.stream().filter(req -> !req.isEmpty()).forEach(req -> {
-            LOG.debug("About to update User {}", req);
+            LOG.debug("About to update memberships for User {}", req.getKey());
             userProvisioningManager.update(req, true, profile.getExecutor(), context);
         });
     }

@@ -42,7 +42,7 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
  *
  * @see LDAPMembershipPullActions for a concrete example
  * @deprecated From 3.0.0-M2 this class is not needed anymore and will be removed from 3.0.0 onwards.
- * After SYNCOPE-170X there is no need anymore to schedule a job to run after the current pull task execution
+ * After SYNCOPE-1705 there is no need anymore to schedule a job to run after the current pull task execution
  */
 public abstract class SchedulingPullActions implements PullActions {
 
