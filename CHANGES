@@ -2,6 +2,19 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.0-M2
+================================================================================
+
+** Bug
+    * [SYNCOPE-1701] - unable to build syncope-sra from Maven Archetype
+    * [SYNCOPE-1704] - Policy update not affecting External Resources
+
+** New Feature
+    * [SYNCOPE-1700] - Leverage JSON DataType Support in Oracle
+
+** Improvement
+    * [SYNCOPE-1705] - Deprecate SchedulingPullActions
+
 Release Notes - Syncope - Version 3.0.0-M1
 ================================================================================
 
