@@ -88,9 +88,4 @@ public class DummyImplementationLookup implements ImplementationLookup {
 
         return null;
     }
-
-    @Override
-    public Set<Class<?>> getAuditAppenderClasses() {
-        return Set.of();
-    }
 }

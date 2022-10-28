@@ -35,26 +35,9 @@ import org.apache.syncope.core.logic.audit.DefaultAuditAppender;
 
 public class TestFileAuditAppender extends DefaultAuditAppender {
 
-    @Override
-    public Set<AuditLoggerName> getEvents() {
-        Set<AuditLoggerName> events = new HashSet<>();
-        events.add(new AuditLoggerName(
-                AuditElements.EventCategoryType.LOGIC,
-                ResourceLogic.class.getSimpleName(),
-                null,
-                "create",
-                AuditElements.Result.SUCCESS));
-        events.add(new AuditLoggerName(
-                AuditElements.EventCategoryType.LOGIC,
-                ConnectorLogic.class.getSimpleName(),
-                null,
-                "update",
-                AuditElements.Result.SUCCESS));
-        return events;
-    }
+    public TestFileAuditAppender(final String domain) {
+        super(domain);
 
-    @Override
-    protected void initTargetAppender() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         // get log file path from existing file appender
         RollingRandomAccessFileAppender main =
@@ -73,6 +56,24 @@ public class TestFileAuditAppender extends DefaultAuditAppender {
                         withPattern("%d{HH:mm:ss.SSS} %-5level %logger - %msg%n").
                         build()).
                 build();
+    }
+
+    @Override
+    public Set<AuditLoggerName> getEvents() {
+        Set<AuditLoggerName> events = new HashSet<>();
+        events.add(new AuditLoggerName(
+                AuditElements.EventCategoryType.LOGIC,
+                ResourceLogic.class.getSimpleName(),
+                null,
+                "create",
+                AuditElements.Result.SUCCESS));
+        events.add(new AuditLoggerName(
+                AuditElements.EventCategoryType.LOGIC,
+                ConnectorLogic.class.getSimpleName(),
+                null,
+                "update",
+                AuditElements.Result.SUCCESS));
+        return events;
     }
 
     @Override

@@ -24,7 +24,6 @@ import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.common.lib.info.SystemInfo;
-import org.apache.syncope.core.logic.LogicProperties;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -137,7 +136,6 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
             final SecurityProperties securityProperties,
             final PersistenceProperties persistenceProperties,
             final ProvisioningProperties provisioningProperties,
-            final LogicProperties logicProperties,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final UserDAO userDAO,
@@ -175,10 +173,10 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
             @Qualifier("propagationTaskExecutorAsyncExecutor")
             final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor) {
 
-        return new DefaultSyncopeCoreInfoContributor(securityProperties,
+        return new DefaultSyncopeCoreInfoContributor(
+                securityProperties,
                 persistenceProperties,
                 provisioningProperties,
-                logicProperties,
                 anyTypeDAO,
                 anyTypeClassDAO,
                 userDAO,

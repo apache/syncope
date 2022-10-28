@@ -29,17 +29,13 @@ import org.apache.logging.log4j.core.Appender;
  */
 public abstract class DefaultAuditAppender implements AuditAppender {
 
-    protected String domain;
+    protected final String domain;
 
     protected Appender targetAppender;
 
-    @Override
-    public void init(final String domain) {
+    protected DefaultAuditAppender(final String domain) {
         this.domain = domain;
-        initTargetAppender();
     }
-
-    protected abstract void initTargetAppender();
 
     @Override
     public Appender getTargetAppender() {

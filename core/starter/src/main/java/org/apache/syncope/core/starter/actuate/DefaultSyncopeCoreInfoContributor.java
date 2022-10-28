@@ -39,7 +39,6 @@ import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.logic.LogicProperties;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -161,8 +160,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
 
     private final ProvisioningProperties provisioningProperties;
 
-    private final LogicProperties logicProperties;
-
     private final AnyTypeDAO anyTypeDAO;
 
     private final AnyTypeClassDAO anyTypeClassDAO;
@@ -235,7 +232,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             final SecurityProperties securityProperties,
             final PersistenceProperties persistenceProperties,
             final ProvisioningProperties provisioningProperties,
-            final LogicProperties logicProperties,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final UserDAO userDAO,
@@ -274,7 +270,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
         this.securityProperties = securityProperties;
         this.persistenceProperties = persistenceProperties;
         this.provisioningProperties = provisioningProperties;
-        this.logicProperties = logicProperties;
         this.anyTypeDAO = anyTypeDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
         this.userDAO = userDAO;
@@ -498,7 +493,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
         builder.withDetail("securityProperties", securityProperties);
         builder.withDetail("persistenceProperties", persistenceProperties);
         builder.withDetail("provisioningProperties", provisioningProperties);
-        builder.withDetail("logicProperties", logicProperties);
     }
 
     @Override

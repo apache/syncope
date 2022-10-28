@@ -86,9 +86,4 @@ public class DummyImplementationLookup implements ImplementationLookup {
 
         return DefaultPushCorrelationRule.class;
     }
-
-    @Override
-    public Set<Class<?>> getAuditAppenderClasses() {
-        return Set.of();
-    }
 }

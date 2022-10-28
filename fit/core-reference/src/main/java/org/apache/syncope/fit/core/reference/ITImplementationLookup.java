@@ -125,9 +125,6 @@ public class ITImplementationLookup implements ImplementationLookup {
                     DummyPushCorrelationRuleConf.class, DummyPushCorrelationRule.class,
                     DefaultPushCorrelationRuleConf.class, DefaultPushCorrelationRule.class);
 
-    private static final Set<Class<?>> AUDITAPPENDER_CLASSES =
-            Set.of(TestFileAuditAppender.class, TestFileRewriteAuditAppender.class);
-
     private static final Set<Class<?>> PROVISION_SORTER_CLASSES =
             Set.of(DefaultProvisionSorter.class);
 
@@ -215,10 +212,6 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames = new HashSet<>();
             classNames.add(TestNotificationRecipientsProvider.class.getName());
             put(IdRepoImplementationType.RECIPIENTS_PROVIDER, classNames);
-
-            classNames = ITImplementationLookup.AUDITAPPENDER_CLASSES.stream().
-                    map(Class::getName).collect(Collectors.toSet());
-            put(IdRepoImplementationType.AUDIT_APPENDER, classNames);
 
             classNames = ITImplementationLookup.PROVISION_SORTER_CLASSES.stream().
                     map(Class::getName).collect(Collectors.toSet());
@@ -326,10 +319,5 @@ public class ITImplementationLookup implements ImplementationLookup {
             final Class<? extends PushCorrelationRuleConf> pushCorrelationRuleConfClass) {
 
         return PUSH_CR_CLASSES.get(pushCorrelationRuleConfClass);
-    }
-
-    @Override
-    public Set<Class<?>> getAuditAppenderClasses() {
-        return AUDITAPPENDER_CLASSES;
     }
 }

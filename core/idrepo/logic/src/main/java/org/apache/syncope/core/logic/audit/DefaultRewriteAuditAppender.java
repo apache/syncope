@@ -39,9 +39,8 @@ public abstract class DefaultRewriteAuditAppender extends DefaultAuditAppender {
 
     protected RewriteAppender rewriteAppender;
 
-    @Override
-    public void init(final String domain) {
-        super.init(domain);
+    public DefaultRewriteAuditAppender(final String domain) {
+        super(domain);
 
         rewriteAppender = RewriteAppender.createAppender(
                 getTargetAppenderName() + "_rewrite",

@@ -50,6 +50,4 @@ public interface ImplementationLookup extends SyncopeCoreLoader {
 
     Class<? extends PushCorrelationRule> getPushCorrelationRuleClass(
             Class<? extends PushCorrelationRuleConf> pushCorrelationRuleConfClass);
-
-    Set<Class<?>> getAuditAppenderClasses();
 }

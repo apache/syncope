@@ -32,6 +32,19 @@ import org.apache.syncope.core.logic.audit.DefaultRewriteAuditAppender;
 
 public class SyslogRewriteAuditAppender extends DefaultRewriteAuditAppender {
 
+    public SyslogRewriteAuditAppender(final String domain) {
+        super(domain);
+
+        targetAppender = SyslogAppender.newSyslogAppenderBuilder().
+                setName(getTargetAppenderName()).
+                setHost("localhost").
+                setPort(514).
+                setProtocol(Protocol.UDP).
+                setLayout(PatternLayout.newBuilder().withPattern("%d{ISO8601} %-5level %logger - %msg%n").build()).
+                setFacility(Facility.LOCAL1).
+                build();
+    }
+
     @Override
     public Set<AuditLoggerName> getEvents() {
         Set<AuditLoggerName> events = new HashSet<>();
@@ -54,18 +67,6 @@ public class SyslogRewriteAuditAppender extends DefaultRewriteAuditAppender {
                 "delete",
                 AuditElements.Result.SUCCESS));
         return events;
-    }
-
-    @Override
-    protected void initTargetAppender() {
-        targetAppender = SyslogAppender.newSyslogAppenderBuilder().
-                setName(getTargetAppenderName()).
-                setHost("localhost").
-                setPort(514).
-                setProtocol(Protocol.UDP).
-                setLayout(PatternLayout.newBuilder().withPattern("%d{ISO8601} %-5level %logger - %msg%n").build()).
-                setFacility(Facility.LOCAL1).
-                build();
     }
 
     @Override
