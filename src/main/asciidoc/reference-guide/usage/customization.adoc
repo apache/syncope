@@ -370,6 +370,24 @@ Add the following dependencies to `core/pom.xml`:
 </dependency>
 ----
 
+Create
+
+[source]
+....
+elasticsearch.hostname=localhost
+elasticsearch.port=9200
+elasticsearch.scheme=http
+elasticsearch.indexMaxResultWindow=10000
+elasticsearch.numberOfShards=1
+elasticsearch.numberOfReplicas=1
+....
+
+as `core/src/main/resources/core-elasticsearch.properties`.
+
+Do not forget to include `elasticsearch` as 
+https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+for the Core application.
+
 If needed, customize the `@Bean` declarations from
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/elasticsearch/client-elasticsearch/src/main/java/org/apache/syncope/ext/elasticsearch/client/ElasticsearchClientContext.java[ElasticsearchClientContext^]

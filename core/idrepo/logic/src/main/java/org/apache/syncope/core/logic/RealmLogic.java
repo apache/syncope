@@ -222,7 +222,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
                 orElseThrow(() -> new NotFoundException("Realm " + fullPath));
 
         if (!realmDAO.findChildren(realm).isEmpty()) {
-            throw SyncopeClientException.build(ClientExceptionType.HasChildren);
+            throw SyncopeClientException.build(ClientExceptionType.RealmContains);
         }
 
         Set<String> adminRealms = Set.of(realm.getFullPath());

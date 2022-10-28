@@ -106,7 +106,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected final ElasticsearchClient client;
 
-    protected final ElasticsearchUtils elasticsearchUtils;
+    protected final int indexMaxResultWindow;
 
     public ElasticsearchAnySearchDAO(
             final RealmDAO realmDAO,
@@ -119,7 +119,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final AnyUtilsFactory anyUtilsFactory,
             final PlainAttrValidationManager validator,
             final ElasticsearchClient client,
-            final ElasticsearchUtils elasticsearchUtils) {
+            final int indexMaxResultWindow) {
 
         super(
                 realmDAO,
@@ -133,7 +133,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 validator);
 
         this.client = client;
-        this.elasticsearchUtils = elasticsearchUtils;
+        this.indexMaxResultWindow = indexMaxResultWindow;
     }
 
     protected Triple<Optional<Query>, Set<String>, Set<String>> getAdminRealmsFilter(
@@ -302,7 +302,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 searchType(SearchType.QueryThenFetch).
                 query(getQuery(base, recursive, adminRealms, cond, kind)).
                 from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
-                size(itemsPerPage < 0 ? elasticsearchUtils.getIndexMaxResultWindow() : itemsPerPage).
+                size(itemsPerPage < 0 ? indexMaxResultWindow : itemsPerPage).
                 sort(sortBuilders(kind, orderBy)).
                 build();
 

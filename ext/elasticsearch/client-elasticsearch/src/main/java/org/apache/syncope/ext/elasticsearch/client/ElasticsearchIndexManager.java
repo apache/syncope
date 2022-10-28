@@ -58,12 +58,20 @@ public class ElasticsearchIndexManager {
 
     protected final ElasticsearchUtils elasticsearchUtils;
 
+    protected final String numberOfShards;
+
+    protected final String numberOfReplicas;
+
     public ElasticsearchIndexManager(
             final ElasticsearchClient client,
-            final ElasticsearchUtils elasticsearchUtils) {
+            final ElasticsearchUtils elasticsearchUtils,
+            final String numberOfShards,
+            final String numberOfReplicas) {
 
         this.client = client;
         this.elasticsearchUtils = elasticsearchUtils;
+        this.numberOfShards = numberOfShards;
+        this.numberOfReplicas = numberOfReplicas;
     }
 
     public boolean existsIndex(final String domain, final AnyTypeKind kind) throws IOException {
@@ -83,8 +91,8 @@ public class ElasticsearchIndexManager {
                                         build()).
                                 build()).
                         build()).
-                numberOfShards(elasticsearchUtils.getNumberOfShards()).
-                numberOfReplicas(elasticsearchUtils.getNumberOfReplicas()).
+                numberOfShards(numberOfShards).
+                numberOfReplicas(numberOfReplicas).
                 build();
     }
 
@@ -156,11 +164,9 @@ public class ElasticsearchIndexManager {
             LOG.debug("Index successfully deleted for {}[{}]: {}",
                     event.getAny().getType().getKind(), event.getAny().getKey(), response);
         } else {
-            String index = ElasticsearchUtils.getContextDomainName(
-                    event.getDomain(), event.getAny().getType().getKind());
-
             IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
-                    index(index).
+                    index(ElasticsearchUtils.getContextDomainName(
+                            event.getDomain(), event.getAny().getType().getKind())).
                     id(event.getAny().getKey()).
                     document(elasticsearchUtils.document(event.getAny(), event.getDomain())).
                     build();

@@ -57,50 +57,14 @@ public class ElasticsearchUtils {
 
     protected final AnyObjectDAO anyObjectDAO;
 
-    protected int indexMaxResultWindow = 10000;
+    public ElasticsearchUtils(
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO) {
 
-    protected int retryOnConflict = 5;
-
-    protected String numberOfShards = "1";
-
-    protected String numberOfReplicas = "1";
-
-    public ElasticsearchUtils(final UserDAO userDAO, final GroupDAO groupDAO, final AnyObjectDAO anyObjectDAO) {
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.anyObjectDAO = anyObjectDAO;
-    }
-
-    public void setIndexMaxResultWindow(final int indexMaxResultWindow) {
-        this.indexMaxResultWindow = indexMaxResultWindow;
-    }
-
-    public int getIndexMaxResultWindow() {
-        return indexMaxResultWindow;
-    }
-
-    public void setRetryOnConflict(final int retryOnConflict) {
-        this.retryOnConflict = retryOnConflict;
-    }
-
-    public int getRetryOnConflict() {
-        return retryOnConflict;
-    }
-
-    public String getNumberOfShards() {
-        return numberOfShards;
-    }
-
-    public void setNumberOfShards(final int numberOfShards) {
-        this.numberOfShards = String.valueOf(numberOfShards);
-    }
-
-    public String getNumberOfReplicas() {
-        return numberOfReplicas;
-    }
-
-    public void setNumberOfReplicas(final int numberOfReplicas) {
-        this.numberOfReplicas = String.valueOf(numberOfReplicas);
     }
 
     /**

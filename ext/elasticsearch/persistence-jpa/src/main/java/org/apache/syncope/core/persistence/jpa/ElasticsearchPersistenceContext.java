@@ -31,7 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.jpa.dao.ElasticsearchAnySearchDAO;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
-import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
+import org.apache.syncope.ext.elasticsearch.client.ElasticsearchProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,6 +49,7 @@ public class ElasticsearchPersistenceContext {
     @ConditionalOnMissingBean(name = "elasticsearchAnySearchDAO")
     @Bean
     public AnySearchDAO anySearchDAO(
+            final ElasticsearchProperties props,
             final RealmDAO realmDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
@@ -58,8 +59,7 @@ public class ElasticsearchPersistenceContext {
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final PlainAttrValidationManager validator,
-            final ElasticsearchClient client,
-            final @Lazy ElasticsearchUtils elasticsearchUtils) {
+            final ElasticsearchClient client) {
 
         return new ElasticsearchAnySearchDAO(
                 realmDAO,
@@ -72,6 +72,6 @@ public class ElasticsearchPersistenceContext {
                 anyUtilsFactory,
                 validator,
                 client,
-                elasticsearchUtils);
+                props.getIndexMaxResultWindow());
     }
 }

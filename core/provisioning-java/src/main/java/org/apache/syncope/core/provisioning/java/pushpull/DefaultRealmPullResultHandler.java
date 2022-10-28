@@ -576,7 +576,7 @@ public class DefaultRealmPullResultHandler
 
                     try {
                         if (!realmDAO.findChildren(realm).isEmpty()) {
-                            throw SyncopeClientException.build(ClientExceptionType.HasChildren);
+                            throw SyncopeClientException.build(ClientExceptionType.RealmContains);
                         }
 
                         Set<String> adminRealms = Set.of(realm.getFullPath());
