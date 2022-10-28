@@ -32,7 +32,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPa
 import org.apache.syncope.common.lib.request.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.fit.FlowableDetector;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.Test;
@@ -112,7 +111,7 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
 
         TESTER.assertRenderedPage(SelfResult.class);
 
-        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform())
+        assertEquals(IS_FLOWABLE_ENABLED
                 ? "active" : "created", USER_SERVICE.read(username).getStatus());
         assertEquals(newEmail, USER_SERVICE.read(username).getPlainAttr("email").get().getValues().get(0));
 

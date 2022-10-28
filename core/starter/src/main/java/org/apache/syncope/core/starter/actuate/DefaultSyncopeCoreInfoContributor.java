@@ -31,7 +31,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
-import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
@@ -41,15 +40,11 @@ import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
@@ -58,29 +53,13 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
-import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
-import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
-import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
-import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
-import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.java.ProvisioningProperties;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.PasswordGenerator;
-import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.context.PayloadApplicationEvent;
@@ -104,30 +83,34 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             + "queued tasks = ([0-9]+), "
             + "completed tasks = ([0-9]+).*");
 
-    protected static void setTaskExecutorInfo(final String toString, final NumbersInfo.TaskExecutorInfo info) {
+    protected static NumbersInfo.TaskExecutorInfo getTaskExecutorInfo(final String toString) {
+        NumbersInfo.TaskExecutorInfo info = new NumbersInfo.TaskExecutorInfo();
+
         Matcher matcher = THREADPOOLTASKEXECUTOR_PATTERN.matcher(toString);
         if (matcher.matches() && matcher.groupCount() == 4) {
             try {
-                info.setSize(Integer.valueOf(matcher.group(1)));
+                info.setSize(Integer.parseInt(matcher.group(1)));
             } catch (NumberFormatException e) {
                 LOG.error("While parsing thread pool size", e);
             }
             try {
-                info.setActive(Integer.valueOf(matcher.group(2)));
+                info.setActive(Integer.parseInt(matcher.group(2)));
             } catch (NumberFormatException e) {
                 LOG.error("While parsing active threads #", e);
             }
             try {
-                info.setQueued(Integer.valueOf(matcher.group(3)));
+                info.setQueued(Integer.parseInt(matcher.group(3)));
             } catch (NumberFormatException e) {
                 LOG.error("While parsing queued threads #", e);
             }
             try {
-                info.setCompleted(Integer.valueOf(matcher.group(4)));
+                info.setCompleted(Integer.parseInt(matcher.group(4)));
             } catch (NumberFormatException e) {
                 LOG.error("While parsing completed threads #", e);
             }
         }
+
+        return info;
     }
 
     protected static void initSystemInfo() {
@@ -154,156 +137,72 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
         }
     }
 
-    private final SecurityProperties securityProperties;
+    protected final AnyTypeDAO anyTypeDAO;
 
-    private final PersistenceProperties persistenceProperties;
+    protected final AnyTypeClassDAO anyTypeClassDAO;
 
-    private final ProvisioningProperties provisioningProperties;
+    protected final ExternalResourceDAO resourceDAO;
 
-    private final AnyTypeDAO anyTypeDAO;
+    protected final UserDAO userDAO;
 
-    private final AnyTypeClassDAO anyTypeClassDAO;
+    protected final GroupDAO groupDAO;
 
-    private final UserDAO userDAO;
+    protected final AnyObjectDAO anyObjectDAO;
 
-    private final GroupDAO groupDAO;
+    protected final RoleDAO roleDAO;
 
-    private final AnyObjectDAO anyObjectDAO;
+    protected final PolicyDAO policyDAO;
 
-    private final ExternalResourceDAO resourceDAO;
+    protected final TaskDAO taskDAO;
 
-    private final ConfParamOps confParamOps;
+    protected final VirSchemaDAO virSchemaDAO;
 
-    private final ServiceOps serviceOps;
+    protected final SecurityQuestionDAO securityQuestionDAO;
 
-    private final ConnIdBundleManager bundleManager;
+    protected final NotificationDAO notificationDAO;
 
-    private final PropagationTaskExecutor propagationTaskExecutor;
+    protected final ConfParamOps confParamOps;
 
-    private final AnyObjectWorkflowAdapter awfAdapter;
+    protected final ConnIdBundleManager bundleManager;
 
-    private final UserWorkflowAdapter uwfAdapter;
+    protected final ImplementationLookup implLookup;
 
-    private final GroupWorkflowAdapter gwfAdapter;
-
-    private final AnyObjectProvisioningManager aProvisioningManager;
-
-    private final UserProvisioningManager uProvisioningManager;
-
-    private final GroupProvisioningManager gProvisioningManager;
-
-    private final VirAttrCache virAttrCache;
-
-    private final NotificationManager notificationManager;
-
-    private final AuditManager auditManager;
-
-    private final PasswordGenerator passwordGenerator;
-
-    private final EntityFactory entityFactory;
-
-    private final PlainSchemaDAO plainSchemaDAO;
-
-    private final PlainAttrDAO plainAttrDAO;
-
-    private final PlainAttrValueDAO plainAttrValueDAO;
-
-    private final AnySearchDAO anySearchDAO;
-
-    private final ImplementationLookup implLookup;
-
-    private final PolicyDAO policyDAO;
-
-    private final NotificationDAO notificationDAO;
-
-    private final TaskDAO taskDAO;
-
-    private final VirSchemaDAO virSchemaDAO;
-
-    private final RoleDAO roleDAO;
-
-    private final SecurityQuestionDAO securityQuestionDAO;
-
-    private final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor;
-
-    private final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor;
+    protected final Map<String, ThreadPoolTaskExecutor> taskExecutors;
 
     public DefaultSyncopeCoreInfoContributor(
-            final SecurityProperties securityProperties,
-            final PersistenceProperties persistenceProperties,
-            final ProvisioningProperties provisioningProperties,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
+            final ExternalResourceDAO resourceDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
-            final ExternalResourceDAO resourceDAO,
-            final ConfParamOps confParamOps,
-            final ServiceOps serviceOps,
-            final ConnIdBundleManager bundleManager,
-            final PropagationTaskExecutor propagationTaskExecutor,
-            final AnyObjectWorkflowAdapter awfAdapter,
-            final UserWorkflowAdapter uwfAdapter,
-            final GroupWorkflowAdapter gwfAdapter,
-            final AnyObjectProvisioningManager aProvisioningManager,
-            final UserProvisioningManager uProvisioningManager,
-            final GroupProvisioningManager gProvisioningManager,
-            final VirAttrCache virAttrCache,
-            final NotificationManager notificationManager,
-            final AuditManager auditManager,
-            final PasswordGenerator passwordGenerator,
-            final EntityFactory entityFactory,
-            final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrDAO plainAttrDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
-            final AnySearchDAO anySearchDAO,
-            final ImplementationLookup implLookup,
+            final RoleDAO roleDAO,
             final PolicyDAO policyDAO,
             final NotificationDAO notificationDAO,
             final TaskDAO taskDAO,
             final VirSchemaDAO virSchemaDAO,
-            final RoleDAO roleDAO,
             final SecurityQuestionDAO securityQuestionDAO,
-            final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor,
-            final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor) {
+            final ConfParamOps confParamOps,
+            final ConnIdBundleManager bundleManager,
+            final ImplementationLookup implLookup,
+            final Map<String, ThreadPoolTaskExecutor> taskExecutors) {
 
-        this.securityProperties = securityProperties;
-        this.persistenceProperties = persistenceProperties;
-        this.provisioningProperties = provisioningProperties;
         this.anyTypeDAO = anyTypeDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
+        this.resourceDAO = resourceDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.anyObjectDAO = anyObjectDAO;
-        this.resourceDAO = resourceDAO;
-        this.confParamOps = confParamOps;
-        this.serviceOps = serviceOps;
-        this.bundleManager = bundleManager;
-        this.propagationTaskExecutor = propagationTaskExecutor;
-        this.awfAdapter = awfAdapter;
-        this.uwfAdapter = uwfAdapter;
-        this.gwfAdapter = gwfAdapter;
-        this.aProvisioningManager = aProvisioningManager;
-        this.uProvisioningManager = uProvisioningManager;
-        this.gProvisioningManager = gProvisioningManager;
-        this.virAttrCache = virAttrCache;
-        this.notificationManager = notificationManager;
-        this.auditManager = auditManager;
-        this.passwordGenerator = passwordGenerator;
-        this.entityFactory = entityFactory;
-        this.plainSchemaDAO = plainSchemaDAO;
-        this.plainAttrDAO = plainAttrDAO;
-        this.plainAttrValueDAO = plainAttrValueDAO;
-        this.anySearchDAO = anySearchDAO;
-        this.implLookup = implLookup;
+        this.roleDAO = roleDAO;
         this.policyDAO = policyDAO;
         this.notificationDAO = notificationDAO;
         this.taskDAO = taskDAO;
         this.virSchemaDAO = virSchemaDAO;
-        this.roleDAO = roleDAO;
         this.securityQuestionDAO = securityQuestionDAO;
-        this.asyncConnectorFacadeExecutor = asyncConnectorFacadeExecutor;
-        this.propagationTaskExecutorAsyncExecutor = propagationTaskExecutorAsyncExecutor;
+        this.confParamOps = confParamOps;
+        this.bundleManager = bundleManager;
+        this.implLookup = implLookup;
+        this.taskExecutors = taskExecutors;
     }
 
     protected boolean isSelfRegAllowed() {
@@ -322,52 +221,9 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
         synchronized (this) {
             if (PLATFORM_INFO == null) {
                 PLATFORM_INFO = new PlatformInfo();
-                PLATFORM_INFO.setKeymasterConfParamOps(AopUtils.getTargetClass(confParamOps).getName());
-                PLATFORM_INFO.setKeymasterServiceOps(AopUtils.getTargetClass(serviceOps).getName());
 
                 PLATFORM_INFO.getConnIdLocations().addAll(bundleManager.getLocations().stream().
                         map(URI::toASCIIString).collect(Collectors.toList()));
-
-                PLATFORM_INFO.getWorkflowInfo().
-                        setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
-                PLATFORM_INFO.getWorkflowInfo().
-                        setUserWorkflowAdapter(AopUtils.getTargetClass(uwfAdapter).getName());
-                PLATFORM_INFO.getWorkflowInfo().
-                        setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
-
-                PLATFORM_INFO.getProvisioningInfo().
-                        setAnyObjectProvisioningManager(AopUtils.getTargetClass(aProvisioningManager).getName());
-                PLATFORM_INFO.getProvisioningInfo().
-                        setUserProvisioningManager(AopUtils.getTargetClass(uProvisioningManager).getName());
-                PLATFORM_INFO.getProvisioningInfo().
-                        setGroupProvisioningManager(AopUtils.getTargetClass(gProvisioningManager).getName());
-                PLATFORM_INFO.getProvisioningInfo().
-                        setPropagationTaskExecutor(AopUtils.getTargetClass(propagationTaskExecutor).getName());
-                PLATFORM_INFO.getProvisioningInfo().
-                        setVirAttrCache(AopUtils.getTargetClass(virAttrCache).getName());
-                PLATFORM_INFO.getProvisioningInfo().
-                        setNotificationManager(AopUtils.getTargetClass(notificationManager).getName());
-                PLATFORM_INFO.getProvisioningInfo().
-                        setAuditManager(AopUtils.getTargetClass(auditManager).getName());
-
-                PLATFORM_INFO.setPasswordGenerator(AopUtils.getTargetClass(passwordGenerator).getName());
-
-                PLATFORM_INFO.getPersistenceInfo().
-                        setEntityFactory(AopUtils.getTargetClass(entityFactory).getName());
-                PLATFORM_INFO.getPersistenceInfo().
-                        setPlainSchemaDAO(AopUtils.getTargetClass(plainSchemaDAO).getName());
-                PLATFORM_INFO.getPersistenceInfo().
-                        setPlainAttrDAO(AopUtils.getTargetClass(plainAttrDAO).getName());
-                PLATFORM_INFO.getPersistenceInfo().
-                        setPlainAttrValueDAO(AopUtils.getTargetClass(plainAttrValueDAO).getName());
-                PLATFORM_INFO.getPersistenceInfo().
-                        setAnySearchDAO(AopUtils.getTargetClass(anySearchDAO).getName());
-                PLATFORM_INFO.getPersistenceInfo().
-                        setUserDAO(AopUtils.getTargetClass(userDAO).getName());
-                PLATFORM_INFO.getPersistenceInfo().
-                        setGroupDAO(AopUtils.getTargetClass(groupDAO).getName());
-                PLATFORM_INFO.getPersistenceInfo().
-                        setAnyObjectDAO(AopUtils.getTargetClass(anyObjectDAO).getName());
 
                 ImplementationTypesHolder.getInstance().getValues().forEach((typeName, typeInterface) -> {
                     Set<String> classNames = implLookup.getClassNames(typeName);
@@ -462,12 +318,8 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
         numbersInfo.getConfCompleteness().put(
                 NumbersInfo.ConfItem.ROLE.name(), numbersInfo.getTotalRoles() > 0);
 
-        setTaskExecutorInfo(
-                asyncConnectorFacadeExecutor.getThreadPoolExecutor().toString(),
-                numbersInfo.getAsyncConnectorExecutor());
-        setTaskExecutorInfo(
-                propagationTaskExecutorAsyncExecutor.getThreadPoolExecutor().toString(),
-                numbersInfo.getPropagationTaskExecutor());
+        taskExecutors.forEach((name, bean) -> numbersInfo.getTaskExecutorInfos().
+                put(name, getTaskExecutorInfo(bean.getThreadPoolExecutor().toString())));
 
         return numbersInfo;
     }
@@ -489,10 +341,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
 
         buildSystem();
         builder.withDetail("system", SYSTEM_INFO);
-
-        builder.withDetail("securityProperties", securityProperties);
-        builder.withDetail("persistenceProperties", persistenceProperties);
-        builder.withDetail("provisioningProperties", provisioningProperties);
     }
 
     @Override

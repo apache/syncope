@@ -32,211 +32,6 @@ public class PlatformInfo implements BaseBean {
 
     private static final long serialVersionUID = -7941853999417673827L;
 
-    public static class ProvisioningInfo implements BaseBean {
-
-        private static final long serialVersionUID = 533340357732839568L;
-
-        private String propagationTaskExecutor;
-
-        private String virAttrCache;
-
-        private String anyObjectProvisioningManager;
-
-        private String userProvisioningManager;
-
-        private String groupProvisioningManager;
-
-        private String notificationManager;
-
-        private String auditManager;
-
-        public String getPropagationTaskExecutor() {
-            return propagationTaskExecutor;
-        }
-
-        public void setPropagationTaskExecutor(final String propagationTaskExecutor) {
-            this.propagationTaskExecutor = propagationTaskExecutor;
-        }
-
-        public String getVirAttrCache() {
-            return virAttrCache;
-        }
-
-        public void setVirAttrCache(final String virAttrCache) {
-            this.virAttrCache = virAttrCache;
-        }
-
-        public String getAnyObjectProvisioningManager() {
-            return anyObjectProvisioningManager;
-        }
-
-        public void setAnyObjectProvisioningManager(final String anyObjectProvisioningManager) {
-            this.anyObjectProvisioningManager = anyObjectProvisioningManager;
-        }
-
-        public String getUserProvisioningManager() {
-            return userProvisioningManager;
-        }
-
-        public void setUserProvisioningManager(final String userProvisioningManager) {
-            this.userProvisioningManager = userProvisioningManager;
-        }
-
-        public String getGroupProvisioningManager() {
-            return groupProvisioningManager;
-        }
-
-        public void setGroupProvisioningManager(final String groupProvisioningManager) {
-            this.groupProvisioningManager = groupProvisioningManager;
-        }
-
-        public String getNotificationManager() {
-            return notificationManager;
-        }
-
-        public void setNotificationManager(final String notificationManager) {
-            this.notificationManager = notificationManager;
-        }
-
-        public String getAuditManager() {
-            return auditManager;
-        }
-
-        public void setAuditManager(final String auditManager) {
-            this.auditManager = auditManager;
-        }
-    }
-
-    public static class WorkflowInfo implements BaseBean {
-
-        private static final long serialVersionUID = 6736937721099195324L;
-
-        private String anyObjectWorkflowAdapter;
-
-        private String userWorkflowAdapter;
-
-        private String groupWorkflowAdapter;
-
-        public String getAnyObjectWorkflowAdapter() {
-            return anyObjectWorkflowAdapter;
-        }
-
-        public void setAnyObjectWorkflowAdapter(final String anyObjectWorkflowAdapter) {
-            this.anyObjectWorkflowAdapter = anyObjectWorkflowAdapter;
-        }
-
-        public String getUserWorkflowAdapter() {
-            return userWorkflowAdapter;
-        }
-
-        public void setUserWorkflowAdapter(final String userWorkflowAdapter) {
-            this.userWorkflowAdapter = userWorkflowAdapter;
-        }
-
-        public String getGroupWorkflowAdapter() {
-            return groupWorkflowAdapter;
-        }
-
-        public void setGroupWorkflowAdapter(final String groupWorkflowAdapter) {
-            this.groupWorkflowAdapter = groupWorkflowAdapter;
-        }
-    }
-
-    public static class PersistenceInfo implements BaseBean {
-
-        private static final long serialVersionUID = 2902980556801069487L;
-
-        private String entityFactory;
-
-        private String plainSchemaDAO;
-
-        private String plainAttrDAO;
-
-        private String plainAttrValueDAO;
-
-        private String anySearchDAO;
-
-        private String userDAO;
-
-        private String groupDAO;
-
-        private String anyObjectDAO;
-
-        public String getEntityFactory() {
-            return entityFactory;
-        }
-
-        public void setEntityFactory(final String entityFactory) {
-            this.entityFactory = entityFactory;
-        }
-
-        public String getPlainSchemaDAO() {
-            return plainSchemaDAO;
-        }
-
-        public void setPlainSchemaDAO(final String plainSchemaDAO) {
-            this.plainSchemaDAO = plainSchemaDAO;
-        }
-
-        public String getPlainAttrDAO() {
-            return plainAttrDAO;
-        }
-
-        public void setPlainAttrDAO(final String plainAttrDAO) {
-            this.plainAttrDAO = plainAttrDAO;
-        }
-
-        public String getPlainAttrValueDAO() {
-            return plainAttrValueDAO;
-        }
-
-        public void setPlainAttrValueDAO(final String plainAttrValueDAO) {
-            this.plainAttrValueDAO = plainAttrValueDAO;
-        }
-
-        public String getAnySearchDAO() {
-            return anySearchDAO;
-        }
-
-        public void setAnySearchDAO(final String anySearchDAO) {
-            this.anySearchDAO = anySearchDAO;
-        }
-
-        public String getUserDAO() {
-            return userDAO;
-        }
-
-        public void setUserDAO(final String userDAO) {
-            this.userDAO = userDAO;
-        }
-
-        public String getGroupDAO() {
-            return groupDAO;
-        }
-
-        public void setGroupDAO(final String groupDAO) {
-            this.groupDAO = groupDAO;
-        }
-
-        public String getAnyObjectDAO() {
-            return anyObjectDAO;
-        }
-
-        public void setAnyObjectDAO(final String anyObjectDAO) {
-            this.anyObjectDAO = anyObjectDAO;
-        }
-    }
-
-    private String keymasterConfParamOps;
-
-    private String keymasterServiceOps;
-
-    private final ProvisioningInfo provisioningInfo = new ProvisioningInfo();
-
-    private final WorkflowInfo workflowInfo = new WorkflowInfo();
-
-    private final PersistenceInfo persistenceInfo = new PersistenceInfo();
-
     private boolean selfRegAllowed;
 
     private boolean pwdResetAllowed;
@@ -244,8 +39,6 @@ public class PlatformInfo implements BaseBean {
     private boolean pwdResetRequiringSecurityQuestions;
 
     private final Set<String> connIdLocations = new HashSet<>();
-
-    private String passwordGenerator;
 
     private final List<String> anyTypes = new ArrayList<>();
 
@@ -260,26 +53,6 @@ public class PlatformInfo implements BaseBean {
     private final Set<String> implementationTypes = new HashSet<>();
 
     private final Set<JavaImplInfo> javaImplInfos = new HashSet<>();
-
-    public String getKeymasterConfParamOps() {
-        return keymasterConfParamOps;
-    }
-
-    public String getKeymasterServiceOps() {
-        return keymasterServiceOps;
-    }
-
-    public ProvisioningInfo getProvisioningInfo() {
-        return provisioningInfo;
-    }
-
-    public WorkflowInfo getWorkflowInfo() {
-        return workflowInfo;
-    }
-
-    public PersistenceInfo getPersistenceInfo() {
-        return persistenceInfo;
-    }
 
     public boolean isSelfRegAllowed() {
         return selfRegAllowed;
@@ -297,14 +70,6 @@ public class PlatformInfo implements BaseBean {
     @JacksonXmlProperty(localName = "connIdLocation")
     public Set<String> getConnIdLocations() {
         return connIdLocations;
-    }
-
-    public String getPasswordGenerator() {
-        return passwordGenerator;
-    }
-
-    public void setPasswordGenerator(final String passwordGenerator) {
-        this.passwordGenerator = passwordGenerator;
     }
 
     @JacksonXmlElementWrapper(localName = "anyTypes")
@@ -352,14 +117,6 @@ public class PlatformInfo implements BaseBean {
     @JacksonXmlProperty(localName = "javaImplInfo")
     public Set<JavaImplInfo> getJavaImplInfos() {
         return javaImplInfos;
-    }
-
-    public void setKeymasterConfParamOps(final String keymasterConfParamOps) {
-        this.keymasterConfParamOps = keymasterConfParamOps;
-    }
-
-    public void setKeymasterServiceOps(final String keymasterServiceOps) {
-        this.keymasterServiceOps = keymasterServiceOps;
     }
 
     public void setSelfRegAllowed(final boolean selfRegAllowed) {

@@ -130,6 +130,7 @@ import org.apache.syncope.core.rest.cxf.service.SyncopeServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.TaskServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.UserSelfServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.UserServiceImpl;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
@@ -145,7 +146,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Configuration(proxyBeanMethods = false)
 public class IdRepoRESTCXFContext {
 
-    @ConditionalOnMissingBean
     @Bean
     public ThreadPoolTaskExecutor batchExecutor(final RESTProperties props) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
@@ -480,6 +480,7 @@ public class IdRepoRESTCXFContext {
     public SyncopeService syncopeService(
             final Bus bus,
             final SyncopeLogic syncopeLogic,
+            @Qualifier("batchExecutor")
             final ThreadPoolTaskExecutor batchExecutor,
             final BatchDAO batchDAO,
             final EntityFactory entityFactory) {

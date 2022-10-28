@@ -91,7 +91,6 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.FlowableDetector;
 import org.apache.syncope.fit.core.reference.TestAccountRuleConf;
 import org.apache.syncope.fit.core.reference.TestPasswordRuleConf;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
@@ -703,7 +702,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void createActivate() {
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform()));
+        assumeTrue(IS_FLOWABLE_ENABLED);
 
         UserCR userCR = getUniqueSample("createActivate@syncope.apache.org");
 
@@ -738,7 +737,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
 
         assertNotNull(userTO);
-        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform())
+        assertEquals(IS_FLOWABLE_ENABLED
                 ? "active"
                 : "created", userTO.getStatus());
 
@@ -774,7 +773,7 @@ public class UserITCase extends AbstractITCase {
         userCR.getResources().add(RESOURCE_NAME_LDAP);
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
-        assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform())
+        assertEquals(IS_FLOWABLE_ENABLED
                 ? "active"
                 : "created", userTO.getStatus());
         String userKey = userTO.getKey();

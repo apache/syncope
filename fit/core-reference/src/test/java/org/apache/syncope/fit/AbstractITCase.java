@@ -22,6 +22,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
@@ -49,6 +50,7 @@ import javax.naming.directory.ModificationItem;
 import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -385,6 +387,10 @@ public abstract class AbstractITCase {
 
     protected static ImpersonationService IMPERSONATION_SERVICE;
 
+    protected static boolean IS_FLOWABLE_ENABLED = false;
+
+    protected static boolean IS_ELASTICSEARCH_ENABLED = false;
+
     @BeforeAll
     public static void securitySetup() {
         try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/core.properties")) {
@@ -471,6 +477,19 @@ public abstract class AbstractITCase {
         AUTH_PROFILE_SERVICE = ADMIN_CLIENT.getService(AuthProfileService.class);
         OIDC_JWKS_SERVICE = ADMIN_CLIENT.getService(OIDCJWKSService.class);
         WA_CONFIG_SERVICE = ADMIN_CLIENT.getService(WAConfigService.class);
+    }
+
+    @BeforeAll
+    public static void actuatorInfoSetup() throws IOException {
+        JsonNode beans = JSON_MAPPER.readTree(
+                (InputStream) WebClient.create(StringUtils.substringBeforeLast(ADDRESS, "/") + "/actuator/beans").
+                        accept(MediaType.APPLICATION_JSON).get().getEntity());
+
+        JsonNode uwfAdapter = beans.findValues("uwfAdapter").get(0);
+        IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
+
+        JsonNode anySearchDAO = beans.findValues("anySearchDAO").get(0);
+        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
     }
 
     protected static String getUUIDString() {

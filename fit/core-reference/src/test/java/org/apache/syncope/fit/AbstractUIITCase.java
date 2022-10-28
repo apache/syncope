@@ -22,12 +22,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.ws.rs.core.MediaType;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
@@ -45,6 +51,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractUIITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractUIITCase.class);
+
+    protected static final JsonMapper JSON_MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected static final String ADMIN_UNAME = "admin";
 
@@ -64,6 +72,10 @@ public abstract class AbstractUIITCase {
 
     protected static SyncopeService SYNCOPE_SERVICE;
 
+    protected static boolean IS_FLOWABLE_ENABLED = false;
+
+    protected static boolean IS_ELASTICSEARCH_ENABLED = false;
+            
     @BeforeAll
     public static void securitySetup() {
         try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/core.properties")) {
@@ -78,6 +90,19 @@ public abstract class AbstractUIITCase {
 
         assertNotNull(ANONYMOUS_UNAME);
         assertNotNull(ANONYMOUS_KEY);
+    }
+
+    @BeforeAll
+    public static void actuatorInfoSetup() throws IOException {
+        JsonNode beans = JSON_MAPPER.readTree(
+                (InputStream) WebClient.create(StringUtils.substringBeforeLast(ADDRESS, "/") + "/actuator/beans").
+                        accept(MediaType.APPLICATION_JSON).get().getEntity());
+
+        JsonNode uwfAdapter = beans.findValues("uwfAdapter").get(0);
+        IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
+
+        JsonNode anySearchDAO = beans.findValues("anySearchDAO").get(0);
+        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
     }
 
     protected static <V extends Serializable> Component findComponentByProp(
