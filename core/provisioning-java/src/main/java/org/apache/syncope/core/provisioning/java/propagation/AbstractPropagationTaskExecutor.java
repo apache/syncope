@@ -647,7 +647,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
         // SYNCOPE-1136
         String anyTypeKind = Optional.ofNullable(taskInfo.getAnyTypeKind()).
-                map(kind -> kind.name().toLowerCase()).orElse("realm");
+                map(Enum::name).orElse("realm");
         String operation = taskInfo.getOperation().name().toLowerCase();
         boolean notificationsAvailable = notificationManager.notificationsAvailable(
                 AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, taskInfo.getResource().getKey(), operation);
