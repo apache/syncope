@@ -242,11 +242,6 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For cglib (https://github.com/cglib/cglib):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For CodeMirror (http://codemirror.net/):
 This is licensed under the MIT license, see above.
 
@@ -433,6 +428,11 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Swagger (http://swagger.io/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Undertow (https://undertow.io/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -656,6 +656,11 @@ any resulting litigation.
 
 ==
 
+For Jakarta WebSocket API (https://projects.eclipse.org/projects/ee4j.websocket):
+This is licensed under the EPL 1.0, see above.
+
+==
+
 For Eclipse Project for JAX-RS (https://projects.eclipse.org/projects/ee4j.jaxrs):
 This is licensed under the EPL 1.0, see above.
 
@@ -703,6 +708,11 @@ This is licensed under the MIT license, see above.
 
 For Modernizr (https://modernizr.com):
 This is licensed under the MIT license, see above.
+
+==
+
+For Byte Buddy (https://bytebuddy.net/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -871,13 +881,23 @@ obligation with respect to this CC0 or use of the Work.
 
 ==
 
-For LatencyUtils (https://latencyutils.github.io/LatencyUtils/):
-This is licensed under the CC0 1.0, see above.
+For JBoss Logging (http://www.jboss.org/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
-For ASM (http://asm.ow2.org/):
-This is licensed under the BSD license, see above.
+For JBoss Threads (http://www.jboss.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For JBoss XNIO (http://www.jboss.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For LatencyUtils (https://latencyutils.github.io/LatencyUtils/):
+This is licensed under the CC0 1.0, see above.
 
 ==
 
@@ -912,6 +932,11 @@ This is licensed under the MIT license, see above.
 ==
 
 For WicketStuff (https://wicketstuff.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Wildfly (https://www.wildfly.org/):
 This is licensed under the AL 2.0, see above.
 
 ==

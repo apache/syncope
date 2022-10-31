@@ -487,6 +487,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Bucket4j (https://bucket4j.com/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Gson (https://github.com/google/gson):
 This is licensed under the AL 2.0, see above.
 
@@ -812,11 +817,6 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Okio (https://square.github.io/okio/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Retrofit (https://square.github.io/retrofit/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1252,11 +1252,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For UnboundID LDAP SDK for Java (https://github.com/pingidentity/ldapsdk):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For CBOR (https://github.com/peteroupc/CBOR-Java):
 This is licensed under the CC0 1.0, see above.
 
@@ -1327,6 +1322,16 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For HAL Explorer (https://github.com/toedter/hal-explorer/):
+This is licensed under the MIT license, see above.
+
+==
+
+For highlight.js (http://highlightjs.org/):
+This is licensed under the BSD license, see above.
+
+==
+
 For Metrics (http://dropwizard.github.io/metrics/):
 This is licensed under the AL 2.0, see above.
 
@@ -1354,11 +1359,6 @@ This is licensed under the AL 2.0, see above.
 
 For Swagger (http://swagger.io/):
 This is licensed under the AL 2.0, see above.
-
-==
-
-For Userinfo.io (http://userinfo.io/):
-This is licensed under the MIT license, see above.
 
 ==
 
@@ -1492,11 +1492,6 @@ This is licensed under the BSD license, see above.
 
 ==
 
-For Spymemcached (https://github.com/couchbase/spymemcached):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For ConnId (http://connid.tirasa.net/):
 This is licensed under the CDDL 1.0, see above.
 
@@ -1543,11 +1538,6 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Person Directory (https://github.com/apereo/person-directory):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For cas-server-webauthn-helper (https://github.com/mmoayyed/cas-server-webauthn-helper):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1608,6 +1598,11 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Java EE API modules repackaged as OSGi bundles in GlassFish:
+This is licensed under the CDDL 1.0, see above.
+
+==
+
+For Glassfish Expression Language Implementation:
 This is licensed under the CDDL 1.0, see above.
 
 ==

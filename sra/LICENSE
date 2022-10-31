@@ -684,11 +684,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==
 
-For UnboundID LDAP SDK for Java (https://github.com/pingidentity/ldapsdk):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
 This is licensed under the EDL 1.0, see above.
 
@@ -973,11 +968,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Spymemcached (https://github.com/couchbase/spymemcached):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Legion of the Bouncy Castle (http://www.bouncycastle.org/java.html):
 This is licensed under the MIT license:
 
@@ -1219,11 +1209,6 @@ This is licensed under the MIT license, see above.
 
 For LatencyUtils (https://latencyutils.github.io/LatencyUtils/):
 This is licensed under the CC0 1.0, see above.
-
-==
-
-For Ldaptive Java Library (https://www.ldaptive.org/):
-This is licensed under the AL 2.0, see above.
 
 ==
 
