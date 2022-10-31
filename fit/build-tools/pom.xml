@@ -351,8 +351,7 @@ under the License.
               </container>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+CMSClassUnloadingEnabled</cargo.jvmargs>
+                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -402,8 +401,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.glassfish.removeDefaultDatasource>false</cargo.glassfish.removeDefaultDatasource>
-                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+CMSClassUnloadingEnabled</cargo.jvmargs>
+                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>
                 </properties>
               </configuration>
               <skip>${skipTests}</skip>
@@ -438,7 +436,7 @@ under the License.
               </container>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Xdebug -XX:+CMSClassUnloadingEnabled</cargo.jvmargs>
+                  <cargo.jvmargs>-Xdebug</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>

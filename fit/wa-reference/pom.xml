@@ -172,7 +172,8 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=embedded,https,all
-                -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
+                -Dwicket.ioc.useByteBuddy=true
+                -Xmx1024m -Xms512m</cargo.jvmargs>
 
               <cargo.servlet.port>9443</cargo.servlet.port>
               <cargo.protocol>https</cargo.protocol>
@@ -336,8 +337,9 @@ under the License.
                   <cargo.jvmargs>
                     -Dspring.profiles.active=embedded,https,all
                     -Dwicket.core.settings.general.configuration-type=development
+                    -Dwicket.ioc.useByteBuddy=true
                     -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
@@ -392,9 +394,10 @@ under the License.
                   <cargo.jvmargs>
                     -Dspring.profiles.active=embedded,all
                     -Dwicket.core.settings.general.configuration-type=development
+                    -Dwicket.ioc.useByteBuddy=true
                     -javaagent:${java.home}/lib/hotswap/hotswap-agent.jar=autoHotswap=true,disablePlugin=Spring,disablePlugin=Hibernate,disablePlugin=CxfJAXRS
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
+                    -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>

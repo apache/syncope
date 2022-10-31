@@ -17,5 +17,5 @@
 # specific language governing permissions and limitations
 # under the License.
 
-java -Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m \
+java -Dfile.encoding=UTF-8 -Dwicket.ioc.useByteBuddy=true -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m \
  -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom -jar /opt/syncope/lib/syncope-console.war

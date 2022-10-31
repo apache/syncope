@@ -245,6 +245,7 @@ under the License.
           <systemPropertyVariables>
             <jaxrsContentType>${jaxrs.content.type}</jaxrsContentType>
             <obscureSecretKey>${obscureSecretKey}</obscureSecretKey>
+            <wicket.ioc.useByteBuddy>true</wicket.ioc.useByteBuddy>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -256,6 +257,7 @@ under the License.
           <systemPropertyVariables>
             <jaxrsContentType>${jaxrs.content.type}</jaxrsContentType>
             <obscureSecretKey>${obscureSecretKey}</obscureSecretKey>
+            <wicket.ioc.useByteBuddy>true</wicket.ioc.useByteBuddy>
           </systemPropertyVariables>
         </configuration>
         <executions>

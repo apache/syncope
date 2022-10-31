@@ -246,7 +246,7 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=${spring.profiles.active}
-                -XX:+CMSClassUnloadingEnabled -Xmx1024m -Xms512m</cargo.jvmargs>
+                -Xmx1024m -Xms512m</cargo.jvmargs>
 
               <cargo.servlet.port>9443</cargo.servlet.port>
               <cargo.protocol>https</cargo.protocol>
