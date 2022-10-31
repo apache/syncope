@@ -691,7 +691,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
         for (PropagationTaskInfo task : tasks) {
             // rename is not supported by updateDelta
-            if (!task.getConnObjectKey().equals(task.getOldConnObjectKey())) {
+            if (task.getOldConnObjectKey() != null && !task.getConnObjectKey().equals(task.getOldConnObjectKey())) {
                 continue;
             }
 
