@@ -29,11 +29,9 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.to.AbstractProvision;
-import org.apache.syncope.common.lib.to.ResourceProvision;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.Provisionable;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.identityconnectors.framework.common.objects.ObjectClass;
 
 @MappedSuperclass
 public abstract class AbstractProvisionable<E extends AbstractProvision>

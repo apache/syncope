@@ -50,7 +50,8 @@ public class LiveSyncValidator extends AbstractValidator<LiveSyncCheck, LiveSync
 
         if (itemContainer.getConnObjectKeyItem().isEmpty()) {
             context.buildConstraintViolationWithTemplate(
-                            getTemplate(EntityViolationType.InvalidMapping, "Single ConnObjectKey mapping is required")).
+                            getTemplate(EntityViolationType.InvalidMapping,
+                                    "Single ConnObjectKey mapping is required")).
                     addPropertyNode("connObjectKey.size").addConstraintViolation();
             return false;
         }
@@ -68,7 +69,8 @@ public class LiveSyncValidator extends AbstractValidator<LiveSyncCheck, LiveSync
         long passwords = mapping.getItems().stream().filter(Item::isPassword).count();
         if (passwords > 1) {
             context.buildConstraintViolationWithTemplate(
-                            getTemplate(EntityViolationType.InvalidMapping, "One password mapping is allowed at most")).
+                            getTemplate(EntityViolationType.InvalidMapping,
+                                    "One password mapping is allowed at most")).
                     addPropertyNode("password.size").addConstraintViolation();
             isValid = false;
         }
@@ -79,7 +81,7 @@ public class LiveSyncValidator extends AbstractValidator<LiveSyncCheck, LiveSync
     @Override
     public boolean isValid(final LiveSync resource, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
-        
+
         if (resource.getKey() == null || !Entity.ID_PATTERN.matcher(resource.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
                             getTemplate(EntityViolationType.InvalidKey, resource.getKey())).
@@ -96,7 +98,6 @@ public class LiveSyncValidator extends AbstractValidator<LiveSyncCheck, LiveSync
             return isValid(provision.getMapping(), context);
         });
 
-
         if (anyTypes.size() < resource.getProvisions().size()) {
             context.buildConstraintViolationWithTemplate(getTemplate(EntityViolationType.InvalidResource,
                             "Each livesync provision requires a different " + AnyType.class.getSimpleName())).
@@ -112,6 +113,4 @@ public class LiveSyncValidator extends AbstractValidator<LiveSyncCheck, LiveSync
 
         return validMappings;
     }
-    
-    
 }
