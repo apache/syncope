@@ -16,23 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa;
+package org.apache.syncope.ext.elasticsearch.client;
 
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
-import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
 
-public class DomainIndexLoader implements SyncopeCoreLoader {
+public class ElasticsearchIndexLoader implements SyncopeCoreLoader {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(DomainIndexLoader.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ElasticsearchIndexLoader.class);
 
     protected final ElasticsearchIndexManager indexManager;
 
-    public DomainIndexLoader(final ElasticsearchIndexManager indexManager) {
+    public ElasticsearchIndexLoader(final ElasticsearchIndexManager indexManager) {
         this.indexManager = indexManager;
     }
 
@@ -44,20 +43,25 @@ public class DomainIndexLoader implements SyncopeCoreLoader {
     @Override
     public void load(final String domain, final DataSource datasource) {
         try {
-            if (!indexManager.existsIndex(domain, AnyTypeKind.USER)) {
-                indexManager.createIndex(domain, AnyTypeKind.USER,
+            if (!indexManager.existsAnyIndex(domain, AnyTypeKind.USER)) {
+                indexManager.createAnyIndex(domain, AnyTypeKind.USER,
                         indexManager.defaultSettings(), indexManager.defaultMapping());
             }
-            if (!indexManager.existsIndex(domain, AnyTypeKind.GROUP)) {
-                indexManager.createIndex(domain, AnyTypeKind.GROUP,
+            if (!indexManager.existsAnyIndex(domain, AnyTypeKind.GROUP)) {
+                indexManager.createAnyIndex(domain, AnyTypeKind.GROUP,
                         indexManager.defaultSettings(), indexManager.defaultMapping());
             }
-            if (!indexManager.existsIndex(domain, AnyTypeKind.ANY_OBJECT)) {
-                indexManager.createIndex(domain, AnyTypeKind.ANY_OBJECT,
+            if (!indexManager.existsAnyIndex(domain, AnyTypeKind.ANY_OBJECT)) {
+                indexManager.createAnyIndex(domain, AnyTypeKind.ANY_OBJECT,
+                        indexManager.defaultSettings(), indexManager.defaultMapping());
+            }
+
+            if (!indexManager.existsAuditIndex(domain)) {
+                indexManager.createAuditIndex(domain,
                         indexManager.defaultSettings(), indexManager.defaultMapping());
             }
         } catch (Exception e) {
-            LOG.error("While creating index for domain {}", domain, e);
+            LOG.error("While creating indexes for domain {}", domain, e);
         }
     }
 }

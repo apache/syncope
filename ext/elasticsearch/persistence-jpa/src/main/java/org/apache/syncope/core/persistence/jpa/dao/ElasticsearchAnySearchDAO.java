@@ -237,7 +237,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final AnyTypeKind kind) {
 
         CountRequest request = new CountRequest.Builder().
-                index(ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
+                index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), kind)).
                 query(getQuery(base, recursive, adminRealms, cond, kind)).
                 build();
         try {
@@ -298,7 +298,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final AnyTypeKind kind) {
 
         SearchRequest request = new SearchRequest.Builder().
-                index(ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
+                index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), kind)).
                 searchType(SearchType.QueryThenFetch).
                 query(getQuery(base, recursive, adminRealms, cond, kind)).
                 from(itemsPerPage * (page <= 0 ? 0 : page - 1)).

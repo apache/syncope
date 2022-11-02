@@ -26,7 +26,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.core.logic.audit.DefaultAuditAppender;
+import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
 import org.apache.syncope.core.logic.init.AuditAccessor;
 import org.apache.syncope.core.logic.init.AuditLoader;
@@ -148,14 +148,14 @@ public class IdRepoLogicContext {
         return new AuditLoader(auditAccessor, ctx);
     }
 
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = "defaultAuditAppenders")
     @Bean
-    public List<DefaultAuditAppender> defaultAuditAppenders(final DomainHolder domainHolder) {
-        List<DefaultAuditAppender> auditAppenders = new ArrayList<>();
+    public List<AuditAppender> defaultAuditAppenders(final DomainHolder domainHolder) {
+        List<AuditAppender> auditAppenders = new ArrayList<>();
 
         LoggerContext logCtx = (LoggerContext) LogManager.getContext(false);
         domainHolder.getDomains().forEach((domain, dataSource) -> {
-            DefaultAuditAppender appender = new JdbcAuditAppender(domain, dataSource);
+            AuditAppender appender = new JdbcAuditAppender(domain, dataSource);
 
             LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(domain), null, false);
             logConf.addAppender(appender.getTargetAppender(), Level.DEBUG, null);

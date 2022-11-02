@@ -415,7 +415,7 @@ under the License.
     <bouncycastle.version>1.70</bouncycastle.version>
     <nimbus-jose-jwt.version>9.25.6</nimbus-jose-jwt.version>
 
-    <jackson.version>2.14.0-rc2</jackson.version>
+    <jackson.version>2.14.0-rc3</jackson.version>
 
     <spring-boot.version>2.7.5</spring-boot.version>
     <spring-cloud-gateway.version>3.1.4</spring-cloud-gateway.version>
@@ -432,7 +432,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.4.3</elasticsearch.version>
+    <elasticsearch.version>8.5.0</elasticsearch.version>
 
     <apacheds.version>2.0.0.AM26</apacheds.version>
     <apachedirapi.version>2.0.0</apachedirapi.version>
@@ -784,6 +784,12 @@ under the License.
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-guava</artifactId>
         <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.woodstox</groupId>
+        <artifactId>woodstox-core</artifactId>
+        <version>6.4.0</version>
       </dependency>
 
       <dependency>

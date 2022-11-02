@@ -164,7 +164,7 @@ public class ElasticsearchAnySearchDAOTest {
         when(groupDAO.findKey("groupKey")).thenReturn("groupKey");
 
         try (MockedStatic<ElasticsearchUtils> utils = Mockito.mockStatic(ElasticsearchUtils.class)) {
-            utils.when(() -> ElasticsearchUtils.getContextDomainName(
+            utils.when(() -> ElasticsearchUtils.getAnyIndex(
                     SyncopeConstants.MASTER_DOMAIN, AnyTypeKind.USER)).thenReturn("master_user");
 
             // 2. test
@@ -174,7 +174,7 @@ public class ElasticsearchAnySearchDAOTest {
             anyCond.setSchema("id");
 
             SearchRequest request = new SearchRequest.Builder().
-                    index(ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
+                    index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                     searchType(SearchType.QueryThenFetch).
                     query(searchDAO.getQuery(realmDAO.findByFullPath("/any"), true,
                             adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER)).

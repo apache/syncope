@@ -64,4 +64,10 @@ public class ElasticsearchClientContext {
                 props.getNumberOfShards(),
                 props.getNumberOfReplicas());
     }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ElasticsearchIndexLoader elasticsearchIndexLoader(final ElasticsearchIndexManager indexManager) {
+        return new ElasticsearchIndexLoader(indexManager);
+    }
 }

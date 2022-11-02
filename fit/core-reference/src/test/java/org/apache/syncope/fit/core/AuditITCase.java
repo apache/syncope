@@ -85,7 +85,14 @@ import org.junit.jupiter.api.Test;
 
 public class AuditITCase extends AbstractITCase {
 
-    private AuditEntry queryWithFailure(final AuditQuery query, final int maxWaitSeconds) {
+    private static AuditConfTO buildAuditConf(final String auditLoggerName, final boolean active) {
+        AuditConfTO auditConfTO = new AuditConfTO();
+        auditConfTO.setActive(active);
+        auditConfTO.setKey(auditLoggerName);
+        return auditConfTO;
+    }
+
+    private static AuditEntry queryWithFailure(final AuditQuery query, final int maxWaitSeconds) {
         List<AuditEntry> results = query(query, maxWaitSeconds);
         if (results.isEmpty()) {
             fail("Timeout when executing query for key " + query.getEntityKey());
@@ -461,7 +468,7 @@ public class AuditITCase extends AbstractITCase {
                     auditFilePath,
                     content -> content.contains(
                             "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
-                                    + " - This is a static test message"),
+                            + " - This is a static test message"),
                     10);
 
             // nothing expected in audit_for_Master_norewrite_file.log instead
@@ -469,7 +476,7 @@ public class AuditITCase extends AbstractITCase {
                     auditNoRewriteFilePath,
                     content -> !content.contains(
                             "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
-                                    + " - This is a static test message"),
+                            + " - This is a static test message"),
                     10);
         } catch (IOException e) {
             fail("Unable to read/write log files", e);
@@ -624,12 +631,5 @@ public class AuditITCase extends AbstractITCase {
                         false));
             }
         }
-    }
-
-    private static AuditConfTO buildAuditConf(final String auditLoggerName, final boolean active) {
-        AuditConfTO auditConfTO = new AuditConfTO();
-        auditConfTO.setActive(active);
-        auditConfTO.setKey(auditLoggerName);
-        return auditConfTO;
     }
 }

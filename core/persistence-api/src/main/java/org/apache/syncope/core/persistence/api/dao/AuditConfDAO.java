@@ -49,11 +49,11 @@ public interface AuditConfDAO extends DAO<AuditConf> {
     List<AuditEntry> searchEntries(
             String entityKey,
             int page,
-            int size,
+            int itemsPerPage,
             AuditElements.EventCategoryType type,
             String category,
             String subcategory,
             List<String> events,
             AuditElements.Result result,
-            List<OrderByClause> orderByClauses);
+            List<OrderByClause> orderBy);
 }

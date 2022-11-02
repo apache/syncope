@@ -272,11 +272,11 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             final String subcategory,
             final List<String> events,
             final AuditElements.Result result,
-            final List<OrderByClause> orderByClauses) {
+            final List<OrderByClause> orderBy) {
 
         int count = auditConfDAO.countEntries(entityKey, type, category, subcategory, events, result);
         List<AuditEntry> matching = auditConfDAO.searchEntries(
-                entityKey, page, size, type, category, subcategory, events, result, orderByClauses);
+                entityKey, page, size, type, category, subcategory, events, result, orderBy);
         return Pair.of(count, matching);
     }
 
