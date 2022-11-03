@@ -19,6 +19,8 @@
 package org.apache.syncope.client.enduser.layout;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SidebarLayout implements Serializable {
 
@@ -29,6 +31,8 @@ public class SidebarLayout implements Serializable {
     private boolean passwordManagementEnabled = true;
 
     private boolean securityQuestionManagementEnabled = true;
+
+    private final Map<String, Boolean> extensionsEnabled = new HashMap<>();
 
     public boolean isEditUserEnabled() {
         return editUserEnabled;
@@ -52,6 +56,14 @@ public class SidebarLayout implements Serializable {
 
     public void setSecurityQuestionManagementEnabled(final boolean securityQuestionManagementEnabled) {
         this.securityQuestionManagementEnabled = securityQuestionManagementEnabled;
+    }
+
+    public Map<String, Boolean> getExtensionsEnabled() {
+        return extensionsEnabled;
+    }
+
+    public boolean isExtensionEnabled(final String key) {
+        return extensionsEnabled.getOrDefault(key, true);
     }
 
 }
