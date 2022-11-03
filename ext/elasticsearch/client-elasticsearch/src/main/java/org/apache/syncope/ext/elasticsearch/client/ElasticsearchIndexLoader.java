@@ -45,20 +45,20 @@ public class ElasticsearchIndexLoader implements SyncopeCoreLoader {
         try {
             if (!indexManager.existsAnyIndex(domain, AnyTypeKind.USER)) {
                 indexManager.createAnyIndex(domain, AnyTypeKind.USER,
-                        indexManager.defaultSettings(), indexManager.defaultMapping());
+                        indexManager.defaultSettings(), indexManager.defaultAnyMapping());
             }
             if (!indexManager.existsAnyIndex(domain, AnyTypeKind.GROUP)) {
                 indexManager.createAnyIndex(domain, AnyTypeKind.GROUP,
-                        indexManager.defaultSettings(), indexManager.defaultMapping());
+                        indexManager.defaultSettings(), indexManager.defaultAnyMapping());
             }
             if (!indexManager.existsAnyIndex(domain, AnyTypeKind.ANY_OBJECT)) {
                 indexManager.createAnyIndex(domain, AnyTypeKind.ANY_OBJECT,
-                        indexManager.defaultSettings(), indexManager.defaultMapping());
+                        indexManager.defaultSettings(), indexManager.defaultAnyMapping());
             }
 
             if (!indexManager.existsAuditIndex(domain)) {
                 indexManager.createAuditIndex(domain,
-                        indexManager.defaultSettings(), indexManager.defaultMapping());
+                        indexManager.defaultSettings(), indexManager.defaultAuditMapping());
             }
         } catch (Exception e) {
             LOG.error("While creating indexes for domain {}", domain, e);

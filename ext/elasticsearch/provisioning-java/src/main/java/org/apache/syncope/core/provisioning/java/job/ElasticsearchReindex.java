@@ -79,19 +79,19 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
     }
 
     protected TypeMapping userMapping() throws IOException {
-        return indexManager.defaultMapping();
+        return indexManager.defaultAnyMapping();
     }
 
     protected TypeMapping groupMapping() throws IOException {
-        return indexManager.defaultMapping();
+        return indexManager.defaultAnyMapping();
     }
 
     protected TypeMapping anyObjectMapping() throws IOException {
-        return indexManager.defaultMapping();
+        return indexManager.defaultAnyMapping();
     }
 
     protected TypeMapping auditMapping() throws IOException {
-        return indexManager.defaultMapping();
+        return indexManager.defaultAuditMapping();
     }
 
     @Override

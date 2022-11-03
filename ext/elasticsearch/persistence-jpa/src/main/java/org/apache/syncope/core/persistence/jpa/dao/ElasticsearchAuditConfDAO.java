@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldSort;
-import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SearchType;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
@@ -67,8 +66,9 @@ public class ElasticsearchAuditConfDAO extends JPAAuditConfDAO {
 
         if (entityKey != null) {
             queries.add(new Query.Builder().
-                    match(QueryBuilders.match().field("message").query(FieldValue.of(entityKey)).build()).
-                    build());
+                    multiMatch(QueryBuilders.multiMatch().
+                            fields("message.before", "message.inputs", "message.output", "message.throwable").
+                            query(entityKey).build()).build());
         }
 
         if (type != null) {
@@ -128,14 +128,20 @@ public class ElasticsearchAuditConfDAO extends JPAAuditConfDAO {
     }
 
     protected List<SortOptions> sortBuilders(final List<OrderByClause> orderBy) {
-        return orderBy.stream().map(clause -> new SortOptions.Builder().field(
-                new FieldSort.Builder().
-                        field(clause.getField()).
-                        order(clause.getDirection() == OrderByClause.Direction.ASC
-                                ? SortOrder.Asc : SortOrder.Desc).
-                        build()).
-                build()).
-                collect(Collectors.toList());
+        return orderBy.stream().map(clause -> {
+            String sortField = clause.getField();
+            if ("EVENT_DATE".equalsIgnoreCase(sortField)) {
+                sortField = "message.date";
+            }
+
+            return new SortOptions.Builder().field(
+                    new FieldSort.Builder().
+                            field(sortField).
+                            order(clause.getDirection() == OrderByClause.Direction.ASC
+                                    ? SortOrder.Asc : SortOrder.Desc).
+                            build()).
+                    build();
+        }).collect(Collectors.toList());
     }
 
     @Override

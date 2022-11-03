@@ -399,6 +399,14 @@ public class AuditITCase extends AbstractITCase {
         auditEntry.setOutput(UUID.randomUUID().toString());
         assertDoesNotThrow(() -> AUDIT_SERVICE.create(auditEntry));
 
+        if (IS_ELASTICSEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
         PagedResult<AuditEntry> events = AUDIT_SERVICE.search(new AuditQuery.Builder().
                 size(1).
                 type(auditEntry.getLogger().getType()).
@@ -425,6 +433,14 @@ public class AuditITCase extends AbstractITCase {
         auditEntry.setBefore(UUID.randomUUID().toString());
         auditEntry.setOutput(UUID.randomUUID().toString());
         assertDoesNotThrow(() -> AUDIT_SERVICE.create(auditEntry));
+
+        if (IS_ELASTICSEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
 
         PagedResult<AuditEntry> events = AUDIT_SERVICE.search(new AuditQuery.Builder().
                 size(1).
@@ -591,25 +607,32 @@ public class AuditITCase extends AbstractITCase {
             pullTaskTO.setDestinationRealm(SyncopeConstants.ROOT_REALM);
             pullTaskTO.setMatchingRule(MatchingRule.UPDATE);
             pullTaskTO.setUnmatchingRule(UnmatchingRule.ASSIGN);
-            RECONCILIATION_SERVICE.pull(
-                    new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).fiql("uid==pullFromLDAP")
-                            .build(),
-                    pullTaskTO);
+            RECONCILIATION_SERVICE.pull(new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).
+                    fiql("uid==pullFromLDAP").build(), pullTaskTO);
+
             // update pullTaskTO -> another audit entry
-            pullFromLDAP = updateUser(new UserUR.Builder(USER_SERVICE.read("pullFromLDAP").getKey())
-                    .plainAttr(new AttrPatch.Builder(new Attr.Builder("ctype").value("abcdef").build()).build())
-                    .build()).getEntity();
+            pullFromLDAP = updateUser(new UserUR.Builder(USER_SERVICE.read("pullFromLDAP").getKey()).
+                    plainAttr(new AttrPatch.Builder(new Attr.Builder("ctype").value("abcdef").build()).build()).
+                    build()).getEntity();
+
             // search by empty type and category events and get both events on testfromLDAP
-            assertEquals(2,
-                    AUDIT_SERVICE.search(new AuditQuery.Builder()
-                            .entityKey(pullFromLDAP.getKey())
-                            .page(1)
-                            .size(10)
-                            .events(List.of(
-                                    "create", "update", "matchingrule_update", "unmatchingrule_assign",
-                                    "unmatchingrule_provision"))
-                            .result(AuditElements.Result.SUCCESS)
-                            .build()).getTotalCount());
+            if (IS_ELASTICSEARCH_ENABLED) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+
+            assertEquals(2, AUDIT_SERVICE.search(new AuditQuery.Builder().
+                    entityKey(pullFromLDAP.getKey()).
+                    page(1).
+                    size(10).
+                    events(List.of(
+                            "create", "update", "matchingrule_update", "unmatchingrule_assign",
+                            "unmatchingrule_provision")).
+                    result(AuditElements.Result.SUCCESS).
+                    build()).getTotalCount());
         } finally {
             if (pullFromLDAP != null) {
                 USER_SERVICE.deassociate(new ResourceDR.Builder()

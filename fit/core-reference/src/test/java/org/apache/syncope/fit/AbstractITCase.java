@@ -962,6 +962,14 @@ public abstract class AbstractITCase {
     }
 
     protected static List<AuditEntry> query(final AuditQuery query, final int maxWaitSeconds) {
+        if (IS_ELASTICSEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
         int i = 0;
         List<AuditEntry> results = List.of();
         do {

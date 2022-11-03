@@ -24,7 +24,9 @@ import co.elastic.clients.elasticsearch._types.analysis.CustomNormalizer;
 import co.elastic.clients.elasticsearch._types.analysis.Normalizer;
 import co.elastic.clients.elasticsearch._types.mapping.DynamicTemplate;
 import co.elastic.clients.elasticsearch._types.mapping.KeywordProperty;
+import co.elastic.clients.elasticsearch._types.mapping.ObjectProperty;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
+import co.elastic.clients.elasticsearch._types.mapping.TextProperty;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.core.DeleteRequest;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
@@ -104,7 +106,7 @@ public class ElasticsearchIndexManager {
                 build();
     }
 
-    public TypeMapping defaultMapping() throws IOException {
+    public TypeMapping defaultAnyMapping() throws IOException {
         return new TypeMapping.Builder().
                 dynamicTemplates(List.of(Map.of(
                         "strings",
@@ -114,6 +116,44 @@ public class ElasticsearchIndexManager {
                                         keyword(new KeywordProperty.Builder().normalizer("string_lowercase").build()).
                                         build()).
                                 build()))).
+                build();
+    }
+
+    public TypeMapping defaultAuditMapping() throws IOException {
+        return new TypeMapping.Builder().
+                dynamicTemplates(List.of(Map.of(
+                        "strings",
+                        new DynamicTemplate.Builder().
+                                matchMappingType("string").
+                                mapping(new Property.Builder().
+                                        keyword(new KeywordProperty.Builder().normalizer("string_lowercase").build()).
+                                        build()).
+                                build()))).
+                properties(
+                        "message",
+                        new Property.Builder().object(new ObjectProperty.Builder().
+                                properties(
+                                        "before",
+                                        new Property.Builder().
+                                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                                build()).
+                                properties(
+                                        "inputs",
+                                        new Property.Builder().
+                                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                                build()).
+                                properties(
+                                        "output",
+                                        new Property.Builder().
+                                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                                build()).
+                                properties(
+                                        "throwable",
+                                        new Property.Builder().
+                                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                                build()).
+                                build()).
+                                build()).
                 build();
     }
 
