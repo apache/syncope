@@ -147,7 +147,7 @@ public class ElasticsearchAnySearchDAOTest {
         when(groupDAO.findKey("groupKey")).thenReturn("groupKey");
 
         try (MockedStatic<ElasticsearchUtils> utils = Mockito.mockStatic(ElasticsearchUtils.class)) {
-            utils.when(() -> ElasticsearchUtils.getContextDomainName(
+            utils.when(() -> ElasticsearchUtils.getAnyIndex(
                     SyncopeConstants.MASTER_DOMAIN, AnyTypeKind.USER)).thenReturn("master_user");
 
             // 2. test
@@ -163,7 +163,7 @@ public class ElasticsearchAnySearchDAOTest {
             searchDAO.sortBuilders(AnyTypeKind.USER, Collections.emptyList()).forEach(sourceBuilder::sort);
 
             SearchRequest searchRequest = new SearchRequest(
-                    ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
+                    ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                     searchType(SearchType.QUERY_THEN_FETCH).
                     source(sourceBuilder);
 

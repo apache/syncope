@@ -419,6 +419,11 @@ Add the following dependencies to `core/pom.xml`:
 ----
 <dependency>
   <groupId>org.apache.syncope.ext.elasticsearch</groupId>
+  <artifactId>syncope-ext-elasticsearch-logic</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.syncope.ext.elasticsearch</groupId>
   <artifactId>syncope-ext-elasticsearch-provisioning-java</artifactId>
   <version>${syncope.version}</version>
 </dependency>
@@ -428,6 +433,20 @@ Add the following dependencies to `core/pom.xml`:
   <version>${syncope.version}</version>
 </dependency>
 ----
+
+Replace
+
+....
+default.audit.appender=org.apache.syncope.core.logic.audit.JdbcAuditAppender
+....
+
+with
+
+....
+default.audit.appender=org.apache.syncope.core.logic.audit.ElasticsearchAuditAppender
+....
+
+in `core/src/main/resources/logic.properties`.
 
 Download 
 
@@ -484,7 +503,7 @@ Then, create a new <<tasks-custom, custom task>>, select the implementation just
 [TIP]
 The `org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex` custom task created above is not meant for
 scheduled execution; rather, it can be run every time you want to blank and re-create the Elasticsearch indexes
-starting from Syncope's users, groups and any objects.
+starting from Syncope's internal storage.
 
 [discrete]
 ===== Enable the <<SCIM>> extension

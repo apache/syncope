@@ -52,11 +52,11 @@ public interface LoggerDAO extends DAO<Logger> {
     List<AuditEntry> findAuditEntries(
             String entityKey,
             int page,
-            int size,
+            int itemsPerPage,
             AuditElements.EventCategoryType type,
             String category,
             String subcategory,
             List<String> events,
             AuditElements.Result result,
-            List<OrderByClause> orderByClauses);
+            List<OrderByClause> orderBy);
 }

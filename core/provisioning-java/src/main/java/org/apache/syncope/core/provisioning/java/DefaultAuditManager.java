@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.log.AuditEntry;
@@ -132,13 +133,12 @@ public class DefaultAuditManager implements AuditManager {
         AuditLoggerName auditLoggerName = new AuditLoggerName.Builder().
                 type(type).category(category).subcategory(subcategory).event(event).result(condition).build();
 
-        org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
-                loggerDAO.find(auditLoggerName.toLoggerName());
-        if (syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG) {
-            Throwable throwable = null;
-            if (output instanceof Throwable) {
-                throwable = (Throwable) output;
-            }
+        Optional.ofNullable(loggerDAO.find(auditLoggerName.toLoggerName())).
+                filter(syncopeLogger -> syncopeLogger.getLevel() == LoggerLevel.DEBUG).ifPresent(syncopeLogger -> {
+
+            Throwable throwable = output instanceof Throwable
+                    ? (Throwable) output
+                    : null;
 
             AuditEntry auditEntry = new AuditEntry();
             auditEntry.setWho(who);
@@ -170,6 +170,6 @@ public class DefaultAuditManager implements AuditManager {
                 logger.debug(serializedAuditEntry, throwable);
                 eventLogger.debug(serializedAuditEntry, throwable);
             }
-        }
+        });
     }
 }

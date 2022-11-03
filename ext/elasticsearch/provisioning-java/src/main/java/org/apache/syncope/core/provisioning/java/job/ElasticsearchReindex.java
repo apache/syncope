@@ -72,16 +72,24 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
         return indexManager.defaultSettings();
     }
 
+    protected XContentBuilder auditSettings() throws IOException {
+        return indexManager.defaultSettings();
+    }
+
     protected XContentBuilder userMapping() throws IOException {
-        return indexManager.defaultMapping();
+        return indexManager.defaultAnyMapping();
     }
 
     protected XContentBuilder groupMapping() throws IOException {
-        return indexManager.defaultMapping();
+        return indexManager.defaultAnyMapping();
     }
 
     protected XContentBuilder anyObjectMapping() throws IOException {
-        return indexManager.defaultMapping();
+        return indexManager.defaultAnyMapping();
+    }
+
+    protected XContentBuilder auditMapping() throws IOException {
+        return indexManager.defaultAuditMapping();
     }
 
     @Override
@@ -90,20 +98,20 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
             LOG.debug("Start rebuilding indexes");
 
             try {
-                indexManager.createIndex(
+                indexManager.createAnyIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.USER, userSettings(), userMapping());
 
-                indexManager.createIndex(
+                indexManager.createAnyIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.GROUP, groupSettings(), groupMapping());
 
-                indexManager.createIndex(
+                indexManager.createAnyIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT, anyObjectSettings(), anyObjectMapping());
 
                 LOG.debug("Indexing users...");
                 for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (String user : userDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexRequest request = new IndexRequest(
-                                ElasticsearchUtils.getContextDomainName(
+                                ElasticsearchUtils.getAnyIndex(
                                         AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                                 id(user).
                                 source(utils.builder(userDAO.find(user), AuthContextUtils.getDomain()));
@@ -120,7 +128,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 for (int page = 1; page <= (groupDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (String group : groupDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexRequest request = new IndexRequest(
-                                ElasticsearchUtils.getContextDomainName(
+                                ElasticsearchUtils.getAnyIndex(
                                         AuthContextUtils.getDomain(), AnyTypeKind.GROUP)).
                                 id(group).
                                 source(utils.builder(groupDAO.find(group), AuthContextUtils.getDomain()));
@@ -137,7 +145,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                 for (int page = 1; page <= (anyObjectDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (String anyObject : anyObjectDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexRequest request = new IndexRequest(
-                                ElasticsearchUtils.getContextDomainName(
+                                ElasticsearchUtils.getAnyIndex(
                                         AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT)).
                                 id(anyObject).
                                 source(utils.builder(anyObjectDAO.find(anyObject), AuthContextUtils.getDomain()));
@@ -149,6 +157,9 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                         }
                     }
                 }
+
+                indexManager.createAuditIndex(
+                        AuthContextUtils.getDomain(), auditSettings(), auditMapping());
 
                 LOG.debug("Rebuild indexes for domain {} successfully completed", AuthContextUtils.getDomain());
             } catch (Exception e) {
