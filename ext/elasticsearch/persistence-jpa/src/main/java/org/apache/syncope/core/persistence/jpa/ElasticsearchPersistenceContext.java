@@ -22,6 +22,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -30,8 +31,8 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.jpa.dao.ElasticsearchAnySearchDAO;
-import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
-import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
+import org.apache.syncope.core.persistence.jpa.dao.ElasticsearchAuditConfDAO;
+import org.apache.syncope.ext.elasticsearch.client.ElasticsearchProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,15 +41,10 @@ import org.springframework.context.annotation.Lazy;
 @Configuration(proxyBeanMethods = false)
 public class ElasticsearchPersistenceContext {
 
-    @ConditionalOnMissingBean
-    @Bean
-    public DomainIndexLoader domainIndexLoader(final ElasticsearchIndexManager indexManager) {
-        return new DomainIndexLoader(indexManager);
-    }
-
     @ConditionalOnMissingBean(name = "elasticsearchAnySearchDAO")
     @Bean
     public AnySearchDAO anySearchDAO(
+            final ElasticsearchProperties props,
             final RealmDAO realmDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
@@ -58,8 +54,7 @@ public class ElasticsearchPersistenceContext {
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final PlainAttrValidationManager validator,
-            final ElasticsearchClient client,
-            final @Lazy ElasticsearchUtils elasticsearchUtils) {
+            final ElasticsearchClient client) {
 
         return new ElasticsearchAnySearchDAO(
                 realmDAO,
@@ -72,6 +67,15 @@ public class ElasticsearchPersistenceContext {
                 anyUtilsFactory,
                 validator,
                 client,
-                elasticsearchUtils);
+                props.getIndexMaxResultWindow());
+    }
+
+    @ConditionalOnMissingBean(name = "elasticsearchAuditConfDAO")
+    @Bean
+    public AuditConfDAO auditConfDAO(
+            final ElasticsearchProperties props,
+            final ElasticsearchClient client) {
+
+        return new ElasticsearchAuditConfDAO(client, props.getIndexMaxResultWindow());
     }
 }

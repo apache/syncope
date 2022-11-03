@@ -85,7 +85,6 @@ import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagati
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.ElasticsearchDetector;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.Test;
@@ -1066,7 +1065,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE391() {
-        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform()));
+        assumeFalse(IS_ELASTICSEARCH_ENABLED);
 
         // 1. create user on Syncope with null password
         UserCR userCR = UserITCase.getUniqueSample("syncope391@syncope.apache.org");

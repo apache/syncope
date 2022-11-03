@@ -109,8 +109,6 @@ import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.Encryptor;
-import org.apache.syncope.fit.ElasticsearchDetector;
-import org.apache.syncope.fit.FlowableDetector;
 import org.apache.syncope.fit.core.reference.TestPullActions;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.jupiter.api.BeforeAll;
@@ -194,7 +192,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void fromCSV() throws Exception {
-        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform()));
+        assumeFalse(IS_ELASTICSEARCH_ENABLED);
 
         removeTestUsers();
 
@@ -267,7 +265,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             UserTO userTO = USER_SERVICE.read(inUserTO.getKey());
             assertNotNull(userTO);
             assertEquals(userName, userTO.getUsername());
-            assertEquals(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform())
+            assertEquals(IS_FLOWABLE_ENABLED
                     ? "active" : "created", userTO.getStatus());
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("email").get().getValues().get(0));
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("userId").get().getValues().get(0));
@@ -569,7 +567,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 4. pull
             execProvisioningTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
 
-            if (ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform())) {
+            if (IS_ELASTICSEARCH_ENABLED) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
@@ -1082,7 +1080,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE307() {
-        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform()));
+        assumeFalse(IS_ELASTICSEARCH_ENABLED);
 
         UserCR userCR = UserITCase.getUniqueSample("s307@apache.org");
         userCR.setUsername("test0");

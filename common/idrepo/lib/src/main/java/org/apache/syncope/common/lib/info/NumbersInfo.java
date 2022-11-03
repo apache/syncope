@@ -57,7 +57,7 @@ public class NumbersInfo implements BaseBean {
         }
     }
 
-    public class TaskExecutorInfo {
+    public static class TaskExecutorInfo {
 
         private int size;
 
@@ -158,9 +158,7 @@ public class NumbersInfo implements BaseBean {
 
     private final Map<String, Boolean> confCompleteness = new HashMap<>();
 
-    private final TaskExecutorInfo asyncConnectorExecutor = new TaskExecutorInfo();
-
-    private final TaskExecutorInfo propagationTaskExecutor = new TaskExecutorInfo();
+    private final Map<String, TaskExecutorInfo> taskExecutorInfos = new HashMap<>();
 
     public int getTotalUsers() {
         return totalUsers;
@@ -250,12 +248,8 @@ public class NumbersInfo implements BaseBean {
         return confCompleteness;
     }
 
-    public TaskExecutorInfo getAsyncConnectorExecutor() {
-        return asyncConnectorExecutor;
-    }
-
-    public TaskExecutorInfo getPropagationTaskExecutor() {
-        return propagationTaskExecutor;
+    public Map<String, TaskExecutorInfo> getTaskExecutorInfos() {
+        return taskExecutorInfos;
     }
 
     @Override
@@ -275,8 +269,7 @@ public class NumbersInfo implements BaseBean {
                 append(totalResources).
                 append(totalRoles).
                 append(confCompleteness).
-                append(asyncConnectorExecutor).
-                append(propagationTaskExecutor).
+                append(taskExecutorInfos).
                 build();
     }
 
@@ -307,8 +300,7 @@ public class NumbersInfo implements BaseBean {
                 append(totalAny2, other.totalAny2).
                 append(any2ByRealm, other.any2ByRealm).
                 append(confCompleteness, other.confCompleteness).
-                append(asyncConnectorExecutor, other.asyncConnectorExecutor).
-                append(propagationTaskExecutor, other.propagationTaskExecutor).
+                append(taskExecutorInfos, other.taskExecutorInfos).
                 build();
     }
 }

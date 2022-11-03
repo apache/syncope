@@ -41,6 +41,7 @@ under the License.
     <module>client-elasticsearch</module>
     <module>persistence-jpa</module>
     <module>provisioning-java</module>
+    <module>logic</module>
   </modules>
 
 </project>

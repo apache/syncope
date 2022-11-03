@@ -101,11 +101,11 @@ This extension adds features to all components and layers that are available, an
 
 ==== Elasticsearch
 
-This extension provides an alternate internal search engine for <<users-groups-and-any-objects>>, requiring an external 
-https://www.elastic.co/[Elasticsearch^] cluster.
+This extension provides an alternate internal search engine for <<users-groups-and-any-objects>> and <<audit-events>>,
+requiring an external https://www.elastic.co/[Elasticsearch^] cluster.
 
 [WARNING]
-This extension supports Elasticsearch server versions starting from 7.x.
+This extension supports Elasticsearch server versions starting from 8.x.
 
 [TIP]
 As search operations are central for different aspects of the <<provisioning,provisioning process>>, the global

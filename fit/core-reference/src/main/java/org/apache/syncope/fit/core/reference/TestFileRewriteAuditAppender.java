@@ -34,18 +34,9 @@ import org.apache.syncope.core.logic.audit.DefaultRewriteAuditAppender;
 
 public class TestFileRewriteAuditAppender extends DefaultRewriteAuditAppender {
 
-    @Override
-    public Set<AuditLoggerName> getEvents() {
-        return Collections.singleton(new AuditLoggerName(
-                AuditElements.EventCategoryType.LOGIC,
-                ResourceLogic.class.getSimpleName(),
-                null,
-                "update",
-                AuditElements.Result.SUCCESS));
-    }
+    public TestFileRewriteAuditAppender(final String domain) {
+        super(domain);
 
-    @Override
-    protected void initTargetAppender() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
         // get log file path from existing file appender
@@ -61,6 +52,16 @@ public class TestFileRewriteAuditAppender extends DefaultRewriteAuditAppender {
                         withPattern("%d{HH:mm:ss.SSS} %-5level %logger - %msg%n").
                         build()).
                 build();
+    }
+
+    @Override
+    public Set<AuditLoggerName> getEvents() {
+        return Collections.singleton(new AuditLoggerName(
+                AuditElements.EventCategoryType.LOGIC,
+                ResourceLogic.class.getSimpleName(),
+                null,
+                "update",
+                AuditElements.Result.SUCCESS));
     }
 
     @Override

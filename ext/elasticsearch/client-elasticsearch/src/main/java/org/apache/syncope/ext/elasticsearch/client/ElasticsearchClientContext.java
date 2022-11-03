@@ -25,18 +25,20 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
+@EnableConfigurationProperties(ElasticsearchProperties.class)
 @Configuration(proxyBeanMethods = false)
 public class ElasticsearchClientContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ElasticsearchClientFactoryBean elasticsearchClientFactoryBean() {
+    public ElasticsearchClientFactoryBean elasticsearchClientFactoryBean(final ElasticsearchProperties props) {
         return new ElasticsearchClientFactoryBean(
-                List.of(new HttpHost("localhost", 9200, "http")));
+                List.of(new HttpHost(props.getHostname(), props.getPort(), props.getScheme())));
     }
 
     @ConditionalOnMissingBean
@@ -46,20 +48,26 @@ public class ElasticsearchClientContext {
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyObjectDAO anyObjectDAO) {
 
-        ElasticsearchUtils utils = new ElasticsearchUtils(userDAO, groupDAO, anyObjectDAO);
-        utils.setIndexMaxResultWindow(10000);
-        utils.setRetryOnConflict(5);
-        utils.setNumberOfShards(1);
-        utils.setNumberOfReplicas(1);
-        return utils;
+        return new ElasticsearchUtils(userDAO, groupDAO, anyObjectDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public ElasticsearchIndexManager elasticsearchIndexManager(
+            final ElasticsearchProperties props,
             final ElasticsearchClient client,
             final ElasticsearchUtils elasticsearchUtils) {
 
-        return new ElasticsearchIndexManager(client, elasticsearchUtils);
+        return new ElasticsearchIndexManager(
+                client,
+                elasticsearchUtils,
+                props.getNumberOfShards(),
+                props.getNumberOfReplicas());
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ElasticsearchIndexLoader elasticsearchIndexLoader(final ElasticsearchIndexManager indexManager) {
+        return new ElasticsearchIndexLoader(indexManager);
     }
 }

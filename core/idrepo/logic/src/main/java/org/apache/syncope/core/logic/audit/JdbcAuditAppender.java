@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic.audit;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Optional;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
@@ -28,54 +29,49 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.db.ColumnMapping;
 import org.apache.logging.log4j.core.appender.db.jdbc.AbstractConnectionSource;
 import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
-import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 public class JdbcAuditAppender extends DefaultAuditAppender {
 
-    @Autowired
-    protected DomainHolder domainHolder;
+    public JdbcAuditAppender(final String domain, final DataSource domainDataSource) {
+        super(domain);
 
-    @Override
-    protected void initTargetAppender() {
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        LoggerContext logCtx = (LoggerContext) LogManager.getContext(false);
 
         ColumnMapping[] columnMappings = {
             ColumnMapping.newBuilder().
-            setConfiguration(ctx.getConfiguration()).setName("EVENT_DATE").setType(Timestamp.class).build(),
+            setConfiguration(logCtx.getConfiguration()).setName("EVENT_DATE").setType(Timestamp.class).build(),
             ColumnMapping.newBuilder().
-            setConfiguration(ctx.getConfiguration()).setName("LOGGER_LEVEL").setPattern("%level").build(),
+            setConfiguration(logCtx.getConfiguration()).setName("LOGGER_LEVEL").setPattern("%level").build(),
             ColumnMapping.newBuilder().
-            setConfiguration(ctx.getConfiguration()).setName("LOGGER").setPattern("%logger").build(),
+            setConfiguration(logCtx.getConfiguration()).setName("LOGGER").setPattern("%logger").build(),
             ColumnMapping.newBuilder().
-            setConfiguration(ctx.getConfiguration()).
+            setConfiguration(logCtx.getConfiguration()).
             setName(AuditConfDAO.AUDIT_ENTRY_MESSAGE_COLUMN).setPattern("%message").build(),
             ColumnMapping.newBuilder().
-            setConfiguration(ctx.getConfiguration()).setName("THROWABLE").setPattern("%ex{full}").build()
+            setConfiguration(logCtx.getConfiguration()).setName("THROWABLE").setPattern("%ex{full}").build()
         };
 
-        Appender appender = ctx.getConfiguration().getAppender("audit_for_" + domain);
-        if (appender == null) {
-            appender = JdbcAppender.newBuilder().
-                    setName("audit_for_" + domain).
-                    setIgnoreExceptions(false).
-                    setConnectionSource(new DataSourceConnectionSource(domain, domainHolder.getDomains().get(domain))).
-                    setBufferSize(0).
-                    setTableName(AuditConfDAO.AUDIT_ENTRY_TABLE).
-                    setColumnMappings(columnMappings).
-                    build();
-            appender.start();
-            ctx.getConfiguration().addAppender(appender);
-        }
-        targetAppender = appender;
+        targetAppender = Optional.ofNullable(logCtx.getConfiguration().<Appender>getAppender(getTargetAppenderName())).
+                orElseGet(() -> {
+                    JdbcAppender a = JdbcAppender.newBuilder().
+                            setName(getTargetAppenderName()).
+                            setIgnoreExceptions(false).
+                            setConnectionSource(new DataSourceConnectionSource(domain, domainDataSource)).
+                            setBufferSize(0).
+                            setTableName(AuditConfDAO.AUDIT_ENTRY_TABLE).
+                            setColumnMappings(columnMappings).
+                            build();
+                    a.start();
+                    logCtx.getConfiguration().addAppender(a);
+                    return a;
+                });
     }
 
     @Override
     public String getTargetAppenderName() {
-        // not used
-        return null;
+        return "audit_for_" + domain;
     }
 
     protected static class DataSourceConnectionSource extends AbstractConnectionSource {

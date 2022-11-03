@@ -99,7 +99,6 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.ElasticsearchDetector;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -718,7 +717,7 @@ public class GroupITCase extends AbstractITCase {
         GroupTO group = createGroup(groupCR).getEntity();
         assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
-        if (ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform())) {
+        if (IS_ELASTICSEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -945,7 +944,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void provisionMembers() throws InterruptedException {
-        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform()));
+        assumeFalse(IS_ELASTICSEARCH_ENABLED);
 
         // 1. create group without resources
         GroupCR groupCR = getBasicSample("forProvision");

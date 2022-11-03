@@ -32,8 +32,6 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
  */
 public interface AuditAppender {
 
-    void init(String domain);
-
     default Set<AuditLoggerName> getEvents() {
         return Set.of();
     }

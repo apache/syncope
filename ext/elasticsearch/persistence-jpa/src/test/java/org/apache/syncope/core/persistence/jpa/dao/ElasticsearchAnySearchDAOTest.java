@@ -54,9 +54,9 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -81,11 +81,23 @@ public class ElasticsearchAnySearchDAOTest {
     @Mock
     private AnyUtilsFactory anyUtilsFactory;
 
-    @Mock
-    private ElasticsearchUtils elasticsearchUtils;
-
-    @InjectMocks
     private ElasticsearchAnySearchDAO searchDAO;
+
+    @BeforeEach
+    protected void setupSearchDAO() {
+        searchDAO = new ElasticsearchAnySearchDAO(
+                realmDAO,
+                dynRealmDAO,
+                null,
+                groupDAO,
+                null,
+                null,
+                entityFactory,
+                anyUtilsFactory,
+                null,
+                null,
+                10000);
+    }
 
     @Test
     public void getAdminRealmsFilter4realm() throws IOException {
@@ -152,7 +164,7 @@ public class ElasticsearchAnySearchDAOTest {
         when(groupDAO.findKey("groupKey")).thenReturn("groupKey");
 
         try (MockedStatic<ElasticsearchUtils> utils = Mockito.mockStatic(ElasticsearchUtils.class)) {
-            utils.when(() -> ElasticsearchUtils.getContextDomainName(
+            utils.when(() -> ElasticsearchUtils.getAnyIndex(
                     SyncopeConstants.MASTER_DOMAIN, AnyTypeKind.USER)).thenReturn("master_user");
 
             // 2. test
@@ -162,7 +174,7 @@ public class ElasticsearchAnySearchDAOTest {
             anyCond.setSchema("id");
 
             SearchRequest request = new SearchRequest.Builder().
-                    index(ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
+                    index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                     searchType(SearchType.QueryThenFetch).
                     query(searchDAO.getQuery(realmDAO.findByFullPath("/any"), true,
                             adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER)).

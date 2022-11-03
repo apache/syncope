@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.init.AuditLoader;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -57,6 +58,7 @@ import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -72,8 +74,6 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     protected static final List<EventCategory> EVENTS = new ArrayList<>();
 
-    protected final AuditLoader auditLoader;
-
     protected final AuditConfDAO auditConfDAO;
 
     protected final ExternalResourceDAO resourceDAO;
@@ -84,20 +84,22 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     protected final AuditManager auditManager;
 
+    protected final ApplicationContext ctx;
+
     public AuditLogic(
-            final AuditLoader auditLoader,
             final AuditConfDAO auditConfDAO,
             final ExternalResourceDAO resourceDAO,
             final EntityFactory entityFactory,
             final AuditDataBinder binder,
-            final AuditManager auditManager) {
+            final AuditManager auditManager,
+            final ApplicationContext ctx) {
 
-        this.auditLoader = auditLoader;
         this.auditConfDAO = auditConfDAO;
         this.resourceDAO = resourceDAO;
         this.entityFactory = entityFactory;
         this.binder = binder;
         this.auditManager = auditManager;
+        this.ctx = ctx;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "')")
@@ -141,17 +143,17 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
     protected void setLevel(final String key, final Level level) {
         String auditLoggerName = AuditLoggerName.getAuditEventLoggerName(AuthContextUtils.getDomain(), key);
 
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
-        LoggerConfig logConf = ctx.getConfiguration().getLoggerConfig(auditLoggerName);
+        LoggerContext logCtx = (LoggerContext) LogManager.getContext(false);
+        LoggerConfig logConf = logCtx.getConfiguration().getLoggerConfig(auditLoggerName);
 
         // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
-        auditLoader.auditAppenders(AuthContextUtils.getDomain()).stream().
+        ctx.getBeansOfType(AuditAppender.class).values().stream().
                 filter(appender -> appender.getEvents().stream().
                 anyMatch(event -> key.equalsIgnoreCase(event.toAuditKey()))).
-                forEach(auditAppender -> AuditLoader.addAppenderToContext(ctx, auditAppender, logConf));
+                forEach(auditAppender -> AuditLoader.addAppenderToLoggerContext(logCtx, auditAppender, logConf));
 
         logConf.setLevel(level);
-        ctx.updateLoggers();
+        logCtx.updateLoggers();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "') "
@@ -270,11 +272,11 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             final String subcategory,
             final List<String> events,
             final AuditElements.Result result,
-            final List<OrderByClause> orderByClauses) {
+            final List<OrderByClause> orderBy) {
 
         int count = auditConfDAO.countEntries(entityKey, type, category, subcategory, events, result);
         List<AuditEntry> matching = auditConfDAO.searchEntries(
-                entityKey, page, size, type, category, subcategory, events, result, orderByClauses);
+                entityKey, page, size, type, category, subcategory, events, result, orderBy);
         return Pair.of(count, matching);
     }
 

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.ext.elasticsearch.client;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,8 +48,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class ElasticsearchUtils {
 
-    public static String getContextDomainName(final String domain, final AnyTypeKind kind) {
+    public static String getAnyIndex(final String domain, final AnyTypeKind kind) {
         return domain.toLowerCase() + '_' + kind.name().toLowerCase();
+    }
+
+    public static String getAuditIndex(final String domain) {
+        return domain.toLowerCase() + "_audit";
     }
 
     protected final UserDAO userDAO;
@@ -57,50 +62,14 @@ public class ElasticsearchUtils {
 
     protected final AnyObjectDAO anyObjectDAO;
 
-    protected int indexMaxResultWindow = 10000;
+    public ElasticsearchUtils(
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO) {
 
-    protected int retryOnConflict = 5;
-
-    protected String numberOfShards = "1";
-
-    protected String numberOfReplicas = "1";
-
-    public ElasticsearchUtils(final UserDAO userDAO, final GroupDAO groupDAO, final AnyObjectDAO anyObjectDAO) {
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.anyObjectDAO = anyObjectDAO;
-    }
-
-    public void setIndexMaxResultWindow(final int indexMaxResultWindow) {
-        this.indexMaxResultWindow = indexMaxResultWindow;
-    }
-
-    public int getIndexMaxResultWindow() {
-        return indexMaxResultWindow;
-    }
-
-    public void setRetryOnConflict(final int retryOnConflict) {
-        this.retryOnConflict = retryOnConflict;
-    }
-
-    public int getRetryOnConflict() {
-        return retryOnConflict;
-    }
-
-    public String getNumberOfShards() {
-        return numberOfShards;
-    }
-
-    public void setNumberOfShards(final int numberOfShards) {
-        this.numberOfShards = String.valueOf(numberOfShards);
-    }
-
-    public String getNumberOfReplicas() {
-        return numberOfReplicas;
-    }
-
-    public void setNumberOfReplicas(final int numberOfReplicas) {
-        this.numberOfReplicas = String.valueOf(numberOfReplicas);
     }
 
     /**
@@ -252,6 +221,29 @@ public class ElasticsearchUtils {
     }
 
     protected void customizeDocument(final Map<String, Object> builder, final User user, final String domain)
+            throws IOException {
+    }
+
+    public Map<String, Object> document(
+            final long instant,
+            final JsonNode message,
+            final String domain) throws IOException {
+
+        Map<String, Object> builder = new HashMap<>();
+
+        builder.put("instant", instant);
+        builder.put("message", message);
+
+        customizeDocument(builder, instant, message, domain);
+
+        return builder;
+    }
+
+    protected void customizeDocument(
+            final Map<String, Object> builder,
+            final long instant,
+            final JsonNode message,
+            final String domain)
             throws IOException {
     }
 }

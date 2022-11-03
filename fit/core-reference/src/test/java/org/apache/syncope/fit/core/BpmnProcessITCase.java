@@ -32,7 +32,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.FlowableDetector;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +43,7 @@ public class BpmnProcessITCase extends AbstractITCase {
     @BeforeAll
     public static void findDefault() {
         assumeFalse(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform()));
+        assumeTrue(IS_FLOWABLE_ENABLED);
 
         BPMN_PROCESS_SERVICE.list().stream().
                 filter(BpmnProcess::isUserWorkflow).findAny().
@@ -55,7 +54,7 @@ public class BpmnProcessITCase extends AbstractITCase {
     @BeforeEach
     public void check() {
         assumeFalse(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
-        assumeTrue(FlowableDetector.isFlowableEnabledForUserWorkflow(ADMIN_CLIENT.platform()));
+        assumeTrue(IS_FLOWABLE_ENABLED);
     }
 
     @Test

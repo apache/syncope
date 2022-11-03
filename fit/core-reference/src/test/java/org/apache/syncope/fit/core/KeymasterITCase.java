@@ -54,7 +54,6 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.ElasticsearchDetector;
 import org.junit.jupiter.api.Test;
 
 public class KeymasterITCase extends AbstractITCase {
@@ -282,7 +281,7 @@ public class KeymasterITCase extends AbstractITCase {
         assertNotNull(user);
         assertEquals("monteverdi", user.getUsername());
 
-        if (ElasticsearchDetector.isElasticSearchEnabled(ADMIN_CLIENT.platform())) {
+        if (IS_ELASTICSEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {

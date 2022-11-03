@@ -35,8 +35,6 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.core.logic.api.Command;
 import org.apache.syncope.core.logic.api.LogicActions;
-import org.apache.syncope.core.logic.audit.AuditAppender;
-import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
@@ -92,8 +90,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     private Map<Class<? extends PushCorrelationRuleConf>, Class<? extends PushCorrelationRule>> pushCRClasses;
 
-    private Set<Class<?>> auditAppenderClasses;
-
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 1;
@@ -129,7 +125,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         passwordRuleClasses = new HashMap<>();
         pullCRClasses = new HashMap<>();
         pushCRClasses = new HashMap<>();
-        auditAppenderClasses = new HashSet<>();
 
         scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
@@ -234,13 +229,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(IdRepoImplementationType.RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
                 }
 
-                if (AuditAppender.class.isAssignableFrom(clazz)
-                        && !JdbcAuditAppender.class.equals(clazz) && !isAbstractClazz) {
-
-                    classNames.get(IdRepoImplementationType.AUDIT_APPENDER).add(clazz.getName());
-                    auditAppenderClasses.add(clazz);
-                }
-
                 if (ProvisionSorter.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(IdMImplementationType.PROVISION_SORTER).add(bd.getBeanClassName());
                 }
@@ -262,7 +250,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         passwordRuleClasses = Collections.unmodifiableMap(passwordRuleClasses);
         pullCRClasses = Collections.unmodifiableMap(pullCRClasses);
         pushCRClasses = Collections.unmodifiableMap(pushCRClasses);
-        auditAppenderClasses = Collections.unmodifiableSet(auditAppenderClasses);
     }
 
     @Override
@@ -308,10 +295,5 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
             final Class<? extends PushCorrelationRuleConf> correlationRuleConfClass) {
 
         return pushCRClasses.get(correlationRuleConfClass);
-    }
-
-    @Override
-    public Set<Class<?>> getAuditAppenderClasses() {
-        return auditAppenderClasses;
     }
 }

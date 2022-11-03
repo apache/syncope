@@ -85,7 +85,14 @@ import org.junit.jupiter.api.Test;
 
 public class AuditITCase extends AbstractITCase {
 
-    private AuditEntry queryWithFailure(final AuditQuery query, final int maxWaitSeconds) {
+    private static AuditConfTO buildAuditConf(final String auditLoggerName, final boolean active) {
+        AuditConfTO auditConfTO = new AuditConfTO();
+        auditConfTO.setActive(active);
+        auditConfTO.setKey(auditLoggerName);
+        return auditConfTO;
+    }
+
+    private static AuditEntry queryWithFailure(final AuditQuery query, final int maxWaitSeconds) {
         List<AuditEntry> results = query(query, maxWaitSeconds);
         if (results.isEmpty()) {
             fail("Timeout when executing query for key " + query.getEntityKey());
@@ -392,6 +399,14 @@ public class AuditITCase extends AbstractITCase {
         auditEntry.setOutput(UUID.randomUUID().toString());
         assertDoesNotThrow(() -> AUDIT_SERVICE.create(auditEntry));
 
+        if (IS_ELASTICSEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
         PagedResult<AuditEntry> events = AUDIT_SERVICE.search(new AuditQuery.Builder().
                 size(1).
                 type(auditEntry.getLogger().getType()).
@@ -418,6 +433,14 @@ public class AuditITCase extends AbstractITCase {
         auditEntry.setBefore(UUID.randomUUID().toString());
         auditEntry.setOutput(UUID.randomUUID().toString());
         assertDoesNotThrow(() -> AUDIT_SERVICE.create(auditEntry));
+
+        if (IS_ELASTICSEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
 
         PagedResult<AuditEntry> events = AUDIT_SERVICE.search(new AuditQuery.Builder().
                 size(1).
@@ -461,7 +484,7 @@ public class AuditITCase extends AbstractITCase {
                     auditFilePath,
                     content -> content.contains(
                             "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
-                                    + " - This is a static test message"),
+                            + " - This is a static test message"),
                     10);
 
             // nothing expected in audit_for_Master_norewrite_file.log instead
@@ -469,7 +492,7 @@ public class AuditITCase extends AbstractITCase {
                     auditNoRewriteFilePath,
                     content -> !content.contains(
                             "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
-                                    + " - This is a static test message"),
+                            + " - This is a static test message"),
                     10);
         } catch (IOException e) {
             fail("Unable to read/write log files", e);
@@ -584,25 +607,32 @@ public class AuditITCase extends AbstractITCase {
             pullTaskTO.setDestinationRealm(SyncopeConstants.ROOT_REALM);
             pullTaskTO.setMatchingRule(MatchingRule.UPDATE);
             pullTaskTO.setUnmatchingRule(UnmatchingRule.ASSIGN);
-            RECONCILIATION_SERVICE.pull(
-                    new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).fiql("uid==pullFromLDAP")
-                            .build(),
-                    pullTaskTO);
+            RECONCILIATION_SERVICE.pull(new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).
+                    fiql("uid==pullFromLDAP").build(), pullTaskTO);
+
             // update pullTaskTO -> another audit entry
-            pullFromLDAP = updateUser(new UserUR.Builder(USER_SERVICE.read("pullFromLDAP").getKey())
-                    .plainAttr(new AttrPatch.Builder(new Attr.Builder("ctype").value("abcdef").build()).build())
-                    .build()).getEntity();
+            pullFromLDAP = updateUser(new UserUR.Builder(USER_SERVICE.read("pullFromLDAP").getKey()).
+                    plainAttr(new AttrPatch.Builder(new Attr.Builder("ctype").value("abcdef").build()).build()).
+                    build()).getEntity();
+
             // search by empty type and category events and get both events on testfromLDAP
-            assertEquals(2,
-                    AUDIT_SERVICE.search(new AuditQuery.Builder()
-                            .entityKey(pullFromLDAP.getKey())
-                            .page(1)
-                            .size(10)
-                            .events(List.of(
-                                    "create", "update", "matchingrule_update", "unmatchingrule_assign",
-                                    "unmatchingrule_provision"))
-                            .result(AuditElements.Result.SUCCESS)
-                            .build()).getTotalCount());
+            if (IS_ELASTICSEARCH_ENABLED) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+
+            assertEquals(2, AUDIT_SERVICE.search(new AuditQuery.Builder().
+                    entityKey(pullFromLDAP.getKey()).
+                    page(1).
+                    size(10).
+                    events(List.of(
+                            "create", "update", "matchingrule_update", "unmatchingrule_assign",
+                            "unmatchingrule_provision")).
+                    result(AuditElements.Result.SUCCESS).
+                    build()).getTotalCount());
         } finally {
             if (pullFromLDAP != null) {
                 USER_SERVICE.deassociate(new ResourceDR.Builder()
@@ -624,12 +654,5 @@ public class AuditITCase extends AbstractITCase {
                         false));
             }
         }
-    }
-
-    private static AuditConfTO buildAuditConf(final String auditLoggerName, final boolean active) {
-        AuditConfTO auditConfTO = new AuditConfTO();
-        auditConfTO.setActive(active);
-        auditConfTO.setKey(auditLoggerName);
-        return auditConfTO;
     }
 }
