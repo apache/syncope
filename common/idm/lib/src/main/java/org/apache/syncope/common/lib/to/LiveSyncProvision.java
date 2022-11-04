@@ -21,12 +21,10 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.policy.PolicyTO;
 
 @Schema(allOf = { AbstractProvision.class }, discriminatorProperty = "_class")
 public class LiveSyncProvision extends AbstractProvision {

@@ -22,12 +22,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.policy.PolicyTO;
 
 @Schema(allOf = { AbstractProvision.class }, discriminatorProperty = "_class")
 public class ResourceProvision extends AbstractProvision {
@@ -62,7 +60,7 @@ public class ResourceProvision extends AbstractProvision {
     public void setUidOnCreate(final String uidOnCreate) {
         this.uidOnCreate = uidOnCreate;
     }
-    
+
     @JacksonXmlElementWrapper(localName = "virSchemas")
     @JacksonXmlProperty(localName = "virSchema")
     public List<String> getVirSchemas() {
