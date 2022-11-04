@@ -33,6 +33,7 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
@@ -164,9 +165,10 @@ public class SyncopeClient {
 
     public Pair<String, String> gitAndBuildInfo() {
         try {
+            JsonNode info = info();
             return Pair.of(
-                    info().get("git").get("commit").get("id").asText(),
-                    info().get("build").get("version").asText());
+                    info.has("git") ? info.get("git").get("commit").get("id").asText() : StringUtils.EMPTY,
+                    info.get("build").get("version").asText());
         } catch (IOException e) {
             throw new RuntimeException("While getting build and git Info", e);
         }
