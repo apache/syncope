@@ -165,7 +165,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     @Override
     protected int doCount(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
         CountRequest request = new CountRequest(
-                ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
+                ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), kind)).
                 query(getQueryBuilder(adminRealms, cond, kind));
 
         try {
@@ -224,7 +224,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         sortBuilders(kind, orderBy).forEach(sourceBuilder::sort);
 
         SearchRequest request = new SearchRequest(
-                ElasticsearchUtils.getContextDomainName(AuthContextUtils.getDomain(), kind)).
+                ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), kind)).
                 searchType(SearchType.QUERY_THEN_FETCH).
                 source(sourceBuilder);
 

@@ -182,7 +182,7 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
             final String subcategory,
             final List<String> events,
             final AuditElements.Result result,
-            final List<OrderByClause> orderByClauses) {
+            final List<OrderByClause> orderBy) {
 
         String queryString = "SELECT " + select()
                 + " FROM " + AUDIT_TABLE
@@ -193,9 +193,9 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
                         result(result).
                         events(events).
                         build();
-        if (!orderByClauses.isEmpty()) {
-            queryString += " ORDER BY " + orderByClauses.stream().
-                    map(orderBy -> orderBy.getField() + ' ' + orderBy.getDirection().name()).
+        if (!orderBy.isEmpty()) {
+            queryString += " ORDER BY " + orderBy.stream().
+                    map(clause -> clause.getField() + ' ' + clause.getDirection().name()).
                     collect(Collectors.joining(","));
         }
 

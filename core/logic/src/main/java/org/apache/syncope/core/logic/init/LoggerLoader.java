@@ -32,20 +32,25 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.MemoryAppender;
-import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
+import org.apache.syncope.core.logic.audit.DefaultAuditAppender;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 
 @Component
 public class LoggerLoader implements SyncopeLoader {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LoggerLoader.class);
 
     @Autowired
     private DomainsHolder domainsHolder;
@@ -56,8 +61,8 @@ public class LoggerLoader implements SyncopeLoader {
     @Autowired
     private ImplementationLookup implementationLookup;
 
-    @Value("${enable.jdbcAuditAppender:true}")
-    private boolean enableJdbcAuditAppender;
+    @Value("${default.audit.appender:org.apache.syncope.core.logic.audit.JdbcAuditAppender}")
+    private String defaultAuditAppender;
 
     private final Map<String, MemoryAppender> memoryAppenders = new HashMap<>();
 
@@ -75,15 +80,19 @@ public class LoggerLoader implements SyncopeLoader {
                 forEach(entry -> memoryAppenders.put(entry.getKey(), (MemoryAppender) entry.getValue()));
 
         domainsHolder.getDomains().keySet().forEach(domain -> {
-            if (enableJdbcAuditAppender) {
-                JdbcAuditAppender jdbcAuditAppender = (JdbcAuditAppender) ApplicationContextProvider.getBeanFactory().
-                        createBean(JdbcAuditAppender.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-                jdbcAuditAppender.init(domain);
+            try {
+                DefaultAuditAppender dfaa = (DefaultAuditAppender) ApplicationContextProvider.getBeanFactory().
+                        createBean(
+                                ClassUtils.forName(defaultAuditAppender, ClassUtils.getDefaultClassLoader()),
+                                AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+                dfaa.init(domain);
 
                 LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(domain), null, false);
-                logConf.addAppender(jdbcAuditAppender.getTargetAppender(), Level.DEBUG, null);
+                logConf.addAppender(dfaa.getTargetAppender(), Level.DEBUG, null);
                 logConf.setLevel(Level.DEBUG);
                 ctx.getConfiguration().addLogger(logConf.getName(), logConf);
+            } catch (Exception e) {
+                LOG.error("While creating instance of DefaultAuditAppender {}", defaultAuditAppender, e);
             }
 
             // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
