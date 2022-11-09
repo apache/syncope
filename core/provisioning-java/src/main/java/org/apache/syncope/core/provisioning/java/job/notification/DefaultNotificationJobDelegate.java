@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.job.notification;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -31,6 +30,8 @@ import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.AuditManager;
+import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
@@ -38,6 +39,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +58,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
 
     protected final NotificationManager notificationManager;
 
-    protected final AtomicReference<String> status = new AtomicReference<>();
+    protected final ApplicationEventPublisher publisher;
 
     protected boolean interrupt;
 
@@ -67,18 +69,19 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
             final JavaMailSender mailSender,
             final TaskUtilsFactory taskUtilsFactory,
             final AuditManager auditManager,
-            final NotificationManager notificationManager) {
+            final NotificationManager notificationManager,
+            final ApplicationEventPublisher publisher) {
 
         this.taskDAO = taskDAO;
         this.mailSender = mailSender;
         this.taskUtilsFactory = taskUtilsFactory;
         this.auditManager = auditManager;
         this.notificationManager = notificationManager;
+        this.publisher = publisher;
     }
 
-    @Override
-    public String currentStatus() {
-        return status.get();
+    protected void setStatus(final String status) {
+        publisher.publishEvent(new JobStatusEvent(this, JobManager.NOTIFICATION_JOB.getName(), status));
     }
 
     @Override
@@ -127,7 +130,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
                         + task.getTextBody() + '\n');
             }
 
-            status.set("Sending notifications to " + task.getRecipients());
+            setStatus("Sending notifications to " + task.getRecipients());
 
             for (String to : task.getRecipients()) {
                 try {
@@ -219,7 +222,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
     public void execute(final String executor) throws JobExecutionException {
         List<NotificationTask> tasks = taskDAO.<NotificationTask>findToExec(TaskType.NOTIFICATION);
 
-        status.set("Sending out " + tasks.size() + " notifications");
+        setStatus("Sending out " + tasks.size() + " notifications");
 
         for (int i = 0; i < tasks.size() && !interrupt; i++) {
             LOG.debug("Found notification task {} to be executed: starting...", tasks.get(i));
@@ -230,6 +233,8 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
             LOG.debug("Notification job interrupted");
             interrupted = true;
         }
+
+        setStatus(null);
     }
 
     protected static boolean hasToBeRegistered(final TaskExec<NotificationTask> execution) {

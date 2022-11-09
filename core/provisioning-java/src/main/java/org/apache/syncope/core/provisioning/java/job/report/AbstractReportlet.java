@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.java.job.report;
 
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
+import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -32,6 +34,9 @@ public abstract class AbstractReportlet implements Reportlet {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractReportlet.class);
 
+    @Autowired
+    protected ApplicationEventPublisher publisher;
+
     protected ReportletConf conf;
 
     @Override
@@ -39,18 +44,22 @@ public abstract class AbstractReportlet implements Reportlet {
         this.conf = conf;
     }
 
-    protected abstract void doExtract(ReportletConf conf, ContentHandler handler, AtomicReference<String> status)
+    protected void setStatus(final String refDesc, final String status) {
+        publisher.publishEvent(new JobStatusEvent(this, refDesc, status));
+    }
+
+    protected abstract void doExtract(ReportletConf conf, ContentHandler handler, String refDesc)
             throws SAXException;
 
     @Override
     @Transactional(readOnly = true)
-    public void extract(final ContentHandler handler, final AtomicReference<String> status) throws SAXException {
+    public void extract(final ContentHandler handler, final String refDesc) throws SAXException {
         AttributesImpl atts = new AttributesImpl();
         atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, conf.getName());
         atts.addAttribute("", "", ReportXMLConst.ATTR_CLASS, ReportXMLConst.XSD_STRING, getClass().getName());
         handler.startElement("", "", ReportXMLConst.ELEMENT_REPORTLET, atts);
 
-        doExtract(conf, handler, status);
+        doExtract(conf, handler, refDesc);
 
         handler.endElement("", "", ReportXMLConst.ELEMENT_REPORTLET);
     }

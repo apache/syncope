@@ -16,35 +16,37 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java.job;
+package org.apache.syncope.core.provisioning.api.event;
 
-import org.apache.syncope.core.provisioning.api.job.JobDelegate;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.InterruptableJob;
-import org.quartz.UnableToInterruptJobException;
+import org.springframework.context.ApplicationEvent;
 
-@DisallowConcurrentExecution
-public abstract class AbstractInterruptableJob implements InterruptableJob {
+public class JobStatusEvent extends ApplicationEvent {
 
-    private final JobDelegate embeddedDelegate = new JobDelegate() {
+    private static final long serialVersionUID = 373067530016978592L;
 
-        @Override
-        public void interrupt() {
-        }
+    private final String jobRefDesc;
 
-        @Override
-        public boolean isInterrupted() {
-            return false;
-        }
+    private final String jobStatus;
 
-    };
+    public JobStatusEvent(final Object source, final String jobRefDesc, final String jobStatus) {
+        super(source);
+        this.jobRefDesc = jobRefDesc;
+        this.jobStatus = jobStatus;
+    }
 
-    public JobDelegate getDelegate() {
-        return embeddedDelegate;
+    public String getJobRefDesc() {
+        return jobRefDesc;
+    }
+
+    public String getJobStatus() {
+        return jobStatus;
     }
 
     @Override
-    public void interrupt() throws UnableToInterruptJobException {
-        getDelegate().interrupt();
+    public String toString() {
+        return "JobStatusEvent{"
+                + "jobRefDesc=" + jobRefDesc
+                + ", jobStatus=" + jobStatus
+                + '}';
     }
 }

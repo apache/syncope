@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.job;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -29,6 +28,8 @@ import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.AuditManager;
+import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
+import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -39,6 +40,7 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implements SchedTaskJobDelegate {
@@ -70,6 +72,9 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
     @Autowired
     protected TaskUtilsFactory taskUtilsFactory;
 
+    @Autowired
+    protected TaskDataBinder taskDataBinder;
+
     /**
      * Notification manager.
      */
@@ -82,15 +87,15 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
     @Autowired
     protected AuditManager auditManager;
 
-    protected final AtomicReference<String> status = new AtomicReference<>();
+    @Autowired
+    protected ApplicationEventPublisher publisher;
 
     protected boolean interrupt;
 
     protected boolean interrupted;
 
-    @Override
-    public String currentStatus() {
-        return status.get();
+    protected void setStatus(final String status) {
+        publisher.publishEvent(new JobStatusEvent(this, taskDataBinder.buildRefDesc(task), status));
     }
 
     @Override
@@ -131,7 +136,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
         execution.setTask(task);
         execution.setExecutor(executor);
 
-        status.set("Initialization completed");
+        setStatus("Initialization completed");
 
         AuditElements.Result result;
 
@@ -153,7 +158,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
         }
         task = (T) taskDAO.save(task);
 
-        status.set("Done");
+        setStatus(null);
 
         notificationManager.createTasks(
                 executor,

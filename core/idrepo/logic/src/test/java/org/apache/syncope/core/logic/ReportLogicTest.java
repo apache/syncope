@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.report.DefaultReportJobDelegate;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
@@ -43,6 +44,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -81,6 +83,12 @@ public class ReportLogicTest extends AbstractTest {
     @Autowired
     private EntityFactory entityFactory;
 
+    @Autowired
+    private ReportDataBinder reportDataBinder;
+
+    @Autowired
+    private ApplicationEventPublisher publisher;
+
     private void checkExport(final String execKey, final ReportExecExportFormat fmt) throws IOException {
         ReportExecExportFormat format = Optional.ofNullable(fmt).orElse(ReportExecExportFormat.XML);
         ReportExec reportExec = logic.getReportExec(execKey);
@@ -104,7 +112,8 @@ public class ReportLogicTest extends AbstractTest {
         report = logic.read(report.getKey());
         assertTrue(report.getExecutions().isEmpty());
 
-        ReportJobDelegate delegate = new DefaultReportJobDelegate(reportDAO, reportExecDAO, entityFactory);
+        ReportJobDelegate delegate = new DefaultReportJobDelegate(
+                reportDAO, reportExecDAO, entityFactory, reportDataBinder, publisher);
         delegate.execute(report.getKey(), "test");
 
         report = logic.read(report.getKey());

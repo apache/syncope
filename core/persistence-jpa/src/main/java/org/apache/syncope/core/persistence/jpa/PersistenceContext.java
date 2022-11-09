@@ -49,6 +49,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
@@ -106,6 +107,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAExternalResourceDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAFIQLQueryDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAGroupDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAImplementationDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAJobStatusDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAMailTemplateDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPANotificationDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCJWKSDAO;
@@ -522,6 +524,12 @@ public class PersistenceContext {
             final @Lazy EntityCacheDAO entityCacheDAO) {
 
         return new JPAImplementationDAO(resourceDAO, entityCacheDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public JobStatusDAO jobStatusDAO() {
+        return new JPAJobStatusDAO();
     }
 
     @ConditionalOnMissingBean

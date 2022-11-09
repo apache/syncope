@@ -18,32 +18,13 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import org.apache.syncope.common.lib.report.ReportletConf;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
+import org.apache.syncope.core.persistence.api.entity.JobStatus;
 
-/**
- * Interface for all elements that can be embedded in a report.
- *
- * @see org.apache.syncope.core.persistence.api.entity.Report
- */
-@FunctionalInterface
-public interface Reportlet {
+public interface JobStatusDAO extends DAO<JobStatus> {
 
-    /**
-     * Optional configuration.
-     *
-     * @param conf configuration
-     */
-    default void setConf(ReportletConf conf) {
-    }
+    JobStatus find(String key);
 
-    /**
-     * Actual data extraction for reporting.
-     *
-     * @param handler SAX content handler for streaming result
-     * @param refDesc current report status (for job reporting)
-     * @throws SAXException if there is any problem in SAX handling
-     */
-    void extract(ContentHandler handler, String refDesc) throws SAXException;
+    JobStatus save(JobStatus jobStatus);
+
+    void delete(String key);
 }

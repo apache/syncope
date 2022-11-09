@@ -49,6 +49,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -107,6 +108,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     public TaskLogic(
             final JobManager jobManager,
             final SchedulerFactoryBean scheduler,
+            final JobStatusDAO jobStatusDAO,
             final TaskDAO taskDAO,
             final TaskExecDAO taskExecDAO,
             final ExternalResourceDAO resourceDAO,
@@ -117,7 +119,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             final NotificationJobDelegate notificationJobDelegate,
             final TaskUtilsFactory taskUtilsFactory) {
 
-        super(jobManager, scheduler);
+        super(jobManager, scheduler, jobStatusDAO);
 
         this.taskDAO = taskDAO;
         this.taskExecDAO = taskExecDAO;

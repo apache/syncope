@@ -62,6 +62,7 @@ import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
+import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
@@ -112,13 +113,14 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     public ReportLogic(
             final JobManager jobManager,
             final SchedulerFactoryBean scheduler,
+            final JobStatusDAO jobStatusDAO,
             final ReportDAO reportDAO,
             final ReportExecDAO reportExecDAO,
             final ConfParamOps confParamOps,
             final ReportDataBinder binder,
             final EntityFactory entityFactory) {
 
-        super(jobManager, scheduler);
+        super(jobManager, scheduler, jobStatusDAO);
 
         this.reportDAO = reportDAO;
         this.reportExecDAO = reportExecDAO;
@@ -272,8 +274,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             final ReportExecExportFormat format) {
 
         // streaming SAX handler from a compressed byte array stream
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
-                ZipInputStream zis = new ZipInputStream(bais)) {
+        try ( ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());  ZipInputStream zis =
+                new ZipInputStream(bais)) {
 
             // a single ZipEntry in the ZipInputStream (see ReportJob)
             zis.getNextEntry();
@@ -419,9 +421,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
         String key = JobNamer.getReportKeyFromJobName(jobKey.getName());
 
-        Report report = reportDAO.find(key);
-        return Optional.ofNullable(report)
-                .map(report1 -> Triple.of(JobType.REPORT, key, binder.buildRefDesc(report1))).orElse(null);
+        return Optional.ofNullable(reportDAO.find(key)).
+                map(f -> Triple.of(JobType.REPORT, key, binder.buildRefDesc(f))).orElse(null);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")

@@ -20,19 +20,20 @@ package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
+import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
+import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
-import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
 import org.apache.syncope.core.provisioning.java.job.SystemLoadReporterJob;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
 import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -48,9 +49,16 @@ abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactiona
 
     protected final SchedulerFactoryBean scheduler;
 
-    protected AbstractJobLogic(final JobManager jobManager, final SchedulerFactoryBean scheduler) {
+    protected final JobStatusDAO jobStatusDAO;
+
+    protected AbstractJobLogic(
+            final JobManager jobManager,
+            final SchedulerFactoryBean scheduler,
+            final JobStatusDAO jobStatusDAO) {
+
         this.jobManager = jobManager;
         this.scheduler = scheduler;
+        this.jobStatusDAO = jobStatusDAO;
     }
 
     protected abstract Triple<JobType, String, String> getReference(JobKey jobKey);
@@ -93,12 +101,9 @@ abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactiona
                 jobTO.setStatus("UNKNOWN");
                 if (jobTO.isRunning()) {
                     try {
-                        Object job = ApplicationContextProvider.getBeanFactory().getBean(jobKey.getName());
-                        if (job instanceof AbstractInterruptableJob
-                                && ((AbstractInterruptableJob) job).getDelegate() != null) {
-
-                            jobTO.setStatus(((AbstractInterruptableJob) job).getDelegate().currentStatus());
-                        }
+                        jobTO.setStatus(Optional.ofNullable(jobStatusDAO.find(jobTO.getRefDesc())).
+                                map(JobStatus::getStatus).
+                                orElse(jobTO.getStatus()));
                     } catch (NoSuchBeanDefinitionException e) {
                         LOG.warn("Could not find job {} implementation", jobKey, e);
                     }

@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.FIQLQuery;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -306,6 +307,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPADelegation();
         } else if (reference.equals(FIQLQuery.class)) {
             result = (E) new JPAFIQLQuery();
+        } else if (reference.equals(JobStatus.class)) {
+            result = (E) new JPAJobStatus();
         } else if (reference.equals(SRARoute.class)) {
             result = (E) new JPASRARoute();
         } else if (reference.equals(AuthModule.class)) {
