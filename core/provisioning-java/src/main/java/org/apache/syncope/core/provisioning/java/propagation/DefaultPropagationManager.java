@@ -709,8 +709,8 @@ public class DefaultPropagationManager implements PropagationManager {
                     || MANDATORY_NULL_OR_EMPTY_ATTR_NAME.equals(attr.getName()));
 
             // see org.identityconnectors.framework.impl.api.local.operations.UpdateDeltaImpl
-            if (attrs.stream().anyMatch(attr -> !OperationalAttributes.PASSWORD_NAME.equals(attr.getName())
-                    && OperationalAttributes.getOperationalAttributeNames().contains(attr.getName()))) {
+            if (attrs.stream().anyMatch(attr -> Name.NAME.equals(attr.getName())
+                    || OperationalAttributes.getOperationalAttributeNames().contains(attr.getName()))) {
 
                 continue;
             }
