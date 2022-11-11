@@ -2,6 +2,17 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.0
+================================================================================
+
+** Bug
+    * [SYNCOPE-1706] - Notification task not created with event category PROPAGATION
+    * [SYNCOPE-1707] - Failure when attempting to add Plain Schema via Console
+
+** Improvement
+    * [SYNCOPE-1696] - Audit Elasticsearch persistence
+    * [SYNCOPE-1708] - Allow enable/disable extensions in enduser
+
 Release Notes - Syncope - Version 3.0.0-M2
 ================================================================================
 
