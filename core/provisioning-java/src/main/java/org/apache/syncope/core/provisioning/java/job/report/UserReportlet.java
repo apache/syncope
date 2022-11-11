@@ -381,11 +381,9 @@ public class UserReportlet extends AbstractReportlet {
         int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
         setStatus(refDesc, "Processing " + total + " users in " + pages + " pages");
-        sleep();
 
         for (int page = 1; page <= pages; page++) {
             setStatus(refDesc, "Processing " + total + " users: page " + page + " of " + pages);
-            sleep();
 
             List<User> users;
             if (StringUtils.isBlank(this.conf.getMatchingCond())) {
