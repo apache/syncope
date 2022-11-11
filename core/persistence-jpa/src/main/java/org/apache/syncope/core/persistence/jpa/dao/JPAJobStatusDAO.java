@@ -41,10 +41,9 @@ public class JPAJobStatusDAO extends AbstractDAO<JobStatus> implements JobStatus
     @Override
     public void delete(final String key) {
         JobStatus jobStatus = find(key);
-        if (jobStatus == null) {
-            return;
+        if (jobStatus != null) {
+            entityManager().remove(jobStatus);
         }
 
-        entityManager().remove(jobStatus);
     }
 }

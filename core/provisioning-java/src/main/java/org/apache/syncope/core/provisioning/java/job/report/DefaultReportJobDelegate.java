@@ -99,8 +99,16 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
         this.publisher = publisher;
     }
 
+    /**
+     * Sets status.
+     * Updating job status is done via an event publishing mechanism
+     * to allow underlying updates to be done in separate threads,
+     * and not as part of the current transaction.
+     *
+     * @param status the status
+     */
     protected void setStatus(final String status) {
-        LOG.error("Status update: {} {}", reportDataBinder.buildRefDesc(report), status);
+        LOG.debug("Status update: {} {}", reportDataBinder.buildRefDesc(report), status);
         publisher.publishEvent(new JobStatusEvent(this, reportDataBinder.buildRefDesc(report), status));
     }
 

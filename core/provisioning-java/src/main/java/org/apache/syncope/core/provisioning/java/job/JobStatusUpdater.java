@@ -36,6 +36,16 @@ public class JobStatusUpdater {
         this.entityFactory = entityFactory;
     }
 
+    /**
+     * It's important to note that responding to job status updates
+     * must be done in async mode, and via a separate special thread executor
+     * that attempts to synchronize job execution serially by only making one thread
+     * active at a given time. Not doing so will force the event executor to launch
+     * separate threads per each status update, which would result in multiple concurrent
+     * INSERT operations on the database, and failing.
+     *
+     * @param event the event
+     */
     @Async("jobStatusUpdaterThreadExecutor")
     @EventListener
     public void update(final JobStatusEvent event) {

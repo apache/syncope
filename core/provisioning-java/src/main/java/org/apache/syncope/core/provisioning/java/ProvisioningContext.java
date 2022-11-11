@@ -263,6 +263,13 @@ public class ProvisioningContext {
         };
     }
 
+    /**
+     * This is a special thread executor that only created a single worker thread.
+     * This is necessary to allow job status update operations to queue up serially
+     * and not via multiple threads to avoid the "lost update" problem.
+     *
+     * @return the async task executor
+     */
     @Bean
     public AsyncTaskExecutor jobStatusUpdaterThreadExecutor() {
         return new TaskExecutorAdapter(Executors.newSingleThreadExecutor());
