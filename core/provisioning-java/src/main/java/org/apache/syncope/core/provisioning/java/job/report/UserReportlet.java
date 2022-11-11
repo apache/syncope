@@ -362,15 +362,6 @@ public class UserReportlet extends AbstractReportlet {
                         AnyTypeKind.USER);
     }
 
-    private void sleep() {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            // ignore
-        }
-
-    }
-
     @Override
     protected void doExtract(
             final ReportletConf conf,

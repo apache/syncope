@@ -274,8 +274,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             final ReportExecExportFormat format) {
 
         // streaming SAX handler from a compressed byte array stream
-        try ( ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());  ZipInputStream zis =
-                new ZipInputStream(bais)) {
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
+                ZipInputStream zis = new ZipInputStream(bais)) {
 
             // a single ZipEntry in the ZipInputStream (see ReportJob)
             zis.getNextEntry();
