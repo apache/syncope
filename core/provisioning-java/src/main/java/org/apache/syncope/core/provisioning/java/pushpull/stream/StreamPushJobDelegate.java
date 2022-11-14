@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -145,6 +146,9 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             profile.getActions().addAll(getPushActions(pushTaskTO.getActions().stream().
                     map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
+
+            this.task = profile.getTask();
+            this.taskType = TaskType.PUSH;
 
             for (PushActions action : profile.getActions()) {
                 action.beforeAll(profile);

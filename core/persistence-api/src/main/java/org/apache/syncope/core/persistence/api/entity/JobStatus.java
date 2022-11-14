@@ -16,14 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.job;
+package org.apache.syncope.core.persistence.api.entity;
 
-/**
- * Implementations of this interface will perform the actual operations required to Quartz's {@link org.quartz.Job}.
- */
-public interface JobDelegate {
+public interface JobStatus extends ProvidedKeyEntity {
 
-    void interrupt();
+    String getStatus();
 
-    boolean isInterrupted();
+    void setStatus(String status);
 }

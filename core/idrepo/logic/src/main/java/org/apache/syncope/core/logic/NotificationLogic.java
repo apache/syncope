@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
+import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -48,10 +49,11 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     public NotificationLogic(
             final JobManager jobManager,
             final SchedulerFactoryBean scheduler,
+            final JobStatusDAO jobStatusDAO,
             final NotificationDAO notificationDAO,
             final NotificationDataBinder binder) {
 
-        super(jobManager, scheduler);
+        super(jobManager, scheduler, jobStatusDAO);
 
         this.notificationDAO = notificationDAO;
         this.binder = binder;
@@ -112,7 +114,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     @Override
     protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
         return JobManager.NOTIFICATION_JOB.equals(jobKey)
-                ? Triple.of(JobType.NOTIFICATION, (String) null, NotificationJob.class.getSimpleName())
+                ? Triple.of(JobType.NOTIFICATION, null, NotificationJob.class.getSimpleName())
                 : null;
     }
 

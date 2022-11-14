@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -112,6 +113,8 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
                     map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
             profile.setExecutor(executor);
+            this.task = profile.getTask();
+            this.taskType = TaskType.PULL;
 
             for (PullActions action : profile.getActions()) {
                 action.beforeAll(profile);

@@ -52,6 +52,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
@@ -378,10 +379,11 @@ public class IdRepoLogicContext {
     public NotificationLogic notificationLogic(
             final NotificationDataBinder binder,
             final JobManager jobManager,
+            final JobStatusDAO jobStatusDAO,
             final SchedulerFactoryBean scheduler,
             final NotificationDAO notificationDAO) {
 
-        return new NotificationLogic(jobManager, scheduler, notificationDAO, binder);
+        return new NotificationLogic(jobManager, scheduler, jobStatusDAO, notificationDAO, binder);
     }
 
     @ConditionalOnMissingBean
@@ -435,11 +437,20 @@ public class IdRepoLogicContext {
             final ConfParamOps confParamOps,
             final ReportDataBinder binder,
             final SchedulerFactoryBean scheduler,
+            final JobStatusDAO jobStatusDAO,
             final ReportDAO reportDAO,
             final EntityFactory entityFactory,
             final ReportExecDAO reportExecDAO) {
 
-        return new ReportLogic(jobManager, scheduler, reportDAO, reportExecDAO, confParamOps, binder, entityFactory);
+        return new ReportLogic(
+                jobManager,
+                scheduler,
+                jobStatusDAO,
+                reportDAO,
+                reportExecDAO,
+                confParamOps,
+                binder,
+                entityFactory);
     }
 
     @ConditionalOnMissingBean
@@ -518,6 +529,7 @@ public class IdRepoLogicContext {
             final TaskExecDAO taskExecDAO,
             final TaskDAO taskDAO,
             final SchedulerFactoryBean scheduler,
+            final JobStatusDAO jobStatusDAO,
             final ConfParamOps confParamOps,
             final ExternalResourceDAO externalResourceDAO,
             final NotificationJobDelegate notificationJobDelegate,
@@ -528,6 +540,7 @@ public class IdRepoLogicContext {
         return new TaskLogic(
                 jobManager,
                 scheduler,
+                jobStatusDAO,
                 taskDAO,
                 taskExecDAO,
                 externalResourceDAO,

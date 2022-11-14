@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.job.report;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
@@ -367,7 +366,7 @@ public class UserReportlet extends AbstractReportlet {
     protected void doExtract(
             final ReportletConf conf,
             final ContentHandler handler,
-            final AtomicReference<String> status)
+            final String refDesc)
             throws SAXException {
 
         if (conf instanceof UserReportletConf) {
@@ -381,10 +380,10 @@ public class UserReportlet extends AbstractReportlet {
         int total = count();
         int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
-        status.set("Processing " + total + " users in " + pages + " pages");
+        setStatus(refDesc, "Processing " + total + " users in " + pages + " pages");
 
         for (int page = 1; page <= pages; page++) {
-            status.set("Processing " + total + " users: page " + page + " of " + pages);
+            setStatus(refDesc, "Processing " + total + " users: page " + page + " of " + pages);
 
             List<User> users;
             if (StringUtils.isBlank(this.conf.getMatchingCond())) {

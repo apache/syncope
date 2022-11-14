@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -71,6 +72,9 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
         profile.getActions().addAll(getPushActions(pushTaskTO.getActions().stream().
                 map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
         profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
+
+        this.task = profile.getTask();
+        this.taskType = TaskType.PUSH;
 
         for (PushActions action : profile.getActions()) {
             action.beforeAll(profile);

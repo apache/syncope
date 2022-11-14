@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -83,7 +82,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
 
     protected ProvisioningProfile<PushTask, PushActions> profile;
 
-    protected final Map<String, MutablePair<Integer, String>> handled = new HashMap<>();
+    protected final Map<String, MutablePair<Integer, String>> handled = new ConcurrentHashMap<>();
 
     protected final Map<String, PushActions> perContextActions = new ConcurrentHashMap<>();
 
@@ -95,21 +94,15 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         }
         pair.setLeft(pair.getLeft() + 1);
         pair.setRight(key);
-    }
 
-    @Override
-    public String currentStatus() {
-        synchronized (status) {
-            if (!handled.isEmpty()) {
-                StringBuilder builder = new StringBuilder("Processed:\n");
-                handled.forEach((key, value) -> builder.append(' ').append(value.getLeft()).append('\t').
-                        append(key).
-                        append(" / latest: ").append(value.getRight()).
-                        append('\n'));
-                status.set(builder.toString());
-            }
+        if (!handled.isEmpty()) {
+            StringBuilder builder = new StringBuilder("Processed:\n");
+            handled.forEach((k, v) -> builder.append(' ').append(v.getLeft()).append('\t').
+                    append(k).
+                    append(" / latest: ").append(v.getRight()).
+                    append('\n'));
+            setStatus(builder.toString());
         }
-        return status.get();
     }
 
     protected void doHandle(
@@ -196,11 +189,11 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
             }
         }
 
-        status.set("Initialization completed");
+        setStatus("Initialization completed");
 
         // First realms...
         if (pushTask.getResource().getOrgUnit() != null) {
-            status.set("Pushing realms");
+            setStatus("Pushing realms");
 
             RealmPushResultHandler handler = buildRealmHandler();
             handler.setProfile(profile);
@@ -226,7 +219,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
                 collect(Collectors.toList())) {
 
-            status.set("Pushing " + provision.getAnyType());
+            setStatus("Pushing " + provision.getAnyType());
 
             AnyType anyType = anyTypeDAO.find(provision.getAnyType());
 
@@ -283,7 +276,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
             interrupted = true;
         }
 
-        status.set("Push done");
+        setStatus("Push done");
 
         String result = createReport(profile.getResults(), pushTask.getResource(), dryRun);
         LOG.debug("Push result: {}", result);

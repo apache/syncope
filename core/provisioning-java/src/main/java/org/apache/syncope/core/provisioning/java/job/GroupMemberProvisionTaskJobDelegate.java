@@ -90,13 +90,13 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         }
         result.append("provision\n\n");
 
-        status.set(result.toString());
+        setStatus(result.toString());
 
         MembershipCond membershipCond = new MembershipCond();
         membershipCond.setGroup(groupKey);
         List<User> users = searchDAO.search(SearchCond.getLeaf(membershipCond), AnyTypeKind.USER);
         Collection<String> gResources = groupDAO.findAllResourceKeys(groupKey);
-        status.set("About to "
+        setStatus("About to "
                 + (action == ProvisionAction.DEPROVISION ? "de" : "") + "provision "
                 + users.size() + " users from " + gResources);
 
@@ -126,7 +126,7 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         membershipCond = new MembershipCond();
         membershipCond.setGroup(groupKey);
         List<AnyObject> anyObjects = searchDAO.search(SearchCond.getLeaf(membershipCond), AnyTypeKind.ANY_OBJECT);
-        status.set("About to "
+        setStatus("About to "
                 + (action == ProvisionAction.DEPROVISION ? "de" : "") + "provision "
                 + anyObjects.size() + " any objects from " + gResources);
 

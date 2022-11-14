@@ -26,14 +26,19 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
+import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 public abstract class AbstractExecutableLogic<T extends EntityTO> extends AbstractJobLogic<T> {
 
-    public AbstractExecutableLogic(final JobManager jobManager, final SchedulerFactoryBean scheduler) {
-        super(jobManager, scheduler);
+    public AbstractExecutableLogic(
+            final JobManager jobManager,
+            final SchedulerFactoryBean scheduler,
+            final JobStatusDAO jobStatusDAO) {
+
+        super(jobManager, scheduler, jobStatusDAO);
     }
 
     public abstract ExecTO execute(String key, OffsetDateTime startAt, boolean dryRun);

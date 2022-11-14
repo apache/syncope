@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.job.report;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.audit.AuditEntry;
@@ -47,8 +46,10 @@ public class AuditReportlet extends AbstractReportlet {
 
     private DataSource datasource;
 
-    private void doExtractConf(final ContentHandler handler, final AtomicReference<String> status) throws SAXException {
-        status.set("Fetching " + conf.getSize() + " rows from the " + AuditConfDAO.AUDIT_ENTRY_TABLE + " table");
+    private void doExtractConf(final ContentHandler handler, final String refDesc) throws SAXException {
+        setStatus(
+                refDesc,
+                "Fetching " + conf.getSize() + " rows from the " + AuditConfDAO.AUDIT_ENTRY_TABLE + " table");
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource);
         jdbcTemplate.setMaxRows(conf.getSize());
@@ -122,14 +123,14 @@ public class AuditReportlet extends AbstractReportlet {
         }
         handler.endElement("", "", "events");
 
-        status.set("Fetched " + conf.getSize() + " rows from the " + AuditConfDAO.AUDIT_ENTRY_TABLE + " table");
+        setStatus(refDesc, "Fetched " + conf.getSize() + " rows from the " + AuditConfDAO.AUDIT_ENTRY_TABLE + " table");
     }
 
     @Override
     protected void doExtract(
             final ReportletConf conf,
             final ContentHandler handler,
-            final AtomicReference<String> status)
+            final String refDesc)
             throws SAXException {
 
         if (conf instanceof AuditReportletConf) {
@@ -143,6 +144,6 @@ public class AuditReportlet extends AbstractReportlet {
             throw new ReportException(new IllegalArgumentException("Could not get to DataSource"));
         }
 
-        doExtractConf(handler, status);
+        doExtractConf(handler, refDesc);
     }
 }
