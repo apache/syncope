@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PullMode;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -218,6 +219,9 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                     virSchemaDAO.find(resource.getKey(), anyType.getKey()).stream().
                             map(VirSchema::asLinkingMappingItem));
 
+            this.task = profile.getTask();
+            this.taskType = TaskType.PULL;
+            
             connector.fullReconciliation(
                     new ObjectClass(provision.getObjectClass()),
                     handler,
