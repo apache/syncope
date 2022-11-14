@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.job;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -95,6 +96,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
     protected boolean interrupted;
 
     protected void setStatus(final String status) {
+        Objects.requireNonNull(task, "Task cannot be undefined");
         publisher.publishEvent(new JobStatusEvent(this, taskDataBinder.buildRefDesc(task), status));
     }
 
