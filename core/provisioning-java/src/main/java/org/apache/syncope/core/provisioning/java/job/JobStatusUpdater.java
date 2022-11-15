@@ -22,14 +22,17 @@ import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 
 public class JobStatusUpdater {
 
-    protected final JobStatusDAO jobStatusDAO;
+    @Autowired
+    protected JobStatusDAO jobStatusDAO;
 
-    protected final EntityFactory entityFactory;
+    @Autowired
+    protected EntityFactory entityFactory;
 
     public JobStatusUpdater(final JobStatusDAO jobStatusDAO, final EntityFactory entityFactory) {
         this.jobStatusDAO = jobStatusDAO;
@@ -49,6 +52,7 @@ public class JobStatusUpdater {
     @Async("jobStatusUpdaterThreadExecutor")
     @EventListener
     public void update(final JobStatusEvent event) {
+        System.out.println("Updating " + event.getJobRefDesc() + " " + event.getJobStatus());
         if (event.getJobStatus() == null) {
             jobStatusDAO.delete(event.getJobRefDesc());
         } else {
