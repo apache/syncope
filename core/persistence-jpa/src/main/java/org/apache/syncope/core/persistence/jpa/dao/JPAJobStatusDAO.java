@@ -21,8 +21,10 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.persistence.jpa.entity.JPAJobStatus;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+@Repository
 public class JPAJobStatusDAO extends AbstractDAO<JobStatus> implements JobStatusDAO {
 
     @Transactional(readOnly = true)
