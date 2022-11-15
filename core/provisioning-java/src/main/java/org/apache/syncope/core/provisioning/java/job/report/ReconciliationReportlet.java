@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -370,7 +369,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
     protected void doExtract(
             final ReportletConf conf,
             final ContentHandler handler,
-            final AtomicReference<String> status)
+            final String refDesc)
             throws SAXException {
 
         if (conf instanceof ReconciliationReportletConf) {
@@ -385,13 +384,13 @@ public class ReconciliationReportlet extends AbstractReportlet {
             int total = userDAO.count();
             int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
-            status.set("Processing " + total + " users in " + pages + " pages");
+            setStatus(refDesc, "Processing " + total + " users in " + pages + " pages");
 
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
             handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + "s", atts);
 
             for (int page = 1; page <= pages; page++) {
-                status.set("Processing " + total + " users: page " + page + " of " + pages);
+                setStatus(refDesc, "Processing " + total + " users: page " + page + " of " + pages);
 
                 doExtract(handler, userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE));
             }
@@ -401,13 +400,13 @@ public class ReconciliationReportlet extends AbstractReportlet {
             int total = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
             int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
-            status.set("Processing " + total + " users in " + pages + " pages");
+            setStatus(refDesc, "Processing " + total + " users in " + pages + " pages");
 
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
             handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + "s", atts);
 
             for (int page = 1; page <= pages; page++) {
-                status.set("Processing " + total + " users: page " + page + " of " + pages);
+                setStatus(refDesc, "Processing " + total + " users: page " + page + " of " + pages);
 
                 doExtract(handler, searchDAO.search(
                         SyncopeConstants.FULL_ADMIN_REALMS,
@@ -425,13 +424,13 @@ public class ReconciliationReportlet extends AbstractReportlet {
             int total = groupDAO.count();
             int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
-            status.set("Processing " + total + " groups in " + pages + " pages");
+            setStatus(refDesc, "Processing " + total + " groups in " + pages + " pages");
 
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
             handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s", atts);
 
             for (int page = 1; page <= pages; page++) {
-                status.set("Processing " + total + " groups: page " + page + " of " + pages);
+                setStatus(refDesc, "Processing " + total + " groups: page " + page + " of " + pages);
 
                 doExtract(handler, groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE));
             }
@@ -441,13 +440,13 @@ public class ReconciliationReportlet extends AbstractReportlet {
             int total = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.GROUP);
             int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
-            status.set("Processing " + total + " groups in " + pages + " pages");
+            setStatus(refDesc, "Processing " + total + " groups in " + pages + " pages");
 
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(total));
             handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s", atts);
 
             for (int page = 1; page <= pages; page++) {
-                status.set("Processing " + total + " groups: page " + page + " of " + pages);
+                setStatus(refDesc, "Processing " + total + " groups: page " + page + " of " + pages);
 
                 doExtract(handler, searchDAO.search(
                         SyncopeConstants.FULL_ADMIN_REALMS,
@@ -473,7 +472,9 @@ public class ReconciliationReportlet extends AbstractReportlet {
                 int total = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.ANY_OBJECT);
                 int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
-                status.set("Processing " + total + " any objects " + anyType.getKey() + " in " + pages + " pages");
+                setStatus(
+                        refDesc,
+                        "Processing " + total + " any objects " + anyType.getKey() + " in " + pages + " pages");
 
                 atts.clear();
                 atts.addAttribute("", "", "type", ReportXMLConst.XSD_STRING, anyType.getKey());
@@ -481,7 +482,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                 handler.startElement("", "", getAnyElementName(AnyTypeKind.ANY_OBJECT) + "s", atts);
 
                 for (int page = 1; page <= pages; page++) {
-                    status.set("Processing " + total + " any objects " + anyType.getKey()
+                    setStatus(refDesc, "Processing " + total + " any objects " + anyType.getKey()
                             + ": page " + page + " of " + pages);
 
                     doExtract(handler, searchDAO.search(

@@ -372,8 +372,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         Report report = reportDAO.find(key);
         return report == null
-                ? null
-                : Triple.of(JobType.REPORT, key, binder.buildRefDesc(report));
+            ? null
+            : Triple.of(JobType.REPORT, key, binder.buildRefDesc(report));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")

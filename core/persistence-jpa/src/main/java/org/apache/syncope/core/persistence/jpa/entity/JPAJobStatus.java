@@ -16,14 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.job;
+package org.apache.syncope.core.persistence.jpa.entity;
 
-/**
- * Implementations of this interface will perform the actual operations required to Quartz's {@link org.quartz.Job}.
- */
-public interface JobDelegate {
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import org.apache.syncope.core.persistence.api.entity.JobStatus;
 
-    void interrupt();
+@Entity
+@Table(name = JPAJobStatus.TABLE)
+public class JPAJobStatus extends AbstractProvidedKeyEntity implements JobStatus {
 
-    boolean isInterrupted();
+    private static final long serialVersionUID = 9061740216669505871L;
+
+    public static final String TABLE = "JobStatus";
+
+    private String jobStatus;
+
+    @Override
+    public String getStatus() {
+        return jobStatus;
+    }
+
+    @Override
+    public void setStatus(final String status) {
+        jobStatus = status;
+    }
 }
