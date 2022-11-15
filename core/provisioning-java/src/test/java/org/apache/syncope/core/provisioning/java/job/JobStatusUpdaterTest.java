@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class JobStatusUpdaterTest extends AbstractTest {
+
     @Autowired
     private EntityFactory entityFactory;
 
@@ -40,10 +41,13 @@ public class JobStatusUpdaterTest extends AbstractTest {
 
     @Test
     public void verifyUpdate() {
+        String refDesc = "JobRefDesc-" + SecureRandomUtils.generateRandomNumber();
+
         JobStatusUpdater jobStatusUpdater = new JobStatusUpdater(jobStatusDAO, entityFactory);
-        final String refDesc = "JobRefDesc-" + SecureRandomUtils.generateRandomNumber();
+
         jobStatusUpdater.update(new JobStatusEvent(this, refDesc, "Started"));
         assertNotNull(jobStatusDAO.find(refDesc));
+
         jobStatusUpdater.update(new JobStatusEvent(this, refDesc, null));
         assertNull(jobStatusDAO.find(refDesc));
     }

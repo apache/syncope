@@ -88,13 +88,7 @@ public final class RealmUtils {
         }
     }
 
-    private static final Predicate<String> DYN_REALMS_PREDICATE = new Predicate<String>() {
-
-        @Override
-        public boolean test(final String realm) {
-            return !realm.startsWith(SyncopeConstants.ROOT_REALM);
-        }
-    };
+    private static final Predicate<String> DYN_REALMS_PREDICATE = r -> !r.startsWith(SyncopeConstants.ROOT_REALM);
 
     public static Set<String> getEffective(final Set<String> allowedRealms, final String requestedRealm) {
         Pair<Set<String>, Set<String>> normalized = normalize(allowedRealms);

@@ -129,26 +129,24 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
 
         LOG.debug("Executing stream push as {}", executor);
 
+        taskType = TaskType.PUSH;
         try {
             ExternalResource resource = externalResource(anyType, columns, propagationActions);
 
-            PushTask pushTask = entityFactory.newEntity(PushTask.class);
-            pushTask.setResource(resource);
-            pushTask.setMatchingRule(pushTaskTO.getMatchingRule());
-            pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule());
-            pushTask.setPerformCreate(true);
-            pushTask.setPerformUpdate(true);
-            pushTask.setPerformDelete(true);
-            pushTask.setSyncStatus(false);
+            task = entityFactory.newEntity(PushTask.class);
+            task.setResource(resource);
+            task.setMatchingRule(pushTaskTO.getMatchingRule());
+            task.setUnmatchingRule(pushTaskTO.getUnmatchingRule());
+            task.setPerformCreate(true);
+            task.setPerformUpdate(true);
+            task.setPerformDelete(true);
+            task.setSyncStatus(false);
 
-            profile = new ProvisioningProfile<>(connector, pushTask);
+            profile = new ProvisioningProfile<>(connector, task);
             profile.setExecutor(executor);
             profile.getActions().addAll(getPushActions(pushTaskTO.getActions().stream().
                     map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
-
-            this.task = profile.getTask();
-            this.taskType = TaskType.PUSH;
 
             for (PushActions action : profile.getActions()) {
                 action.beforeAll(profile);

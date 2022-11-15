@@ -165,24 +165,25 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
         LOG.debug("Executing stream pull");
 
+        taskType = TaskType.PULL;
         try {
             ExternalResource resource =
                     externalResource(anyType, keyColumn, columns, conflictResolutionAction, pullCorrelationRule);
             Provision provision = resource.getProvisions().get(0);
 
-            PullTask pullTask = entityFactory.newEntity(PullTask.class);
-            pullTask.setResource(resource);
-            pullTask.setMatchingRule(pullTaskTO.getMatchingRule());
-            pullTask.setUnmatchingRule(pullTaskTO.getUnmatchingRule());
-            pullTask.setPullMode(PullMode.FULL_RECONCILIATION);
-            pullTask.setPerformCreate(true);
-            pullTask.setPerformUpdate(true);
-            pullTask.setPerformDelete(false);
-            pullTask.setSyncStatus(false);
-            pullTask.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()));
-            pullTask.setRemediation(pullTaskTO.isRemediation());
+            task = entityFactory.newEntity(PullTask.class);
+            task.setResource(resource);
+            task.setMatchingRule(pullTaskTO.getMatchingRule());
+            task.setUnmatchingRule(pullTaskTO.getUnmatchingRule());
+            task.setPullMode(PullMode.FULL_RECONCILIATION);
+            task.setPerformCreate(true);
+            task.setPerformUpdate(true);
+            task.setPerformDelete(false);
+            task.setSyncStatus(false);
+            task.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()));
+            task.setRemediation(pullTaskTO.isRemediation());
 
-            profile = new ProvisioningProfile<>(connector, pullTask);
+            profile = new ProvisioningProfile<>(connector, task);
             profile.setDryRun(false);
             profile.setConflictResolutionAction(conflictResolutionAction);
             profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
@@ -219,9 +220,6 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                     virSchemaDAO.find(resource.getKey(), anyType.getKey()).stream().
                             map(VirSchema::asLinkingMappingItem));
 
-            this.task = profile.getTask();
-            this.taskType = TaskType.PULL;
-            
             connector.fullReconciliation(
                     new ObjectClass(provision.getObjectClass()),
                     handler,

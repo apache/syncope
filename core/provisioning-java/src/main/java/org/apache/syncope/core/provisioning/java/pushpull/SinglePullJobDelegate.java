@@ -74,20 +74,21 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
 
         LOG.debug("Executing pull on {}", resource);
 
+        taskType = TaskType.PULL;
         try {
-            PullTask pullTask = entityFactory.newEntity(PullTask.class);
-            pullTask.setResource(resource);
-            pullTask.setMatchingRule(pullTaskTO.getMatchingRule() == null
+            task = entityFactory.newEntity(PullTask.class);
+            task.setResource(resource);
+            task.setMatchingRule(pullTaskTO.getMatchingRule() == null
                     ? MatchingRule.UPDATE : pullTaskTO.getMatchingRule());
-            pullTask.setUnmatchingRule(pullTaskTO.getUnmatchingRule() == null
+            task.setUnmatchingRule(pullTaskTO.getUnmatchingRule() == null
                     ? UnmatchingRule.PROVISION : pullTaskTO.getUnmatchingRule());
-            pullTask.setPullMode(PullMode.FILTERED_RECONCILIATION);
-            pullTask.setPerformCreate(pullTaskTO.isPerformCreate());
-            pullTask.setPerformUpdate(pullTaskTO.isPerformUpdate());
-            pullTask.setPerformDelete(pullTaskTO.isPerformDelete());
-            pullTask.setSyncStatus(pullTaskTO.isSyncStatus());
-            pullTask.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()));
-            pullTask.setRemediation(pullTaskTO.isRemediation());
+            task.setPullMode(PullMode.FILTERED_RECONCILIATION);
+            task.setPerformCreate(pullTaskTO.isPerformCreate());
+            task.setPerformUpdate(pullTaskTO.isPerformUpdate());
+            task.setPerformDelete(pullTaskTO.isPerformDelete());
+            task.setSyncStatus(pullTaskTO.isSyncStatus());
+            task.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()));
+            task.setRemediation(pullTaskTO.isRemediation());
             // validate JEXL expressions from templates and proceed if fine
             TemplateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
             pullTaskTO.getTemplates().forEach((type, template) -> {
@@ -95,26 +96,24 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                 if (anyType == null) {
                     LOG.debug("Invalid AnyType {} specified, ignoring...", type);
                 } else {
-                    AnyTemplatePullTask anyTemplate = pullTask.getTemplate(anyType.getKey()).orElse(null);
+                    AnyTemplatePullTask anyTemplate = task.getTemplate(anyType.getKey()).orElse(null);
                     if (anyTemplate == null) {
                         anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
                         anyTemplate.setAnyType(anyType);
-                        anyTemplate.setPullTask(pullTask);
+                        anyTemplate.setPullTask(task);
 
-                        pullTask.add(anyTemplate);
+                        task.add(anyTemplate);
                     }
                     anyTemplate.set(template);
                 }
             });
 
-            profile = new ProvisioningProfile<>(connector, pullTask);
+            profile = new ProvisioningProfile<>(connector, task);
             profile.setDryRun(false);
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
             profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
                     map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
             profile.setExecutor(executor);
-            this.task = profile.getTask();
-            this.taskType = TaskType.PULL;
 
             for (PullActions action : profile.getActions()) {
                 action.beforeAll(profile);
@@ -146,7 +145,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
 
             Stream<Item> mapItems = Stream.concat(
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
-                    virSchemaDAO.find(pullTask.getResource().getKey(), anyType.getKey()).stream().
+                    virSchemaDAO.find(task.getResource().getKey(), anyType.getKey()).stream().
                             map(VirSchema::asLinkingMappingItem));
 
             connector.filteredReconciliation(

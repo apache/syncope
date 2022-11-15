@@ -679,6 +679,17 @@ public class DefaultPropagationManager implements PropagationManager {
         return attrs;
     }
 
+    /**
+     * Checks whether the given attribute shall be treated as an ordinary attribute or not, for purpose of building
+     * AttributeDelta instances.
+     *
+     * @param attr ConnId attibute
+     * @return whether the condition is matched or not
+     */
+    protected boolean isOrdinaryForAttrForDelta(final Attribute attr) {
+        return !attr.is(Name.NAME) && !OperationalAttributes.isOperationalAttribute(attr);
+    }
+
     @Override
     public List<PropagationTaskInfo> setAttributeDeltas(
             final List<PropagationTaskInfo> tasks,
@@ -703,17 +714,9 @@ public class DefaultPropagationManager implements PropagationManager {
             Set<Attribute> attrs = new HashSet<>(beforeAttrs.get(key));
 
             // purge unwanted attributes, even though prepared
-            attrs.removeIf(attr -> attr instanceof Name
-                    || OperationalAttributes.ENABLE_NAME.equals(attr.getName())
-                    || MANDATORY_MISSING_ATTR_NAME.equals(attr.getName())
+            attrs.removeIf(
+                    attr -> MANDATORY_MISSING_ATTR_NAME.equals(attr.getName())
                     || MANDATORY_NULL_OR_EMPTY_ATTR_NAME.equals(attr.getName()));
-
-            // see org.identityconnectors.framework.impl.api.local.operations.UpdateDeltaImpl
-            if (attrs.stream().anyMatch(attr -> Name.NAME.equals(attr.getName())
-                    || OperationalAttributes.getOperationalAttributeNames().contains(attr.getName()))) {
-
-                continue;
-            }
 
             PropagationData propagationData = task.getPropagationData();
 
@@ -725,44 +728,56 @@ public class DefaultPropagationManager implements PropagationManager {
                 Set<Object> valuesToRemove = new HashSet<>();
 
                 Optional.ofNullable(AttributeUtil.find(next.getName(), attrs)).ifPresent(prev -> {
-                    if (next.getValue() == null && prev.getValue() != null) {
-                        valuesToRemove.addAll(prev.getValue());
-                    } else if (next.getValue() != null && prev.getValue() == null) {
+                    // password is unchanged from beforeAttrs but needs to be taken into account anyway
+                    if (next.is(OperationalAttributes.PASSWORD_NAME)) {
                         valuesToAdd.addAll(next.getValue());
-                    } else if (next.getValue() != null && prev.getValue() != null) {
-                        next.getValue().stream().
-                                filter(value -> !prev.getValue().contains(value)).
-                                forEach(valuesToAdd::add);
+                    } else {
+                        if (next.getValue() == null && prev.getValue() != null) {
+                            valuesToRemove.addAll(prev.getValue());
+                        } else if (next.getValue() != null && prev.getValue() == null) {
+                            valuesToAdd.addAll(next.getValue());
+                        } else if (next.getValue() != null && prev.getValue() != null) {
+                            next.getValue().stream().
+                                    filter(value -> !prev.getValue().contains(value)).
+                                    forEach(valuesToAdd::add);
 
-                        prev.getValue().stream().
-                                filter(value -> !next.getValue().contains(value)).
-                                forEach(valuesToRemove::add);
+                            prev.getValue().stream().
+                                    filter(value -> !next.getValue().contains(value)).
+                                    forEach(valuesToRemove::add);
+                        }
                     }
                 });
 
-                if (!valuesToAdd.isEmpty() || !valuesToRemove.isEmpty()) {
-                    attributeDeltas.add(AttributeDeltaBuilder.build(next.getName(), valuesToAdd, valuesToRemove));
+                // Following org.identityconnectors.framework.impl.api.local.operations.UpdateDeltaImpl#updateDelta
+                // we create AttributeDelta instances with (valuesToAdd, valuesToRemove) or (valuesToReplace)
+                // depending on the attribute name
+                if (isOrdinaryForAttrForDelta(next)) {
+                    if (!valuesToAdd.isEmpty() || !valuesToRemove.isEmpty()) {
+                        attributeDeltas.add(AttributeDeltaBuilder.build(next.getName(), valuesToAdd, valuesToRemove));
+                    }
+                } else {
+                    if (!valuesToAdd.isEmpty()) {
+                        attributeDeltas.add(AttributeDeltaBuilder.build(next.getName(), valuesToAdd));
+                    }
                 }
             });
 
             // build delta for new or removed attributes
             Set<String> nextNames = propagationData.getAttributes().stream().
-                    filter(attr -> !(attr instanceof Name) && !OperationalAttributes.isOperationalAttribute(attr)).
+                    filter(this::isOrdinaryForAttrForDelta).
                     map(Attribute::getName).
                     collect(Collectors.toSet());
             Set<String> prevNames = attrs.stream().
-                    filter(attr -> !(attr instanceof Name) && !OperationalAttributes.isOperationalAttribute(attr)).
+                    filter(this::isOrdinaryForAttrForDelta).
                     map(Attribute::getName).
                     collect(Collectors.toSet());
 
             nextNames.stream().filter(name -> !prevNames.contains(name)).
-                    forEach(toAdd -> Optional.ofNullable(
-                    AttributeUtil.find(toAdd, propagationData.getAttributes())).
+                    forEach(toAdd -> Optional.ofNullable(AttributeUtil.find(toAdd, propagationData.getAttributes())).
                     ifPresent(attr -> attributeDeltas.add(
                     AttributeDeltaBuilder.build(attr.getName(), attr.getValue(), Set.of()))));
             prevNames.stream().filter(name -> !nextNames.contains(name)).
-                    forEach(toRemove -> Optional.ofNullable(
-                    AttributeUtil.find(toRemove, attrs)).
+                    forEach(toRemove -> Optional.ofNullable(AttributeUtil.find(toRemove, attrs)).
                     ifPresent(attr -> attributeDeltas.add(
                     AttributeDeltaBuilder.build(attr.getName(), Set.of(), attr.getValue()))));
 

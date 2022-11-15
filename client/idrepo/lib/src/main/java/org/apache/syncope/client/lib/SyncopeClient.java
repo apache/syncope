@@ -376,13 +376,12 @@ public class SyncopeClient {
         }
 
         try {
-            return Triple.of(MAPPER.readValue(
-                    response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS),
-                    new TypeReference<>() {
-            }),
+            return Triple.of(
                     MAPPER.readValue(
-                            response.getHeaderString(RESTHeaders.DELEGATIONS),
-                            new TypeReference<>() {
+                            response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS), new TypeReference<>() {
+                    }),
+                    MAPPER.readValue(
+                            response.getHeaderString(RESTHeaders.DELEGATIONS), new TypeReference<>() {
                     }),
                     response.readEntity(UserTO.class));
         } catch (IOException e) {

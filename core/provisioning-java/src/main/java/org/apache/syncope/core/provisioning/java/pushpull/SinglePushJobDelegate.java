@@ -56,25 +56,24 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
 
         LOG.debug("Executing push on {}", resource);
 
-        PushTask pushTask = entityFactory.newEntity(PushTask.class);
-        pushTask.setResource(resource);
-        pushTask.setMatchingRule(pushTaskTO.getMatchingRule() == null
-                ? MatchingRule.LINK : pushTaskTO.getMatchingRule());
-        pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
-                ? UnmatchingRule.ASSIGN : pushTaskTO.getUnmatchingRule());
-        pushTask.setPerformCreate(pushTaskTO.isPerformCreate());
-        pushTask.setPerformUpdate(pushTaskTO.isPerformUpdate());
-        pushTask.setPerformDelete(pushTaskTO.isPerformDelete());
-        pushTask.setSyncStatus(pushTaskTO.isSyncStatus());
+        taskType = TaskType.PUSH;
 
-        profile = new ProvisioningProfile<>(connector, pushTask);
+        task = entityFactory.newEntity(PushTask.class);
+        task.setResource(resource);
+        task.setMatchingRule(pushTaskTO.getMatchingRule() == null
+                ? MatchingRule.LINK : pushTaskTO.getMatchingRule());
+        task.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
+                ? UnmatchingRule.ASSIGN : pushTaskTO.getUnmatchingRule());
+        task.setPerformCreate(pushTaskTO.isPerformCreate());
+        task.setPerformUpdate(pushTaskTO.isPerformUpdate());
+        task.setPerformDelete(pushTaskTO.isPerformDelete());
+        task.setSyncStatus(pushTaskTO.isSyncStatus());
+
+        profile = new ProvisioningProfile<>(connector, task);
         profile.setExecutor(executor);
         profile.getActions().addAll(getPushActions(pushTaskTO.getActions().stream().
                 map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
         profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
-
-        this.task = profile.getTask();
-        this.taskType = TaskType.PUSH;
 
         for (PushActions action : profile.getActions()) {
             action.beforeAll(profile);
