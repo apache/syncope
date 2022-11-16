@@ -104,7 +104,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     @Override
     protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
         return JobManager.NOTIFICATION_JOB.equals(jobKey)
-                ? Triple.of(JobType.NOTIFICATION, (String) null, NotificationJob.class.getSimpleName())
+                ? Triple.of(JobType.NOTIFICATION, null, NotificationJob.class.getSimpleName())
                 : null;
     }
 

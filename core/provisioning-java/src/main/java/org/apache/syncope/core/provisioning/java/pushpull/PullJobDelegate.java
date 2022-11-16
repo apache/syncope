@@ -111,6 +111,15 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         });
         pair.setLeft(pair.getLeft() + 1);
         pair.setRight(name.getNameValue());
+
+        if (!handled.isEmpty()) {
+            StringBuilder builder = new StringBuilder("Processed:\n");
+            handled.forEach((k, v) -> builder.append(' ').append(v.getLeft()).append('\t').
+                    append(k).
+                    append(" / latest: ").append(v.getRight()).
+                    append('\n'));
+            setStatus(builder.toString());
+        }
     }
 
     @Override
@@ -122,24 +131,6 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
     public void setInterrupted() {
         this.interrupted = true;
     }
-
-    @Override
-    public String currentStatus() {
-        synchronized (status) {
-            if (!handled.isEmpty()) {
-                StringBuilder builder = new StringBuilder("Processed:\n");
-                handled.forEach((key, value) -> {
-                    builder.append(' ').append(value.getLeft()).append('\t').
-                            append(key.getObjectClassValue()).
-                            append(" / latest: ").append(value.getRight()).
-                            append('\n');
-                });
-                status.set(builder.toString());
-            }
-        }
-        return status.get();
-    }
-
     protected void setGroupOwners(final GroupPullResultHandler ghandler) {
         ghandler.getGroupOwnerMap().forEach((groupKey, ownerKey) -> {
             Group group = groupDAO.find(groupKey);
@@ -243,11 +234,11 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             }
         }
 
-        status.set("Initialization completed");
+        setStatus("Initialization completed");
 
         // First realms...
         if (pullTask.getResource().getOrgUnit() != null) {
-            status.set("Pulling " + pullTask.getResource().getOrgUnit().getObjectClass().getObjectClassValue());
+            setStatus("Pulling " + pullTask.getResource().getOrgUnit().getObjectClass());
 
             OrgUnit orgUnit = pullTask.getResource().getOrgUnit();
 
@@ -307,7 +298,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
                 collect(Collectors.toList())) {
 
-            status.set("Pulling " + provision.getObjectClass().getObjectClassValue());
+            setStatus("Pulling " + provision.getObjectClass());
 
             SyncopePullResultHandler handler;
             switch (provision.getAnyType().getKind()) {
@@ -396,7 +387,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             }
         }
 
-        status.set("Pull done");
+        setStatus("Pull done");
 
         String result = createReport(profile.getResults(), pullTask.getResource(), dryRun);
         LOG.debug("Pull result: {}", result);

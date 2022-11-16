@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -296,7 +295,7 @@ public class GroupReportlet extends AbstractReportlet {
     protected void doExtract(
             final ReportletConf conf,
             final ContentHandler handler,
-            final AtomicReference<String> status)
+            final String refDesc)
             throws SAXException {
 
         if (conf instanceof GroupReportletConf) {
@@ -310,10 +309,10 @@ public class GroupReportlet extends AbstractReportlet {
         int total = count();
         int pages = (total / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
-        status.set("Processing " + total + " groups in " + pages + " pages");
+        setStatus(refDesc, "Processing " + total + " groups in " + pages + " pages");
 
         for (int page = 1; page <= pages; page++) {
-            status.set("Processing " + total + " groups: page " + page + " of " + pages);
+            setStatus(refDesc, "Processing " + total + " groups: page " + page + " of " + pages);
 
             List<Group> groups;
             if (StringUtils.isBlank(this.conf.getMatchingCond())) {
@@ -330,7 +329,7 @@ public class GroupReportlet extends AbstractReportlet {
 
             doExtract(handler, groups);
 
-            status.set("Processed " + total + " groups: page " + page + " of " + pages);
+            setStatus(refDesc, "Processed " + total + " groups: page " + page + " of " + pages);
         }
     }
 }

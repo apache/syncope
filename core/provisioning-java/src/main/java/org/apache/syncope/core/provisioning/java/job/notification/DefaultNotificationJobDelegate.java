@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang3.BooleanUtils;
@@ -39,6 +38,8 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.AuditManager;
+import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -47,6 +48,7 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -74,7 +76,8 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
     @Autowired
     private NotificationManager notificationManager;
 
-    private final AtomicReference<String> status = new AtomicReference<>();
+    @Autowired
+    protected ApplicationEventPublisher publisher;
 
     private boolean interrupt;
 
@@ -110,9 +113,8 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
         }
     }
 
-    @Override
-    public String currentStatus() {
-        return status.get();
+    protected void setStatus(final String status) {
+        publisher.publishEvent(new JobStatusEvent(this, JobManager.NOTIFICATION_JOB.getName(), status));
     }
 
     @Override
@@ -161,7 +163,7 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
                         + task.getTextBody() + "\n");
             }
 
-            status.set("Sending notifications to " + task.getRecipients());
+            setStatus("Sending notifications to " + task.getRecipients());
 
             for (String to : task.getRecipients()) {
                 try {
@@ -253,7 +255,7 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
     public void execute() throws JobExecutionException {
         List<NotificationTask> tasks = taskDAO.<NotificationTask>findToExec(TaskType.NOTIFICATION);
 
-        status.set("Sending out " + tasks.size() + " notifications");
+        setStatus("Sending out " + tasks.size() + " notifications");
 
         for (int i = 0; i < tasks.size() && !interrupt; i++) {
             LOG.debug("Found notification task {} to be executed: starting...", tasks.get(i));
@@ -264,6 +266,8 @@ public class DefaultNotificationJobDelegate implements InitializingBean, Notific
             LOG.debug("Notification job interrupted");
             interrupted = true;
         }
+
+        setStatus(null);
     }
 
     private boolean hasToBeRegistered(final TaskExec execution) {

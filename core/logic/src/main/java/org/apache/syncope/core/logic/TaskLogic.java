@@ -96,7 +96,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @Autowired
     private TaskDataBinder binder;
-
+    
     @Autowired
     private PropagationTaskExecutor taskExecutor;
 

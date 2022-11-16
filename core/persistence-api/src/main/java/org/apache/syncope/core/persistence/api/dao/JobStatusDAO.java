@@ -16,14 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.job;
+package org.apache.syncope.core.persistence.api.dao;
 
-/**
- * Implementations of this interface will perform the actual operations required to Quartz's {@link org.quartz.Job}.
- */
-public interface JobDelegate {
+import org.apache.syncope.core.persistence.api.entity.JobStatus;
 
-    void interrupt();
+public interface JobStatusDAO extends DAO<JobStatus> {
 
-    boolean isInterrupted();
+    JobStatus find(String key);
+
+    JobStatus save(JobStatus jobStatus);
+
+    void delete(String key);
 }

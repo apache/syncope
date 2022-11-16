@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -43,12 +42,15 @@ import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
+import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.helpers.AttributesImpl;
@@ -83,22 +85,36 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
     private ReportExecDAO reportExecDAO;
 
     @Autowired
+    protected ReportDataBinder reportDataBinder;
+
+    @Autowired
+    protected ApplicationEventPublisher publisher;
+
+    protected Report report;
+
+    @Autowired
     private EntityFactory entityFactory;
 
-    private final AtomicReference<String> status = new AtomicReference<>();
-
     private boolean interrupt;
-
+    
     private boolean interrupted;
-
-    @Override
-    public String currentStatus() {
-        return status.get();
+    
+    /**
+     * Sets status.
+     * Updating job status is done via an event publishing mechanism
+     * to allow underlying updates to be done in separate threads,
+     * and not as part of the current transaction.
+     *
+     * @param status the status
+     */
+    protected void setStatus(final String status) {
+        LOG.debug("Status update: {} {}", reportDataBinder.buildRefDesc(report), status);
+        publisher.publishEvent(new JobStatusEvent(this, reportDataBinder.buildRefDesc(report), status));
     }
 
     @Override
     public void interrupt() {
-        interrupt = true;
+        interrupted = true;
     }
 
     @Override
@@ -109,7 +125,7 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
     @Transactional
     @Override
     public void execute(final String reportKey) throws JobExecutionException {
-        Report report = reportDAO.find(reportKey);
+        report = reportDAO.find(reportKey);
         if (report == null) {
             throw new JobExecutionException("Report " + reportKey + " not found");
         }
@@ -153,7 +169,7 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
         execution.setStatus(ReportExecStatus.RUNNING);
         execution = reportExecDAO.save(execution);
 
-        status.set("Starting");
+        setStatus("Starting");
 
         // 3. actual report execution
         StringBuilder reportExecutionMessage = new StringBuilder();
@@ -164,15 +180,15 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
             atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, report.getName());
             handler.startElement("", "", ReportXMLConst.ELEMENT_REPORT, atts);
 
-            status.set("Generating report header");
+            setStatus("Generating report header");
 
             // iterate over reportlet instances defined for this report
             for (int i = 0; i < report.getReportlets().size() && !interrupt; i++) {
                 Optional<Reportlet> reportlet = ImplementationManager.buildReportlet(report.getReportlets().get(i));
                 if (reportlet.isPresent()) {
                     try {
-                        status.set("Invoking reportlet " + report.getReportlets().get(i).getKey());
-                        reportlet.get().extract(handler, status);
+                        setStatus("Invoking reportlet " + report.getReportlets().get(i).getKey());
+                        reportlet.get().extract(handler, reportDataBinder.buildRefDesc(report));
                     } catch (Throwable t) {
                         LOG.error("While executing reportlet {} for report {}", reportlet, reportKey, t);
 
@@ -193,7 +209,7 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
             }
 
             // report footer
-            status.set("Generating report footer");
+            setStatus("Generating report footer");
 
             handler.endElement("", "", ReportXMLConst.ELEMENT_REPORT);
             handler.endDocument();
@@ -207,7 +223,7 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
 
             throw new JobExecutionException(e, true);
         } finally {
-            status.set("Completed");
+            setStatus(null);
 
             try {
                 zos.closeEntry();

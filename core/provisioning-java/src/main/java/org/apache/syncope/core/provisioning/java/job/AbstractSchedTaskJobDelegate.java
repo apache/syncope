@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.java.job;
 
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Objects;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -28,6 +28,8 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.AuditManager;
+import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
+import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -36,6 +38,7 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelegate {
@@ -62,6 +65,9 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
     @Autowired
     protected EntityFactory entityFactory;
 
+    @Autowired
+    protected TaskDataBinder taskDataBinder;
+
     /**
      * Notification manager.
      */
@@ -74,15 +80,16 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
     @Autowired
     protected AuditManager auditManager;
 
-    protected final AtomicReference<String> status = new AtomicReference<>();
+    @Autowired
+    protected ApplicationEventPublisher publisher;
 
     protected boolean interrupt;
 
     protected boolean interrupted;
 
-    @Override
-    public String currentStatus() {
-        return status.get();
+    protected void setStatus(final String status) {
+        Objects.requireNonNull(task, "Task cannot be undefined");
+        publisher.publishEvent(new JobStatusEvent(this, taskDataBinder.buildRefDesc(task), status));
     }
 
     @Override
@@ -114,7 +121,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         execution.setStart(new Date());
         execution.setTask(task);
 
-        status.set("Initialization completed");
+        setStatus("Initialization completed");
 
         AuditElements.Result result;
 
@@ -136,7 +143,7 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
         }
         task = taskDAO.save(task);
 
-        status.set("Done");
+        setStatus(null);
 
         notificationManager.createTasks(
                 AuthContextUtils.getWho(),

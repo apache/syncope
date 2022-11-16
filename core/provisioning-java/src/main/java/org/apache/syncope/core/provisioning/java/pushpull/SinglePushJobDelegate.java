@@ -69,6 +69,8 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
                 map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
         profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 
+        this.task = profile.getTask();
+
         for (PushActions action : profile.getActions()) {
             action.beforeAll(profile);
         }

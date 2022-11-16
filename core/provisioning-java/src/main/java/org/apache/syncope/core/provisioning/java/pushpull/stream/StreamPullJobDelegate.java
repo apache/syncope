@@ -222,6 +222,8 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
                     virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
 
+            this.task = profile.getTask();
+            
             connector.fullReconciliation(
                     provision.getObjectClass(),
                     handler,

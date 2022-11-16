@@ -110,6 +110,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
             profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
                     map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
+            this.task = profile.getTask();
 
             for (PullActions action : profile.getActions()) {
                 action.beforeAll(profile);
