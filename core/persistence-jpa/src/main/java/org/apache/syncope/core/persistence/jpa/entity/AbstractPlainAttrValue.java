@@ -140,7 +140,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
         switch (schema.getType()) {
 
             case Boolean:
-                this.setBooleanValue(Boolean.parseBoolean(value));
+                this.setBooleanValue(Boolean.valueOf(value));
                 break;
 
             case Long:

@@ -76,16 +76,21 @@ public class SecurityContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DefaultCredentialChecker credentialChecker(final SecurityProperties props,
-                                                      final JWSAlgorithm jwsAlgorithm) {
-        return new DefaultCredentialChecker(jwsKey(jwsAlgorithm, props),
-            props.getAdminPassword(), props.getAnonymousKey());
+    public DefaultCredentialChecker credentialChecker(
+            final SecurityProperties props,
+            final JWSAlgorithm jwsAlgorithm) {
+
+        return new DefaultCredentialChecker(
+                jwsKey(jwsAlgorithm, props),
+                props.getAdminPassword(),
+                props.getAnonymousKey());
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AccessTokenJWSVerifier accessTokenJWSVerifier(final JWSAlgorithm jwsAlgorithm,
-                                                         final SecurityProperties props)
+    public AccessTokenJWSVerifier accessTokenJWSVerifier(
+            final JWSAlgorithm jwsAlgorithm,
+            final SecurityProperties props)
             throws JOSEException, NoSuchAlgorithmException, InvalidKeySpecException {
 
         return new AccessTokenJWSVerifier(jwsAlgorithm, jwsKey(jwsAlgorithm, props));
@@ -93,8 +98,9 @@ public class SecurityContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AccessTokenJWSSigner accessTokenJWSSigner(final JWSAlgorithm jwsAlgorithm,
-                                                     final SecurityProperties props)
+    public AccessTokenJWSSigner accessTokenJWSSigner(
+            final JWSAlgorithm jwsAlgorithm,
+            final SecurityProperties props)
             throws KeyLengthException, NoSuchAlgorithmException, InvalidKeySpecException {
 
         return new AccessTokenJWSSigner(jwsAlgorithm, jwsKey(jwsAlgorithm, props));

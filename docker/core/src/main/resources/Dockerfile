@@ -40,11 +40,12 @@ COPY lib/syncope-docker-core-*war /opt/syncope/lib/syncope.war
 
 ENV SPRING_PROFILES_ACTIVE=docker
 ENV LOADER_PATH="/opt/syncope/conf,/opt/syncope/lib"
+ENV JAVA_OPTS="-Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC -Djava.security.egd=file:/dev/./urandom"
 
 COPY startup.sh /opt/syncope/bin
 RUN chmod 755 /opt/syncope/bin/startup.sh
 CMD ["/opt/syncope/bin/startup.sh"]
 
-RUN curl -o /usr/local/bin/wait-for-it https://github.com/vishnubob/wait-for-it/blob/master/wait-for-it.sh && chmod 755 /usr/local/bin/wait-for-it
+RUN curl -o /usr/local/bin/wait-for-it https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && chmod 755 /usr/local/bin/wait-for-it
 
 EXPOSE 8080

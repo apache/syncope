@@ -55,6 +55,8 @@ services:
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
        SERVICE_DISCOVERY_ADDRESS: http://syncope:8080/syncope/rest/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}
 
    syncope-console:
      depends_on:
@@ -70,6 +72,8 @@ services:
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
        SERVICE_DISCOVERY_ADDRESS: http://syncope-console:8080/syncope-console/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}
 
    syncope-enduser:
      depends_on:
@@ -85,6 +89,8 @@ services:
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
        SERVICE_DISCOVERY_ADDRESS: http://syncope-enduser:8080/syncope-enduser/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}
 
    syncope-wa:
      depends_on:
@@ -100,6 +106,8 @@ services:
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
        SERVICE_DISCOVERY_ADDRESS: http://syncope-wa:8080/syncope-wa/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}
        CAS_SERVER_NAME: http://localhost:48080
 
    syncope-sra:
@@ -116,3 +124,5 @@ services:
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
        SERVICE_DISCOVERY_ADDRESS: http://syncope-sra:8080/
+       ANONYMOUS_USER: ${ANONYMOUS_USER}
+       ANONYMOUS_KEY: ${ANONYMOUS_KEY}

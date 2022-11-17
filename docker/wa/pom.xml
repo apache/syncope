@@ -33,6 +33,18 @@ under the License.
   <artifactId>syncope-docker-wa</artifactId>
   <packaging>war</packaging>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apereo.cas</groupId>
+        <artifactId>cas-server-support-bom</artifactId>
+        <version>${cas.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <properties>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
@@ -150,6 +162,7 @@ under the License.
         <directory>${basedir}/../../wa/starter/src/main/resources</directory>
         <filtering>true</filtering>
         <includes>
+          <include>cas-theme-default.properties</include>
           <include>wa.properties</include>
         </includes>
       </resource>
