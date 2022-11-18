@@ -30,7 +30,7 @@ public class MyJPAJSONAuditConfDAO extends AbstractJPAJSONLoggerDAO {
         @Override
         protected String doBuild(final List<ObjectNode> containers) {
             if (entityKey != null) {
-                query.append('(').
+                query.append(andIfNeeded()).append('(').
                         append(AUDIT_ENTRY_MESSAGE_COLUMN).append("->'$.before' LIKE '%").append(entityKey).
                         append("%' OR ").
                         append(AUDIT_ENTRY_MESSAGE_COLUMN).append("->'$.input' LIKE '%").append(entityKey).
@@ -40,16 +40,12 @@ public class MyJPAJSONAuditConfDAO extends AbstractJPAJSONLoggerDAO {
             }
 
             if (!containers.isEmpty()) {
-                if (entityKey != null) {
-                    query.append(" AND (");
-                }
-                query.append(containers.stream().
-                        map(container -> "JSON_CONTAINS(" + AUDIT_ENTRY_MESSAGE_COLUMN + ", '"
-                        + POJOHelper.serialize(container).replace("'", "''")
-                        + "')").collect(Collectors.joining(" OR ")));
-                if (entityKey != null) {
-                    query.append(')');
-                }
+                query.append(andIfNeeded()).append('(').
+                        append(containers.stream().
+                                map(container -> "JSON_CONTAINS(" + AUDIT_ENTRY_MESSAGE_COLUMN + ", '"
+                                + POJOHelper.serialize(container).replace("'", "''")
+                                + "')").collect(Collectors.joining(" OR "))).
+                        append(')');
             }
 
             return query.toString();
