@@ -72,7 +72,6 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec> implements ReportE
 
     protected StringBuilder query(
             final StringBuilder select,
-            final Report report,
             final OffsetDateTime before,
             final OffsetDateTime after) {
 
@@ -94,7 +93,7 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec> implements ReportE
             final OffsetDateTime before,
             final OffsetDateTime after) {
 
-        StringBuilder queryString = query(new StringBuilder("SELECT COUNT(e) FROM "), report, before, after);
+        StringBuilder queryString = query(new StringBuilder("SELECT COUNT(e) FROM "), before, after);
 
         Query query = entityManager().createQuery(queryString.toString());
         query.setParameter("report", report);
@@ -135,7 +134,7 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec> implements ReportE
             final int itemsPerPage,
             final List<OrderByClause> orderByClauses) {
 
-        StringBuilder queryString = query(new StringBuilder("SELECT e FROM "), report, before, after).
+        StringBuilder queryString = query(new StringBuilder("SELECT e FROM "), before, after).
                 append(toOrderByStatement(orderByClauses));
 
         TypedQuery<ReportExec> query = entityManager().createQuery(queryString.toString(), ReportExec.class);
