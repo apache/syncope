@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.sql.Clob;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -43,6 +45,11 @@ public class JPAAuditConfDAO extends AbstractDAO<AuditConf> implements AuditConf
 
         protected String andIfNeeded() {
             return query.length() == 0 ? " " : " AND ";
+        }
+
+        protected int setParameter(final List<Object> parameters, final Object parameter) {
+            parameters.add(parameter);
+            return parameters.size();
         }
 
         protected MessageCriteriaBuilder entityKey(final String entityKey) {
@@ -96,6 +103,22 @@ public class JPAAuditConfDAO extends AbstractDAO<AuditConf> implements AuditConf
             return this;
         }
 
+        public MessageCriteriaBuilder before(final OffsetDateTime before, final List<Object> parameters) {
+            if (before != null) {
+                query.append(andIfNeeded()).append(AUDIT_ENTRY_EVENT_DATE_COLUMN).
+                        append(" <= ?").append(setParameter(parameters, before));
+            }
+            return this;
+        }
+
+        public MessageCriteriaBuilder after(final OffsetDateTime after, final List<Object> parameters) {
+            if (after != null) {
+                query.append(andIfNeeded()).append(AUDIT_ENTRY_EVENT_DATE_COLUMN).
+                        append(" >= ?").append(setParameter(parameters, after));
+            }
+            return this;
+        }
+
         public String build() {
             return query.toString();
         }
@@ -127,6 +150,16 @@ public class JPAAuditConfDAO extends AbstractDAO<AuditConf> implements AuditConf
         return new MessageCriteriaBuilder().entityKey(entityKey);
     }
 
+    protected void fillWithParameters(final Query query, final List<Object> parameters) {
+        for (int i = 0; i < parameters.size(); i++) {
+            if (parameters.get(i) instanceof Boolean) {
+                query.setParameter(i + 1, ((Boolean) parameters.get(i)) ? 1 : 0);
+            } else {
+                query.setParameter(i + 1, parameters.get(i));
+            }
+        }
+    }
+
     @Override
     public int countEntries(
             final String entityKey,
@@ -134,8 +167,11 @@ public class JPAAuditConfDAO extends AbstractDAO<AuditConf> implements AuditConf
             final String category,
             final String subcategory,
             final List<String> events,
-            final AuditElements.Result result) {
+            final AuditElements.Result result,
+            final OffsetDateTime before,
+            final OffsetDateTime after) {
 
+        List<Object> parameters = new ArrayList<>();
         String queryString = "SELECT COUNT(0)"
                 + " FROM " + AUDIT_ENTRY_TABLE
                 + " WHERE " + messageCriteriaBuilder(entityKey).
@@ -144,10 +180,13 @@ public class JPAAuditConfDAO extends AbstractDAO<AuditConf> implements AuditConf
                         subcategory(subcategory).
                         result(result).
                         events(events).
+                        before(before, parameters).
+                        after(after, parameters).
                         build();
-        Query countQuery = entityManager().createNativeQuery(queryString);
+        Query query = entityManager().createNativeQuery(queryString);
+        fillWithParameters(query, parameters);
 
-        return ((Number) countQuery.getSingleResult()).intValue();
+        return ((Number) query.getSingleResult()).intValue();
     }
 
     protected String select() {
@@ -165,8 +204,11 @@ public class JPAAuditConfDAO extends AbstractDAO<AuditConf> implements AuditConf
             final String subcategory,
             final List<String> events,
             final AuditElements.Result result,
+            final OffsetDateTime before,
+            final OffsetDateTime after,
             final List<OrderByClause> orderBy) {
 
+        List<Object> parameters = new ArrayList<>();
         String queryString = "SELECT " + select()
                 + " FROM " + AUDIT_ENTRY_TABLE
                 + " WHERE " + messageCriteriaBuilder(entityKey).
@@ -175,6 +217,8 @@ public class JPAAuditConfDAO extends AbstractDAO<AuditConf> implements AuditConf
                         subcategory(subcategory).
                         result(result).
                         events(events).
+                        before(before, parameters).
+                        after(after, parameters).
                         build();
         if (!orderBy.isEmpty()) {
             queryString += " ORDER BY " + orderBy.stream().
@@ -183,6 +227,7 @@ public class JPAAuditConfDAO extends AbstractDAO<AuditConf> implements AuditConf
         }
 
         Query query = entityManager().createNativeQuery(queryString);
+        fillWithParameters(query, parameters);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         if (itemsPerPage >= 0) {
             query.setMaxResults(itemsPerPage);

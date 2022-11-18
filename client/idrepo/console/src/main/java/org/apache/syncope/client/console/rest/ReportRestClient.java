@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
-import org.apache.syncope.common.rest.api.beans.ExecListQuery;
+import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
@@ -112,14 +112,14 @@ public class ReportRestClient extends BaseRestClient
     public List<ExecTO> listExecutions(
             final String taskKey, final int page, final int size, final SortParam<String> sort) {
 
-        return getService(ReportService.class).listExecutions(new ExecListQuery.Builder().
+        return getService(ReportService.class).listExecutions(new ExecQuery.Builder().
                 key(taskKey).page(page).size(size).orderBy(toOrderBy(sort)).build()).getResult();
     }
 
     @Override
     public int countExecutions(final String taskKey) {
         return getService(ReportService.class).
-                listExecutions(new ExecListQuery.Builder().key(taskKey).page(1).size(0).build()).getTotalCount();
+                listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(0).build()).getTotalCount();
     }
 
     @Override

@@ -31,7 +31,7 @@ public class PGJPAJSONAuditConfDAO extends AbstractJPAJSONLoggerDAO {
         @Override
         protected String doBuild(final List<ObjectNode> containers) {
             if (entityKey != null) {
-                query.append('(').
+                query.append(andIfNeeded()).append('(').
                         append(AUDIT_ENTRY_MESSAGE_COLUMN).append(" ->> 'before' LIKE '%").append(entityKey).
                         append("%' OR ").
                         append(AUDIT_ENTRY_MESSAGE_COLUMN).append(" ->> 'input' LIKE '%").append(entityKey).
@@ -41,16 +41,12 @@ public class PGJPAJSONAuditConfDAO extends AbstractJPAJSONLoggerDAO {
             }
 
             if (!containers.isEmpty()) {
-                if (entityKey != null) {
-                    query.append(" AND (");
-                }
-                query.append(containers.stream().
-                        map(container -> AUDIT_ENTRY_MESSAGE_COLUMN + "::jsonb @> '"
-                        + POJOHelper.serialize(container).replace("'", "''")
-                        + "'::jsonb").collect(Collectors.joining(" OR ")));
-                if (entityKey != null) {
-                    query.append(')');
-                }
+                query.append(andIfNeeded()).append('(').
+                        append(containers.stream().
+                                map(container -> AUDIT_ENTRY_MESSAGE_COLUMN + "::jsonb @> '"
+                                + POJOHelper.serialize(container).replace("'", "''")
+                                + "'::jsonb").collect(Collectors.joining(" OR "))).
+                        append(')');
             }
 
             return query.toString();

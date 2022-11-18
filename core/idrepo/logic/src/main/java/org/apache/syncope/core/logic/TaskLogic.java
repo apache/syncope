@@ -410,7 +410,12 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
     @Override
     public Pair<Integer, List<ExecTO>> listExecutions(
-            final String key, final int page, final int size, final List<OrderByClause> orderByClauses) {
+            final String key,
+            final OffsetDateTime before,
+            final OffsetDateTime after,
+            final int page,
+            final int size,
+            final List<OrderByClause> orderByClauses) {
 
         Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
@@ -418,9 +423,9 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             securityChecks(IdRepoEntitlement.TASK_READ, ((MacroTask) task).getRealm().getFullPath());
         }
 
-        Integer count = taskExecDAO.count(task);
+        Integer count = taskExecDAO.count(task, before, after);
 
-        List<ExecTO> result = taskExecDAO.findAll(task, page, size, orderByClauses).stream().
+        List<ExecTO> result = taskExecDAO.findAll(task, before, after, page, size, orderByClauses).stream().
                 map(exec -> binder.getExecTO(exec)).collect(Collectors.toList());
 
         return Pair.of(count, result);
@@ -466,16 +471,14 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @Override
     public List<BatchResponseItem> deleteExecutions(
             final String key,
-            final OffsetDateTime startedBefore,
-            final OffsetDateTime startedAfter,
-            final OffsetDateTime endedBefore,
-            final OffsetDateTime endedAfter) {
+            final OffsetDateTime before,
+            final OffsetDateTime after) {
 
         Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
         List<BatchResponseItem> batchResponseItems = new ArrayList<>();
 
-        taskExecDAO.findAll(task, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
+        taskExecDAO.findAll(task, before, after, -1, -1, List.of()).forEach(exec -> {
             BatchResponseItem item = new BatchResponseItem();
             item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(exec.getKey()));
             batchResponseItems.add(item);

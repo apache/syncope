@@ -39,7 +39,7 @@ public class OJPAJSONAuditConfDAO extends AbstractJPAJSONLoggerDAO {
         @Override
         protected String doBuild(final List<ObjectNode> containers) {
             if (entityKey != null) {
-                query.append('(').
+                query.append(andIfNeeded()).append('(').
                         append("JSON_VALUE(").append(AUDIT_ENTRY_MESSAGE_COLUMN).
                         append(", '$.before' RETURNING VARCHAR2(32767)) LIKE '%").
                         append(entityKey).append("%' OR ").
@@ -52,24 +52,20 @@ public class OJPAJSONAuditConfDAO extends AbstractJPAJSONLoggerDAO {
             }
 
             if (!containers.isEmpty()) {
-                if (entityKey != null) {
-                    query.append(" AND (");
-                }
-                query.append(containers.stream().filter(container -> container.has("logger")).map(container -> {
-                    JsonNode logger = container.get("logger");
+                query.append(andIfNeeded()).append('(').
+                        append(containers.stream().filter(container -> container.has("logger")).map(container -> {
+                            JsonNode logger = container.get("logger");
 
-                    List<String> clauses = new ArrayList<>();
-                    jsonExprItem(logger, "type").ifPresent(clauses::add);
-                    jsonExprItem(logger, "category").ifPresent(clauses::add);
-                    jsonExprItem(logger, "subcategory").ifPresent(clauses::add);
-                    jsonExprItem(logger, "result").ifPresent(clauses::add);
-                    jsonExprItem(logger, "event").ifPresent(clauses::add);
+                            List<String> clauses = new ArrayList<>();
+                            jsonExprItem(logger, "type").ifPresent(clauses::add);
+                            jsonExprItem(logger, "category").ifPresent(clauses::add);
+                            jsonExprItem(logger, "subcategory").ifPresent(clauses::add);
+                            jsonExprItem(logger, "result").ifPresent(clauses::add);
+                            jsonExprItem(logger, "event").ifPresent(clauses::add);
 
-                    return "JSON_EXISTS(MESSAGE, '$[*]?(" + String.join(" && ", clauses) + ")')";
-                }).filter(Objects::nonNull).collect(Collectors.joining(" OR ")));
-                if (entityKey != null) {
-                    query.append(')');
-                }
+                            return "JSON_EXISTS(MESSAGE, '$[*]?(" + String.join(" && ", clauses) + ")')";
+                        }).filter(Objects::nonNull).collect(Collectors.joining(" OR "))).
+                        append(')');
             }
 
             return query.toString();

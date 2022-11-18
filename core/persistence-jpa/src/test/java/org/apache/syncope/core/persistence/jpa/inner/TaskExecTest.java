@@ -55,7 +55,7 @@ public class TaskExecTest extends AbstractTest {
 
         OffsetDateTime startedBefore = OffsetDateTime.of(2015, 12, 18, 0, 0, 0, 0, FormatUtils.DEFAULT_OFFSET);
 
-        List<TaskExec<?>> execs = taskExecDAO.findAll(task, startedBefore, null, null, null);
+        List<TaskExec<?>> execs = taskExecDAO.findAll(task, startedBefore, null, -1, -1, List.of());
         assertNotNull(execs);
         assertEquals(1, execs.size());
     }

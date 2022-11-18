@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -859,7 +860,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 assertEquals(ClientExceptionType.Reconciliation, sce.getType());
             }
             Optional<RemediationTO> remediation = REMEDIATION_SERVICE.list(
-                    new RemediationQuery.Builder().page(1).size(1000).build()).getResult().stream().
+                    new RemediationQuery.Builder().after(OffsetDateTime.now().minusSeconds(30)).
+                            page(1).size(1000).build()).getResult().stream().
                     filter(r -> "uid=pullFromLDAP,ou=People,o=isp".equalsIgnoreCase(r.getRemoteName())).
                     findFirst();
             assertTrue(remediation.isPresent());

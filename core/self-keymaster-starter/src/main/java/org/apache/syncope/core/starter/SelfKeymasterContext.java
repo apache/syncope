@@ -93,9 +93,11 @@ public class SelfKeymasterContext {
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
-    public Server selfKeymasterContainer(final JacksonJsonProvider jsonProvider,
-                                         final ApplicationContext ctx,
-                                         final Bus bus) {
+    public Server selfKeymasterContainer(
+            final JacksonJsonProvider jsonProvider,
+            final ApplicationContext ctx,
+            final Bus bus) {
+
         SpringJAXRSServerFactoryBean selfKeymasterContainer = new SpringJAXRSServerFactoryBean();
         selfKeymasterContainer.setBus(bus);
         selfKeymasterContainer.setAddress("/keymaster");

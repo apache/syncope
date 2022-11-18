@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.lang.reflect.Field;
+import java.time.OffsetDateTime;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -65,12 +66,20 @@ public class JPARemediationDAO extends AbstractDAO<Remediation> implements Remed
 
     @Override
     public List<Remediation> findAll(
+            final OffsetDateTime before,
+            final OffsetDateTime after,
             final int page,
             final int itemsPerPage,
             final List<OrderByClause> orderByClauses) {
 
         StringBuilder queryString = new StringBuilder(
-                "SELECT e FROM " + JPARemediation.class.getSimpleName() + " e");
+                "SELECT e FROM " + JPARemediation.class.getSimpleName() + " e WHERE 1=1 ");
+        if (before != null) {
+            queryString.append(" AND e.instant <= :before");
+        }
+        if (after != null) {
+            queryString.append(" AND e.instant >= :after");
+        }
 
         if (!orderByClauses.isEmpty()) {
             queryString.append(" ORDER BY ");
@@ -102,7 +111,12 @@ public class JPARemediationDAO extends AbstractDAO<Remediation> implements Remed
         }
 
         TypedQuery<Remediation> query = entityManager().createQuery(queryString.toString(), Remediation.class);
-
+        if (before != null) {
+            query.setParameter("before", before);
+        }
+        if (after != null) {
+            query.setParameter("after", after);
+        }
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
         if (itemsPerPage > 0) {

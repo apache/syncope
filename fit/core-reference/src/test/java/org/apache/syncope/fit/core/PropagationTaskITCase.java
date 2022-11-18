@@ -91,7 +91,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.ExecListQuery;
+import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
@@ -605,8 +605,9 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertFalse(task.getExecutions().isEmpty());
 
         // check list executions
-        PagedResult<ExecTO> execs = TASK_SERVICE.listExecutions(new ExecListQuery.Builder().key(
-                "1e697572-b896-484c-ae7f-0c8f63fcbc6c").
+        PagedResult<ExecTO> execs = TASK_SERVICE.listExecutions(new ExecQuery.Builder().
+                key("1e697572-b896-484c-ae7f-0c8f63fcbc6c").
+                before(OffsetDateTime.now().plusSeconds(30)).
                 page(1).size(2).build());
         assertTrue(execs.getTotalCount() >= execs.getResult().size());
     }

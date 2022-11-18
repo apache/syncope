@@ -28,8 +28,7 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadGenerator;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
-import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
-import org.apache.syncope.common.rest.api.beans.ExecListQuery;
+import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.service.ExecutableService;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
@@ -41,9 +40,11 @@ public abstract class AbstractExecutableService extends AbstractService implemen
     protected abstract AbstractExecutableLogic<?> getExecutableLogic();
 
     @Override
-    public PagedResult<ExecTO> listExecutions(final ExecListQuery query) {
+    public PagedResult<ExecTO> listExecutions(final ExecQuery query) {
         Pair<Integer, List<ExecTO>> result = getExecutableLogic().listExecutions(
                 query.getKey(),
+                query.getBefore(),
+                query.getAfter(),
                 query.getPage(),
                 query.getSize(),
                 getOrderByClauses(query.getOrderBy()));
@@ -61,13 +62,11 @@ public abstract class AbstractExecutableService extends AbstractService implemen
     }
 
     @Override
-    public Response deleteExecutions(final ExecDeleteQuery query) {
+    public Response deleteExecutions(final ExecQuery query) {
         List<BatchResponseItem> batchResponseItems = getExecutableLogic().deleteExecutions(
                 query.getKey(),
-                query.getStartedBefore(),
-                query.getStartedAfter(),
-                query.getEndedBefore(),
-                query.getEndedAfter());
+                query.getBefore(),
+                query.getAfter());
 
         String boundary = "deleteExecutions_" + SecureRandomUtils.generateRandomUUID().toString();
         return Response.ok(BatchPayloadGenerator.generate(
