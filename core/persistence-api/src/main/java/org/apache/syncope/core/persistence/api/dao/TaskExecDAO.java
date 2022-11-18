@@ -34,12 +34,15 @@ public interface TaskExecDAO extends DAO<TaskExec> {
 
     <T extends Task> TaskExec findLatestEnded(T task);
 
-    int count(String taskKey);
+    int count(Task task, Date before, Date after);
 
-    <T extends Task> List<TaskExec> findAll(T task, int page, int itemsPerPage, List<OrderByClause> orderByClauses);
-
-    <T extends Task> List<TaskExec> findAll(
-            T task, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
+    List<TaskExec> findAll(
+            Task task,
+            Date before,
+            Date after,
+            int page,
+            int itemsPerPage,
+            List<OrderByClause> orderByClauses);
 
     TaskExec save(TaskExec execution);
 

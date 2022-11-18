@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -335,17 +336,22 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
     @Override
     public Pair<Integer, List<ExecTO>> listExecutions(
-            final String key, final int page, final int size, final List<OrderByClause> orderByClauses) {
+            final String key,
+            final Date before,
+            final Date after,
+            final int page,
+            final int size,
+            final List<OrderByClause> orderByClauses) {
 
         Task task = taskDAO.find(key);
         if (task == null) {
             throw new NotFoundException("Task " + key);
         }
 
-        Integer count = taskExecDAO.count(key);
+        Integer count = taskExecDAO.count(task, before, after);
 
-        List<ExecTO> result = taskExecDAO.findAll(task, page, size, orderByClauses).stream().
-                map(taskExec -> binder.getExecTO(taskExec)).collect(Collectors.toList());
+        List<ExecTO> result = taskExecDAO.findAll(task, before, after, page, size, orderByClauses).stream().
+                map(exec -> binder.getExecTO(exec)).collect(Collectors.toList());
 
         return Pair.of(count, result);
     }
@@ -374,10 +380,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @Override
     public List<BatchResponseItem> deleteExecutions(
             final String key,
-            final Date startedBefore,
-            final Date startedAfter,
-            final Date endedBefore,
-            final Date endedAfter) {
+            final Date before,
+            final Date after) {
 
         Task task = taskDAO.find(key);
         if (task == null) {
@@ -386,7 +390,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         List<BatchResponseItem> batchResponseItems = new ArrayList<>();
 
-        taskExecDAO.findAll(task, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
+        taskExecDAO.findAll(task, before, after, -1, -1, Collections.emptyList()).forEach(exec -> {
             BatchResponseItem item = new BatchResponseItem();
             item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(exec.getKey()));
             batchResponseItems.add(item);

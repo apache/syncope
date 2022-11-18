@@ -30,16 +30,22 @@ public class PGJPAJSONLoggerDAO extends AbstractJPAJSONLoggerDAO {
 
         @Override
         protected String doBuild(final List<ObjectNode> containers) {
-            query.append('(').append(AUDIT_MESSAGE_COLUMN).append(" ->> 'before' LIKE '%").append(entityKey).
-                    append("%' OR ").append(AUDIT_MESSAGE_COLUMN).append(" ->> 'input' LIKE '%").append(entityKey).
-                    append("%' OR ").append(AUDIT_MESSAGE_COLUMN).append(" ->> 'output' LIKE '%").append(entityKey).
-                    append("%')");
+            if (entityKey != null) {
+                query.append(andIfNeeded()).append('(').
+                        append(AUDIT_MESSAGE_COLUMN).append(" ->> 'before' LIKE '%").append(entityKey).
+                        append("%' OR ").
+                        append(AUDIT_MESSAGE_COLUMN).append(" ->> 'input' LIKE '%").append(entityKey).
+                        append("%' OR ").
+                        append(AUDIT_MESSAGE_COLUMN).append(" ->> 'output' LIKE '%").append(entityKey).
+                        append("%')");
+            }
 
             if (!containers.isEmpty()) {
-                query.append(" AND (").
-                        append(containers.stream().map(container -> AUDIT_MESSAGE_COLUMN + "::jsonb @> '"
-                        + POJOHelper.serialize(container).replace("'", "''")
-                        + "'::jsonb").collect(Collectors.joining(" OR "))).
+                query.append(andIfNeeded()).append('(').
+                        append(containers.stream().
+                                map(container -> AUDIT_MESSAGE_COLUMN + "::jsonb @> '"
+                                + POJOHelper.serialize(container).replace("'", "''")
+                                + "'::jsonb").collect(Collectors.joining(" OR "))).
                         append(')');
             }
 

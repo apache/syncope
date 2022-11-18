@@ -19,6 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -67,13 +68,15 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.REMEDIATION_LIST + "')")
     @Transactional(readOnly = true)
     public Pair<Integer, List<RemediationTO>> list(
+            final Date before,
+            final Date after,
             final int page,
             final int size,
             final List<OrderByClause> orderByClauses) {
 
-        int count = remediationDAO.count();
+        int count = remediationDAO.count(before, after);
 
-        List<RemediationTO> result = remediationDAO.findAll(page, size, orderByClauses).stream().
+        List<RemediationTO> result = remediationDAO.findAll(before, after, page, size, orderByClauses).stream().
                 map(binder::getRemediationTO).collect(Collectors.toList());
 
         return Pair.of(count, result);

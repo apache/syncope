@@ -33,14 +33,21 @@ public abstract class AbstractExecutableLogic<T extends EntityTO> extends Abstra
     public abstract ExecTO execute(String key, Date startAt, boolean dryRun);
 
     public abstract Pair<Integer, List<ExecTO>> listExecutions(
-        String key, int page, int size, List<OrderByClause> orderByClauses);
+            String key,
+            Date before,
+            Date after,
+            int page,
+            int size,
+            List<OrderByClause> orderByClauses);
 
     public abstract List<ExecTO> listRecentExecutions(int max);
 
     public abstract ExecTO deleteExecution(String executionKey);
 
     public abstract List<BatchResponseItem> deleteExecutions(
-        String key, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
+            String key,
+            Date before,
+            Date after);
 
     public abstract JobTO getJob(String key);
 

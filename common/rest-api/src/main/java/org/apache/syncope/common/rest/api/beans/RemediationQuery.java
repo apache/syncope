@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
-public class RemediationQuery extends AbstractQuery {
+public class RemediationQuery extends AbstractTimeframeQuery {
 
     private static final long serialVersionUID = 4000880445378096031L;
 
-    public static class Builder extends AbstractQuery.Builder<RemediationQuery, Builder> {
+    public static class Builder extends AbstractTimeframeQuery.Builder<RemediationQuery, Builder> {
 
         @Override
         protected RemediationQuery newInstance() {

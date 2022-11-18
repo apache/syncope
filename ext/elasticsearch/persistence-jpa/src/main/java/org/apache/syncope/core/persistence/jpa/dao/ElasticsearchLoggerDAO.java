@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -63,7 +64,9 @@ public class ElasticsearchLoggerDAO extends JPALoggerDAO {
             final String category,
             final String subcategory,
             final List<String> events,
-            final AuditElements.Result result) {
+            final AuditElements.Result result,
+            final Date before,
+            final Date after) {
 
         List<QueryBuilder> queryBuilders = new ArrayList<>();
 
@@ -101,6 +104,14 @@ public class ElasticsearchLoggerDAO extends JPALoggerDAO {
             queryBuilders.add(QueryBuilders.termQuery("message.logger.result", result.name()));
         }
 
+        if (before != null) {
+            queryBuilders.add(QueryBuilders.rangeQuery("instant").lte(before.getTime()));
+        }
+
+        if (after != null) {
+            queryBuilders.add(QueryBuilders.rangeQuery("instant").gte(after.getTime()));
+        }
+
         BoolQueryBuilder bool = QueryBuilders.boolQuery();
         queryBuilders.forEach(bool::must);
         return bool;
@@ -113,11 +124,13 @@ public class ElasticsearchLoggerDAO extends JPALoggerDAO {
             final String category,
             final String subcategory,
             final List<String> events,
-            final AuditElements.Result result) {
+            final AuditElements.Result result,
+            final Date before,
+            final Date after) {
 
         CountRequest request = new CountRequest(
                 ElasticsearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
-                query(getQueryBuilder(entityKey, type, category, subcategory, events, result));
+                query(getQueryBuilder(entityKey, type, category, subcategory, events, result, before, after));
         try {
             return (int) client.count(request, RequestOptions.DEFAULT).getCount();
         } catch (IOException e) {
@@ -147,10 +160,12 @@ public class ElasticsearchLoggerDAO extends JPALoggerDAO {
             final String subcategory,
             final List<String> events,
             final AuditElements.Result result,
+            final Date before,
+            final Date after,
             final List<OrderByClause> orderBy) {
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().
-                query(getQueryBuilder(entityKey, type, category, subcategory, events, result)).
+                query(getQueryBuilder(entityKey, type, category, subcategory, events, result, before, after)).
                 from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
                 size(itemsPerPage < 0 ? elasticsearchUtils.getIndexMaxResultWindow() : itemsPerPage);
         sortBuilders(orderBy).forEach(sourceBuilder::sort);

@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -406,11 +407,13 @@ public class LoggerLogic extends AbstractTransactionalLogic<EntityTO> {
             final String subcategory,
             final List<String> events,
             final AuditElements.Result result,
+            final Date before,
+            final Date after,
             final List<OrderByClause> orderByClauses) {
 
-        int count = loggerDAO.countAuditEntries(entityKey, type, category, subcategory, events, result);
+        int count = loggerDAO.countAuditEntries(entityKey, type, category, subcategory, events, result, before, after);
         List<AuditEntry> matching = loggerDAO.findAuditEntries(
-                entityKey, page, size, type, category, subcategory, events, result, orderByClauses);
+                entityKey, page, size, type, category, subcategory, events, result, before, after, orderByClauses);
         return Pair.of(count, matching);
     }
 

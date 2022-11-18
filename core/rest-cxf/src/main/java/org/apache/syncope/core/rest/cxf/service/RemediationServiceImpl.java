@@ -56,7 +56,11 @@ public class RemediationServiceImpl extends AbstractServiceImpl implements Remed
     @Override
     public PagedResult<RemediationTO> list(final RemediationQuery query) {
         Pair<Integer, List<RemediationTO>> result = logic.list(
-                query.getPage(), query.getSize(), getOrderByClauses(query.getOrderBy()));
+                query.getBefore(),
+                query.getAfter(),
+                query.getPage(),
+                query.getSize(),
+                getOrderByClauses(query.getOrderBy()));
         return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
     }
 

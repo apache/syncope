@@ -25,10 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.log.AuditEntry;
@@ -84,8 +86,13 @@ public class AuditITCase extends AbstractITCase {
         UserTO userTO = createUser(UserITCase.getUniqueSampleTO("audit@syncope.org")).getEntity();
         assertNotNull(userTO.getKey());
 
-        AuditQuery query = new AuditQuery.Builder().entityKey(userTO.getKey()).orderBy("event_date desc").
-                page(1).size(1).build();
+        AuditQuery query = new AuditQuery.Builder().
+                entityKey(userTO.getKey()).
+                before(DateUtils.addSeconds(new Date(), 30)).
+                page(1).
+                size(1).
+                orderBy("event_date desc").
+                build();
         AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
         userService.delete(userTO.getKey());
@@ -105,6 +112,7 @@ public class AuditITCase extends AbstractITCase {
                 category(UserLogic.class.getSimpleName()).
                 event("create").
                 result(AuditElements.Result.SUCCESS).
+                after(DateUtils.addSeconds(new Date(), -30)).
                 build();
         AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);

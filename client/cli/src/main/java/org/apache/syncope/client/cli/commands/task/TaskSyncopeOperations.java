@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 
@@ -58,6 +58,6 @@ public class TaskSyncopeOperations {
 
     public ExecTO execute(final String executionKey, final boolean dryRun) {
         return taskService.execute(
-                new ExecuteQuery.Builder().key(executionKey).dryRun(dryRun).build());
+                new ExecSpecs.Builder().key(executionKey).dryRun(dryRun).build());
     }
 }

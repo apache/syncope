@@ -28,9 +28,8 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadGenerator;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
-import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.service.ExecutableService;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
@@ -44,6 +43,8 @@ public abstract class AbstractExecutableService extends AbstractServiceImpl impl
     public PagedResult<ExecTO> listExecutions(final ExecQuery query) {
         Pair<Integer, List<ExecTO>> result = getExecutableLogic().listExecutions(
                 query.getKey(),
+                query.getBefore(),
+                query.getAfter(),
                 query.getPage(),
                 query.getSize(),
                 getOrderByClauses(query.getOrderBy()));
@@ -61,13 +62,11 @@ public abstract class AbstractExecutableService extends AbstractServiceImpl impl
     }
 
     @Override
-    public Response deleteExecutions(final ExecDeleteQuery query) {
+    public Response deleteExecutions(final ExecQuery query) {
         List<BatchResponseItem> batchResponseItems = getExecutableLogic().deleteExecutions(
                 query.getKey(),
-                query.getStartedBefore(),
-                query.getStartedAfter(),
-                query.getEndedBefore(),
-                query.getEndedAfter());
+                query.getBefore(),
+                query.getAfter());
 
         String boundary = "deleteExecutions_" + SecureRandomUtils.generateRandomUUID().toString();
         return Response.ok(BatchPayloadGenerator.generate(
@@ -77,7 +76,7 @@ public abstract class AbstractExecutableService extends AbstractServiceImpl impl
     }
 
     @Override
-    public ExecTO execute(final ExecuteQuery query) {
+    public ExecTO execute(final ExecSpecs query) {
         return getExecutableLogic().execute(query.getKey(), query.getStartAt(), query.getDryRun());
     }
 
