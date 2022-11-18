@@ -275,7 +275,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         // streaming SAX handler from a compressed byte array stream
         try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
-                ZipInputStream zis = new ZipInputStream(bais)) {
+             ZipInputStream zis = new ZipInputStream(bais)) {
 
             // a single ZipEntry in the ZipInputStream (see ReportJob)
             zis.getNextEntry();
@@ -348,16 +348,19 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     @Override
     public Pair<Integer, List<ExecTO>> listExecutions(
-            final String key, final int page, final int size, final List<OrderByClause> orderByClauses) {
+            final String key,
+            final OffsetDateTime before,
+            final OffsetDateTime after,
+            final int page,
+            final int size,
+            final List<OrderByClause> orderByClauses) {
 
-        Report report = reportDAO.find(key);
-        if (report == null) {
-            throw new NotFoundException("Report " + key);
-        }
+        Report report = Optional.ofNullable(reportDAO.find(key)).
+                orElseThrow(() -> new NotFoundException("Report " + key));
 
-        Integer count = reportExecDAO.count(key);
+        Integer count = reportExecDAO.count(report, before, after);
 
-        List<ExecTO> result = reportExecDAO.findAll(report, page, size, orderByClauses).stream().
+        List<ExecTO> result = reportExecDAO.findAll(report, before, after, page, size, orderByClauses).stream().
                 map(reportExec -> binder.getExecTO(reportExec)).collect(Collectors.toList());
 
         return Pair.of(count, result);
@@ -387,19 +390,15 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @Override
     public List<BatchResponseItem> deleteExecutions(
             final String key,
-            final OffsetDateTime startedBefore,
-            final OffsetDateTime startedAfter,
-            final OffsetDateTime endedBefore,
-            final OffsetDateTime endedAfter) {
+            final OffsetDateTime before,
+            final OffsetDateTime after) {
 
-        Report report = reportDAO.find(key);
-        if (report == null) {
-            throw new NotFoundException("Report " + key);
-        }
+        Report report = Optional.ofNullable(reportDAO.find(key)).
+                orElseThrow(() -> new NotFoundException("Report " + key));
 
         List<BatchResponseItem> batchResponseItems = new ArrayList<>();
 
-        reportExecDAO.findAll(report, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
+        reportExecDAO.findAll(report, before, after, -1, -1, List.of()).forEach(exec -> {
             BatchResponseItem item = new BatchResponseItem();
             item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(exec.getKey()));
             batchResponseItems.add(item);

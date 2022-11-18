@@ -56,7 +56,7 @@ public class RemediationTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Remediation> remediations = remediationDAO.findAll(1, 1, List.of());
+        List<Remediation> remediations = remediationDAO.findAll(null, null, 1, 1, List.of());
         assertTrue(remediations.isEmpty());
     }
 

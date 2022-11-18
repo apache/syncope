@@ -47,7 +47,7 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec> implements ReportE
         return query.getResultList();
     }
 
-    private ReportExec findLatest(final Report report, final String field) {
+    protected ReportExec findLatest(final Report report, final String field) {
         TypedQuery<ReportExec> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAReportExec.class.getSimpleName() + " e "
                 + "WHERE e.report=:report ORDER BY e." + field + " DESC", ReportExec.class);
@@ -70,16 +70,45 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec> implements ReportE
         return findLatest(report, "end");
     }
 
-    @Override
-    public int count(final String reportKey) {
-        Query countQuery = entityManager().createNativeQuery(
-                "SELECT COUNT(e.id) FROM " + JPAReportExec.TABLE + " e WHERE e.report_id=?1");
-        countQuery.setParameter(1, reportKey);
+    protected StringBuilder query(
+            final StringBuilder select,
+            final Report report,
+            final OffsetDateTime before,
+            final OffsetDateTime after) {
 
-        return ((Number) countQuery.getSingleResult()).intValue();
+        StringBuilder query = select.
+                append(JPAReportExec.class.getSimpleName()).
+                append(" e WHERE e.report=:report ");
+        if (before != null) {
+            query.append("AND e.start <= :before ");
+        }
+        if (after != null) {
+            query.append("AND e.start >= :after ");
+        }
+        return query;
     }
 
-    private static String toOrderByStatement(final List<OrderByClause> orderByClauses) {
+    @Override
+    public int count(
+            final Report report,
+            final OffsetDateTime before,
+            final OffsetDateTime after) {
+
+        StringBuilder queryString = query(new StringBuilder("SELECT COUNT(e) FROM "), report, before, after);
+
+        Query query = entityManager().createQuery(queryString.toString());
+        query.setParameter("report", report);
+        if (before != null) {
+            query.setParameter("before", before);
+        }
+        if (after != null) {
+            query.setParameter("after", after);
+        }
+
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    protected String toOrderByStatement(final List<OrderByClause> orderByClauses) {
         StringBuilder statement = new StringBuilder();
 
         for (OrderByClause clause : orderByClauses) {
@@ -90,71 +119,39 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec> implements ReportE
         }
 
         if (statement.length() == 0) {
-            statement.append("ORDER BY e.id DESC");
+            statement.append(" ORDER BY e.id DESC");
         } else {
-            statement.insert(0, "ORDER BY ");
+            statement.insert(0, " ORDER BY ");
         }
         return statement.toString();
     }
 
     @Override
-    public List<ReportExec> findAll(final Report report,
-            final int page, final int itemsPerPage, final List<OrderByClause> orderByClauses) {
+    public List<ReportExec> findAll(
+            final Report report,
+            final OffsetDateTime before,
+            final OffsetDateTime after,
+            final int page,
+            final int itemsPerPage,
+            final List<OrderByClause> orderByClauses) {
 
-        String queryString =
-                "SELECT e FROM " + JPAReportExec.class.getSimpleName() + " e WHERE e.report=:report "
-                + toOrderByStatement(orderByClauses);
+        StringBuilder queryString = query(new StringBuilder("SELECT e FROM "), report, before, after).
+                append(toOrderByStatement(orderByClauses));
 
-        TypedQuery<ReportExec> query = entityManager().createQuery(queryString, ReportExec.class);
+        TypedQuery<ReportExec> query = entityManager().createQuery(queryString.toString(), ReportExec.class);
         query.setParameter("report", report);
+        if (before != null) {
+            query.setParameter("before", before);
+        }
+        if (after != null) {
+            query.setParameter("after", after);
+        }
 
         // page starts from 1, while setFirtResult() starts from 0
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
         if (itemsPerPage >= 0) {
             query.setMaxResults(itemsPerPage);
-        }
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<ReportExec> findAll(
-            final Report report,
-            final OffsetDateTime startedBefore,
-            final OffsetDateTime startedAfter,
-            final OffsetDateTime endedBefore,
-            final OffsetDateTime endedAfter) {
-
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPAReportExec.class.getSimpleName()).
-                append(" e WHERE e.report=:report ");
-
-        if (startedBefore != null) {
-            queryString.append(" AND e.start < :startedBefore");
-        }
-        if (startedAfter != null) {
-            queryString.append(" AND e.start > :startedAfter");
-        }
-        if (endedBefore != null) {
-            queryString.append(" AND e.end < :endedBefore");
-        }
-        if (endedAfter != null) {
-            queryString.append(" AND e.end > :endedAfter");
-        }
-
-        TypedQuery<ReportExec> query = entityManager().createQuery(queryString.toString(), ReportExec.class);
-        query.setParameter("report", report);
-        if (startedBefore != null) {
-            query.setParameter("startedBefore", startedBefore);
-        }
-        if (startedAfter != null) {
-            query.setParameter("startedAfter", startedAfter);
-        }
-        if (endedBefore != null) {
-            query.setParameter("endedBefore", endedBefore);
-        }
-        if (endedAfter != null) {
-            query.setParameter("endedAfter", endedAfter);
         }
 
         return query.getResultList();

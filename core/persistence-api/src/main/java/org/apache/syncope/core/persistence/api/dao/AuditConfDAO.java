@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -29,6 +30,8 @@ public interface AuditConfDAO extends DAO<AuditConf> {
     String AUDIT_ENTRY_TABLE = "AuditEntry";
 
     String AUDIT_ENTRY_MESSAGE_COLUMN = "MESSAGE";
+
+    String AUDIT_ENTRY_EVENT_DATE_COLUMN = "EVENT_DATE";
 
     AuditConf find(String key);
 
@@ -44,7 +47,9 @@ public interface AuditConfDAO extends DAO<AuditConf> {
             String category,
             String subcategory,
             List<String> events,
-            AuditElements.Result result);
+            AuditElements.Result result,
+            OffsetDateTime before,
+            OffsetDateTime after);
 
     List<AuditEntry> searchEntries(
             String entityKey,
@@ -55,5 +60,7 @@ public interface AuditConfDAO extends DAO<AuditConf> {
             String subcategory,
             List<String> events,
             AuditElements.Result result,
+            OffsetDateTime before,
+            OffsetDateTime after,
             List<OrderByClause> orderBy);
 }

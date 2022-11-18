@@ -28,7 +28,9 @@ import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.json.JsonData;
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +62,9 @@ public class ElasticsearchAuditConfDAO extends JPAAuditConfDAO {
             final String category,
             final String subcategory,
             final List<String> events,
-            final AuditElements.Result result) {
+            final AuditElements.Result result,
+            final OffsetDateTime before,
+            final OffsetDateTime after) {
 
         List<Query> queries = new ArrayList<>();
 
@@ -103,6 +107,20 @@ public class ElasticsearchAuditConfDAO extends JPAAuditConfDAO {
                     build());
         }
 
+        if (before != null) {
+            queries.add(new Query.Builder().
+                    range(QueryBuilders.range().
+                            field("instant").lte(JsonData.of(before.toInstant().toEpochMilli())).build()).
+                    build());
+        }
+
+        if (after != null) {
+            queries.add(new Query.Builder().
+                    range(QueryBuilders.range().
+                            field("instant").gte(JsonData.of(after.toInstant().toEpochMilli())).build()).
+                    build());
+        }
+
         return new Query.Builder().bool(QueryBuilders.bool().must(queries).build()).build();
     }
 
@@ -113,11 +131,13 @@ public class ElasticsearchAuditConfDAO extends JPAAuditConfDAO {
             final String category,
             final String subcategory,
             final List<String> events,
-            final AuditElements.Result result) {
+            final AuditElements.Result result,
+            final OffsetDateTime before,
+            final OffsetDateTime after) {
 
         CountRequest request = new CountRequest.Builder().
                 index(ElasticsearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
-                query(getQuery(entityKey, type, category, subcategory, events, result)).
+                query(getQuery(entityKey, type, category, subcategory, events, result, before, after)).
                 build();
         try {
             return (int) client.count(request).count();
@@ -154,12 +174,14 @@ public class ElasticsearchAuditConfDAO extends JPAAuditConfDAO {
             final String subcategory,
             final List<String> events,
             final AuditElements.Result result,
+            final OffsetDateTime before,
+            final OffsetDateTime after,
             final List<OrderByClause> orderBy) {
 
         SearchRequest request = new SearchRequest.Builder().
                 index(ElasticsearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
-                query(getQuery(entityKey, type, category, subcategory, events, result)).
+                query(getQuery(entityKey, type, category, subcategory, events, result, before, after)).
                 from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
                 size(itemsPerPage < 0 ? indexMaxResultWindow : itemsPerPage).
                 sort(sortBuilders(orderBy)).

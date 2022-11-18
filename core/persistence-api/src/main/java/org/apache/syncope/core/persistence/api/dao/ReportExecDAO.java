@@ -34,16 +34,15 @@ public interface ReportExecDAO extends DAO<ReportExec> {
 
     ReportExec findLatestEnded(Report report);
 
-    int count(String reportKey);
-
-    List<ReportExec> findAll(Report report, int page, int itemsPerPage, List<OrderByClause> orderByClauses);
+    int count(Report report, OffsetDateTime before, OffsetDateTime after);
 
     List<ReportExec> findAll(
             Report report,
-            OffsetDateTime startedBefore,
-            OffsetDateTime startedAfter,
-            OffsetDateTime endedBefore,
-            OffsetDateTime endedAfter);
+            OffsetDateTime before,
+            OffsetDateTime after,
+            int page,
+            int itemsPerPage,
+            List<OrderByClause> orderByClauses);
 
     ReportExec save(ReportExec execution);
 

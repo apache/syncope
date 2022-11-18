@@ -52,7 +52,7 @@ import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
-import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
@@ -284,7 +284,7 @@ public class ReportITCase extends AbstractITCase {
         OffsetDateTime end = OffsetDateTime.now();
 
         Response response = REPORT_SERVICE.deleteExecutions(
-                new ExecDeleteQuery.Builder().key(reportTO.getKey()).startedAfter(start).endedBefore(end).build());
+                new ExecQuery.Builder().key(reportTO.getKey()).after(start).before(end).build());
         List<BatchResponseItem> batchResponseItems = parseBatchResponse(response);
         assertEquals(1, batchResponseItems.size());
         assertEquals(execKey, batchResponseItems.get(0).getHeaders().get(RESTHeaders.RESOURCE_KEY).get(0));

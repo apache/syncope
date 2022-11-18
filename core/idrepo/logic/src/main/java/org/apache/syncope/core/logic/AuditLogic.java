@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -272,11 +273,13 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             final String subcategory,
             final List<String> events,
             final AuditElements.Result result,
+            final OffsetDateTime before,
+            final OffsetDateTime after,
             final List<OrderByClause> orderBy) {
 
-        int count = auditConfDAO.countEntries(entityKey, type, category, subcategory, events, result);
+        int count = auditConfDAO.countEntries(entityKey, type, category, subcategory, events, result, before, after);
         List<AuditEntry> matching = auditConfDAO.searchEntries(
-                entityKey, page, size, type, category, subcategory, events, result, orderBy);
+                entityKey, page, size, type, category, subcategory, events, result, before, after, orderBy);
         return Pair.of(count, matching);
     }
 
