@@ -80,7 +80,7 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
             final int size,
             final List<OrderByClause> orderByClauses) {
 
-        int count = remediationDAO.count();
+        int count = remediationDAO.count(before, after);
 
         List<RemediationTO> result = remediationDAO.findAll(before, after, page, size, orderByClauses).stream().
                 map(binder::getRemediationTO).collect(Collectors.toList());

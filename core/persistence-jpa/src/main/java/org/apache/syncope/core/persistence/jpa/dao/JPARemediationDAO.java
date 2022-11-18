@@ -58,9 +58,35 @@ public class JPARemediationDAO extends AbstractDAO<Remediation> implements Remed
         return query.getResultList();
     }
 
+    protected StringBuilder query(
+            final StringBuilder select,
+            final OffsetDateTime before,
+            final OffsetDateTime after) {
+
+        StringBuilder query = select.
+                append(JPARemediation.class.getSimpleName()).
+                append(" e WHERE 1=1 ");
+        if (before != null) {
+            query.append("AND e.instant <= :before ");
+        }
+        if (after != null) {
+            query.append("AND e.instant >= :after ");
+        }
+        return query;
+    }
+
     @Override
-    public int count() {
-        Query query = entityManager().createNativeQuery("SELECT COUNT(id) FROM " + JPARemediation.TABLE);
+    public int count(final OffsetDateTime before, final OffsetDateTime after) {
+        StringBuilder queryString = query(new StringBuilder("SELECT COUNT(e) FROM "), before, after);
+
+        Query query = entityManager().createQuery(queryString.toString());
+        if (before != null) {
+            query.setParameter("before", before);
+        }
+        if (after != null) {
+            query.setParameter("after", after);
+        }
+
         return ((Number) query.getSingleResult()).intValue();
     }
 
@@ -72,14 +98,7 @@ public class JPARemediationDAO extends AbstractDAO<Remediation> implements Remed
             final int itemsPerPage,
             final List<OrderByClause> orderByClauses) {
 
-        StringBuilder queryString = new StringBuilder(
-                "SELECT e FROM " + JPARemediation.class.getSimpleName() + " e WHERE 1=1 ");
-        if (before != null) {
-            queryString.append(" AND e.instant <= :before");
-        }
-        if (after != null) {
-            queryString.append(" AND e.instant >= :after");
-        }
+        StringBuilder queryString = query(new StringBuilder("SELECT e FROM "), before, after);
 
         if (!orderByClauses.isEmpty()) {
             queryString.append(" ORDER BY ");

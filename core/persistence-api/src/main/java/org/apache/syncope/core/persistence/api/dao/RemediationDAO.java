@@ -33,7 +33,7 @@ public interface RemediationDAO extends DAO<Remediation> {
 
     List<Remediation> findByPullTask(PullTask pullTask);
 
-    int count();
+    int count(OffsetDateTime before, OffsetDateTime after);
 
     List<Remediation> findAll(
             OffsetDateTime before,
