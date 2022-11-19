@@ -29,5 +29,4 @@ public class AccessTokenQuery extends AbstractQuery {
             return new AccessTokenQuery();
         }
     }
-
 }

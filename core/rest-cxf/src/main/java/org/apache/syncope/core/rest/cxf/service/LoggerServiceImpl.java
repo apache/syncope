@@ -138,6 +138,8 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
                 auditQuery.getSubcategory(),
                 auditQuery.getEvents(),
                 auditQuery.getResult(),
+                auditQuery.getBefore(),
+                auditQuery.getAfter(),
                 getOrderByClauses(auditQuery.getOrderBy()));
 
         return buildPagedResult(result.getRight(), auditQuery.getPage(), auditQuery.getSize(), result.getLeft());

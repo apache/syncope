@@ -58,7 +58,7 @@ import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.common.rest.api.service.GroupService;
@@ -300,7 +300,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                         TaskTO task = (TaskTO) item;
 
                                         batchTaskService.execute(
-                                                new ExecuteQuery.Builder().dryRun(true).key(task.getKey()).build());
+                                                new ExecSpecs.Builder().dryRun(true).key(task.getKey()).build());
                                     });
                                     break;
 
@@ -309,12 +309,12 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                         if (singleItem instanceof TaskTO) {
                                             TaskTO task = (TaskTO) item;
 
-                                            batchTaskService.execute(new ExecuteQuery.Builder().
+                                            batchTaskService.execute(new ExecSpecs.Builder().
                                                     dryRun(false).key(task.getKey()).build());
                                         } else if (singleItem instanceof ReportTO) {
                                             ReportTO report = (ReportTO) item;
 
-                                            batchReportService.execute(new ExecuteQuery.Builder().
+                                            batchReportService.execute(new ExecSpecs.Builder().
                                                     key(report.getKey()).build());
                                         }
                                     });

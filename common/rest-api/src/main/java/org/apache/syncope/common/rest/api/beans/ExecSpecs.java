@@ -25,13 +25,13 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
-public class ExecuteQuery implements Serializable {
+public class ExecSpecs implements Serializable {
 
     private static final long serialVersionUID = 3846547401120638351L;
 
     public static class Builder {
 
-        private final ExecuteQuery instance = new ExecuteQuery();
+        private final ExecSpecs instance = new ExecSpecs();
 
         public Builder key(final String key) {
             instance.setKey(key);
@@ -48,7 +48,7 @@ public class ExecuteQuery implements Serializable {
             return this;
         }
 
-        public ExecuteQuery build() {
+        public ExecSpecs build() {
             return instance;
         }
     }

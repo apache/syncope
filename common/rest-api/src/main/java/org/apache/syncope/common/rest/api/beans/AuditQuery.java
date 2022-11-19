@@ -28,11 +28,11 @@ import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
-public class AuditQuery extends AbstractQuery {
+public class AuditQuery extends AbstractTimeframeQuery {
 
     private static final long serialVersionUID = -2863334226169614417L;
 
-    public static class Builder extends AbstractQuery.Builder<AuditQuery, Builder> {
+    public static class Builder extends AbstractTimeframeQuery.Builder<AuditQuery, Builder> {
 
         @Override
         protected AuditQuery newInstance() {

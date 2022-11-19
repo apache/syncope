@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -30,6 +31,8 @@ public interface LoggerDAO extends DAO<Logger> {
     String AUDIT_TABLE = "SYNCOPEAUDIT";
 
     String AUDIT_MESSAGE_COLUMN = "MESSAGE";
+
+    String AUDIT_ENTRY_EVENT_DATE_COLUMN = "EVENT_DATE";
 
     Logger find(String key);
 
@@ -47,7 +50,9 @@ public interface LoggerDAO extends DAO<Logger> {
             String category,
             String subcategory,
             List<String> events,
-            AuditElements.Result result);
+            AuditElements.Result result,
+            Date before,
+            Date after);
 
     List<AuditEntry> findAuditEntries(
             String entityKey,
@@ -58,5 +63,7 @@ public interface LoggerDAO extends DAO<Logger> {
             String subcategory,
             List<String> events,
             AuditElements.Result result,
+            Date before,
+            Date after,
             List<OrderByClause> orderBy);
 }

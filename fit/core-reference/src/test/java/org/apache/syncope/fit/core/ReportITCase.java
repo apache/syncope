@@ -54,8 +54,8 @@ import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
-import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
+import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
@@ -65,7 +65,7 @@ public class ReportITCase extends AbstractITCase {
     protected static String execReport(final String reportKey) {
         AtomicReference<ReportTO> reportTO = new AtomicReference<>(reportService.read(reportKey));
         int preExecSize = reportTO.get().getExecutions().size();
-        reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
+        reportService.execute(new ExecSpecs.Builder().key(reportKey).build());
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
@@ -290,7 +290,7 @@ public class ReportITCase extends AbstractITCase {
         Date end = new Date();
 
         Response response = reportService.deleteExecutions(
-                new ExecDeleteQuery.Builder().key(reportTO.getKey()).startedAfter(start).endedBefore(end).build());
+                new ExecQuery.Builder().key(reportTO.getKey()).after(start).before(end).build());
         List<BatchResponseItem> batchResponseItems = parseBatchResponse(response);
         assertEquals(1, batchResponseItems.size());
         assertEquals(execKey, batchResponseItems.get(0).getHeaders().get(RESTHeaders.RESOURCE_KEY).get(0));
@@ -345,7 +345,7 @@ public class ReportITCase extends AbstractITCase {
         reportTO = createReport(reportTO);
         assertNotNull(reportTO);
 
-        ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
+        ExecTO execution = reportService.execute(new ExecSpecs.Builder().key(reportTO.getKey()).build());
         assertNotNull(execution);
 
         int maxit = MAX_WAIT_SECONDS;
@@ -374,7 +374,7 @@ public class ReportITCase extends AbstractITCase {
 
         // Execute (multiple requests)
         for (int i = 0; i < 10; i++) {
-            assertNotNull(reportService.execute(new ExecuteQuery.Builder().key(reportKey).build()));
+            assertNotNull(reportService.execute(new ExecSpecs.Builder().key(reportKey).build()));
         }
 
         // Wait for one execution

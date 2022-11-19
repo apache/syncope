@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.Date;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -32,9 +33,14 @@ public interface RemediationDAO extends DAO<Remediation> {
 
     List<Remediation> findByPullTask(PullTask pullTask);
 
-    int count();
+    int count(Date before, Date after);
 
-    List<Remediation> findAll(int page, int itemsPerPage, List<OrderByClause> orderByClauses);
+    List<Remediation> findAll(
+            Date before,
+            Date after,
+            int page,
+            int itemsPerPage,
+            List<OrderByClause> orderByClauses);
 
     Remediation save(Remediation remediation);
 

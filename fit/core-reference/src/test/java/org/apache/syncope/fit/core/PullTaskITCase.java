@@ -53,6 +53,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -856,7 +857,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 assertEquals(ClientExceptionType.Reconciliation, sce.getType());
             }
             Optional<RemediationTO> remediation = remediationService.list(
-                    new RemediationQuery.Builder().page(1).size(1000).build()).getResult().stream().
+                    new RemediationQuery.Builder().after(DateUtils.addSeconds(new Date(), -30)).
+                            page(1).size(1000).build()).getResult().stream().
                     filter(r -> "uid=pullFromLDAP,ou=People,o=isp".equalsIgnoreCase(r.getRemoteName())).
                     findFirst();
             assertTrue(remediation.isPresent());
