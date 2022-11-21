@@ -28,10 +28,12 @@ import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class JobStatusUpdaterTest extends AbstractTest {
+
     @Autowired
     private EntityFactory entityFactory;
 
@@ -40,10 +42,14 @@ public class JobStatusUpdaterTest extends AbstractTest {
 
     @Test
     public void verifyUpdate() {
-        JobStatusUpdater jobStatusUpdater = new JobStatusUpdater(jobStatusDAO, entityFactory);
-        final String refDesc = "JobRefDesc-" + SecureRandomUtils.generateRandomNumber();
+        JobStatusUpdater jobStatusUpdater = new JobStatusUpdater();
+        ReflectionTestUtils.setField(jobStatusUpdater, "jobStatusDAO", jobStatusDAO);
+        ReflectionTestUtils.setField(jobStatusUpdater, "entityFactory", entityFactory);
+
+        String refDesc = "JobRefDesc-" + SecureRandomUtils.generateRandomNumber();
         jobStatusUpdater.update(new JobStatusEvent(this, refDesc, "Started"));
         assertNotNull(jobStatusDAO.find(refDesc));
+
         jobStatusUpdater.update(new JobStatusEvent(this, refDesc, null));
         assertNull(jobStatusDAO.find(refDesc));
     }
