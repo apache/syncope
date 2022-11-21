@@ -22,10 +22,14 @@ import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 
 public class JobStatusUpdater {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(JobStatusUpdater.class);
 
     protected final JobStatusDAO jobStatusDAO;
 
@@ -50,8 +54,10 @@ public class JobStatusUpdater {
     @EventListener
     public void update(final JobStatusEvent event) {
         if (event.getJobStatus() == null) {
+            LOG.debug("Deleting status for job '{}'", event.getJobRefDesc());
             jobStatusDAO.delete(event.getJobRefDesc());
         } else {
+            LOG.debug("Updating job '{}' with status '{}'", event.getJobRefDesc(), event.getJobStatus());
             JobStatus jobStatus = entityFactory.newEntity(JobStatus.class);
             jobStatus.setKey(event.getJobRefDesc());
             jobStatus.setStatus(event.getJobStatus());

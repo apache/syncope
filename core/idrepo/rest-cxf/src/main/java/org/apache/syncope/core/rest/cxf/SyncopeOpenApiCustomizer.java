@@ -33,8 +33,6 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +43,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
-import org.apache.cxf.jaxrs.model.doc.JavaDocProvider;
 import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -53,60 +50,20 @@ import org.apache.syncope.common.lib.to.ErrorTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 
 public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeOpenApiCustomizer.class);
+    private final DomainHolder domainHolder;
 
-    private final Environment env;
-
-    private List<String> domains;
-
-    private boolean inited = false;
-
-    public SyncopeOpenApiCustomizer(final Environment env) {
-        this.env = env;
-    }
-
-    private void init() {
-        synchronized (this) {
-            if (!inited) {
-                JavaDocProvider javaDocProvider = null;
-
-                URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
-                if (javaDocURLs == null) {
-                    String[] javaDocPaths = JavaDocUtils.getJavaDocPaths(env);
-                    if (javaDocPaths != null) {
-                        try {
-                            javaDocProvider = new JavaDocProvider(javaDocPaths);
-                        } catch (Exception e) {
-                            LOG.error("Could not set javadoc paths from {}", List.of(javaDocPaths), e);
-                        }
-                    }
-                } else {
-                    javaDocProvider = new JavaDocProvider(javaDocURLs);
-                }
-                super.setJavadocProvider(javaDocProvider);
-
-                domains = new ArrayList<>(ApplicationContextProvider.getApplicationContext().
-                        getBean(DomainHolder.class).getDomains().keySet());
-
-                inited = true;
-            }
-        }
+    public SyncopeOpenApiCustomizer(final DomainHolder domainHolder) {
+        this.domainHolder = domainHolder;
     }
 
     @Override
     public OpenAPIConfiguration customize(final OpenAPIConfiguration configuration) {
-        init();
         super.customize(configuration);
 
-        MessageContext ctx = JAXRSUtils.createContextValue(
-                JAXRSUtils.getCurrentMessage(), null, MessageContext.class);
+        MessageContext ctx = JAXRSUtils.createContextValue(JAXRSUtils.getCurrentMessage(), null, MessageContext.class);
 
         String url = StringUtils.substringBeforeLast(ctx.getUriInfo().getRequestUri().getRawPath(), "/");
         configuration.getOpenAPI().setServers(List.of(new Server().url(url)));
@@ -116,8 +73,8 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
     @Override
     protected void addParameters(final List<Parameter> parameters) {
-        Optional<Parameter> domainHeaderParameter = parameters.stream().filter(parameter
-                -> parameter instanceof HeaderParameter && RESTHeaders.DOMAIN.equals(parameter.getName())).findFirst();
+        Optional<Parameter> domainHeaderParameter = parameters.stream().
+                filter(p -> p instanceof HeaderParameter && RESTHeaders.DOMAIN.equals(p.getName())).findFirst();
         if (domainHeaderParameter.isEmpty()) {
             HeaderParameter parameter = new HeaderParameter();
             parameter.setName(RESTHeaders.DOMAIN);
@@ -130,7 +87,7 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
             Schema<String> schema = new Schema<>();
             schema.setDescription("Domains are built to facilitate multitenancy.");
             schema.setExternalDocs(extDoc);
-            schema.setEnum(domains);
+            schema.setEnum(domainHolder.getDomains().keySet().stream().sorted().collect(Collectors.toList()));
             schema.setDefault(SyncopeConstants.MASTER_DOMAIN);
             parameter.setSchema(schema);
 

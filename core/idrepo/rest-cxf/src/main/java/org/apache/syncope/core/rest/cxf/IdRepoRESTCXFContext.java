@@ -22,6 +22,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider;
 import com.fasterxml.jackson.jaxrs.yaml.JacksonYAMLProvider;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,8 @@ import org.apache.cxf.jaxrs.ext.search.SearchContext;
 import org.apache.cxf.jaxrs.ext.search.SearchContextImpl;
 import org.apache.cxf.jaxrs.ext.search.SearchContextProvider;
 import org.apache.cxf.jaxrs.ext.search.SearchUtils;
+import org.apache.cxf.jaxrs.model.doc.JavaDocProvider;
+import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
 import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
@@ -130,6 +133,8 @@ import org.apache.syncope.core.rest.cxf.service.SyncopeServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.TaskServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.UserSelfServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.UserServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -145,6 +150,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @EnableConfigurationProperties(RESTProperties.class)
 @Configuration(proxyBeanMethods = false)
 public class IdRepoRESTCXFContext {
+
+    private static final Logger LOG = LoggerFactory.getLogger(IdRepoRESTCXFContext.class);
 
     @Bean
     public ThreadPoolTaskExecutor batchExecutor(final RESTProperties props) {
@@ -243,11 +250,38 @@ public class IdRepoRESTCXFContext {
         return new AddETagFilter();
     }
 
+    @ConditionalOnMissingBean(name = { "openApiCustomizer", "syncopeOpenApiCustomizer" })
+    @Bean
+    public OpenApiCustomizer openApiCustomizer(final DomainHolder domainHolder, final Environment env) {
+        JavaDocProvider javaDocProvider = null;
+
+        URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
+        if (javaDocURLs == null) {
+            String[] javaDocPaths = JavaDocUtils.getJavaDocPaths(env);
+            if (javaDocPaths != null) {
+                try {
+                    javaDocProvider = new JavaDocProvider(javaDocPaths);
+                } catch (Exception e) {
+                    LOG.error("Could not set javadoc paths from {}", List.of(javaDocPaths), e);
+                }
+            }
+        } else {
+            javaDocProvider = new JavaDocProvider(javaDocURLs);
+        }
+
+        SyncopeOpenApiCustomizer openApiCustomizer = new SyncopeOpenApiCustomizer(domainHolder);
+        openApiCustomizer.setDynamicBasePath(false);
+        openApiCustomizer.setReplaceTags(false);
+        openApiCustomizer.setJavadocProvider(javaDocProvider);
+        return openApiCustomizer;
+    }
+
     @ConditionalOnMissingBean
     @Bean
-    public OpenApiFeature openapiFeature(final ApplicationContext ctx) {
+    public OpenApiFeature openapiFeature(final OpenApiCustomizer openApiCustomizer, final ApplicationContext ctx) {
         String version = ctx.getEnvironment().getProperty("version");
         OpenApiFeature openapiFeature = new OpenApiFeature();
+        openapiFeature.setUseContextBasedConfig(true);
         openapiFeature.setTitle("Apache Syncope");
         openapiFeature.setVersion(version);
         openapiFeature.setDescription("Apache Syncope " + version);
@@ -256,10 +290,6 @@ public class IdRepoRESTCXFContext {
         openapiFeature.setContactUrl("https://syncope.apache.org");
         openapiFeature.setScan(false);
         openapiFeature.setResourcePackages(Set.of("org.apache.syncope.common.rest.api.service"));
-
-        SyncopeOpenApiCustomizer openApiCustomizer = new SyncopeOpenApiCustomizer(ctx.getEnvironment());
-        openApiCustomizer.setDynamicBasePath(false);
-        openApiCustomizer.setReplaceTags(false);
         openapiFeature.setCustomizer(openApiCustomizer);
 
         Map<String, SecurityScheme> securityDefinitions = new HashMap<>();
