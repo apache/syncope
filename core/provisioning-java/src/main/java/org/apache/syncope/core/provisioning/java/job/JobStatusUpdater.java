@@ -29,6 +29,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 
 public class JobStatusUpdater {
+
     protected static final Logger LOG = LoggerFactory.getLogger(JobStatusUpdater.class);
 
     @Autowired
@@ -36,11 +37,6 @@ public class JobStatusUpdater {
 
     @Autowired
     protected EntityFactory entityFactory;
-
-    public JobStatusUpdater(final JobStatusDAO jobStatusDAO, final EntityFactory entityFactory) {
-        this.jobStatusDAO = jobStatusDAO;
-        this.entityFactory = entityFactory;
-    }
 
     /**
      * It's important to note that responding to job status updates
@@ -56,10 +52,10 @@ public class JobStatusUpdater {
     @EventListener
     public void update(final JobStatusEvent event) {
         if (event.getJobStatus() == null) {
-            LOG.debug("Deleting status for job {}", event.getJobRefDesc());
+            LOG.debug("Deleting status for job '{}'", event.getJobRefDesc());
             jobStatusDAO.delete(event.getJobRefDesc());
         } else {
-            LOG.debug("Updating job {} with status {}", event.getJobRefDesc(), event.getJobStatus());
+            LOG.debug("Updating job '{}' with status '{}'", event.getJobRefDesc(), event.getJobStatus());
             JobStatus jobStatus = entityFactory.newEntity(JobStatus.class);
             jobStatus.setKey(event.getJobRefDesc());
             jobStatus.setStatus(event.getJobStatus());

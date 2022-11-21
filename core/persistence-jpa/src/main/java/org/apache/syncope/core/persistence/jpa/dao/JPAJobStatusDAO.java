@@ -46,6 +46,5 @@ public class JPAJobStatusDAO extends AbstractDAO<JobStatus> implements JobStatus
         if (jobStatus != null) {
             entityManager().remove(jobStatus);
         }
-
     }
 }
