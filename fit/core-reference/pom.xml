@@ -383,6 +383,7 @@ under the License.
         <filtering>true</filtering>
         <excludes>
           <exclude>saml.keystore.jks</exclude>
+          <exclude>test.pdf</exclude>
         </excludes>
       </testResource>
       <testResource>
@@ -390,6 +391,7 @@ under the License.
         <filtering>false</filtering>
         <includes>
           <include>saml.keystore.jks</include>
+          <include>test.pdf</include>
         </includes>
       </testResource>
       <testResource>

@@ -258,16 +258,16 @@ under the License.
         <directory>${basedir}/src/test/resources</directory>
         <filtering>true</filtering>
         <excludes>
-          <exclude>*.p12</exclude>
-          <exclude>*.jks</exclude>
+          <exclude>**/*.p12</exclude>
+          <exclude>**/*.jks</exclude>
         </excludes>
       </testResource>
       <testResource>
         <directory>${basedir}/src/test/resources</directory>
         <filtering>false</filtering>
         <includes>
-          <include>*.p12</include>
-          <include>*.jks</include>
+          <include>**/*.p12</include>
+          <include>**/*.jks</include>
         </includes>
       </testResource>
     </testResources>
