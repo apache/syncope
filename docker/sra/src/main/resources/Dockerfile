@@ -39,6 +39,6 @@ COPY startup.sh /opt/syncope/bin
 RUN chmod 755 /opt/syncope/bin/startup.sh
 CMD ["/opt/syncope/bin/startup.sh"]
 
-RUN curl -o /usr/local/bin/wait-for-it https://github.com/vishnubob/wait-for-it/blob/master/wait-for-it.sh && chmod 755 /usr/local/bin/wait-for-it
+RUN curl -o /usr/local/bin/wait-for-it https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && chmod 755 /usr/local/bin/wait-for-it
 
 EXPOSE 8080

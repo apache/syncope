@@ -642,8 +642,8 @@ $ mvn -P embedded,all
 ===== Paths and Components
 
 [WARNING]
-While accessing the URLs below, your browser will warn that the presented TLS certificate is invalid: it is safe to
-just ignore the message, take the risk and discover how deep does the rabbit hole go. Not for production, of course.
+While accessing some of the URLs below, your browser will warn that the presented TLS certificate is invalid: it is safe
+to just ignore the message, take the risk and discover how deep does the rabbit hole go. Not for production, of course.
 
 [cols="1,2"]
 |===
@@ -699,5 +699,76 @@ You can configure any LDAP client (such as http://jxplorer.org/[JXplorer^], for 
  Insert `jdbc:h2:tcp://localhost:9092/mem:testdb` as JDBC URL +
  Set 'sa' as password +
  Click 'Connect' button
+
+|===
+
+==== Docker Mode
+
+It is possible to build and run projects generated from Maven archetype by configuring and extending the published
+<<docker-images>>.
+
+From the top-level directory of your project, execute:
+
+[source,bash]
+$ mvn -P docker,all clean install
+
+then, from the `fit` subdirectory, execute:
+
+[source,bash]
+$ mvn -P docker
+
+[TIP]
+The settings shown in `fit/pom.xml` under the `docker` profile can be taken as reference to orchestrate actual
+deployments.
+
+===== Paths and Components
+
+[WARNING]
+While accessing some of the URLs below, your browser will warn that the presented TLS certificate is invalid: it is safe
+to just ignore the message, take the risk and discover how deep does the rabbit hole go. Not for production, of course.
+
+[NOTE]
+====
+The hostnames below, e.g.
+
+. `syncope`
+. `syncope-console`
+. `syncope-enduser`
+. `syncope-sra`
+
+are to be manually resolved to their respective local IP addresses in use by your current deployment.
+
+For example:
+
+[source,bash]
+----
+ $ docker inspect -f \
+  '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' \
+  syncope
+----
+
+will return the actual IP address assigned to the `syncope` container.
+====
+
+The following services will be available:
+
+[cols="1,2"]
+|===
+
+| REST API reference
+| http://syncope:8080/syncope/
+
+| Admin UI
+| http://syncope-console:8080/syncope-console/ +
+Credentials: `admin` / `password`
+
+| End-user UI
+| http://syncope-enduser:8080/syncope-enduser/
+
+| WA
+| https://localhost:9443/syncope-wa/
+
+| SRA
+| http://syncope-sra:8080/
 
 |===

@@ -195,7 +195,7 @@ under the License.
                 <argument>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks</argument>
                 <argument>-Djavax.net.ssl.trustStorePassword=password</argument>
                 <argument>-jar</argument>
-                <argument>${basedir}/../sra/target/syncope-sra.jar</argument>
+                <argument>${basedir}/../sra/target/syncope-sra-exec.jar</argument>
                 <argument>-Dreactor.netty.http.server.accessLogEnabled=true</argument>
               </arguments>
               <environmentVariables>
@@ -246,6 +246,7 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=${spring.profiles.active}
+                -Dwicket.ioc.useByteBuddy=true
                 -Xmx1024m -Xms512m</cargo.jvmargs>
 
               <cargo.servlet.port>9443</cargo.servlet.port>
@@ -322,6 +323,254 @@ under the License.
 
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>  
+      </build>
+    </profile>
+
+    <profile>
+      <id>docker</id>
+
+      <properties>
+        <exec.skip>true</exec.skip>
+        <docker.autoCreateCustomNetworks>true</docker.autoCreateCustomNetworks>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>${groupId}</groupId>
+          <artifactId>syncope-core</artifactId>
+          <version>${project.version}</version>
+          <classifier>classes</classifier>
+        </dependency>
+        <dependency>
+          <groupId>${groupId}</groupId>
+          <artifactId>syncope-console</artifactId>
+          <version>${project.version}</version>
+          <classifier>classes</classifier>
+        </dependency>
+        <dependency>
+          <groupId>${groupId}</groupId>
+          <artifactId>syncope-enduser</artifactId>
+          <version>${project.version}</version>
+          <classifier>classes</classifier>
+        </dependency>
+        <dependency>
+          <groupId>${groupId}</groupId>
+          <artifactId>syncope-wa</artifactId>
+          <version>${project.version}</version>
+          <classifier>classes</classifier>
+        </dependency>
+        <dependency>
+          <groupId>${groupId}</groupId>
+          <artifactId>syncope-sra</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean package io.fabric8:docker-maven-plugin:start</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <verbose>true</verbose>
+              <images>
+                <image>
+                  <alias>postgres</alias>
+                  <name>postgres:${docker.postgresql.version}</name>
+                  <run>
+                    <containerNamePattern>%a</containerNamePattern>
+                    <env>
+                      <POSTGRES_DB>syncope</POSTGRES_DB>
+                      <POSTGRES_USER>syncope</POSTGRES_USER>
+                      <POSTGRES_PASSWORD>syncope</POSTGRES_PASSWORD>
+                    </env>
+                    <wait>
+                      <log>database system is ready to accept connections</log>
+                      <time>30000</time>
+                    </wait>
+                    <tmpfs>
+                      <mount>/var/lib/postgresql/data:rw</mount>
+                    </tmpfs>
+                    <network>
+                      <name>archetype</name>
+                      <mode>custom</mode>
+                    </network>
+                  </run>
+                </image>
+
+                <image>
+                  <alias>syncope</alias>
+                  <name>apache/syncope:${syncope.version}</name>
+                  <run>
+                    <containerNamePattern>%a</containerNamePattern>
+                    <dependsOn>
+                      <container>postgres</container>
+                    </dependsOn>
+                    <env>
+                      <SPRING_PROFILES_ACTIVE>docker,postgresql,all</SPRING_PROFILES_ACTIVE>
+                      <DB_URL>jdbc:postgresql://postgres:5432/syncope?stringtype=unspecified</DB_URL>
+                      <DB_USER>syncope</DB_USER>
+                      <DB_PASSWORD>syncope</DB_PASSWORD>
+                      <DB_POOL_MAX>10</DB_POOL_MAX>
+                      <DB_POOL_MIN>2</DB_POOL_MIN>
+                      <OPENJPA_REMOTE_COMMIT>sjvm</OPENJPA_REMOTE_COMMIT>
+                      <SERVICE_DISCOVERY_ADDRESS>http://syncope:8080/syncope/rest/</SERVICE_DISCOVERY_ADDRESS>
+                      <KEYMASTER_ADDRESS>http://syncope:8080/syncope/rest/keymaster</KEYMASTER_ADDRESS>
+                      <KEYMASTER_USERNAME>${anonymousUser}</KEYMASTER_USERNAME>
+                      <KEYMASTER_PASSWORD>${anonymousKey}</KEYMASTER_PASSWORD>
+                      <ANONYMOUS_USER>${anonymousUser}</ANONYMOUS_USER>
+                      <ANONYMOUS_KEY>${anonymousKey}</ANONYMOUS_KEY>
+                    </env>
+                    <volumes>
+                      <bind>
+                        <volume>${basedir}/../core/target/classes/domains/MasterContent.xml:/opt/syncope/conf/domains/MasterContent.xml:ro</volume>
+                        <volume>${settings.localRepository}/${groupId}/syncope-core/${project.version}/syncope-core-${project.version}-classes.jar:/opt/syncope/lib/${groupId}-syncope-core-classes.jar:ro</volume>
+                      </bind>
+                    </volumes>
+                    <network>
+                      <name>archetype</name>
+                      <mode>custom</mode>
+                    </network>
+                  </run>
+                </image>
+
+                <image>
+                  <alias>syncope-console</alias>
+                  <name>apache/syncope-console:${syncope.version}</name>
+                  <run>
+                    <containerNamePattern>%a</containerNamePattern>
+                    <dependsOn>
+                      <container>syncope</container>
+                    </dependsOn>
+                    <env>
+                      <JAVA_OPTS>-Dfile.encoding=UTF-8 -Dwicket.ioc.useByteBuddy=true -server -Xms1536m -Xmx1536m 
+                        -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC 
+                        -Djava.security.egd=file:/dev/./urandom 
+                        -Djavax.net.ssl.trustStore=/opt/syncope/conf/keystore.p12 
+                        -Djavax.net.ssl.trustStorePassword=password</JAVA_OPTS>
+                      <SPRING_PROFILES_ACTIVE>docker,all</SPRING_PROFILES_ACTIVE>
+                      <SERVICE_DISCOVERY_ADDRESS>http://syncope-console:8080/syncope-console/</SERVICE_DISCOVERY_ADDRESS>
+                      <KEYMASTER_ADDRESS>http://syncope:8080/syncope/rest/keymaster</KEYMASTER_ADDRESS>
+                      <KEYMASTER_USERNAME>${anonymousUser}</KEYMASTER_USERNAME>
+                      <KEYMASTER_PASSWORD>${anonymousKey}</KEYMASTER_PASSWORD>
+                      <ANONYMOUS_USER>${anonymousUser}</ANONYMOUS_USER>
+                      <ANONYMOUS_KEY>${anonymousKey}</ANONYMOUS_KEY>
+                    </env>
+                    <volumes>
+                      <bind>
+                        <volume>${basedir}/src/test/resources/keystore.p12:/opt/syncope/conf/keystore.p12:ro</volume>
+                        <volume>${settings.localRepository}/${groupId}/syncope-console/${project.version}/syncope-console-${project.version}-classes.jar:/opt/syncope/lib/${groupId}-syncope-console-classes.jar:ro</volume>
+                      </bind>
+                    </volumes>
+                    <network>
+                      <name>archetype</name>
+                      <mode>custom</mode>
+                    </network>
+                    <cmd>wait-for-it syncope:8080 -t 60 -- /opt/syncope/bin/startup.sh</cmd>
+                  </run>
+                </image>
+
+                <image>
+                  <alias>syncope-enduser</alias>
+                  <name>apache/syncope-enduser:${syncope.version}</name>
+                  <run>
+                    <containerNamePattern>%a</containerNamePattern>
+                    <dependsOn>
+                      <container>syncope</container>
+                    </dependsOn>
+                    <env>
+                      <SPRING_PROFILES_ACTIVE>docker,all</SPRING_PROFILES_ACTIVE>
+                      <SERVICE_DISCOVERY_ADDRESS>http://syncope-enduser:8080/syncope-console/</SERVICE_DISCOVERY_ADDRESS>
+                      <KEYMASTER_ADDRESS>http://syncope:8080/syncope/rest/keymaster</KEYMASTER_ADDRESS>
+                      <KEYMASTER_USERNAME>${anonymousUser}</KEYMASTER_USERNAME>
+                      <KEYMASTER_PASSWORD>${anonymousKey}</KEYMASTER_PASSWORD>
+                      <ANONYMOUS_USER>${anonymousUser}</ANONYMOUS_USER>
+                      <ANONYMOUS_KEY>${anonymousKey}</ANONYMOUS_KEY>
+                    </env>
+                    <volumes>
+                      <bind>
+                        <volume>${settings.localRepository}/${groupId}/syncope-enduser/${project.version}/syncope-enduser-${project.version}-classes.jar:/opt/syncope/lib/${groupId}-syncope-enduser-classes.jar:ro</volume>
+                      </bind>
+                    </volumes>
+                    <network>
+                      <name>archetype</name>
+                      <mode>custom</mode>
+                    </network>
+                    <cmd>wait-for-it syncope:8080 -t 60 -- /opt/syncope/bin/startup.sh</cmd>
+                  </run>
+                </image>
+
+                <image>
+                  <alias>syncope-wa</alias>
+                  <name>apache/syncope-wa:${syncope.version}</name>
+                  <run>
+                    <containerNamePattern>%a</containerNamePattern>
+                    <dependsOn>
+                      <container>syncope</container>
+                    </dependsOn>
+                    <env>
+                      <SPRING_PROFILES_ACTIVE>docker,docker-https,all</SPRING_PROFILES_ACTIVE>
+                      <CAS_SERVER_NAME>https://localhost:9443</CAS_SERVER_NAME>
+                      <SERVICE_DISCOVERY_ADDRESS>https://syncope-wa:9443/syncope-wa/</SERVICE_DISCOVERY_ADDRESS>
+                      <KEYMASTER_ADDRESS>http://syncope:8080/syncope/rest/keymaster</KEYMASTER_ADDRESS>
+                      <KEYMASTER_USERNAME>${anonymousUser}</KEYMASTER_USERNAME>
+                      <KEYMASTER_PASSWORD>${anonymousKey}</KEYMASTER_PASSWORD>
+                      <ANONYMOUS_USER>${anonymousUser}</ANONYMOUS_USER>
+                      <ANONYMOUS_KEY>${anonymousKey}</ANONYMOUS_KEY>
+                    </env>
+                    <volumes>
+                      <bind>
+                        <volume>${basedir}/../wa/src/test/resources/wa-docker-https.properties:/opt/syncope/conf/wa-docker-https.properties:ro</volume>
+                        <volume>${basedir}/src/test/resources/keystore.p12:/opt/syncope/conf/keystore.p12:ro</volume>
+                        <volume>${settings.localRepository}/${groupId}/syncope-wa/${project.version}/syncope-wa-${project.version}-classes.jar:/opt/syncope/lib/${groupId}-syncope-wa-classes.jar:ro</volume>
+                      </bind>
+                    </volumes>
+                    <network>
+                      <name>archetype</name>
+                      <mode>custom</mode>
+                    </network>
+                    <ports>
+                      <port>9443:9443</port>
+                    </ports>
+                    <cmd>wait-for-it syncope:8080 -t 60 -- /opt/syncope/bin/startup.sh</cmd>
+                  </run>
+                </image>
+
+                <image>
+                  <alias>syncope-sra</alias>
+                  <name>apache/syncope-sra:${syncope.version}</name>
+                  <run>
+                    <containerNamePattern>%a</containerNamePattern>
+                    <dependsOn>
+                      <container>syncope</container>
+                    </dependsOn>
+                    <env>
+                      <SPRING_PROFILES_ACTIVE>docker,all</SPRING_PROFILES_ACTIVE>
+                      <SERVICE_DISCOVERY_ADDRESS>http://syncope-sra:8080/</SERVICE_DISCOVERY_ADDRESS>
+                      <KEYMASTER_ADDRESS>http://syncope:8080/syncope/rest/keymaster</KEYMASTER_ADDRESS>
+                      <KEYMASTER_USERNAME>${anonymousUser}</KEYMASTER_USERNAME>
+                      <KEYMASTER_PASSWORD>${anonymousKey}</KEYMASTER_PASSWORD>
+                      <ANONYMOUS_USER>${anonymousUser}</ANONYMOUS_USER>
+                      <ANONYMOUS_KEY>${anonymousKey}</ANONYMOUS_KEY>
+                    </env>
+                    <volumes>
+                      <bind>
+                        <volume>${settings.localRepository}/${groupId}/syncope-sra/${project.version}/syncope-sra-${project.version}.jar:/opt/syncope/lib/${groupId}-syncope-sra.jar:ro</volume>
+                      </bind>
+                    </volumes>
+                    <network>
+                      <name>archetype</name>
+                      <mode>custom</mode>
+                    </network>
+                    <cmd>wait-for-it syncope:8080 -t 60 -- /opt/syncope/bin/startup.sh</cmd>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+          </plugin>
+        </plugins>
       </build>
     </profile>
   </profiles>

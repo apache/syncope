@@ -64,6 +64,7 @@ under the License.
         <configuration>
           <mainClass>org.apache.syncope.sra.SyncopeSRAApplication</mainClass>
           <layout>ZIP</layout>
+          <classifier>exec</classifier>
         </configuration>
         <executions>
           <execution>
