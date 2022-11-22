@@ -473,14 +473,16 @@ under the License.
             <directory>src/test/resources</directory>
             <filtering>true</filtering>
             <excludes>
-              <exclude>keystore</exclude>
+              <exclude>saml.keystore.jks</exclude>
+              <exclude>test.pdf</exclude>
             </excludes>
           </testResource>
           <testResource>
             <directory>src/test/resources</directory>
             <filtering>false</filtering>
             <includes>
-              <include>keystore</include>
+              <include>saml.keystore.jks</include>
+              <include>test.pdf</include>
             </includes>
           </testResource>
           <testResource>
@@ -583,14 +585,16 @@ under the License.
             <directory>src/test/resources</directory>
             <filtering>true</filtering>
             <excludes>
-              <exclude>keystore</exclude>
+              <exclude>saml.keystore.jks</exclude>
+              <exclude>test.pdf</exclude>
             </excludes>
           </testResource>
           <testResource>
             <directory>src/test/resources</directory>
             <filtering>false</filtering>
             <includes>
-              <include>keystore</include>
+              <include>saml.keystore.jks</include>
+              <include>test.pdf</include>
             </includes>
           </testResource>
           <testResource>
