@@ -80,7 +80,8 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
-    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.UserTO")
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "org.apache.syncope.common.lib.to.UserTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

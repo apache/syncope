@@ -104,8 +104,9 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema> implements VirSchema
     }
 
     @Override
-    public VirSchema save(final VirSchema virSchema) {
-        return entityManager().merge(virSchema);
+    public VirSchema save(final VirSchema schema) {
+        ((JPAVirSchema) schema).map2json();
+        return entityManager().merge(schema);
     }
 
     @Override
@@ -114,8 +115,6 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema> implements VirSchema
         if (schema == null) {
             return;
         }
-
-        schema.getLabels().forEach(label -> label.setSchema(null));
 
         resourceDAO.deleteMapping(key);
 

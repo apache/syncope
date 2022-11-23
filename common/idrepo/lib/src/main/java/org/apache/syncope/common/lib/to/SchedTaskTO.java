@@ -50,7 +50,8 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
-    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.SchedTaskTO")
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "org.apache.syncope.common.lib.to.SchedTaskTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

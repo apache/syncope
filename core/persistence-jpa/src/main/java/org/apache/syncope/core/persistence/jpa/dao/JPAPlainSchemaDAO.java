@@ -126,6 +126,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
 
     @Override
     public PlainSchema save(final PlainSchema schema) {
+        ((JPAPlainSchema) schema).map2json();
         return entityManager().merge(schema);
     }
 
@@ -142,8 +143,6 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
         if (schema == null) {
             return;
         }
-
-        schema.getLabels().forEach(label -> label.setSchema(null));
 
         deleteAttrs(schema);
 

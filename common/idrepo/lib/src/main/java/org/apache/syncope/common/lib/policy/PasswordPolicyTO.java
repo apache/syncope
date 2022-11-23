@@ -40,7 +40,8 @@ public class PasswordPolicyTO extends PolicyTO implements ComposablePolicy {
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
-    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.policy.PasswordPolicyTO")
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "org.apache.syncope.common.lib.policy.PasswordPolicyTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

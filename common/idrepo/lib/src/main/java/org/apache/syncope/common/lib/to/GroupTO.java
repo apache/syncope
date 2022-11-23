@@ -59,7 +59,8 @@ public class GroupTO extends AnyTO {
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
-    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.GroupTO")
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "org.apache.syncope.common.lib.to.GroupTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

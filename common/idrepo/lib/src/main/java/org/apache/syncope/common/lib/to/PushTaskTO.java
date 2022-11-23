@@ -38,7 +38,8 @@ public class PushTaskTO extends ProvisioningTaskTO {
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
-    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.PushTaskTO")
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "org.apache.syncope.common.lib.to.PushTaskTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

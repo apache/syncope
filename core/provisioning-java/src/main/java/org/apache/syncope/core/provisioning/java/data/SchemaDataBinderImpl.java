@@ -18,14 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.Provision;
-import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -46,8 +44,6 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.Schema;
-import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
@@ -98,26 +94,6 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         this.anyUtilsFactory = anyUtilsFactory;
     }
 
-    protected <S extends Schema, T extends SchemaTO> void labels(final T src, final S dst) {
-        src.getLabels().forEach((locale, display) -> {
-            SchemaLabel label = dst.getLabel(locale).orElse(null);
-            if (label == null) {
-                label = entityFactory.newEntity(SchemaLabel.class);
-                label.setLocale(locale);
-                label.setSchema(dst);
-                dst.add(label);
-            }
-            label.setDisplay(display);
-        });
-
-        dst.getLabels().removeIf(label -> !src.getLabels().containsKey(label.getLocale()));
-    }
-
-    protected static <S extends Schema, T extends SchemaTO> void labels(final S src, final T dst) {
-        dst.getLabels().putAll(src.getLabels().stream().
-                collect(Collectors.toMap(SchemaLabel::getLocale, SchemaLabel::getDisplay)));
-    }
-
     // --------------- PLAIN -----------------
     protected PlainSchema fill(final PlainSchema schema, final PlainSchemaTO schemaTO) {
         if (!JexlUtils.isExpressionValid(schemaTO.getMandatoryCondition())) {
@@ -139,8 +115,9 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         schema.setSecretKey(schemaTO.getSecretKey());
         schema.setUniqueConstraint(schemaTO.isUniqueConstraint());
 
-        labels(schemaTO, schema);
-
+        schema.getLabels().clear();
+        schema.getLabels().putAll(schemaTO.getLabels());
+        
         if (schemaTO.getValidator() == null) {
             schema.setValidator(null);
         } else {
@@ -232,9 +209,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         schemaTO.setReadonly(schema.isReadonly());
         schemaTO.setSecretKey(schema.getSecretKey());
         schemaTO.setUniqueConstraint(schema.isUniqueConstraint());
-
-        labels(schema, schemaTO);
-
+        schemaTO.getLabels().putAll(schema.getLabels());
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
         if (schema.getValidator() != null) {
             schemaTO.setValidator(schema.getValidator().getKey());
@@ -267,7 +242,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         schema.setKey(schemaTO.getKey());
         schema.setExpression(schemaTO.getExpression());
 
-        labels(schemaTO, schema);
+        schema.getLabels().clear();
+        schema.getLabels().putAll(schemaTO.getLabels());
 
         DerSchema merged = derSchemaDAO.save(schema);
 
@@ -311,11 +287,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         DerSchemaTO schemaTO = new DerSchemaTO();
         schemaTO.setKey(schema.getKey());
         schemaTO.setExpression(schema.getExpression());
-
-        labels(schema, schemaTO);
-
+        schemaTO.getLabels().putAll(schema.getLabels());
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
-
         return schemaTO;
     }
 
@@ -325,7 +298,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         schema.setExtAttrName(schemaTO.getExtAttrName());
         schema.setReadonly(schemaTO.isReadonly());
 
-        labels(schemaTO, schema);
+        schema.getLabels().clear();
+        schema.getLabels().putAll(schemaTO.getLabels());
 
         if (schemaTO.getAnyTypeClass() != null
                 && (schema.getAnyTypeClass() == null
@@ -390,13 +364,10 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         schemaTO.setKey(schema.getKey());
         schemaTO.setExtAttrName(schema.getExtAttrName());
         schemaTO.setReadonly(schema.isReadonly());
-
-        labels(schema, schemaTO);
-
+        schemaTO.getLabels().putAll(schema.getLabels());
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
         schemaTO.setResource(schema.getResource().getKey());
         schemaTO.setAnyType(schema.getAnyType().getKey());
-
         return schemaTO;
     }
 }

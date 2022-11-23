@@ -51,7 +51,6 @@ import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
-import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
@@ -231,8 +230,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAConnInstance();
         } else if (reference.equals(ExternalResource.class)) {
             result = (E) new JPAExternalResource();
-        } else if (reference.equals(SchemaLabel.class)) {
-            result = (E) new JPASchemaLabel();
         } else if (reference.equals(PlainSchema.class)) {
             result = (E) new JPAPlainSchema();
         } else if (reference.equals(APlainAttr.class)) {

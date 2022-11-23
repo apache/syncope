@@ -18,21 +18,26 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import javax.persistence.Cacheable;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.OneToMany;
+import javax.persistence.Lob;
+import javax.persistence.PostLoad;
+import javax.persistence.PostPersist;
+import javax.persistence.PostUpdate;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import org.apache.syncope.core.persistence.api.entity.Schema;
-import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
 import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaKeyCheck;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -41,26 +46,53 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaKeyCheck;
 @SchemaKeyCheck
 public abstract class AbstractSchema extends AbstractProvidedKeyEntity implements Schema {
 
-    public static final String TABLE = "SyncopeSchema";
-
     private static final long serialVersionUID = -9222344997225831269L;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "schema")
-    private List<JPASchemaLabel> labels = new ArrayList<>();
+    public static final String TABLE = "SyncopeSchema";
+
+    protected static final TypeReference<HashMap<Locale, String>> LABEL_TYPEREF =
+            new TypeReference<HashMap<Locale, String>>() {
+    };
+
+    @Lob
+    private String labels;
+
+    @Transient
+    private Map<Locale, String> labelMap = new HashMap<>();
 
     @Override
-    public boolean add(final SchemaLabel label) {
-        checkType(label, JPASchemaLabel.class);
-        return this.labels.add((JPASchemaLabel) label);
+    public Optional<String> getLabel(final Locale locale) {
+        return Optional.ofNullable(labelMap.get(locale));
     }
 
     @Override
-    public Optional<? extends SchemaLabel> getLabel(final Locale locale) {
-        return labels.stream().filter(label -> label.getLocale().equals(locale)).findFirst();
+    public Map<Locale, String> getLabels() {
+        return labelMap;
     }
 
-    @Override
-    public List<? extends SchemaLabel> getLabels() {
-        return labels;
+    protected void json2map(final boolean clearFirst) {
+        if (clearFirst) {
+            getLabels().clear();
+        }
+        if (labels != null) {
+            getLabels().putAll(POJOHelper.deserialize(labels, LABEL_TYPEREF));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2map(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2map(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void map2json() {
+        labels = POJOHelper.serialize(getLabels());
     }
 }

@@ -132,17 +132,12 @@ under the License.
   <PlainSchema id="loginDate" type="Date" anyTypeClass_id="other"
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
                conversionPattern="yyyy-MM-dd"/>
-  <SyncopeSchema id="firstname"/>
+  <SyncopeSchema id="firstname" labels='{"en":"Firstname","it":"Nome","pt_BR":"Nome"}'/>
   <PlainSchema id="firstname" type="String" anyTypeClass_id="minimal user"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <SchemaLabel id="d90f90d0-cf15-407e-bac7-d46a8eb57c05" schema_id="firstname" locale="en" display="Firstname"/>
-  <SchemaLabel id="a9465ef0-b8b4-4af4-840d-77031a6b54a0" schema_id="firstname" locale="it" display="Nome"/>
-  <SchemaLabel id="ac8b7383-62df-490d-9364-88dbd3d301aa" schema_id="firstname" locale="pt_BR" display="Nome"/>
-  <SyncopeSchema id="surname"/>
+  <SyncopeSchema id="surname" labels='{"en":"Surname","it":"Cognome"}'/>
   <PlainSchema id="surname" type="String" anyTypeClass_id="minimal user"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <SchemaLabel id="69712058-162a-4e2a-b07e-c78d82dc286d" schema_id="surname" locale="en" display="Surname"/>
-  <SchemaLabel id="77e7bbbb-d30c-47e1-b6d2-e0a9e8c11fe2" schema_id="surname" locale="it" display="Cognome"/>
   <SyncopeSchema id="ctype"/>
   <PlainSchema id="ctype" type="String" anyTypeClass_id="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>

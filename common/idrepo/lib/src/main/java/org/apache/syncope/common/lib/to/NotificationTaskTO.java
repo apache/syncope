@@ -56,7 +56,8 @@ public class NotificationTaskTO extends TaskTO {
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
-    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.NotificationTaskTO")
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "org.apache.syncope.common.lib.to.NotificationTaskTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

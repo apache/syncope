@@ -53,7 +53,8 @@ public class PropagationTaskTO extends TaskTO {
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
-    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.PropagationTaskTO")
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "org.apache.syncope.common.lib.to.PropagationTaskTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

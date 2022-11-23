@@ -100,7 +100,8 @@ public class GroupCR extends AnyCR {
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
-    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.request.GroupCR")
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "org.apache.syncope.common.lib.request.GroupCR")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

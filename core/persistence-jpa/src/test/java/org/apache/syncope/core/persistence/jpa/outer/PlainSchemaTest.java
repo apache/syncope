@@ -41,10 +41,8 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.SchemaLabel;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.persistence.jpa.entity.JPASchemaLabel;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.junit.jupiter.api.AfterAll;
@@ -167,9 +165,6 @@ public class PlainSchemaTest extends AbstractTest {
         assertFalse(mapItems.isEmpty());
 
         // check for labels
-        List<SchemaLabel> labels = entityManager().createQuery(
-                "SELECT e FROM " + JPASchemaLabel.class.getSimpleName() + " e", SchemaLabel.class).getResultList();
-        assertEquals(5, labels.size());
         assertEquals(2, schema.getLabels().size());
 
         // delete user schema surname
@@ -180,10 +175,6 @@ public class PlainSchemaTest extends AbstractTest {
         // check for schema deletion
         schema = plainSchemaDAO.find("surname");
         assertNull(schema);
-
-        labels = entityManager().createQuery(
-                "SELECT e FROM " + JPASchemaLabel.class.getSimpleName() + " e", SchemaLabel.class).getResultList();
-        assertEquals(3, labels.size());
     }
 
     @Test
