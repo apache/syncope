@@ -72,8 +72,9 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema> implements DerSchema
     }
 
     @Override
-    public DerSchema save(final DerSchema derSchema) {
-        return entityManager().merge(derSchema);
+    public DerSchema save(final DerSchema schema) {
+        ((JPADerSchema) schema).map2json();
+        return entityManager().merge(schema);
     }
 
     @Override
@@ -82,8 +83,6 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema> implements DerSchema
         if (schema == null) {
             return;
         }
-
-        schema.getLabels().forEach(label -> label.setSchema(null));
 
         resourceDAO.deleteMapping(key);
 

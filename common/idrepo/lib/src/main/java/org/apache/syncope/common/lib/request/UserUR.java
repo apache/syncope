@@ -137,7 +137,8 @@ public class UserUR extends AnyUR {
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
-    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.request.UserUR")
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "org.apache.syncope.common.lib.request.UserUR")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

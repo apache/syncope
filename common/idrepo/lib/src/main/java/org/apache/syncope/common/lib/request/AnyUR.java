@@ -158,7 +158,7 @@ public abstract class AnyUR implements BaseBean {
 
     private final Set<StringPatchItem> resources = new HashSet<>();
 
-    @Schema(name = "_class", required = true)
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {

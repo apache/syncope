@@ -151,7 +151,7 @@ public abstract class AnyCR implements BaseBean, RealmMember {
 
     private final Set<String> resources = new HashSet<>();
 
-    @Schema(name = "_class", required = true)
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {

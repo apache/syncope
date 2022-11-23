@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-@Schema(allOf = {ClientAppTO.class})
+@Schema(allOf = { ClientAppTO.class })
 public class CASSPClientAppTO extends ClientAppTO {
 
     private static final long serialVersionUID = -5370888503924521351L;
@@ -41,7 +41,8 @@ public class CASSPClientAppTO extends ClientAppTO {
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
-    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.client.CASSPTO")
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "org.apache.syncope.common.lib.to.client.CASSPTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();
@@ -60,16 +61,16 @@ public class CASSPClientAppTO extends ClientAppTO {
         }
         CASSPClientAppTO rhs = (CASSPClientAppTO) obj;
         return new EqualsBuilder()
-            .appendSuper(super.equals(obj))
-            .append(this.serviceId, rhs.serviceId)
-            .isEquals();
+                .appendSuper(super.equals(obj))
+                .append(this.serviceId, rhs.serviceId)
+                .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
-            .appendSuper(super.hashCode())
-            .append(this.serviceId)
-            .toHashCode();
+                .appendSuper(super.hashCode())
+                .append(this.serviceId)
+                .toHashCode();
     }
 }

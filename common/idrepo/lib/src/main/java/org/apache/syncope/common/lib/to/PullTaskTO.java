@@ -44,7 +44,8 @@ public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
-    @Schema(name = "_class", required = true, example = "org.apache.syncope.common.lib.to.PullTaskTO")
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "org.apache.syncope.common.lib.to.PullTaskTO")
     @Override
     public String getDiscriminator() {
         return getClass().getName();

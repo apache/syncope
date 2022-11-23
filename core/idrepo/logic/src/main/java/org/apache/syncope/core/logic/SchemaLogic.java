@@ -113,19 +113,16 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
         T created;
         switch (schemaType) {
             case VIRTUAL:
-                VirSchema virSchema = virSchemaDAO.save(binder.create((VirSchemaTO) schemaTO));
-                created = (T) binder.getVirSchemaTO(virSchema.getKey());
+                created = (T) binder.getVirSchemaTO(binder.create((VirSchemaTO) schemaTO).getKey());
                 break;
 
             case DERIVED:
-                DerSchema derSchema = derSchemaDAO.save(binder.create((DerSchemaTO) schemaTO));
-                created = (T) binder.getDerSchemaTO(derSchema.getKey());
+                created = (T) binder.getDerSchemaTO(binder.create((DerSchemaTO) schemaTO).getKey());
                 break;
 
             case PLAIN:
             default:
-                PlainSchema plainSchema = plainSchemaDAO.save(binder.create((PlainSchemaTO) schemaTO));
-                created = (T) binder.getPlainSchemaTO(plainSchema.getKey());
+                created = (T) binder.getPlainSchemaTO(binder.create((PlainSchemaTO) schemaTO).getKey());
         }
         return created;
     }
@@ -175,18 +172,18 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
         switch (schemaType) {
             case VIRTUAL:
                 result = (classes.isEmpty()
-                        ? keyword == null
-                                ? virSchemaDAO.findAll()
-                                : virSchemaDAO.findByKeyword(keyword)
+                        ? Optional.ofNullable(keyword).
+                                map(k -> virSchemaDAO.findByKeyword(k)).
+                                orElseGet(() -> virSchemaDAO.findAll())
                         : virSchemaDAO.findByAnyTypeClasses(classes)).stream().
                         map(schema -> (T) binder.getVirSchemaTO(schema.getKey())).collect(Collectors.toList());
                 break;
 
             case DERIVED:
                 result = (classes.isEmpty()
-                        ? keyword == null
-                                ? derSchemaDAO.findAll()
-                                : derSchemaDAO.findByKeyword(keyword)
+                        ? Optional.ofNullable(keyword).
+                                map(k -> derSchemaDAO.findByKeyword(k)).
+                                orElseGet(() -> derSchemaDAO.findAll())
                         : derSchemaDAO.findByAnyTypeClasses(classes)).stream().
                         map(schema -> (T) binder.getDerSchemaTO(schema.getKey())).collect(Collectors.toList());
                 break;
@@ -194,9 +191,9 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             case PLAIN:
             default:
                 result = (classes.isEmpty()
-                        ? keyword == null
-                                ? plainSchemaDAO.findAll()
-                                : plainSchemaDAO.findByKeyword(keyword)
+                        ? Optional.ofNullable(keyword).
+                                map(k -> plainSchemaDAO.findByKeyword(k)).
+                                orElseGet(() -> plainSchemaDAO.findAll())
                         : plainSchemaDAO.findByAnyTypeClasses(classes)).stream().
                         map(schema -> (T) binder.getPlainSchemaTO(schema.getKey())).collect(Collectors.toList());
         }
@@ -233,31 +230,25 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
         switch (schemaType) {
             case VIRTUAL:
-                VirSchema virSchema = virSchemaDAO.find(schemaTO.getKey());
-                if (virSchema == null) {
-                    throw new NotFoundException("Virtual Schema '" + schemaTO.getKey() + '\'');
-                }
+                VirSchema virSchema = Optional.ofNullable(virSchemaDAO.find(schemaTO.getKey())).
+                        orElseThrow(() -> new NotFoundException("Virtual Schema '" + schemaTO.getKey() + '\''));
 
-                virSchemaDAO.save(binder.update((VirSchemaTO) schemaTO, virSchema));
+                binder.update((VirSchemaTO) schemaTO, virSchema);
                 break;
 
             case DERIVED:
-                DerSchema derSchema = derSchemaDAO.find(schemaTO.getKey());
-                if (derSchema == null) {
-                    throw new NotFoundException("Derived schema '" + schemaTO.getKey() + '\'');
-                }
+                DerSchema derSchema = Optional.ofNullable(derSchemaDAO.find(schemaTO.getKey())).
+                        orElseThrow(() -> new NotFoundException("Derived Schema '" + schemaTO.getKey() + '\''));
 
-                derSchemaDAO.save(binder.update((DerSchemaTO) schemaTO, derSchema));
+                binder.update((DerSchemaTO) schemaTO, derSchema);
                 break;
 
             case PLAIN:
             default:
-                PlainSchema plainSchema = plainSchemaDAO.find(schemaTO.getKey());
-                if (plainSchema == null) {
-                    throw new NotFoundException("Schema '" + schemaTO.getKey() + '\'');
-                }
+                PlainSchema plainSchema = Optional.ofNullable(plainSchemaDAO.find(schemaTO.getKey())).
+                        orElseThrow(() -> new NotFoundException("Plain Schema '" + schemaTO.getKey() + '\''));
 
-                plainSchemaDAO.save(binder.update((PlainSchemaTO) schemaTO, plainSchema));
+                binder.update((PlainSchemaTO) schemaTO, plainSchema);
         }
     }
 

@@ -63,7 +63,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
 
     private final List<Attr> properties = new ArrayList<>();
 
-    @Schema(name = "_class", required = true)
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {

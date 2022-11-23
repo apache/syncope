@@ -53,7 +53,7 @@ public abstract class TaskTO extends AbstractStartEndBean implements EntityTO {
 
     private final List<ExecTO> executions = new ArrayList<>();
 
-    @Schema(name = "_class", required = true)
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED)
     public abstract String getDiscriminator();
 
     public void setDiscriminator(final String discriminator) {
