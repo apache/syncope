@@ -417,7 +417,7 @@ under the License.
 
     <jackson.version>2.14.1</jackson.version>
 
-    <spring-boot.version>2.7.5</spring-boot.version>
+    <spring-boot.version>2.7.6</spring-boot.version>
     <spring-cloud-gateway.version>3.1.4</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.2</openjpa.version>
