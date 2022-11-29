@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
 import org.apache.commons.lang3.StringUtils;
@@ -76,28 +77,22 @@ public class InvalidEntityException extends ValidationException {
         this.entityClassSimpleName = entityClassSimpleName;
 
         violations.forEach(violation -> {
-            int firstComma = violation.getMessageTemplate().indexOf(';');
-
-            final String key = violation.getMessageTemplate().substring(
-                    0, firstComma > 0 ? firstComma : violation.getMessageTemplate().length());
-
-            final String message = violation.getMessageTemplate().substring(firstComma > 0 ? firstComma + 1 : 0);
+            String key = StringUtils.substringBefore(violation.getMessageTemplate(), ";").trim();
+            String message = StringUtils.substringAfter(violation.getMessageTemplate(), ";").trim();
 
             EntityViolationType entityViolationType;
             try {
-                entityViolationType = EntityViolationType.valueOf(key.trim());
+                entityViolationType = EntityViolationType.valueOf(key);
             } catch (IllegalArgumentException e) {
                 entityViolationType = EntityViolationType.Standard;
             }
-
-            entityViolationType.setMessage(message.trim());
-
+            entityViolationType.setMessage(message);
             entityViolationType.setPropertyPath(violation.getPropertyPath().toString());
+            entityViolationType.setInvalidValue(violation.getInvalidValue());
 
             if (!this.violations.containsKey(violation.getLeafBean().getClass())) {
                 this.violations.put(violation.getLeafBean().getClass(), EnumSet.noneOf(EntityViolationType.class));
             }
-
             this.violations.get(violation.getLeafBean().getClass()).add(entityViolationType);
         });
     }
@@ -116,12 +111,8 @@ public class InvalidEntityException extends ValidationException {
 
     @Override
     public String getMessage() {
-        StringBuilder sb = new StringBuilder();
-
-        violations.forEach(
-                (key, value) -> sb.append(key.getSimpleName()).append(' ').append(value.toString()).append(", "));
-        sb.delete(sb.lastIndexOf(", "), sb.length());
-
-        return sb.toString();
+        return violations.entrySet().stream().
+                map(entry -> entry.getKey().getSimpleName() + " " + entry.getValue().toString()).
+                collect(Collectors.joining(","));
     }
 }

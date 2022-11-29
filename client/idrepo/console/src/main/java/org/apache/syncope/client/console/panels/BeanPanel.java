@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverBehavior;
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig;
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -31,6 +35,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
@@ -50,7 +55,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
-import org.apache.syncope.common.lib.Schema;
 import org.apache.syncope.common.lib.report.SearchCondition;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.SchemaTO;
@@ -61,9 +65,11 @@ import org.apache.wicket.core.util.lang.PropertyResolverConverter;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
@@ -126,9 +132,37 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
+            private void setRequired(final ListItem<String> item, final boolean required) {
+                if (required) {
+                    Fragment fragment = new Fragment("required", "requiredFragment", this);
+                    fragment.add(new Label("requiredLabel", "*"));
+                    item.replace(fragment);
+                }
+            }
+
+            private void setDescription(final ListItem<String> item, final String description) {
+                Fragment fragment = new Fragment("description", "descriptionFragment", this);
+                fragment.add(new Label("descriptionLabel", Model.of()).add(new PopoverBehavior(
+                        Model.<String>of(),
+                        Model.of(description),
+                        new PopoverConfig().withPlacement(TooltipConfig.Placement.right)) {
+
+                    private static final long serialVersionUID = -7867802555691605021L;
+
+                    @Override
+                    protected String createRelAttribute() {
+                        return "description";
+                    }
+                }).setRenderBodyOnly(false));
+                item.replace(fragment);
+            }
+
             @SuppressWarnings({ "unchecked", "rawtypes" })
             @Override
             protected void populateItem(final ListItem<String> item) {
+                item.add(new Fragment("required", "emptyFragment", this));
+                item.add(new Fragment("description", "emptyFragment", this));
+
                 String fieldName = item.getModelObject();
 
                 item.add(new Label("fieldName", new ResourceModel(fieldName, fieldName)));
@@ -138,13 +172,11 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     return;
                 }
 
-                SearchCondition scondAnnot = field.getAnnotation(SearchCondition.class);
-                Schema schemaAnnot = field.getAnnotation(Schema.class);
-
                 BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean.getObject());
 
                 Panel panel;
 
+                SearchCondition scondAnnot = field.getAnnotation(SearchCondition.class);
                 if (scondAnnot != null) {
                     String fiql = (String) wrapper.getPropertyValue(fieldName);
 
@@ -171,32 +203,33 @@ public class BeanPanel<T extends Serializable> extends Panel {
                             builder = SyncopeClient.getAnyObjectSearchConditionBuilder(scondAnnot.type());
                     }
 
-                    if (BeanPanel.this.sCondWrapper != null) {
-                        BeanPanel.this.sCondWrapper.put(fieldName, Pair.of(builder, clauses));
-                    }
+                    Optional.ofNullable(BeanPanel.this.sCondWrapper).
+                            ifPresent(scw -> scw.put(fieldName, Pair.of(builder, clauses)));
                 } else if (List.class.equals(field.getType())) {
                     Class<?> listItemType = field.getGenericType() instanceof ParameterizedType
                             ? (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]
                             : String.class;
 
-                    if (listItemType.equals(String.class) && schemaAnnot != null) {
+                    org.apache.syncope.common.lib.Schema schema =
+                            field.getAnnotation(org.apache.syncope.common.lib.Schema.class);
+                    if (listItemType.equals(String.class) && schema != null) {
                         List<SchemaTO> choices = new ArrayList<>();
 
-                        for (SchemaType type : schemaAnnot.type()) {
+                        for (SchemaType type : schema.type()) {
                             switch (type) {
                                 case PLAIN:
                                     choices.addAll(
-                                            SchemaRestClient.getSchemas(SchemaType.PLAIN, schemaAnnot.anyTypeKind()));
+                                            SchemaRestClient.getSchemas(SchemaType.PLAIN, schema.anyTypeKind()));
                                     break;
 
                                 case DERIVED:
                                     choices.addAll(
-                                            SchemaRestClient.getSchemas(SchemaType.DERIVED, schemaAnnot.anyTypeKind()));
+                                            SchemaRestClient.getSchemas(SchemaType.DERIVED, schema.anyTypeKind()));
                                     break;
 
                                 case VIRTUAL:
                                     choices.addAll(
-                                            SchemaRestClient.getSchemas(SchemaType.VIRTUAL, schemaAnnot.anyTypeKind()));
+                                            SchemaRestClient.getSchemas(SchemaType.VIRTUAL, schema.anyTypeKind()));
                                     break;
 
                                 default:
@@ -214,17 +247,29 @@ public class BeanPanel<T extends Serializable> extends Panel {
                                 new PropertyModel<>(bean.getObject(), fieldName),
                                 new ListModel(List.of(listItemType.getEnumConstants()))).hideLabel();
                     } else {
+                        Triple<FieldPanel, Boolean, Optional<String>> single =
+                                buildSinglePanel(bean.getObject(), field.getType(), field, "value");
+
+                        setRequired(item, single.getMiddle());
+                        single.getRight().ifPresent(description -> setDescription(item, description));
+
                         panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<>(bean.getObject(), fieldName)).build(
                                 "value",
                                 fieldName,
-                                buildSinglePanel(bean.getObject(), listItemType, fieldName, "panel")).hideLabel();
+                                single.getLeft()).hideLabel();
                     }
                 } else if (Map.class.equals(field.getType())) {
                     panel = new AjaxGridFieldPanel(
                             "value", fieldName, new PropertyModel<>(bean, fieldName)).hideLabel();
                 } else {
-                    panel = buildSinglePanel(bean.getObject(), field.getType(), fieldName, "value").hideLabel();
+                    Triple<FieldPanel, Boolean, Optional<String>> single =
+                            buildSinglePanel(bean.getObject(), field.getType(), field, "value");
+
+                    setRequired(item, single.getMiddle());
+                    single.getRight().ifPresent(description -> setDescription(item, description));
+
+                    panel = single.getLeft().hideLabel();
                 }
 
                 item.add(panel.setRenderBodyOnly(true));
@@ -233,33 +278,34 @@ public class BeanPanel<T extends Serializable> extends Panel {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static FieldPanel buildSinglePanel(
-            final Serializable bean, final Class<?> type, final String fieldName, final String id) {
+    private static Triple<FieldPanel, Boolean, Optional<String>> buildSinglePanel(
+            final Serializable bean, final Class<?> type, final Field field, final String id) {
 
-        PropertyModel model = new PropertyModel<>(bean, fieldName);
+        PropertyModel model = new PropertyModel<>(bean, field.getName());
 
-        FieldPanel result;
+        FieldPanel panel;
         if (ClassUtils.isAssignable(Boolean.class, type)) {
-            result = new AjaxCheckBoxPanel(id, fieldName, model);
+            panel = new AjaxCheckBoxPanel(id, field.getName(), model);
         } else if (ClassUtils.isAssignable(Number.class, type)) {
-            result = new AjaxSpinnerFieldPanel.Builder<>().build(
-                    id, fieldName, (Class<Number>) ClassUtils.resolvePrimitiveIfNecessary(type), model);
+            panel = new AjaxSpinnerFieldPanel.Builder<>().build(
+                    id, field.getName(), (Class<Number>) ClassUtils.resolvePrimitiveIfNecessary(type), model);
         } else if (Date.class.equals(type)) {
-            result = new AjaxDateTimeFieldPanel(id, fieldName, model,
+            panel = new AjaxDateTimeFieldPanel(id, field.getName(), model,
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
         } else if (OffsetDateTime.class.equals(type)) {
-            result = new AjaxDateTimeFieldPanel(id, fieldName, new DateOps.WrappedDateModel(model),
+            panel = new AjaxDateTimeFieldPanel(id, field.getName(), new DateOps.WrappedDateModel(model),
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
         } else if (type.isEnum()) {
-            result = new AjaxDropDownChoicePanel(id, fieldName, model).setChoices(List.of(type.getEnumConstants()));
+            panel = new AjaxDropDownChoicePanel(id, field.getName(), model).
+                    setChoices(List.of(type.getEnumConstants()));
         } else if (Duration.class.equals(type)) {
-            result = new AjaxTextFieldPanel(id, fieldName, new IModel<>() {
+            panel = new AjaxTextFieldPanel(id, field.getName(), new IModel<>() {
 
                 private static final long serialVersionUID = 807008909842554829L;
 
                 @Override
                 public String getObject() {
-                    return Optional.ofNullable(PropertyResolver.getValue(fieldName, bean)).
+                    return Optional.ofNullable(PropertyResolver.getValue(field.getName(), bean)).
                             map(Object::toString).orElse(null);
                 }
 
@@ -268,15 +314,37 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     PropertyResolverConverter prc = new PropertyResolverConverter(
                             SyncopeWebApplication.get().getConverterLocator(),
                             SyncopeConsoleSession.get().getLocale());
-                    PropertyResolver.setValue(fieldName, bean, Duration.parse(object), prc);
+                    PropertyResolver.setValue(field.getName(), bean, Duration.parse(object), prc);
                 }
             });
         } else {
             // treat as String if nothing matched above
-            result = new AjaxTextFieldPanel(id, fieldName, model);
+            panel = new AjaxTextFieldPanel(id, field.getName(), model);
         }
 
-        result.hideLabel();
-        return result;
+        boolean required = false;
+        Optional<String> description = Optional.empty();
+
+        io.swagger.v3.oas.annotations.media.Schema schema =
+                field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class);
+        if (schema != null) {
+            panel.setReadOnly(schema.accessMode() == Schema.AccessMode.READ_ONLY);
+
+            required = schema.requiredMode() == Schema.RequiredMode.REQUIRED;
+            panel.setRequired(required);
+
+            Optional.ofNullable(schema.example()).ifPresent(panel::setPlaceholder);
+
+            description = Optional.ofNullable(schema.description());
+
+            if (panel instanceof AjaxTextFieldPanel
+                    && panel.getModelObject() == null
+                    && schema.defaultValue() != null) {
+
+                ((AjaxTextFieldPanel) panel).setModelObject(schema.defaultValue());
+            }
+        }
+
+        return Triple.of(panel, required, description);
     }
 }

@@ -18,17 +18,26 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.constraints.NotEmpty;
 import org.apache.syncope.common.lib.command.CommandArgs;
 
 public class TestCommandArgs extends CommandArgs {
 
     private static final long serialVersionUID = 1408260716514938521L;
 
-    private String parentRealm = "/even/two";
+    @NotEmpty
+    @Schema(description = "parent realm", example = "/even/two", defaultValue = "/",
+            requiredMode = Schema.RequiredMode.REQUIRED)
+    private String parentRealm = "/";
 
-    private String realmName = "realm123";
+    @NotEmpty
+    @Schema(description = "new realm name", example = "realm123", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String realmName;
 
-    private String printerName = "printer123";
+    @NotEmpty
+    @Schema(description = "printer name", example = "printer123", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String printerName;
 
     public String getParentRealm() {
         return parentRealm;

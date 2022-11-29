@@ -23,8 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import javax.validation.ConstraintViolation;
+import javax.validation.ValidationException;
+import javax.validation.Validator;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.command.CommandArgs;
@@ -34,6 +38,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.logic.api.Command;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -45,10 +50,13 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
 
     protected final ImplementationDAO implementationDAO;
 
+    protected final Validator validator;
+
     protected final Map<String, Command<?>> perContextCommands = new ConcurrentHashMap<>();
 
-    public CommandLogic(final ImplementationDAO implementationDAO) {
+    public CommandLogic(final ImplementationDAO implementationDAO, final Validator validator) {
         this.implementationDAO = implementationDAO;
+        this.validator = validator;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_LIST + "')")
@@ -108,6 +116,21 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementation);
             sce.getElements().add("Could not build " + impl.getKey());
             throw sce;
+        }
+
+        if (command.getArgs() != null) {
+            try {
+                Set<ConstraintViolation<Object>> violations = validator.validate(command.getArgs());
+                if (!violations.isEmpty()) {
+                    throw new InvalidEntityException(command.getArgs().getClass().getName(), violations);
+                }
+            } catch (ValidationException e) {
+                LOG.error("While validating {}", command.getArgs(), e);
+
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidValues);
+                sce.getElements().add(e.getMessage());
+                throw sce;
+            }
         }
 
         try {

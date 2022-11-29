@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -30,6 +31,7 @@ import org.apache.syncope.common.lib.command.CommandTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -77,10 +79,25 @@ public class CommandITCase extends AbstractITCase {
     }
 
     @Test
+    public void argsValidationFailure() {
+        CommandTO command = COMMAND_SERVICE.search(new CommandQuery.Builder().
+                keyword(TestCommand.class.getSimpleName()).page(1).size(1).build()).getResult().get(0);
+
+        try {
+            COMMAND_SERVICE.run(command);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidValues, e.getType());
+        }
+    }
+
+    @Test
     public void runCommand() {
         CommandTO command = COMMAND_SERVICE.search(
                 new CommandQuery.Builder().page(1).size(1).build()).getResult().get(0);
         TestCommandArgs args = ((TestCommandArgs) command.getArgs());
+        args.setParentRealm("/even/two");
+        args.setRealmName("realm123");
         args.setPrinterName("printer124");
 
         CommandOutput output = COMMAND_SERVICE.run(command);

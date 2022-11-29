@@ -19,7 +19,10 @@
 package org.apache.syncope.core.logic.job;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.core.logic.api.Command;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -37,6 +40,9 @@ public class MacroRunJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask>
 
     @Autowired
     protected ImplementationDAO implementationDAO;
+
+    @Autowired
+    protected Validator validator;
 
     protected final Map<String, Command<?>> perContextCommands = new ConcurrentHashMap<>();
 
@@ -67,12 +73,19 @@ public class MacroRunJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask>
                 output.append(command).append(' ').append(args);
             } else {
                 try {
+                    if (task.getCommandArgs().get(i) != null) {
+                        Set<ConstraintViolation<Object>> violations = validator.validate(task.getCommandArgs().get(i));
+                        if (!violations.isEmpty()) {
+                            LOG.error("Errors while validating {}: {}", task.getCommandArgs().get(i), violations);
+                            throw new IllegalArgumentException(task.getCommandArgs().get(i).getClass().getName());
+                        }
+                    }
+
                     output.append(runnable.run(task.getCommandArgs().get(i)));
                 } catch (Exception e) {
                     if (task.isContinueOnError()) {
                         output.append("Continuing on error: <").append(e.getMessage()).append('>');
-                        LOG.error("While running {} with args {}, continuing on error",
-                                command.getKey(), args, e);
+                        LOG.error("While running {} with args {}, continuing on error", command.getKey(), args, e);
                     } else {
                         throw new RuntimeException("While running " + command.getKey(), e);
                     }
