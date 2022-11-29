@@ -113,6 +113,8 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While pushing to connector", e);
+        } finally {
+            setStatus(null);
         }
     }
 
@@ -140,6 +142,8 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While pushing to connector", e);
+        } finally {
+            setStatus(null);
         }
     }
 }

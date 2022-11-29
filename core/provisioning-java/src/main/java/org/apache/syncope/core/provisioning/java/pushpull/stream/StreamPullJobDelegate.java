@@ -244,6 +244,8 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While stream pulling", e);
+        } finally {
+            setStatus(null);
         }
     }
 }

@@ -86,6 +86,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             pullTask.setSyncStatus(pullTaskTO.isSyncStatus());
             pullTask.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()));
             pullTask.setRemediation(pullTaskTO.isRemediation());
+
             // validate JEXL expressions from templates and proceed if fine
             templateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
             pullTaskTO.getTemplates().forEach((type, template) -> {
@@ -163,6 +164,8 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While pulling from connector", e);
+        } finally {
+            setStatus(null);
         }
     }
 }

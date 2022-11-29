@@ -181,6 +181,8 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While stream pushing", e);
+        } finally {
+            setStatus(null);
         }
     }
 }
