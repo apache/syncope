@@ -19,8 +19,20 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
     <div wicket:id="propView">
+      <wicket:fragment wicket:id="requiredFragment">
+        <span wicket:id="requiredLabel"/>
+      </wicket:fragment>
+
+      <wicket:fragment wicket:id="descriptionFragment">
+        <span wicket:id="descriptionLabel" class="fas fa-info-circle" style="cursor: pointer"/>
+      </wicket:fragment>
+
+      <wicket:fragment wicket:id="emptyFragment">
+      </wicket:fragment>
+
       <div class="form-group inforow">
-        <label wicket:id="fieldName">[LABEL]</label>
+        <label wicket:id="fieldName">[LABEL]</label><span wicket:id="required"/>
+        <span wicket:id="description"/>
         <span wicket:id="value">[value]</span>
       </div>
     </div>

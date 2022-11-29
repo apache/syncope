@@ -20,40 +20,38 @@ package org.apache.syncope.common.lib.types;
 
 public enum EntityViolationType {
 
-    Standard(""),
-    InvalidAnyType("org.apache.syncope.core.persistence.validation.anytype"),
-    InvalidADynMemberships("org.apache.syncope.core.persistence.validation.group.adynmemberships"),
-    InvalidConnInstanceLocation("org.apache.syncope.core.persistence.validation.conninstance.location"),
-    InvalidConnPoolConf("org.apache.syncope.core.persistence.validation.conninstance.poolConf"),
-    InvalidMapping("org.apache.syncope.core.persistence.validation.mapping"),
-    InvalidKey("org.apache.syncope.core.persistence.validation.key"),
-    InvalidName("org.apache.syncope.core.persistence.validation.name"),
-    InvalidPassword("org.apache.syncope.core.persistence.validation.user.password"),
-    InvalidPolicy("org.apache.syncope.core.persistence.validation.policy"),
-    InvalidPropagationTask("org.apache.syncope.core.persistence.validation.propagationtask"),
-    InvalidRealm("org.apache.syncope.core.persistence.validation.realm"),
-    InvalidDynRealm("org.apache.syncope.core.persistence.validation.dynrealm"),
-    InvalidReport("org.apache.syncope.core.persistence.validation.report"),
-    InvalidResource("org.apache.syncope.core.persistence.validation.externalresource"),
-    InvalidGroupOwner("org.apache.syncope.core.persistence.validation.group.owner"),
-    InvalidSchemaEncrypted("org.apache.syncope.core.persistence.validation.schema.encrypted"),
-    InvalidSchemaEnum("org.apache.syncope.core.persistence.validation.schema.enum"),
-    InvalidSchemaMultivalueUnique("org.apache.syncope.core.persistence.validation.schema.multivalueUnique"),
-    InvalidSchedTask("org.apache.syncope.core.persistence.validation.schedtask"),
-    InvalidProvisioningTask("org.apache.syncope.core.persistence.validation.provisioningtask"),
-    InvalidPlainAttr("org.apache.syncope.core.persistence.validation.plainattr"),
-    InvalidUsername("org.apache.syncope.core.persistence.validation.user.username"),
-    InvalidValueList("org.apache.syncope.core.persistence.validation.attr.valueList"),
-    InvalidRemediation("org.apache.syncope.core.persistence.validation.remediation"),
-    MoreThanOneNonNull("org.apache.syncope.core.persistence.validation.attrvalue.moreThanOneNonNull");
+    Standard,
+    InvalidAnyType,
+    InvalidADynMemberships,
+    InvalidConnInstanceLocation,
+    InvalidConnPoolConf,
+    InvalidMapping,
+    InvalidKey,
+    InvalidName,
+    InvalidPassword,
+    InvalidPolicy,
+    InvalidPropagationTask,
+    InvalidRealm,
+    InvalidDynRealm,
+    InvalidReport,
+    InvalidResource,
+    InvalidGroupOwner,
+    InvalidSchemaEncrypted,
+    InvalidSchemaEnum,
+    InvalidSchemaMultivalueUnique,
+    InvalidSchedTask,
+    InvalidProvisioningTask,
+    InvalidPlainAttr,
+    InvalidUsername,
+    InvalidValueList,
+    InvalidRemediation,
+    MoreThanOneNonNull;
 
     private String message;
 
     private String propertyPath;
 
-    EntityViolationType(final String message) {
-        this.message = message;
-    }
+    private Object invalidValue;
 
     public void setMessage(final String message) {
         this.message = message;
@@ -71,4 +69,20 @@ public enum EntityViolationType {
         this.propertyPath = propertyPath;
     }
 
+    public void setInvalidValue(final Object invalidValue) {
+        this.invalidValue = invalidValue;
+    }
+
+    public Object getInvalidValue() {
+        return invalidValue;
+    }
+
+    @Override
+    public String toString() {
+        return name() + "{"
+                + "message=" + message
+                + ", propertyPath=" + propertyPath
+                + ", invalidValue=" + invalidValue
+                + '}';
+    }
 }

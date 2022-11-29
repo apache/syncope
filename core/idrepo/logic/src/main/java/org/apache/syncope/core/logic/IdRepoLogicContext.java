@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.validation.Validator;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -267,8 +268,8 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public CommandLogic commandLogic(final ImplementationDAO implementationDAO) {
-        return new CommandLogic(implementationDAO);
+    public CommandLogic commandLogic(final ImplementationDAO implementationDAO, final Validator validator) {
+        return new CommandLogic(implementationDAO, validator);
     }
 
     @ConditionalOnMissingBean
