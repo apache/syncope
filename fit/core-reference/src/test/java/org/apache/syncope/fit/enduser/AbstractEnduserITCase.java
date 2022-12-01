@@ -38,7 +38,6 @@ import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
@@ -99,11 +98,6 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
         @Bean
         public WicketEndpointRepository wicketEndpointRepository() {
             return new WicketEndpointRepositoryDefault();
-        }
-
-        @Bean
-        public ApplicationContextProvider applicationContextProvider() {
-            return new ApplicationContextProvider();
         }
 
         @Bean
