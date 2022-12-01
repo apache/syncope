@@ -21,10 +21,7 @@ package org.apache.syncope.client.enduser;
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
 import java.util.Map;
 import org.apache.syncope.client.enduser.actuate.SyncopeEnduserInfoContributor;
-import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
-import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -38,6 +35,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ResourceLoader;
 
 @SpringBootApplication(exclude = {
     ErrorMvcAutoConfiguration.class,
@@ -59,15 +57,22 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
                 sources(SyncopeEnduserApplication.class);
     }
 
+    @ConditionalOnMissingBean
     @Bean
-    public ApplicationContextProvider applicationContextProvider() {
-        return new ApplicationContextProvider();
+    public SyncopeWebApplication syncopeWebApplication(
+            final ResourceLoader resourceLoader,
+            final EnduserProperties props,
+            final ClassPathScanImplementationLookup lookup,
+            final ServiceOps serviceOps) {
+
+        return new SyncopeWebApplication(resourceLoader, props, lookup, serviceOps);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator(final ServiceOps serviceOps,
-                                                                 final EnduserProperties props) {
+    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator(
+            final ServiceOps serviceOps, final EnduserProperties props) {
+
         return new SyncopeCoreHealthIndicator(
                 serviceOps,
                 props.getAnonymousUser(),
@@ -79,28 +84,6 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
     @Bean
     public SyncopeEnduserInfoContributor syncopeEnduserInfoContributor(final EnduserProperties enduserProperties) {
         return new SyncopeEnduserInfoContributor(enduserProperties);
-    }
-
-    @ConditionalOnMissingBean(name = "classPathScanImplementationLookup")
-    @Bean
-    public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
-        ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
-        lookup.load();
-        return lookup;
-    }
-
-    @ConditionalOnMissingBean(name = "mimeTypesLoader")
-    @Bean
-    public MIMETypesLoader mimeTypesLoader() {
-        MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
-        mimeTypesLoader.load();
-        return mimeTypesLoader;
-    }
-
-    @ConditionalOnMissingBean(name = "previewUtils")
-    @Bean
-    public PreviewUtils previewUtils() {
-        return new PreviewUtils();
     }
 
     @Bean

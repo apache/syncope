@@ -23,7 +23,9 @@ import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
@@ -37,6 +39,7 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.console.pages.MustChangePassword;
+import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -44,6 +47,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.themes.AdminLTE;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.wicket.Page;
@@ -65,12 +69,10 @@ import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 
-@Component
 public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
@@ -79,38 +81,53 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return (SyncopeWebApplication) WebApplication.get();
     }
 
-    @Autowired
-    protected ConsoleProperties props;
+    protected final ConsoleProperties props;
 
-    @Autowired
-    protected ClassPathScanImplementationLookup lookup;
+    protected final ClassPathScanImplementationLookup lookup;
 
-    @Autowired
-    protected ServiceOps serviceOps;
+    protected final ServiceOps serviceOps;
 
-    @Autowired
-    protected ExternalResourceProvider resourceProvider;
+    protected final ExternalResourceProvider resourceProvider;
 
-    @Autowired
-    protected AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider;
+    protected final AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider;
 
-    @Autowired
-    protected AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider;
+    protected final AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider;
 
-    @Autowired
-    protected AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps;
+    protected final AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps;
 
-    @Autowired
-    protected StatusProvider statusProvider;
+    protected final StatusProvider statusProvider;
 
-    @Autowired
-    protected VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider;
+    protected final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider;
 
-    @Autowired
-    protected ImplementationInfoProvider implementationInfoProvider;
+    protected final ImplementationInfoProvider implementationInfoProvider;
 
-    @Autowired
-    protected ApplicationContext ctx;
+    protected final ApplicationContext ctx;
+
+    public SyncopeWebApplication(
+            final ConsoleProperties props,
+            final ClassPathScanImplementationLookup lookup,
+            final ServiceOps serviceOps,
+            final ExternalResourceProvider resourceProvider,
+            final AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider,
+            final AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider,
+            final AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps,
+            final StatusProvider statusProvider,
+            final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
+            final ImplementationInfoProvider implementationInfoProvider,
+            final ApplicationContext ctx) {
+
+        this.props = props;
+        this.lookup = lookup;
+        this.serviceOps = serviceOps;
+        this.resourceProvider = resourceProvider;
+        this.anyDirectoryPanelAdditionalActionsProvider = anyDirectoryPanelAdditionalActionsProvider;
+        this.anyDirectoryPanelAdditionalActionLinksProvider = anyDirectoryPanelAdditionalActionLinksProvider;
+        this.anyWizardBuilderAdditionalSteps = anyWizardBuilderAdditionalSteps;
+        this.statusProvider = statusProvider;
+        this.virSchemaDetailsPanelProvider = virSchemaDetailsPanelProvider;
+        this.implementationInfoProvider = implementationInfoProvider;
+        this.ctx = ctx;
+    }
 
     @Override
     protected void init() {
@@ -315,5 +332,21 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     public Collection<PolicyTabProvider> getPolicyTabProviders() {
         return ctx.getBeansOfType(PolicyTabProvider.class).values();
+    }
+
+    public List<UserFormFinalizer> getFormFinalizers(final AjaxWizard.Mode mode) {
+        List<UserFormFinalizer> finalizers = new ArrayList<>();
+
+        lookup.getUserFormFinalizerClasses(mode).forEach(finalizer -> {
+            if (finalizer != null) {
+                try {
+                    finalizers.add(ClassUtils.getConstructorIfAvailable(finalizer).newInstance());
+                } catch (Exception e) {
+                    LOG.error("Could not instantiate {}", finalizer, e);
+                }
+            }
+        });
+
+        return finalizers;
     }
 }

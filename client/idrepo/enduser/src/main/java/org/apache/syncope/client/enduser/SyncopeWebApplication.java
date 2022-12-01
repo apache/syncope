@@ -63,11 +63,8 @@ import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.stereotype.Component;
 
-@Component
 public class SyncopeWebApplication extends WicketBootStandardWebApplication {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
@@ -81,19 +78,27 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         return (SyncopeWebApplication) WebApplication.get();
     }
 
-    @Autowired
-    protected ResourceLoader resourceLoader;
+    protected final ResourceLoader resourceLoader;
 
-    @Autowired
-    protected EnduserProperties props;
+    protected final EnduserProperties props;
 
-    @Autowired
-    protected ClassPathScanImplementationLookup lookup;
+    protected final ClassPathScanImplementationLookup lookup;
 
-    @Autowired
-    protected ServiceOps serviceOps;
+    protected final ServiceOps serviceOps;
 
     protected UserFormLayoutInfo customFormLayout;
+
+    public SyncopeWebApplication(
+            final ResourceLoader resourceLoader,
+            final EnduserProperties props,
+            final ClassPathScanImplementationLookup lookup,
+            final ServiceOps serviceOps) {
+
+        this.resourceLoader = resourceLoader;
+        this.props = props;
+        this.lookup = lookup;
+        this.serviceOps = serviceOps;
+    }
 
     @Override
     protected void init() {
@@ -261,11 +266,11 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
     public boolean isCaptchaEnabled() {
         return props.isCaptcha();
     }
-    
+
     public boolean isReportPropagationErrors() {
         return props.isReportPropagationErrors();
     }
-    
+
     public boolean isReportPropagationErrorDetails() {
         return props.isReportPropagationErrorDetails();
     }

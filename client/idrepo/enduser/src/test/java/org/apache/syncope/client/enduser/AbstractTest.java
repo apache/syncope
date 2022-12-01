@@ -60,6 +60,7 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ResourceLoader;
 
 public abstract class AbstractTest {
 
@@ -132,6 +133,15 @@ public abstract class AbstractTest {
     }
 
     public static class TestSyncopeWebApplication extends SyncopeWebApplication {
+
+        public TestSyncopeWebApplication(
+                final ResourceLoader resourceLoader,
+                final EnduserProperties props,
+                final ClassPathScanImplementationLookup lookup,
+                final ServiceOps serviceOps) {
+
+            super(resourceLoader, props, lookup, serviceOps);
+        }
 
         public interface SyncopeServiceClient extends SyncopeService, Client {
         }

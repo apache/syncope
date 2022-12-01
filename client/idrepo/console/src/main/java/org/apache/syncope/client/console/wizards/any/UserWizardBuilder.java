@@ -22,9 +22,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.ui.commons.ApplicationContextProvider;
 import org.apache.syncope.client.ui.commons.layout.UserForm;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
@@ -90,8 +90,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
                 result = new ProvisioningResult<>();
                 result.setEntity(inner);
             } else {
-                List<UserFormFinalizer> finalizers = ApplicationContextProvider.getApplicationContext().
-                        getBean(UserFormFinalizerUtils.class).getFormFinalizers(this.mode);
+                List<UserFormFinalizer> finalizers = SyncopeWebApplication.get().getFormFinalizers(mode);
 
                 finalizers.forEach(finalizer -> finalizer.beforeUpdate(userUR.getKey()));
 

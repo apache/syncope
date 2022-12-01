@@ -53,7 +53,6 @@ import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.console.wizards.any.UserFormFinalizerUtils;
 import org.apache.syncope.client.lib.AuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -78,6 +77,7 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -156,11 +156,6 @@ public abstract class AbstractTest {
         }
 
         @Bean
-        public UserFormFinalizerUtils userFormFinalizerUtils() {
-            return new UserFormFinalizerUtils();
-        }
-
-        @Bean
         public ExternalResourceProvider resourceProvider() {
             return new IdRepoExternalResourceProvider();
         }
@@ -202,6 +197,24 @@ public abstract class AbstractTest {
     }
 
     public static class TestSyncopeWebApplication extends SyncopeWebApplication {
+
+        public TestSyncopeWebApplication(
+                final ConsoleProperties props,
+                final ClassPathScanImplementationLookup lookup,
+                final ServiceOps serviceOps,
+                final ExternalResourceProvider resourceProvider,
+                final AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider,
+                final AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider,
+                final AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps,
+                final StatusProvider statusProvider,
+                final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
+                final ImplementationInfoProvider implementationInfoProvider,
+                final ApplicationContext ctx) {
+
+            super(props, lookup, serviceOps, resourceProvider, anyDirectoryPanelAdditionalActionsProvider,
+                    anyDirectoryPanelAdditionalActionLinksProvider, anyWizardBuilderAdditionalSteps, statusProvider,
+                    virSchemaDetailsPanelProvider, implementationInfoProvider, ctx);
+        }
 
         public interface SyncopeServiceClient extends SyncopeService, Client {
         }
