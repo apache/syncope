@@ -58,8 +58,7 @@ public class NotificationITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        NotificationTO notificationTO = NOTIFICATION_SERVICE.read(
-                "9e2b911c-25de-4c77-bcea-b86ed9451050");
+        NotificationTO notificationTO = NOTIFICATION_SERVICE.read("9e2b911c-25de-4c77-bcea-b86ed9451050");
         assertNotNull(notificationTO);
     }
 

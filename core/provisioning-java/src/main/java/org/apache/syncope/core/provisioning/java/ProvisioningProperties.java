@@ -19,9 +19,7 @@
 package org.apache.syncope.core.provisioning.java;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.quartz.impl.jdbcjobstore.DriverDelegate;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -91,85 +89,6 @@ public class ProvisioningProperties {
         }
     }
 
-    public static class SMTPProperties {
-
-        private String host;
-
-        private int port = 25;
-
-        private String username;
-
-        private String password;
-
-        private String protocol = "smtp";
-
-        private String defaultEncoding = "UTF-8";
-
-        private boolean debug = false;
-
-        private final Map<String, String> javamailProperties = new HashMap<>();
-
-        public String getHost() {
-            return host;
-        }
-
-        public void setHost(final String host) {
-            this.host = host;
-        }
-
-        public int getPort() {
-            return port;
-        }
-
-        public void setPort(final int port) {
-            this.port = port;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public void setUsername(final String username) {
-            this.username = username;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(final String password) {
-            this.password = password;
-        }
-
-        public String getProtocol() {
-            return protocol;
-        }
-
-        public void setProtocol(final String protocol) {
-            this.protocol = protocol;
-        }
-
-        public String getDefaultEncoding() {
-            return defaultEncoding;
-        }
-
-        public void setDefaultEncoding(final String defaultEncoding) {
-            this.defaultEncoding = defaultEncoding;
-        }
-
-        public boolean isDebug() {
-            return debug;
-        }
-
-        public void setDebug(final boolean debug) {
-            this.debug = debug;
-        }
-
-        public Map<String, String> getJavamailProperties() {
-            return javamailProperties;
-        }
-    }
-
     private final ExecutorProperties asyncConnectorFacadeExecutor = new ExecutorProperties();
 
     private final ExecutorProperties propagationTaskExecutorAsyncExecutor = new ExecutorProperties();
@@ -179,8 +98,6 @@ public class ProvisioningProperties {
     private final List<String> connIdLocation = new ArrayList<>();
 
     private final QuartzProperties quartz = new QuartzProperties();
-
-    private final SMTPProperties smtp = new SMTPProperties();
 
     public String getVirAttrCacheSpec() {
         return virAttrCacheSpec;
@@ -204,9 +121,5 @@ public class ProvisioningProperties {
 
     public QuartzProperties getQuartz() {
         return quartz;
-    }
-
-    public SMTPProperties getSmtp() {
-        return smtp;
     }
 }

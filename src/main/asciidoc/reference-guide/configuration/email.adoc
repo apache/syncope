@@ -21,59 +21,38 @@
 The `core.properties` file holds the configuration options to enable the effective delivery of
 <<notifications,notification>> e-mails:
 
-* `provisioning.smtp.host` - the mail server host, typically an SMTP host;
-* `provisioning.smtp.port` - the mail server port;
-* `provisioning.smtp.username` - (optional) the username for the account at the mail host;
-* `provisioning.smtp.password` - (optional) the password for the account at the mail host;
-* `provisioning.smtp.protocol` - the message transport protocol: `smtp` (default) and `smtps` are supported;
-* `provisioning.smtp.defaultEncoding` - the default encoding to use for MIME messages;
-* `provisioning.smtp.debug` - when `true`, enable the debugging of email processing including the handshake, authentication, delivery
- and disconnection; in order for this setting to be effective, it is also required to add the following elements to the
-`log4j2.xml` configuration file:
-[source,xml]
-<asyncLogger name="org.apache.syncope.core.provisioning.java.job.notification"
-             additivity="false" level="DEBUG">
-  <appender-ref ref="mainFile"/>
-  <appender-ref ref="main"/>
-</asyncLogger>
-<asyncLogger name="javax.mail" additivity="false" level="DEBUG">
-  <appender-ref ref="mainFile"/>
-  <appender-ref ref="main"/>
-</asyncLogger>
-* `provisioning.smtp.javamailProperties[provisioning.smtp.javamailProperties[mail.smtp.starttls.enable]]` - when `true`, enable the use of the `STARTTLS` command to switch the connection to a
+* `spring.mail.host` - the mail server host, typically an SMTP host;
+* `spring.mail.port` - the mail server port;
+* `spring.mail.username` - (optional) the username for the account at the mail host;
+* `spring.mail.password` - (optional) the password for the account at the mail host;
+* `spring.mail.properties.mail.smtp.auth` - when `true`, the configured `username` and `password` are sent to SMTP server;
+* `spring.mail.properties.mail.smtp.starttls.enable` - when `true`, enable the use of the `STARTTLS` command to switch the connection to a
 TLS-protected connection before issuing any login commands;
-* `provisioning.smtp.javamailProperties[provisioning.smtp.javamailProperties[mail.smtp.connectiontimeout]]` - the connection timeout value in milliseconds, to the mail host;
 
 All the https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html#properties[JavaMail(TM) properties^]
-are available for usage.
+are available for usage with prefix `spring.mail.properties.`.
 
 .Basic configuration, no authentication
 ====
 ....
-provisioning.smtp.host=your.local.smtp.server
-provisioning.smtp.port=25
-provisioning.smtp.username=
-provisioning.smtp.password=
-provisioning.smtp.protocol=smtp
-provisioning.smtp.defaultEncoding=UTF-8
-provisioning.smtp.debug=false
-provisioning.smtp.javamailProperties[mail.smtp.connectiontimeout]=3000
-provisioning.smtp.javamailProperties[mail.smtp.starttls.enable]=false
+spring.mail.host=your.local.smtp.server
+spring.mail.port=25
+spring.mail.username=
+spring.mail.password=
+spring.mail.properties.mail.smtp.auth=false
+spring.mail.properties.mail.smtp.starttls.enable=false
 ....
 ====
 
 .STARTTLS configuration, with authentication
 ====
 ....
-provisioning.smtp.host=smtp.gmail.com
-provisioning.smtp.port=587
-provisioning.smtp.username=your_username@gmail.com
-provisioning.smtp.password=your_password
-provisioning.smtp.protocol=smtp
-provisioning.smtp.defaultEncoding=UTF-8
-provisioning.smtp.debug=false
-provisioning.smtp.javamailProperties[mail.smtp.connectiontimeout]=3000
-provisioning.smtp.javamailProperties[mail.smtp.starttls.enable]=true
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=your_username@gmail.com
+spring.mail.password=your_password
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
 ....
 ====
 
