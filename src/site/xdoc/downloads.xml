@@ -36,8 +36,8 @@ under the License.
         It is good practice to <a href="#Verifying_Releases">verify the integrity</a> of the distribution files.
       </p>
 
-      <subsection name="2.1.12 Fusion">
-        <p>Release date: August 5th 2022</p>
+      <subsection name="2.1.13 Fusion">
+        <p>Release date: December 9th 2022</p>
         <p>
           <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Fusion">Release notes</a>
         </p>
@@ -65,92 +65,92 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.12/syncope-2.1.12-source-release.zip">syncope-2.1.12-source-release.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.13/syncope-2.1.13-source-release.zip">syncope-2.1.13-source-release.zip</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/2.1.12/syncope-2.1.12-source-release.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/2.1.12/syncope-2.1.12-source-release.zip.sha512">sha512</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.12/syncope-standalone-2.1.12-distribution.zip">syncope-standalone-2.1.12-distribution.zip</a>
-              </td>
-              <td>
-                <a href="https://downloads.apache.org/syncope/2.1.12/syncope-standalone-2.1.12-distribution.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/2.1.12/syncope-standalone-2.1.12-distribution.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/syncope-2.1.13-source-release.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/syncope-2.1.13-source-release.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.12/apache-syncope-2.1.12.deb">apache-syncope-2.1.12.deb</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.13/syncope-standalone-2.1.13-distribution.zip">syncope-standalone-2.1.13-distribution.zip</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/2.1.12/apache-syncope-2.1.12.deb.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/2.1.12/apache-syncope-2.1.12.deb.sha512">sha512</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.12/apache-syncope-console-2.1.12.deb">apache-syncope-console-2.1.12.deb</a>
-              </td>
-              <td>
-                <a href="https://downloads.apache.org/syncope/2.1.12/apache-syncope-console-2.1.12.deb.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/2.1.12/apache-syncope-console-2.1.12.deb.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/syncope-standalone-2.1.13-distribution.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/syncope-standalone-2.1.13-distribution.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.12/apache-syncope-enduser-2.1.12.deb">apache-syncope-enduser-2.1.12.deb</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.13/apache-syncope-2.1.13.deb">apache-syncope-2.1.13.deb</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/2.1.12/apache-syncope-enduser-2.1.12.deb.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/2.1.12/apache-syncope-enduser-2.1.12.deb.sha512">sha512</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.12/syncope-installer-2.1.12-uber.jar">syncope-installer-2.1.12-uber.jar</a>
-              </td>
-              <td>
-                <a href="https://downloads.apache.org/syncope/2.1.12/syncope-installer-2.1.12-uber.jar.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/2.1.12/syncope-installer-2.1.12-uber.jar.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/apache-syncope-2.1.13.deb.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/apache-syncope-2.1.13.deb.sha512">sha512</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.12/syncope-client-cli-2.1.12.zip">syncope-client-cli-2.1.12.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.13/apache-syncope-console-2.1.13.deb">apache-syncope-console-2.1.13.deb</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/2.1.12/syncope-client-cli-2.1.12.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/2.1.12/syncope-client-cli-2.1.12.zip.sha512">sha512</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.12/syncope-core-upgrade-2.1.12.zip">syncope-core-upgrade-2.1.12.zip</a>
-              </td>
-              <td>
-                <a href="https://downloads.apache.org/syncope/2.1.12/syncope-core-upgrade-2.1.12.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/2.1.12/syncope-core-upgrade-2.1.12.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/apache-syncope-console-2.1.13.deb.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/apache-syncope-console-2.1.13.deb.sha512">sha512</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.12/org.apache.syncope.ide.eclipse.site-2.1.12.zip">org.apache.syncope.ide.eclipse.site-2.1.12.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.13/apache-syncope-enduser-2.1.13.deb">apache-syncope-enduser-2.1.13.deb</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/2.1.12/org.apache.syncope.ide.eclipse.site-2.1.12.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/2.1.12/org.apache.syncope.ide.eclipse.site-2.1.12.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/apache-syncope-enduser-2.1.13.deb.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/apache-syncope-enduser-2.1.13.deb.sha512">sha512</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.12/syncope-ide-netbeans-2.1.12.nbm">syncope-ide-netbeans-2.1.12.nbm</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.13/syncope-installer-2.1.13-uber.jar">syncope-installer-2.1.13-uber.jar</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/2.1.12/syncope-ide-netbeans-2.1.12.nbm.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/2.1.12/syncope-ide-netbeans-2.1.12.nbm.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/syncope-installer-2.1.13-uber.jar.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/syncope-installer-2.1.13-uber.jar.sha512">sha512</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.13/syncope-client-cli-2.1.13.zip">syncope-client-cli-2.1.13.zip</a>
+              </td>
+              <td>
+                <a href="https://downloads.apache.org/syncope/2.1.13/syncope-client-cli-2.1.13.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/syncope-client-cli-2.1.13.zip.sha512">sha512</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.13/syncope-core-upgrade-2.1.13.zip">syncope-core-upgrade-2.1.13.zip</a>
+              </td>
+              <td>
+                <a href="https://downloads.apache.org/syncope/2.1.13/syncope-core-upgrade-2.1.13.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/syncope-core-upgrade-2.1.13.zip.sha512">sha512</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.13/org.apache.syncope.ide.eclipse.site-2.1.13.zip">org.apache.syncope.ide.eclipse.site-2.1.13.zip</a>
+              </td>
+              <td>
+                <a href="https://downloads.apache.org/syncope/2.1.13/org.apache.syncope.ide.eclipse.site-2.1.13.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/org.apache.syncope.ide.eclipse.site-2.1.13.zip.sha512">sha512</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.1.13/syncope-ide-netbeans-2.1.13.nbm">syncope-ide-netbeans-2.1.13.nbm</a>
+              </td>
+              <td>
+                <a href="https://downloads.apache.org/syncope/2.1.13/syncope-ide-netbeans-2.1.13.nbm.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/2.1.13/syncope-ide-netbeans-2.1.13.nbm.sha512">sha512</a>
               </td>
             </tr>
           </tbody>
