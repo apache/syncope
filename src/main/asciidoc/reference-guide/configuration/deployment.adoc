@@ -24,7 +24,7 @@ Java EE containers.
 
 [WARNING]
 The only exception is <<secure-remote-access>> that, being based on Spring Cloud Gateway - which in turn is built on 
-https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html[Spring WebFlux^] and
+https://docs.spring.io/spring-framework/docs/5.3.x/reference/html/web-reactive.html[Spring WebFlux^] and
 https://projectreactor.io/docs[Project Reactor^], is only available as standalone application.
 
 [CAUTION]
@@ -48,11 +48,11 @@ where `<KEYMASTER_ADDRESS>` can be either:
 
 Projects generated from Maven archetype feature a dedicated `executable` profile, which will re-package all
 applications according to Spring Boot's
-https://docs.spring.io/spring-boot/docs/current/reference/html/executable-jar.html[executable format^].
+https://docs.spring.io/spring-boot/docs/2.7.x/reference/html/executable-jar.html[executable format^].
 
 [TIP]
 Spring Boot applications can also be
-https://docs.spring.io/spring-boot/docs/current/reference/html/deployment-install.html[installed as system services^].
+https://docs.spring.io/spring-boot/docs/2.7.x/reference/html/deployment.html#deployment.installing[installed as system services^].
 
 .Run Core application as executable under GNU / Linux
 ====
@@ -72,7 +72,7 @@ $ export LOADER_PATH=/opt/syncope/conf,/opt/syncope/lib
 $ java -jar /opt/syncope/lib/syncope.war
 ----
 Further options can be passed to last command, according to Spring Boot
-https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html[documentation^];
+https://docs.spring.io/spring-boot/docs/2.7.x/reference/html/application-properties.html#appendix.application-properties[documentation^];
 for example:
 
 * `--spring.config.location=/path` +
@@ -269,7 +269,7 @@ javadocPaths=/WEB-INF/lib/syncope-common-idrepo-rest-api-${syncope.version}-java
 as `core/src/main/resources/core-wildfy.properties`.
 
 Do not forget to include `widlfly` as 
-https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/docs/2.7.x/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 [TIP]
