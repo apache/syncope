@@ -21,6 +21,15 @@ under the License.
 <properties>
   <comment>Additional indexes (in respect to JPA's)</comment>
 
+  <entry key="SyncopeUser_realm_id">CREATE INDEX SyncopeUser_realm_id ON SyncopeUser(realm_id)</entry>
+  <entry key="SyncopeUser_lower_username">CREATE INDEX SyncopeUser_lower_username ON SyncopeUser(LOWER(username))</entry>
+
+  <entry key="SyncopeGroup_realm_id">CREATE INDEX SyncopeGroup_realm_id ON SyncopeGroup(realm_id)</entry>
+  <entry key="SyncopeGroup_lower_name">CREATE INDEX SyncopeGroup_lower_name ON SyncopeGroup(LOWER(name))</entry>
+
+  <entry key="AnyObject_realm_id">CREATE INDEX AnyObject_realm_id ON AnyObject(realm_id)</entry>
+  <entry key="AnyObject_lower_name">CREATE INDEX AnyObject_lower_name ON AnyObject(LOWER(name))</entry>
+
   <entry key="APlainAttrUniqueValue_U">CREATE UNIQUE INDEX APlainAttrUniqueValue_U on APlainAttrUniqueValue(booleanValue, dateValue, stringValue, doubleValue, longValue, schema_id)</entry>
   <entry key="UPlainAttrUniqueValue_U">CREATE UNIQUE INDEX UPlainAttrUniqueValue_U on UPlainAttrUniqueValue(booleanValue, dateValue, stringValue, doubleValue, longValue, schema_id)</entry>
   <entry key="GPlainAttrUniqueValue_U">CREATE UNIQUE INDEX GPlainAttrUniqueValue_U on GPlainAttrUniqueValue(booleanValue, dateValue, stringValue, doubleValue, longValue, schema_id)</entry>

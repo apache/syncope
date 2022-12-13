@@ -21,6 +21,15 @@ under the License.
 <properties>
   <comment>Additional indexes (in respect to JPA's)</comment>
 
+  <entry key="SyncopeUser_realm_id">CREATE INDEX SyncopeUser_realm_id ON SyncopeUser(realm_id)</entry>
+  <entry key="SyncopeUser_lower_username">CREATE INDEX SyncopeUser_lower_username ON SyncopeUser(LOWER(username))</entry>
+
+  <entry key="SyncopeGroup_realm_id">CREATE INDEX SyncopeGroup_realm_id ON SyncopeGroup(realm_id)</entry>
+  <entry key="SyncopeGroup_lower_name">CREATE INDEX SyncopeGroup_lower_name ON SyncopeGroup(LOWER(name))</entry>
+
+  <entry key="AnyObject_realm_id">CREATE INDEX AnyObject_realm_id ON AnyObject(realm_id)</entry>
+  <entry key="AnyObject_lower_name">CREATE INDEX AnyObject_lower_name ON AnyObject(LOWER(name))</entry>
+
   <!-- The following indexes require Oracle TEXT to be installed on the given Oracle database:
        http://dbaflavours.blogspot.com/2012/09/ora-29833-indextype-does-not-exist_18.html -->
   <entry key="AnyObject_plainAttrs_Index">CREATE SEARCH INDEX AnyObject_plainAttrs_Index ON AnyObject(plainAttrs) FOR JSON</entry>  
