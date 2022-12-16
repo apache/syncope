@@ -18,18 +18,16 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -52,19 +50,6 @@ public class AuditRestClient extends BaseRestClient {
                 collect(Collectors.toList());
     }
 
-    public static Map<String, Set<AuditLoggerName>> listAuditsByCategory() {
-        Map<String, Set<AuditLoggerName>> result = new HashMap<>();
-        list().forEach(audit -> {
-            if (!result.containsKey(audit.getCategory())) {
-                result.put(audit.getCategory(), new HashSet<>());
-            }
-
-            result.get(audit.getCategory()).add(audit);
-        });
-
-        return result;
-    }
-
     public static void enableAudit(final AuditLoggerName auditLoggerName) {
         AuditConfTO audit = new AuditConfTO();
         audit.setKey(auditLoggerName.toAuditKey());
@@ -73,10 +58,13 @@ public class AuditRestClient extends BaseRestClient {
     }
 
     public static void disableAudit(final AuditLoggerName auditLoggerName) {
-        AuditConfTO audit = new AuditConfTO();
-        audit.setKey(auditLoggerName.toAuditKey());
-        audit.setActive(false);
-        getService(AuditService.class).set(audit);
+        try {
+            getService(AuditService.class).delete(auditLoggerName.toAuditKey());
+        } catch (SyncopeClientException e) {
+            if (e.getType() != ClientExceptionType.NotFound) {
+                LOG.error("Unexpected error when deleting {}", auditLoggerName.toAuditKey(), e);
+            }
+        }
     }
 
     public static List<EventCategory> listEvents() {

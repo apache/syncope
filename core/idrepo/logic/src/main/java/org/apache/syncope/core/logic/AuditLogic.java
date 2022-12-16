@@ -120,16 +120,14 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
     public void set(final AuditConfTO auditTO) {
         AuditConf audit = Optional.ofNullable(auditConfDAO.find(auditTO.getKey())).
                 orElseGet(() -> {
-                    AuditConf a = entityFactory.newEntity(AuditConf.class);
-                    a.setKey(auditTO.getKey());
-                    return a;
+                    AuditConf ac = entityFactory.newEntity(AuditConf.class);
+                    ac.setKey(auditTO.getKey());
+                    return ac;
                 });
         audit.setActive(auditTO.isActive());
         audit = auditConfDAO.save(audit);
 
-        if (audit.isActive()) {
-            setLevel(audit.getKey(), Level.OFF);
-        }
+        setLevel(audit.getKey(), audit.isActive() ? Level.DEBUG : Level.OFF);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_DELETE + "')")

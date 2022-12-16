@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.pages;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -33,6 +34,7 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
@@ -40,18 +42,34 @@ public class Audit extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271271L;
 
+    private final LoadableDetachableModel<List<EventCategory>> eventCategories =
+            new LoadableDetachableModel<List<EventCategory>>() {
+
+        private static final long serialVersionUID = 4659376149825914247L;
+
+        @Override
+        protected List<EventCategory> load() {
+            return AuditRestClient.listEvents();
+        }
+    };
+
     public Audit(final PageParameters parameters) {
         super(parameters);
 
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
         List<String> events = AuditRestClient.list().stream().
+                filter(audit -> eventCategories.getObject().stream().
+                anyMatch(c -> audit.getType() == c.getType()
+                && Objects.equals(audit.getCategory(), c.getCategory())
+                && Objects.equals(audit.getSubcategory(), c.getSubcategory()))).
                 map(audit -> AuditLoggerName.buildEvent(
                 audit.getType(),
                 audit.getCategory(),
                 audit.getSubcategory(),
                 audit.getEvent(),
                 audit.getResult())).
+                sorted().
                 collect(Collectors.toList());
 
         WebMarkupContainer content = new WebMarkupContainer("content");
@@ -62,7 +80,7 @@ public class Audit extends BasePage {
 
         form.add(new EventCategoryPanel(
                 "auditPanel",
-                AuditRestClient.listEvents(),
+                eventCategories.getObject(),
                 new ListModel<>(events)) {
 
             private static final long serialVersionUID = 6113164334533550277L;
@@ -80,7 +98,7 @@ public class Audit extends BasePage {
             @Override
             public void onEventAction(final IEvent<?> event) {
                 if (event.getPayload() instanceof SelectedEventsPanel.EventSelectionChanged) {
-                    final SelectedEventsPanel.EventSelectionChanged eventSelectionChanged =
+                    SelectedEventsPanel.EventSelectionChanged eventSelectionChanged =
                             (SelectedEventsPanel.EventSelectionChanged) event.getPayload();
 
                     eventSelectionChanged.getToBeRemoved().forEach(toBeRemoved -> {
