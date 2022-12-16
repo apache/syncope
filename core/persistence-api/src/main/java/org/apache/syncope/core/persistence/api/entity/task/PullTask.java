@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.task;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.PullMode;
+import org.apache.syncope.common.lib.types.ThreadPoolSettings;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
@@ -48,4 +49,7 @@ public interface PullTask extends ProvisioningTask<PullTask> {
 
     boolean isRemediation();
 
+    ThreadPoolSettings getConcurrentSettings();
+
+    void setConcurrentSettings(ThreadPoolSettings settings);
 }

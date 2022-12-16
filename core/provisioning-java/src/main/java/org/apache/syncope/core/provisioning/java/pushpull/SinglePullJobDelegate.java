@@ -138,7 +138,6 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                     handler = buildAnyObjectHandler();
             }
             handler.setProfile(profile);
-            handler.setPullExecutor(this);
 
             // execute filtered pull
             Set<String> matg = new HashSet<>(moreAttrsToGet);

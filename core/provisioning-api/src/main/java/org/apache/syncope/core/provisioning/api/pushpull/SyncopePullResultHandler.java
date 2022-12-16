@@ -24,8 +24,6 @@ import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 
 public interface SyncopePullResultHandler extends SyncopeResultHandler<PullTask, PullActions>, SyncResultsHandler {
 
-    void setPullExecutor(SyncopePullExecutor executor);
-
     @Override
     boolean handle(SyncDelta delta);
 }

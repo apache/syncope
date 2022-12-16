@@ -223,6 +223,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     removeIf(anyTemplate -> !pullTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey()));
 
             pullTask.setRemediation(pullTaskTO.isRemediation());
+
+            pullTask.setConcurrentSettings(pullTaskTO.getConcurrentSettings());
         }
 
         // 3. fill the remaining fields
@@ -502,6 +504,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                         put(template.getAnyType().getKey(), template.get()));
 
                 pullTaskTO.setRemediation(pullTask.isRemediation());
+
+                pullTaskTO.setConcurrentSettings(pullTask.getConcurrentSettings());
                 break;
 
             case PUSH:

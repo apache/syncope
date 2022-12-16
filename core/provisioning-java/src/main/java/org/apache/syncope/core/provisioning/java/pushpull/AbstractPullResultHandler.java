@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -62,7 +61,6 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationManager
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -73,8 +71,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHandler<PullTask, PullActions>
+public abstract class AbstractPullResultHandler
+        extends AbstractSyncopeResultHandler<PullTask, PullActions>
         implements SyncopePullResultHandler {
+
+    protected static Result and(final Result left, final Result right) {
+        return left == Result.SUCCESS && right == Result.SUCCESS
+                ? Result.SUCCESS
+                : Result.FAILURE;
+    }
 
     @Autowired
     protected InboundMatcher inboundMatcher;
@@ -109,10 +114,6 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     @Autowired
     protected EntityFactory entityFactory;
 
-    protected SyncopePullExecutor executor;
-
-    protected Result latestResult;
-
     protected abstract String getName(AnyTO anyTO);
 
     protected abstract String getName(AnyCR anyCR);
@@ -122,11 +123,6 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     protected abstract AnyTO doCreate(AnyCR anyCR, SyncDelta delta);
 
     protected abstract AnyUR doUpdate(AnyTO before, AnyUR anyUR, SyncDelta delta, ProvisioningReport result);
-
-    @Override
-    public void setPullExecutor(final SyncopePullExecutor executor) {
-        this.executor = executor;
-    }
 
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     @Override
@@ -139,34 +135,14 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     "No provision found on " + profile.getTask().getResource()
                     + " for " + delta.getObject().getObjectClass()));
 
-            doHandle(delta, provision, anyTypeDAO.find(provision.getAnyType()).getKind());
-            executor.reportHandled(delta.getObjectClass().getObjectClassValue(), delta.getObject().getName());
+            Result latestResult = doHandle(delta, provision, anyTypeDAO.find(provision.getAnyType()).getKind());
 
             LOG.debug("Successfully handled {}", delta);
 
             if (profile.getTask().getPullMode() != PullMode.INCREMENTAL) {
-                if (executor.wasInterruptRequested()) {
-                    LOG.debug("Pull interrupted");
-                    executor.setInterrupted();
-                    return false;
-                }
                 return true;
             }
-
-            boolean shouldContinue;
-            synchronized (this) {
-                shouldContinue = latestResult == Result.SUCCESS;
-                this.latestResult = null;
-            }
-            if (shouldContinue) {
-                executor.setLatestSyncToken(delta.getObjectClass().getObjectClassValue(), delta.getToken());
-            }
-            if (executor.wasInterruptRequested()) {
-                LOG.debug("Pull interrupted");
-                executor.setInterrupted();
-                return false;
-            }
-            return shouldContinue;
+            return latestResult == Result.SUCCESS;
         } catch (IgnoreProvisionException e) {
             ProvisioningReport ignoreResult = new ProvisioningReport();
             ignoreResult.setOperation(ResourceOperation.NONE);
@@ -181,9 +157,6 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
             LOG.warn("Ignoring during pull", e);
 
-            executor.setLatestSyncToken(delta.getObjectClass().getObjectClassValue(), delta.getToken());
-            executor.reportHandled(delta.getObjectClass().getObjectClassValue(), delta.getObject().getName());
-
             return true;
         } catch (JobExecutionException e) {
             LOG.error("Pull failed", e);
@@ -192,7 +165,25 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected List<ProvisioningReport> provision(
+    protected void throwIgnoreProvisionException(final SyncDelta delta, final Exception exception)
+            throws JobExecutionException {
+
+        if (exception instanceof IgnoreProvisionException) {
+            throw IgnoreProvisionException.class.cast(exception);
+        }
+
+        IgnoreProvisionException ipe = null;
+        for (PullActions action : profile.getActions()) {
+            if (ipe == null) {
+                ipe = action.onError(profile, delta, exception);
+            }
+        }
+        if (ipe != null) {
+            throw ipe;
+        }
+    }
+
+    protected Result provision(
             final UnmatchingRule rule,
             final SyncDelta delta,
             final AnyTypeKind anyTypeKind,
@@ -201,7 +192,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
             end(provision.getAnyType(), UnmatchingRule.toEventName(rule), Result.SUCCESS, null, null, delta);
-            return List.of();
+            return Result.SUCCESS;
         }
 
         AnyCR anyCR = connObjectUtils.getAnyCR(
@@ -224,79 +215,62 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         if (profile.isDryRun()) {
             result.setKey(null);
             end(provision.getAnyType(), UnmatchingRule.toEventName(rule), Result.SUCCESS, null, null, delta);
-        } else {
-            Object output;
-            Result resultStatus;
-            try {
-                for (PullActions action : profile.getActions()) {
-                    if (rule == UnmatchingRule.ASSIGN) {
-                        action.beforeAssign(profile, delta, anyCR);
-                    } else if (rule == UnmatchingRule.PROVISION) {
-                        action.beforeProvision(profile, delta, anyCR);
-                    }
-                }
-                result.setName(getName(anyCR));
+            return Result.SUCCESS;
+        }
 
-                AnyTO created = doCreate(anyCR, delta);
-                output = created;
-                result.setKey(created.getKey());
-                result.setName(getName(created));
+        Object output;
+        Result resultStatus;
+        try {
+            for (PullActions action : profile.getActions()) {
+                if (rule == UnmatchingRule.ASSIGN) {
+                    action.beforeAssign(profile, delta, anyCR);
+                } else if (rule == UnmatchingRule.PROVISION) {
+                    action.beforeProvision(profile, delta, anyCR);
+                }
+            }
+            result.setName(getName(anyCR));
+
+            AnyTO created = doCreate(anyCR, delta);
+            output = created;
+            result.setKey(created.getKey());
+            result.setName(getName(created));
+            resultStatus = Result.SUCCESS;
+
+            for (PullActions action : profile.getActions()) {
+                action.after(profile, delta, created, result);
+            }
+
+            LOG.debug("{} {} successfully created", created.getType(), created.getKey());
+        } catch (PropagationException e) {
+            // A propagation failure doesn't imply a pull failure.
+            // The propagation exception status will be reported into the propagation task execution.
+            LOG.error("Could not propagate {} {}",
+                    provision.getAnyType(), delta.getUid().getUidValue(), e);
+            output = e;
+            resultStatus = Result.FAILURE;
+        } catch (Exception e) {
+            throwIgnoreProvisionException(delta, e);
+
+            result.setStatus(ProvisioningReport.Status.FAILURE);
+            result.setMessage(ExceptionUtils.getRootCauseMessage(e));
+            LOG.error("Could not create {} {} ", provision.getAnyType(), delta.getUid().getUidValue(), e);
+            output = e;
+
+            if (profile.getTask().isRemediation()) {
+                // set to SUCCESS to let the incremental flow go on in case of errors
                 resultStatus = Result.SUCCESS;
-
-                for (PullActions action : profile.getActions()) {
-                    action.after(profile, delta, created, result);
-                }
-
-                LOG.debug("{} {} successfully created", created.getType(), created.getKey());
-            } catch (PropagationException e) {
-                // A propagation failure doesn't imply a pull failure.
-                // The propagation exception status will be reported into the propagation task execution.
-                LOG.error("Could not propagate {} {}",
-                        provision.getAnyType(), delta.getUid().getUidValue(), e);
-                output = e;
+                createRemediation(provision.getAnyType(), null, anyCR, null, result, delta);
+            } else {
                 resultStatus = Result.FAILURE;
-            } catch (Exception e) {
-                throwIgnoreProvisionException(delta, e);
-
-                result.setStatus(ProvisioningReport.Status.FAILURE);
-                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                LOG.error("Could not create {} {} ", provision.getAnyType(), delta.getUid().getUidValue(), e);
-                output = e;
-
-                if (profile.getTask().isRemediation()) {
-                    // set to SUCCESS to let the incremental flow go on in case of errors
-                    resultStatus = Result.SUCCESS;
-                    createRemediation(provision.getAnyType(), null, anyCR, null, result, delta);
-                } else {
-                    resultStatus = Result.FAILURE;
-                }
-            }
-
-            end(provision.getAnyType(), UnmatchingRule.toEventName(rule), resultStatus, null, output, delta);
-        }
-
-        return List.of(result);
-    }
-
-    protected void throwIgnoreProvisionException(final SyncDelta delta, final Exception exception)
-            throws JobExecutionException {
-
-        if (exception instanceof IgnoreProvisionException) {
-            throw IgnoreProvisionException.class.cast(exception);
-        }
-
-        IgnoreProvisionException ipe = null;
-        for (PullActions action : profile.getActions()) {
-            if (ipe == null) {
-                ipe = action.onError(profile, delta, exception);
             }
         }
-        if (ipe != null) {
-            throw ipe;
-        }
+
+        end(provision.getAnyType(), UnmatchingRule.toEventName(rule), resultStatus, null, output, delta);
+        profile.getResults().add(result);
+        return resultStatus;
     }
 
-    protected List<ProvisioningReport> update(
+    protected Result update(
             final SyncDelta delta,
             final List<PullMatch> matches,
             final Provision provision) throws JobExecutionException {
@@ -305,13 +279,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             LOG.debug("PullTask not configured for update");
             end(provision.getAnyType(),
                     MatchingRule.toEventName(MatchingRule.UPDATE), Result.SUCCESS, null, null, delta);
-            return List.of();
+            return Result.SUCCESS;
         }
 
         LOG.debug("About to update {}", matches);
 
-        List<ProvisioningReport> results = new ArrayList<>();
-
+        Result global = Result.SUCCESS;
         for (PullMatch match : matches) {
             LOG.debug("About to update {}", match);
 
@@ -393,13 +366,16 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 end(provision.getAnyType(),
                         MatchingRule.toEventName(MatchingRule.UPDATE),
                         resultStatus, before, output, delta, effectiveReq);
+                global = and(global, resultStatus);
             }
-            results.add(result);
+
+            profile.getResults().add(result);
         }
-        return results;
+
+        return global;
     }
 
-    protected List<ProvisioningReport> deprovision(
+    protected Result deprovision(
             final MatchingRule matchingRule,
             final SyncDelta delta,
             final List<PullMatch> matches,
@@ -410,13 +386,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             LOG.debug("PullTask not configured for update");
             end(provision.getAnyType(),
                     MatchingRule.toEventName(matchingRule), Result.SUCCESS, null, null, delta);
-            return List.of();
+            return Result.SUCCESS;
         }
 
         LOG.debug("About to deprovision {}", matches);
 
-        List<ProvisioningReport> results = new ArrayList<>();
-
+        Result global = Result.SUCCESS;
         for (PullMatch match : matches) {
             LOG.debug("About to unassign resource {}", match);
 
@@ -506,15 +481,18 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     }
                 }
                 end(provision.getAnyType(),
-                        MatchingRule.toEventName(matchingRule), resultStatus, before, output, delta);
+                        MatchingRule.toEventName(matchingRule),
+                        resultStatus, before, output, delta);
+                global = and(global, resultStatus);
             }
-            results.add(result);
+
+            profile.getResults().add(result);
         }
 
-        return results;
+        return global;
     }
 
-    protected List<ProvisioningReport> link(
+    protected Result link(
             final SyncDelta delta,
             final List<PullMatch> matches,
             final Provision provision,
@@ -528,13 +506,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             ? MatchingRule.toEventName(MatchingRule.UNLINK)
                             : MatchingRule.toEventName(MatchingRule.LINK),
                     Result.SUCCESS, null, null, delta);
-            return List.of();
+            return Result.SUCCESS;
         }
 
         LOG.debug("About to update {}", matches);
 
-        final List<ProvisioningReport> results = new ArrayList<>();
-
+        Result global = Result.SUCCESS;
         for (PullMatch match : matches) {
             LOG.debug("About to unassign resource {}", match);
 
@@ -612,14 +589,16 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                                 ? MatchingRule.toEventName(MatchingRule.UNLINK)
                                 : MatchingRule.toEventName(MatchingRule.LINK),
                         resultStatus, before, output, delta, effectiveReq);
+                global = and(global, resultStatus);
             }
-            results.add(result);
+
+            profile.getResults().add(result);
         }
 
-        return results;
+        return global;
     }
 
-    protected List<ProvisioningReport> delete(
+    protected Result delete(
             final SyncDelta delta,
             final List<PullMatch> matches,
             final Provision provision)
@@ -629,14 +608,13 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             LOG.debug("PullTask not configured for delete");
             end(provision.getAnyType(),
                     ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
-            return List.of();
+            return Result.SUCCESS;
         }
 
         LOG.debug("About to delete {}", matches);
 
-        List<ProvisioningReport> results = new ArrayList<>();
-
-        matches.forEach(match -> {
+        Result global = Result.SUCCESS;
+        for (PullMatch match : matches) {
             Object output;
             Result resultStatus = Result.FAILURE;
 
@@ -687,10 +665,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     }
 
                     end(provision.getAnyType(),
-                            ResourceOperation.DELETE.name().toLowerCase(), resultStatus, before, output, delta);
+                            ResourceOperation.DELETE.name().toLowerCase(),
+                            resultStatus, before, output, delta);
+                    global = and(global, resultStatus);
                 }
 
-                results.add(result);
+                profile.getResults().add(result);
             } catch (NotFoundException e) {
                 LOG.error("Could not find {} {}", provision.getAnyType(), match, e);
             } catch (DelegatedAdministrationException e) {
@@ -698,12 +678,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             } catch (Exception e) {
                 LOG.error("Could not delete {} {}", provision.getAnyType(), match, e);
             }
-        });
+        }
 
-        return results;
+        return global;
     }
 
-    protected List<ProvisioningReport> ignore(
+    protected Result ignore(
             final SyncDelta delta,
             final List<PullMatch> matches,
             final Provision provision,
@@ -712,8 +692,6 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             throws JobExecutionException {
 
         LOG.debug("Any to ignore {}", delta.getObject().getUid().getUidValue());
-
-        List<ProvisioningReport> results = new ArrayList<>();
 
         if (matches == null) {
             ProvisioningReport report = new ProvisioningReport();
@@ -727,7 +705,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 report.setMessage(message[0]);
             }
 
-            results.add(report);
+            profile.getResults().add(report);
         } else {
             matches.forEach(match -> {
                 ProvisioningReport report = new ProvisioningReport();
@@ -741,19 +719,20 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     report.setMessage(message[0]);
                 }
 
-                results.add(report);
+                profile.getResults().add(report);
             });
         }
 
         end(provision.getAnyType(),
                 matching
                         ? MatchingRule.toEventName(MatchingRule.IGNORE)
-                        : UnmatchingRule.toEventName(UnmatchingRule.IGNORE), Result.SUCCESS, null, null, delta);
+                        : UnmatchingRule.toEventName(UnmatchingRule.IGNORE),
+                Result.SUCCESS, null, null, delta);
 
-        return results;
+        return Result.SUCCESS;
     }
 
-    protected void handleAnys(
+    protected Result handleAnys(
             final SyncDelta delta,
             final List<PullMatch> matches,
             final AnyTypeKind anyTypeKind,
@@ -761,9 +740,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         if (matches.isEmpty()) {
             LOG.debug("Nothing to do");
-            return;
+            return Result.SUCCESS;
         }
 
+        Result result = Result.SUCCESS;
         switch (delta.getDeltaType()) {
             case CREATE:
             case UPDATE:
@@ -772,12 +752,11 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
                         case PROVISION:
-                            profile.getResults().addAll(
-                                    provision(profile.getTask().getUnmatchingRule(), delta, anyTypeKind, provision));
+                            result = provision(profile.getTask().getUnmatchingRule(), delta, anyTypeKind, provision);
                             break;
 
                         case IGNORE:
-                            profile.getResults().addAll(ignore(delta, null, provision, false));
+                            result = ignore(delta, null, provision, false);
                             break;
 
                         default:
@@ -804,25 +783,24 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
-                            profile.getResults().addAll(update(delta, matches, provision));
+                            result = update(delta, matches, provision);
                             break;
 
                         case DEPROVISION:
                         case UNASSIGN:
-                            profile.getResults().addAll(
-                                    deprovision(profile.getTask().getMatchingRule(), delta, matches, provision));
+                            result = deprovision(profile.getTask().getMatchingRule(), delta, matches, provision);
                             break;
 
                         case LINK:
-                            profile.getResults().addAll(link(delta, matches, provision, false));
+                            result = link(delta, matches, provision, false);
                             break;
 
                         case UNLINK:
-                            profile.getResults().addAll(link(delta, matches, provision, true));
+                            result = link(delta, matches, provision, true);
                             break;
 
                         case IGNORE:
-                            profile.getResults().addAll(ignore(delta, matches, provision, true));
+                            result = ignore(delta, matches, provision, true);
                             break;
 
                         default:
@@ -832,25 +810,28 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 break;
 
             case DELETE:
-                profile.getResults().addAll(delete(delta, matches, provision));
+                result = delete(delta, matches, provision);
                 break;
 
             default:
         }
+
+        return result;
     }
 
-    protected void handleLinkedAccounts(
+    protected Result handleLinkedAccounts(
             final SyncDelta delta,
             final List<PullMatch> matches,
             final Provision provision) throws JobExecutionException {
 
         if (matches.isEmpty()) {
             LOG.debug("Nothing to do");
-            return;
+            return Result.SUCCESS;
         }
 
         // nothing to do in the general case
         LOG.warn("Unexpected linked accounts found for {}: {}", provision.getAnyType(), matches);
+        return Result.SUCCESS;
     }
 
     /**
@@ -859,9 +840,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
      * @param delta returned by the underlying profile.getConnector()
      * @param provision provisioning info
      * @param anyTypeKind any type kind
+     * @return if handle was successful or not
      * @throws JobExecutionException in case of pull failure.
      */
-    protected void doHandle(
+    protected Result doHandle(
             final SyncDelta delta,
             final Provision provision,
             final AnyTypeKind anyTypeKind) throws JobExecutionException {
@@ -877,6 +859,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         LOG.debug("Transformed {} for {} as {}",
                 finalDelta.getDeltaType(), finalDelta.getUid().getUidValue(), finalDelta.getObject().getObjectClass());
 
+        Result result = Result.SUCCESS;
         try {
             List<PullMatch> matches = inboundMatcher.match(
                     finalDelta,
@@ -906,7 +889,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             }
 
             // users, groups and any objects
-            handleAnys(
+            Result anys = handleAnys(
                     finalDelta,
                     matches.stream().
                             filter(match -> match.getMatchTarget() == MatchType.ANY).
@@ -915,14 +898,18 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     provision);
 
             // linked accounts
-            handleLinkedAccounts(
+            Result linkedAccounts = handleLinkedAccounts(
                     finalDelta,
                     matches.stream().
                             filter(match -> match.getMatchTarget() == MatchType.LINKED_ACCOUNT).
                             collect(Collectors.toList()), provision);
+
+            result = and(anys, linkedAccounts);
         } catch (IllegalStateException | IllegalArgumentException e) {
             LOG.warn(e.getMessage());
         }
+
+        return result;
     }
 
     protected void end(
@@ -933,10 +920,6 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             final Object output,
             final SyncDelta delta,
             final Object... furtherInput) {
-
-        synchronized (this) {
-            this.latestResult = result;
-        }
 
         notificationManager.createTasks(
                 profile.getExecutor(),

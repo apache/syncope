@@ -47,6 +47,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -151,16 +152,16 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 Optional<PullMatch> match = inboundMatcher.match(
                         anyTypeDAO.findUser(),
                         ownerKey,
-                        ghandler.getProfile().getTask().getResource(),
-                        ghandler.getProfile().getConnector());
+                        profile.getTask().getResource(),
+                        profile.getConnector());
                 if (match.isPresent()) {
                     group.setUserOwner((User) match.get().getAny());
                 } else {
                     inboundMatcher.match(
                             anyTypeDAO.findGroup(),
                             ownerKey,
-                            ghandler.getProfile().getTask().getResource(),
-                            ghandler.getProfile().getConnector()).
+                            profile.getTask().getResource(),
+                            profile.getConnector()).
                             ifPresent(groupMatch -> group.setGroupOwner((Group) groupMatch.getAny()));
                 }
             }
@@ -209,12 +210,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
     }
 
     protected GroupPullResultHandler buildGroupHandler() {
-        GroupPullResultHandler handler = (GroupPullResultHandler) ApplicationContextProvider.getBeanFactory().
+        return (GroupPullResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(DefaultGroupPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        handler.setProfile(profile);
-        handler.setPullExecutor(this);
-
-        return handler;
     }
 
     @Override
@@ -230,10 +227,13 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         profile = new ProvisioningProfile<>(connector, pullTask);
         profile.getActions().addAll(getPullActions(pullTask.getActions()));
         profile.setDryRun(dryRun);
-        profile.setConflictResolutionAction(pullTask.getResource().getPullPolicy() == null
-                ? ConflictResolutionAction.IGNORE
-                : pullTask.getResource().getPullPolicy().getConflictResolutionAction());
+        profile.setConflictResolutionAction(
+                Optional.ofNullable(pullTask.getResource().getPullPolicy()).
+                        map(PullPolicy::getConflictResolutionAction).
+                        orElse(ConflictResolutionAction.IGNORE));
         profile.setExecutor(executor);
+
+        PullResultHandlerDispatcher dispatcher = new PullResultHandlerDispatcher(profile, this);
 
         latestSyncTokens.clear();
 
@@ -258,7 +258,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
             RealmPullResultHandler handler = buildRealmHandler();
             handler.setProfile(profile);
-            handler.setPullExecutor(this);
+            dispatcher.setHandler(handler);
 
             try {
                 switch (pullTask.getPullMode()) {
@@ -271,7 +271,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
                         connector.sync(new ObjectClass(orgUnit.getObjectClass()),
                                 ConnObjectUtils.toSyncToken(orgUnit.getSyncToken()),
-                                handler,
+                                dispatcher,
                                 options);
 
                         if (!dryRun) {
@@ -284,7 +284,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                     case FILTERED_RECONCILIATION:
                         connector.filteredReconciliation(new ObjectClass(orgUnit.getObjectClass()),
                                 getReconFilterBuilder(pullTask),
-                                handler,
+                                dispatcher,
                                 options);
                         break;
 
@@ -292,7 +292,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                     default:
                         connector.fullReconciliation(
                                 new ObjectClass(orgUnit.getObjectClass()),
-                                handler,
+                                dispatcher,
                                 options);
                         break;
                 }
@@ -328,7 +328,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                     handler = buildAnyObjectHandler();
             }
             handler.setProfile(profile);
-            handler.setPullExecutor(this);
+            dispatcher.setHandler(handler);
 
             boolean setSyncTokens = false;
             try {
@@ -352,7 +352,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                         connector.sync(
                                 new ObjectClass(provision.getObjectClass()),
                                 ConnObjectUtils.toSyncToken(provision.getSyncToken()),
-                                handler,
+                                dispatcher,
                                 options);
 
                         if (!dryRun) {
@@ -363,7 +363,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                     case FILTERED_RECONCILIATION:
                         connector.filteredReconciliation(new ObjectClass(provision.getObjectClass()),
                                 getReconFilterBuilder(pullTask),
-                                handler,
+                                dispatcher,
                                 options);
                         break;
 
@@ -371,7 +371,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                     default:
                         connector.fullReconciliation(
                                 new ObjectClass(provision.getObjectClass()),
-                                handler,
+                                dispatcher,
                                 options);
                         break;
                 }
@@ -409,6 +409,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 action.afterAll(profile);
             }
         }
+
+        dispatcher.cleanup();
 
         setStatus("Pull done");
 
