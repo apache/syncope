@@ -14,25 +14,25 @@ objectClass: organization
 objectClass: top
 o: isp
 
-DN: ou=People,o=isp
+DN: ou=people,o=isp
 objectClass: organizationalUnit
 objectClass: top
-ou: People
+ou: people
 
-DN: ou=Groups,o=isp
+DN: ou=groups,o=isp
 objectClass: organizationalUnit
 objectClass: top
-ou: Groups
+ou: groups
 
-DN: cn=testLDAPGroup,ou=Groups,o=isp
+DN: cn=testLDAPGroup,ou=groups,o=isp
 objectClass: groupOfUniqueNames
 objectClass: top
 cn: testLDAPGroup
 uniqueMember: uid=admin,ou=system
-uniqueMember: uid=pullFromLDAP,ou=People,o=isp
-owner: uid=pullFromLDAP,ou=People,o=isp
+uniqueMember: uid=pullFromLDAP,ou=people,o=isp
+owner: uid=pullFromLDAP,ou=people,o=isp
 
-DN: uid=pullFromLDAP,ou=People,o=isp
+DN: uid=pullFromLDAP,ou=people,o=isp
 objectClass: organizationalPerson
 objectClass: person
 objectClass: inetOrgPerson

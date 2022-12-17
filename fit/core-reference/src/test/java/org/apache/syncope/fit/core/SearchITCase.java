@@ -528,7 +528,7 @@ public class SearchITCase extends AbstractITCase {
                 matches = null;
 
                 boolean succeeded = false;
-                // needed because ApacheDS seems to randomly fail when searching with cookie
+                // needed because embedded LDAP server seems to randomly fail when searching with cookie
                 for (int i = 0; i < 5 && !succeeded; i++) {
                     try {
                         matches = RESOURCE_SERVICE.searchConnObjects(

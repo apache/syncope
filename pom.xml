@@ -434,9 +434,6 @@ under the License.
 
     <elasticsearch.version>8.5.2</elasticsearch.version>
 
-    <apacheds.version>2.0.0.AM26</apacheds.version>
-    <apachedirapi.version>2.0.0</apachedirapi.version>
-
     <log4j2.version>2.19.0</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
     
@@ -480,13 +477,16 @@ under the License.
     <curator.version>5.4.0</curator.version>
     <zookeeper.version>3.8.0</zookeeper.version>
 
+    <testds.rootDn>o=isp</testds.rootDn>
+    <testds.bindDn>uid=admin,ou=system</testds.bindDn>
+    <testds.password>secret</testds.password>
     <testds.port>1389</testds.port>
-    <testdb.webport>9082</testdb.webport>
 
     <testdb.driver>org.h2.Driver</testdb.driver>
     <testdb.url>jdbc:h2:tcp://localhost:9092/mem:testdb;DB_CLOSE_DELAY=-1</testdb.url>
     <testdb.username>sa</testdb.username>
     <testdb.password>sa</testdb.password>
+    <testdb.webport>9082</testdb.webport>
 
     <testconnectorserver.port>4554</testconnectorserver.port>
     <testconnectorserver.key>testconnectorserver</testconnectorserver.key>
@@ -1142,39 +1142,6 @@ under the License.
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
         <version>${h2.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.directory.server</groupId>
-        <artifactId>apacheds-core-api</artifactId>
-        <version>${apacheds.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.directory.server</groupId>
-        <artifactId>apacheds-core-annotations</artifactId>
-        <version>${apacheds.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.directory.server</groupId>
-        <artifactId>apacheds-service-builder</artifactId>
-        <version>${apacheds.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.directory.server</groupId>
-            <artifactId>apacheds-http-integration</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.directory.api</groupId>
-        <artifactId>api-ldap-codec-standalone</artifactId>
-        <version>${apachedirapi.version}</version>
       </dependency>
 
       <dependency>

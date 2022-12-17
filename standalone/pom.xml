@@ -171,7 +171,7 @@ under the License.
                 <mkdir dir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}"/>
                 <copy file="../fit/core-reference/src/test/resources/test.csv" todir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}"/>
 
-                <!-- Syncope build tools (provide H2, Apache DS and REST / SOAP resources + ConnId connector server) -->
+                <!-- Syncope build tools (provide H2, LDAP and REST / SOAP resources + ConnId connector server) -->
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools">
                   <fileset dir="../fit/build-tools/target/syncope-fit-build-tools-${project.version}" includes="**/*"/>
                 </copy>

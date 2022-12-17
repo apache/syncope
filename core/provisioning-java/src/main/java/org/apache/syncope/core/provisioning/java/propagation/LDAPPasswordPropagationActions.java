@@ -19,13 +19,13 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.Base64;
+import java.util.Optional;
 import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -39,6 +39,7 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Propagate a non-cleartext password out to a resource, if the PropagationManager has not already
@@ -48,50 +49,45 @@ import org.springframework.transaction.annotation.Transactional;
 @SyncopeImplementation(scope = InstanceScope.PER_CONTEXT)
 public class LDAPPasswordPropagationActions implements PropagationActions {
 
-    private static final String CLEARTEXT = "CLEARTEXT";
+    protected static final String CLEARTEXT = "CLEARTEXT";
 
     @Autowired
-    private UserDAO userDAO;
+    protected UserDAO userDAO;
 
     @Transactional(readOnly = true)
     @Override
     public void before(final PropagationTaskInfo taskInfo) {
         if (AnyTypeKind.USER == taskInfo.getAnyTypeKind()) {
             User user = userDAO.find(taskInfo.getEntityKey());
-
-            PropagationData data = taskInfo.getPropagationData();
-            if (user != null && user.getPassword() != null && data.getAttributes() != null) {
-                Set<Attribute> attrs = data.getAttributes();
-
-                Attribute missing = AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs);
-
-                ConnInstance connInstance = taskInfo.getResource().getConnector();
-                String cipherAlgorithm = getCipherAlgorithm(connInstance);
-                if (missing != null && missing.getValue() != null && missing.getValue().size() == 1
-                        && missing.getValue().get(0).equals(OperationalAttributes.PASSWORD_NAME)
-                        && cipherAlgorithmMatches(getCipherAlgorithm(connInstance), user.getCipherAlgorithm())) {
-
-                    String password = user.getPassword().toLowerCase();
-                    byte[] decodedPassword = DatatypeConverter.parseHexBinary(password);
-                    String base64EncodedPassword = Base64.getEncoder().encodeToString(decodedPassword);
-
-                    String cipherPlusPassword = ('{' + cipherAlgorithm.toLowerCase() + '}' + base64EncodedPassword);
-
-                    Attribute passwordAttribute = AttributeBuilder.buildPassword(
-                            new GuardedString(cipherPlusPassword.toCharArray()));
-
-                    attrs.add(passwordAttribute);
-                    attrs.remove(missing);
-                }
+            if (user == null || user.getPassword() == null) {
+                return;
             }
+
+            Set<Attribute> attrs = taskInfo.getPropagationData().getAttributes();
+
+            String cipherAlgorithm = getCipherAlgorithm(taskInfo.getResource().getConnector());
+            Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs)).
+                    filter(missing -> !CollectionUtils.isEmpty(missing.getValue())
+                    && OperationalAttributes.PASSWORD_NAME.equals(missing.getValue().get(0))
+                    && cipherAlgorithmMatches(cipherAlgorithm, user.getCipherAlgorithm())).
+                    ifPresent(missing -> {
+                        attrs.remove(missing);
+
+                        byte[] decodedPassword = DatatypeConverter.parseHexBinary(user.getPassword().toLowerCase());
+                        String base64EncodedPassword = Base64.getEncoder().encodeToString(decodedPassword);
+
+                        String cipherPlusPassword = '{' + cipherAlgorithm + '}' + base64EncodedPassword;
+
+                        attrs.add(AttributeBuilder.buildPassword(new GuardedString(cipherPlusPassword.toCharArray())));
+                    });
         }
     }
 
     protected String getCipherAlgorithm(final ConnInstance connInstance) {
         return connInstance.getConf().stream().
                 filter(property -> "passwordHashAlgorithm".equals(property.getSchema().getName())
-                && property.getValues() != null && !property.getValues().isEmpty()).findFirst().
-                map(cipherAlgorithm -> (String) cipherAlgorithm.getValues().get(0)).
+                && !property.getValues().isEmpty()).findFirst().
+                map(cipherAlgorithm -> cipherAlgorithm.getValues().get(0).toString()).
                 orElse(CLEARTEXT);
     }
 

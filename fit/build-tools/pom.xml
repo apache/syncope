@@ -70,20 +70,8 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-core-annotations</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.server</groupId>
-      <artifactId>apacheds-service-builder</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.directory.api</groupId>
-      <artifactId>api-ldap-codec-standalone</artifactId>
+      <groupId>com.unboundid</groupId>
+      <artifactId>unboundid-ldapsdk</artifactId>
     </dependency>
 
     <dependency>
