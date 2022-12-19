@@ -164,6 +164,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             // remove all filters not contained in the TO
             pushTask.getFilters().
                     removeIf(anyFilter -> !pushTaskTO.getFilters().containsKey(anyFilter.getAnyType().getKey()));
+
+            pushTask.setConcurrentSettings(pushTaskTO.getConcurrentSettings());
         } else if (provisioningTask instanceof PullTask && provisioningTaskTO instanceof PullTaskTO) {
             PullTask pullTask = (PullTask) provisioningTask;
             PullTaskTO pullTaskTO = (PullTaskTO) provisioningTaskTO;
@@ -523,6 +525,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 pushTask.getFilters().
                         forEach(filter -> pushTaskTO.getFilters().
                         put(filter.getAnyType().getKey(), filter.getFIQLCond()));
+
+                pushTaskTO.setConcurrentSettings(pushTask.getConcurrentSettings());
                 break;
 
             case NOTIFICATION:

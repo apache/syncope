@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
@@ -26,45 +25,20 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.core.task.TaskRejectedException;
 
-public class PullResultHandlerDispatcher implements SyncResultsHandler {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(PullResultHandlerDispatcher.class);
+public class PullResultHandlerDispatcher
+        extends SyncopeResultHandlerDispatcher<PullTask, PullActions, SyncopePullResultHandler>
+        implements SyncResultsHandler {
 
     protected final SyncopePullExecutor executor;
-
-    protected SyncopePullResultHandler handler;
-
-    protected final Optional<ThreadPoolTaskExecutor> tpte;
 
     public PullResultHandlerDispatcher(
             final ProvisioningProfile<PullTask, PullActions> profile,
             final SyncopePullExecutor executor) {
 
+        super(profile);
         this.executor = executor;
-
-        this.tpte = Optional.ofNullable(profile.getTask().getConcurrentSettings()).map(s -> {
-            ThreadPoolTaskExecutor t = new ThreadPoolTaskExecutor();
-            t.setCorePoolSize(s.getCorePoolSize());
-            t.setMaxPoolSize(s.getMaxPoolSize());
-            t.setKeepAliveSeconds(s.getKeepAliveSeconds());
-            t.setQueueCapacity(s.getQueueCapacity());
-            t.setAllowCoreThreadTimeOut(s.isAllowCoreThreadTimeOut());
-            t.setPrestartAllCoreThreads(s.isPrestartAllCoreThreads());
-            t.setWaitForTasksToCompleteOnShutdown(s.isWaitForTasksToCompleteOnShutdown());
-            t.setAwaitTerminationSeconds(s.getAwaitTerminationSeconds());
-            t.setThreadNamePrefix("pullTask-" + profile.getTask().getKey() + "-");
-            t.setRejectedExecutionHandler(s.getRejectionPolicy().getHandler());
-            t.initialize();
-            return t;
-        });
-    }
-
-    public void setHandler(final SyncopePullResultHandler handler) {
-        this.handler = handler;
     }
 
     @Override
@@ -86,16 +60,18 @@ public class PullResultHandlerDispatcher implements SyncResultsHandler {
             return result;
         }
 
-        tpte.get().submit(() -> {
-            executor.setLatestSyncToken(delta.getObjectClass().getObjectClassValue(), delta.getToken());
+        try {
+            tpte.get().submit(() -> {
+                executor.setLatestSyncToken(delta.getObjectClass().getObjectClassValue(), delta.getToken());
 
-            handler.handle(delta);
-            executor.reportHandled(delta.getObjectClass().getObjectClassValue(), delta.getObject().getName());
-        });
-        return true;
-    }
-
-    public void cleanup() {
-        tpte.ifPresent(ThreadPoolTaskExecutor::shutdown);
+                handler.handle(delta);
+                executor.reportHandled(delta.getObjectClass().getObjectClassValue(), delta.getObject().getName());
+            });
+            return true;
+        } catch (TaskRejectedException e) {
+            LOG.error("Could not submit pull handler for {} {}",
+                    delta.getObjectClass().getObjectClassValue(), delta.getObject().getName());
+            return false;
+        }
     }
 }

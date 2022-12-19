@@ -26,7 +26,6 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.PullMode;
-import org.apache.syncope.common.lib.types.ThreadPoolSettings;
 
 @Schema(allOf = { ProvisioningTaskTO.class })
 public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
@@ -42,8 +41,6 @@ public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
     private String destinationRealm;
 
     private boolean remediation;
-
-    private ThreadPoolSettings concurrentSettings;
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -93,14 +90,6 @@ public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
         this.remediation = remediation;
     }
 
-    public ThreadPoolSettings getConcurrentSettings() {
-        return concurrentSettings;
-    }
-
-    public void setConcurrentSettings(final ThreadPoolSettings concurrentSettings) {
-        this.concurrentSettings = concurrentSettings;
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -109,7 +98,6 @@ public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
                 append(reconFilterBuilder).
                 append(destinationRealm).
                 append(remediation).
-                append(concurrentSettings).
                 build();
     }
 
@@ -131,7 +119,6 @@ public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
                 append(reconFilterBuilder, other.reconFilterBuilder).
                 append(destinationRealm, other.destinationRealm).
                 append(remediation, other.remediation).
-                append(concurrentSettings, other.concurrentSettings).
                 build();
     }
 }

@@ -28,7 +28,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -38,7 +37,6 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.PullMode;
-import org.apache.syncope.common.lib.types.ThreadPoolSettings;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
@@ -47,7 +45,6 @@ import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAPullTask.TABLE)
@@ -86,9 +83,6 @@ public class JPAPullTask extends AbstractProvisioningTask<PullTask> implements P
 
     @NotNull
     private Boolean remediation = false;
-
-    @Lob
-    private String concurrentSettings;
 
     @Override
     public PullMode getPullMode() {
@@ -161,17 +155,6 @@ public class JPAPullTask extends AbstractProvisioningTask<PullTask> implements P
     @Override
     public boolean isRemediation() {
         return concurrentSettings != null ? true : remediation;
-    }
-
-    @Override
-    public ThreadPoolSettings getConcurrentSettings() {
-        return Optional.ofNullable(concurrentSettings).
-                map(s -> POJOHelper.deserialize(s, ThreadPoolSettings.class)).orElse(null);
-    }
-
-    @Override
-    public void setConcurrentSettings(final ThreadPoolSettings settings) {
-        this.concurrentSettings = Optional.ofNullable(settings).map(POJOHelper::serialize).orElse(null);
     }
 
     @Override

@@ -18,5 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-public interface GroupPushResultHandler extends SyncopePushResultHandler {
+public interface SyncopePushExecutor {
+
+    void reportHandled(String anyType, String key);
+
+    boolean wasInterruptRequested();
+
+    void setInterrupted();
 }
