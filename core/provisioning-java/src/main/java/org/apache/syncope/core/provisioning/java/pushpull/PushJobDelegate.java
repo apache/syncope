@@ -200,9 +200,11 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
         if (pushTask.getResource().getOrgUnit() != null) {
             setStatus("Pushing realms");
 
-            RealmPushResultHandler handler = buildRealmHandler();
-            handler.setProfile(profile);
-            dispatcher.setHandler(handler);
+            dispatcher.addHandlerSupplier(SyncopeConstants.REALM_ANYTYPE, () -> {
+                RealmPushResultHandler handler = buildRealmHandler();
+                handler.setProfile(profile);
+                return handler;
+            });
 
             // Never push the root realm
             List<Realm> realms = realmDAO.findDescendants(profile.getTask().getSourceRealm()).stream().
@@ -232,22 +234,24 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
 
             AnyDAO<?> anyDAO = anyUtilsFactory.getInstance(anyType.getKind()).dao();
 
-            SyncopePushResultHandler handler;
-            switch (anyType.getKind()) {
-                case USER:
-                    handler = buildUserHandler();
-                    break;
+            dispatcher.addHandlerSupplier(provision.getAnyType(), () -> {
+                SyncopePushResultHandler handler;
+                switch (anyType.getKind()) {
+                    case USER:
+                        handler = buildUserHandler();
+                        break;
 
-                case GROUP:
-                    handler = buildGroupHandler();
-                    break;
+                    case GROUP:
+                        handler = buildGroupHandler();
+                        break;
 
-                case ANY_OBJECT:
-                default:
-                    handler = buildAnyObjectHandler();
-            }
-            handler.setProfile(profile);
-            dispatcher.setHandler(handler);
+                    case ANY_OBJECT:
+                    default:
+                        handler = buildAnyObjectHandler();
+                }
+                handler.setProfile(profile);
+                return handler;
+            });
 
             Optional<? extends PushTaskAnyFilter> anyFilter = pushTask.getFilter(anyType);
             String filter = anyFilter.map(PushTaskAnyFilter::getFIQLCond).orElse(null);
@@ -280,6 +284,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
                 action.afterAll(profile);
             }
         }
+
+        dispatcher.cleanup();
 
         setStatus("Push done");
 

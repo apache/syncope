@@ -41,8 +41,8 @@ services:
        DB_URL: jdbc:mysql://db:3306/syncope?characterEncoding=UTF-8&relaxAutoCommit=true&useSSL=false
        DB_USER: syncope
        DB_PASSWORD: syncope
-       DB_POOL_MAX: 10
-       DB_POOL_MIN: 2
+       DB_POOL_MAX: 20
+       DB_POOL_MIN: 5
        OPENJPA_REMOTE_COMMIT: sjvm
        KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}

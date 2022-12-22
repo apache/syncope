@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
+import java.util.concurrent.RejectedExecutionException;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
@@ -25,7 +26,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
-import org.springframework.core.task.TaskRejectedException;
+import org.springframework.transaction.annotation.Transactional;
 
 public class PullResultHandlerDispatcher
         extends SyncopeResultHandlerDispatcher<PullTask, PullActions, SyncopePullResultHandler>
@@ -41,6 +42,7 @@ public class PullResultHandlerDispatcher
         this.executor = executor;
     }
 
+    @Transactional
     @Override
     public boolean handle(final SyncDelta delta) {
         if (executor.wasInterruptRequested()) {
@@ -49,8 +51,8 @@ public class PullResultHandlerDispatcher
             return false;
         }
 
-        if (tpte.isEmpty()) {
-            boolean result = handler.handle(delta);
+        if (ecs.isEmpty()) {
+            boolean result = nonConcurrentHandler(delta.getObjectClass().getObjectClassValue()).handle(delta);
 
             executor.reportHandled(delta.getObjectClass().getObjectClassValue(), delta.getObject().getName());
             if (result) {
@@ -61,14 +63,15 @@ public class PullResultHandlerDispatcher
         }
 
         try {
-            tpte.get().submit(() -> {
+            submit(() -> {
                 executor.setLatestSyncToken(delta.getObjectClass().getObjectClassValue(), delta.getToken());
 
-                handler.handle(delta);
+                suppliers.get(delta.getObjectClass().getObjectClassValue()).get().handle(delta);
+
                 executor.reportHandled(delta.getObjectClass().getObjectClassValue(), delta.getObject().getName());
             });
             return true;
-        } catch (TaskRejectedException e) {
+        } catch (RejectedExecutionException e) {
             LOG.error("Could not submit pull handler for {} {}",
                     delta.getObjectClass().getObjectClassValue(), delta.getObject().getName());
             return false;

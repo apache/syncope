@@ -155,22 +155,24 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
                 action.beforeAll(profile);
             }
 
-            SyncopePushResultHandler handler;
-            switch (anyType.getKind()) {
-                case USER:
-                    handler = buildUserHandler();
-                    break;
+            dispatcher.addHandlerSupplier(anyType.getKey(), () -> {
+                SyncopePushResultHandler handler;
+                switch (anyType.getKind()) {
+                    case USER:
+                        handler = buildUserHandler();
+                        break;
 
-                case GROUP:
-                    handler = buildGroupHandler();
-                    break;
+                    case GROUP:
+                        handler = buildGroupHandler();
+                        break;
 
-                case ANY_OBJECT:
-                default:
-                    handler = buildAnyObjectHandler();
-            }
-            handler.setProfile(profile);
-            dispatcher.setHandler(handler);
+                    case ANY_OBJECT:
+                    default:
+                        handler = buildAnyObjectHandler();
+                }
+                handler.setProfile(profile);
+                return handler;
+            });
 
             doHandle(anys, dispatcher, resource);
 

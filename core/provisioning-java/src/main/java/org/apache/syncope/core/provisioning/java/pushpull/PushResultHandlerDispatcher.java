@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
+import java.util.concurrent.RejectedExecutionException;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
-import org.springframework.core.task.TaskRejectedException;
 
 public class PushResultHandlerDispatcher
         extends SyncopeResultHandlerDispatcher<PushTask, PushActions, SyncopePushResultHandler> {
@@ -45,8 +45,8 @@ public class PushResultHandlerDispatcher
             return false;
         }
 
-        if (tpte.isEmpty()) {
-            boolean result = handler.handle(anyKey);
+        if (ecs.isEmpty()) {
+            boolean result = nonConcurrentHandler(anyType).handle(anyKey);
 
             executor.reportHandled(anyType, anyKey);
 
@@ -54,14 +54,14 @@ public class PushResultHandlerDispatcher
         }
 
         try {
-            tpte.get().submit(() -> {
-                handler.handle(anyKey);
+            submit(() -> {
+                suppliers.get(anyType).get().handle(anyKey);
 
                 executor.reportHandled(anyType, anyKey);
             });
             return true;
-        } catch (TaskRejectedException e) {
-            LOG.error("Could not submit pull handler for {} {}", anyType, anyKey);
+        } catch (RejectedExecutionException e) {
+            LOG.error("Could not submit push handler for {} {}", anyType, anyKey);
             return false;
         }
     }

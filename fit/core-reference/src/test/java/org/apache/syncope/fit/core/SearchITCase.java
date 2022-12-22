@@ -81,10 +81,6 @@ public class SearchITCase extends AbstractITCase {
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNull("loginDate").query()).build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
-
-        assertEquals(2, matchingUsers.getResult().stream().
-                filter(user -> "74cd8ece-715a-44a4-a736-e17b46c4e7e6".equals(user.getKey())
-                || "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee".equals(user.getKey())).count());
     }
 
     @Test

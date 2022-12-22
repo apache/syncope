@@ -95,22 +95,24 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
 
             AnyType anyType = anyTypeDAO.find(provision.getAnyType());
 
-            SyncopePushResultHandler handler;
-            switch (anyType.getKind()) {
-                case USER:
-                    handler = buildUserHandler();
-                    break;
+            dispatcher.addHandlerSupplier(provision.getAnyType(), () -> {
+                SyncopePushResultHandler handler;
+                switch (anyType.getKind()) {
+                    case USER:
+                        handler = buildUserHandler();
+                        break;
 
-                case GROUP:
-                    handler = buildGroupHandler();
-                    break;
+                    case GROUP:
+                        handler = buildGroupHandler();
+                        break;
 
-                case ANY_OBJECT:
-                default:
-                    handler = buildAnyObjectHandler();
-            }
-            handler.setProfile(profile);
-            dispatcher.setHandler(handler);
+                    case ANY_OBJECT:
+                    default:
+                        handler = buildAnyObjectHandler();
+                }
+                handler.setProfile(profile);
+                return handler;
+            });
 
             doHandle(List.of(any), dispatcher, resource);
 

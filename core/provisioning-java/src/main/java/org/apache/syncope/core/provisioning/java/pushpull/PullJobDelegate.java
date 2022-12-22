@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -94,7 +95,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
     @Autowired
     protected PlainAttrValidationManager validator;
 
-    protected final Map<String, SyncToken> latestSyncTokens = new HashMap<>();
+    protected final Map<String, SyncToken> latestSyncTokens = Collections.synchronizedMap(new HashMap<>());
 
     protected ProvisioningProfile<PullTask, PullActions> profile;
 
@@ -111,21 +112,23 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
     @Override
     public void reportHandled(final String objectClass, final Name name) {
-        MutablePair<Integer, String> pair = Optional.ofNullable(handled.get(objectClass)).orElseGet(() -> {
-            MutablePair<Integer, String> p = MutablePair.of(0, null);
-            handled.put(objectClass, p);
-            return p;
-        });
-        pair.setLeft(pair.getLeft() + 1);
-        pair.setRight(name.getNameValue());
+        synchronized (handled) {
+            MutablePair<Integer, String> pair = Optional.ofNullable(handled.get(objectClass)).orElseGet(() -> {
+                MutablePair<Integer, String> p = MutablePair.of(0, null);
+                handled.put(objectClass, p);
+                return p;
+            });
+            pair.setLeft(pair.getLeft() + 1);
+            pair.setRight(name.getNameValue());
 
-        if (!handled.isEmpty()) {
-            StringBuilder builder = new StringBuilder("Processed:\n");
-            handled.forEach((k, v) -> builder.append(' ').append(v.getLeft()).append('\t').
-                    append(k).
-                    append(" / latest: ").append(v.getRight()).
-                    append('\n'));
-            setStatus(builder.toString());
+            if (!handled.isEmpty()) {
+                StringBuilder builder = new StringBuilder("Processed:\n");
+                handled.forEach((k, v) -> builder.append(' ').append(v.getLeft()).append('\t').
+                        append(k).
+                        append(" / latest: ").append(v.getRight()).
+                        append('\n'));
+                setStatus(builder.toString());
+            }
         }
     }
 
@@ -256,9 +259,11 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             OperationOptions options = MappingUtils.buildOperationOptions(
                     MappingUtils.getPullItems(orgUnit.getItems().stream()), moreAttrsToGet.toArray(String[]::new));
 
-            RealmPullResultHandler handler = buildRealmHandler();
-            handler.setProfile(profile);
-            dispatcher.setHandler(handler);
+            dispatcher.addHandlerSupplier(orgUnit.getObjectClass(), () -> {
+                RealmPullResultHandler handler = buildRealmHandler();
+                handler.setProfile(profile);
+                return handler;
+            });
 
             try {
                 switch (pullTask.getPullMode()) {
@@ -313,22 +318,24 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
             AnyType anyType = anyTypeDAO.find(provision.getAnyType());
 
-            SyncopePullResultHandler handler;
-            switch (anyType.getKind()) {
-                case USER:
-                    handler = buildUserHandler();
-                    break;
+            dispatcher.addHandlerSupplier(provision.getObjectClass(), () -> {
+                SyncopePullResultHandler handler;
+                switch (anyType.getKind()) {
+                    case USER:
+                        handler = buildUserHandler();
+                        break;
 
-                case GROUP:
-                    handler = ghandler;
-                    break;
+                    case GROUP:
+                        handler = ghandler;
+                        break;
 
-                case ANY_OBJECT:
-                default:
-                    handler = buildAnyObjectHandler();
-            }
-            handler.setProfile(profile);
-            dispatcher.setHandler(handler);
+                    case ANY_OBJECT:
+                    default:
+                        handler = buildAnyObjectHandler();
+                }
+                handler.setProfile(profile);
+                return handler;
+            });
 
             boolean setSyncTokens = false;
             try {
