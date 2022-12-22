@@ -802,8 +802,6 @@ under the License.
             performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
             unmatchingRule="ASSIGN" matchingRule="UNLINK" active="1" jobDelegate_id="PushJobDelegate"
             filters='{"USER":"username==_NO_ONE_","GROUP":"name==citizen"}'/>
-  <PushTaskAnyFilter id="30842acc-f2dd-4d47-b359-20db06c30803" anyType_id="USER" pushTask_id="fd905ba5-9d56-4f51-83e2-859096a67b75" fiql="username==_NO_ONE_"/>
-  <PushTaskAnyFilter id="9e4c0233-440e-4b5b-9563-11ec0f55a334" anyType_id="GROUP" pushTask_id="fd905ba5-9d56-4f51-83e2-859096a67b75" fiql="name==citizen"/>
   <PullTask remediation="0" id="986867e2-993b-430e-8feb-aa9abb4c1dcd" name="CSV Task (update matching; provision unmatching)" resource_id="resource-csv"
             destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" pullMode="INCREMENTAL"
             unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
