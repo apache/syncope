@@ -1022,7 +1022,7 @@ under the License.
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.9.9.1</version>
+        <version>1.9.19</version>
       </dependency>
 
       <dependency>
