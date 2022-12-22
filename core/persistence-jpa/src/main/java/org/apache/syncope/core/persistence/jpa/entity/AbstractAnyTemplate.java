@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import java.util.Optional;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
@@ -64,10 +65,6 @@ public abstract class AbstractAnyTemplate extends AbstractGeneratedKeyEntity imp
 
     @Override
     public void set(final AnyTO template) {
-        if (template == null) {
-            this.template = null;
-        } else {
-            this.template = POJOHelper.serialize(template);
-        }
+        this.template = Optional.ofNullable(template).map(POJOHelper::serialize).orElse(null);
     }
 }

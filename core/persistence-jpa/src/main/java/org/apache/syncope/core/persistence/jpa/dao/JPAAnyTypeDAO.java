@@ -94,5 +94,4 @@ public class JPAAnyTypeDAO extends AbstractDAO<AnyType> implements AnyTypeDAO {
 
         entityManager().remove(anyType);
     }
-
 }

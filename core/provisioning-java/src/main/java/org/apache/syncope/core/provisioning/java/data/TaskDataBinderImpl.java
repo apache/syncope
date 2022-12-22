@@ -57,7 +57,6 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -151,19 +150,12 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 if (anyType == null) {
                     LOG.debug("Invalid AnyType {} specified, ignoring...", type);
                 } else {
-                    PushTaskAnyFilter filter = pushTask.getFilter(anyType).orElse(null);
-                    if (filter == null) {
-                        filter = entityFactory.newEntity(PushTaskAnyFilter.class);
-                        filter.setAnyType(anyType);
-                        filter.setPushTask(pushTask);
-                        pushTask.add(filter);
-                    }
-                    filter.setFIQLCond(fiql);
+                    pushTask.getFilters().put(anyType.getKey(), fiql);
                 }
             });
             // remove all filters not contained in the TO
-            pushTask.getFilters().
-                    removeIf(anyFilter -> !pushTaskTO.getFilters().containsKey(anyFilter.getAnyType().getKey()));
+            pushTask.getFilters().entrySet().
+                    removeIf(filter -> !pushTaskTO.getFilters().containsKey(filter.getKey()));
 
             pushTask.setConcurrentSettings(pushTaskTO.getConcurrentSettings());
         } else if (provisioningTask instanceof PullTask && provisioningTaskTO instanceof PullTaskTO) {
@@ -522,9 +514,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 pushTaskTO.setUnmatchingRule(pushTask.getUnmatchingRule() == null
                         ? UnmatchingRule.ASSIGN : pushTask.getUnmatchingRule());
 
-                pushTask.getFilters().
-                        forEach(filter -> pushTaskTO.getFilters().
-                        put(filter.getAnyType().getKey(), filter.getFIQLCond()));
+                pushTaskTO.getFilters().putAll(pushTask.getFilters());
 
                 pushTaskTO.setConcurrentSettings(pushTask.getConcurrentSettings());
                 break;

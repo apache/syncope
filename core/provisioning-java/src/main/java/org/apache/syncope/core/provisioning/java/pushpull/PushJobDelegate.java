@@ -42,7 +42,6 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -253,8 +252,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
                 return handler;
             });
 
-            Optional<? extends PushTaskAnyFilter> anyFilter = pushTask.getFilter(anyType);
-            String filter = anyFilter.map(PushTaskAnyFilter::getFIQLCond).orElse(null);
+            String filter = pushTask.getFilter(anyType.getKey()).orElse(null);
             SearchCond cond = StringUtils.isBlank(filter)
                     ? anyDAO.getAllMatchingCond()
                     : SearchCondConverter.convert(searchCondVisitor, filter);

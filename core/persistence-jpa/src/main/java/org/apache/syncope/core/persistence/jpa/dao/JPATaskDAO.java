@@ -473,6 +473,8 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
     public <T extends Task<T>> T save(final T task) {
         if (task instanceof JPANotificationTask) {
             ((JPANotificationTask) task).list2json();
+        } else if (task instanceof JPAPushTask) {
+            ((JPAPushTask) task).map2json();
         }
         return entityManager().merge(task);
     }
