@@ -81,8 +81,7 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     }
 
     @Bean
-    public Endpoint soapProvisioning(final Provisioning provisioning,
-            final Bus bus) {
+    public Endpoint soapProvisioning(final Provisioning provisioning, final Bus bus) {
         EndpointImpl soapProvisioning = new EndpointImpl(provisioning);
         soapProvisioning.setBus(bus);
         soapProvisioning.publish("/soap");
