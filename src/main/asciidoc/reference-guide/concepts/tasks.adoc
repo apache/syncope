@@ -125,6 +125,15 @@ It is possible to simulate the execution of a pull (or push) task without perfor
 selecting the _DryRun_ option. The execution results will be still available for examination.
 ====
 
+[[concurrent-tasks-pull]]
+[TIP]
+.Concurrent Pull Task Executions
+====
+By default, pull tasks are set to accept and sequentially process the objects received from the configured External
+Resource; it is also possible to configure a pull task to work on several objects at once in order to speed up the
+overall execution time.
+====
+
 [[tasks-push]]
 ==== Push
 
@@ -155,6 +164,14 @@ endif::[]
 during the <<provisioning-push,push>> process, and are permanently saved - for later re-execution or for examining
 the execution details - depending on the trace level set on the related
 <<external-resource-details,external resource>>.
+====
+
+[[concurrent-tasks-push]]
+[TIP]
+.Concurrent Push Task Executions
+====
+By default, push tasks are set to sequentially send items to the configured External Resource; it is also possible to
+configure a push task to work on several objects at once in order to speed up the overall execution time.
 ====
 
 [[tasks-notification]]

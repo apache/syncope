@@ -971,7 +971,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         int usersAfter = USER_SERVICE.search(new AnyQuery.Builder().fiql(
                 SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP_*").query()).
                 page(1).size(0).build()).getTotalCount();
-        assertEquals(usersAfter, usersBefore + 100);
+        assertTrue(usersAfter >= usersBefore + 100);
     }
 
     @Test
