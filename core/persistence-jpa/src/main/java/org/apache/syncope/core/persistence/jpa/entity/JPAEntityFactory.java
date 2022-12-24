@@ -90,7 +90,6 @@ import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
@@ -144,7 +143,6 @@ import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTaskAnyFilter;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttr;
@@ -278,8 +276,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAMacroTask();
         } else if (reference.equals(SchedTask.class)) {
             result = (E) new JPASchedTask();
-        } else if (reference.equals(PushTaskAnyFilter.class)) {
-            result = (E) new JPAPushTaskAnyFilter();
         } else if (reference.equals(AnyTemplatePullTask.class)) {
             result = (E) new JPAAnyTemplatePullTask();
         } else if (reference.equals(SecurityQuestion.class)) {

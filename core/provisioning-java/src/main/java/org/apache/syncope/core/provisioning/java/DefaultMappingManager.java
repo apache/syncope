@@ -804,10 +804,7 @@ public class DefaultMappingManager implements MappingManager {
                             attr = ((GroupableRelatable<?, ?, ?, ?, ?>) ref).getPlainAttr(
                                     intAttrName.getSchema().getKey(), membership).orElse(null);
                         }
-                        if (attr == null) {
-                            LOG.warn("Invalid PlainSchema {} or PlainAttr not found for {}",
-                                    intAttrName.getSchema().getKey(), ref);
-                        } else {
+                        if (attr != null) {
                             if (attr.getUniqueValue() != null) {
                                 values.add(anyUtils.clonePlainAttrValue(attr.getUniqueValue()));
                             } else if (attr.getValues() != null) {

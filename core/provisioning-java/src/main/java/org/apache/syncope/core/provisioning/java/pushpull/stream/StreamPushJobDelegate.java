@@ -45,6 +45,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandle
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPushExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PushResultHandlerDispatcher;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.quartz.JobExecutionException;
@@ -148,27 +149,32 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
                     map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 
+            PushResultHandlerDispatcher dispatcher = new PushResultHandlerDispatcher(profile, this);
+
             for (PushActions action : profile.getActions()) {
                 action.beforeAll(profile);
             }
 
-            SyncopePushResultHandler handler;
-            switch (anyType.getKind()) {
-                case USER:
-                    handler = buildUserHandler();
-                    break;
+            dispatcher.addHandlerSupplier(anyType.getKey(), () -> {
+                SyncopePushResultHandler handler;
+                switch (anyType.getKind()) {
+                    case USER:
+                        handler = buildUserHandler();
+                        break;
 
-                case GROUP:
-                    handler = buildGroupHandler();
-                    break;
+                    case GROUP:
+                        handler = buildGroupHandler();
+                        break;
 
-                case ANY_OBJECT:
-                default:
-                    handler = buildAnyObjectHandler();
-            }
-            handler.setProfile(profile);
+                    case ANY_OBJECT:
+                    default:
+                        handler = buildAnyObjectHandler();
+                }
+                handler.setProfile(profile);
+                return handler;
+            });
 
-            doHandle(anys, handler, resource);
+            doHandle(anys, dispatcher, resource);
 
             for (PushActions action : profile.getActions()) {
                 action.afterAll(profile);

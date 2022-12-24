@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.entity.task;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface PushTask extends ProvisioningTask<PushTask> {
@@ -29,9 +28,7 @@ public interface PushTask extends ProvisioningTask<PushTask> {
 
     void setSourceRealm(Realm sourceRealm);
 
-    boolean add(PushTaskAnyFilter filter);
+    Optional<String> getFilter(String anyType);
 
-    Optional<? extends PushTaskAnyFilter> getFilter(AnyType anyType);
-
-    List<? extends PushTaskAnyFilter> getFilters();
+    Map<String, String> getFilters();
 }

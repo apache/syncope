@@ -154,7 +154,7 @@ public class JPAPullTask extends AbstractProvisioningTask<PullTask> implements P
 
     @Override
     public boolean isRemediation() {
-        return remediation;
+        return concurrentSettings != null ? true : remediation;
     }
 
     @Override

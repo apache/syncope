@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.tasks;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -34,7 +35,9 @@ import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponent
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
@@ -45,6 +48,7 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.lib.types.ThreadPoolSettings;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -55,6 +59,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.springframework.beans.PropertyAccessorFactory;
 
 public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizardBuilder<T> {
 
@@ -292,7 +297,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             // For push and pull tasks
             // ------------------------------
             WebMarkupContainer provisioningTaskSpecifics = new WebMarkupContainer("provisioningTaskSpecifics");
-            add(provisioningTaskSpecifics.setRenderBodyOnly(true));
+            add(provisioningTaskSpecifics.setOutputMarkupId(true));
 
             if (taskTO instanceof ProvisioningTaskTO) {
                 jobDelegate.setEnabled(false).setVisible(false);
@@ -311,8 +316,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                             new PropertyModel<>(taskTO, "actions"),
                             new ListModel<>(taskTO instanceof PushTaskTO
                                     ? pushActions.getObject() : pullActions.getObject()));
-            actions.setOutputMarkupId(true);
-            provisioningTaskSpecifics.add(actions);
+            provisioningTaskSpecifics.add(actions.setOutputMarkupId(true));
 
             AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
                     "matchingRule", "matchingRule", new PropertyModel<>(taskTO, "matchingRule"), false);
@@ -340,6 +344,112 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             AjaxCheckBoxPanel syncStatus = new AjaxCheckBoxPanel(
                     "syncStatus", "syncStatus", new PropertyModel<>(taskTO, "syncStatus"), false);
             provisioningTaskSpecifics.add(syncStatus);
+
+            // Concurrent settings
+            PropertyModel<ThreadPoolSettings> concurrentSettingsModel =
+                    new PropertyModel<>(taskTO, "concurrentSettings");
+
+            AjaxCheckBoxPanel enableConcurrentSettings = new AjaxCheckBoxPanel(
+                    "enableConcurrentSettings", "enableConcurrentSettings", new IModel<Boolean>() {
+
+                private static final long serialVersionUID = -7126718045816207110L;
+
+                @Override
+                public Boolean getObject() {
+                    return concurrentSettingsModel.getObject() != null;
+                }
+
+                @Override
+                public void setObject(final Boolean object) {
+                    // nothing to do
+                }
+            });
+            provisioningTaskSpecifics.add(enableConcurrentSettings.
+                    setVisible(taskTO instanceof ProvisioningTaskTO).setOutputMarkupId(true));
+
+            FieldPanel<Integer> corePoolSize = new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
+                    "corePoolSize",
+                    "corePoolSize",
+                    Integer.class,
+                    new ConcurrentSettingsValueModel(concurrentSettingsModel, "corePoolSize")).setRequired(true);
+            corePoolSize.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
+            corePoolSize.setVisible(taskTO instanceof ProvisioningTaskTO
+                    ? concurrentSettingsModel.getObject() != null
+                    : false);
+            provisioningTaskSpecifics.add(corePoolSize);
+
+            FieldPanel<Integer> maxPoolSize = new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
+                    "maxPoolSize",
+                    "maxPoolSize",
+                    Integer.class,
+                    new ConcurrentSettingsValueModel(concurrentSettingsModel, "maxPoolSize")).setRequired(true);
+            maxPoolSize.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
+            maxPoolSize.setVisible(taskTO instanceof ProvisioningTaskTO
+                    ? concurrentSettingsModel.getObject() != null
+                    : false);
+            provisioningTaskSpecifics.add(maxPoolSize);
+
+            FieldPanel<Integer> queueCapacity = new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
+                    "queueCapacity",
+                    "queueCapacity",
+                    Integer.class,
+                    new ConcurrentSettingsValueModel(concurrentSettingsModel, "queueCapacity")).setRequired(true);
+            queueCapacity.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
+            queueCapacity.setVisible(taskTO instanceof ProvisioningTaskTO
+                    ? concurrentSettingsModel.getObject() != null
+                    : false);
+            provisioningTaskSpecifics.add(queueCapacity);
+
+            enableConcurrentSettings.getField().add(
+                    new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                private static final long serialVersionUID = -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(final AjaxRequestTarget target) {
+                    if (concurrentSettingsModel.getObject() == null) {
+                        concurrentSettingsModel.setObject(new ThreadPoolSettings());
+                    } else {
+                        concurrentSettingsModel.setObject(null);
+                    }
+
+                    corePoolSize.setVisible(concurrentSettingsModel.getObject() != null);
+                    maxPoolSize.setVisible(concurrentSettingsModel.getObject() != null);
+                    queueCapacity.setVisible(concurrentSettingsModel.getObject() != null);
+
+                    target.add(provisioningTaskSpecifics);
+                }
+            });
+        }
+    }
+
+    protected static class ConcurrentSettingsValueModel implements IModel<Integer> {
+
+        private static final long serialVersionUID = 8869612332790116116L;
+
+        private final PropertyModel<ThreadPoolSettings> concurrentSettingsModel;
+
+        private final String property;
+
+        public ConcurrentSettingsValueModel(
+                final PropertyModel<ThreadPoolSettings> concurrentSettingsModel,
+                final String property) {
+
+            this.concurrentSettingsModel = concurrentSettingsModel;
+            this.property = property;
+        }
+
+        @Override
+        public Integer getObject() {
+            return Optional.ofNullable(concurrentSettingsModel.getObject()).
+                    map(s -> (Integer) PropertyAccessorFactory.forBeanPropertyAccess(s).getPropertyValue(property)).
+                    orElse(null);
+        }
+
+        @Override
+        public void setObject(final Integer object) {
+            Optional.ofNullable(concurrentSettingsModel.getObject()).
+                    ifPresent(s -> PropertyAccessorFactory.forBeanPropertyAccess(s).setPropertyValue(property, object));
         }
     }
 

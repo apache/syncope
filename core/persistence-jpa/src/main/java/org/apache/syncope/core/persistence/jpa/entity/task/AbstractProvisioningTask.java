@@ -18,18 +18,22 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
+import java.util.Optional;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.ThreadPoolSettings;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ProvisioningTaskCheck;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @MappedSuperclass
 @ProvisioningTaskCheck
@@ -69,6 +73,9 @@ public abstract class AbstractProvisioningTask<T extends SchedTask>
     @NotNull
     @Enumerated(EnumType.STRING)
     protected MatchingRule matchingRule;
+
+    @Lob
+    protected String concurrentSettings;
 
     @Override
     public ExternalResource getResource() {
@@ -142,5 +149,16 @@ public abstract class AbstractProvisioningTask<T extends SchedTask>
     @Override
     public void setMatchingRule(final MatchingRule matchigRule) {
         this.matchingRule = matchigRule;
+    }
+
+    @Override
+    public ThreadPoolSettings getConcurrentSettings() {
+        return Optional.ofNullable(concurrentSettings).
+                map(s -> POJOHelper.deserialize(s, ThreadPoolSettings.class)).orElse(null);
+    }
+
+    @Override
+    public void setConcurrentSettings(final ThreadPoolSettings settings) {
+        this.concurrentSettings = Optional.ofNullable(settings).map(POJOHelper::serialize).orElse(null);
     }
 }

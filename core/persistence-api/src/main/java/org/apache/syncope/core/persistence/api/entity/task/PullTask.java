@@ -47,5 +47,4 @@ public interface PullTask extends ProvisioningTask<PullTask> {
     void setRemediation(boolean remediation);
 
     boolean isRemediation();
-
 }

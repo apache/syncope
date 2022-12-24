@@ -109,13 +109,13 @@ public final class AuthContextUtils {
         return domainKey;
     }
 
-    private static <T> T call(final String domain, final Authentication fakeAuth, final Callable<T> callable) {
+    private static <T> T call(final Authentication authentication, final Callable<T> callable) {
         Authentication original = SecurityContextHolder.getContext().getAuthentication();
-        SecurityContextHolder.getContext().setAuthentication(fakeAuth);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         try {
             return callable.call();
         } catch (Exception e) {
-            LOG.debug("Error during execution with domain {} context", domain, e);
+            LOG.debug("Error during execution under authentication {}", authentication, e);
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
             } else {
@@ -139,7 +139,7 @@ public final class AuthContextUtils {
                 new User(username, FAKE_PASSWORD, authorities), FAKE_PASSWORD, authorities);
         fakeAuth.setDetails(new SyncopeAuthenticationDetails(domain, getDelegatedBy().orElse(null)));
 
-        return call(domain, fakeAuth, callable);
+        return call(fakeAuth, callable);
     }
 
     public static <T> T callAsAdmin(final String domain, final Callable<T> callable) {

@@ -19,5 +19,4 @@
 package org.apache.syncope.core.provisioning.api.pushpull;
 
 public interface RealmPushResultHandler extends SyncopePushResultHandler {
-
 }

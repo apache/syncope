@@ -80,9 +80,4 @@ public abstract class AbstractRealmResultHandler<T extends ProvisioningTask<?>, 
     public void setProfile(final ProvisioningProfile<T, A> profile) {
         this.profile = profile;
     }
-
-    @Override
-    public ProvisioningProfile<T, A> getProfile() {
-        return profile;
-    }
 }

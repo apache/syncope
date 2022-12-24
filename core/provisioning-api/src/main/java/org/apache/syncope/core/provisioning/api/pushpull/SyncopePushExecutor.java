@@ -16,22 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.task;
+package org.apache.syncope.core.provisioning.api.pushpull;
 
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+public interface SyncopePushExecutor {
 
-public interface PushTaskAnyFilter extends Entity {
+    void reportHandled(String anyType, String key);
 
-    PushTask getPushTask();
+    boolean wasInterruptRequested();
 
-    void setPushTask(PushTask pushTask);
-
-    AnyType getAnyType();
-
-    void setAnyType(AnyType anyType);
-
-    String getFIQLCond();
-
-    void setFIQLCond(String fiql);
+    void setInterrupted();
 }

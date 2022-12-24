@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.ThreadPoolSettings;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 
 @Schema(allOf = { SchedTaskTO.class },
@@ -50,6 +51,8 @@ public abstract class ProvisioningTaskTO extends SchedTaskTO {
     private MatchingRule matchingRule;
 
     private final List<String> actions = new ArrayList<>();
+
+    private ThreadPoolSettings concurrentSettings;
 
     @JsonProperty(required = true)
     public String getResource() {
@@ -92,12 +95,6 @@ public abstract class ProvisioningTaskTO extends SchedTaskTO {
         this.syncStatus = syncStatus;
     }
 
-    @JacksonXmlElementWrapper(localName = "actions")
-    @JacksonXmlProperty(localName = "action")
-    public List<String> getActions() {
-        return actions;
-    }
-
     public UnmatchingRule getUnmatchingRule() {
         return unmatchingRule;
     }
@@ -114,6 +111,20 @@ public abstract class ProvisioningTaskTO extends SchedTaskTO {
         this.matchingRule = matchigRule;
     }
 
+    @JacksonXmlElementWrapper(localName = "actions")
+    @JacksonXmlProperty(localName = "action")
+    public List<String> getActions() {
+        return actions;
+    }
+
+    public ThreadPoolSettings getConcurrentSettings() {
+        return concurrentSettings;
+    }
+
+    public void setConcurrentSettings(final ThreadPoolSettings concurrentSettings) {
+        this.concurrentSettings = concurrentSettings;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -126,6 +137,7 @@ public abstract class ProvisioningTaskTO extends SchedTaskTO {
                 append(unmatchingRule).
                 append(matchingRule).
                 append(actions).
+                append(concurrentSettings).
                 build();
     }
 
@@ -151,6 +163,7 @@ public abstract class ProvisioningTaskTO extends SchedTaskTO {
                 append(unmatchingRule, other.unmatchingRule).
                 append(matchingRule, other.matchingRule).
                 append(actions, other.actions).
+                append(concurrentSettings, other.concurrentSettings).
                 build();
     }
 }

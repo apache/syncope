@@ -209,7 +209,6 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                     handler = buildAnyObjectHandler();
             }
             handler.setProfile(profile);
-            handler.setPullExecutor(this);
 
             // execute filtered pull
             Set<String> moreAttrsToGet = new HashSet<>();

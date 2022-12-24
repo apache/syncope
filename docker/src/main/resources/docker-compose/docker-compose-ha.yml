@@ -41,8 +41,8 @@ services:
        DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
        DB_PASSWORD: syncope
-       DB_POOL_MAX: 10
-       DB_POOL_MIN: 2
+       DB_POOL_MAX: 20
+       DB_POOL_MIN: 5
        OPENJPA_REMOTE_COMMIT: tcp(Addresses=syncope1;syncope2)
        KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}
@@ -63,8 +63,8 @@ services:
        DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
        DB_PASSWORD: syncope
-       DB_POOL_MAX: 10
-       DB_POOL_MIN: 2
+       DB_POOL_MAX: 20
+       DB_POOL_MIN: 5
        OPENJPA_REMOTE_COMMIT: tcp(Addresses=syncope1;syncope2)
        KEYMASTER_ADDRESS: http://localhost:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME}

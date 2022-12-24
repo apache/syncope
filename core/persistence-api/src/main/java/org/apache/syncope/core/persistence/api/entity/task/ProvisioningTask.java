@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.ThreadPoolSettings;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -33,14 +34,6 @@ public interface ProvisioningTask<T extends SchedTask> extends SchedTask {
     boolean add(Implementation action);
 
     List<? extends Implementation> getActions();
-
-    MatchingRule getMatchingRule();
-
-    void setMatchingRule(MatchingRule matchigRule);
-
-    UnmatchingRule getUnmatchingRule();
-
-    void setUnmatchingRule(UnmatchingRule unmatchigRule);
 
     boolean isPerformCreate();
 
@@ -57,4 +50,16 @@ public interface ProvisioningTask<T extends SchedTask> extends SchedTask {
     boolean isSyncStatus();
 
     void setSyncStatus(boolean syncStatus);
+
+    MatchingRule getMatchingRule();
+
+    void setMatchingRule(MatchingRule matchigRule);
+
+    UnmatchingRule getUnmatchingRule();
+
+    void setUnmatchingRule(UnmatchingRule unmatchigRule);
+
+    ThreadPoolSettings getConcurrentSettings();
+
+    void setConcurrentSettings(ThreadPoolSettings settings);
 }

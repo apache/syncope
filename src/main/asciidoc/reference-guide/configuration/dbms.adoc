@@ -34,8 +34,8 @@ persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.PostgresDictionary
 persistence.domain[0].auditSql=audit.sql
-persistence.domain[0].poolMaxActive=10
-persistence.domain[0].poolMinIdle=2
+persistence.domain[0].poolMaxActive=20
+persistence.domain[0].poolMinIdle=5
 
 provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
 provisioning.quartz.sql=tables_postgres.sql
@@ -86,8 +86,8 @@ persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.PostgresDictionary
 persistence.domain[0].orm=META-INF/spring-orm-pgjsonb.xml
 persistence.domain[0].auditSql=audit_pgjsonb.sql
-persistence.domain[0].poolMaxActive=10
-persistence.domain[0].poolMinIdle=2
+persistence.domain[0].poolMaxActive=20
+persistence.domain[0].poolMinIdle=5
 
 provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
 provisioning.quartz.sql=tables_postgres.sql
@@ -119,8 +119,8 @@ persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.MySQLDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)
 persistence.domain[0].auditSql=audit_mysql_innodb.sql
-persistence.domain[0].poolMaxActive=10
-persistence.domain[0].poolMinIdle=2
+persistence.domain[0].poolMaxActive=20
+persistence.domain[0].poolMinIdle=5
 
 provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
 provisioning.quartz.sql=tables_mysql_innodb.sql
@@ -178,8 +178,8 @@ persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.MySQLDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)
 persistence.domain[0].orm=META-INF/spring-orm-myjson.xml
 persistence.domain[0].auditSql=audit_myjson.sql
-persistence.domain[0].poolMaxActive=10
-persistence.domain[0].poolMinIdle=2
+persistence.domain[0].poolMaxActive=20
+persistence.domain[0].poolMinIdle=5
 
 provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
 provisioning.quartz.sql=tables_mysql_innodb.sql
@@ -217,8 +217,8 @@ persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)
 persistence.domain[0].auditSql=audit_mariadb.sql
-persistence.domain[0].poolMaxActive=10
-persistence.domain[0].poolMinIdle=2
+persistence.domain[0].poolMaxActive=20
+persistence.domain[0].poolMinIdle=5
 
 provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
 provisioning.quartz.sql=tables_mariadb.sql
@@ -255,8 +255,8 @@ persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.OracleDictionary
 persistence.domain[0].orm=META-INF/spring-orm-oracle.xml
 persistence.domain[0].auditSql=audit_oracle.sql
-persistence.domain[0].poolMaxActive=10
-persistence.domain[0].poolMinIdle=2
+persistence.domain[0].poolMaxActive=20
+persistence.domain[0].poolMinIdle=5
 
 persistence.indexesXML=classpath:oracle_indexes.xml
 
@@ -310,8 +310,8 @@ persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.OracleDictionary
 persistence.domain[0].orm=META-INF/spring-orm-ojson.xml
 persistence.domain[0].auditSql=audit_ojson.sql
-persistence.domain[0].poolMaxActive=10
-persistence.domain[0].poolMinIdle=2
+persistence.domain[0].poolMaxActive=20
+persistence.domain[0].poolMinIdle=5
 
 provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.oracle.OracleDelegate
 provisioning.quartz.sql=tables_oracle.sql
@@ -345,8 +345,8 @@ persistence.domain[0].dbPassword=Syncope123
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.SQLServerDictionary
 persistence.domain[0].orm=META-INF/spring-orm-sqlserver.xml
 persistence.domain[0].auditSql=audit_sqlserver.sql
-persistence.domain[0].poolMaxActive=10
-persistence.domain[0].poolMinIdle=2
+persistence.domain[0].poolMaxActive=20
+persistence.domain[0].poolMinIdle=5
 
 persistence.viewsXML=classpath:sqlserver_views.xml
 

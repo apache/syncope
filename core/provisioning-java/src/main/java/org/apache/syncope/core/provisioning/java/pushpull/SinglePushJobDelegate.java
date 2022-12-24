@@ -91,26 +91,30 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
 
         try {
             before(resource, connector, pushTaskTO, executor);
+            PushResultHandlerDispatcher dispatcher = new PushResultHandlerDispatcher(profile, this);
 
             AnyType anyType = anyTypeDAO.find(provision.getAnyType());
 
-            SyncopePushResultHandler handler;
-            switch (anyType.getKind()) {
-                case USER:
-                    handler = buildUserHandler();
-                    break;
+            dispatcher.addHandlerSupplier(provision.getAnyType(), () -> {
+                SyncopePushResultHandler handler;
+                switch (anyType.getKind()) {
+                    case USER:
+                        handler = buildUserHandler();
+                        break;
 
-                case GROUP:
-                    handler = buildGroupHandler();
-                    break;
+                    case GROUP:
+                        handler = buildGroupHandler();
+                        break;
 
-                case ANY_OBJECT:
-                default:
-                    handler = buildAnyObjectHandler();
-            }
-            handler.setProfile(profile);
+                    case ANY_OBJECT:
+                    default:
+                        handler = buildAnyObjectHandler();
+                }
+                handler.setProfile(profile);
+                return handler;
+            });
 
-            doHandle(List.of(any), handler, resource);
+            doHandle(List.of(any), dispatcher, resource);
 
             for (PushActions action : profile.getActions()) {
                 action.afterAll(profile);

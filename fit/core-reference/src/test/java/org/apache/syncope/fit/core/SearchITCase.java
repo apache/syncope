@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -57,6 +58,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
+import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.Name;
@@ -81,10 +83,6 @@ public class SearchITCase extends AbstractITCase {
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNull("loginDate").query()).build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
-
-        assertEquals(2, matchingUsers.getResult().stream().
-                filter(user -> "74cd8ece-715a-44a4-a736-e17b46c4e7e6".equals(user.getKey())
-                || "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee".equals(user.getKey())).count());
     }
 
     @Test
@@ -521,25 +519,11 @@ public class SearchITCase extends AbstractITCase {
         int totalRead = 0;
         Set<String> read = new HashSet<>();
         try {
-            // 1. first search with no filters
             ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().size(10);
             PagedConnObjectResult matches;
             do {
-                matches = null;
-
-                boolean succeeded = false;
-                // needed because embedded LDAP server seems to randomly fail when searching with cookie
-                for (int i = 0; i < 5 && !succeeded; i++) {
-                    try {
-                        matches = RESOURCE_SERVICE.searchConnObjects(
-                                RESOURCE_NAME_LDAP,
-                                AnyTypeKind.GROUP.name(),
-                                builder.build());
-                        succeeded = true;
-                    } catch (SyncopeClientException e) {
-                        assertEquals(ClientExceptionType.ConnectorException, e.getType());
-                    }
-                }
+                matches = RESOURCE_SERVICE.searchConnObjects(
+                        RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), builder.build());
                 assertNotNull(matches);
 
                 totalRead += matches.getResult().size();
@@ -553,11 +537,12 @@ public class SearchITCase extends AbstractITCase {
             } while (matches.getPagedResultsCookie() != null);
 
             assertEquals(totalRead, read.size());
-            assertTrue(totalRead >= 10);
+            assertTrue(totalRead >= groupKeys.size());
         } finally {
-            groupKeys.forEach(key -> {
-                GROUP_SERVICE.delete(key);
-            });
+            BatchRequest batchRequest = ADMIN_CLIENT.batch();
+            GroupService batchGroupService = batchRequest.getService(GroupService.class);
+            groupKeys.forEach(batchGroupService::delete);
+            batchRequest.commit();
         }
     }
 
