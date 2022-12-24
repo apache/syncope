@@ -517,25 +517,11 @@ public class SearchITCase extends AbstractITCase {
         int totalRead = 0;
         Set<String> read = new HashSet<>();
         try {
-            // 1. first search with no filters
             ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().size(10);
             PagedConnObjectResult matches;
             do {
-                matches = null;
-
-                boolean succeeded = false;
-                // needed because embedded LDAP server seems to randomly fail when searching with cookie
-                for (int i = 0; i < 5 && !succeeded; i++) {
-                    try {
-                        matches = RESOURCE_SERVICE.searchConnObjects(
-                                RESOURCE_NAME_LDAP,
-                                AnyTypeKind.GROUP.name(),
-                                builder.build());
-                        succeeded = true;
-                    } catch (SyncopeClientException e) {
-                        assertEquals(ClientExceptionType.ConnectorException, e.getType());
-                    }
-                }
+                matches = RESOURCE_SERVICE.searchConnObjects(
+                        RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), builder.build());
                 assertNotNull(matches);
 
                 totalRead += matches.getResult().size();
@@ -549,11 +535,9 @@ public class SearchITCase extends AbstractITCase {
             } while (matches.getPagedResultsCookie() != null);
 
             assertEquals(totalRead, read.size());
-            assertTrue(totalRead >= 10);
+            assertTrue(totalRead >= groupKeys.size());
         } finally {
-            groupKeys.forEach(key -> {
-                GROUP_SERVICE.delete(key);
-            });
+            groupKeys.forEach(GROUP_SERVICE::delete);
         }
     }
 
