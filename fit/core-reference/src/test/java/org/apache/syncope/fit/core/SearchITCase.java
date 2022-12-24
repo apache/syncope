@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -57,6 +58,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
+import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.Name;
@@ -537,7 +539,10 @@ public class SearchITCase extends AbstractITCase {
             assertEquals(totalRead, read.size());
             assertTrue(totalRead >= groupKeys.size());
         } finally {
-            groupKeys.forEach(GROUP_SERVICE::delete);
+            BatchRequest batchRequest = ADMIN_CLIENT.batch();
+            GroupService batchGroupService = batchRequest.getService(GroupService.class);
+            groupKeys.forEach(batchGroupService::delete);
+            batchRequest.commit();
         }
     }
 

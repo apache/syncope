@@ -966,7 +966,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
         PagedResult<UserTO> result = null;
         try {
             // 2. run concurrent pull task
-            ExecTO execution = execProvisioningTask(TASK_SERVICE, TaskType.PULL, pullTaskKey, MAX_WAIT_SECONDS, false);
+            ExecTO execution = execProvisioningTask(
+                    TASK_SERVICE, TaskType.PULL, pullTaskKey, 5 * MAX_WAIT_SECONDS, false);
 
             // 3. verify execution status
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
