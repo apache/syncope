@@ -59,6 +59,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -110,6 +111,7 @@ import org.apache.syncope.common.rest.api.beans.RemediationQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -920,7 +922,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP_*").query()).
                 page(1).size(0).build()).getTotalCount();
 
-        // 0. first cleanup then create 1000 users on LDAP
+        // 0. first cleanup then create 100 users on LDAP
         ldapCleanup();
 
         ExecutorService tp = Executors.newFixedThreadPool(10);
@@ -961,17 +963,27 @@ public class PullTaskITCase extends AbstractTaskITCase {
         Response response = TASK_SERVICE.create(TaskType.PULL, pullTask);
         String pullTaskKey = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
 
-        // 2. run concurrent pull task
-        ExecTO execution = execProvisioningTask(TASK_SERVICE, TaskType.PULL, pullTaskKey, MAX_WAIT_SECONDS, false);
+        PagedResult<UserTO> result = null;
+        try {
+            // 2. run concurrent pull task
+            ExecTO execution = execProvisioningTask(TASK_SERVICE, TaskType.PULL, pullTaskKey, MAX_WAIT_SECONDS, false);
 
-        // 3. verify execution status
-        assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+            // 3. verify execution status
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
-        // 4. verify that the given number of users was effectively pulled
-        int usersAfter = USER_SERVICE.search(new AnyQuery.Builder().fiql(
-                SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP_*").query()).
-                page(1).size(0).build()).getTotalCount();
-        assertTrue(usersAfter >= usersBefore + 100);
+            // 4. verify that the given number of users was effectively pulled
+            result = USER_SERVICE.search(new AnyQuery.Builder().fiql(
+                    SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP_*").query()).
+                    page(1).size(200).build());
+            assertTrue(result.getTotalCount() >= usersBefore + 100);
+        } finally {
+            if (result != null) {
+                BatchRequest batchRequest = ADMIN_CLIENT.batch();
+                UserService batchUserService = batchRequest.getService(UserService.class);
+                result.getResult().stream().map(UserTO::getKey).forEach(batchUserService::delete);
+                batchRequest.commit();
+            }
+        }
     }
 
     @Test
