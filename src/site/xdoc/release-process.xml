@@ -313,7 +313,7 @@ svn copy apidocs/3.0 $VERSION/apidocs/
 svn copy rest/3.0 $VERSION/rest/
 svn copy docs/3.0 $VERSION/docs/
 
-# else if releasing from master
+# else if releasing from 3_0_X
 mkdir -p rest/3.0
 mv /tmp/openapi.json rest/3.0/              
 cp -r $SYNCOPE_RELEASE_DIR/core/starter/target/swagger-ui/META-INF/resources/webjars/swagger-ui/*/* rest/3.0/

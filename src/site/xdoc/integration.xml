@@ -45,7 +45,7 @@ under the License.
 
     <section name="Buildbot">
       <p>
-        <source><a href="https://ci2.apache.org/#/builders/56">master</a></source>
+        <source><a href="https://ci2.apache.org/#/builders/56">3_0_X</a></source>
       </p>
       <p>
         <source><a href="https://ci2.apache.org/#/builders/55">2_1_X</a></source>

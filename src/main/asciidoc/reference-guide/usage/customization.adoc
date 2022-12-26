@@ -132,7 +132,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/java/org/apache/syncope/core/spring/security/UsernamePasswordAuthenticationProvider.java[UsernamePasswordAuthenticationProvider^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/spring/src/main/java/org/apache/syncope/core/spring/security/UsernamePasswordAuthenticationProvider.java[UsernamePasswordAuthenticationProvider^].
+https://github.com/apache/syncope/blob/3_0_X/core/spring/src/main/java/org/apache/syncope/core/spring/security/UsernamePasswordAuthenticationProvider.java[UsernamePasswordAuthenticationProvider^].
 endif::[]
 
 The same happens with resources as images or HTML files; if you place
@@ -144,7 +144,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/client/idrepo/console/src/main/resources/org/apache/syncope/client/console/pages/BasePage.html[BasePage.html^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/client/idrepo/console/src/main/resources/org/apache/syncope/client/console/pages/BasePage.html[BasePage.html^].
+https://github.com/apache/syncope/blob/3_0_X/client/idrepo/console/src/main/resources/org/apache/syncope/client/console/pages/BasePage.html[BasePage.html^].
 endif::[]
 
 ===== Extending configuration
@@ -280,19 +280,19 @@ ifeval::["{snapshotOrRelease}" == "release"]
 * https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/PersistenceContext.java[PersistenceContext^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-* https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/PersistenceContext.java[PersistenceContext^]
+* https://github.com/apache/syncope/blob/3_0_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/PersistenceContext.java[PersistenceContext^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "release"]
 * https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/MasterDomain.java[MasterDomain^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-* https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/MasterDomain.java[MasterDomain^]
+* https://github.com/apache/syncope/blob/3_0_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/MasterDomain.java[MasterDomain^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "release"]
 * https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/DomainConfFactory.java[DomainConfFactory^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-* https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/DomainConfFactory.java[DomainConfFactory^]
+* https://github.com/apache/syncope/blob/3_0_X/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/DomainConfFactory.java[DomainConfFactory^]
 endif::[]
 
 The `@Bean` declarations from these classes can be customized as explained <<extending-configuration,above>>.
@@ -399,7 +399,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/elasticsearch/client-elasticsearch/src/main/java/org/apache/syncope/ext/elasticsearch/client/ElasticsearchClientContext.java[ElasticsearchClientContext^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/elasticsearch/client-elasticsearch/src/main/java/org/apache/syncope/ext/elasticsearch/client/ElasticsearchClientContext.java[ElasticsearchClientContext^]
+https://github.com/apache/syncope/blob/3_0_X/ext/elasticsearch/client-elasticsearch/src/main/java/org/apache/syncope/ext/elasticsearch/client/ElasticsearchClientContext.java[ElasticsearchClientContext^]
 endif::[]
 as explained <<extending-configuration,above>>.
 
@@ -441,7 +441,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/flowable/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/BpmnProcessService.java[BpmnProcessService^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/flowable/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/BpmnProcessService.java[BpmnProcessService^]
+https://github.com/apache/syncope/blob/3_0_X/ext/flowable/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/BpmnProcessService.java[BpmnProcessService^]
 endif::[]
 for reference;
 . if needed, define supporting payload objects - in an extension's `common-lib` module or under `common` otherwise;
@@ -450,7 +450,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/flowable/common-lib/src/main/java/org/apache/syncope/common/lib/to/BpmnProcess.java[BpmnProcess^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/flowable/common-lib/src/main/java/org/apache/syncope/common/lib/to/BpmnProcess.java[BpmnProcess^]
+https://github.com/apache/syncope/blob/3_0_X/ext/flowable/common-lib/src/main/java/org/apache/syncope/common/lib/to/BpmnProcess.java[BpmnProcess^]
 endif::[]
 for reference;
 . implement - in an extension's `rest-cxf` module or under `core` otherwise -  the interface defined above in a Java
@@ -459,7 +459,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/flowable/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/BpmnProcessServiceImpl.java[BpmnProcessServiceImpl^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/ext/flowable/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/BpmnProcessServiceImpl.java[BpmnProcessServiceImpl^]
+https://github.com/apache/syncope/blob/3_0_X/ext/flowable/rest-cxf/src/main/java/org/apache/syncope/core/rest/cxf/service/BpmnProcessServiceImpl.java[BpmnProcessServiceImpl^]
 endif::[]
 for reference.
 
@@ -613,5 +613,5 @@ available at runtime.
 <<extensions>> can be part of a local project, to encapsulate special features which are specific to a given deployment.
 
 For example, the http://www.chorevolution.eu/[CHOReVOLUTION^] IdM - based on Apache Syncope - provides
-https://gitlab.ow2.org/chorevolution/syncope/tree/master/ext/choreography[an extension^]
+https://gitlab.ow2.org/chorevolution/syncope/tree/3_0_X/ext/choreography[an extension^]
 for managing via the <<core>> and visualizing via the <<admin-console-component>> the running choreography instances.
