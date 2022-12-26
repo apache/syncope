@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,7 +34,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
-import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -509,35 +507,29 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void searchConnObjectsBrowsePagedResult() {
         List<String> groupKeys = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 11; i++) {
             GroupCR groupCR = GroupITCase.getSample("group");
             groupCR.getResources().add(RESOURCE_NAME_LDAP);
             GroupTO group = createGroup(groupCR).getEntity();
             groupKeys.add(group.getKey());
         }
 
-        int totalRead = 0;
-        Set<String> read = new HashSet<>();
+        ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().size(10);
+
         try {
-            ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().size(10);
-            PagedConnObjectResult matches;
-            do {
-                matches = RESOURCE_SERVICE.searchConnObjects(
-                        RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), builder.build());
-                assertNotNull(matches);
+            PagedConnObjectResult matches = RESOURCE_SERVICE.searchConnObjects(
+                    RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), builder.build());
+            assertNotNull(matches);
+            assertNotNull(matches.getPagedResultsCookie());
+            int firstRound = matches.getResult().size();
 
-                totalRead += matches.getResult().size();
-                read.addAll(matches.getResult().stream().
-                        map(input -> input.getAttr(ConnIdSpecialName.NAME).get().getValues().get(0)).
-                        collect(Collectors.toList()));
+            builder.pagedResultsCookie(matches.getPagedResultsCookie());
+            matches = RESOURCE_SERVICE.searchConnObjects(
+                    RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), builder.build());
+            assertNotNull(matches);
+            int secondRound = matches.getResult().size();
 
-                if (matches.getPagedResultsCookie() != null) {
-                    builder.pagedResultsCookie(matches.getPagedResultsCookie());
-                }
-            } while (matches.getPagedResultsCookie() != null);
-
-            assertEquals(totalRead, read.size());
-            assertTrue(totalRead >= groupKeys.size());
+            assertTrue(firstRound + secondRound >= groupKeys.size());
         } finally {
             BatchRequest batchRequest = ADMIN_CLIENT.batch();
             GroupService batchGroupService = batchRequest.getService(GroupService.class);
