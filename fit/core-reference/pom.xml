@@ -1521,7 +1521,8 @@ under the License.
                 <properties>
                   <cargo.glassfish.removeDefaultDatasource>false</cargo.glassfish.removeDefaultDatasource>
                   <cargo.jvmargs>-Dspring.profiles.active=embedded,payara
-                    -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
+                    -XX:+UseG1GC -Xmx2048m -Xms1024m
+                    --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</cargo.jvmargs>
                 </properties>
               </configuration>
               <deployables>
@@ -1624,7 +1625,9 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Djava.net.preferIPv4Stack=true -Dspring.profiles.active=embedded,wildfly
-                    -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
+                    -XX:+UseG1GC -Xmx2048m -Xms1024m
+                    --add-opens java.base/java.util=ALL-UNNAMED
+                    --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>
