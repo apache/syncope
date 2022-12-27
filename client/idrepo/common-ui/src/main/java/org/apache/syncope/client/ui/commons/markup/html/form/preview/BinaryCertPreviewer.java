@@ -53,7 +53,7 @@ public class BinaryCertPreviewer extends BinaryPreviewer {
 
             StringBuilder commonNameBuilder = new StringBuilder("cn=");
 
-            LdapName ldapName = new LdapName(certificate.getIssuerDN().getName());
+            LdapName ldapName = new LdapName(certificate.getIssuerX500Principal().getName());
 
             for (Rdn rdn : ldapName.getRdns()) {
                 if ("CN".equalsIgnoreCase(rdn.getType())) {
