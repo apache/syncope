@@ -25,12 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import java.security.AccessControlException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Triple;
@@ -95,7 +95,7 @@ public class AuthenticationITCase extends AbstractITCase {
         try {
             CLIENT_FACTORY.create().self();
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 
@@ -333,13 +333,13 @@ public class AuthenticationITCase extends AbstractITCase {
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
         assertEquals(2, getFailedLogins(USER_SERVICE, userKey));
@@ -365,19 +365,19 @@ public class AuthenticationITCase extends AbstractITCase {
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 
@@ -387,7 +387,7 @@ public class AuthenticationITCase extends AbstractITCase {
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 
@@ -401,7 +401,7 @@ public class AuthenticationITCase extends AbstractITCase {
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "password123");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 
@@ -601,7 +601,7 @@ public class AuthenticationITCase extends AbstractITCase {
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 
@@ -673,7 +673,7 @@ public class AuthenticationITCase extends AbstractITCase {
         try {
             CLIENT_FACTORY.create(username, "anypassword").self();
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e.getMessage());
         }
     }

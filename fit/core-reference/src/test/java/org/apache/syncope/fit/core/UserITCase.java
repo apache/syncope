@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
-import java.security.AccessControlException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -38,6 +37,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -338,14 +338,14 @@ public class UserITCase extends AbstractITCase {
             Triple<Map<String, Set<String>>, List<String>, UserTO> self =
                     CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
             assertNotNull(self);
-        } catch (AccessControlException e) {
-            fail("Credentials should be valid and not cause AccessControlException");
+        } catch (NotAuthorizedException e) {
+            fail("Credentials should be valid and not cause NotAuthorizedException");
         }
 
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "passwordXX").getService(UserSelfService.class);
-            fail("Credentials are invalid, thus request should raise AccessControlException");
-        } catch (AccessControlException e) {
+            fail("Credentials are invalid, thus request should raise NotAuthorizedException");
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 

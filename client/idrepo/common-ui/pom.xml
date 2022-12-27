@@ -117,39 +117,29 @@ under the License.
       <version>${project.version}</version>
     </dependency>
   </dependencies>
-  
+
   <build>
     <plugins>
       <plugin>
-        <groupId>nl.geodienstencentrum.maven</groupId>
-        <artifactId>sass-maven-plugin</artifactId>
+        <groupId>us.hebi.sass</groupId>
+        <artifactId>sass-cli-maven-plugin</artifactId>
         <inherited>true</inherited>
+        <configuration>
+          <args>
+            <arg>--load-path=${basedir}/src/main/resources/META-INF/resources/ui-commons/css</arg>
+            <arg>--load-path=${basedir}/src/main/resources/META-INF/resources/ui-commons/css/accessibility</arg>
+            <arg>${basedir}/src/main/resources/META-INF/resources/ui-commons/css:${project.build.outputDirectory}/META-INF/resources/ui-commons/css</arg>
+          </args>
+        </configuration>
         <executions>
           <execution>
             <id>sass-compilation</id>
-            <phase>compile</phase>
+            <phase>generate-resources</phase>
             <goals>
-              <goal>update-stylesheets</goal>
+              <goal>run</goal>
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <resources>
-            <resource>
-              <source>
-                <directory>${basedir}/src/main/resources/META-INF/resources/ui-commons/css</directory>
-              </source>
-              <destination>${project.build.outputDirectory}/META-INF/resources/ui-commons/css</destination>
-            </resource>
-            <resource>
-              <source>
-                <directory>${basedir}/src/main/resources/META-INF/resources/ui-commons/css/accessibility</directory>
-              </source>
-              <destination>${project.build.outputDirectory}/META-INF/resources/ui-commons/css/accessibility</destination>
-            </resource>
-          </resources>
-          <skip>${sass.skip}</skip>
-        </configuration>
       </plugin>
     </plugins>
 

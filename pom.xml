@@ -413,9 +413,7 @@ under the License.
 
     <cxf.version>3.5.5</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.25.6</nimbus-jose-jwt.version>
-
-    <jackson.version>2.14.1</jackson.version>
+    <nimbus-jose-jwt.version>9.26</nimbus-jose-jwt.version>
 
     <spring-boot.version>2.7.7</spring-boot.version>
     <spring-cloud-gateway.version>3.1.4</spring-cloud-gateway.version>
@@ -448,7 +446,7 @@ under the License.
     <pac4j.version>5.5.0</pac4j.version>
 
     <cas.version>6.6.3</cas.version>
-    <cas-client.version>3.6.4</cas-client.version>
+    <cas-client.version>4.0.0</cas-client.version>
 
     <h2.version>2.1.214</h2.version>
 
@@ -547,7 +545,7 @@ under the License.
     <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
     <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
-    <targetJdk>11</targetJdk>
+    <targetJdk>17</targetJdk>
     <rootpom.basedir>${basedir}</rootpom.basedir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -688,107 +686,6 @@ under the License.
         <groupId>org.apache.bval</groupId>
         <artifactId>bval-jsr</artifactId>
         <version>${bval.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-base</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.module</groupId>
-        <artifactId>jackson-module-jaxb-annotations</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-json-provider</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-xml-provider</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-yaml-provider</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.module</groupId>
-        <artifactId>jackson-module-afterburner</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-smile</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-cbor</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-yaml</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-xml</artifactId>
-        <version>${jackson.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>stax2-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.fasterxml.woodstox</groupId>
-            <artifactId>woodstox-core</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-csv</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-properties</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-jsr310</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-jdk8</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-guava</artifactId>
-        <version>${jackson.version}</version>
       </dependency>
 
       <dependency>
@@ -1139,12 +1036,6 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>${h2.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
         <version>1.6.12</version>
@@ -1260,7 +1151,7 @@ under the License.
 
       <!-- CAS -->
       <dependency>
-        <groupId>org.jasig.cas.client</groupId>
+        <groupId>org.apereo.cas.client</groupId>
         <artifactId>cas-client-core</artifactId>
         <version>${cas-client.version}</version>
       </dependency>
@@ -1926,9 +1817,13 @@ under the License.
         </plugin>
 
         <plugin>
-          <groupId>nl.geodienstencentrum.maven</groupId>
-          <artifactId>sass-maven-plugin</artifactId>
-          <version>3.7.2</version>
+          <groupId>us.hebi.sass</groupId>
+          <artifactId>sass-cli-maven-plugin</artifactId>
+          <version>1.0.2</version>
+          <configuration>
+            <sassVersion>1.57.1</sassVersion>
+            <skip>${sass.skip}</skip>
+          </configuration>
         </plugin>
 
         <plugin>
@@ -2496,18 +2391,6 @@ under the License.
       <modules>
         <module>docker</module>
       </modules>
-    </profile>
-
-    <profile>
-      <id>jdk16-plus</id>
-
-      <activation>
-        <jdk>[16,)</jdk>
-      </activation>
-
-      <properties>
-        <argLine>-Xms512m -Xmx1024m -Xss256k --add-opens java.base/java.net=ALL-UNNAMED</argLine>
-      </properties>
     </profile>
   </profiles>
 

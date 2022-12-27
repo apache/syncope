@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.ui.commons;
 
-import java.security.AccessControlException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -62,8 +62,8 @@ public abstract class SyncopeUIRequestCycleListener implements IRequestCycleList
         if (instanceOf(e, UnauthorizedInstantiationException.class) != null) {
             errorParameters.add("errorMessage", BaseSession.Error.AUTHORIZATION.fallback());
             errorPage = getErrorPage(errorParameters);
-        } else if (instanceOf(e, AccessControlException.class) != null) {
-            if (StringUtils.containsIgnoreCase(instanceOf(e, AccessControlException.class).getMessage(), "expired")) {
+        } else if (instanceOf(e, NotAuthorizedException.class) != null) {
+            if (StringUtils.containsIgnoreCase(instanceOf(e, NotAuthorizedException.class).getMessage(), "expired")) {
                 errorParameters.add("errorMessage", BaseSession.Error.SESSION_EXPIRED.fallback());
             } else {
                 errorParameters.add("errorMessage", BaseSession.Error.AUTHORIZATION.fallback());

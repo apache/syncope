@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console;
 
-import java.security.AccessControlException;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +31,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import javax.xml.ws.WebServiceException;
@@ -147,12 +147,11 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         Throwable root = ExceptionUtils.getRootCause(e);
         String message = root.getMessage();
 
-        if (root instanceof SyncopeClientException) {
-            SyncopeClientException sce = (SyncopeClientException) root;
+        if (root instanceof SyncopeClientException sce) {
             message = sce.isComposite()
                     ? sce.asComposite().getExceptions().stream().map(this::message).collect(Collectors.joining("; "))
                     : message(sce);
-        } else if (root instanceof AccessControlException || root instanceof ForbiddenException) {
+        } else if (root instanceof NotAuthorizedException || root instanceof ForbiddenException) {
             Error error = StringUtils.containsIgnoreCase(message, "expired")
                     ? Error.SESSION_EXPIRED
                     : Error.AUTHORIZATION;

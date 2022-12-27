@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.common.keymaster.client.self;
 
-import java.security.AccessControlException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
@@ -44,7 +44,7 @@ public class SelfKeymasterClientExceptionMapper implements ResponseExceptionMapp
         Exception ex;
         if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
             // 1. Map SC_UNAUTHORIZED
-            ex = new AccessControlException(StringUtils.isBlank(message)
+            ex = new NotAuthorizedException(StringUtils.isBlank(message)
                     ? "Remote unauthorized exception"
                     : message);
         } else if (statusCode == Response.Status.FORBIDDEN.getStatusCode()) {

@@ -130,33 +130,27 @@ under the License.
       <scope>test</scope>
     </dependency>
   </dependencies>
-  
+
   <build>
     <plugins>
       <plugin>
-        <groupId>nl.geodienstencentrum.maven</groupId>
-        <artifactId>sass-maven-plugin</artifactId>
+        <groupId>us.hebi.sass</groupId>
+        <artifactId>sass-cli-maven-plugin</artifactId>
         <inherited>true</inherited>
+        <configuration>
+          <args>
+            <arg>${basedir}/src/main/resources/org/apache/syncope/client/enduser/assets/css:${project.build.outputDirectory}/org/apache/syncope/client/enduser/assets/css</arg>
+          </args>
+        </configuration>
         <executions>
           <execution>
             <id>sass-compilation</id>
-            <phase>compile</phase>
+            <phase>generate-resources</phase>
             <goals>
-              <goal>update-stylesheets</goal>
+              <goal>run</goal>
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <resources>
-            <resource>
-              <source>
-                <directory>${basedir}/src/main/resources/org/apache/syncope/client/enduser/assets/css</directory>
-              </source>
-              <destination>${project.build.outputDirectory}/org/apache/syncope/client/enduser/assets/css</destination>
-            </resource>
-          </resources>
-          <skip>${sass.skip}</skip>
-        </configuration>
       </plugin>
 
       <plugin>

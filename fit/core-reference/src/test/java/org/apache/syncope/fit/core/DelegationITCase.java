@@ -24,12 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.security.AccessControlException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -251,7 +251,7 @@ public class DelegationITCase extends AbstractITCase {
             rossini.getService(UserService.class).search(
                     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
             fail();
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 

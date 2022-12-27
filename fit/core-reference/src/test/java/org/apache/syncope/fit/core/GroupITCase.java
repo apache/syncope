@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.io.IOException;
-import java.security.AccessControlException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -41,6 +40,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
@@ -665,7 +665,7 @@ public class GroupITCase extends AbstractITCase {
         try {
             unauthenticated.search(new AnyQuery.Builder().realm("/even").build());
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 

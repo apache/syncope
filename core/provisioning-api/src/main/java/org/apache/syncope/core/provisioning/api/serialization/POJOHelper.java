@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeDelta;
@@ -55,7 +54,6 @@ public final class POJOHelper {
         MAPPER = JsonMapper.builder().
                 addModule(pojoModule).
                 addModule(new JavaTimeModule()).
-                addModule(new AfterburnerModule()).
                 disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).
                 build();
     }
@@ -107,7 +105,7 @@ public final class POJOHelper {
 
         return result;
     }
-    
+
     public static <T extends Object> T convertValue(final Object value, final Class<T> reference) {
         T result = null;
 

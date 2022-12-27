@@ -18,10 +18,10 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [master,2_1_X,pr-*]
+    branches: [master,pr-*]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [master,2_1_X]
+    branches: [master]
   schedule:
     - cron: '0 13 * * 4'
 
@@ -46,7 +46,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: 11
+        java-version: 17
     - uses: actions/cache@v3
       with:
         path: ~/.m2

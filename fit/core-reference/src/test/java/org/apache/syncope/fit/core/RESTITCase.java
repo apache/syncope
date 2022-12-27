@@ -27,9 +27,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.AccessControlException;
 import java.util.List;
 import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
@@ -75,7 +75,7 @@ public class RESTITCase extends AbstractITCase {
         try {
             CLIENT_FACTORY.create("bellini", "passwor");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 
@@ -83,7 +83,7 @@ public class RESTITCase extends AbstractITCase {
         try {
             CLIENT_FACTORY.create(RandomStringUtils.random(20, true, true)).self();
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 
