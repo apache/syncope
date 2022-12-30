@@ -397,7 +397,7 @@ under the License.
     <project.build.outputTimestamp>2022-11-11T08:32:43Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.5.1.0</connid.version>
+    <connid.version>1.5.2.0</connid.version>
     <connid.soap.version>1.4.5</connid.soap.version>
     <connid.rest.version>1.0.7</connid.rest.version>
     <connid.database.version>2.2.9</connid.database.version>
@@ -413,9 +413,7 @@ under the License.
 
     <cxf.version>3.5.5</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.25.6</nimbus-jose-jwt.version>
-
-    <jackson.version>2.14.1</jackson.version>
+    <nimbus-jose-jwt.version>9.26</nimbus-jose-jwt.version>
 
     <spring-boot.version>2.7.7</spring-boot.version>
     <spring-cloud-gateway.version>3.1.4</spring-cloud-gateway.version>
@@ -438,16 +436,14 @@ under the License.
     <disruptor.version>3.4.4</disruptor.version>
     
     <commons-jexl.version>3.2.1</commons-jexl.version>
-    <commons-lang.version>3.12.0</commons-lang.version>
     <commons-text.version>1.10.0</commons-text.version>
-    <commons-codec.version>1.15</commons-codec.version>
     <commons-logging.version>1.1.3</commons-logging.version>
 
     <modernizer-maven.version>2.5.0</modernizer-maven.version>
 
     <pac4j.version>5.5.0</pac4j.version>
 
-    <cas.version>6.6.3</cas.version>
+    <cas.version>6.6.4</cas.version>
     <cas-client.version>3.6.4</cas-client.version>
 
     <h2.version>2.1.214</h2.version>
@@ -505,7 +501,7 @@ under the License.
 
     <tomcat.version>9.0.70</tomcat.version>
     <wildfly.version>26.1.2.Final</wildfly.version>
-    <payara.version>5.2022.3</payara.version>
+    <payara.version>5.2022.5</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
 
     <docker.postgresql.version>15</docker.postgresql.version>
@@ -688,107 +684,6 @@ under the License.
         <groupId>org.apache.bval</groupId>
         <artifactId>bval-jsr</artifactId>
         <version>${bval.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-base</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.module</groupId>
-        <artifactId>jackson-module-jaxb-annotations</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-json-provider</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-xml-provider</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-yaml-provider</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.module</groupId>
-        <artifactId>jackson-module-afterburner</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-smile</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-cbor</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-yaml</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-xml</artifactId>
-        <version>${jackson.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>stax2-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.fasterxml.woodstox</groupId>
-            <artifactId>woodstox-core</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-csv</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-properties</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-jsr310</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-jdk8</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-guava</artifactId>
-        <version>${jackson.version}</version>
       </dependency>
 
       <dependency>
@@ -1020,42 +915,14 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjweaver</artifactId>
-        <version>1.9.19</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.github.ben-manes.caffeine</groupId>
-        <artifactId>caffeine</artifactId>
-        <version>3.1.2</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-jexl3</artifactId>
         <version>${commons-jexl.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>${commons-lang.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
         <artifactId>commons-text</artifactId>
         <version>${commons-text.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${commons-codec.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.squareup.okio</groupId>
-        <artifactId>okio</artifactId>
-        <version>2.9.0</version>
       </dependency>
 
       <dependency>
@@ -1095,12 +962,6 @@ under the License.
         <groupId>org.apache.groovy</groupId>
         <artifactId>groovy-templates</artifactId>
         <version>${groovy.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.groovy</groupId>
-            <artifactId>groovy-xml</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.groovy</groupId>
@@ -1136,12 +997,6 @@ under the License.
         <groupId>org.apache.groovy</groupId>
         <artifactId>groovy-groovysh</artifactId>
         <version>${groovy.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>${h2.version}</version>
       </dependency>
 
       <dependency>
@@ -1839,7 +1694,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.3</version>
+          <version>1.10.4</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -2073,7 +1928,6 @@ under the License.
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
-        <version>0.15</version>
         <configuration>
           <excludes>
             <exclude>**/nbactions.xml</exclude>
@@ -2240,21 +2094,21 @@ under the License.
             <link>http://www.slf4j.org/api/</link>
             <link>http://connid.tirasa.net/apidocs/1.5/</link>
             <link>http://cxf.apache.org/javadoc/latest/</link>
-            <link>http://fasterxml.github.io/jackson-core/javadoc/2.13/</link>
-            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.13/</link>
-            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.13/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.13/</link>
-            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.13/</link>
-            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.13/</link>
+            <link>http://fasterxml.github.io/jackson-core/javadoc/2.14/</link>
+            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.14/</link>
+            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.14/</link>
+            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.14/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.14/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.14/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/9.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
             <link>https://tika.apache.org/2.6.0/api/</link>
-            <link>https://docs.spring.io/spring-boot/docs/current/api/</link>
-            <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
-            <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
+            <link>https://docs.spring.io/spring-boot/docs/2.7.x/api/</link>
+            <link>https://docs.spring.io/spring-framework/docs/5.3.x/javadoc-api/</link>
+            <link>https://docs.spring.io/spring-security/site/docs/5.8.x/api/</link>
             <link>https://www.flowable.com/open-source/docs/javadocs/</link>
-            <link>http://docs.swagger.io/swagger-core/v2.1.13/apidocs/</link>
+            <link>http://docs.swagger.io/swagger-core/v2.2.7/apidocs/</link>
           </links>
         </configuration>
         <reportSets>
@@ -2496,18 +2350,6 @@ under the License.
       <modules>
         <module>docker</module>
       </modules>
-    </profile>
-
-    <profile>
-      <id>jdk16-plus</id>
-
-      <activation>
-        <jdk>[16,)</jdk>
-      </activation>
-
-      <properties>
-        <argLine>-Xms512m -Xmx1024m -Xss256k --add-opens java.base/java.net=ALL-UNNAMED</argLine>
-      </properties>
     </profile>
   </profiles>
 

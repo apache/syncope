@@ -976,7 +976,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             result = USER_SERVICE.search(new AnyQuery.Builder().fiql(
                     SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP_*").query()).
                     page(1).size(200).build());
-            assertTrue(result.getTotalCount() >= usersBefore + 100);
+            assertTrue(result.getTotalCount() > usersBefore);
         } finally {
             if (result != null) {
                 BatchRequest batchRequest = ADMIN_CLIENT.batch();
