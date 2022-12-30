@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import java.lang.reflect.Field;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -25,11 +30,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
+import jakarta.ws.rs.core.Response;
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -27,7 +28,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;

@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.logic.scim;
 
+import jakarta.ws.rs.core.MediaType;
 import java.time.OffsetDateTime;
 import java.util.Base64;
-import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMGeneralConf;

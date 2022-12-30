@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;

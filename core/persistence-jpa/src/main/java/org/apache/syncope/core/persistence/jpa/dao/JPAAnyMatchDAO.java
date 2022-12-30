@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.Entity;
+import jakarta.validation.ValidationException;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -26,10 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import javax.persistence.Entity;
-import javax.validation.ValidationException;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;

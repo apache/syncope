@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.logic;
 
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -27,9 +30,6 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
@@ -234,10 +234,10 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof ClientAppTO) {
-                    key = ((ClientAppTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof ClientAppTO clientAppTO) {
+                    key = clientAppTO.getKey();
                 }
             }
         }

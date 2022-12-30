@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.client.ui.commons.resources.saml2sp4ui;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.stream.Stream;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.syncope.common.lib.saml2.SAML2Constants;

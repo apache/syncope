@@ -19,8 +19,8 @@
 package org.apache.syncope.common.lib.to;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.ws.rs.PathParam;
 import java.time.OffsetDateTime;
-import javax.ws.rs.PathParam;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.types.ResourceOperation;

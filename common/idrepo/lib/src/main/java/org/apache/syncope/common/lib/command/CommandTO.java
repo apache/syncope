@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.command;
 
-import javax.ws.rs.PathParam;
+import jakarta.ws.rs.PathParam;
 import org.apache.syncope.common.lib.BaseBean;
 
 public class CommandTO implements BaseBean {

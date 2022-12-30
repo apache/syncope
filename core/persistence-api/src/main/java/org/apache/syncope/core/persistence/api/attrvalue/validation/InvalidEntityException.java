@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.core.persistence.api.attrvalue.validation;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ValidationException;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.validation.ConstraintViolation;
-import javax.validation.ValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 

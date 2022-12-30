@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;

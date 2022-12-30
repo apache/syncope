@@ -21,15 +21,15 @@ package org.apache.syncope.fit.core;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import jakarta.mail.Flags;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.Session;
+import jakarta.mail.Store;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.mail.Flags;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.Store;
 import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase {
@@ -53,9 +53,7 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
 
     private static boolean pop3(final String sender, final String subject, final String mailAddress) throws Exception {
         boolean found = false;
-        Store store = null;
-        try {
-            store = Session.getDefaultInstance(System.getProperties()).getStore("pop3");
+        try (Store store = Session.getDefaultInstance(System.getProperties()).getStore("pop3")) {
             store.connect(POP3_HOST, POP3_PORT, mailAddress, mailAddress);
 
             Folder inbox = store.getFolder("INBOX");
@@ -71,10 +69,6 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
             }
 
             inbox.close(true);
-        } finally {
-            if (store != null) {
-                store.close();
-            }
         }
         return found;
     }

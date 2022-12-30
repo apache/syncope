@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import jakarta.ws.rs.core.HttpHeaders;
 import java.util.Optional;
-import javax.ws.rs.core.HttpHeaders;
 import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.oidc.OIDCRequest;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIService;

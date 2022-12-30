@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.java.propagation;
 
+import jakarta.xml.bind.DatatypeConverter;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
-import javax.xml.bind.DatatypeConverter;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;

@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import jakarta.persistence.Embeddable;
 import java.io.Serializable;
-import javax.persistence.Embeddable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;

@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.common.keymaster.client.self;
 
+import jakarta.ws.rs.client.CompletionStageRxInvoker;
+import jakarta.ws.rs.core.MediaType;
 import java.util.Map;
-import javax.ws.rs.client.CompletionStageRxInvoker;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;

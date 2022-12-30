@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 
 @MappedSuperclass
 public abstract class AbstractGeneratedKeyEntity extends AbstractEntity {

@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import jakarta.persistence.Basic;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.util.Optional;
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.persistence.api.entity.Report;

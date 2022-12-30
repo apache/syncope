@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ThreadPoolSettings;
 import org.apache.syncope.common.lib.types.UnmatchingRule;

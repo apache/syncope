@@ -33,13 +33,13 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
+import jakarta.ws.rs.core.Response;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.cxf.jaxrs.model.OperationResourceInfo;
@@ -153,13 +153,13 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
         Content content = new Content();
         content.addMediaType(
-                javax.ws.rs.core.MediaType.APPLICATION_JSON,
+                jakarta.ws.rs.core.MediaType.APPLICATION_JSON,
                 new MediaType().schema(errorSchema));
         content.addMediaType(
                 RESTHeaders.APPLICATION_YAML,
                 new MediaType().schema(errorSchema));
         content.addMediaType(
-                javax.ws.rs.core.MediaType.APPLICATION_XML,
+                jakarta.ws.rs.core.MediaType.APPLICATION_XML,
                 new MediaType().schema(errorSchema));
 
         responses.addApiResponse("400", new ApiResponse().

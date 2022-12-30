@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.keymaster.rest.cxf.service;
 
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.rest.api.service.DomainService;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;

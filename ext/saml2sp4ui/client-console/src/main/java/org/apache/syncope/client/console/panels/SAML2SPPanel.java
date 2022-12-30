@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import javax.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.ClientBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;

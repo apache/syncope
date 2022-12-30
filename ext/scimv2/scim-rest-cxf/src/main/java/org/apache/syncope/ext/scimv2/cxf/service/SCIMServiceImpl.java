@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.ext.scimv2.cxf.service;
 
+import jakarta.ws.rs.core.Response;
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.SCIMLogic;

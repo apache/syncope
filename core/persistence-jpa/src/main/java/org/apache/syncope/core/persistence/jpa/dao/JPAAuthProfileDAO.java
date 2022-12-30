@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthProfile;

@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.fit.buildtools;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRegistration;
+import jakarta.xml.ws.Endpoint;
 import java.util.List;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
 import javax.sql.DataSource;
-import javax.xml.ws.Endpoint;
 import net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;

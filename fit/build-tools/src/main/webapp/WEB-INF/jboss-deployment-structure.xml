@@ -27,16 +27,13 @@ under the License.
       <subsystem name="bean-validation"/>
     </exclude-subsystems>
     <dependencies>
-      <module name="org.apache.xalan"/>
       <module name="org.reactivestreams"/>
-      <module name="javax.jws.api"/>
     </dependencies>
     <exclusions>
-      <module name="javax.validation.api"/>
       <module name="org.hibernate.validator"/>
       <module name="org.hibernate.validator.cdi"/>
       <module name="javax.ws.soap.api"/>
-      <module name="javax.ws.rs.api"/>
+      <module name="jakarta.ws.rs.api"/>
       <module name="org.apache.cxf"/>
       <module name="org.apache.cxf.impl"/>
       <module name="org.slf4j"/>

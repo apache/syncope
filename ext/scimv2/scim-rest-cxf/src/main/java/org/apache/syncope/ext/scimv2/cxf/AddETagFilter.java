@@ -18,14 +18,15 @@
  */
 package org.apache.syncope.ext.scimv2.cxf;
 
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.core.EntityTag;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.ext.Provider;
+import jakarta.ws.rs.ext.RuntimeDelegate;
 import java.io.IOException;
 import java.time.OffsetDateTime;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.container.ContainerResponseFilter;
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.ext.Provider;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
@@ -37,16 +38,19 @@ public class AddETagFilter implements ContainerResponseFilter {
     public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) throws IOException {
         if (resCtx.getEntityTag() == null) {
             OffsetDateTime lastModified;
-            if (resCtx.getEntity() instanceof SCIMUser) {
-                lastModified = ((SCIMUser) resCtx.getEntity()).getMeta().getLastModified();
-                if (resCtx.getEntity() instanceof SCIMGroup) {
-                    lastModified = ((SCIMGroup) resCtx.getEntity()).getMeta().getLastModified();
+            if (resCtx.getEntity() instanceof SCIMUser scimUser) {
+                lastModified = scimUser.getMeta().getLastModified();
+                if (resCtx.getEntity() instanceof SCIMGroup scimGroup) {
+                    lastModified = scimGroup.getMeta().getLastModified();
                 }
 
                 if (lastModified != null) {
                     String etagValue = String.valueOf(lastModified.toInstant().toEpochMilli());
                     if (StringUtils.isNotBlank(etagValue)) {
-                        resCtx.getHeaders().add(HttpHeaders.ETAG, new EntityTag(etagValue, true).toString());
+                    resCtx.getHeaders().add(
+                            HttpHeaders.ETAG,
+                            RuntimeDelegate.getInstance().createHeaderDelegate(EntityTag.class).
+                                    toString(new EntityTag(etagValue)));
                     }
                 }
             }

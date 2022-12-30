@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
+import jakarta.persistence.Basic;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 import java.net.URI;
 import java.util.Optional;
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.Table;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;

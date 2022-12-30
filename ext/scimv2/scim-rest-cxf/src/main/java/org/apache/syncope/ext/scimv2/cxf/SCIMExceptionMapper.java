@@ -18,16 +18,16 @@
  */
 package org.apache.syncope.ext.scimv2.cxf;
 
+import jakarta.validation.ValidationException;
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.validation.ValidationException;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -69,9 +69,9 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
 
     static {
         try {
-            ENTITYEXISTS_EXCLASS = Class.forName("javax.persistence.EntityExistsException");
-            PERSISTENCE_EXCLASS = Class.forName("javax.persistence.PersistenceException");
-            ROLLBACK_EXCLASS = Class.forName("javax.persistence.RollbackException");
+            ENTITYEXISTS_EXCLASS = Class.forName("jakarta.persistence.EntityExistsException");
+            PERSISTENCE_EXCLASS = Class.forName("jakarta.persistence.PersistenceException");
+            ROLLBACK_EXCLASS = Class.forName("jakarta.persistence.RollbackException");
             JPASYSTEM_EXCLASS = Class.forName("org.springframework.orm.jpa.JpaSystemException");
             CONNECTOR_EXCLASS = Class.forName("org.identityconnectors.framework.common.exceptions.ConnectorException");
             IBATISPERSISTENCE_EXCLASS = Class.forName("org.apache.ibatis.exceptions.PersistenceException");

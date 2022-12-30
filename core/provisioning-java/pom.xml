@@ -64,11 +64,6 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.apache.geronimo.javamail</groupId>
-      <artifactId>geronimo-javamail_1.4_mail</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-csv</artifactId>
     </dependency>
@@ -114,6 +109,11 @@ under the License.
     </dependency>
     
     <!-- TEST -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-workflow-java</artifactId>

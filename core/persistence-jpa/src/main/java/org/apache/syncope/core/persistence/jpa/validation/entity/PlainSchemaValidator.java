@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.EntityViolationType;

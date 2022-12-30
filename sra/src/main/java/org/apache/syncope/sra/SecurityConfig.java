@@ -235,11 +235,12 @@ public class SecurityConfig {
             final SRAProperties props) {
         SAML2Configuration cfg = new SAML2Configuration(
                 resourceResolver.getResource(props.getSaml2().getKeystore()),
+                null,
+                props.getSaml2().getKeystoreType(),
                 props.getSaml2().getKeystoreStorePass(),
                 props.getSaml2().getKeystoreKeypass(),
                 resourceResolver.getResource(props.getSaml2().getIdpMetadata()));
 
-        cfg.setKeystoreType(props.getSaml2().getKeystoreType());
         if (cfg.getKeystoreResource() instanceof FileUrlResource) {
             cfg.setKeystoreGenerator(new BaseSAML2KeystoreGenerator(cfg) {
 

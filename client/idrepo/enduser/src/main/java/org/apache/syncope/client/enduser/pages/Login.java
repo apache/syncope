@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
+import jakarta.ws.rs.NotAuthorizedException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.ws.rs.NotAuthorizedException;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.ui.commons.BaseLogin;

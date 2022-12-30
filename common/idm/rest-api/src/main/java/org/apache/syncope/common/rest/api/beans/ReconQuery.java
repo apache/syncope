@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.QueryParam;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,8 +27,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public class ReconQuery implements Serializable {

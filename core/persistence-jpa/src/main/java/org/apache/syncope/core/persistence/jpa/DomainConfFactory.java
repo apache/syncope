@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.jpa;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import jakarta.persistence.EntityManagerFactory;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
-import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.core.persistence.api.DomainRegistry;

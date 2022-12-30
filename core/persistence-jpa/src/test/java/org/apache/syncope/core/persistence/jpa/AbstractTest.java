@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;

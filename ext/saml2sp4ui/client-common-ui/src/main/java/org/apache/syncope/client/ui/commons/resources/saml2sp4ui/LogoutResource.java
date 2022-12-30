@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.ui.commons.resources.saml2sp4ui;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.HttpMethod;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.HttpMethod;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.syncope.common.lib.saml2.SAML2Constants;
@@ -52,7 +52,7 @@ public abstract class LogoutResource extends AbstractSAML2SP4UIResource {
         HttpServletResponse response = (HttpServletResponse) attributes.getResponse().getContainerResponse();
 
         switch (request.getMethod()) {
-            case HttpMethod.GET:
+            case HttpMethod.GET -> {
                 String samlResponse = request.getParameter(SAML2Constants.SAML_RESPONSE);
                 String relayState = request.getParameter(SAML2Constants.RELAY_STATE);
                 if (samlResponse == null) {
@@ -75,12 +75,13 @@ public abstract class LogoutResource extends AbstractSAML2SP4UIResource {
                     // process REDIRECT binding logout response
                     return doLogout(buildResponse(attributes, samlResponse, relayState));
                 }
+            }
 
-            case HttpMethod.POST:
+            case HttpMethod.POST -> {
                 return doLogout(extract(attributes));
+            }
 
-            default:
-                throw new UnsupportedOperationException("Only GET and POST are supported");
+            default -> throw new UnsupportedOperationException("Only GET and POST are supported");
         }
     }
 }

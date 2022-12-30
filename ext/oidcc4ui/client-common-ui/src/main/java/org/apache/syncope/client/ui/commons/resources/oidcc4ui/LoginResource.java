@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.ui.commons.resources.oidcc4ui;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.BaseSession;
 import org.apache.syncope.client.ui.commons.annotations.Resource;

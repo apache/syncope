@@ -20,10 +20,10 @@ package org.apache.syncope.core.keymaster.rest.cxf.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.keymaster.rest.api.service.ConfParamService;
 import org.apache.syncope.core.logic.ConfParamLogic;
 import org.slf4j.Logger;

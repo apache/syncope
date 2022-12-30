@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.client.ui.commons;
 
+import jakarta.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
-import javax.ws.rs.core.MediaType;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.AbstractResourceStream;

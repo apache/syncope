@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.ui.commons.markup.html.form.preview;
 
+import jakarta.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.ws.rs.core.MediaType;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.wicket.Component;

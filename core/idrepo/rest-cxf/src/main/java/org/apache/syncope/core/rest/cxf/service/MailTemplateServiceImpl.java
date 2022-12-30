@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import jakarta.ws.rs.InternalServerErrorException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;

@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;

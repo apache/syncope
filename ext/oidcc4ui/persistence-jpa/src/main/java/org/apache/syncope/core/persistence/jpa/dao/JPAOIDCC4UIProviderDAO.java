@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 import java.util.List;
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.jpa.entity.JPAOIDCC4UIProvider;

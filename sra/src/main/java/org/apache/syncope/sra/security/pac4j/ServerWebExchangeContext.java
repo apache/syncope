@@ -100,7 +100,7 @@ public class ServerWebExchangeContext implements WebContext {
 
     @Override
     public String getRequestMethod() {
-        return this.exchange.getRequest().getMethodValue();
+        return this.exchange.getRequest().getMethod().name();
     }
 
     @Override

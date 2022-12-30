@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.enduser;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.xml.ws.WebServiceException;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.common.lib.SyncopeClientException;

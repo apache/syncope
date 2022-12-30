@@ -21,9 +21,10 @@ package org.apache.syncope.ext.scimv2.api.data;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.ws.rs.core.EntityTag;
+import jakarta.ws.rs.ext.RuntimeDelegate;
 import java.time.OffsetDateTime;
 import java.util.Optional;
-import javax.ws.rs.core.EntityTag;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 
 public class Meta extends SCIMBean {
@@ -70,7 +71,9 @@ public class Meta extends SCIMBean {
 
     @JsonProperty
     public String getVersion() {
-        return Optional.ofNullable(version).map(EntityTag::toString).orElse(null);
+        return Optional.ofNullable(version).
+                map(value -> RuntimeDelegate.getInstance().createHeaderDelegate(EntityTag.class).toString(value)).
+                orElse(null);
     }
 
     public String getLocation() {

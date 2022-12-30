@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.NoResultException;
-import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;

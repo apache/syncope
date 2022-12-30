@@ -19,7 +19,7 @@
 package org.apache.syncope.common.keymaster.client.self;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.cxf.ext.logging.LoggingFeature;

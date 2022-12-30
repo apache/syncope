@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.wa.starter.oidc;
 
+import jakarta.ws.rs.core.Response;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;

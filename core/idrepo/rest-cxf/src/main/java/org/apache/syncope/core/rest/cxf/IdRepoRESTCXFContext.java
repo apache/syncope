@@ -18,17 +18,17 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider;
-import com.fasterxml.jackson.jaxrs.yaml.JacksonYAMLProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
+import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import jakarta.servlet.ServletRequestListener;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
-import javax.servlet.ServletRequestListener;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.ext.ContextProvider;

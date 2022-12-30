@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import javax.persistence.Query;
+import jakarta.persistence.Query;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;

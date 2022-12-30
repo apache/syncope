@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.resources;
 
-import javax.ws.rs.NotFoundException;
+import jakarta.ws.rs.NotFoundException;
 import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.BpmnProcess;

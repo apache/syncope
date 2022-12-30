@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import javax.ws.rs.Path;
+import jakarta.ws.rs.Path;
 
 public class RelationshipTypeTO implements EntityTO {
 

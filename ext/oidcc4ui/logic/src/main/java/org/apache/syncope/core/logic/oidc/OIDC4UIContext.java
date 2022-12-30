@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.logic.oidc;
 
+import jakarta.ws.rs.HttpMethod;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.ws.rs.HttpMethod;
 import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.WebContext;
 

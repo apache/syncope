@@ -276,7 +276,7 @@ under the License.
         <inherited>true</inherited>
         <configuration>
           <container>
-            <containerId>tomcat9x</containerId>
+            <containerId>tomcat10x</containerId>
             <zipUrlInstaller>
               <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
               <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
@@ -1459,18 +1459,12 @@ under the License.
           <groupId>org.apache.syncope.core</groupId>
           <artifactId>syncope-core-persistence-jpa</artifactId>
           <version>${project.version}</version>
-          <exclusions>
-            <exclusion>
-              <groupId>org.apache.bval</groupId>
-              <artifactId>bval-jsr</artifactId>
-            </exclusion>
-          </exclusions>
         </dependency>
 
         <dependency>
           <groupId>org.glassfish</groupId>
           <artifactId>jakarta.faces</artifactId>
-          <version>${javax.faces.version}</version>
+          <version>${jakarta.faces.version}</version>
         </dependency>
       </dependencies>
 
@@ -1490,8 +1484,7 @@ under the License.
                   <target>
                     <unzip src="${settings.localRepository}/org/apache/syncope/fit/syncope-fit-build-tools/${project.version}/syncope-fit-build-tools-${project.version}.war"
                            dest="${project.build.outputDirectory}/syncope-fit-buildtools"/>
-                    <delete file="${project.build.outputDirectory}/syncope-fit-buildtools/WEB-INF/lib/bval-jsr-${bval.version}.jar"/>
-                    <copy file="${settings.localRepository}/org/glassfish/jakarta.faces/${javax.faces.version}/jakarta.faces-${javax.faces.version}.jar"
+                    <copy file="${settings.localRepository}/org/glassfish/jakarta.faces/${jakarta.faces.version}/jakarta.faces-${jakarta.faces.version}.jar"
                           todir="${project.build.outputDirectory}/syncope-fit-buildtools/WEB-INF/lib"/>
                   </target>
                 </configuration>
@@ -1613,7 +1606,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly26x</containerId>
+                <containerId>wildfly27x</containerId>
                 <zipUrlInstaller>
                   <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
@@ -1729,7 +1722,7 @@ under the License.
       <id>all</id>
 
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <activeByDefault>false</activeByDefault>
       </activation>
       
       <properties>

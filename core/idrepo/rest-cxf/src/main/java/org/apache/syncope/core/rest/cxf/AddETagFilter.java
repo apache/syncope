@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.core.EntityTag;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.ext.Provider;
+import jakarta.ws.rs.ext.RuntimeDelegate;
 import java.io.IOException;
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.container.ContainerResponseFilter;
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.ext.Provider;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -41,18 +42,21 @@ public class AddETagFilter implements ContainerResponseFilter {
     public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) throws IOException {
         if (resCtx.getEntityTag() == null) {
             AnyTO annotated = null;
-            if (resCtx.getEntity() instanceof AnyTO) {
-                annotated = (AnyTO) resCtx.getEntity();
+            if (resCtx.getEntity() instanceof AnyTO anyTO) {
+                annotated = anyTO;
             } else if (resCtx.getEntity() instanceof ProvisioningResult) {
                 EntityTO entity = ((ProvisioningResult<?>) resCtx.getEntity()).getEntity();
-                if (entity instanceof AnyTO) {
-                    annotated = (AnyTO) entity;
+                if (entity instanceof AnyTO anyTO) {
+                    annotated = anyTO;
                 }
             }
             if (annotated != null) {
                 String etagValue = annotated.getETagValue();
                 if (StringUtils.isNotBlank(etagValue)) {
-                    resCtx.getHeaders().add(HttpHeaders.ETAG, new EntityTag(etagValue).toString());
+                    resCtx.getHeaders().add(
+                            HttpHeaders.ETAG,
+                            RuntimeDelegate.getInstance().createHeaderDelegate(EntityTag.class).
+                                    toString(new EntityTag(etagValue)));
                 }
             }
         }

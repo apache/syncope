@@ -21,8 +21,8 @@ package org.apache.syncope.common.rest.api.beans;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.ws.rs.QueryParam;
 import java.time.OffsetDateTime;
-import javax.ws.rs.QueryParam;
 
 public class U2FDeviceQuery extends AbstractQuery {
 

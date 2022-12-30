@@ -33,22 +33,20 @@ import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.NullSecurityContextRepository;
@@ -56,15 +54,11 @@ import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
 
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true)
 @Configuration(proxyBeanMethods = false)
 public class WebSecurityContext {
 
     private static final String ANONYMOUS_BEAN_KEY = "doesNotMatter";
-
-    public WebSecurityContext() {
-        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-    }
 
     @Bean
     public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
@@ -82,13 +76,13 @@ public class WebSecurityContext {
     public SecurityFilterChain filterChain(
             final HttpSecurity http,
             final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
-            final JWTAuthenticationProvider jwtAuthenticationProvider,
-            final SecurityProperties securityProperties,
-            final ApplicationContext ctx) throws Exception {
+            final AuthDataAccessor authDataAccessor,
+            final DefaultCredentialChecker defaultCredentialChecker,
+            final SecurityProperties securityProperties) throws Exception {
 
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManagerBuilder.class).
+                parentAuthenticationManager(null).
                 authenticationProvider(usernamePasswordAuthenticationProvider).
-                authenticationProvider(jwtAuthenticationProvider).
                 build();
 
         SyncopeAuthenticationDetailsSource authenticationDetailsSource =
@@ -111,14 +105,14 @@ public class WebSecurityContext {
                 authenticationManager,
                 basicAuthenticationEntryPoint,
                 authenticationDetailsSource,
-                ctx.getBean(AuthDataAccessor.class),
-                ctx.getBean(DefaultCredentialChecker.class));
+                authDataAccessor,
+                defaultCredentialChecker);
 
         MustChangePasswordFilter mustChangePasswordFilter = new MustChangePasswordFilter();
 
         http.authenticationManager(authenticationManager).
-                authorizeRequests().
-                antMatchers("/**").permitAll().and().
+                authorizeHttpRequests().
+                requestMatchers("/**").permitAll().and().
                 sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().
                 securityContext().securityContextRepository(new NullSecurityContextRepository()).and().
                 anonymous().
@@ -128,7 +122,7 @@ public class WebSecurityContext {
                 authenticationDetailsSource(authenticationDetailsSource).and().
                 exceptionHandling().accessDeniedHandler(accessDeniedHandler()).and().
                 addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class).
-                addFilterBefore(mustChangePasswordFilter, FilterSecurityInterceptor.class).
+                addFilterBefore(mustChangePasswordFilter, AuthorizationFilter.class).
                 headers().disable().
                 csrf().disable();
 
@@ -150,12 +144,6 @@ public class WebSecurityContext {
                 provisioningManager,
                 credentialChecker,
                 securityProperties);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public JWTAuthenticationProvider jwtAuthenticationProvider(final AuthDataAccessor authDataAccessor) {
-        return new JWTAuthenticationProvider(authDataAccessor);
     }
 
     @Bean

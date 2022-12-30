@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.TypedQuery;
 import java.util.List;
-import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAttrRepo;

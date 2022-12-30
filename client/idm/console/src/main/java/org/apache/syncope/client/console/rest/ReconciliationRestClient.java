@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
-import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;

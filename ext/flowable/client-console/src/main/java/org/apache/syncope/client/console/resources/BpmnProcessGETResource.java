@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.console.resources;
 
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import javax.ws.rs.core.MediaType;
 import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.common.lib.to.BpmnProcess;

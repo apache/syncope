@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import jakarta.ws.rs.core.HttpHeaders;
 import java.net.URI;
 import java.util.Optional;
-import javax.ws.rs.core.HttpHeaders;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.lib.SyncopeClient;

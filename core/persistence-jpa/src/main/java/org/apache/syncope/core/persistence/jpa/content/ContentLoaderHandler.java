@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.content;
 
+import jakarta.xml.bind.DatatypeConverter;
 import java.sql.Types;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.sql.DataSource;
-import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;

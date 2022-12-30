@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.logic.saml2;
 
+import jakarta.ws.rs.HttpMethod;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.ws.rs.HttpMethod;
 import org.apache.syncope.common.lib.saml2.SAML2Constants;
 import org.apache.syncope.common.lib.saml2.SAML2Response;
 import org.apache.syncope.common.lib.types.SAML2BindingType;

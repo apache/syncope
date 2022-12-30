@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.core.rest.cxf.batch;
 
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.ServletConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transport.http.DestinationRegistry;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadGenerator;
@@ -55,7 +56,7 @@ public class BatchProcess implements Runnable {
 
     private ServletConfig servletConfig;
 
-    private HttpServletRequest servletRequest;
+    private CommonBatchHttpServletRequest commonRequest;
 
     private Authentication authentication;
 
@@ -80,7 +81,7 @@ public class BatchProcess implements Runnable {
     }
 
     public void setServletRequest(final HttpServletRequest servletRequest) {
-        this.servletRequest = servletRequest;
+        this.commonRequest = new CommonBatchHttpServletRequest(servletRequest);
     }
 
     public void setAuthentication(final Authentication authentication) {
@@ -96,10 +97,9 @@ public class BatchProcess implements Runnable {
         batchRequestItems.forEach(reqItem -> {
             LOG.debug("Batch Request item:\n{}", reqItem);
 
-            AbstractHTTPDestination dest = destinationRegistry.getDestinationForPath(reqItem.getRequestURI(), true);
-            if (dest == null) {
-                dest = destinationRegistry.checkRestfulRequest(reqItem.getRequestURI());
-            }
+            AbstractHTTPDestination dest =
+                    Optional.ofNullable(destinationRegistry.getDestinationForPath(reqItem.getRequestURI(), true)).
+                            orElseGet(() -> destinationRegistry.checkRestfulRequest(reqItem.getRequestURI()));
             LOG.debug("Destination found for {}: {}", reqItem.getRequestURI(), dest);
 
             BatchResponseItem resItem = new BatchResponseItem();
@@ -107,7 +107,7 @@ public class BatchProcess implements Runnable {
             if (dest == null) {
                 resItem.setStatus(HttpServletResponse.SC_NOT_FOUND);
             } else {
-                BatchItemRequest request = new BatchItemRequest(basePath, servletRequest, reqItem);
+                BatchItemRequest request = new BatchItemRequest(commonRequest, basePath, reqItem);
                 BatchItemResponse response = new BatchItemResponse();
                 try {
                     dest.invoke(servletConfig, servletConfig.getServletContext(), request, response);
@@ -115,7 +115,7 @@ public class BatchProcess implements Runnable {
                     resItem.setStatus(response.getStatus());
                     resItem.setHeaders(response.getHeaders());
                     String output = new String(response.getUnderlyingOutputStream().toByteArray());
-                    if (output.length() > 0) {
+                    if (!output.isEmpty()) {
                         resItem.setContent(output);
                     }
 

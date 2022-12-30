@@ -450,7 +450,7 @@ public class RouteProvider {
                 String[] methodArgs = gwpredicate.getArgs().split(",");
                 predicate = ctx.getBean(MethodRoutePredicateFactory.class).
                         applyAsync(c -> c.setMethods(
-                        Stream.of(methodArgs).map(arg -> HttpMethod.resolve(arg.trim())).toArray(HttpMethod[]::new)));
+                        Stream.of(methodArgs).map(arg -> HttpMethod.valueOf(arg.trim())).toArray(HttpMethod[]::new)));
                 break;
 
             case PATH:

@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import jakarta.ws.rs.NotAuthorizedException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.NotAuthorizedException;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.ui.commons.BaseLogin;

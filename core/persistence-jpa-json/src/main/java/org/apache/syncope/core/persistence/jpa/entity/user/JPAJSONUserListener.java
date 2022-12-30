@@ -19,12 +19,12 @@
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import java.util.List;
-import javax.persistence.PostLoad;
-import javax.persistence.PostPersist;
-import javax.persistence.PostUpdate;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPAJSONEntityListener;

@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.enduser.rest;
 
+import jakarta.ws.rs.core.HttpHeaders;
 import java.net.URI;
-import javax.ws.rs.core.HttpHeaders;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.lib.SyncopeClient;

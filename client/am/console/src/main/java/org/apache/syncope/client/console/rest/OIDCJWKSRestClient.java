@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import jakarta.ws.rs.core.Response;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 

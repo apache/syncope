@@ -22,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import jakarta.ws.rs.HttpMethod;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
-import javax.ws.rs.HttpMethod;
 import org.apache.syncope.common.lib.types.SRARouteFilter;
 import org.apache.syncope.common.lib.types.SRARouteFilterFactory;
 import org.apache.syncope.common.lib.types.SRARoutePredicate;

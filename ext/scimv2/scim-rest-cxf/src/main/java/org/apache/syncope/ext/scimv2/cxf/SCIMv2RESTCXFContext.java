@@ -20,7 +20,7 @@ package org.apache.syncope.ext.scimv2.cxf;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import java.util.List;
 import java.util.Map;
 import org.apache.cxf.Bus;

@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.flowable.support;
 
+import jakarta.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;

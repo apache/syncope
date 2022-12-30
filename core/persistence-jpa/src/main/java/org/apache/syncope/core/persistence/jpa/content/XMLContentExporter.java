@@ -18,6 +18,15 @@
  */
 package org.apache.syncope.core.persistence.jpa.content;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.Table;
+import jakarta.persistence.metamodel.Attribute;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.PluralAttribute;
+import jakarta.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -49,17 +58,8 @@ import java.util.TreeSet;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.JoinTable;
-import javax.persistence.Table;
-import javax.persistence.metamodel.Attribute;
-import javax.persistence.metamodel.EntityType;
-import javax.persistence.metamodel.PluralAttribute;
 import javax.sql.DataSource;
 import javax.xml.XMLConstants;
-import javax.xml.bind.DatatypeConverter;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;

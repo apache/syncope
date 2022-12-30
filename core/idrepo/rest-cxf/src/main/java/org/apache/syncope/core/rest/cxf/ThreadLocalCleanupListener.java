@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.ServletRequestListener;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.impl.api.local.ThreadClassLoaderManager;

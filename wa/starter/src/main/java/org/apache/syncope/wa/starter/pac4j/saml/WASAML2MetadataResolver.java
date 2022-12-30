@@ -19,7 +19,7 @@
 package org.apache.syncope.wa.starter.pac4j.saml;
 
 import java.util.Base64;
-import net.shibboleth.utilities.java.support.resolver.ResolverException;
+import net.shibboleth.shared.resolver.ResolverException;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;

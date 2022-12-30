@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;

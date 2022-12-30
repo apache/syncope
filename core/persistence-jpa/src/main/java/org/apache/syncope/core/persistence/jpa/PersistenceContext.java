@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import jakarta.persistence.ValidationMode;
+import jakarta.validation.Validator;
 import java.util.HashMap;
 import java.util.Map;
-import javax.persistence.ValidationMode;
-import javax.validation.Validator;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;

@@ -24,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import jakarta.persistence.EntityExistsException;
 import java.time.OffsetDateTime;
-import javax.persistence.EntityExistsException;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;

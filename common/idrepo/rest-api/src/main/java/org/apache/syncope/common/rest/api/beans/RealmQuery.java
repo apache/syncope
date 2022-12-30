@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import jakarta.ws.rs.QueryParam;
 import java.io.Serializable;
-import javax.ws.rs.QueryParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 

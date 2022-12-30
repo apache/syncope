@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.fit.buildtools;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.annotation.WebListener;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Objects;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 import javax.sql.DataSource;
 import org.h2.tools.Server;
 import org.slf4j.Logger;

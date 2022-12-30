@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import java.sql.Clob;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
@@ -25,8 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import javax.persistence.Query;
-import javax.persistence.TypedQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;

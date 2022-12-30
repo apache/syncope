@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -31,7 +32,6 @@ import java.lang.reflect.Method;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.rest.api.service.SyncopeService;

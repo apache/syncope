@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.buildtools.cxf;
 
+import jakarta.jws.WebService;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,7 +30,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.jws.WebService;
 import javax.sql.DataSource;
 import net.tirasa.connid.bundles.soap.exceptions.ProvisioningException;
 import net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning;
@@ -137,15 +137,12 @@ public class ProvisioningImpl implements Provisioning {
                             set.append(attr.getName()).append('=');
                         } else {
                             switch (attr.getName()) {
-                                case "__NAME__":
+                                case "__NAME__" ->
                                     set.append("userId=");
-                                    break;
-                                case "__PASSWORD__":
+                                case "__PASSWORD__" ->
                                     set.append("password=");
-                                    break;
-                                default:
+                                default ->
                                     set.append(attr.getName()).append('=');
-                                    break;
                             }
                         }
 
@@ -272,15 +269,12 @@ public class ProvisioningImpl implements Provisioning {
                             keys.append(attr.getName());
                         } else {
                             switch (attr.getName()) {
-                                case "__NAME__":
+                                case "__NAME__" ->
                                     keys.append("userId");
-                                    break;
-                                case "__PASSWORD__":
+                                case "__PASSWORD__" ->
                                     keys.append("password");
-                                    break;
-                                default:
+                                default ->
                                     keys.append(attr.getName());
-                                    break;
                             }
                         }
 
@@ -337,12 +331,10 @@ public class ProvisioningImpl implements Provisioning {
         Connection conn = null;
         try {
             conn = DataSourceUtils.getConnection(dataSource);
-            PreparedStatement statement =
-                    conn.prepareStatement("SELECT userId FROM testuser WHERE userId=?");
+            PreparedStatement statement = conn.prepareStatement("SELECT userId FROM testuser WHERE userId=?");
             statement.setString(1, username);
 
-            final String query = "SELECT userId FROM testuser WHERE userId='" + username + "';";
-
+            String query = "SELECT userId FROM testuser WHERE userId='" + username + "';";
             LOG.debug("Execute query: " + query);
 
             ResultSet rs = statement.executeQuery();

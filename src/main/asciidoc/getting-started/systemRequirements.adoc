@@ -36,9 +36,9 @@ Apache Syncope {docVersion} requires the latest JDK 17 that is available. Works 
 
 Apache Syncope {docVersion} is verified with the following Java EE containers:
 
- . http://tomcat.apache.org/download-90.cgi[Apache Tomcat 9^]
- . http://www.payara.fish/[Payara Server 5^]
- . http://www.wildfly.org/[Wildfly 26^]
+ . https://tomcat.apache.org/download-10.cgi[Apache Tomcat 10^]
+ . https://www.payara.fish/[Payara Server 6^]
+ . https://www.wildfly.org/[Wildfly 27^]
 
 === Internal Storage
 

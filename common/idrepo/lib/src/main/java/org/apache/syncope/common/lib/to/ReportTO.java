@@ -20,10 +20,10 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import jakarta.ws.rs.PathParam;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 

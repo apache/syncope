@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
 
 @Entity

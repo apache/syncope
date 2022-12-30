@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 

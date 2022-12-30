@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import javax.ws.rs.PathParam;
+import jakarta.ws.rs.PathParam;
 
 public class AuditConfTO implements EntityTO {
 

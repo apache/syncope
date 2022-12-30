@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.QueryParam;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.QueryParam;
 
 public class CSVPushSpec extends AbstractCSVSpec {
 

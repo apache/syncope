@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.starter;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;

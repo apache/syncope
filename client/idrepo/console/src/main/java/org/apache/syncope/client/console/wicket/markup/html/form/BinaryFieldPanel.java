@@ -25,14 +25,14 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.Fil
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.FileinputJsReference;
 import de.agilecoders.wicket.jquery.JQuery;
 import de.agilecoders.wicket.jquery.function.IFunction;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Locale;
 import java.util.Optional;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;

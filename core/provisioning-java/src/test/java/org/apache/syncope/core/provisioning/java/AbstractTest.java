@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
