@@ -178,6 +178,7 @@ under the License.
               <cargo.servlet.port>9443</cargo.servlet.port>
               <cargo.protocol>https</cargo.protocol>
               <cargo.tomcat.connector.keystoreFile>${basedir}/src/test/resources/keystore.jks</cargo.tomcat.connector.keystoreFile>
+              <cargo.tomcat.connector.keystoreType>jks</cargo.tomcat.connector.keystoreType>
               <cargo.tomcat.connector.keystorePass>password</cargo.tomcat.connector.keystorePass>
               <cargo.tomcat.connector.keyAlias>tomcat</cargo.tomcat.connector.keyAlias>
               <cargo.tomcat.connector.clientAuth>false</cargo.tomcat.connector.clientAuth>
@@ -205,7 +206,7 @@ under the License.
                 <context>syncope</context>
               </properties>
             </deployable>
-            <deployable>
+            <!--<deployable>
               <groupId>org.apache.syncope.fit</groupId>
               <artifactId>syncope-fit-console-reference</artifactId>
               <type>war</type>
@@ -220,7 +221,7 @@ under the License.
               <properties>
                 <context>syncope-enduser</context>
               </properties>
-            </deployable>
+            </deployable>-->
             <deployable>
               <location>${project.build.directory}/${project.build.finalName}</location>
               <properties>

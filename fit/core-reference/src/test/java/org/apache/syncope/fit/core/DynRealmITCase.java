@@ -60,7 +60,6 @@ import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 
 public class DynRealmITCase extends AbstractITCase {
 
@@ -237,7 +236,7 @@ public class DynRealmITCase extends AbstractITCase {
                         method("GET", BodyPublishers.ofString(body)).
                         build(),
                 BodyHandlers.ofString());
-        assertEquals(HttpStatus.OK, response.statusCode());
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
 
         return (ArrayNode) JSON_MAPPER.readTree(response.body()).
                 get("hits").get("hits").get(0).get("_source").get("dynRealms");

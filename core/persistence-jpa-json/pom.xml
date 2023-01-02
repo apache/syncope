@@ -53,12 +53,12 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcpkix-jdk15on</artifactId>
+      <artifactId>bcpkix-jdk18on</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk15on</artifactId>
+      <artifactId>bcprov-jdk18on</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency> 
@@ -163,35 +163,6 @@ under the License.
   </build>
 
   <profiles>
-    <profile>
-      <id>sqlgen</id>
-      
-      <properties>
-        <skipTests>true</skipTests>
-      </properties>
-      
-      <build>
-        <defaultGoal>clean verify</defaultGoal>
-        
-        <plugins>
-          <plugin>
-            <groupId>org.apache.openjpa</groupId>
-            <artifactId>openjpa-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>sqlgen</id>
-                <phase>process-classes</phase>
-                <goals>
-                  <goal>sql</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>          
-        </plugins>
-      </build>
-    </profile>
-    
     <profile>
       <id>openjpa</id>
       

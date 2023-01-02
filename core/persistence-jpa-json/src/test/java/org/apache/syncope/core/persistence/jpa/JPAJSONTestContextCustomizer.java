@@ -29,11 +29,11 @@ import org.springframework.test.context.support.TestPropertySourceUtils;
 public class JPAJSONTestContextCustomizer implements ContextCustomizer {
 
     private static BeanDefinitionRegistry getBeanDefinitionRegistry(final ApplicationContext ctx) {
-        if (ctx instanceof BeanDefinitionRegistry) {
-            return (BeanDefinitionRegistry) ctx;
+        if (ctx instanceof BeanDefinitionRegistry beanDefinitionRegistry) {
+            return beanDefinitionRegistry;
         }
-        if (ctx instanceof ConfigurableApplicationContext) {
-            return (BeanDefinitionRegistry) ((ConfigurableApplicationContext) ctx).getBeanFactory();
+        if (ctx instanceof ConfigurableApplicationContext configurableApplicationContext) {
+            return (BeanDefinitionRegistry) configurableApplicationContext.getBeanFactory();
         }
         throw new IllegalStateException("Could not locate BeanDefinitionRegistry");
     }
@@ -41,25 +41,23 @@ public class JPAJSONTestContextCustomizer implements ContextCustomizer {
     @Override
     public void customizeContext(final ConfigurableApplicationContext ctx, final MergedContextConfiguration cfg) {
         switch (System.getProperty("profileId")) {
-            case "pgjsonb":
+            case "pgjsonb" ->
                 TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
                         ctx,
                         "provisioning.quartz.sql=tables_postgres.sql");
-                break;
 
-            case "myjson":
+            case "myjson" ->
                 TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
                         ctx,
                         "provisioning.quartz.sql=tables_mysql_innodb.sql");
-                break;
 
-            case "ojson":
+            case "ojson" ->
                 TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
                         ctx,
                         "provisioning.quartz.sql=tables_oracle.sql");
-                break;
 
-            default:
+            default -> {
+            }
         }
 
         AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(getBeanDefinitionRegistry(ctx));

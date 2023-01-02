@@ -412,7 +412,7 @@ under the License.
     <connid.cmd.version>0.5</connid.cmd.version>
 
     <cxf.version>4.0.0</cxf.version>
-    <bouncycastle.version>1.70</bouncycastle.version>
+    <bouncycastle.version>1.72</bouncycastle.version>
     <nimbus-jose-jwt.version>9.26</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.0.1</spring-boot.version>
@@ -425,7 +425,8 @@ under the License.
 
     <groovy.version>4.0.7</groovy.version>
 
-    <flowable.version>6.8.0</flowable.version>
+    <flowable.version>7.0.0.M1</flowable.version>
+    <flowable-old.version>6.8.0</flowable-old.version>
 
     <elasticsearch.version>8.5.3</elasticsearch.version>
 
@@ -958,7 +959,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>2.0.0-alpha-2</version>
+        <version>2.0.0-alpha-3</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>
@@ -1002,59 +1003,32 @@ under the License.
         <groupId>org.flowable</groupId>
         <artifactId>flowable-engine</artifactId>
         <version>${flowable.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.flowable</groupId>
         <artifactId>flowable-spring</artifactId>
         <version>${flowable.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.flowable</groupId>
         <artifactId>flowable-idm-spring-configurator</artifactId>
         <version>${flowable.version}</version>
       </dependency>
+      <!-- TODO: SYNCOPE-1718 -->
       <dependency>
         <groupId>org.flowable</groupId>
         <artifactId>flowable-json-converter</artifactId>
-        <version>${flowable.version}</version>
+        <version>${flowable-old.version}</version>
       </dependency>
       <dependency>
         <groupId>org.flowable</groupId>
         <artifactId>flowable-ui-modeler-frontend</artifactId>
-        <version>${flowable.version}</version>
+        <version>${flowable-old.version}</version>
       </dependency>
       <dependency>
         <groupId>org.flowable</groupId>
         <artifactId>flowable-ui-modeler-logic</artifactId>
-        <version>${flowable.version}</version>
+        <version>${flowable-old.version}</version>
       </dependency>
       <!-- /Flowable -->
 
@@ -1065,8 +1039,12 @@ under the License.
         <version>${pac4j.version}</version>
         <exclusions>
           <exclusion>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -1082,6 +1060,16 @@ under the License.
         <groupId>org.apereo.cas.client</groupId>
         <artifactId>cas-client-core</artifactId>
         <version>${cas-client.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <!-- /CAS -->
 
@@ -1268,12 +1256,12 @@ under the License.
 
       <dependency>
         <groupId>org.bouncycastle</groupId>
-        <artifactId>bcpkix-jdk15on</artifactId>
+        <artifactId>bcpkix-jdk18on</artifactId>
         <version>${bouncycastle.version}</version>
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk15on</artifactId>
+        <artifactId>bcprov-jdk18on</artifactId>
         <version>${bouncycastle.version}</version>
       </dependency>
 

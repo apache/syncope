@@ -283,8 +283,8 @@ under the License.
               <extractDir>${project.build.directory}/cargo/extract</extractDir>
             </zipUrlInstaller>
             <timeout>300000</timeout>
-            <log>${cargo.log}</log>
-            <output>${cargo.output}</output>
+            <!--<log>${cargo.log}</log>
+            <output>${cargo.output}</output>-->
             <systemProperties>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
@@ -1722,7 +1722,7 @@ under the License.
       <id>all</id>
 
       <activation>
-        <activeByDefault>false</activeByDefault>
+        <activeByDefault>true</activeByDefault>
       </activation>
       
       <properties>
