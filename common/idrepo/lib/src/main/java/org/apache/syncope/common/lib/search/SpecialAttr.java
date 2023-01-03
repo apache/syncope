@@ -66,11 +66,7 @@ public enum SpecialAttr {
     /**
      * Applies to groups.
      */
-    MEMBER("$member"),
-    /**
-     * Applies to groups and any objects.
-     */
-    ASSIGNABLE("$assignable");
+    MEMBER("$member");
 
     private final String literal;
 

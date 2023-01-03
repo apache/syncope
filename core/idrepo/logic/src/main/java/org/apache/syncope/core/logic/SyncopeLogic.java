@@ -39,7 +39,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -123,21 +122,16 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
         Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
-        AssignableCond assignableCond = new AssignableCond();
-        assignableCond.setRealmFullPath(realm);
-
-        SearchCond searchCond;
+        AnyCond termCond;
         if (StringUtils.isNotBlank(term)) {
-            AnyCond termCond = new AnyCond(AttrCond.Type.ILIKE);
+            termCond = new AnyCond(AttrCond.Type.ILIKE);
             termCond.setSchema("name");
             termCond.setExpression(term.replace("*", "%"));
-
-            searchCond = SearchCond.getAnd(
-                    SearchCond.getLeaf(assignableCond),
-                    SearchCond.getLeaf(termCond));
         } else {
-            searchCond = SearchCond.getLeaf(assignableCond);
+            termCond = new AnyCond(AttrCond.Type.ISNOTNULL);
+            termCond.setSchema("key");
         }
+        SearchCond searchCond = SearchCond.getLeaf(termCond);
 
         int count = searchDAO.count(base, true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.GROUP);
 

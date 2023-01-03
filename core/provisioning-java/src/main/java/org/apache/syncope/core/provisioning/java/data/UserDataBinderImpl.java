@@ -404,7 +404,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         SyncopeClientException.build(ClientExceptionType.InvalidMembership);
                 assigned.getElements().add("Group " + group.getName() + " was already assigned");
                 scce.addException(assigned);
-            } else if (user.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
+            } else {
                 groups.add(group.getKey());
 
                 UMembership membership = entityFactory.newEntity(UMembership.class);
@@ -415,13 +415,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                 // membership attributes
                 fill(user, membership, membershipTO, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
-            } else {
-                LOG.error("{} cannot be assigned to {}", group, user);
-
-                SyncopeClientException unassignable =
-                        SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                unassignable.getElements().add("Group " + group.getName() + " cannot be assigned");
-                scce.addException(unassignable);
             }
         });
 
@@ -629,7 +622,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                             SyncopeClientException.build(ClientExceptionType.InvalidMembership);
                     assigned.getElements().add("Multiple patches for group " + group.getName() + " were found");
                     scce.addException(assigned);
-                } else if (user.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
+                } else {
                     groups.add(group.getKey());
 
                     UMembership newMembership = entityFactory.newEntity(UMembership.class);
@@ -681,13 +674,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                                 filter(this::isPasswordMapped).
                                 forEach(resource -> userUR.getPassword().getResources().add(resource.getKey()));
                     }
-                } else {
-                    LOG.error("{} cannot be assigned to {}", group, user);
-
-                    SyncopeClientException unassignable =
-                            SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                    unassignable.getElements().add("Group " + group.getName() + " cannot be assigned");
-                    scce.addException(unassignable);
                 }
             }
         });
@@ -714,7 +700,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     plainAttrValueDAO.deleteAll(attr, anyUtilsFactory.getLinkedAccountInstance());
                     plainAttrDAO.delete(attr);
                 });
-
             });
             if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
                 linkedAccount(

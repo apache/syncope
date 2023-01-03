@@ -44,7 +44,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
-import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
@@ -61,7 +60,6 @@ import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
@@ -140,12 +138,6 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                     match = cond.getLeaf(MembershipCond.class).
                             filter(leaf -> any instanceof GroupableRelatable).
                             map(leaf -> matches((GroupableRelatable) any, leaf, not)).
-                            orElse(null);
-                }
-
-                if (match == null) {
-                    match = cond.getLeaf(AssignableCond.class).
-                            map(leaf -> matches(any, leaf, not)).
                             orElse(null);
                 }
 
@@ -240,15 +232,6 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                         ? userDAO.findDynGroups(any.getKey())
                         : anyObjectDAO.findDynGroups(any.getKey())).stream().
                         anyMatch(item -> item.getKey().equals(group));
-        return not ? !found : found;
-    }
-
-    protected boolean matches(final Any<?> any, final AssignableCond cond, final boolean not) {
-        Realm realm = realmDAO.findByFullPath(cond.getRealmFullPath());
-        boolean found = Optional.ofNullable(realm)
-                .filter(realm1 -> (cond.isFromGroup() ? realmDAO.findDescendants(realm1) : realmDAO.
-                findAncestors(realm1)).
-                stream().anyMatch(item -> item.equals(any.getRealm()))).isPresent();
         return not ? !found : found;
     }
 

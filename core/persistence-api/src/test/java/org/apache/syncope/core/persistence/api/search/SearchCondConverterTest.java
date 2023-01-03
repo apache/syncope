@@ -27,7 +27,6 @@ import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
-import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
@@ -249,18 +248,6 @@ public class SearchCondConverterTest {
         SearchCond leaf = SearchCond.getLeaf(resCond);
 
         assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
-    }
-
-    @Test
-    public void assignable() {
-        String fiql = new GroupFiqlSearchConditionBuilder().isAssignable().query();
-        assertEquals(SpecialAttr.ASSIGNABLE + "==" + SpecialAttr.NULL, fiql);
-
-        AssignableCond assignableCond = new AssignableCond();
-        assignableCond.setRealmFullPath("/even/two");
-        SearchCond leaf = SearchCond.getLeaf(assignableCond);
-
-        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql, "/even/two"));
     }
 
     @Test

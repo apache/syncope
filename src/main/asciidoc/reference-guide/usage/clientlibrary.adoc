@@ -158,8 +158,8 @@ GroupService groupService = client.getService(GroupService.class);
 
 PagedResult<GroupTO> matchingGroups = groupService.search(
     new AnyQuery.Builder().realm("/even/two").page(3).size(150).
-    fiql(SyncopeClient.getGroupSearchConditionBuilder().isAssignable().
-        and("name").equalTo("palo*").query()).
+    fiql(SyncopeClient.getGroupSearchConditionBuilder().
+        is("name").equalTo("palo*").query()).
     build()); // <6>
 ----
 <1> get the total number of users available in the given deployment (and <<domains,domain>>)
@@ -168,7 +168,7 @@ PagedResult<GroupTO> matchingGroups = groupService.search(
 given deployment
 <4> get users in the root realm with <<roles,role>> `Other` assigned
 <5> get all any objects in the root realm with <<anytype,type>> `PRINTER`
-<6> get all groups that can be assigned to users or any objects in the `/even/two` realm - third page of the result,
+<6> get all groups having name starting with prefix 'palo' - third page of the result,
 where each page contains 150 items
 ====
 
