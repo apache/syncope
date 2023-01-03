@@ -460,27 +460,6 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
-    public void assignable() {
-        PagedResult<GroupTO> groups = GROUP_SERVICE.search(new AnyQuery.Builder().realm("/even/two").page(1).size(1000).
-                fiql(SyncopeClient.getGroupSearchConditionBuilder().isAssignable().
-                        and("name").equalTo("*").query()).
-                build());
-        assertNotNull(groups);
-        assertTrue(groups.getResult().stream().
-                anyMatch(group -> "034740a9-fa10-453b-af37-dc7897e98fb1".equals(group.getKey())));
-        assertFalse(groups.getResult().stream().
-                anyMatch(group -> "e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed".equals(group.getKey())));
-
-        PagedResult<AnyObjectTO> anyObjects = ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().realm("/odd").
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).isAssignable().
-                        and("name").equalTo("*").query()).
-                build());
-        assertNotNull(anyObjects);
-        assertFalse(anyObjects.getResult().stream().
-                anyMatch(anyObject -> "9e1d130c-d6a3-48b1-98b3-182477ed0688".equals(anyObject.getKey())));
-    }
-
-    @Test
     public void member() {
         PagedResult<GroupTO> groups = GROUP_SERVICE.search(new AnyQuery.Builder().realm("/").
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().withMembers("rossini").query()).

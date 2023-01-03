@@ -53,9 +53,8 @@ public class CreateARelationship extends FlowableServiceTask {
 
             UserUR userUR = new UserUR();
             userUR.setKey(user.getKey());
-            userUR.getRelationships().add(new RelationshipUR.Builder(new RelationshipTO.Builder().
-                    otherEnd("PRINTER", printer).type("neighborhood").build()).
-                    build());
+            userUR.getRelationships().add(new RelationshipUR.Builder(new RelationshipTO.Builder("neighborhood").
+                    otherEnd("PRINTER", printer).build()).build());
 
             Pair<PropagationByResource<String>, PropagationByResource<Pair<String, String>>> propInfo =
                     dataBinder.update(user, userUR);

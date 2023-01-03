@@ -247,7 +247,7 @@ public class Groups extends AbstractGroups {
                 if (!conditions.isEmpty()) {
                     assignedGroups.putAll(groupRestClient.search(
                             realmObj,
-                            builder.isAssignable().and().or(conditions).query(),
+                            builder.or(conditions).query(),
                             1,
                             Constants.MAX_GROUP_LIST_SIZE,
                             sort,

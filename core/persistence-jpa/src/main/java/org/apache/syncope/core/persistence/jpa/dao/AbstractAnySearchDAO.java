@@ -45,7 +45,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AbstractSearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
@@ -313,15 +312,6 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         }
 
         return rightAnyObjectKey;
-    }
-
-    protected Realm check(final AssignableCond cond) {
-        Realm realm = realmDAO.findByFullPath(cond.getRealmFullPath());
-        if (realm == null) {
-            throw new IllegalArgumentException("Could not find realm for " + cond.getRealmFullPath());
-        }
-
-        return realm;
     }
 
     protected String check(final MemberCond cond) {

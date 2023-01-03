@@ -57,7 +57,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
-import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
@@ -359,12 +358,6 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 }
 
                 if (query == null) {
-                    query = cond.getLeaf(AssignableCond.class).
-                            map(this::getQuery).
-                            orElse(null);
-                }
-
-                if (query == null) {
                     query = cond.getLeaf(RoleCond.class).
                             filter(leaf -> AnyTypeKind.USER == kind).
                             map(this::getQuery).
@@ -471,29 +464,6 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         return new Query.Builder().disMax(QueryBuilders.disMax().queries(membershipQueries).build()).build();
-    }
-
-    protected Query getQuery(final AssignableCond cond) {
-        Realm realm = check(cond);
-
-        List<Query> queries = new ArrayList<>();
-        if (cond.isFromGroup()) {
-            realmDAO.findDescendants(realm).forEach(
-                    current -> queries.add(new Query.Builder().term(QueryBuilders.term().
-                            field("realm").value(FieldValue.of(current.getFullPath())).build()).
-                            build()));
-        } else {
-            for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
-                queries.add(new Query.Builder().term(QueryBuilders.term().
-                        field("realm").value(FieldValue.of(current.getFullPath())).build()).
-                        build());
-            }
-            queries.add(new Query.Builder().term(QueryBuilders.term().
-                    field("realm").value(FieldValue.of(realmDAO.getRoot().getFullPath())).build()).
-                    build());
-        }
-
-        return new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build();
     }
 
     protected Query getQuery(final RoleCond cond) {

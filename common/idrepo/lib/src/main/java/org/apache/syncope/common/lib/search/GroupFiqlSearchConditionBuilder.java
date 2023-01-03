@@ -40,12 +40,6 @@ public class GroupFiqlSearchConditionBuilder
         return newBuilderInstance().is(property);
     }
 
-    public GroupCompleteCondition isAssignable() {
-        return newBuilderInstance().
-                is(SpecialAttr.ASSIGNABLE.toString()).
-                isAssignable();
-    }
-
     public GroupCompleteCondition withMembers(final String member, final String... moreMembers) {
         return newBuilderInstance().
                 is(SpecialAttr.MEMBER.toString()).
@@ -75,12 +69,6 @@ public class GroupFiqlSearchConditionBuilder
             Builder b = new Builder(this);
             b.result = property;
             return b;
-        }
-
-        @Override
-        public GroupCompleteCondition isAssignable() {
-            this.result = SpecialAttr.ASSIGNABLE.toString();
-            return condition(FiqlParser.EQ, SpecialAttr.NULL);
         }
 
         @Override

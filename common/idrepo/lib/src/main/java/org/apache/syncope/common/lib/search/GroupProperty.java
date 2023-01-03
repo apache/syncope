@@ -20,8 +20,6 @@ package org.apache.syncope.common.lib.search;
 
 public interface GroupProperty extends SyncopeProperty<GroupCompleteCondition> {
 
-    GroupCompleteCondition isAssignable();
-
     GroupCompleteCondition withMembers(String member, String... moreMembers);
 
     GroupCompleteCondition withoutMembers(String member, String... moreMembers);

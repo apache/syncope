@@ -658,8 +658,8 @@ abstract class AbstractAnyDataBinder {
     }
 
     protected static RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
-        return new RelationshipTO.Builder().
-                type(relationshipType).otherEnd(otherEnd.getType().getKey(), otherEnd.getKey(), otherEnd.getName()).
+        return new RelationshipTO.Builder(relationshipType).
+                otherEnd(otherEnd.getType().getKey(), otherEnd.getKey(), otherEnd.getName()).
                 build();
     }
 

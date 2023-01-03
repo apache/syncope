@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.security.AccessControlException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -691,17 +692,12 @@ public class GroupITCase extends AbstractITCase {
         groupCR.setUDynMembershipCond("cool==true");
         GroupTO group = createGroup(groupCR).getEntity();
         assertNotNull(group);
-        final String groupKey = group.getKey();
 
-        List<MembershipTO> memberships = USER_SERVICE.read(
-                "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
-        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+        List<MembershipTO> memberships = USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
+        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(group.getKey())));
         assertEquals(1, GROUP_SERVICE.read(group.getKey()).getDynamicUserMembershipCount());
 
-        GroupUR groupUR = new GroupUR();
-        groupUR.setKey(group.getKey());
-        groupUR.setUDynMembershipCond("cool==false");
-        GROUP_SERVICE.update(groupUR);
+        GROUP_SERVICE.update(new GroupUR.Builder(group.getKey()).udynMembershipCond("cool==false").build());
 
         assertTrue(USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
         assertEquals(0, GROUP_SERVICE.read(group.getKey()).getDynamicUserMembershipCount());
@@ -1001,25 +997,39 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
+    public void unlimitedMembership() {
+        GroupCR groupCR = new GroupCR();
+        groupCR.setName("unlimited" + getUUIDString());
+        groupCR.setRealm("/even/two");
+        GroupTO groupTO = createGroup(groupCR).getEntity();
+
+        UserCR userCR = UserITCase.getUniqueSample("unlimited@syncope.apache.org");
+        userCR.setRealm(SyncopeConstants.ROOT_REALM);
+        userCR.getMemberships().add(new MembershipTO.Builder(groupTO.getKey()).build());
+        UserTO userTO = createUser(userCR).getEntity();
+
+        assertFalse(userTO.getMemberships().isEmpty());
+        assertEquals(groupTO.getKey(), userTO.getMemberships().get(0).getGroupKey());
+    }
+
+    @Test
     public void issue178() {
         GroupCR groupCR = new GroupCR();
-        String groupName = "torename" + getUUIDString();
-        groupCR.setName(groupName);
-        groupCR.setRealm("/");
+        groupCR.setName("torename" + getUUIDString());
+        groupCR.setRealm(SyncopeConstants.ROOT_REALM);
 
         GroupTO actual = createGroup(groupCR).getEntity();
 
         assertNotNull(actual);
-        assertEquals(groupName, actual.getName());
+        assertEquals(groupCR.getName(), actual.getName());
 
         GroupUR groupUR = new GroupUR();
         groupUR.setKey(actual.getKey());
-        String renamedGroup = "renamed" + getUUIDString();
-        groupUR.setName(new StringReplacePatchItem.Builder().value(renamedGroup).build());
+        groupUR.setName(new StringReplacePatchItem.Builder().value("renamed" + getUUIDString()).build());
 
         actual = updateGroup(groupUR).getEntity();
         assertNotNull(actual);
-        assertEquals(renamedGroup, actual.getName());
+        assertEquals(groupUR.getName().getValue(), actual.getName());
     }
 
     @Test
@@ -1116,9 +1126,7 @@ public class GroupITCase extends AbstractITCase {
             assertEquals(1, entries);
         } finally {
             SCHEMA_SERVICE.update(SchemaType.DERIVED, orig);
-            if (groupTO != null) {
-                GROUP_SERVICE.delete(groupTO.getKey());
-            }
+            Optional.ofNullable(groupTO).ifPresent(g -> GROUP_SERVICE.delete(g.getKey()));
             RESOURCE_SERVICE.delete("new-ldap");
         }
     }
@@ -1214,9 +1222,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(connObjectTO);
             assertEquals("fixedSYNCOPE1467", connObjectTO.getAttr("cn").get().getValues().get(0));
         } finally {
-            if (groupTO.getKey() != null) {
-                GROUP_SERVICE.delete(groupTO.getKey());
-            }
+            Optional.ofNullable(groupTO).ifPresent(g -> GROUP_SERVICE.delete(g.getKey()));
         }
     }
 

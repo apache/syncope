@@ -159,35 +159,6 @@ under the License.
 
   <profiles>
     <profile>
-      <id>sqlgen</id>
-      
-      <properties>
-        <skipTests>true</skipTests>
-      </properties>
-      
-      <build>
-        <defaultGoal>clean verify</defaultGoal>
-        
-        <plugins>
-          <plugin>
-            <groupId>org.apache.openjpa</groupId>
-            <artifactId>openjpa-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>sqlgen</id>
-                <phase>process-classes</phase>
-                <goals>
-                  <goal>sql</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>          
-        </plugins>
-      </build>
-    </profile>
-    
-    <profile>
       <id>openjpa</id>
       
       <properties>

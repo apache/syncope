@@ -42,7 +42,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -280,13 +279,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     }
 
     protected SearchCond buildDynMembershipCond(final String baseCondFIQL, final Realm groupRealm) {
-        AssignableCond cond = new AssignableCond();
-        cond.setRealmFullPath(groupRealm.getFullPath());
-        cond.setFromGroup(true);
-
-        return SearchCond.getAnd(
-                SearchCond.getLeaf(cond),
-                SearchCondConverter.convert(searchCondVisitor, baseCondFIQL));
+        return SearchCondConverter.convert(searchCondVisitor, baseCondFIQL);
     }
 
     @Override

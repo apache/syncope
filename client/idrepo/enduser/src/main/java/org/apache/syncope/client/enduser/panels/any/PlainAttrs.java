@@ -371,10 +371,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
                     AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
                     if (schemas.get(attrTO.getSchema()).isMultivalue()) {
-                        panel = new MultiFieldPanel.Builder<>(
-                                new PropertyModel<>(
-                                        attributableTO.getObject().getPlainAttr(attrTO.getSchema()), "values"))
-                                .build("panel", attrTO.getSchema(), FieldPanel.class.cast(panel));
+                        panel = new MultiFieldPanel.Builder<>(new PropertyModel<>(attrTO, "values")).
+                                build("panel", attrTO.getSchema(), FieldPanel.class.cast(panel));
                         // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
                         ((MultiFieldPanel) panel).setReadOnly(schema == null ? false : schema.isReadonly());
                     } else {

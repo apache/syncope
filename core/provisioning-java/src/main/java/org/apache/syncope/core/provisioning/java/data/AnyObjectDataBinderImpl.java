@@ -236,10 +236,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
                     SyncopeClientException assigned =
                             SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                    assigned.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
-                            + " in relationship " + relationshipTO.getType());
+                    assigned.getElements().add("AnyObject was already in relationship "
+                            + relationshipTO.getType() + " with "
+                            + otherEnd.getType().getKey() + " " + otherEnd.getName());
                     scce.addException(assigned);
-                } else if (anyObject.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
+                } else {
                     relationships.add(Pair.of(otherEnd.getKey(), relationshipTO.getType()));
 
                     RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
@@ -253,14 +254,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
                         anyObject.add(relationship);
                     }
-                } else {
-                    LOG.error("{} cannot be related to {}", otherEnd, anyObject);
-
-                    SyncopeClientException unrelatable =
-                            SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                    unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
-                            + " cannot be related");
-                    scce.addException(unrelatable);
                 }
             }
         });
@@ -281,7 +274,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         SyncopeClientException.build(ClientExceptionType.InvalidMembership);
                 assigned.getElements().add("Group " + group.getName() + " was already assigned");
                 scce.addException(assigned);
-            } else if (anyObject.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
+            } else {
                 groups.add(group.getKey());
 
                 AMembership membership = entityFactory.newEntity(AMembership.class);
@@ -292,13 +285,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
                 // membership attributes
                 fill(anyObject, membership, membershipTO, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
-            } else {
-                LOG.error("{} cannot be assigned to {}", group, anyObject);
-
-                SyncopeClientException unassignable =
-                        SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                unassignable.getElements().add("Group " + group.getName() + " cannot be assigned");
-                scce.addException(unassignable);
             }
         });
 
@@ -378,7 +364,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                                     + patch.getRelationshipTO().getType() + " with "
                                     + otherEnd.getType().getKey() + " " + otherEnd.getName());
                             scce.addException(assigned);
-                        } else if (anyObject.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
+                        } else {
                             relationships.add(Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()));
 
                             ARelationship newRelationship = entityFactory.newEntity(ARelationship.class);
@@ -387,14 +373,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                             newRelationship.setLeftEnd(anyObject);
 
                             anyObject.add(newRelationship);
-                        } else {
-                            LOG.error("{} cannot be related to {}", otherEnd, anyObject);
-
-                            SyncopeClientException unrelatable =
-                                    SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                            unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
-                                    + " cannot be related");
-                            scce.addException(unrelatable);
                         }
                     }
                 }
@@ -433,7 +411,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                             SyncopeClientException.build(ClientExceptionType.InvalidMembership);
                     assigned.getElements().add("Multiple patches for group " + group.getName() + " were found");
                     scce.addException(assigned);
-                } else if (anyObject.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
+                } else {
                     groups.add(group.getKey());
 
                     AMembership newMembership = entityFactory.newEntity(AMembership.class);
@@ -475,13 +453,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     }
 
                     propByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
-                } else {
-                    LOG.error("{} cannot be assigned to {}", group, anyObject);
-
-                    SyncopeClientException unassignable =
-                            SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                    unassignable.getElements().add("Group " + group.getName() + " cannot be assigned");
-                    scce.addException(unassignable);
                 }
             }
         });

@@ -35,7 +35,6 @@ import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
 import org.apache.syncope.common.lib.search.SyncopeFiqlSearchCondition;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
-import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
@@ -198,12 +197,6 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             DynRealmCond dynRealmCond = new DynRealmCond();
                             dynRealmCond.setDynRealm(value);
                             leaf = SearchCond.getLeaf(dynRealmCond);
-                            break;
-
-                        case ASSIGNABLE:
-                            AssignableCond assignableCond = new AssignableCond();
-                            assignableCond.setRealmFullPath(REALM.get());
-                            leaf = SearchCond.getLeaf(assignableCond);
                             break;
 
                         case MEMBER:
