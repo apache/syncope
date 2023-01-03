@@ -897,8 +897,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             // 1. create user with relationship and the new resource assigned
             UserCR userCR = UserITCase.getUniqueSample("syncope1567@syncope.apache.org");
-            userCR.getRelationships().add(new RelationshipTO.Builder().
-                    type("neighborhood").otherEnd(PRINTER, "fc6dbc3a-6c07-4965-8781-921e7401a4a5").build());
+            userCR.getRelationships().add(new RelationshipTO.Builder("neighborhood").
+                    otherEnd(PRINTER, "fc6dbc3a-6c07-4965-8781-921e7401a4a5").build());
             userCR.getResources().clear();
             userCR.getResources().add(ldap.getKey());
 

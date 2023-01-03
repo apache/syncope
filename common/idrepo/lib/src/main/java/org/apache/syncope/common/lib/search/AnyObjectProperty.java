@@ -31,6 +31,4 @@ public interface AnyObjectProperty extends SyncopeProperty<AnyObjectCompleteCond
     AnyObjectCompleteCondition inRelationshipTypes(String type, String... moreTypes);
 
     AnyObjectCompleteCondition notInRelationshipTypes(String type, String... moreTypes);
-
-    AnyObjectCompleteCondition isAssignable();
 }

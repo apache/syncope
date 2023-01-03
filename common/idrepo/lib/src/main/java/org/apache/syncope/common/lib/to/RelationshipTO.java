@@ -30,9 +30,8 @@ public class RelationshipTO implements BaseBean {
 
         private final RelationshipTO instance = new RelationshipTO();
 
-        public Builder type(final String type) {
+        public Builder(final String type) {
             instance.setType(type);
-            return this;
         }
 
         public Builder otherEnd(final String otherEndType, final String otherEndKey) {

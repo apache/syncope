@@ -91,12 +91,6 @@ public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchCondi
                 notInRelationshipTypes(type, moreTypes);
     }
 
-    public AnyObjectCompleteCondition isAssignable() {
-        return newBuilderInstance().
-                is(SpecialAttr.ASSIGNABLE.toString()).
-                isAssignable();
-    }
-
     protected class Builder extends AbstractFiqlSearchConditionBuilder.Builder<
             AnyObjectProperty, AnyObjectPartialCondition, AnyObjectCompleteCondition>
             implements AnyObjectProperty, AnyObjectPartialCondition, AnyObjectCompleteCondition {
@@ -156,12 +150,6 @@ public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchCondi
         public AnyObjectCompleteCondition notInRelationshipTypes(final String type, final String... moreTypes) {
             this.result = SpecialAttr.RELATIONSHIP_TYPES.toString();
             return condition(FiqlParser.NEQ, type, (Object[]) moreTypes);
-        }
-
-        @Override
-        public AnyObjectCompleteCondition isAssignable() {
-            this.result = SpecialAttr.ASSIGNABLE.toString();
-            return condition(FiqlParser.EQ, SpecialAttr.NULL);
         }
     }
 }
