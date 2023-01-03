@@ -34,12 +34,7 @@ If Users, Groups and Any Objects are members of a realm then they are also membe
 realm contains everything, and other realms can be seen as containers that split up the total number of entities into
 smaller pools.
 
-This has consequences on <<memberships-relationships,memberships and relationships>>:
-
-* A User or an Any Object can be members of Groups in the same realm or in one of the parent realms.
-* A User or an Any object can be in a relation with Any Objects in the same realm or in one of parent realms.
-
-Moreover, this partition allows fine-grained control over policy enforcement and, alongside with
+This partition allows fine-grained control over policy enforcement and, alongside with
 <<entitlements,entitlements>> and <<roles,roles>>, helps to implement
 <<delegated-administration,delegated administration>>.
 

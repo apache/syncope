@@ -42,7 +42,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
-import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
@@ -452,31 +451,6 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                     append(svs.groupResource().name).
                     append(" WHERE resource_id=?").
                     append(setParameter(parameters, cond.getResource()));
-        }
-
-        query.append(')');
-
-        return query.toString();
-    }
-
-    @Override
-    protected String getQuery(
-            final AssignableCond cond,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        Realm realm = check(cond);
-
-        StringBuilder query = new StringBuilder().append('(');
-        if (cond.isFromGroup()) {
-            realmDAO.findDescendants(realm).forEach(current -> query.append("realm_id=?").
-                    append(setParameter(parameters, current.getKey())).append(" OR "));
-            query.setLength(query.length() - 4);
-        } else {
-            for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
-                query.append("realm_id=?").append(setParameter(parameters, current.getKey())).append(" OR ");
-            }
-            query.append("realm_id=?").append(setParameter(parameters, realmDAO.getRoot().getKey()));
         }
 
         query.append(')');

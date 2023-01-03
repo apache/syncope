@@ -45,7 +45,6 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
-import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
@@ -617,27 +616,6 @@ public class AnySearchTest extends AbstractTest {
                         realmDAO.getRoot(), true,
                         SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.GROUP),
                 groups.size());
-    }
-
-    @Test
-    public void assignable() {
-        AssignableCond assignableCond = new AssignableCond();
-        assignableCond.setRealmFullPath("/even/two");
-        SearchCond searchCondition = SearchCond.getLeaf(assignableCond);
-        assertTrue(searchCondition.isValid());
-
-        List<Group> groups = searchDAO.search(searchCondition, AnyTypeKind.GROUP);
-        assertTrue(groups.stream().anyMatch(group -> "additional".equals(group.getName())));
-        assertFalse(groups.stream().anyMatch(group -> "fake".equals(group.getName())));
-
-        assignableCond = new AssignableCond();
-        assignableCond.setRealmFullPath("/odd");
-        searchCondition = SearchCond.getLeaf(assignableCond);
-        assertTrue(searchCondition.isValid());
-
-        List<AnyObject> anyObjects = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
-        assertFalse(anyObjects.stream().
-                anyMatch(anyObject -> "9e1d130c-d6a3-48b1-98b3-182477ed0688".equals(anyObject.getKey())));
     }
 
     @Test

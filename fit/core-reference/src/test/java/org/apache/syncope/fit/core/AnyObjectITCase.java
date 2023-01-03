@@ -33,10 +33,10 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.RelationshipUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ConnObject;
-import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -73,27 +73,6 @@ public class AnyObjectITCase extends AbstractITCase {
         assertEquals(
                 anyObjectTO.getPlainAttr("location").get().getValues(),
                 connObjectTO.getAttr("LOCATION").get().getValues());
-    }
-
-    @Test
-    public void createInvalidMembership() {
-        // 1. create anyObject in realm /odd and attempt to assign group 15, from realm /even => exception
-        AnyObjectCR anyObjectCR = getSample("createInvalidMembership");
-        anyObjectCR.setRealm("/odd");
-        anyObjectCR.getMemberships().add(new MembershipTO.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build());
-
-        try {
-            createAnyObject(anyObjectCR);
-            fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidMembership, e.getType());
-        }
-
-        // 2. change anyObject's realm to /even/two, now it works
-        anyObjectCR.setRealm("/even/two");
-
-        AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
-        assertNotNull(anyObjectTO.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1"));
     }
 
     @Test
@@ -200,9 +179,34 @@ public class AnyObjectITCase extends AbstractITCase {
     }
 
     @Test
+    public void unlimitedRelationships() {
+        AnyObjectCR anyObjectCR = getSample("unlimited1");
+        anyObjectCR.setRealm("/even/two");
+        anyObjectCR.getResources().clear();
+        AnyObjectTO left = createAnyObject(anyObjectCR).getEntity();
+
+        anyObjectCR = getSample("unlimited2");
+        anyObjectCR.setRealm(SyncopeConstants.ROOT_REALM);
+        anyObjectCR.getResources().clear();
+        anyObjectCR.getRelationships().add(new RelationshipTO.Builder("neighborhood").
+                otherEnd(left.getType(), left.getKey()).build());
+        AnyObjectTO right = createAnyObject(anyObjectCR).getEntity();
+
+        assertEquals(1, right.getRelationships().size());
+        assertEquals(left.getKey(), right.getRelationships().get(0).getOtherEndKey());
+
+        AnyObjectUR anyObjectUR = new AnyObjectUR.Builder(left.getKey()).
+                relationship(new RelationshipUR.Builder(new RelationshipTO.Builder("neighborhood").
+                        otherEnd(right.getType(), right.getKey()).build()).build()).build();
+        left = updateAnyObject(anyObjectUR).getEntity();
+        assertEquals(2, left.getRelationships().size());
+        assertTrue(left.getRelationships().stream().anyMatch(r -> right.getKey().equals(r.getOtherEndKey())));
+    }
+
+    @Test
     public void issueSYNCOPE756() {
         AnyObjectCR anyObjectCR = getSample("issueSYNCOPE756");
-        anyObjectCR.getRelationships().add(new RelationshipTO.Builder().otherEnd(
+        anyObjectCR.getRelationships().add(new RelationshipTO.Builder("neighborhood").otherEnd(
                 AnyTypeKind.USER.name(), "1417acbe-cbf6-4277-9372-e75e04f97000").build());
 
         try {
