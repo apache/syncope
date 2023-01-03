@@ -124,7 +124,7 @@ public abstract class AbstractJDBCConf implements Serializable {
      * Controls the amount of time that a connection can be out of the pool before a message
      * is logged indicating a possible connection leak.
      */
-    private int poolLeakThreshold = 3_000;
+    private Duration poolLeakThreshold = Duration.parse("PT6S");
 
     public String getSql() {
         return sql;
@@ -254,11 +254,11 @@ public abstract class AbstractJDBCConf implements Serializable {
         this.poolTimeoutMillis = poolTimeoutMillis;
     }
 
-    public int getPoolLeakThreshold() {
+    public Duration getPoolLeakThreshold() {
         return poolLeakThreshold;
     }
 
-    public void setPoolLeakThreshold(final int poolLeakThreshold) {
+    public void setPoolLeakThreshold(final Duration poolLeakThreshold) {
         this.poolLeakThreshold = poolLeakThreshold;
     }
 }

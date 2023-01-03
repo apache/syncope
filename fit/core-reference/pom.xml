@@ -283,8 +283,8 @@ under the License.
               <extractDir>${project.build.directory}/cargo/extract</extractDir>
             </zipUrlInstaller>
             <timeout>300000</timeout>
-            <!--<log>${cargo.log}</log>
-            <output>${cargo.output}</output>-->
+            <log>${cargo.log}</log>
+            <output>${cargo.output}</output>
             <systemProperties>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
@@ -740,16 +740,6 @@ under the License.
           <version>${jdbc.postgresql.version}</version>
           <scope>test</scope>
         </dependency>
-        <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcpkix-jdk15on</artifactId>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcprov-jdk15on</artifactId>
-          <scope>test</scope>
-        </dependency>
       </dependencies>
 
       <build>
@@ -960,16 +950,6 @@ under the License.
           <groupId>com.mysql</groupId>
           <artifactId>mysql-connector-j</artifactId>
           <version>${jdbc.mysql.version}</version>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcpkix-jdk15on</artifactId>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcprov-jdk15on</artifactId>
           <scope>test</scope>
         </dependency>
       </dependencies>

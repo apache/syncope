@@ -79,7 +79,7 @@ public abstract class PropertySourceMapper {
         props.setHealthQuery(conf.getHealthQuery());
         props.setIdleTimeout(conf.getIdleTimeout().toString());
         props.setDataSourceName(conf.getDataSourceName());
-        props.setLeakThreshold(conf.getPoolLeakThreshold());
+        props.setLeakThreshold(conf.getPoolLeakThreshold().toString());
 
         ConnectionPoolingProperties connProps = new ConnectionPoolingProperties();
         connProps.setMinSize(conf.getMinPoolSize());
