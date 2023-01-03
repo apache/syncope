@@ -278,7 +278,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return findAllKeys(JPAGroup.TABLE, page, itemsPerPage);
     }
 
-    protected SearchCond buildDynMembershipCond(final String baseCondFIQL, final Realm groupRealm) {
+    protected SearchCond buildDynMembershipCond(final String baseCondFIQL) {
         return SearchCondConverter.convert(searchCondVisitor, baseCondFIQL);
     }
 
@@ -289,7 +289,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         // refresh dynamic memberships
         clearUDynMembers(merged);
         if (merged.getUDynMembership() != null) {
-            SearchCond cond = buildDynMembershipCond(merged.getUDynMembership().getFIQLCond(), merged.getRealm());
+            SearchCond cond = buildDynMembershipCond(merged.getUDynMembership().getFIQLCond());
             int count = anySearchDAO.count(
                     merged.getRealm(), true, Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
@@ -316,7 +316,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         }
         clearADynMembers(merged);
         merged.getADynMemberships().forEach(memb -> {
-            SearchCond cond = buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm());
+            SearchCond cond = buildDynMembershipCond(memb.getFIQLCond());
             int count = anySearchDAO.count(
                     merged.getRealm(), true, Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
@@ -488,9 +488,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         findWithADynMemberships(anyObject.getType()).forEach(memb -> {
-            boolean matches = anyMatchDAO.matches(
-                    anyObject,
-                    buildDynMembershipCond(memb.getFIQLCond(), memb.getGroup().getRealm()));
+            boolean matches = anyMatchDAO.matches(anyObject, buildDynMembershipCond(memb.getFIQLCond()));
             if (matches) {
                 after.add(memb.getGroup().getKey());
             }
@@ -589,9 +587,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         findWithUDynMemberships().forEach(memb -> {
-            boolean matches = anyMatchDAO.matches(
-                    user,
-                    buildDynMembershipCond(memb.getFIQLCond(), memb.getGroup().getRealm()));
+            boolean matches = anyMatchDAO.matches(user, buildDynMembershipCond(memb.getFIQLCond()));
             if (matches) {
                 after.add(memb.getGroup().getKey());
             }
