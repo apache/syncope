@@ -44,9 +44,9 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication(exclude = {
+@SpringBootApplication(proxyBeanMethods = false, exclude = {
     ErrorMvcAutoConfiguration.class,
-    HttpMessageConvertersAutoConfiguration.class }, proxyBeanMethods = false)
+    HttpMessageConvertersAutoConfiguration.class })
 @EnableConfigurationProperties(ConsoleProperties.class)
 public class SyncopeConsoleApplication extends SpringBootServletInitializer {
 
