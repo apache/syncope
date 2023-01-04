@@ -36,7 +36,6 @@ public abstract class AbstractInterruptableJob implements InterruptableJob {
         public boolean isInterrupted() {
             return false;
         }
-
     };
 
     public JobDelegate getDelegate() {
