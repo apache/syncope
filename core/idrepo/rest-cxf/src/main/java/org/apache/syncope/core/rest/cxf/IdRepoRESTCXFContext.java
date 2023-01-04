@@ -22,7 +22,7 @@ import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
 import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import jakarta.servlet.ServletRequestListener;
+import jakarta.validation.Validator;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -138,7 +138,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -193,15 +192,15 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public BeanValidationProvider validationProvider() {
-        return new BeanValidationProvider();
+    public MDCInInterceptor mdcInInterceptor() {
+        return new MDCInInterceptor();
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public JAXRSBeanValidationInInterceptor validationInInterceptor(final BeanValidationProvider validationProvider) {
+    public JAXRSBeanValidationInInterceptor validationInInterceptor(final Validator validator) {
         JAXRSBeanValidationInInterceptor validationInInterceptor = new JAXRSBeanValidationInInterceptor();
-        validationInInterceptor.setProvider(validationProvider);
+        validationInInterceptor.setProvider(new BeanValidationProvider(validator));
         return validationInInterceptor;
     }
 
@@ -218,6 +217,12 @@ public class IdRepoRESTCXFContext {
         gzipOutInterceptor.setThreshold(0);
         gzipOutInterceptor.setForce(true);
         return gzipOutInterceptor;
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ThreadLocalCleanupOutInterceptor threadLocalCleanupOutInterceptor() {
+        return new ThreadLocalCleanupOutInterceptor();
     }
 
     @ConditionalOnMissingBean
@@ -317,9 +322,11 @@ public class IdRepoRESTCXFContext {
             final JacksonXMLProvider xmlProvider,
             final JacksonJsonProvider jsonProvider,
             final DateParamConverterProvider dateParamConverterProvider,
+            final MDCInInterceptor mdcInInterceptor,
             final JAXRSBeanValidationInInterceptor validationInInterceptor,
             final GZIPInInterceptor gzipInInterceptor,
             final GZIPOutInterceptor gzipOutInterceptor,
+            final ThreadLocalCleanupOutInterceptor threadLocalCleanupOutInterceptor,
             final OpenApiFeature openapiFeature,
             final Bus bus,
             final ApplicationContext ctx,
@@ -351,24 +358,14 @@ public class IdRepoRESTCXFContext {
                 addDomainFilter,
                 addETagFilter));
 
-        restContainer.setInInterceptors(List.of(
-                gzipInInterceptor,
-                validationInInterceptor));
+        restContainer.setInInterceptors(List.of(mdcInInterceptor, validationInInterceptor, gzipInInterceptor));
 
-        restContainer.setOutInterceptors(List.of(gzipOutInterceptor));
+        restContainer.setOutInterceptors(List.of(gzipOutInterceptor, threadLocalCleanupOutInterceptor));
 
         restContainer.setFeatures(List.of(openapiFeature));
 
         restContainer.setApplicationContext(ctx);
         return restContainer.create();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ServletListenerRegistrationBean<ServletRequestListener> listenerRegistrationBean() {
-        ServletListenerRegistrationBean<ServletRequestListener> bean = new ServletListenerRegistrationBean<>();
-        bean.setListener(new ThreadLocalCleanupListener());
-        return bean;
     }
 
     @ConditionalOnMissingBean

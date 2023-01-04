@@ -24,7 +24,7 @@ under the License.
                              filePattern="${log.directory}/core-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
-        <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
+        <pattern>%d{HH:mm:ss.SSS} %notEmpty{[operation.id=%X{operation.id}] }%-5level %logger - %msg%n</pattern>
       </PatternLayout>
       <Policies>
         <TimeBasedTriggeringPolicy/>
