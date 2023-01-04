@@ -35,11 +35,13 @@ import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
@@ -131,6 +133,13 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
             return;
         }
 
+        boolean manageOperationId = Optional.ofNullable(MDC.get(OPERATION_ID)).
+                map(operationId -> false).
+                orElseGet(() -> {
+                    MDC.put(OPERATION_ID, SecureRandomUtils.generateRandomUUID().toString());
+                    return true;
+                });
+
         String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
                 orElse(securityProperties.getAdminUser());
         TaskExec<SchedTask> execution = taskUtilsFactory.getInstance(taskType).newTaskExec();
@@ -181,6 +190,10 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
                 result,
                 task,
                 null);
+
+        if (manageOperationId) {
+            MDC.remove(OPERATION_ID);
+        }
     }
 
     /**

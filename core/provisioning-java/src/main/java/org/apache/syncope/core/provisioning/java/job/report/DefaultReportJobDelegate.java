@@ -46,9 +46,11 @@ import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.helpers.AttributesImpl;
@@ -134,6 +136,13 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
             LOG.info("Report {} not active, aborting...", reportKey);
             return;
         }
+
+        boolean manageOperationId = Optional.ofNullable(MDC.get(OPERATION_ID)).
+                map(operationId -> false).
+                orElseGet(() -> {
+                    MDC.put(OPERATION_ID, SecureRandomUtils.generateRandomUUID().toString());
+                    return true;
+                });
 
         // 1. create execution
         ReportExec execution = entityFactory.newEntity(ReportExec.class);
@@ -240,6 +249,10 @@ public class DefaultReportJobDelegate implements ReportJobDelegate {
             execution.setMessage(reportExecutionMessage.toString());
             execution.setEnd(OffsetDateTime.now());
             reportExecDAO.save(execution);
+
+            if (manageOperationId) {
+                MDC.remove(OPERATION_ID);
+            }
         }
     }
 }

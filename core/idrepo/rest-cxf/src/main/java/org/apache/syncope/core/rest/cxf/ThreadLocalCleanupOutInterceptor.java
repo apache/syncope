@@ -18,27 +18,31 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.ServletRequestListener;
+import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.AbstractPhaseInterceptor;
+import org.apache.cxf.phase.Phase;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.impl.api.local.ThreadClassLoaderManager;
+import org.slf4j.MDC;
 
 /**
- * Remove any known thread-local variable when the servlet request is destroyed.
+ * Removes any known thread-local variable.
  */
-public class ThreadLocalCleanupListener implements ServletRequestListener {
+public class ThreadLocalCleanupOutInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    @Override
-    public void requestInitialized(final ServletRequestEvent sre) {
-        // nothing to do while setting up this request (and thread)
+    public ThreadLocalCleanupOutInterceptor() {
+        super(Phase.POST_INVOKE);
     }
 
     @Override
-    public void requestDestroyed(final ServletRequestEvent sre) {
+    public void handleMessage(final Message message) throws Fault {
         FormatUtils.clear();
 
         ThreadClassLoaderManager.clearInstance();
         CurrentLocale.clear();
+
+        MDC.clear();
     }
 }
