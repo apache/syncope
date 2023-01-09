@@ -32,7 +32,7 @@ under the License.
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>28</version>
+    <version>29</version>
     <relativePath />
   </parent>
 
@@ -841,7 +841,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.uuid</groupId>
         <artifactId>java-uuid-generator</artifactId>
-        <version>4.0.1</version>
+        <version>4.1.0</version>
       </dependency>
 
       <dependency>
