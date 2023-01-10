@@ -402,6 +402,60 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return query.getResultList();
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public boolean existsAMembership(final String anyObjectKey, final String groupKey) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAAMembership.TABLE + " WHERE group_id=? AND anyobject_it=?");
+        query.setParameter(1, groupKey);
+        query.setParameter(2, anyObjectKey);
+
+        return ((Number) query.getSingleResult()).intValue() > 0;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean existsUMembership(final String userKey, final String groupKey) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAUMembership.TABLE + " WHERE group_id=? AND user_id=?");
+        query.setParameter(1, groupKey);
+        query.setParameter(2, userKey);
+
+        return ((Number) query.getSingleResult()).intValue() > 0;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<String> findAMembers(final String groupKey) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT anyObject_id FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
+        query.setParameter(1, groupKey);
+
+        List<String> result = new ArrayList<>();
+        query.getResultList().stream().map(key -> key instanceof Object[]
+                ? (String) ((Object[]) key)[0]
+                : ((String) key)).
+                forEach(item -> result.add((String) item));
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<String> findUMembers(final String groupKey) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT user_id FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
+        query.setParameter(1, groupKey);
+
+        List<String> result = new ArrayList<>();
+        query.getResultList().stream().map(key -> key instanceof Object[]
+                ? (String) ((Object[]) key)[0]
+                : ((String) key)).
+                forEach(item -> result.add((String) item));
+        return result;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public List<String> findADynMembers(final Group group) {
@@ -424,19 +478,19 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     }
 
     @Override
-    public int countAMembers(final Group group) {
+    public int countAMembers(final String groupKey) {
         Query query = entityManager().createNativeQuery(
                 "SELECT COUNT(anyObject_id) FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
-        query.setParameter(1, group.getKey());
+        query.setParameter(1, groupKey);
 
         return ((Number) query.getSingleResult()).intValue();
     }
 
     @Override
-    public int countUMembers(final Group group) {
+    public int countUMembers(final String groupKey) {
         Query query = entityManager().createNativeQuery(
                 "SELECT COUNT(user_id) FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
-        query.setParameter(1, group.getKey());
+        query.setParameter(1, groupKey);
 
         return ((Number) query.getSingleResult()).intValue();
     }

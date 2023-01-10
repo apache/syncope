@@ -435,8 +435,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         groupTO.getDynRealms().addAll(groupDAO.findDynRealms(group.getKey()));
 
         // Static user and AnyType membership counts
-        groupTO.setStaticUserMembershipCount(groupDAO.countUMembers(group));
-        groupTO.setStaticAnyObjectMembershipCount(groupDAO.countAMembers(group));
+        groupTO.setStaticUserMembershipCount(groupDAO.countUMembers(group.getKey()));
+        groupTO.setStaticAnyObjectMembershipCount(groupDAO.countAMembers(group.getKey()));
 
         // Dynamic user and AnyType membership counts
         groupTO.setDynamicUserMembershipCount(groupDAO.countUDynMembers(group));
