@@ -289,10 +289,12 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
                     append(taskTable).
                     append(".notification_id=?").append(setParameter(parameters, notification.getKey()));
         }
-        if (anyTypeKind != null && entityKey != null) {
+        if (anyTypeKind != null) {
             queryString.append(" AND ").
-                    append(taskTable).append(".anyTypeKind=?").append(setParameter(parameters, anyTypeKind.name())).
-                    append(" AND ").
+                    append(taskTable).append(".anyTypeKind=?").append(setParameter(parameters, anyTypeKind.name()));
+        }
+        if (entityKey != null) {
+            queryString.append(" AND ").
                     append(taskTable).append(".entityKey=?").append(setParameter(parameters, entityKey));
         }
         if (type == TaskType.MACRO

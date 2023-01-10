@@ -59,11 +59,19 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     List<TypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
 
+    boolean existsAMembership(String anyObjectKey, String groupKey);
+
+    boolean existsUMembership(String userKey, String groupKey);
+
+    List<String> findAMembers(String groupKey);
+
+    List<String> findUMembers(String groupKey);
+
     List<String> findADynMembers(Group group);
 
-    int countAMembers(Group group);
+    int countAMembers(String groupKey);
 
-    int countUMembers(Group group);
+    int countUMembers(String groupKey);
 
     int countADynMembers(Group group);
 

@@ -107,8 +107,7 @@ public class AuditITCase extends AbstractITCase {
         assertNotNull(userTO.getKey());
 
         AuditQuery query = new AuditQuery.Builder().entityKey(userTO.getKey()).build();
-        List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
-        assertEquals(1, entries.size());
+        int entriesBefore = query(query, MAX_WAIT_SECONDS).size();
 
         PagedResult<UserTO> usersTOs = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -118,8 +117,8 @@ public class AuditITCase extends AbstractITCase {
         assertNotNull(usersTOs);
         assertFalse(usersTOs.getResult().isEmpty());
 
-        entries = query(query, MAX_WAIT_SECONDS);
-        assertEquals(1, entries.size());
+        int entriesAfter = query(query, MAX_WAIT_SECONDS).size();
+        assertEquals(entriesBefore, entriesAfter);
     }
 
     @Test
@@ -178,8 +177,7 @@ public class AuditITCase extends AbstractITCase {
         assertNotNull(groupTO.getKey());
 
         AuditQuery query = new AuditQuery.Builder().entityKey(groupTO.getKey()).build();
-        List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
-        assertEquals(1, entries.size());
+        int entriesBefore = query(query, MAX_WAIT_SECONDS).size();
 
         PagedResult<GroupTO> groups = GROUP_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo(groupTO.getName()).query()).
@@ -187,8 +185,8 @@ public class AuditITCase extends AbstractITCase {
         assertNotNull(groups);
         assertFalse(groups.getResult().isEmpty());
 
-        entries = query(query, MAX_WAIT_SECONDS);
-        assertEquals(1, entries.size());
+        int entriesAfter = query(query, MAX_WAIT_SECONDS).size();
+        assertEquals(entriesBefore, entriesAfter);
     }
 
     @Test
@@ -208,8 +206,7 @@ public class AuditITCase extends AbstractITCase {
         assertNotNull(anyObjectTO);
 
         AuditQuery query = new AuditQuery.Builder().entityKey(anyObjectTO.getKey()).build();
-        List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
-        assertEquals(1, entries.size());
+        int entriesBefore = query(query, MAX_WAIT_SECONDS).size();
 
         PagedResult<AnyObjectTO> anyObjects = ANY_OBJECT_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -218,8 +215,8 @@ public class AuditITCase extends AbstractITCase {
         assertNotNull(anyObjects);
         assertFalse(anyObjects.getResult().isEmpty());
 
-        entries = query(query, MAX_WAIT_SECONDS);
-        assertEquals(1, entries.size());
+        int entriesAfter = query(query, MAX_WAIT_SECONDS).size();
+        assertEquals(entriesBefore, entriesAfter);
     }
 
     @Test
