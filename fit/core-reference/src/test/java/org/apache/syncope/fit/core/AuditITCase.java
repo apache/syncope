@@ -627,13 +627,11 @@ public class AuditITCase extends AbstractITCase {
                 }
             }
 
-            assertEquals(2, AUDIT_SERVICE.search(new AuditQuery.Builder().
+            assertEquals(1, AUDIT_SERVICE.search(new AuditQuery.Builder().
                     entityKey(pullFromLDAP.getKey()).
                     page(1).
                     size(10).
-                    events(List.of(
-                            "create", "update", "matchingrule_update", "unmatchingrule_assign",
-                            "unmatchingrule_provision")).
+                    events(List.of("matchingrule_update", "unmatchingrule_assign", "unmatchingrule_provision")).
                     result(AuditElements.Result.SUCCESS).
                     build()).getTotalCount());
         } finally {
