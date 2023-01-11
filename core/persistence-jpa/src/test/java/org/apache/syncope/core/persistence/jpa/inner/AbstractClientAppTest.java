@@ -53,10 +53,10 @@ public class AbstractClientAppTest extends AbstractTest {
     protected AccessPolicy buildAndSaveAccessPolicy() {
         AccessPolicy accessPolicy = entityFactory.newEntity(AccessPolicy.class);
         accessPolicy.setName("AccessPolicyTest");
-        accessPolicy.setEnabled(true);
-        accessPolicy.setSsoEnabled(false);
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
+        conf.setEnabled(true);
+        conf.setSsoEnabled(false);
         conf.getRequiredAttrs().add(new Attr.Builder("attribute1").values("value1", "value2").build());
         accessPolicy.setConf(conf);
 

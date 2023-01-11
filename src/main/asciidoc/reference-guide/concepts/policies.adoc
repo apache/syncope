@@ -268,14 +268,55 @@ a `JAVA` `PASSWORD_RULE` <<implementations,implementation>> for the
 [[policies-access]]
 ==== Access
 
-Access policies provide fine-grained control over the authorization rules to apply to
+Access policies provide fine-grained control over the access rules to apply to
 <<client-applications,client applications>>.
 
-An access policy describes whether the client application is allowed to use WA, allowed to participate in
-single sign-on authentication, etc. Additionally, it may be configured to require a certain set of principal attributes
-that must exist before access can be granted to the client application. This behavior allows one to configure various
-attributes in terms of access roles for the application and define rules that would be enacted and validated when an
-authentication request from the application arrives.
+The following access policy configurations are available by default:
+
+[cols="1,2"]
+|===
+
+|
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccessPolicyConf.java[DefaultAccessPolicyConf^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/3_0_X/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/DefaultAccessPolicyConf.java[DefaultAccessPolicyConf^]
+endif::[]
+| It describes whether the client application is allowed to use WA, allowed to participate in single sign-on
+authentication, etc; additionally, it may be configured to require a certain set of principal attributes that must exist
+before access can be granted.
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/HttpRequestAccessPolicyConf.java[HttpRequestAccessPolicyConf^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/3_0_X/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/HttpRequestAccessPolicyConf.java[HttpRequestAccessPolicyConf^]
+endif::[]
+| Make access decisions based on HTTP request properties as client IP address and user-agent.
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/RemoteEndpointAccessPolicyConf.java[RemoteEndpointAccessPolicyConf^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/3_0_X/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/RemoteEndpointAccessPolicyConf.java[RemoteEndpointAccessPolicyConf^]
+endif::[]
+| Delegate access decisions to a remote endpoint by receiving the authenticated principal as url parameter of a `GET`
+request; the response code that the endpoint returns is then compared against the policy setting and if a match is
+found, access is granted.
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/TimeBasedAccessPolicyConf.java[TimeBasedAccessPolicyConf^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/3_0_X/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/TimeBasedAccessPolicyConf.java[TimeBasedAccessPolicyConf^]
+endif::[]
+| Access is only allowed within the configured timeframe.
+
+|===
 
 [NOTE]
 Access Policy instances are dynamically translated into

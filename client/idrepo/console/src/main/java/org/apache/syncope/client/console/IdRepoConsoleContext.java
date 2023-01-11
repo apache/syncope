@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.client.console;
 
+import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
+import org.apache.syncope.client.console.commons.IdRepoAccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.IdRepoAnyWizardBuilderAdditionalSteps;
@@ -46,7 +48,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
-public class ConsoleContext {
+public class IdRepoConsoleContext {
 
     @ConditionalOnMissingBean
     @Bean
@@ -124,5 +126,11 @@ public class ConsoleContext {
     @Bean
     public PolicyTabProvider idRepoPolicyTabProvider() {
         return new IdRepoPolicyTabProvider();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AccessPolicyConfProvider accessPolicyConfProvider() {
+        return new IdRepoAccessPolicyConfProvider();
     }
 }

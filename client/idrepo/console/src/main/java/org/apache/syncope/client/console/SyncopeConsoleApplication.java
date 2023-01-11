@@ -21,6 +21,7 @@ package org.apache.syncope.client.console;
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
 import java.util.Map;
 import org.apache.syncope.client.console.actuate.SyncopeConsoleInfoContributor;
+import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
@@ -77,6 +78,7 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
             final StatusProvider statusProvider,
             final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
             final ImplementationInfoProvider implementationInfoProvider,
+            final AccessPolicyConfProvider accessPolicyConfProvider,
             final ApplicationContext ctx) {
 
         return new SyncopeWebApplication(
@@ -88,7 +90,9 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
                 anyDirectoryPanelAdditionalActionLinksProvider,
                 anyWizardBuilderAdditionalSteps, statusProvider,
                 virSchemaDetailsPanelProvider,
-                implementationInfoProvider, ctx);
+                implementationInfoProvider,
+                accessPolicyConfProvider,
+                ctx);
     }
 
     @ConditionalOnMissingBean

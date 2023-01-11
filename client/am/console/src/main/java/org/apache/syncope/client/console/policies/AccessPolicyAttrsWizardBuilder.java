@@ -23,8 +23,8 @@ import java.util.List;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wizards.AttrWizardBuilder;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 import org.danekja.java.util.function.serializable.SerializableFunction;
@@ -35,11 +35,11 @@ public class AccessPolicyAttrsWizardBuilder extends AttrWizardBuilder {
 
     private final AccessPolicyTO accessPolicy;
 
-    private final SerializableFunction<AccessPolicyConf, List<Attr>> attrsAccessor;
+    private final SerializableFunction<DefaultAccessPolicyConf, List<Attr>> attrsAccessor;
 
     public AccessPolicyAttrsWizardBuilder(
             final AccessPolicyTO accessPolicy,
-            final SerializableFunction<AccessPolicyConf, List<Attr>> attrsAccessor,
+            final SerializableFunction<DefaultAccessPolicyConf, List<Attr>> attrsAccessor,
             final Attr attr,
             final PageReference pageRef) {
 
@@ -50,8 +50,9 @@ public class AccessPolicyAttrsWizardBuilder extends AttrWizardBuilder {
 
     @Override
     protected Serializable onApplyInternal(final Attr modelObject) {
-        attrsAccessor.apply(accessPolicy.getConf()).removeIf(p -> modelObject.getSchema().equals(p.getSchema()));
-        attrsAccessor.apply(accessPolicy.getConf()).add(modelObject);
+        attrsAccessor.apply((DefaultAccessPolicyConf) accessPolicy.getConf()).
+                removeIf(p -> modelObject.getSchema().equals(p.getSchema()));
+        attrsAccessor.apply((DefaultAccessPolicyConf) accessPolicy.getConf()).add(modelObject);
 
         PolicyRestClient.update(PolicyType.ACCESS, accessPolicy);
 

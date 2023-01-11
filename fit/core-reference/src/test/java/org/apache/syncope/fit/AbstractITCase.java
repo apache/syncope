@@ -952,9 +952,9 @@ public abstract class AbstractITCase {
     protected static AccessPolicyTO buildAccessPolicyTO() {
         AccessPolicyTO policy = new AccessPolicyTO();
         policy.setName("Test Access policy");
-        policy.setEnabled(true);
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
+        conf.setEnabled(true);
         conf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
         policy.setConf(conf);
 
