@@ -459,10 +459,10 @@ under the License.
     <chartjs.version>1.0.2</chartjs.version>
 
     <wicket.version>10.0.0-M1-SNAPSHOT</wicket.version>
-    <wicketstuff.version>9.12.0</wicketstuff.version>
+    <wicketstuff.version>10.0.0-SNAPSHOT</wicketstuff.version>
     <wicket-jqueryui.version>9.11.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.6</wicket-bootstrap.version>
-    <wicket-spring-boot.version>3.1.7</wicket-spring-boot.version>
+    <wicket-spring-boot.version>4.0.0-SNAPSHOT</wicket-spring-boot.version>
 
     <antlr4.version>4.11.1</antlr4.version>
 
@@ -1316,6 +1316,16 @@ under the License.
   </dependencyManagement>
 
   <repositories>
+    <repository>
+      <id>tmp-wicket-spring-boot</id>
+      <url>https://maven.pkg.github.com/ilgrosso/wicket-spring-boot</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
     <repository>
       <id>sonatype</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>

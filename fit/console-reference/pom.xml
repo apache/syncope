@@ -127,7 +127,6 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=embedded,all
-                -Dwicket.ioc.useByteBuddy=true
                 -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
           </configuration>
@@ -207,7 +206,6 @@ under the License.
                   <cargo.jvmargs>
                     -Dspring.profiles.active=embedded,all
                     -Dwicket.core.settings.general.configuration-type=development
-                    -Dwicket.ioc.useByteBuddy=true
                     -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
                     -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
@@ -277,7 +275,6 @@ under the License.
                   <cargo.jvmargs>
                     -Dspring.profiles.active=embedded,all
                     -Dwicket.core.settings.general.configuration-type=development
-                    -Dwicket.ioc.useByteBuddy=true
                     -javaagent:${java.home}/lib/hotswap/hotswap-agent.jar=autoHotswap=true,disablePlugin=Spring,disablePlugin=Hibernate,disablePlugin=CxfJAXRS
                     -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000
                     -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m</cargo.jvmargs>
