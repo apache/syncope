@@ -1317,16 +1317,6 @@ under the License.
 
   <repositories>
     <repository>
-      <id>tmp-wicket-spring-boot</id>
-      <url>https://maven.pkg.github.com/ilgrosso/wicket-spring-boot</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
       <id>sonatype</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <releases>
