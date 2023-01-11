@@ -36,11 +36,11 @@ public abstract class SerializationTest {
     public void accessPolicyConf() throws IOException {
         AccessPolicyTO policy = new AccessPolicyTO();
         policy.setName("Test Access policy");
-        policy.setOrder(11);
-        policy.setEnabled(true);
-        policy.setUnauthorizedRedirectUrl(URI.create("https://syncope.apache.org"));
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
+        conf.setOrder(11);
+        conf.setEnabled(true);
+        conf.setUnauthorizedRedirectUrl(URI.create("https://syncope.apache.org"));
         conf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
         conf.getRejectedAttrs().add(new Attr.Builder("uid").values("plain").build());
         policy.setConf(conf);

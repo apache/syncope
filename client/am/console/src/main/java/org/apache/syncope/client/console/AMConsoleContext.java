@@ -18,8 +18,10 @@
  */
 package org.apache.syncope.client.console;
 
+import org.apache.syncope.client.console.commons.AMAccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AMPolicyTabProvider;
 import org.apache.syncope.client.console.commons.AMRealmPolicyProvider;
+import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.RealmPolicyProvider;
 import org.apache.syncope.client.console.init.AMClassPathScanImplementationContributor;
@@ -28,7 +30,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
-public class SyncopeAMConsoleContext {
+public class AMConsoleContext {
 
     @Bean
     public ClassPathScanImplementationContributor amClassPathScanImplementationContributor() {
@@ -43,5 +45,10 @@ public class SyncopeAMConsoleContext {
     @Bean
     public PolicyTabProvider amPolicyTabProvider() {
         return new AMPolicyTabProvider();
+    }
+
+    @Bean
+    public AccessPolicyConfProvider accessPolicyConfProvider() {
+        return new AMAccessPolicyConfProvider();
     }
 }

@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.policies;
 
 import java.io.Serializable;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +56,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.validation.validator.UrlValidator;
 
 public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPanelBuilder<T> {
 
@@ -129,6 +127,16 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
             @Override
             protected List<String> load() {
                 return SyncopeWebApplication.get().getResourceProvider().get();
+            }
+        };
+
+        private final LoadableDetachableModel<List<String>> accessPolicyConfClasses = new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return SyncopeWebApplication.get().getAccessPolicyConfProvider().get();
             }
         };
 
@@ -256,59 +264,41 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                     break;
 
                 case ACCESS:
-                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                    fields.add(new AjaxDropDownChoicePanel<>(
                             "field",
-                            "order",
-                            Integer.class,
-                            new PropertyModel<>(policyTO, "order")));
-                    fields.add(new AjaxCheckBoxPanel(
-                            "field",
-                            "enabled",
-                            new PropertyModel<>(policyTO, "enabled"),
-                            false));
-                    fields.add(new AjaxCheckBoxPanel(
-                            "field",
-                            "ssoEnabled",
-                            new PropertyModel<>(policyTO, "ssoEnabled"),
-                            false));
-                    fields.add(new AjaxCheckBoxPanel(
-                            "field",
-                            "requireAllAttributes",
-                            new PropertyModel<>(policyTO, "requireAllAttributes"),
-                            false));
-                    fields.add(new AjaxCheckBoxPanel(
-                            "field",
-                            "caseInsensitive",
-                            new PropertyModel<>(policyTO, "caseInsensitive"),
-                            false));
-                    AjaxTextFieldPanel unauthorizedRedirectUrl = new AjaxTextFieldPanel(
-                            "field",
-                            "unauthorizedRedirectUrl",
+                            "conf",
                             new IModel<>() {
 
-                        private static final long serialVersionUID = 1015030402166681242L;
+                        private static final long serialVersionUID = -6515946495655944432L;
 
                         @Override
-                        public String getObject() {
-                            return Optional.ofNullable(
-                                    (URI) PropertyResolver.getValue("unauthorizedRedirectUrl", policyTO)).
-                                    map(URI::toASCIIString).orElse(null);
+                        public Serializable getObject() {
+                            return Optional.ofNullable(PropertyResolver.getValue("conf", policyTO)).
+                                    map(obj -> obj.getClass().getName()).
+                                    orElse(null);
                         }
 
                         @Override
-                        public void setObject(final String object) {
+                        public void setObject(final Serializable object) {
+                            Object conf = Optional.ofNullable(object).map(o -> {
+                                try {
+                                    return Class.forName(object.toString()).getDeclaredConstructor().newInstance();
+                                } catch (Exception e) {
+                                    LOG.error("Could not instantiate {}", object, e);
+                                    return null;
+                                }
+                            }).orElse(null);
+
                             PropertyResolverConverter prc = new PropertyResolverConverter(
                                     Application.get().getConverterLocator(),
                                     SyncopeConsoleSession.get().getLocale());
                             PropertyResolver.setValue(
-                                    "unauthorizedRedirectUrl",
+                                    "conf",
                                     policyTO,
-                                    Optional.ofNullable(object).map(URI::create).orElse(null),
+                                    Optional.ofNullable(conf).orElse(null),
                                     prc);
                         }
-                    }, false);
-                    unauthorizedRedirectUrl.getField().add(new UrlValidator(new String[] { "http", "https" }));
-                    fields.add(unauthorizedRedirectUrl);
+                    }).setChoices(accessPolicyConfClasses).setRequired(true));
                     break;
 
                 case ATTR_RELEASE:

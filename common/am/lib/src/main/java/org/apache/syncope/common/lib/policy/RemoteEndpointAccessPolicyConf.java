@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,31 +18,30 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.ArrayList;
+import java.util.List;
 
-@Schema(allOf = { PolicyTO.class })
-public class AccessPolicyTO extends PolicyTO {
+public class RemoteEndpointAccessPolicyConf implements AccessPolicyConf {
 
-    private static final long serialVersionUID = -6711411162433533300L;
+    private static final long serialVersionUID = -1573476136969750601L;
 
-    private AccessPolicyConf conf;
+    private String endpointUrl;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
-    @JsonProperty("_class")
-    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
-            example = "org.apache.syncope.common.lib.policy.AccessPolicyTO")
-    @Override
-    public String getDiscriminator() {
-        return getClass().getName();
+    private final List<String> acceptableResponseCodes = new ArrayList<>();
+
+    public String getEndpointUrl() {
+        return endpointUrl;
     }
 
-    public AccessPolicyConf getConf() {
-        return conf;
+    public void setEndpointUrl(final String endpointUrl) {
+        this.endpointUrl = endpointUrl;
     }
 
-    public void setConf(final AccessPolicyConf conf) {
-        this.conf = conf;
+    @JacksonXmlElementWrapper(localName = "acceptableResponseCodes")
+    @JacksonXmlProperty(localName = "acceptableResponseCode")
+    public List<String> getAcceptableResponseCodes() {
+        return acceptableResponseCodes;
     }
 }

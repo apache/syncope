@@ -53,7 +53,8 @@ under the License.
               jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
 
   <!-- Access policies -->
-  <AccessPolicy aporder="0" ssoEnabled="1" name="MyDefaultAccessPolicyConf" caseInsensitive="1" id="419935c7-deb3-40b3-8a9a-683037e523a2" enabled="1" requireAllAttributes="1"/>
+  <AccessPolicy name="DefaultAccessPolicy" id="419935c7-deb3-40b3-8a9a-683037e523a2"
+                jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf","order":0,"ssoEnabled":true,"caseInsensitive":true,"enabled":true,"requireAllAttributes":true}'/>
 
   <!-- Attr Release Policies -->
   <AttrReleasePolicy arporder="0" name="DenyAttrReleasePolicy" id="219935c7-deb3-40b3-8a9a-683037e523a2"

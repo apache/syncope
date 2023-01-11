@@ -92,17 +92,21 @@ public class SAML2SPEntityDirectoryPanel extends DirectoryPanel<
 
         columns.add(new AbstractColumn<>(Model.of("URL")) {
 
+            private static final long serialVersionUID = -7226955670801277153L;
+
             @Override
             public void populateItem(
-                final Item<ICellPopulator<SAML2SPEntityTO>> cellItem,
-                final String componentId,
-                final IModel<SAML2SPEntityTO> rowModel) {
+                    final Item<ICellPopulator<SAML2SPEntityTO>> cellItem,
+                    final String componentId,
+                    final IModel<SAML2SPEntityTO> rowModel) {
 
                 String metadataURL = waPrefix + "/sp/" + rowModel.getObject().getKey() + "/metadata";
                 cellItem.add(new ExternalLink(
-                    componentId,
-                    Model.of(metadataURL),
-                    Model.of(metadataURL)) {
+                        componentId,
+                        Model.of(metadataURL),
+                        Model.of(metadataURL)) {
+
+                    private static final long serialVersionUID = -1919646533527005367L;
 
                     @Override
                     protected void onComponentTag(final ComponentTag tag) {
@@ -132,8 +136,8 @@ public class SAML2SPEntityDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final SAML2SPEntityTO ignore) {
                 send(SAML2SPEntityDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(
-                        SAML2SPEntityRestClient.get(model.getObject().getKey()), target));
+                        new AjaxWizard.EditItemActionEvent<>(
+                                SAML2SPEntityRestClient.get(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.SAML2_SP_ENTITY_SET);
 

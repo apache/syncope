@@ -16,13 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.policy;
+package org.apache.syncope.client.console.commons;
 
-import org.apache.syncope.common.lib.policy.AccessPolicyConf;
+import java.util.List;
 
-public interface AccessPolicy extends Policy {
+public class IdRepoAccessPolicyConfProvider implements AccessPolicyConfProvider {
 
-    AccessPolicyConf getConf();
+    private static final long serialVersionUID = 3002474783308961295L;
 
-    void setConf(AccessPolicyConf conf);
+    @Override
+    public List<String> get() {
+        return List.of();
+    }
 }

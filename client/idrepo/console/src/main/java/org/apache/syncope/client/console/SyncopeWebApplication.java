@@ -26,6 +26,7 @@ import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
@@ -101,6 +102,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     protected final ImplementationInfoProvider implementationInfoProvider;
 
+    protected final AccessPolicyConfProvider accessPolicyConfProvider;
+
     protected final ApplicationContext ctx;
 
     public SyncopeWebApplication(
@@ -114,6 +117,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
             final StatusProvider statusProvider,
             final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
             final ImplementationInfoProvider implementationInfoProvider,
+            final AccessPolicyConfProvider accessPolicyConfProvider,
             final ApplicationContext ctx) {
 
         this.props = props;
@@ -126,6 +130,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         this.statusProvider = statusProvider;
         this.virSchemaDetailsPanelProvider = virSchemaDetailsPanelProvider;
         this.implementationInfoProvider = implementationInfoProvider;
+        this.accessPolicyConfProvider = accessPolicyConfProvider;
         this.ctx = ctx;
     }
 
@@ -348,5 +353,9 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         });
 
         return finalizers;
+    }
+
+    public AccessPolicyConfProvider getAccessPolicyConfProvider() {
+        return accessPolicyConfProvider;
     }
 }

@@ -19,14 +19,8 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import java.util.List;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.BaseBean;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 public interface AccessPolicyConf extends BaseBean {
-
-    List<Attr> getRequiredAttrs();
-
-    List<Attr> getRejectedAttrs();
 }

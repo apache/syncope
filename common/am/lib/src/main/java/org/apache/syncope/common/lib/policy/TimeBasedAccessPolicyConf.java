@@ -16,13 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.policy;
+package org.apache.syncope.common.lib.policy;
 
-import org.apache.syncope.common.lib.policy.AccessPolicyConf;
+import java.time.ZoneOffset;
+import org.apache.syncope.common.lib.to.AbstractStartEndBean;
 
-public interface AccessPolicy extends Policy {
+public class TimeBasedAccessPolicyConf extends AbstractStartEndBean implements AccessPolicyConf {
 
-    AccessPolicyConf getConf();
+    private static final long serialVersionUID = 9092023809646651011L;
 
-    void setConf(AccessPolicyConf conf);
+    private String zoneId = ZoneOffset.UTC.getId();
+
+    public String getZoneId() {
+        return zoneId;
+    }
+
+    public void setZoneId(final String zoneId) {
+        this.zoneId = zoneId;
+    }
 }

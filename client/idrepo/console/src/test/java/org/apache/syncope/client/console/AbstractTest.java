@@ -35,10 +35,12 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.Client;
+import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
+import org.apache.syncope.client.console.commons.IdRepoAccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.IdRepoAnyWizardBuilderAdditionalSteps;
@@ -194,6 +196,11 @@ public abstract class AbstractTest {
         public PolicyTabProvider policyTabProvider() {
             return new IdRepoPolicyTabProvider();
         }
+
+        @Bean
+        public AccessPolicyConfProvider accessPolicyConfProvider() {
+            return new IdRepoAccessPolicyConfProvider();
+        }
     }
 
     public static class TestSyncopeWebApplication extends SyncopeWebApplication {
@@ -209,11 +216,12 @@ public abstract class AbstractTest {
                 final StatusProvider statusProvider,
                 final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
                 final ImplementationInfoProvider implementationInfoProvider,
+                final AccessPolicyConfProvider accessPolicyConfProvider,
                 final ApplicationContext ctx) {
 
             super(props, lookup, serviceOps, resourceProvider, anyDirectoryPanelAdditionalActionsProvider,
                     anyDirectoryPanelAdditionalActionLinksProvider, anyWizardBuilderAdditionalSteps, statusProvider,
-                    virSchemaDetailsPanelProvider, implementationInfoProvider, ctx);
+                    virSchemaDetailsPanelProvider, implementationInfoProvider, accessPolicyConfProvider, ctx);
         }
 
         public interface SyncopeServiceClient extends SyncopeService, Client {
