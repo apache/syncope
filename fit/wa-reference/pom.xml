@@ -205,7 +205,7 @@ under the License.
                 <context>syncope</context>
               </properties>
             </deployable>
-            <!--<deployable>
+            <deployable>
               <groupId>org.apache.syncope.fit</groupId>
               <artifactId>syncope-fit-console-reference</artifactId>
               <type>war</type>
@@ -220,7 +220,7 @@ under the License.
               <properties>
                 <context>syncope-enduser</context>
               </properties>
-            </deployable>-->
+            </deployable>
             <deployable>
               <location>${project.build.directory}/${project.build.finalName}</location>
               <properties>

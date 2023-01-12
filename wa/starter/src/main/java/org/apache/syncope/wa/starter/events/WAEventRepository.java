@@ -108,4 +108,9 @@ public class WAEventRepository extends AbstractCasEventRepository {
     public Stream<? extends CasEvent> load() {
         throw new UnsupportedOperationException("Fetching authentication events from WA is not supported");
     }
+
+    @Override
+    public void removeAll() {
+        throw new UnsupportedOperationException("Removing authentication events from WA is not supported");
+    }
 }

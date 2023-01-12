@@ -45,7 +45,7 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>com.giffing.wicket.spring.boot.starter</groupId>
+      <groupId>net.tirasa.syncope.com.giffing.wicket.spring.boot.starter</groupId>
       <artifactId>wicket-spring-boot-starter</artifactId>
     </dependency>
     <dependency>
