@@ -20,9 +20,9 @@ package org.apache.syncope.fit.buildtools.cxf;
 
 import com.icegreen.greenmail.smtp.InterruptableSmtpServer;
 import com.icegreen.greenmail.util.GreenMail;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Context;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.syncope.fit.buildtools.GreenMailStartStopListener;
 import org.slf4j.Logger;

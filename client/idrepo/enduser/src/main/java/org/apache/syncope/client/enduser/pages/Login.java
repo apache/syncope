@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import java.security.AccessControlException;
+import jakarta.ws.rs.NotAuthorizedException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -95,12 +95,12 @@ public class Login extends BaseLogin {
 
     @Override
     protected void authenticate(final String username, final String password, final AjaxRequestTarget target)
-            throws AccessControlException {
+            throws NotAuthorizedException {
 
         if (SyncopeWebApplication.get().getAnonymousUser().equals(username)
                 || SyncopeWebApplication.get().getAdminUser().equals(username)) {
 
-            throw new AccessControlException("Illegal username");
+            throw new NotAuthorizedException("Illegal username");
         }
 
         if (SyncopeEnduserSession.get().authenticate(username, password)) {

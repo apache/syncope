@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import jakarta.ws.rs.core.MediaType;
 import java.io.InputStream;
 import java.util.List;
-import javax.ws.rs.core.MediaType;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;

@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
+import jakarta.xml.bind.DatatypeConverter;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.Set;
-import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.Provision;

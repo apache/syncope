@@ -85,9 +85,9 @@ under the License.
             <phase>process-resources</phase>
             <configuration>
               <target>
-                <unzip src="${settings.localRepository}/org/flowable/flowable-ui-modeler-frontend/${flowable.version}/flowable-ui-modeler-frontend-${flowable.version}.jar" dest="${flowable-modeler.directory}"/>
+                <unzip src="${settings.localRepository}/org/flowable/flowable-ui-modeler-frontend/${flowable-old.version}/flowable-ui-modeler-frontend-${flowable-old.version}.jar" dest="${flowable-modeler.directory}"/>
 
-                <unzip src="${settings.localRepository}/org/flowable/flowable-ui-modeler-logic/${flowable.version}/flowable-ui-modeler-logic-${flowable.version}.jar" dest="${flowable-modeler.directory}">
+                <unzip src="${settings.localRepository}/org/flowable/flowable-ui-modeler-logic/${flowable-old.version}/flowable-ui-modeler-logic-${flowable-old.version}.jar" dest="${flowable-modeler.directory}">
                   <patternset>
                     <include name="stencilset_bpmn.json"/>
                   </patternset>

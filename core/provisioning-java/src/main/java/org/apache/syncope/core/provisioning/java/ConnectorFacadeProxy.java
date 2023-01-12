@@ -141,8 +141,8 @@ public class ConnectorFacadeProxy implements Connector {
                 throw new TimeoutException("Request timeout");
             } catch (Exception e) {
                 LOG.error("Connector request execution failure", e);
-                if (e.getCause() instanceof RuntimeException) {
-                    throw (RuntimeException) e.getCause();
+                if (e.getCause() instanceof RuntimeException runtimeException) {
+                    throw runtimeException;
                 } else {
                     throw new RuntimeException(e.getCause());
                 }
@@ -175,8 +175,8 @@ public class ConnectorFacadeProxy implements Connector {
                 throw new TimeoutException("Request timeout");
             } catch (Exception e) {
                 LOG.error("Connector request execution failure", e);
-                if (e.getCause() instanceof RuntimeException) {
-                    throw (RuntimeException) e.getCause();
+                if (e.getCause() instanceof RuntimeException runtimeException) {
+                    throw runtimeException;
                 } else {
                     throw new RuntimeException(e.getCause());
                 }
@@ -211,8 +211,8 @@ public class ConnectorFacadeProxy implements Connector {
                 throw new TimeoutException("Request timeout");
             } catch (Exception e) {
                 LOG.error("Connector request execution failure", e);
-                if (e.getCause() instanceof RuntimeException) {
-                    throw (RuntimeException) e.getCause();
+                if (e.getCause() instanceof RuntimeException runtimeException) {
+                    throw runtimeException;
                 } else {
                     throw new RuntimeException(e.getCause());
                 }
@@ -239,7 +239,7 @@ public class ConnectorFacadeProxy implements Connector {
         if (connInstance.getCapabilities().contains(ConnectorCapability.UPDATE_DELTA)) {
             propagationAttempted.set(true);
 
-            Future<Set<AttributeDelta>> future = 
+            Future<Set<AttributeDelta>> future =
                     asyncFacade.updateDelta(connector, objectClass, uid, modifications, options);
 
             try {
@@ -249,8 +249,8 @@ public class ConnectorFacadeProxy implements Connector {
                 throw new TimeoutException("Request timeout");
             } catch (Exception e) {
                 LOG.error("Connector request execution failure", e);
-                if (e.getCause() instanceof RuntimeException) {
-                    throw (RuntimeException) e.getCause();
+                if (e.getCause() instanceof RuntimeException runtimeException) {
+                    throw runtimeException;
                 } else {
                     throw new RuntimeException(e.getCause());
                 }
@@ -283,8 +283,8 @@ public class ConnectorFacadeProxy implements Connector {
                 throw new TimeoutException("Request timeout");
             } catch (Exception e) {
                 LOG.error("Connector request execution failure", e);
-                if (e.getCause() instanceof RuntimeException) {
-                    throw (RuntimeException) e.getCause();
+                if (e.getCause() instanceof RuntimeException runtimeException) {
+                    throw runtimeException;
                 } else {
                     throw new RuntimeException(e.getCause());
                 }
@@ -321,8 +321,8 @@ public class ConnectorFacadeProxy implements Connector {
                 throw new TimeoutException("Request timeout");
             } catch (Exception e) {
                 LOG.error("Connector request execution failure", e);
-                if (e.getCause() instanceof RuntimeException) {
-                    throw (RuntimeException) e.getCause();
+                if (e.getCause() instanceof RuntimeException runtimeException) {
+                    throw runtimeException;
                 } else {
                     throw new RuntimeException(e.getCause());
                 }
@@ -364,8 +364,8 @@ public class ConnectorFacadeProxy implements Connector {
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
-            if (e.getCause() instanceof RuntimeException) {
-                throw (RuntimeException) e.getCause();
+            if (e.getCause() instanceof RuntimeException runtimeException) {
+                throw runtimeException;
             } else {
                 throw new RuntimeException(e.getCause());
             }
@@ -382,8 +382,8 @@ public class ConnectorFacadeProxy implements Connector {
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
-            if (e.getCause() instanceof RuntimeException) {
-                throw (RuntimeException) e.getCause();
+            if (e.getCause() instanceof RuntimeException runtimeException) {
+                throw runtimeException;
             } else {
                 throw new RuntimeException(e.getCause());
             }
@@ -400,8 +400,8 @@ public class ConnectorFacadeProxy implements Connector {
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
-            if (e.getCause() instanceof RuntimeException) {
-                throw (RuntimeException) e.getCause();
+            if (e.getCause() instanceof RuntimeException runtimeException) {
+                throw runtimeException;
             } else {
                 throw new RuntimeException(e.getCause());
             }
@@ -415,24 +415,25 @@ public class ConnectorFacadeProxy implements Connector {
             final boolean ignoreCaseMatch,
             final OperationOptions options) {
 
-        Future<ConnectorObject> future = null;
+        Future<ConnectorObject> future;
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
             future = asyncFacade.getObject(connector, objectClass, connObjectKey, ignoreCaseMatch, options);
         } else {
             LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
                     connInstance.getCapabilities());
+            return null;
         }
 
         try {
-            return future == null ? null : future.get(connInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
+            return future.get(connInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
             future.cancel(true);
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
-            if (e.getCause() instanceof RuntimeException) {
-                throw (RuntimeException) e.getCause();
+            if (e.getCause() instanceof RuntimeException runtimeException) {
+                throw runtimeException;
             } else {
                 throw new RuntimeException(e.getCause());
             }
@@ -508,15 +509,15 @@ public class ConnectorFacadeProxy implements Connector {
                 value = values.get(0) == null || values.get(0).toString().isEmpty()
                         ? null : values.get(0).toString().charAt(0);
             } else if (Integer.class.equals(propertySchemaClass) || Integer.TYPE.equals(propertySchemaClass)) {
-                value = Integer.parseInt(values.get(0).toString());
+                value = Integer.valueOf(values.get(0).toString());
             } else if (Long.class.equals(propertySchemaClass) || Long.TYPE.equals(propertySchemaClass)) {
-                value = Long.parseLong(values.get(0).toString());
+                value = Long.valueOf(values.get(0).toString());
             } else if (Float.class.equals(propertySchemaClass) || Float.TYPE.equals(propertySchemaClass)) {
-                value = Float.parseFloat(values.get(0).toString());
+                value = Float.valueOf(values.get(0).toString());
             } else if (Double.class.equals(propertySchemaClass) || Double.TYPE.equals(propertySchemaClass)) {
-                value = Double.parseDouble(values.get(0).toString());
+                value = Double.valueOf(values.get(0).toString());
             } else if (Boolean.class.equals(propertySchemaClass) || Boolean.TYPE.equals(propertySchemaClass)) {
-                value = Boolean.parseBoolean(values.get(0).toString());
+                value = Boolean.valueOf(values.get(0).toString());
             } else if (URI.class.equals(propertySchemaClass)) {
                 value = URI.create(values.get(0).toString());
             } else if (File.class.equals(propertySchemaClass)) {

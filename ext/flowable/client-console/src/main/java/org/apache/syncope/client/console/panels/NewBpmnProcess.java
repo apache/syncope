@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import jakarta.ws.rs.core.MediaType;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.BpmnProcessRestClient;

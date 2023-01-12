@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import org.apache.cxf.jaxrs.client.WebClient
 import org.identityconnectors.framework.common.objects.Uid
-import javax.ws.rs.core.Response
+import jakarta.ws.rs.core.Response
 
 // Parameters:
 // The connector sends us the following:

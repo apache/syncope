@@ -47,6 +47,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.logic.init.SAML2SP4UILoader;
+import org.apache.syncope.core.logic.saml2.BaseProfileManagerFactory;
 import org.apache.syncope.core.logic.saml2.NoOpSessionStore;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIContext;
@@ -323,7 +324,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
                     saml2Response);
 
             credentials = (SAML2Credentials) saml2Client.getCredentialsExtractor().
-                    extract(ctx, NoOpSessionStore.INSTANCE).
+                    extract(ctx, NoOpSessionStore.INSTANCE, BaseProfileManagerFactory.INSTANCE).
                     orElseThrow(() -> new IllegalStateException("No AuthnResponse found"));
 
             saml2Client.getAuthenticator().validate(credentials, ctx, NoOpSessionStore.INSTANCE);

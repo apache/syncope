@@ -41,6 +41,7 @@ import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 import reactor.core.publisher.Mono;
@@ -92,7 +93,7 @@ public class SyncopeSRAWebExceptionHandler implements WebExceptionHandler, Appli
         try {
             List<MediaType> acceptedMediaTypes = request.getHeaders().getAccept();
             acceptedMediaTypes.remove(MediaType.ALL);
-            MediaType.sortBySpecificityAndQuality(acceptedMediaTypes);
+            MimeTypeUtils.sortBySpecificity(acceptedMediaTypes);
             return acceptedMediaTypes.stream().anyMatch(MediaType.TEXT_HTML::isCompatibleWith);
         } catch (InvalidMediaTypeException e) {
             LOG.debug("Unexpected exception", e);

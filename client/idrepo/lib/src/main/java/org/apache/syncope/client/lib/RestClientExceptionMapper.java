@@ -18,16 +18,16 @@
  */
 package org.apache.syncope.client.lib;
 
-import java.security.AccessControlException;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.Provider;
+import jakarta.xml.ws.WebServiceException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.Provider;
-import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
@@ -57,9 +57,10 @@ public class RestClientExceptionMapper implements ResponseExceptionMapper<Except
                     : scce;
         } else if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
             // 2. Map SC_UNAUTHORIZED
-            ex = new AccessControlException(StringUtils.isBlank(message)
+            ex = new NotAuthorizedException(StringUtils.isBlank(message)
                     ? "Remote unauthorized exception"
-                    : message);
+                    : message,
+                    Response.status(Response.Status.UNAUTHORIZED).build());
         } else if (statusCode == Response.Status.FORBIDDEN.getStatusCode()) {
             // 3. Map SC_FORBIDDEN
             ex = new ForbiddenException(StringUtils.isBlank(message)

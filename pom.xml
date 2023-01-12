@@ -397,9 +397,9 @@ under the License.
     <project.build.outputTimestamp>2022-12-26T08:35:28Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.5.1.0</connid.version>
-    <connid.soap.version>1.4.5</connid.soap.version>
-    <connid.rest.version>1.0.7</connid.rest.version>
+    <connid.version>1.6.0.0-SNAPSHOT</connid.version>
+    <connid.soap.version>1.5.0-SNAPSHOT</connid.soap.version>
+    <connid.rest.version>1.1.0-SNAPSHOT</connid.rest.version>
     <connid.database.version>2.2.9</connid.database.version>
     <connid.csvdir.version>0.8.9</connid.csvdir.version>
     <connid.ldap.version>1.5.7</connid.ldap.version>
@@ -411,44 +411,36 @@ under the License.
     <connid.okta.version>2.1.2</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
 
-    <cxf.version>3.5.5</cxf.version>
-    <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.25.6</nimbus-jose-jwt.version>
+    <cxf.version>4.0.0</cxf.version>
+    <bouncycastle.version>1.72</bouncycastle.version>
+    <nimbus-jose-jwt.version>9.26</nimbus-jose-jwt.version>
 
-    <jackson.version>2.14.1</jackson.version>
-
-    <spring-boot.version>2.7.7</spring-boot.version>
-    <spring-cloud-gateway.version>3.1.4</spring-cloud-gateway.version>
+    <spring-boot.version>3.0.1</spring-boot.version>
+    <spring-cloud-gateway.version>4.0.0</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.2</openjpa.version>
     <hikaricp.version>5.0.1</hikaricp.version>
-    <bval.version>2.0.6</bval.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
     <groovy.version>4.0.7</groovy.version>
 
-    <flowable.version>6.8.0</flowable.version>
-
-    <slf4j.version>1.7.36</slf4j.version>
+    <flowable.version>7.0.0.M1</flowable.version>
+    <flowable-old.version>6.8.0</flowable-old.version>
 
     <elasticsearch.version>8.6.0</elasticsearch.version>
 
-    <log4j2.version>2.19.0</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
     
     <commons-jexl.version>3.2.1</commons-jexl.version>
-    <commons-lang.version>3.12.0</commons-lang.version>
     <commons-text.version>1.10.0</commons-text.version>
-    <commons-codec.version>1.15</commons-codec.version>
-    <commons-logging.version>1.1.3</commons-logging.version>
 
     <modernizer-maven.version>2.5.0</modernizer-maven.version>
 
-    <pac4j.version>5.5.0</pac4j.version>
+    <pac4j.version>6.0.0-RC5-SNAPSHOT</pac4j.version>
 
-    <cas.version>6.6.3</cas.version>
-    <cas-client.version>3.6.4</cas-client.version>
+    <cas.version>7.0.0-SNAPSHOT</cas.version>
+    <cas-client.version>4.0.0</cas-client.version>
 
     <h2.version>2.1.214</h2.version>
 
@@ -466,11 +458,11 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
 
-    <wicket.version>9.12.0</wicket.version>
-    <wicketstuff.version>9.12.0</wicketstuff.version>
+    <wicket.version>10.0.0-M1-SNAPSHOT</wicket.version>
+    <wicketstuff.version>10.0.0-SNAPSHOT</wicketstuff.version>
     <wicket-jqueryui.version>9.11.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.6</wicket-bootstrap.version>
-    <wicket-spring-boot.version>3.1.7</wicket-spring-boot.version>
+    <wicket-spring-boot.version>4.0.0-SNAPSHOT</wicket-spring-boot.version>
 
     <antlr4.version>4.11.1</antlr4.version>
 
@@ -503,10 +495,10 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>9.0.70</tomcat.version>
-    <wildfly.version>26.1.2.Final</wildfly.version>
-    <payara.version>5.2022.3</payara.version>
-    <javax.faces.version>2.3.14</javax.faces.version>
+    <tomcat.version>10.1.4</tomcat.version>
+    <wildfly.version>27.0.1.Final</wildfly.version>
+    <payara.version>6.2022.2</payara.version>
+    <jakarta.faces.version>4.0.0-M1</jakarta.faces.version>
 
     <docker.postgresql.version>15</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
@@ -547,7 +539,7 @@ under the License.
     <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
     <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
-    <targetJdk>11</targetJdk>
+    <targetJdk>17</targetJdk>
     <rootpom.basedir>${basedir}</rootpom.basedir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -556,24 +548,9 @@ under the License.
 
     <dependencies>
       <dependency>
-        <groupId>jakarta.validation</groupId>
-        <artifactId>jakarta.jakarta.validation-api</artifactId>
-        <version>2.0.2</version>
-      </dependency>
-      <dependency>
-        <groupId>jakarta.persistence</groupId>
-        <artifactId>jakarta.persistence-api</artifactId>
-        <version>2.2.3</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.geronimo.javamail</groupId>
-        <artifactId>geronimo-javamail_1.4_mail</artifactId>
-        <version>1.8.4</version>
-      </dependency>
-      <dependency>
         <groupId>jakarta.servlet</groupId>
         <artifactId>jakarta.servlet-api</artifactId>
-        <version>4.0.4</version>
+        <version>6.0.0</version>
         <scope>provided</scope>
       </dependency>
 
@@ -644,31 +621,32 @@ under the License.
         <artifactId>elasticsearch-java</artifactId>
         <version>${elasticsearch.version}</version>
       </dependency>
-      <dependency>
-        <groupId>jakarta.json</groupId>
-        <artifactId>jakarta.json-api</artifactId>
-        <version>2.0.1</version>
-      </dependency>
 
       <dependency>
         <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa-jdbc</artifactId>
+        <artifactId>openjpa</artifactId>
         <version>${openjpa.version}</version>
+        <classifier>jakarta</classifier>
         <exclusions>
           <exclusion>
             <groupId>org.apache.xbean</groupId>
-            <artifactId>xbean-asm8-shaded</artifactId>
+            <artifactId>xbean-asm9-shaded</artifactId>
           </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa-persistence-jdbc</artifactId>
-        <version>${openjpa.version}</version>
-        <exclusions>
+          <exclusion>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-jpa_2.2_spec</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.1_spec</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -682,113 +660,6 @@ under the License.
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
         <version>${hikaricp.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.bval</groupId>
-        <artifactId>bval-jsr</artifactId>
-        <version>${bval.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-base</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.module</groupId>
-        <artifactId>jackson-module-jaxb-annotations</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-json-provider</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-xml-provider</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.jaxrs</groupId>
-        <artifactId>jackson-jaxrs-yaml-provider</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.module</groupId>
-        <artifactId>jackson-module-afterburner</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-smile</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-cbor</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-yaml</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-xml</artifactId>
-        <version>${jackson.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.codehaus.woodstox</groupId>
-            <artifactId>stax2-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.fasterxml.woodstox</groupId>
-            <artifactId>woodstox-core</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-csv</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.dataformat</groupId>
-        <artifactId>jackson-dataformat-properties</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-jsr310</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-jdk8</artifactId>
-        <version>${jackson.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-guava</artifactId>
-        <version>${jackson.version}</version>
       </dependency>
 
       <dependency>
@@ -827,10 +698,6 @@ under the License.
           <exclusion>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
           </exclusion>
           <exclusion>
             <groupId>com.fasterxml.jackson.module</groupId>
@@ -872,8 +739,8 @@ under the License.
         <version>${spring-boot.version}</version>
         <exclusions>
           <exclusion>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -929,23 +796,12 @@ under the License.
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-logging</artifactId>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-          </exclusion>
-        </exclusions>
+        <version>${spring-boot.version}</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-log4j2</artifactId>
         <version>${spring-boot.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
       <dependency>
@@ -982,15 +838,11 @@ under the License.
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
           </exclusion>
-          <exclusion>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
 
       <dependency>
-        <groupId>com.giffing.wicket.spring.boot.starter</groupId>
+        <groupId>net.tirasa.syncope.com.giffing.wicket.spring.boot.starter</groupId>
         <artifactId>wicket-spring-boot-starter</artifactId>
         <version>${wicket-spring-boot.version}</version>
         <exclusions>
@@ -1020,42 +872,14 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>org.aspectj</groupId>
-        <artifactId>aspectjweaver</artifactId>
-        <version>1.9.19</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.github.ben-manes.caffeine</groupId>
-        <artifactId>caffeine</artifactId>
-        <version>3.1.2</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-jexl3</artifactId>
         <version>${commons-jexl.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>${commons-lang.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
         <artifactId>commons-text</artifactId>
         <version>${commons-text.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${commons-codec.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.squareup.okio</groupId>
-        <artifactId>okio</artifactId>
-        <version>2.9.0</version>
       </dependency>
 
       <dependency>
@@ -1095,12 +919,6 @@ under the License.
         <groupId>org.apache.groovy</groupId>
         <artifactId>groovy-templates</artifactId>
         <version>${groovy.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.groovy</groupId>
-            <artifactId>groovy-xml</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.groovy</groupId>
@@ -1139,19 +957,17 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>${h2.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.6.12</version>
+        <version>2.0.0-alpha-3</version>
         <exclusions>
           <exclusion>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>jakarta.activation</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -1175,6 +991,10 @@ under the License.
             <groupId>jakarta.servlet</groupId>
             <artifactId>servlet-api</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
 
@@ -1192,50 +1012,33 @@ under the License.
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
           </exclusion>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
         <groupId>org.flowable</groupId>
         <artifactId>flowable-spring</artifactId>
         <version>${flowable.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>commons-dbcp</groupId>
-            <artifactId>commons-dbcp</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.flowable</groupId>
         <artifactId>flowable-idm-spring-configurator</artifactId>
         <version>${flowable.version}</version>
       </dependency>
+      <!-- TODO: SYNCOPE-1718 -->
       <dependency>
         <groupId>org.flowable</groupId>
         <artifactId>flowable-json-converter</artifactId>
-        <version>${flowable.version}</version>
+        <version>${flowable-old.version}</version>
       </dependency>
       <dependency>
         <groupId>org.flowable</groupId>
         <artifactId>flowable-ui-modeler-frontend</artifactId>
-        <version>${flowable.version}</version>
+        <version>${flowable-old.version}</version>
       </dependency>
       <dependency>
         <groupId>org.flowable</groupId>
         <artifactId>flowable-ui-modeler-logic</artifactId>
-        <version>${flowable.version}</version>
+        <version>${flowable-old.version}</version>
       </dependency>
       <!-- /Flowable -->
 
@@ -1246,8 +1049,12 @@ under the License.
         <version>${pac4j.version}</version>
         <exclusions>
           <exclusion>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -1260,9 +1067,19 @@ under the License.
 
       <!-- CAS -->
       <dependency>
-        <groupId>org.jasig.cas.client</groupId>
+        <groupId>org.apereo.cas.client</groupId>
         <artifactId>cas-client-core</artifactId>
         <version>${cas-client.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <!-- /CAS -->
 
@@ -1350,60 +1167,9 @@ under the License.
       <!-- /Wicket -->
 
       <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-api</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-jul</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-jcl</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-web</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-slf4j-impl</artifactId>
-        <version>${log4j2.version}</version>
-      </dependency>
-      <dependency>
         <groupId>com.lmax</groupId>
         <artifactId>disruptor</artifactId>
         <version>${disruptor.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging</artifactId>
-        <version>${commons-logging.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jcl-over-slf4j</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jul-to-slf4j</artifactId>
-        <version>${slf4j.version}</version>
       </dependency>
 
       <dependency>
@@ -1500,12 +1266,12 @@ under the License.
 
       <dependency>
         <groupId>org.bouncycastle</groupId>
-        <artifactId>bcpkix-jdk15on</artifactId>
+        <artifactId>bcpkix-jdk18on</artifactId>
         <version>${bouncycastle.version}</version>
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
-        <artifactId>bcprov-jdk15on</artifactId>
+        <artifactId>bcprov-jdk18on</artifactId>
         <version>${bouncycastle.version}</version>
       </dependency>
 
@@ -1546,15 +1312,7 @@ under the License.
         <version>${spring-cloud-gateway.version}</version>
         <scope>test</scope>
       </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>${slf4j.version}</version>
-        <scope>test</scope>
-      </dependency>
     </dependencies>
-
   </dependencyManagement>
 
   <repositories>
@@ -1575,12 +1333,16 @@ under the License.
         <enabled>true</enabled>
       </releases>
     </repository>
+    <!-- TMP -->
     <repository>
-      <id>spring</id>
-      <url>https://repo.spring.io/milestone</url>
+      <id>shibboleth-snapshots</id>
+      <url>https://build.shibboleth.net/nexus/content/repositories/snapshots</url>
       <releases>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
       </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
@@ -1614,13 +1376,6 @@ under the License.
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>spring</id>
-      <url>https://repo.spring.io/milestone</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
     </pluginRepository>
   </pluginRepositories>
 
@@ -1696,6 +1451,24 @@ under the License.
           <groupId>org.apache.openjpa</groupId>
           <artifactId>openjpa-maven-plugin</artifactId>
           <version>${openjpa.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.openjpa</groupId>
+              <artifactId>openjpa</artifactId>
+              <version>${openjpa.version}</version>
+              <classifier>jakarta</classifier>
+            </dependency>
+            <dependency>
+              <groupId>jakarta.persistence</groupId>
+              <artifactId>jakarta.persistence-api</artifactId>
+              <version>3.1.0</version>
+            </dependency>
+            <dependency>
+              <groupId>jakarta.transaction</groupId>
+              <artifactId>jakarta.transaction-api</artifactId>
+              <version>2.0.1</version>
+            </dependency>            
+          </dependencies>
         </plugin>
 
         <plugin>
@@ -1839,7 +1612,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.3</version>
+          <version>1.10.4</version>
           <configuration>
             <configuration>
               <type>standalone</type>
@@ -1926,9 +1699,13 @@ under the License.
         </plugin>
 
         <plugin>
-          <groupId>nl.geodienstencentrum.maven</groupId>
-          <artifactId>sass-maven-plugin</artifactId>
-          <version>3.7.2</version>
+          <groupId>us.hebi.sass</groupId>
+          <artifactId>sass-cli-maven-plugin</artifactId>
+          <version>1.0.2</version>
+          <configuration>
+            <sassVersion>1.57.1</sassVersion>
+            <skip>${sass.skip}</skip>
+          </configuration>
         </plugin>
 
         <plugin>
@@ -2073,7 +1850,6 @@ under the License.
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
-        <version>0.15</version>
         <configuration>
           <excludes>
             <exclude>**/nbactions.xml</exclude>
@@ -2225,7 +2001,7 @@ under the License.
         <version>3.4.1</version>
         <configuration>
           <source>${targetJdk}</source>
-          <destDir>apidocs/3.0</destDir>
+          <destDir>apidocs/4.0</destDir>
           <isOffline>false</isOffline>
           <detectLinks>true</detectLinks>
           <detectJavaApiLink>true</detectJavaApiLink>
@@ -2234,19 +2010,18 @@ under the License.
             <dependencySourceExclude>org.webjars.bower:*</dependencySourceExclude>
           </dependencySourceExcludes>
           <links>
-            <link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
-            <!-- See https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8212233 -->
-            <!--<link>https://javaee.github.io/javaee-spec/javadocs/</link>-->
+            <link>https://docs.oracle.com/en/java/javase/17/docs/api/</link>
+            <link>https://jakarta.ee/specifications/platform/10/apidocs/</link>
             <link>http://www.slf4j.org/api/</link>
             <link>http://connid.tirasa.net/apidocs/1.5/</link>
             <link>http://cxf.apache.org/javadoc/latest/</link>
-            <link>http://fasterxml.github.io/jackson-core/javadoc/2.13/</link>
-            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.13/</link>
-            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.13/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.13/</link>
-            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.13/</link>
-            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.13/</link>
-            <link>https://ci.apache.org/projects/wicket/apidocs/9.x/</link>
+            <link>http://fasterxml.github.io/jackson-core/javadoc/2.14/</link>
+            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.14/</link>
+            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.14/</link>
+            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.14/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.14/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.14/</link>
+            <link>https://ci.apache.org/projects/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
             <link>https://tika.apache.org/2.6.0/api/</link>
@@ -2254,7 +2029,7 @@ under the License.
             <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>https://www.flowable.com/open-source/docs/javadocs/</link>
-            <link>http://docs.swagger.io/swagger-core/v2.1.13/apidocs/</link>
+            <link>http://docs.swagger.io/swagger-core/v2.2.7/apidocs/</link>
           </links>
         </configuration>
         <reportSets>
@@ -2496,18 +2271,6 @@ under the License.
       <modules>
         <module>docker</module>
       </modules>
-    </profile>
-
-    <profile>
-      <id>jdk16-plus</id>
-
-      <activation>
-        <jdk>[16,)</jdk>
-      </activation>
-
-      <properties>
-        <argLine>-Xms512m -Xmx1024m -Xss256k --add-opens java.base/java.net=ALL-UNNAMED</argLine>
-      </properties>
     </profile>
   </profiles>
 

@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.PathParam;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 

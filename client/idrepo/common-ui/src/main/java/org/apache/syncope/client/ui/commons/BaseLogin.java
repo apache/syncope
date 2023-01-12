@@ -19,13 +19,13 @@
 package org.apache.syncope.client.ui.commons;
 
 import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
-import java.security.AccessControlException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.core.HttpHeaders;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
-import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
@@ -227,7 +227,7 @@ public abstract class BaseLogin extends WebPage {
             String username,
             String password,
             AjaxRequestTarget target)
-            throws AccessControlException;
+            throws NotAuthorizedException;
 
     /**
      * Inner class which implements (custom) Locale DropDownChoice component.

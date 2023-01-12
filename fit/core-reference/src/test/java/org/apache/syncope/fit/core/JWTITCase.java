@@ -35,7 +35,8 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.SignedJWT;
-import java.security.AccessControlException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.core.Response;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
@@ -47,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -144,7 +144,7 @@ public class JWTITCase extends AbstractITCase {
         try {
             jwtUserSelfService.read();
             fail("Failure expected on a modified token");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertEquals("Invalid signature found in JWT", e.getMessage());
         }
     }
@@ -218,7 +218,7 @@ public class JWTITCase extends AbstractITCase {
         try {
             jwtUserSelfService.read();
             fail("Failure expected on an invalid issuer");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             // expected
         }
     }
@@ -254,7 +254,7 @@ public class JWTITCase extends AbstractITCase {
         try {
             jwtUserSelfService.read();
             fail("Failure expected on an expired token");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             // expected
         }
     }
@@ -294,7 +294,7 @@ public class JWTITCase extends AbstractITCase {
         try {
             jwtUserSelfService.read();
             fail("Failure expected on a token that is not valid yet");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             // expected
         }
     }
@@ -320,7 +320,7 @@ public class JWTITCase extends AbstractITCase {
         try {
             jwtUserSelfService.read();
             fail("Failure expected on no signature");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             // expected
         }
     }
@@ -348,7 +348,7 @@ public class JWTITCase extends AbstractITCase {
         try {
             jwtUserSelfService.read();
             fail("Failure expected on an unknown id");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             // expected
         }
     }
@@ -409,7 +409,7 @@ public class JWTITCase extends AbstractITCase {
         try {
             jwtClient.self();
             fail("Failure expected on an unknown subject");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             // expected
         }
     }
@@ -441,7 +441,7 @@ public class JWTITCase extends AbstractITCase {
         try {
             jwtClient.self();
             fail("Failure expected on an unknown issuer");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             // expected
         }
     }
@@ -480,7 +480,7 @@ public class JWTITCase extends AbstractITCase {
         try {
             jwtClient.self();
             fail("Failure expected on a bad signature");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             // expected
         }
     }

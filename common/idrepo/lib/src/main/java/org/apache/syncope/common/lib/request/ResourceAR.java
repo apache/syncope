@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.common.lib.request;
 
+import jakarta.ws.rs.PathParam;
 import java.util.Collection;
-import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;

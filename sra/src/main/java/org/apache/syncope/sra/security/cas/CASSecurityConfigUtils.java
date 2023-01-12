@@ -21,7 +21,7 @@ package org.apache.syncope.sra.security.cas;
 import org.apache.syncope.sra.ApplicationContextUtils;
 import org.apache.syncope.sra.security.LogoutRouteMatcher;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
-import org.jasig.cas.client.Protocol;
+import org.apereo.cas.client.Protocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;

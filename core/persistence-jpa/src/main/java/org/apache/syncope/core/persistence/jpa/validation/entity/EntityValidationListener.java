@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import java.util.Set;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.Any;

@@ -24,12 +24,11 @@ import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
-import org.opensaml.saml.metadata.resolver.impl.AbstractBatchMetadataResolver;
+import org.opensaml.saml.metadata.resolver.impl.AbstractMetadataResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.metadata.BaseSAML2MetadataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
 
 public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
 
@@ -45,12 +44,12 @@ public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
     }
 
     @Override
-    protected AbstractBatchMetadataResolver createMetadataResolver(final Resource metadataResource) {
+    protected AbstractMetadataResolver createMetadataResolver() throws Exception {
         return new WASAML2MetadataResolver(restClient, saml2Client);
     }
 
     @Override
-    public MetadataResolver buildMetadataResolver(final Resource metadataResource) throws Exception {
+    public MetadataResolver buildMetadataResolver() throws Exception {
         String encodedMetadata = Base64.getEncoder().encodeToString(
                 getMetadata(buildEntityDescriptor()).getBytes(StandardCharsets.UTF_8));
 
@@ -71,11 +70,11 @@ public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
         LOG.debug("Storing SP Entity {}", entityTO);
         restClient.getSyncopeClient().getService(SAML2SPEntityService.class).set(entityTO);
 
-        return super.buildMetadataResolver(metadataResource);
+        return super.buildMetadataResolver();
     }
 
     @Override
-    public boolean storeMetadata(final String metadata, final Resource resource, final boolean force) throws Exception {
+    public boolean storeMetadata(final String metadata, final boolean force) throws Exception {
         return true;
     }
 }

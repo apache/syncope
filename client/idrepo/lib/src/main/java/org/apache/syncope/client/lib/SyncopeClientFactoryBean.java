@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.client.lib;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import com.fasterxml.jackson.jaxrs.xml.JacksonXMLProvider;
-import com.fasterxml.jackson.jaxrs.yaml.JacksonYAMLProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
+import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
+import jakarta.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.ext.logging.LoggingFeature;
@@ -246,7 +246,7 @@ public class SyncopeClientFactoryBean {
     /**
      * Builds client instance with the given credentials.
      * Such credentials will be used only to obtain a valid JWT in the
-     * {@link javax.ws.rs.core.HttpHeaders#AUTHORIZATION} header;
+     * {@link jakarta.ws.rs.core.HttpHeaders#AUTHORIZATION} header;
      *
      * @param username username
      * @param password password
@@ -258,11 +258,11 @@ public class SyncopeClientFactoryBean {
 
     /**
      * Builds client instance which will be passing the provided value in the
-     * {@link javax.ws.rs.core.HttpHeaders#AUTHORIZATION} request header.
+     * {@link jakarta.ws.rs.core.HttpHeaders#AUTHORIZATION} request header.
      *
      * @param jwt value received after login, in the {@link RESTHeaders#TOKEN} response header
      * @return client instance which will be passing the provided value in the
-     * {@link javax.ws.rs.core.HttpHeaders#AUTHORIZATION} request header
+     * {@link jakarta.ws.rs.core.HttpHeaders#AUTHORIZATION} request header
      */
     public SyncopeClient create(final String jwt) {
         return create(new JWTAuthenticationHandler(jwt));

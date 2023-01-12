@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.core.rest.cxf.batch;
 
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -30,11 +35,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.HttpHeaders;
 
 public class BatchItemResponse implements HttpServletResponse {
 
@@ -180,18 +180,6 @@ public class BatchItemResponse implements HttpServletResponse {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public String encodeUrl(final String url) {
-        return encodeURL(url);
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public String encodeRedirectUrl(final String url) {
-        return encodeRedirectURL(url);
-    }
-
-    @Override
     public void sendError(final int sc, final String msg) throws IOException {
         setStatus(sc);
     }
@@ -210,12 +198,6 @@ public class BatchItemResponse implements HttpServletResponse {
     @Override
     public void setStatus(final int sc) {
         this.status = sc;
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public void setStatus(final int sc, final String sm) {
-        setStatus(sc);
     }
 
     @Override

@@ -96,10 +96,10 @@ public class AttrRepoLogic extends AbstractTransactionalLogic<AttrRepoTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof AttrRepoTO) {
-                    key = ((AttrRepoTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof AttrRepoTO attrRepoTO) {
+                    key = attrRepoTO.getKey();
                 }
             }
         }

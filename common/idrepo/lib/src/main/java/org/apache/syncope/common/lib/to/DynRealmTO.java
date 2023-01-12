@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import jakarta.ws.rs.PathParam;
 import java.util.HashMap;
 import java.util.Map;
-import javax.ws.rs.PathParam;
 
 public class DynRealmTO implements EntityTO {
 

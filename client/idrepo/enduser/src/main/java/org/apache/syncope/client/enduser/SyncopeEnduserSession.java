@@ -18,7 +18,12 @@
  */
 package org.apache.syncope.client.enduser;
 
-import java.security.AccessControlException;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.core.EntityTag;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.xml.ws.WebServiceException;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,11 +32,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.MediaType;
-import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -145,7 +145,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
             message = sce.isComposite()
                     ? sce.asComposite().getExceptions().stream().map(this::message).collect(Collectors.joining("; "))
                     : message(sce);
-        } else if (root instanceof AccessControlException || root instanceof ForbiddenException) {
+        } else if (root instanceof NotAuthorizedException || root instanceof ForbiddenException) {
             Error error = StringUtils.containsIgnoreCase(message, "expired")
                     ? Error.SESSION_EXPIRED
                     : Error.AUTHORIZATION;

@@ -88,7 +88,6 @@ public abstract class BaseWASAML2ClientTest {
         SAML2Configuration saml2Configuration = new SAML2Configuration();
         saml2Configuration.setKeystorePassword("password");
         saml2Configuration.setPrivateKeyPassword("password");
-        saml2Configuration.setKeystoreAlias("Syncope");
         saml2Configuration.setIdentityProviderMetadataResource(new ClassPathResource("idp-metadata.xml"));
         saml2Configuration.setServiceProviderMetadataResource(new FileSystemResource(File.createTempFile("sp-metadata",
                 ".xml")));

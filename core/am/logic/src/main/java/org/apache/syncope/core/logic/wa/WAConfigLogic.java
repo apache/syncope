@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic.wa;
 
+import jakarta.ws.rs.core.HttpHeaders;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -26,7 +27,6 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;

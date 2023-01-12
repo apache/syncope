@@ -245,7 +245,6 @@ under the License.
           <systemPropertyVariables>
             <jaxrsContentType>${jaxrs.content.type}</jaxrsContentType>
             <obscureSecretKey>${obscureSecretKey}</obscureSecretKey>
-            <wicket.ioc.useByteBuddy>true</wicket.ioc.useByteBuddy>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -257,7 +256,6 @@ under the License.
           <systemPropertyVariables>
             <jaxrsContentType>${jaxrs.content.type}</jaxrsContentType>
             <obscureSecretKey>${obscureSecretKey}</obscureSecretKey>
-            <wicket.ioc.useByteBuddy>true</wicket.ioc.useByteBuddy>
           </systemPropertyVariables>
         </configuration>
         <executions>
@@ -276,7 +274,7 @@ under the License.
         <inherited>true</inherited>
         <configuration>
           <container>
-            <containerId>tomcat9x</containerId>
+            <containerId>tomcat10x</containerId>
             <zipUrlInstaller>
               <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
               <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
@@ -740,16 +738,6 @@ under the License.
           <version>${jdbc.postgresql.version}</version>
           <scope>test</scope>
         </dependency>
-        <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcpkix-jdk15on</artifactId>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcprov-jdk15on</artifactId>
-          <scope>test</scope>
-        </dependency>
       </dependencies>
 
       <build>
@@ -960,16 +948,6 @@ under the License.
           <groupId>com.mysql</groupId>
           <artifactId>mysql-connector-j</artifactId>
           <version>${jdbc.mysql.version}</version>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcpkix-jdk15on</artifactId>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcprov-jdk15on</artifactId>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -1459,18 +1437,12 @@ under the License.
           <groupId>org.apache.syncope.core</groupId>
           <artifactId>syncope-core-persistence-jpa</artifactId>
           <version>${project.version}</version>
-          <exclusions>
-            <exclusion>
-              <groupId>org.apache.bval</groupId>
-              <artifactId>bval-jsr</artifactId>
-            </exclusion>
-          </exclusions>
         </dependency>
 
         <dependency>
           <groupId>org.glassfish</groupId>
           <artifactId>jakarta.faces</artifactId>
-          <version>${javax.faces.version}</version>
+          <version>${jakarta.faces.version}</version>
         </dependency>
       </dependencies>
 
@@ -1490,8 +1462,7 @@ under the License.
                   <target>
                     <unzip src="${settings.localRepository}/org/apache/syncope/fit/syncope-fit-build-tools/${project.version}/syncope-fit-build-tools-${project.version}.war"
                            dest="${project.build.outputDirectory}/syncope-fit-buildtools"/>
-                    <delete file="${project.build.outputDirectory}/syncope-fit-buildtools/WEB-INF/lib/bval-jsr-${bval.version}.jar"/>
-                    <copy file="${settings.localRepository}/org/glassfish/jakarta.faces/${javax.faces.version}/jakarta.faces-${javax.faces.version}.jar"
+                    <copy file="${settings.localRepository}/org/glassfish/jakarta.faces/${jakarta.faces.version}/jakarta.faces-${jakarta.faces.version}.jar"
                           todir="${project.build.outputDirectory}/syncope-fit-buildtools/WEB-INF/lib"/>
                   </target>
                 </configuration>
@@ -1521,7 +1492,8 @@ under the License.
                 <properties>
                   <cargo.glassfish.removeDefaultDatasource>false</cargo.glassfish.removeDefaultDatasource>
                   <cargo.jvmargs>-Dspring.profiles.active=embedded,payara
-                    -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
+                    -XX:+UseG1GC -Xmx2048m -Xms1024m
+                    --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</cargo.jvmargs>
                 </properties>
               </configuration>
               <deployables>
@@ -1612,7 +1584,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly26x</containerId>
+                <containerId>wildfly27x</containerId>
                 <zipUrlInstaller>
                   <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
@@ -1624,7 +1596,9 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Djava.net.preferIPv4Stack=true -Dspring.profiles.active=embedded,wildfly
-                    -XX:+UseG1GC -Xmx2048m -Xms1024m</cargo.jvmargs>
+                    -XX:+UseG1GC -Xmx2048m -Xms1024m
+                    --add-opens java.base/java.util=ALL-UNNAMED
+                    --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>

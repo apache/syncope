@@ -109,11 +109,6 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
     protected String authnContextComparisonType = "exact";
 
     /**
-     * The key alias used in the keystore.
-     */
-    protected String keystoreAlias;
-
-    /**
      * NameID policy to request in the authentication requests.
      */
     protected String nameIdPolicyFormat;
@@ -284,14 +279,6 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
 
     public void setAuthnContextComparisonType(final String authnContextComparisonType) {
         this.authnContextComparisonType = authnContextComparisonType;
-    }
-
-    public String getKeystoreAlias() {
-        return keystoreAlias;
-    }
-
-    public void setKeystoreAlias(final String keystoreAlias) {
-        this.keystoreAlias = keystoreAlias;
     }
 
     public String getNameIdPolicyFormat() {

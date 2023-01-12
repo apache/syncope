@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 
 public class SyncopeAuthenticationDetailsSource

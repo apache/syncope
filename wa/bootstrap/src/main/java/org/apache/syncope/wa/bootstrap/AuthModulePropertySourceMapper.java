@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.wa.bootstrap;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -45,7 +46,7 @@ import org.apereo.cas.configuration.model.support.jaas.JaasAuthenticationPropert
 import org.apereo.cas.configuration.model.support.jdbc.authn.QueryJdbcAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.ldap.AbstractLdapAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.ldap.LdapAuthenticationProperties;
-import org.apereo.cas.configuration.model.support.mfa.DuoSecurityMultifactorAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.mfa.duo.DuoSecurityMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.simple.CasSimpleMultifactorAuthenticationProperties;
@@ -140,7 +141,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setResponseMode(conf.getResponseMode());
         props.setResponseType(conf.getResponseType());
         props.setScope(conf.getScope());
-        props.setPrincipalAttributeId(conf.getUserIdAttribute());
+        props.setPrincipalIdAttribute(conf.getUserIdAttribute());
         Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
         client.setGeneric(props);
 
@@ -159,8 +160,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setAuthnContextComparisonType(conf.getAuthnContextComparisonType());
         props.setBlockedSignatureSigningAlgorithms(conf.getBlockedSignatureSigningAlgorithms());
         props.setDestinationBinding(conf.getDestinationBinding().getUri());
-        props.setIdentityProviderMetadataPath(conf.getIdentityProviderMetadataPath());
-        props.setKeystoreAlias(conf.getKeystoreAlias());
+        props.getMetadata().setIdentityProviderMetadataPath(conf.getIdentityProviderMetadataPath());
         props.setKeystorePassword(conf.getKeystorePassword());
         props.setMaximumAuthenticationLifetime(conf.getMaximumAuthenticationLifetime());
         props.setNameIdPolicyFormat(conf.getNameIdPolicyFormat());
@@ -170,7 +170,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setSignatureAlgorithms(conf.getSignatureAlgorithms());
         props.setSignatureCanonicalizationAlgorithm(conf.getSignatureCanonicalizationAlgorithm());
         props.setSignatureReferenceDigestMethods(conf.getSignatureReferenceDigestMethods());
-        props.setPrincipalAttributeId(conf.getUserIdAttribute());
+        props.setPrincipalIdAttribute(conf.getUserIdAttribute());
         props.setNameIdPolicyAllowCreate(StringUtils.isBlank(conf.getNameIdPolicyAllowCreate())
                 ? TriStateBoolean.UNDEFINED
                 : TriStateBoolean.valueOf(conf.getNameIdPolicyAllowCreate().toUpperCase()));
@@ -249,7 +249,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setName(authModuleTO.getKey());
         props.setOrder(authModuleTO.getOrder());
 
-        props.getMail().setAttributeName(conf.getEmailAttribute());
+        props.getMail().setAttributeName(List.of(conf.getEmailAttribute()));
         props.getMail().setFrom(conf.getEmailFrom());
         props.getMail().setSubject(conf.getEmailSubject());
         props.getMail().setText(conf.getEmailText());

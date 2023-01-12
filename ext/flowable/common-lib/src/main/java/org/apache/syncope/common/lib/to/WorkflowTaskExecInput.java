@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import jakarta.ws.rs.PathParam;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import javax.ws.rs.PathParam;
 
 public class WorkflowTaskExecInput implements Serializable {
 

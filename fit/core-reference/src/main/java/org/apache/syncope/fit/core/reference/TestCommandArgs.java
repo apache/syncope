@@ -19,7 +19,7 @@
 package org.apache.syncope.fit.core.reference;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.syncope.common.lib.command.CommandArgs;
 
 public class TestCommandArgs extends CommandArgs {

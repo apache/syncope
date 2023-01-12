@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.ext.scimv2.api;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 public final class SCIMConstants {
 

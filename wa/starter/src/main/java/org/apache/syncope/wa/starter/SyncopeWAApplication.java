@@ -27,7 +27,6 @@ import org.apache.syncope.wa.starter.config.WARefreshContextJob;
 import org.apereo.cas.config.GoogleAuthenticatorLdapConfiguration;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;
-import org.apereo.cas.oidc.config.OidcJwksJpaConfiguration;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
@@ -67,7 +66,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
      * conditionally activated.
      */
     GoogleAuthenticatorLdapConfiguration.class,
-    OidcJwksJpaConfiguration.class,
     /*
      * List of Spring Boot classes that we want to disable and remove from auto-configuration.
      */

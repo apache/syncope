@@ -19,8 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.attrvalue.validation;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
-import javax.ws.rs.core.MediaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;

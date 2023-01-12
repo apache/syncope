@@ -18,6 +18,16 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.RollbackException;
+import jakarta.validation.ValidationException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -25,16 +35,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.EntityExistsException;
-import javax.persistence.PersistenceException;
-import javax.persistence.RollbackException;
-import javax.validation.ValidationException;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.jaxrs.validation.ValidationExceptionMapper;
@@ -289,7 +289,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
     }
 
     /**
-     * Overriding {@link JAXRSUtils#fromResponse(javax.ws.rs.core.Response)} in order to avoid setting
+     * Overriding {@link JAXRSUtils#fromResponse(jakarta.ws.rs.core.Response)} in order to avoid setting
      * {@code Content-Type} from original {@code response}.
      *
      * @param response model to construct {@link ResponseBuilder} from

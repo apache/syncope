@@ -19,7 +19,7 @@
 package org.apache.syncope.sra.security.cas;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jasig.cas.client.validation.Assertion;
+import org.apereo.cas.client.validation.Assertion;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 public class CASAuthenticationToken extends AbstractAuthenticationToken {

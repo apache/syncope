@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 /**
  * Status of some execution.

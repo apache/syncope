@@ -37,9 +37,9 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ResourceLoader;
 
-@SpringBootApplication(exclude = {
+@SpringBootApplication(proxyBeanMethods = false, exclude = {
     ErrorMvcAutoConfiguration.class,
-    HttpMessageConvertersAutoConfiguration.class }, proxyBeanMethods = false)
+    HttpMessageConvertersAutoConfiguration.class })
 @EnableConfigurationProperties(EnduserProperties.class)
 public class SyncopeEnduserApplication extends SpringBootServletInitializer {
 

@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.ui.commons.rest;
 
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
 import java.io.Serializable;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 
 public class ResponseHolder implements Serializable {

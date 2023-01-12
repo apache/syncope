@@ -68,6 +68,6 @@ public class WASAML2ClientMetadataGeneratorTest extends BaseWASAML2ClientTest {
         SAML2MetadataGenerator generator = new WASAML2ClientMetadataGenerator(getWaRestClient(), client);
         EntityDescriptor entityDescriptor = generator.buildEntityDescriptor();
         String metadata = generator.getMetadata(entityDescriptor);
-        assertNotNull(generator.storeMetadata(metadata, null, false));
+        assertNotNull(generator.storeMetadata(metadata, false));
     }
 }

@@ -15,10 +15,10 @@
  */
 package org.springframework.orm.jpa.vendor;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
 import org.apache.commons.logging.LogFactory;
 import org.apache.openjpa.persistence.FetchPlan;
 import org.apache.openjpa.persistence.OpenJPAEntityManager;
@@ -54,9 +54,9 @@ public class OpenJpaDialect extends DefaultJpaDialect {
         if (definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
             // Pass custom isolation level on to OpenJPA's JDBCFetchPlan configuration
             FetchPlan fetchPlan = openJpaEntityManager.getFetchPlan();
-            if (fetchPlan instanceof JDBCFetchPlan) {
+            if (fetchPlan instanceof JDBCFetchPlan jDBCFetchPlan) {
                 IsolationLevel isolation = IsolationLevel.fromConnectionConstant(definition.getIsolationLevel());
-                ((JDBCFetchPlan) fetchPlan).setIsolation(isolation);
+                jDBCFetchPlan.setIsolation(isolation);
             }
         }
 

@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -32,7 +32,6 @@ import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 
 public class OIDCJWKSITCase extends AbstractITCase {
 
@@ -59,7 +58,7 @@ public class OIDCJWKSITCase extends AbstractITCase {
         }
 
         Response response = WA_OIDC_JWKS_SERVICE.generate("syncope", "RSA", 2048);
-        assertEquals(HttpStatus.CREATED.value(), response.getStatus());
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
         try {
             WA_OIDC_JWKS_SERVICE.generate("syncope", "RSA", 2048);
             fail("Should not recreate an OIDC JWKS");

@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.console.wizards;
 
+import jakarta.ws.rs.core.MediaType;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import javax.ws.rs.core.MediaType;
 import org.apache.syncope.client.console.rest.SAML2SPEntityRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.ui.commons.Constants;

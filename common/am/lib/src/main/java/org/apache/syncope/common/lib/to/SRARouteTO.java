@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import jakarta.ws.rs.PathParam;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.SRARouteFilter;

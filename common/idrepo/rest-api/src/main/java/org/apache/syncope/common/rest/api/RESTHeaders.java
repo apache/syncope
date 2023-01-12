@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.rest.api;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 /**
  * Custom HTTP headers in use with REST services.
@@ -59,37 +59,37 @@ public final class RESTHeaders {
     public static final String ERROR_INFO = "X-Application-Error-Info";
 
     /**
-     * Mediatype for PNG images, not defined in {@link javax.ws.rs.core.MediaType}.
+     * Mediatype for PNG images, not defined in {@link jakarta.ws.rs.core.MediaType}.
      */
     public static final String MEDIATYPE_IMAGE_PNG = "image/png";
 
     /**
-     * Mediatype for YAML, not defined in {@link javax.ws.rs.core.MediaType}.
+     * Mediatype for YAML, not defined in {@link jakarta.ws.rs.core.MediaType}.
      */
     public static final String APPLICATION_YAML = "application/yaml";
 
     /**
-     * Mediatype for YAML, not defined in {@link javax.ws.rs.core.MediaType}.
+     * Mediatype for YAML, not defined in {@link jakarta.ws.rs.core.MediaType}.
      */
     public static final MediaType APPLICATION_YAML_TYPE = new MediaType("application", "yaml");
 
     /**
-     * Mediatype for text/csv, not defined in {@link javax.ws.rs.core.MediaType}.
+     * Mediatype for text/csv, not defined in {@link jakarta.ws.rs.core.MediaType}.
      */
     public static final String TEXT_CSV = "text/csv";
 
     /**
-     * Mediatype for text/csv, not defined in {@link javax.ws.rs.core.MediaType}.
+     * Mediatype for text/csv, not defined in {@link jakarta.ws.rs.core.MediaType}.
      */
     public static final MediaType TEXT_CSV_TYPE = new MediaType("text", "csv");
 
     /**
-     * Mediatype for multipart/mixed, not defined in {@link javax.ws.rs.core.MediaType}.
+     * Mediatype for multipart/mixed, not defined in {@link jakarta.ws.rs.core.MediaType}.
      */
     public static final String MULTIPART_MIXED = "multipart/mixed";
 
     /**
-     * The boundary parameter name for multipart, not defined in {@link javax.ws.rs.core.MediaType}.
+     * The boundary parameter name for multipart, not defined in {@link jakarta.ws.rs.core.MediaType}.
      */
     public static final String BOUNDARY_PARAMETER = "boundary";
 

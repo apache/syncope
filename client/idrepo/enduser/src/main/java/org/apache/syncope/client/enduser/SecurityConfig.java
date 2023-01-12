@@ -26,8 +26,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
@@ -35,17 +37,19 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
+        EndpointRequest.EndpointRequestMatcher actuatorEndpoints = EndpointRequest.toAnyEndpoint();
+
         http.csrf().disable().
-                authorizeRequests().
-                requestMatchers(EndpointRequest.toAnyEndpoint()).
-                authenticated().
+                authorizeHttpRequests().
+                requestMatchers(new NegatedRequestMatcher(actuatorEndpoints)).permitAll().
+                requestMatchers(actuatorEndpoints).authenticated().
                 and().
                 httpBasic();
         return http.build();
     }
 
     @Bean
-    public InMemoryUserDetailsManager userDetailsService(final EnduserProperties props) {
+    public UserDetailsService userDetailsService(final EnduserProperties props) {
         UserDetails user = User.withUsername(props.getAnonymousUser()).
                 password("{noop}" + props.getAnonymousKey()).
                 roles(IdRepoEntitlement.ANONYMOUS).

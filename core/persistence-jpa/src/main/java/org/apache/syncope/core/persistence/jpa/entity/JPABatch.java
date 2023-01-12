@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 
 @Entity

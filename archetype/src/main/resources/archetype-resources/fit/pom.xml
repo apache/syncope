@@ -215,7 +215,7 @@ under the License.
         <inherited>true</inherited>
         <configuration>
           <container>
-            <containerId>tomcat9x</containerId>
+            <containerId>tomcat10x</containerId>
             <zipUrlInstaller>
               <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
               <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
@@ -246,12 +246,12 @@ under the License.
             <properties>
               <cargo.jvmargs>
                 -Dspring.profiles.active=${spring.profiles.active}
-                -Dwicket.ioc.useByteBuddy=true
                 -Xmx1024m -Xms512m</cargo.jvmargs>
 
               <cargo.servlet.port>9443</cargo.servlet.port>
               <cargo.protocol>https</cargo.protocol>
               <cargo.tomcat.connector.keystoreFile>${basedir}/src/test/resources/keystore.jks</cargo.tomcat.connector.keystoreFile>
+              <cargo.tomcat.connector.keystoreType>jks</cargo.tomcat.connector.keystoreType>
               <cargo.tomcat.connector.keystorePass>password</cargo.tomcat.connector.keystorePass>
               <cargo.tomcat.connector.keyAlias>tomcat</cargo.tomcat.connector.keyAlias>
               <cargo.tomcat.connector.clientAuth>false</cargo.tomcat.connector.clientAuth>
@@ -445,7 +445,7 @@ under the License.
                       <container>syncope</container>
                     </dependsOn>
                     <env>
-                      <JAVA_OPTS>-Dfile.encoding=UTF-8 -Dwicket.ioc.useByteBuddy=true -server -Xms1536m -Xmx1536m 
+                      <JAVA_OPTS>-Dfile.encoding=UTF-8 -server -Xms1536m -Xmx1536m 
                         -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC 
                         -Djava.security.egd=file:/dev/./urandom 
                         -Djavax.net.ssl.trustStore=/opt/syncope/conf/keystore.p12 

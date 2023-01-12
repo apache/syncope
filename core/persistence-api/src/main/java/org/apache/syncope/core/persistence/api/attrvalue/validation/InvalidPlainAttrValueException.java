@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.attrvalue.validation;
 
-import javax.validation.ValidationException;
+import jakarta.validation.ValidationException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 
 public class InvalidPlainAttrValueException extends ValidationException {

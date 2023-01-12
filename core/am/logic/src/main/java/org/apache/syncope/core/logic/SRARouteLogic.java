@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
+import jakarta.ws.rs.core.HttpHeaders;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -25,7 +26,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
@@ -142,10 +142,10 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
                 || "update".equals(method.getName())
                 || "delete".equals(method.getName()))) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof SRARouteTO) {
-                    key = ((SRARouteTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof SRARouteTO sRARouteTO) {
+                    key = sRARouteTO.getKey();
                 }
             }
         }

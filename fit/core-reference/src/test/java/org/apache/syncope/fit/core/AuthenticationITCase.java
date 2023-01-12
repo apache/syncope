@@ -25,14 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import java.security.AccessControlException;
+import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.BasicAuthenticationHandler;
@@ -82,20 +82,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 public class AuthenticationITCase extends AbstractITCase {
 
-    private static int getFailedLogins(final UserService userService, final String userKey) {
-        UserTO readUserTO = userService.read(userKey);
-        assertNotNull(readUserTO);
-        assertNotNull(readUserTO.getFailedLogins());
-        return readUserTO.getFailedLogins();
-    }
-
     @Test
     public void readEntitlements() {
         // 1. as not authenticated (not allowed)
         try {
             CLIENT_FACTORY.create().self();
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 
@@ -158,7 +151,7 @@ public class AuthenticationITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        assertEquals(0, getFailedLogins(USER_SERVICE, userTO.getKey()));
+        assertEquals(0, USER_SERVICE.read(userTO.getKey()).getFailedLogins());
     }
 
     @Test
@@ -327,26 +320,26 @@ public class AuthenticationITCase extends AbstractITCase {
 
         UserService userService2 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
-        assertEquals(0, getFailedLogins(userService2, userKey));
+        assertEquals(0, userService2.read(userKey).getFailedLogins());
 
         // authentications failed ...
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
-        assertEquals(2, getFailedLogins(USER_SERVICE, userKey));
+        assertEquals(2, USER_SERVICE.read(userKey).getFailedLogins());
 
         UserService userService4 = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
-        assertEquals(0, getFailedLogins(userService4, userKey));
+        assertEquals(0, userService4.read(userKey).getFailedLogins());
     }
 
     @Test
@@ -357,37 +350,36 @@ public class AuthenticationITCase extends AbstractITCase {
 
         UserTO userTO = createUser(userCR).getEntity();
         String userKey = userTO.getKey();
-        assertNotNull(userTO);
 
-        assertEquals(0, getFailedLogins(USER_SERVICE, userKey));
+        assertEquals(0, USER_SERVICE.read(userKey).getFailedLogins());
 
         // authentications failed ...
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 
-        assertEquals(3, getFailedLogins(USER_SERVICE, userKey));
+        assertEquals(3, USER_SERVICE.read(userKey).getFailedLogins());
 
         // last authentication before suspension
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "wrongpwd1");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 
@@ -401,7 +393,7 @@ public class AuthenticationITCase extends AbstractITCase {
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "password123");
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 
@@ -601,7 +593,7 @@ public class AuthenticationITCase extends AbstractITCase {
         try {
             CLIENT_FACTORY.create(userTO.getUsername(), "password123").self();
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e);
         }
 
@@ -673,7 +665,7 @@ public class AuthenticationITCase extends AbstractITCase {
         try {
             CLIENT_FACTORY.create(username, "anypassword").self();
             fail("This should not happen");
-        } catch (AccessControlException e) {
+        } catch (NotAuthorizedException e) {
             assertNotNull(e.getMessage());
         }
     }

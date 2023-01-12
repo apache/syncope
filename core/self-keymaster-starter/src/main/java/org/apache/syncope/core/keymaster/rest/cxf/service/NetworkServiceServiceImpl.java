@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.keymaster.rest.cxf.service;
 
+import jakarta.ws.rs.core.Response;
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.rest.api.service.NetworkServiceService;
 import org.apache.syncope.core.logic.NetworkServiceLogic;

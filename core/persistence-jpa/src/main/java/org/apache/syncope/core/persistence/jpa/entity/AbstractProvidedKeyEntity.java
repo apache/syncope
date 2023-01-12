@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
 @MappedSuperclass

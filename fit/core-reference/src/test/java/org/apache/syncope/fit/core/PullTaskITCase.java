@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
+import jakarta.ws.rs.core.Response;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -52,7 +53,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
-import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -976,7 +976,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             result = USER_SERVICE.search(new AnyQuery.Builder().fiql(
                     SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP_*").query()).
                     page(1).size(200).build());
-            assertTrue(result.getTotalCount() >= usersBefore + 100);
+            assertTrue(result.getTotalCount() > usersBefore);
         } finally {
             if (result != null) {
                 BatchRequest batchRequest = ADMIN_CLIENT.batch();

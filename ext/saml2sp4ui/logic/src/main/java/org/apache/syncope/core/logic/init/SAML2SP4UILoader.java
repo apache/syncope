@@ -59,11 +59,12 @@ public class SAML2SP4UILoader implements SyncopeCoreLoader {
     public SAML2Configuration newSAML2Configuration() {
         SAML2Configuration cfg = new SAML2Configuration(
                 resourceResolver.getResource(props.getKeystore()),
+                null,
+                props.getKeystoreType(),
                 props.getKeystoreStorepass(),
                 props.getKeystoreKeypass(),
                 null);
 
-        cfg.setKeystoreType(props.getKeystoreType());
         if (cfg.getKeystoreResource() instanceof FileUrlResource) {
             cfg.setKeystoreGenerator(new BaseSAML2KeystoreGenerator(cfg) {
 

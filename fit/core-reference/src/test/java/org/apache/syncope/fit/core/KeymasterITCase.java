@@ -28,7 +28,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import java.security.AccessControlException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -37,8 +39,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -338,7 +338,7 @@ public class KeymasterITCase extends AbstractITCase {
                 new SyncopeClientFactoryBean().
                         setAddress(ADDRESS).setDomain(two.getKey()).setContentType(CLIENT_FACTORY.getContentType()).
                         create(ADMIN_UNAME, "password2").self();
-            } catch (AccessControlException e) {
+            } catch (NotAuthorizedException e) {
                 assertNotNull(e);
             }
 

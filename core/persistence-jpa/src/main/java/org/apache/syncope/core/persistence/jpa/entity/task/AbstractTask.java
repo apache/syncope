@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
+import jakarta.persistence.MappedSuperclass;
 import java.util.List;
-import javax.persistence.MappedSuperclass;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;

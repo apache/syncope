@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.common.rest.api.batch;
 
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public final class BatchPayloadGenerator {

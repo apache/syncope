@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.spring;
 
+import jakarta.persistence.Entity;
 import java.util.Objects;
-import javax.persistence.Entity;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

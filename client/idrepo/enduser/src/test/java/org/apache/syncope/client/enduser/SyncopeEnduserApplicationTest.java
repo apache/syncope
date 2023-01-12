@@ -23,11 +23,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
-import java.security.AccessControlException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import javax.ws.rs.BadRequestException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.pages.Dashboard;
 import org.apache.syncope.client.enduser.pages.Login;
@@ -66,14 +67,14 @@ public class SyncopeEnduserApplicationTest extends AbstractTest {
 
         assertNull(session.getFeedbackMessages().first());
 
-        session.onException(new AccessControlException("JWT Expired"));
+        session.onException(new NotAuthorizedException("JWT Expired", Response.status(Response.Status.UNAUTHORIZED)));
         FeedbackMessage message = session.getFeedbackMessages().first();
         assertNotNull(message);
         assertTrue(message.isError());
         assertEquals(SyncopeEnduserSession.Error.SESSION_EXPIRED.fallback(), message.getMessage());
         session.getFeedbackMessages().clear();
 
-        session.onException(new AccessControlException("Auth Exception"));
+        session.onException(new NotAuthorizedException("Auth Except", Response.status(Response.Status.UNAUTHORIZED)));
         message = session.getFeedbackMessages().first();
         assertNotNull(message);
         assertTrue(message.isError());

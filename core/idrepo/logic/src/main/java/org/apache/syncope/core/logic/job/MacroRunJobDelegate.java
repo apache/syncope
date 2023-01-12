@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.logic.job;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.core.logic.api.Command;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;

@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.fit.buildtools;
 
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.annotation.WebListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
 import org.identityconnectors.common.security.SecurityUtil;
 import org.identityconnectors.framework.impl.api.local.ThreadClassLoaderManager;
 import org.identityconnectors.framework.server.ConnectorServer;

@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.enduser.rest;
 
+import jakarta.ws.rs.core.GenericType;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.core.GenericType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.ProvisioningResult;

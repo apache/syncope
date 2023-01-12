@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.ConnectorFacade;
@@ -36,7 +37,6 @@ import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 
 /**
  * Intercept calls to ConnectorFacade's methods and check if the corresponding connector instance has been configured to
@@ -53,7 +53,8 @@ public class AsyncConnectorFacade {
             final GuardedString password,
             final OperationOptions options) {
 
-        return new AsyncResult<>(connector.authenticate(ObjectClass.ACCOUNT, username, password, options));
+        return CompletableFuture.completedFuture(
+                connector.authenticate(ObjectClass.ACCOUNT, username, password, options));
     }
 
     @Async
@@ -63,7 +64,7 @@ public class AsyncConnectorFacade {
             final Set<Attribute> attrs,
             final OperationOptions options) {
 
-        return new AsyncResult<>(connector.create(objectClass, attrs, options));
+        return CompletableFuture.completedFuture(connector.create(objectClass, attrs, options));
     }
 
     @Async
@@ -74,7 +75,7 @@ public class AsyncConnectorFacade {
             final Set<Attribute> attrs,
             final OperationOptions options) {
 
-        return new AsyncResult<>(connector.update(objectClass, uid, attrs, options));
+        return CompletableFuture.completedFuture(connector.update(objectClass, uid, attrs, options));
     }
 
     @Async
@@ -85,7 +86,7 @@ public class AsyncConnectorFacade {
             final Set<AttributeDelta> modifications,
             final OperationOptions options) {
 
-        return new AsyncResult<>(connector.updateDelta(objectClass, uid, modifications, options));
+        return CompletableFuture.completedFuture(connector.updateDelta(objectClass, uid, modifications, options));
     }
 
     @Async
@@ -96,14 +97,14 @@ public class AsyncConnectorFacade {
             final OperationOptions options) {
 
         connector.delete(objectClass, uid, options);
-        return new AsyncResult<>(uid);
+        return CompletableFuture.completedFuture(uid);
     }
 
     @Async
     public Future<SyncToken> getLatestSyncToken(
             final ConnectorFacade connector, final ObjectClass objectClass) {
 
-        return new AsyncResult<>(connector.getLatestSyncToken(objectClass));
+        return CompletableFuture.completedFuture(connector.getLatestSyncToken(objectClass));
     }
 
     @Async
@@ -133,7 +134,7 @@ public class AsyncConnectorFacade {
         },
                 options);
 
-        return new AsyncResult<>(objects[0]);
+        return CompletableFuture.completedFuture(objects[0]);
     }
 
     @Async
@@ -147,18 +148,18 @@ public class AsyncConnectorFacade {
             LOG.debug("While reading schema on connector {}", connector, e);
         }
 
-        return new AsyncResult<>(result);
+        return CompletableFuture.completedFuture(result);
     }
 
     @Async
     public Future<String> validate(final ConnectorFacade connector) {
         connector.validate();
-        return new AsyncResult<>("OK");
+        return CompletableFuture.completedFuture("OK");
     }
 
     @Async
     public Future<String> test(final ConnectorFacade connector) {
         connector.test();
-        return new AsyncResult<>("OK");
+        return CompletableFuture.completedFuture("OK");
     }
 }

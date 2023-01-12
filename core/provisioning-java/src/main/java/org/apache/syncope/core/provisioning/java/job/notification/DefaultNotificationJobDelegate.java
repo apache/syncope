@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.job.notification;
 
+import jakarta.mail.internet.MimeMessage;
 import java.time.OffsetDateTime;
 import java.util.List;
-import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.TaskType;

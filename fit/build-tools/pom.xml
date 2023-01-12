@@ -45,11 +45,6 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.apache.bval</groupId>
-      <artifactId>bval-jsr</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-spring-boot-starter-jaxrs</artifactId>
       <exclusions>
@@ -59,9 +54,14 @@ under the License.
         </exclusion>
       </exclusions>
     </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-log4j2</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.lmax</groupId>
+      <artifactId>disruptor</artifactId>
     </dependency>
 
     <dependency>
@@ -102,8 +102,14 @@ under the License.
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-frontend-jaxws</artifactId>
       <version>${cxf.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.angus</groupId>
+          <artifactId>angus-mail</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
-        
+
     <dependency>
       <groupId>net.tirasa.connid.bundles.soap</groupId>
       <artifactId>soap-utilities</artifactId>
@@ -125,8 +131,8 @@ under the License.
       <artifactId>cxf-rt-rs-service-description</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.jaxrs</groupId>
-      <artifactId>jackson-jaxrs-json-provider</artifactId>
+      <groupId>com.fasterxml.jackson.jakarta.rs</groupId>
+      <artifactId>jackson-jakarta-rs-json-provider</artifactId>
     </dependency>
 
     <dependency>
@@ -180,32 +186,6 @@ under the License.
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -236,8 +216,8 @@ under the License.
             <phase>prepare-package</phase>
             <configuration>
               <target>
-                <unzip src="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}-bundle.jar"
-                       dest="${bundles.directory}/soap">
+                <unzip dest="${bundles.directory}/soap">
+                  <fileset dir="${bundles.directory}/" includes="net.tirasa.connid.bundles.soap-*-bundle.jar"/>
                   <patternset>
                     <include name="META-INF/*"/>
                     <include name="net/**"/>
@@ -245,7 +225,9 @@ under the License.
                   </patternset>
                 </unzip>
 
-                <delete file="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}-bundle.jar"/>
+                <delete>
+                  <fileset dir="${bundles.directory}/" includes="net.tirasa.connid.bundles.soap-*-bundle.jar"/>
+                </delete>
 
                 <jar destfile="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}-bundle.jar"
                      basedir="${bundles.directory}/soap"
@@ -327,7 +309,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>tomcat9x</containerId>
+                <containerId>tomcat10x</containerId>
                 <zipUrlInstaller>
                   <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
@@ -355,7 +337,7 @@ under the License.
         <dependency>
           <groupId>org.glassfish</groupId>
           <artifactId>jakarta.faces</artifactId>
-          <version>${javax.faces.version}</version>
+          <version>${jakarta.faces.version}</version>
         </dependency>
       </dependencies>
 
@@ -363,13 +345,6 @@ under the License.
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
         <plugins>
-          <plugin>
-            <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-              <packagingExcludes>WEB-INF/lib/bval-*.jar</packagingExcludes>
-            </configuration>
-          </plugin>
-
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven3-plugin</artifactId>
@@ -412,7 +387,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly23x</containerId>
+                <containerId>wildfly27x</containerId>
                 <zipUrlInstaller>
                   <url>https://download.jboss.org/wildfly/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>

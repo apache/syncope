@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 import org.apache.syncope.core.logic.OIDCJWKSLogic;

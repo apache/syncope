@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.QueryParam;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,10 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.QueryParam;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public class ConnObjectTOQuery implements Serializable {

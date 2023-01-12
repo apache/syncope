@@ -45,7 +45,7 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>com.giffing.wicket.spring.boot.starter</groupId>
+      <groupId>net.tirasa.syncope.com.giffing.wicket.spring.boot.starter</groupId>
       <artifactId>wicket-spring-boot-starter</artifactId>
     </dependency>
     <dependency>
@@ -124,7 +124,7 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
     </dependency>
     <dependency>
       <groupId>com.lmax</groupId>
@@ -146,29 +146,23 @@ under the License.
   <build>
     <plugins>
       <plugin>
-        <groupId>nl.geodienstencentrum.maven</groupId>
-        <artifactId>sass-maven-plugin</artifactId>
+        <groupId>us.hebi.sass</groupId>
+        <artifactId>sass-cli-maven-plugin</artifactId>
         <inherited>true</inherited>
+        <configuration>
+          <args>
+            <arg>${basedir}/src/main/resources/META-INF/resources/css:${project.build.outputDirectory}/META-INF/resources/css</arg>
+          </args>
+        </configuration>
         <executions>
           <execution>
             <id>sass-compilation</id>
-            <phase>compile</phase>
+            <phase>generate-resources</phase>
             <goals>
-              <goal>update-stylesheets</goal>
+              <goal>run</goal>
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <resources>
-            <resource>
-              <source>
-                <directory>${basedir}/src/main/resources/META-INF/resources/css</directory>
-              </source>
-              <destination>${project.build.outputDirectory}/META-INF/resources/css</destination>
-            </resource>
-          </resources>
-          <skip>${sass.skip}</skip>
-        </configuration>
       </plugin>
 
       <plugin>
@@ -198,11 +192,6 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <systemProperties>
-            <wicket.ioc.useByteBuddy>true</wicket.ioc.useByteBuddy>
-          </systemProperties>
-        </configuration>
       </plugin>
     </plugins>
 
@@ -288,7 +277,7 @@ under the License.
               <jvmArguments>
                 -Djavax.net.ssl.trustStore=${basedir}/../../../fit/wa-reference/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password
                 -Dwicket.core.settings.general.configuration-type=development
-                -XX:HotswapAgent=fatjar
+                -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar
                 -Xdebug -Xrunjdwp:transport=dt_socket,address=8003,server=y,suspend=n
               </jvmArguments>
               <profiles>

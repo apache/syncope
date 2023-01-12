@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.Serializable;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeProperties;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
-import org.jasig.cas.client.Protocol;
+import org.apereo.cas.client.Protocol;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 

@@ -20,7 +20,7 @@ package org.apache.syncope.common.rest.api.beans;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.ws.rs.QueryParam;
+import jakarta.ws.rs.QueryParam;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public class CommandQuery extends AbstractQuery {

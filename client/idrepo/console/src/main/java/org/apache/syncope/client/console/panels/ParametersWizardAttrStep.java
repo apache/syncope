@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import jakarta.ws.rs.core.MediaType;
 import java.util.List;
-import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;

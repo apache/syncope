@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.SchemaType;

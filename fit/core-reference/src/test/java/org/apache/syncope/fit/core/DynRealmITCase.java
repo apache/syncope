@@ -25,11 +25,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import java.nio.charset.StandardCharsets;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import org.apache.commons.io.IOUtils;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -54,12 +59,6 @@ import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.util.InputStreamContentProvider;
-import org.eclipse.jetty.http.HttpHeader;
-import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
 public class DynRealmITCase extends AbstractITCase {
@@ -230,16 +229,16 @@ public class DynRealmITCase extends AbstractITCase {
                 + "    }"
                 + '}';
 
-        HttpClient httpClient = new HttpClient();
-        httpClient.start();
-        ContentResponse response = httpClient.newRequest("http://localhost:9200/master_user/_search").
-                method(HttpMethod.GET).
-                header(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON).
-                content(new InputStreamContentProvider(IOUtils.toInputStream(body, StandardCharsets.UTF_8))).
-                send();
-        assertEquals(HttpStatus.OK_200, response.getStatus());
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = client.send(
+                HttpRequest.newBuilder(URI.create("http://localhost:9200/master_user/_search")).
+                        header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON).
+                        method("GET", BodyPublishers.ofString(body)).
+                        build(),
+                BodyHandlers.ofString());
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
 
-        return (ArrayNode) JSON_MAPPER.readTree(response.getContent()).
+        return (ArrayNode) JSON_MAPPER.readTree(response.body()).
                 get("hits").get("hits").get(0).get("_source").get("dynRealms");
     }
 

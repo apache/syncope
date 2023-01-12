@@ -23,11 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import jakarta.ws.rs.core.HttpHeaders;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import javax.ws.rs.core.HttpHeaders;
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpStatus;

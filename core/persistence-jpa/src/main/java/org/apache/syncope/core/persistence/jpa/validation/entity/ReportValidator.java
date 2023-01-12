@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
+import jakarta.validation.ConstraintValidatorContext;
 import java.text.ParseException;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Report;

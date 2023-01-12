@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 /**
  * Format for import / export of workflow definition.

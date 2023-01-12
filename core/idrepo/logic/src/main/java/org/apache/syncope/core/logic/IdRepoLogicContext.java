@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.logic;
 
+import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
-import javax.validation.Validator;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
