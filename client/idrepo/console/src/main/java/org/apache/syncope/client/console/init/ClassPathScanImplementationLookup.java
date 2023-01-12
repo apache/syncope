@@ -115,8 +115,10 @@ public class ClassPathScanImplementationLookup {
 
     private final ConsoleProperties props;
 
-    public ClassPathScanImplementationLookup(final Collection<ClassPathScanImplementationContributor> contributors,
-                                             final ConsoleProperties props) {
+    public ClassPathScanImplementationLookup(
+            final Collection<ClassPathScanImplementationContributor> contributors,
+            final ConsoleProperties props) {
+
         this.contributors = contributors;
         this.props = props;
     }

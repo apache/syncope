@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.policy;
+package org.apache.syncope.client.console.commons;
 
-import org.apache.syncope.common.lib.policy.AccessPolicyConf;
+import java.io.Serializable;
+import java.util.List;
 
-public interface AccessPolicy extends Policy {
+@FunctionalInterface
+public interface AccessPolicyConfProvider extends Serializable {
 
-    AccessPolicyConf getConf();
-
-    void setConf(AccessPolicyConf conf);
+    List<String> get();
 }

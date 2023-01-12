@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
+import org.apache.syncope.client.console.AMConsoleContext;
 import org.apache.syncope.client.console.ConsoleProperties;
-import org.apache.syncope.client.console.SyncopeAMConsoleContext;
-import org.apache.syncope.client.console.SyncopeIdMConsoleContext;
+import org.apache.syncope.client.console.IdMConsoleContext;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.IdRepoPolicyTabProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
@@ -135,8 +135,8 @@ public abstract class AbstractConsoleITCase extends AbstractUIITCase {
 
         ctx.register(SyncopeConsoleWebApplicationTestConfig.class);
         ctx.register(SyncopeWebApplication.class);
-        ctx.register(SyncopeAMConsoleContext.class);
-        ctx.register(SyncopeIdMConsoleContext.class);
+        ctx.register(AMConsoleContext.class);
+        ctx.register(IdMConsoleContext.class);
 
         String springActiveProfiles = null;
         try (InputStream propStream = AbstractConsoleITCase.class.getResourceAsStream("/test.properties")) {

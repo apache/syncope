@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-import java.net.URI;
 import java.util.Optional;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -37,87 +34,8 @@ public class JPAAccessPolicy extends AbstractPolicy implements AccessPolicy {
 
     public static final String TABLE = "AccessPolicy";
 
-    @Basic
-    private Integer aporder = 0;
-
-    @Basic
-    private Boolean enabled = true;
-
-    @Basic
-    private Boolean ssoEnabled = true;
-
-    @Basic
-    private Boolean requireAllAttributes = true;
-
-    @Basic
-    private Boolean caseInsensitive;
-
-    private String unauthorizedRedirectUrl;
-
     @Lob
     private String jsonConf;
-
-    @Override
-    public int getOrder() {
-        return Optional.ofNullable(aporder).orElse(0);
-    }
-
-    @Override
-    public void setOrder(final int order) {
-        this.aporder = order;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return BooleanUtils.isNotFalse(enabled);
-    }
-
-    @Override
-    public void setEnabled(final boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    @Override
-    public boolean isSsoEnabled() {
-        return BooleanUtils.isNotFalse(ssoEnabled);
-    }
-
-    @Override
-    public void setSsoEnabled(final boolean ssoEnabled) {
-        this.ssoEnabled = ssoEnabled;
-    }
-
-    @Override
-    public boolean isRequireAllAttributes() {
-        return BooleanUtils.isNotFalse(requireAllAttributes);
-    }
-
-    @Override
-    public void setRequireAllAttributes(final boolean requireAllAttributes) {
-        this.requireAllAttributes = requireAllAttributes;
-    }
-
-    @Override
-    public boolean isCaseInsensitive() {
-        return BooleanUtils.isNotFalse(caseInsensitive);
-    }
-
-    @Override
-    public void setCaseInsensitive(final boolean caseInsensitive) {
-        this.caseInsensitive = caseInsensitive;
-    }
-
-    @Override
-    public URI getUnauthorizedRedirectUrl() {
-        return Optional.ofNullable(unauthorizedRedirectUrl).
-                map(URI::create).orElse(null);
-    }
-
-    @Override
-    public void setUnauthorizedRedirectUrl(final URI unauthorizedRedirectUrl) {
-        this.unauthorizedRedirectUrl = Optional.ofNullable(unauthorizedRedirectUrl).
-                map(URI::toASCIIString).orElse(null);
-    }
 
     @Override
     public AccessPolicyConf getConf() {

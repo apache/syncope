@@ -31,8 +31,8 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
@@ -49,13 +49,13 @@ public class AccessPolicyAttrsDirectoryPanel extends AttrListDirectoryPanel {
 
     private final IModel<AccessPolicyTO> accessPolicyModel;
 
-    private final SerializableFunction<AccessPolicyConf, List<Attr>> attrsAccessor;
+    private final SerializableFunction<DefaultAccessPolicyConf, List<Attr>> attrsAccessor;
 
     public AccessPolicyAttrsDirectoryPanel(
             final String id,
             final BaseModal<AccessPolicyTO> wizardModal,
             final IModel<AccessPolicyTO> model,
-            final SerializableFunction<AccessPolicyConf, List<Attr>> attrsAccessor,
+            final SerializableFunction<DefaultAccessPolicyConf, List<Attr>> attrsAccessor,
             final PageReference pageRef) {
 
         super(id, pageRef, false);
@@ -86,7 +86,8 @@ public class AccessPolicyAttrsDirectoryPanel extends AttrListDirectoryPanel {
             @Override
             public void onClick(final AjaxRequestTarget target, final Attr ignore) {
                 try {
-                    attrsAccessor.apply(accessPolicyModel.getObject().getConf()).remove(model.getObject());
+                    attrsAccessor.apply((DefaultAccessPolicyConf) accessPolicyModel.getObject().getConf()).
+                            remove(model.getObject());
                     PolicyRestClient.update(PolicyType.ACCESS, accessPolicyModel.getObject());
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
@@ -135,7 +136,7 @@ public class AccessPolicyAttrsDirectoryPanel extends AttrListDirectoryPanel {
 
         @Override
         protected List<Attr> list() {
-            return attrsAccessor.apply(accessPolicyModel.getObject().getConf());
+            return attrsAccessor.apply((DefaultAccessPolicyConf) accessPolicyModel.getObject().getConf());
         }
     }
 }

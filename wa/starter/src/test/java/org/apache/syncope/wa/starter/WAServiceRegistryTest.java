@@ -112,8 +112,8 @@ public class WAServiceRegistryTest extends AbstractTest {
         }
 
         AccessPolicyTO accessPolicy = new AccessPolicyTO();
-        accessPolicy.setEnabled(true);
         DefaultAccessPolicyConf accessPolicyConf = new DefaultAccessPolicyConf();
+        accessPolicyConf.setEnabled(true);
         accessPolicyConf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
         accessPolicy.setConf(accessPolicyConf);
         waClientApp.setAccessPolicy(accessPolicy);

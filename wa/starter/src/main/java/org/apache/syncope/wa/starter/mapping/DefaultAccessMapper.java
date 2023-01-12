@@ -29,21 +29,23 @@ public class DefaultAccessMapper implements AccessMapper {
 
     @Override
     public RegisteredServiceAccessStrategy build(final AccessPolicyTO policy) {
+        DefaultAccessPolicyConf conf = (DefaultAccessPolicyConf) policy.getConf();
+
         DefaultRegisteredServiceAccessStrategy accessStrategy =
-                new DefaultRegisteredServiceAccessStrategy(policy.isEnabled(), policy.isSsoEnabled());
+                new DefaultRegisteredServiceAccessStrategy(conf.isEnabled(), conf.isSsoEnabled());
 
-        accessStrategy.setOrder(policy.getOrder());
+        accessStrategy.setOrder(conf.getOrder());
 
-        accessStrategy.setRequireAllAttributes(policy.isRequireAllAttributes());
+        accessStrategy.setRequireAllAttributes(conf.isRequireAllAttributes());
 
-        accessStrategy.setCaseInsensitive(policy.isCaseInsensitive());
+        accessStrategy.setCaseInsensitive(conf.isCaseInsensitive());
 
-        accessStrategy.setUnauthorizedRedirectUrl(policy.getUnauthorizedRedirectUrl());
+        accessStrategy.setUnauthorizedRedirectUrl(conf.getUnauthorizedRedirectUrl());
 
-        policy.getConf().getRequiredAttrs().forEach(
+        conf.getRequiredAttrs().forEach(
                 attr -> accessStrategy.getRequiredAttributes().put(attr.getSchema(), new HashSet<>(attr.getValues())));
 
-        policy.getConf().getRejectedAttrs().forEach(
+        conf.getRejectedAttrs().forEach(
                 attr -> accessStrategy.getRejectedAttributes().put(attr.getSchema(), new HashSet<>(attr.getValues())));
 
         return accessStrategy;

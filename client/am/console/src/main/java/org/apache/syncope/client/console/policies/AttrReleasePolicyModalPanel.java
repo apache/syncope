@@ -47,7 +47,7 @@ import org.apache.wicket.model.PropertyModel;
 
 public class AttrReleasePolicyModalPanel extends AbstractModalPanel<AttrReleasePolicyTO> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2668291404983623500L;
 
     private final IModel<List<String>> allAttrRepos = new LoadableDetachableModel<>() {
 

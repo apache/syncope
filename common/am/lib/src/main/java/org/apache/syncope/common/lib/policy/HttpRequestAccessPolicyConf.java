@@ -16,13 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.policy;
+package org.apache.syncope.common.lib.policy;
 
-import org.apache.syncope.common.lib.policy.AccessPolicyConf;
+public class HttpRequestAccessPolicyConf implements AccessPolicyConf {
 
-public interface AccessPolicy extends Policy {
+    private static final long serialVersionUID = 4511220098152435547L;
 
-    AccessPolicyConf getConf();
+    private String ipAddress;
 
-    void setConf(AccessPolicyConf conf);
+    private String userAgent;
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(final String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(final String userAgent) {
+        this.userAgent = userAgent;
+    }
 }
