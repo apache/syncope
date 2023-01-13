@@ -2,6 +2,26 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.1
+================================================================================
+
+** Bug
+    * [SYNCOPE-1711] - WA Docker image not working properly
+    * [SYNCOPE-1712] - Invalid HTTP method: PATCH with JDK 17
+    * [SYNCOPE-1715] - Cannot update Audit settings via Console
+
+** New Feature
+    * [SYNCOPE-1105] - Provide unique key for operations
+
+** Improvement
+    * [SYNCOPE-1709] - Persist Jobs' current status in the database to support multi-node deployments
+    * [SYNCOPE-1713] - Support time-based conditions for Audit, Exec and Remediation queries
+    * [SYNCOPE-1714] - Support Docker deployments from archetype
+    * [SYNCOPE-1716] - Concurrent handling for pull and push tasks
+    * [SYNCOPE-1719] - Remove limitations for memberships and relationships
+    * [SYNCOPE-1720] - Switch persistence identifiers to UUID version 7
+    * [SYNCOPE-1721] - Allow for more Access Policy types
+
 Release Notes - Syncope - Version 3.0.0
 ================================================================================
 
