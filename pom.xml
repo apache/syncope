@@ -842,7 +842,7 @@ under the License.
       </dependency>
 
       <dependency>
-        <groupId>net.tirasa.syncope.com.giffing.wicket.spring.boot.starter</groupId>
+        <groupId>com.giffing.wicket.spring.boot.starter</groupId>
         <artifactId>wicket-spring-boot-starter</artifactId>
         <version>${wicket-spring-boot.version}</version>
         <exclusions>
