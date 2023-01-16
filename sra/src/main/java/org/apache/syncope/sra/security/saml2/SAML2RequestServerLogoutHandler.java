@@ -19,6 +19,7 @@
 package org.apache.syncope.sra.security.saml2;
 
 import org.apache.syncope.sra.SessionConfig;
+import org.apache.syncope.sra.security.pac4j.BaseProfileManagerFactory;
 import org.apache.syncope.sra.security.pac4j.NoOpSessionStore;
 import org.apache.syncope.sra.security.pac4j.RedirectionActionUtils;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
@@ -58,8 +59,12 @@ public class SAML2RequestServerLogoutHandler implements ServerLogoutHandler {
 
                     cacheManager.getCache(SessionConfig.DEFAULT_CACHE).evictIfPresent(session.getId());
                     return session.invalidate().then(
-                            saml2Client.getLogoutAction(swec,
-                                NoOpSessionStore.INSTANCE, credentials.getUserProfile(), null).
+                            saml2Client.getLogoutAction(
+                                    swec,
+                                    NoOpSessionStore.INSTANCE,
+                                    BaseProfileManagerFactory.INSTANCE,
+                                    credentials.getUserProfile(),
+                                    null).
                                     map(action -> RedirectionActionUtils.handle(action, swec)).
                                     orElseThrow(() -> new IllegalStateException("No action generated")));
                 }).onErrorResume(Mono::error);

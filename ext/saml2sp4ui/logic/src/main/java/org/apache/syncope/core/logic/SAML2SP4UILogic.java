@@ -78,6 +78,7 @@ import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.exception.http.WithContentAction;
 import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.logout.NoLogoutActionBuilder;
+import org.pac4j.core.profile.factory.ProfileManagerFactory;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.context.SAML2MessageContext;
@@ -276,7 +277,9 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
                 @Override
                 public Optional<RedirectionAction> getRedirectionAction(
-                        final WebContext wc, final SessionStore sessionStore) {
+                        final WebContext wc,
+                        final SessionStore sessionStore,
+                        final ProfileManagerFactory profileManagerFactory) {
 
                     this.saml2ObjectBuilder = new SAML2AuthnRequestBuilder() {
 
@@ -287,7 +290,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
                             return authnRequest;
                         }
                     };
-                    return super.getRedirectionAction(wc, sessionStore);
+                    return super.getRedirectionAction(wc, sessionStore, profileManagerFactory);
                 }
             });
         });
@@ -296,7 +299,8 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         SAML2SP4UIContext ctx = new SAML2SP4UIContext(
                 saml2Client.getConfiguration().getAuthnRequestBindingType(),
                 null);
-        RedirectionAction action = saml2Client.getRedirectionAction(ctx, NoOpSessionStore.INSTANCE).
+        RedirectionAction action = saml2Client.getRedirectionAction(
+                ctx, NoOpSessionStore.INSTANCE, BaseProfileManagerFactory.INSTANCE).
                 orElseThrow(() -> {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
                     sce.getElements().add("No RedirectionAction generated for AuthnRequest");
@@ -481,7 +485,9 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         RedirectionAction action = saml2Client.getLogoutAction(
                 ctx,
                 NoOpSessionStore.INSTANCE,
-                saml2Profile, null).
+                BaseProfileManagerFactory.INSTANCE,
+                saml2Profile,
+                null).
                 orElseThrow(() -> {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
                     sce.getElements().add("No RedirectionAction generated for LogoutRequest");
@@ -513,7 +519,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         LogoutResponse logoutResponse;
         try {
             SAML2MessageContext saml2Ctx = saml2Client.getContextProvider().
-                    buildContext(saml2Client, ctx, NoOpSessionStore.INSTANCE);
+                    buildContext(saml2Client, ctx, NoOpSessionStore.INSTANCE, BaseProfileManagerFactory.INSTANCE);
             saml2Client.getLogoutProfileHandler().receive(saml2Ctx);
 
             logoutResponse = (LogoutResponse) saml2Ctx.getMessageContext().getMessage();

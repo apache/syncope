@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.logic.oidc.BaseProfileManagerFactory;
 import org.apache.syncope.core.logic.oidc.NoOpSessionStore;
 import org.apache.syncope.core.logic.oidc.OIDC4UIContext;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
@@ -110,7 +111,8 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         oidcClient.setCallbackUrl(redirectURI);
 
         // 2. create OIDCRequest
-        WithLocationAction action = oidcClient.getRedirectionAction(new OIDC4UIContext(), NoOpSessionStore.INSTANCE).
+        WithLocationAction action = oidcClient.getRedirectionAction(
+                new OIDC4UIContext(), NoOpSessionStore.INSTANCE, BaseProfileManagerFactory.INSTANCE).
                 map(WithLocationAction.class::cast).
                 orElseThrow(() -> {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
@@ -274,6 +276,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         WithLocationAction action = oidcClient.getLogoutAction(
                 new OIDC4UIContext(),
                 NoOpSessionStore.INSTANCE,
+                BaseProfileManagerFactory.INSTANCE,
                 profile,
                 redirectURI).
                 map(WithLocationAction.class::cast).
