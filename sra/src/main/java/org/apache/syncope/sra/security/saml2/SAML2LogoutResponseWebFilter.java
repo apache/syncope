@@ -85,7 +85,7 @@ public class SAML2LogoutResponseWebFilter implements WebFilter {
 
         try {
             SAML2MessageContext ctx = saml2Client.getContextProvider().
-                    buildContext(this.saml2Client, swec, NoOpSessionStore.INSTANCE);
+                    buildContext(this.saml2Client, swec, NoOpSessionStore.INSTANCE, BaseProfileManagerFactory.INSTANCE);
             saml2Client.getLogoutProfileHandler().receive(ctx);
         } catch (OkAction e) {
             LOG.debug("LogoutResponse was actually validated but no postLogoutURL was set", e);
