@@ -51,8 +51,8 @@ under the License.
   <scm>
     <connection>scm:git:https://gitbox.apache.org/repos/asf/syncope.git</connection>
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/syncope.git</developerConnection>
-    <url>https://gitbox.apache.org/repos/asf?p=syncope.git</url>
-    <tag>HEAD</tag>
+    <url>https://github.com/apache/syncope/tree/${project.scm.tag}</url>
+    <tag>master</tag>
   </scm>
 
   <issueManagement>
