@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
@@ -33,8 +32,11 @@ public class DomainsHealthIndicator implements HealthIndicator {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DomainsHealthIndicator.class);
 
-    @Autowired
-    protected DomainHolder domainHolder;
+    protected final DomainHolder domainHolder;
+
+    public DomainsHealthIndicator(final DomainHolder domainHolder) {
+        this.domainHolder = domainHolder;
+    }
 
     @Override
     public Health health() {

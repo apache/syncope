@@ -99,7 +99,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
             throws JobExecutionException {
 
         if (!dryRun) {
-            LOG.debug("Start rebuilding indexes");
+            setStatus("Start rebuilding indexes");
 
             try {
                 indexManager.createAnyIndex(
@@ -111,8 +111,9 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                 indexManager.createAnyIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT, anyObjectSettings(), anyObjectMapping());
 
-                LOG.debug("Indexing users...");
-                for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                int users = userDAO.count();
+                setStatus("Indexing " + users + " users...");
+                for (int page = 1; page <= (users / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (String user : userDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
                                 index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
@@ -128,8 +129,9 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                     }
                 }
 
-                LOG.debug("Indexing groups...");
-                for (int page = 1; page <= (groupDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                int groups = groupDAO.count();
+                setStatus("Indexing " + groups + " groups...");
+                for (int page = 1; page <= (groups / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (String group : groupDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
                                 index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP)).
@@ -145,8 +147,9 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                     }
                 }
 
-                LOG.debug("Indexing any objects...");
-                for (int page = 1; page <= (anyObjectDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                int anyObjects = anyObjectDAO.count();
+                setStatus("Indexing " + anyObjects + " any objects...");
+                for (int page = 1; page <= (anyObjects / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                     for (String anyObject : anyObjectDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                         IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
                                 index(ElasticsearchUtils.getAnyIndex(
@@ -166,7 +169,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                 indexManager.createAuditIndex(
                         AuthContextUtils.getDomain(), auditSettings(), auditMapping());
 
-                LOG.debug("Rebuild indexes for domain {} successfully completed", AuthContextUtils.getDomain());
+                setStatus("Rebuild indexes for domain " + AuthContextUtils.getDomain() + " successfully completed");
             } catch (Exception e) {
                 throw new JobExecutionException("While rebuilding index for domain " + AuthContextUtils.getDomain(), e);
             }
