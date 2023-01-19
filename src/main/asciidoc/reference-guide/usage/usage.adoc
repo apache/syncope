@@ -37,3 +37,5 @@ include::core.adoc[]
 include::clientlibrary.adoc[]
 
 include::customization.adoc[]
+
+include::actuator.adoc[]
