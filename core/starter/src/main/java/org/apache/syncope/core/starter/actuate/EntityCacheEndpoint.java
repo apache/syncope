@@ -31,7 +31,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Endpoint(id = "entityCache")
 public class EntityCacheEndpoint {
 
-    private final EntityCacheDAO entityCacheDAO;
+    protected final EntityCacheDAO entityCacheDAO;
 
     public EntityCacheEndpoint(final EntityCacheDAO entityCacheDAO) {
         this.entityCacheDAO = entityCacheDAO;
