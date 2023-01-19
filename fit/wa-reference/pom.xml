@@ -155,8 +155,6 @@ under the License.
               <extractDir>${project.build.directory}/cargo/extract</extractDir>
             </zipUrlInstaller>
             <timeout>600000</timeout>
-            <log>${cargo.log}</log>
-            <output>${cargo.output}</output>
 
             <systemProperties>
               <java.security.egd>file:/dev/./urandom</java.security.egd>

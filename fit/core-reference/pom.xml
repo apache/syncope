@@ -283,8 +283,6 @@ under the License.
               <extractDir>${project.build.directory}/cargo/extract</extractDir>
             </zipUrlInstaller>
             <timeout>300000</timeout>
-            <log>${cargo.log}</log>
-            <output>${cargo.output}</output>
             <systemProperties>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
@@ -1514,8 +1512,6 @@ under the License.
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
-                <log>${cargo.log}</log>
-                <output>${cargo.output}</output>
               </container>
               <configuration>
                 <properties>
@@ -1618,8 +1614,6 @@ under the License.
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
-                <log>${cargo.log}</log>
-                <output>${cargo.output}</output>
               </container>
               <configuration>
                 <properties>
