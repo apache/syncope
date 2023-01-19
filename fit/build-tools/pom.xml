@@ -249,7 +249,8 @@ under the License.
 
                 <jar destfile="${bundles.directory}/net.tirasa.connid.bundles.soap-${connid.soap.version}-bundle.jar"
                      basedir="${bundles.directory}/soap"
-                     filesetmanifest="merge"/>                  
+                     filesetmanifest="merge"
+                     modificationtime="${project.build.outputTimestamp}"/>                  
 
                 <delete dir="${bundles.directory}/soap"/>
               </target>
