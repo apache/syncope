@@ -30,7 +30,6 @@ import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
@@ -39,17 +38,25 @@ public class ExternalResourcesHealthIndicator implements HealthIndicator {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ExternalResourcesHealthIndicator.class);
 
-    @Autowired
-    protected DomainOps domainOps;
+    protected final DomainOps domainOps;
 
-    @Autowired
-    protected ExternalResourceDAO resourceDAO;
+    protected final ExternalResourceDAO resourceDAO;
 
-    @Autowired
-    protected ConnInstanceDataBinder connInstanceDataBinder;
+    protected final ConnInstanceDataBinder connInstanceDataBinder;
 
-    @Autowired
-    protected ConnectorManager connectorManager;
+    protected final ConnectorManager connectorManager;
+
+    public ExternalResourcesHealthIndicator(
+            final DomainOps domainOps,
+            final ExternalResourceDAO resourceDAO,
+            final ConnInstanceDataBinder connInstanceDataBinder,
+            final ConnectorManager connectorManager) {
+
+        this.domainOps = domainOps;
+        this.resourceDAO = resourceDAO;
+        this.connInstanceDataBinder = connInstanceDataBinder;
+        this.connectorManager = connectorManager;
+    }
 
     @Override
     public Health health() {

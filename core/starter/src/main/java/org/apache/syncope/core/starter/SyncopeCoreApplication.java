@@ -21,6 +21,7 @@ package org.apache.syncope.core.starter;
 import java.util.Map;
 import org.apache.cxf.spring.boot.autoconfigure.openapi.OpenApiAutoConfiguration;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -39,6 +40,8 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
+import org.apache.syncope.core.provisioning.api.ConnectorManager;
+import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.starter.actuate.DefaultSyncopeCoreInfoContributor;
 import org.apache.syncope.core.starter.actuate.DomainsHealthIndicator;
 import org.apache.syncope.core.starter.actuate.EntityCacheEndpoint;
@@ -152,8 +155,8 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
 
     @ConditionalOnMissingBean
     @Bean
-    public DomainsHealthIndicator domainsHealthIndicator() {
-        return new DomainsHealthIndicator();
+    public DomainsHealthIndicator domainsHealthIndicator(final DomainHolder domainHolder) {
+        return new DomainsHealthIndicator(domainHolder);
     }
 
     @ConditionalOnMissingBean
@@ -165,8 +168,13 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
     @ConditionalOnClass(name = { "org.apache.syncope.core.logic.ResourceLogic" })
     @ConditionalOnMissingBean
     @Bean
-    public ExternalResourcesHealthIndicator externalResourcesHealthIndicator() {
-        return new ExternalResourcesHealthIndicator();
+    public ExternalResourcesHealthIndicator externalResourcesHealthIndicator(
+            final DomainOps domainOps,
+            final ExternalResourceDAO resourceDAO,
+            final ConnInstanceDataBinder connInstanceDataBinder,
+            final ConnectorManager connectorManager) {
+
+        return new ExternalResourcesHealthIndicator(domainOps, resourceDAO, connInstanceDataBinder, connectorManager);
     }
 
     @ConditionalOnMissingBean

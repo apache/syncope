@@ -24,6 +24,7 @@ import org.apache.http.HttpHost;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.springframework.boot.actuate.health.HealthContributor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -69,5 +70,12 @@ public class ElasticsearchClientContext {
     @Bean
     public ElasticsearchIndexLoader elasticsearchIndexLoader(final ElasticsearchIndexManager indexManager) {
         return new ElasticsearchIndexLoader(indexManager);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean(name = {
+        "syncopeElasticsearchHealthContributor", "elasticsearchHealthIndicator", "elasticsearchHealthContributor" })
+    public HealthContributor syncopeElasticsearchHealthContributor(final ElasticsearchClient client) {
+        return new SyncopeElasticsearchHealthContributor(client);
     }
 }
