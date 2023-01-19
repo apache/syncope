@@ -185,13 +185,13 @@ Syncope componet context is refreshed as a result of an external property change
 In order to register your own configuration class, create a file named
 
 ----
-<component>/src/main/resources/META-INF/spring.factories
+<component>/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
 ----
 
 with content
 
 ----
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=org.apache.syncope.custom.config.SomethingConfiguration
+org.apache.syncope.custom.config.SomethingConfiguration
 ----
 
 What if you needed to override the definition of a Syncope-provided bean and replace it entirely with your own? +

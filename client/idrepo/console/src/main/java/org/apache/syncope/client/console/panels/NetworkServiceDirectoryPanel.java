@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.NetworkServiceDirectoryPanel.NetworkServiceProvider;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -31,7 +33,9 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -80,7 +84,26 @@ public class NetworkServiceDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected ActionsPanel<NetworkService> getActions(final IModel<NetworkService> model) {
-        return super.getActions(model);
+        ActionsPanel<NetworkService> panel = super.getActions(model);
+
+        panel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final NetworkService ignore) {
+                try {
+                    serviceOps.unregister(model.getObject());
+                    target.add(container);
+                } catch (Exception e) {
+                    LOG.error("While deleting {}", model.getObject().getAddress(), e);
+                    SyncopeConsoleSession.get().onException(e);
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.KEYMASTER, true);
+
+        return panel;
     }
 
     @Override
