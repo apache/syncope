@@ -1443,8 +1443,17 @@ under the License.
           <configuration>
             <verbose>true</verbose>
             <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+            <dateFormatTimeZone>Zulu</dateFormatTimeZone>
             <generateGitPropertiesFile>true</generateGitPropertiesFile>
             <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+            <excludeProperties>
+              <excludeProperty>git.build.time</excludeProperty>
+              <excludeProperty>git.build.user.*</excludeProperty>
+              <excludeProperty>git.build.host</excludeProperty>
+              <excludeProperty>git.commit.user.*</excludeProperty>
+              <excludeProperty>git.tags</excludeProperty>
+              <excludeProperty>git.total.commit.count</excludeProperty>
+            </excludeProperties>
           </configuration>
         </plugin>
 
