@@ -63,13 +63,12 @@ the Core application can be built and run as follows:
 ----
 $ mvn -P executable clean verify \
    -Dconf.directory=/opt/syncope/conf \
-   -Dbundles.directory=/opt/syncope/bundles \
-   -Dlog.directory=/opt/syncope/log
+   -Dbundles.directory=/opt/syncope/bundles
 $ cp core/target/syncope.war /opt/syncope/lib
 $ cp core/target/classes/*properties /opt/syncope/conf
 
 $ export LOADER_PATH=/opt/syncope/conf,/opt/syncope/lib
-$ java -jar /opt/syncope/lib/syncope.war
+$ java -Dsyncope.log.dir=/opt/syncope/log -jar /opt/syncope/lib/syncope.war
 ----
 Further options can be passed to last command, according to Spring Boot
 https://docs.spring.io/spring-boot/docs/2.7.x/reference/html/application-properties.html#appendix.application-properties[documentation^];

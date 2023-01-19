@@ -13,4 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Dspring.profiles.active=embedded -server -Xms2048m -Xmx2048m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC -Dwicket.ioc.useByteBuddy=true -DCATALINA_HOME=$CATALINA_HOME"
+JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Dsyncope.log.dir=$CATALINA_HOME/logs -Dspring.profiles.active=embedded -server -Xms2048m -Xmx2048m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC -Dwicket.ioc.useByteBuddy=true -DCATALINA_HOME=$CATALINA_HOME"
