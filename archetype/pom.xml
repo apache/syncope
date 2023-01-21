@@ -42,7 +42,7 @@ under the License.
       <extension>
         <groupId>org.apache.maven.archetype</groupId>
         <artifactId>archetype-packaging</artifactId>
-        <version>3.2.0</version>
+        <version>3.2.1</version>
       </extension>
     </extensions>
 
@@ -101,6 +101,30 @@ under the License.
             </transformationSet>
           </transformationSets>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>adjust-MasterContent</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>prepare-package</phase>
+            <configuration>
+              <target>
+                <replace file="${project.build.outputDirectory}/archetype-resources/core/src/main/resources/domains/MasterContent.xml"
+                         token="http://localhost:"
+                         value="https://localhost:"/>
+                <replace file="${project.build.outputDirectory}/archetype-resources/core/src/test/resources/domains/MasterContent.xml"
+                         token="http://localhost:"
+                         value="https://localhost:"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>

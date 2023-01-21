@@ -37,7 +37,6 @@ under the License.
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
 
     <conf.directory>${CATALINA_HOME}/webapps/syncope/WEB-INF/classes</conf.directory>
-    <connid.location>connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}</connid.location>
     <test.csvdir.path>./test-csvdir</test.csvdir.path>
 
     <work.dir>${project.build.directory}/standalone</work.dir>
@@ -166,6 +165,7 @@ under the License.
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-wa/WEB-INF/classes" overwrite="true">
                   <fileset dir="${project.build.outputDirectory}/wa"/>
                 </copy>
+                <copy file="../fit/wa-reference/src/test/resources/keystore.jks" todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true"/>
 
                 <mkdir dir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}"/>
                 <copy file="../fit/core-reference/src/test/resources/test.csv" todir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}"/>
@@ -186,9 +186,17 @@ under the License.
 
                 <!-- Other custom Tomcat resources -->
                 <copy file="${project.build.outputDirectory}/context.xml" todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true"/>
-                <copy file="src/main/resources/setenv.sh" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
-                <copy file="src/main/resources/setenv.bat" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
+                <copy file="${project.build.outputDirectory}/setenv.sh" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
+                <copy file="${project.build.outputDirectory}/setenv.bat" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin"/>
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8080" value="${cargo.servlet.port}"/>
+                <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8443" value="9443"/>
+                <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml">
+                  <replacetoken><![CDATA[redirectPort="9443" />]]></replacetoken>
+                  <replacevalue><![CDATA[redirectPort="9443" />
+<Connector protocol="org.apache.coyote.http11.Http11NioProtocol" port="9443" maxThreads="200"
+scheme="https" secure="true" SSLEnabled="true" keystoreFile="conf/keystore.jks" keystorePass="password"
+keystoreType="JKS" clientAuth="false" sslProtocol="TLS"/>]]></replacevalue>
+                </replace>
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8009" value="${cargo.tomcat.ajp.port}"/>
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8005" value="${cargo.rmi.port}"/>
               </target>
@@ -296,6 +304,17 @@ under the License.
 
       <resource>
         <directory>src/main/resources</directory>
+        <includes>
+          <include>setenv.*</include>
+        </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>setenv.*</exclude>
+        </excludes>
+        <filtering>false</filtering>
       </resource>
       <resource>
         <directory>src/assemble</directory>

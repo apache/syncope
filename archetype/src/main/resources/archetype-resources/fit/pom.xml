@@ -194,9 +194,10 @@ under the License.
               <arguments>
                 <argument>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks</argument>
                 <argument>-Djavax.net.ssl.trustStorePassword=password</argument>
+                <argument>-Dreactor.netty.http.server.accessLogEnabled=true</argument>
+                <argument>-Dsyncope.log.dir=${project.build.directory}/log</argument>
                 <argument>-jar</argument>
                 <argument>${basedir}/../sra/target/syncope-sra-exec.jar</argument>
-                <argument>-Dreactor.netty.http.server.accessLogEnabled=true</argument>
               </arguments>
               <environmentVariables>
                 <LOADER_PATH>${basedir}/../sra/target/test-classes</LOADER_PATH>
@@ -238,6 +239,8 @@ under the License.
 
               <javax.net.ssl.trustStore>${basedir}/src/test/resources/keystore.jks</javax.net.ssl.trustStore>
               <javax.net.ssl.trustStorePassword>password</javax.net.ssl.trustStorePassword>
+
+              <syncope.connid.location>file:${basedir}/../core/target/bundles/</syncope.connid.location>
             </systemProperties>
           </container>
           <configuration>

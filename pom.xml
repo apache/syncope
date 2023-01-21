@@ -507,14 +507,13 @@ under the License.
     <docker.mariadb.version>10</docker.mariadb.version>
 
     <jdbc.postgresql.version>42.5.1</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.0.31</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.0.8</jdbc.mariadb.version>
+    <jdbc.mysql.version>8.0.32</jdbc.mysql.version>
+    <jdbc.mariadb.version>3.0.10</jdbc.mariadb.version>
     <jdbc.mssql.version>11.2.1.jre</jdbc.mssql.version>
     <jdbc.oracle.version>21.8.0.0</jdbc.oracle.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
-    <connid.location>file:${bundles.directory}/</connid.location>
 
     <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
@@ -1706,6 +1705,7 @@ under the License.
               <log>${project.build.directory}/log/cargo.log</log>
               <output>${project.build.directory}/log/cargo-output.log</output>
               <systemProperties>
+                <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
                 <syncope.log.dir>${project.build.directory}/log</syncope.log.dir>
               </systemProperties>
             </container>

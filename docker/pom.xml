@@ -36,7 +36,6 @@ under the License.
   <properties>
     <conf.directory>/opt/syncope/conf</conf.directory>
     <bundles.directory>/opt/syncope/bundles</bundles.directory>
-    <connid.location>file:${bundles.directory}/</connid.location>
 
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
   </properties>
