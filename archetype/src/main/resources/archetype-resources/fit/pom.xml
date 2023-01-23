@@ -240,6 +240,7 @@ under the License.
               <javax.net.ssl.trustStore>${basedir}/src/test/resources/keystore.jks</javax.net.ssl.trustStore>
               <javax.net.ssl.trustStorePassword>password</javax.net.ssl.trustStorePassword>
 
+              <syncope.conf.dir>${basedir}/../core/target/test-classes</syncope.conf.dir>
               <syncope.connid.location>file:${basedir}/../core/target/bundles/</syncope.connid.location>
             </systemProperties>
           </container>

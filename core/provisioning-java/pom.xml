@@ -180,6 +180,7 @@ under the License.
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <systemProperties>
+            <syncope.conf.dir>${project.build.directory}/test-classes</syncope.conf.dir>
             <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
           </systemProperties>
         </configuration>

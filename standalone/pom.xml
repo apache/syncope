@@ -36,7 +36,6 @@ under the License.
   <properties>
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
 
-    <conf.directory>${CATALINA_HOME}/webapps/syncope/WEB-INF/classes</conf.directory>
     <test.csvdir.path>./test-csvdir</test.csvdir.path>
 
     <work.dir>${project.build.directory}/standalone</work.dir>
