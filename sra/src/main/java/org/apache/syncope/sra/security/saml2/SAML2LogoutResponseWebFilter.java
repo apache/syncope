@@ -20,12 +20,13 @@ package org.apache.syncope.sra.security.saml2;
 
 import java.util.Optional;
 import org.apache.syncope.sra.SessionConfig;
-import org.apache.syncope.sra.security.pac4j.BaseProfileManagerFactory;
 import org.apache.syncope.sra.security.pac4j.NoOpSessionStore;
 import org.apache.syncope.sra.security.pac4j.RedirectionActionUtils;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.exception.http.OkAction;
 import org.pac4j.core.exception.http.RedirectionAction;
+import org.pac4j.core.profile.factory.ProfileManagerFactory;
 import org.pac4j.core.util.Pac4jConstants;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.context.SAML2MessageContext;
@@ -84,8 +85,9 @@ public class SAML2LogoutResponseWebFilter implements WebFilter {
             final ServerWebExchange exchange, final WebFilterChain chain, final ServerWebExchangeContext swec) {
 
         try {
-            SAML2MessageContext ctx = saml2Client.getContextProvider().
-                    buildContext(this.saml2Client, swec, NoOpSessionStore.INSTANCE, BaseProfileManagerFactory.INSTANCE);
+            SAML2MessageContext ctx = saml2Client.getContextProvider().buildContext(
+                    new CallContext(swec, NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT),
+                    this.saml2Client);
             saml2Client.getLogoutProfileHandler().receive(ctx);
         } catch (OkAction e) {
             LOG.debug("LogoutResponse was actually validated but no postLogoutURL was set", e);
@@ -106,8 +108,8 @@ public class SAML2LogoutResponseWebFilter implements WebFilter {
 
                     return session.invalidate().then(Mono.defer(() -> {
                         try {
-                            saml2Client.getCredentialsExtractor().
-                                    extract(swec, NoOpSessionStore.INSTANCE, BaseProfileManagerFactory.INSTANCE);
+                            saml2Client.getCredentialsExtractor().extract(new CallContext(
+                                    swec, NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT));
                         } catch (RedirectionAction action) {
                             return RedirectionActionUtils.handle(action, swec);
                         }

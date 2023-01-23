@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.sra.security.saml2;
 
-import org.apache.syncope.sra.security.pac4j.BaseProfileManagerFactory;
 import org.apache.syncope.sra.security.pac4j.NoOpSessionStore;
 import org.apache.syncope.sra.security.pac4j.RedirectionActionUtils;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
+import org.pac4j.core.context.CallContext;
+import org.pac4j.core.profile.factory.ProfileManagerFactory;
 import org.pac4j.saml.client.SAML2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,7 @@ public class SAML2WebSsoAuthenticationRequestWebFilter implements WebFilter {
                     ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange);
 
                     return saml2Client.getRedirectionAction(
-                            swec, NoOpSessionStore.INSTANCE, BaseProfileManagerFactory.INSTANCE).
+                            new CallContext(swec, NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT)).
                             map(action -> RedirectionActionUtils.handle(action, swec)).
                             orElseThrow(() -> new IllegalStateException("No action generated"));
                 }).onErrorResume(Mono::error);

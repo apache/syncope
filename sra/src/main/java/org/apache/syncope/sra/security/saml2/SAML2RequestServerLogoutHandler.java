@@ -19,10 +19,11 @@
 package org.apache.syncope.sra.security.saml2;
 
 import org.apache.syncope.sra.SessionConfig;
-import org.apache.syncope.sra.security.pac4j.BaseProfileManagerFactory;
 import org.apache.syncope.sra.security.pac4j.NoOpSessionStore;
 import org.apache.syncope.sra.security.pac4j.RedirectionActionUtils;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
+import org.pac4j.core.context.CallContext;
+import org.pac4j.core.profile.factory.ProfileManagerFactory;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.credentials.SAML2Credentials;
 import org.slf4j.Logger;
@@ -58,15 +59,12 @@ public class SAML2RequestServerLogoutHandler implements ServerLogoutHandler {
                     ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange.getExchange());
 
                     cacheManager.getCache(SessionConfig.DEFAULT_CACHE).evictIfPresent(session.getId());
-                    return session.invalidate().then(
-                            saml2Client.getLogoutAction(
-                                    swec,
-                                    NoOpSessionStore.INSTANCE,
-                                    BaseProfileManagerFactory.INSTANCE,
-                                    credentials.getUserProfile(),
-                                    null).
-                                    map(action -> RedirectionActionUtils.handle(action, swec)).
-                                    orElseThrow(() -> new IllegalStateException("No action generated")));
+                    return session.invalidate().then(saml2Client.getLogoutAction(
+                            new CallContext(swec, NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT),
+                            credentials.getUserProfile(),
+                            null).
+                            map(action -> RedirectionActionUtils.handle(action, swec)).
+                            orElseThrow(() -> new IllegalStateException("No action generated")));
                 }).onErrorResume(Mono::error);
     }
 }

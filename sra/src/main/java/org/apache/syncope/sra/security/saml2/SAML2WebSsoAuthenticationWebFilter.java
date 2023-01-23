@@ -19,11 +19,12 @@
 package org.apache.syncope.sra.security.saml2;
 
 import java.net.URI;
-import org.apache.syncope.sra.security.pac4j.BaseProfileManagerFactory;
 import org.apache.syncope.sra.security.pac4j.NoOpSessionStore;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import org.apache.syncope.sra.security.web.server.DoNothingIfCommittedServerRedirectStrategy;
 import org.apache.syncope.sra.session.SessionUtils;
+import org.pac4j.core.context.CallContext;
+import org.pac4j.core.profile.factory.ProfileManagerFactory;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.credentials.SAML2Credentials;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -82,10 +83,12 @@ public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter 
                     ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange).setForm(form);
 
                     SAML2Credentials credentials = (SAML2Credentials) saml2Client.getCredentialsExtractor().
-                            extract(swec, NoOpSessionStore.INSTANCE, BaseProfileManagerFactory.INSTANCE).
+                            extract(new CallContext(
+                                    swec, NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT)).
                             orElseThrow(() -> new IllegalStateException("No AuthnResponse found"));
 
-                    saml2Client.getAuthenticator().validate(credentials, swec, NoOpSessionStore.INSTANCE);
+                    saml2Client.getAuthenticator().validate(
+                            new CallContext(swec, NoOpSessionStore.INSTANCE), credentials);
 
                     return Mono.just(new SAML2AuthenticationToken(credentials));
                 }));
