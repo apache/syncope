@@ -24,13 +24,14 @@ import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SearchType;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.DisMaxQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -239,10 +240,12 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), kind)).
                 query(getQuery(base, recursive, adminRealms, cond, kind)).
                 build();
+        LOG.debug("Count JSON request: {}", request);
+
         try {
             return (int) client.count(request).count();
-        } catch (IOException e) {
-            LOG.error("Search error", e);
+        } catch (Exception e) {
+            LOG.error("While counting in Elasticsearch", e);
             return 0;
         }
     }
@@ -304,6 +307,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 size(itemsPerPage < 0 ? indexMaxResultWindow : itemsPerPage).
                 sort(sortBuilders(kind, orderBy)).
                 build();
+        LOG.debug("Search JSON request: {}", request);
 
         @SuppressWarnings("rawtypes")
         List<Hit<Map>> esResult = null;
@@ -415,15 +419,43 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 break;
 
             case AND:
-                query = new Query.Builder().bool(QueryBuilders.bool().
-                        must(getQuery(cond.getLeft(), kind)).must(getQuery(cond.getRight(), kind)).build()).
-                        build();
+                List<Query> andCompound = new ArrayList<>();
+
+                Query andLeft = getQuery(cond.getLeft(), kind);
+                if (andLeft._kind() == Query.Kind.Bool && !((BoolQuery) andLeft._get()).must().isEmpty()) {
+                    andCompound.addAll(((BoolQuery) andLeft._get()).must());
+                } else {
+                    andCompound.add(andLeft);
+                }
+
+                Query andRight = getQuery(cond.getRight(), kind);
+                if (andRight._kind() == Query.Kind.Bool && !((BoolQuery) andRight._get()).must().isEmpty()) {
+                    andCompound.addAll(((BoolQuery) andRight._get()).must());
+                } else {
+                    andCompound.add(andRight);
+                }
+
+                query = new Query.Builder().bool(QueryBuilders.bool().must(andCompound).build()).build();
                 break;
 
             case OR:
-                query = new Query.Builder().disMax(QueryBuilders.disMax().
-                        queries(getQuery(cond.getLeft(), kind), getQuery(cond.getRight(), kind)).build()).
-                        build();
+                List<Query> orCompound = new ArrayList<>();
+
+                Query orLeft = getQuery(cond.getLeft(), kind);
+                if (orLeft._kind() == Query.Kind.DisMax) {
+                    orCompound.addAll(((DisMaxQuery) orLeft._get()).queries());
+                } else {
+                    orCompound.add(orLeft);
+                }
+
+                Query orRight = getQuery(cond.getRight(), kind);
+                if (orRight._kind() == Query.Kind.DisMax) {
+                    orCompound.addAll(((DisMaxQuery) orRight._get()).queries());
+                } else {
+                    orCompound.add(orRight);
+                }
+
+                query = new Query.Builder().disMax(QueryBuilders.disMax().queries(orCompound).build()).build();
                 break;
 
             default:
