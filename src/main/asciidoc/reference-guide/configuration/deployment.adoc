@@ -117,7 +117,6 @@ JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
 -Dsyncope.conf.dir=/opt/syncope/conf \
 -Dsyncope.connid.location=file:/opt/syncope/bundles \
 -Dsyncope.log.dir=/opt/syncope/log \
--Dwicket.ioc.useByteBuddy=true \
 -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC \
 -Djava.security.egd=file:/dev/./urandom"
 ....
@@ -129,7 +128,6 @@ set JAVA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
 -Dsyncope.conf.dir=C:\opt\syncope\conf \
 -Dsyncope.connid.location=file:/C:\opt\syncope\bundles \
 -Dsyncope.log.dir=C:\opt\syncope\log \
--Dwicket.ioc.useByteBuddy=true \
 -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC
 ....
 
