@@ -21,8 +21,8 @@ under the License.
 
   <appenders>
 
-    <RollingRandomAccessFile name="main" fileName="${log.directory}/sra.log"
-                             filePattern="${log.directory}/sra-%d{yyyy-MM-dd}.log.gz"
+    <RollingRandomAccessFile name="main" fileName="${sys:syncope.log.dir}/sra.log"
+                             filePattern="${sys:syncope.log.dir}/sra-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
@@ -33,8 +33,8 @@ under the License.
       </Policies>
     </RollingRandomAccessFile>
     
-    <RollingRandomAccessFile name="access" fileName="${log.directory}/sra-access.log"
-                             filePattern="${log.directory}/sra-access-%d{yyyy-MM-dd}.log.gz"
+    <RollingRandomAccessFile name="access" fileName="${sys:syncope.log.dir}/sra-access.log"
+                             filePattern="${sys:syncope.log.dir}/sra-access-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>

@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.common.lib.types.SAML2SP4UIEntitlement;
 import org.apache.syncope.common.lib.types.SAML2SP4UIImplementationType;
 import org.apache.syncope.core.logic.SAML2SP4UIProperties;
-import org.apache.syncope.core.logic.saml2.NoOpLogoutHandler;
+import org.apache.syncope.core.logic.saml2.NoOpSessionLogoutHandler;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
@@ -88,7 +88,7 @@ public class SAML2SP4UILoader implements SyncopeCoreLoader {
         cfg.setAuthnRequestSigned(true);
         cfg.setSpLogoutRequestSigned(true);
         cfg.setAcceptedSkew(props.getSkew());
-        cfg.setLogoutHandler(new NoOpLogoutHandler());
+        cfg.setSessionLogoutHandler(new NoOpSessionLogoutHandler());
 
         return cfg;
     }

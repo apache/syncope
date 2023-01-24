@@ -492,8 +492,6 @@ under the License.
     <cargo.tomcat.ajp.port>9889</cargo.tomcat.ajp.port>
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
-    <cargo.log>${log.directory}/cargo.log</cargo.log>
-    <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
     <tomcat.version>10.1.5</tomcat.version>
     <wildfly.version>27.0.1.Final</wildfly.version>
@@ -505,15 +503,12 @@ under the License.
     <docker.mariadb.version>10</docker.mariadb.version>
 
     <jdbc.postgresql.version>42.5.1</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.0.31</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.0.8</jdbc.mariadb.version>
+    <jdbc.mysql.version>8.0.32</jdbc.mysql.version>
+    <jdbc.mariadb.version>3.0.10</jdbc.mariadb.version>
     <jdbc.mssql.version>11.2.1.jre</jdbc.mssql.version>
     <jdbc.oracle.version>21.8.0.0</jdbc.oracle.version>
 
-    <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
-    <connid.location>file:${bundles.directory}/</connid.location>
-    <log.directory>${project.build.directory}/log</log.directory>
 
     <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
@@ -1633,6 +1628,15 @@ under the License.
           <artifactId>cargo-maven3-plugin</artifactId>
           <version>1.10.4</version>
           <configuration>
+            <container>
+              <log>${project.build.directory}/log/cargo.log</log>
+              <output>${project.build.directory}/log/cargo-output.log</output>
+              <systemProperties>
+                <syncope.conf.dir>${project.build.directory}/test-classes</syncope.conf.dir>
+                <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
+                <syncope.log.dir>${project.build.directory}/log</syncope.log.dir>
+              </systemProperties>
+            </container>
             <configuration>
               <type>standalone</type>
               <properties>
@@ -2290,6 +2294,59 @@ under the License.
       <modules>
         <module>docker</module>
       </modules>
+    </profile>
+
+    <profile>
+      <id>win</id>
+
+      <activation>
+        <os>
+          <family>Windows</family>
+        </os>
+      </activation>
+
+      <properties>
+        <syncope.conf.dir>${project.build.directory}/test-classes</syncope.conf.dir>
+      </properties>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>convert-win-paths</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <configuration>
+                  <bindAllProjectProperties>true</bindAllProjectProperties>
+                  <scripts>
+                    <script><![CDATA[
+                project.properties['win.syncope.conf.dir'] = project.properties['syncope.conf.dir'].replace("\\", "/")
+                ]]></script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven3-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <container>
+                <systemProperties>
+                  <syncope.conf.dir>${win.syncope.conf.dir}</syncope.conf.dir>
+                </systemProperties>
+              </container>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 

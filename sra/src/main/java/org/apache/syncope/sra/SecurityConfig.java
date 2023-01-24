@@ -32,7 +32,7 @@ import org.apache.syncope.sra.security.LogoutRouteMatcher;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
 import org.apache.syncope.sra.security.cas.CASSecurityConfigUtils;
 import org.apache.syncope.sra.security.oauth2.OAuth2SecurityConfigUtils;
-import org.apache.syncope.sra.security.pac4j.NoOpLogoutHandler;
+import org.apache.syncope.sra.security.pac4j.NoOpSessionLogoutHandler;
 import org.apache.syncope.sra.security.saml2.SAML2MetadataEndpoint;
 import org.apache.syncope.sra.security.saml2.SAML2SecurityConfigUtils;
 import org.apache.syncope.sra.security.saml2.SAML2WebSsoAuthenticationWebFilter;
@@ -273,7 +273,7 @@ public class SecurityConfig {
         cfg.setServiceProviderMetadataResourceFilepath(props.getSaml2().getSpMetadataFilePath());
         cfg.setAcceptedSkew(props.getSaml2().getSkew());
 
-        cfg.setLogoutHandler(new NoOpLogoutHandler());
+        cfg.setSessionLogoutHandler(new NoOpSessionLogoutHandler());
 
         SAML2Client saml2Client = new SAML2Client(cfg);
         saml2Client.setName(SRAProperties.AMType.SAML2.name());

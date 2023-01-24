@@ -61,21 +61,21 @@ the Core application can be built and run as follows:
 
 [source,bash]
 ----
-$ mvn -P executable clean verify \
-   -Dconf.directory=/opt/syncope/conf \
-   -Dbundles.directory=/opt/syncope/bundles \
-   -Dlog.directory=/opt/syncope/log
+$ mvn -P executable clean verify
 $ cp core/target/syncope.war /opt/syncope/lib
 $ cp core/target/classes/*properties /opt/syncope/conf
 
 $ export LOADER_PATH=/opt/syncope/conf,/opt/syncope/lib
-$ java -jar /opt/syncope/lib/syncope.war
+$ java -Dsyncope.conf.dir=/opt/syncope/conf \
+  -Dsyncope.connid.location=file:/opt/syncope/bundles \
+  -Dsyncope.log.dir=/opt/syncope/log \
+  -jar /opt/syncope/lib/syncope.war
 ----
 Further options can be passed to last command, according to Spring Boot
 https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties[documentation^];
 for example:
 
-* `--spring.config.location=/path` +
+* `--spring.config.additional-location=/path` +
  to customize the location of the configuration files
 * `--server.port=8080` +
  to change the default HTTP port
@@ -114,6 +114,10 @@ On GNU / Linux - Mac OS X, create `$CATALINA_HOME/bin/setenv.sh` with similar co
 
 ....
 JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
+-Dsyncope.conf.dir=/opt/syncope/conf \
+-Dsyncope.connid.location=file:/opt/syncope/bundles \
+-Dsyncope.log.dir=/opt/syncope/log \
+-Dwicket.ioc.useByteBuddy=true \
 -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC \
 -Djava.security.egd=file:/dev/./urandom"
 ....
@@ -121,7 +125,11 @@ JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
 On MS Windows, create `%CATALINA_HOME%\bin\setenv.bat` with similar content (keep everything on a single line):
 
 ....
-set JAVA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server
+set JAVA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
+-Dsyncope.conf.dir=C:\opt\syncope\conf \
+-Dsyncope.connid.location=file:/C:\opt\syncope\bundles \
+-Dsyncope.log.dir=C:\opt\syncope\log \
+-Dwicket.ioc.useByteBuddy=true \
 -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC
 ....
 
@@ -175,13 +183,24 @@ When using a datasource for internal storage, be sure to add
 right after `</context-root>` in `core/src/main/webapp/WEB-INF/glassfish-web.xml`, assuming that your Payara Server
 instance provides a datasource named `jdbc/syncopeMasterDataSource`.
 
+[WARNING]
+====
+Do not forget to include the following system properties:
+
+* `-Dsyncope.conf.dir=/opt/syncope/conf` +
+(required by Core and WA)
+* `-Dsyncope.connid.location=file:/opt/syncope/bundles` +
+(required by Core)
+* `-Dsyncope.log.dir=/opt/syncope/log` +
+(required by all components)
+====
+
 [TIP]
 ====
-For better performance under GNU / Linux, do not forget to include
+For better performance under GNU / Linux, do not forget to include the system property:
 ....
 -Djava.security.egd=file:/dev/./urandom
 ....
-among JVM options.
 ====
 
 ==== Wildfly 27
@@ -266,11 +285,22 @@ Do not forget to include `widlfly` as
 https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
+[WARNING]
+====
+Do not forget to include the following system properties:
+
+* `-Dsyncope.conf.dir=/opt/syncope/conf` +
+(required by Core and WA)
+* `-Dsyncope.connid.location=file:/opt/syncope/bundles` +
+(required by Core)
+* `-Dsyncope.log.dir=/opt/syncope/log` +
+(required by all components)
+====
+
 [TIP]
 ====
-For better performance under GNU / Linux, do not forget to include
+For better performance under GNU / Linux, do not forget to include the system property:
 ....
 -Djava.security.egd=file:/dev/./urandom
 ....
-among JVM options.
 ====

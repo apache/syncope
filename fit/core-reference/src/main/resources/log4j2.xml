@@ -20,8 +20,8 @@ under the License.
 <configuration status="WARN">
 
   <appenders>
-    <RollingRandomAccessFile name="main" fileName="${log.directory}/core.log"
-                             filePattern="${log.directory}/core-%d{yyyy-MM-dd}.log.gz"
+    <RollingRandomAccessFile name="main" fileName="${sys:syncope.log.dir}/core.log"
+                             filePattern="${sys:syncope.log.dir}/core-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %notEmpty{[operation.id=%X{operation.id}] }%-5level %logger - %msg%n</pattern>
@@ -32,8 +32,8 @@ under the License.
       </Policies>
     </RollingRandomAccessFile>
 
-    <RollingRandomAccessFile name="persistence" fileName="${log.directory}/core-persistence.log"
-                             filePattern="${log.directory}/core-persistence-%d{yyyy-MM-dd}.log.gz"
+    <RollingRandomAccessFile name="persistence" fileName="${sys:syncope.log.dir}/core-persistence.log"
+                             filePattern="${sys:syncope.log.dir}/core-persistence-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
@@ -44,8 +44,8 @@ under the License.
       </Policies>
     </RollingRandomAccessFile>
 
-    <RollingRandomAccessFile name="rest" fileName="${log.directory}/core-rest.log"
-                             filePattern="${log.directory}/core-rest-%d{yyyy-MM-dd}.log.gz"
+    <RollingRandomAccessFile name="rest" fileName="${sys:syncope.log.dir}/core-rest.log"
+                             filePattern="${sys:syncope.log.dir}/core-rest-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
@@ -56,8 +56,8 @@ under the License.
       </Policies>
     </RollingRandomAccessFile>
 
-    <RollingRandomAccessFile name="connid" fileName="${log.directory}/core-connid.log"
-                             filePattern="${log.directory}/core-connid-%d{yyyy-MM-dd}.log.gz"
+    <RollingRandomAccessFile name="connid" fileName="${sys:syncope.log.dir}/core-connid.log"
+                             filePattern="${sys:syncope.log.dir}/core-connid-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %msg%n</pattern>

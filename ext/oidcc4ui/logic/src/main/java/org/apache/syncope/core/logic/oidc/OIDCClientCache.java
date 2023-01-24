@@ -108,7 +108,7 @@ public class OIDCClientCache {
         config.setProviderMetadata(metadata);
         config.setScope("openid profile email address phone offline_access");
         config.setUseNonce(false);
-        config.setLogoutHandler(new NoOpLogoutHandler());
+        config.setSessionLogoutHandler(new NoOpSessionLogoutHandler());
 
         OidcClient client = new OidcClient(config);
         client.setName(op.getName());
