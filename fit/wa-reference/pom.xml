@@ -155,8 +155,6 @@ under the License.
               <extractDir>${project.build.directory}/cargo/extract</extractDir>
             </zipUrlInstaller>
             <timeout>600000</timeout>
-            <log>${cargo.log}</log>
-            <output>${cargo.output}</output>
 
             <systemProperties>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
@@ -258,7 +256,7 @@ under the License.
         <artifactId>maven-surefire-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
-          <argLine>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password</argLine>          
+          <argLine>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password</argLine>
         </configuration>
       </plugin>
       <plugin>
@@ -266,7 +264,7 @@ under the License.
         <artifactId>maven-failsafe-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
-          <argLine>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password</argLine>          
+          <argLine>-Djavax.net.ssl.trustStore=${basedir}/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password</argLine>
         </configuration>
         <executions>
           <execution>

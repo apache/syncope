@@ -19,8 +19,8 @@ under the License.
 -->
 <configuration status="WARN" shutdownHook="disable">
   <appenders>
-    <RollingRandomAccessFile name="main" fileName="${log.directory}/core-fit.log"
-                             filePattern="${log.directory}/core-fit-%d{yyyy-MM-dd}.log.gz"
+    <RollingRandomAccessFile name="main" fileName="${project.build.directory}/log/core-fit.log"
+                             filePattern="${project.build.directory}/log/core-fit-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>

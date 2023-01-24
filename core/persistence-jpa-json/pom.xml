@@ -247,6 +247,7 @@ under the License.
                 <profileId>${project.activeProfiles[0].id}</profileId>
                 <CORE_PROPERTIES>classpath:core-pgjsonb.properties,classpath:core-pgjsonb-test.properties</CORE_PROPERTIES>
                 <DB_CONTAINER_IP>${docker.container.postgres.ip}</DB_CONTAINER_IP>
+                <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
               </systemProperties>
             </configuration>
           </plugin>
@@ -360,6 +361,7 @@ under the License.
                 <profileId>${project.activeProfiles[0].id}</profileId>
                 <CORE_PROPERTIES>classpath:core-myjson.properties,classpath:core-myjson-test.properties</CORE_PROPERTIES>
                 <DB_CONTAINER_IP>${docker.container.mysql.ip}</DB_CONTAINER_IP>
+                <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
               </systemProperties>
             </configuration>
           </plugin>
@@ -474,6 +476,7 @@ under the License.
                 <profileId>${project.activeProfiles[0].id}</profileId>
                 <CORE_PROPERTIES>classpath:core-ojson.properties,classpath:core-ojson-test.properties</CORE_PROPERTIES>
                 <DB_CONTAINER_IP>${docker.container.oracle.ip}</DB_CONTAINER_IP>
+                <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
               </systemProperties>
             </configuration>
           </plugin>
