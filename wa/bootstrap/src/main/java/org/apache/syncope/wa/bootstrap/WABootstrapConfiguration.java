@@ -27,7 +27,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration(proxyBeanMethods = false)
 @PropertySource("classpath:wa.properties")
-@PropertySource(value = "file:${conf.directory}/wa.properties", ignoreResourceNotFound = true)
+@PropertySource(value = "file:${syncope.conf.dir}/wa.properties", ignoreResourceNotFound = true)
 public class WABootstrapConfiguration {
 
     @Configuration(proxyBeanMethods = false)

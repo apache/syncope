@@ -166,6 +166,7 @@ under the License.
         <configuration>
           <systemPropertyVariables>
             <reactor.netty.http.server.accessLogEnabled>true</reactor.netty.http.server.accessLogEnabled>
+            <syncope.log.dir>${project.build.directory}/log</syncope.log.dir>
           </systemPropertyVariables>
         </configuration>
       </plugin>

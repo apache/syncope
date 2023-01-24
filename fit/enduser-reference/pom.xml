@@ -108,8 +108,6 @@ under the License.
               <extractDir>${project.build.directory}/cargo/extract</extractDir>
             </zipUrlInstaller>
             <timeout>300000</timeout>
-            <log>${cargo.log}</log>
-            <output>${cargo.output}</output>
 
             <systemProperties>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
@@ -220,25 +218,6 @@ under the License.
     <!-- requires JAVA_HOME set to the latest JDK from https://github.com/TravaOpenJDK/trava-jdk-11-dcevm -->
     <profile>
       <id>hotswap</id>
-      
-      <dependencies>
-        <!-- wicket-ioc depends on cglib, need to exclude it for hotswap to work -->
-        <dependency>
-          <groupId>org.apache.syncope.client.idrepo</groupId>
-          <artifactId>syncope-client-idrepo-enduser</artifactId>
-          <version>${project.version}</version>
-          <exclusions>
-            <exclusion>
-              <groupId>cglib</groupId>
-              <artifactId>cglib</artifactId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-        <dependency>
-          <groupId>cglib</groupId>
-          <artifactId>cglib-nodep</artifactId>
-        </dependency>
-      </dependencies>
 
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>

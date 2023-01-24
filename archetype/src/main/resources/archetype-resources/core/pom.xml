@@ -158,10 +158,6 @@ under the License.
           <resource>
             <directory>src/main/resources</directory>
             <filtering>true</filtering>
-            <excludes>
-              <exclude>workflow.properties</exclude>
-              <exclude>provisioning.properties</exclude>
-            </excludes>
           </resource>
           <resource>
             <directory>src/main/resources/all</directory>

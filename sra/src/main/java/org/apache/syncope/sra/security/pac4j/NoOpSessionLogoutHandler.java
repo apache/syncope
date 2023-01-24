@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.sra.security.pac4j;
 
-import org.pac4j.core.logout.handler.LogoutHandler;
+import org.pac4j.core.logout.handler.SessionLogoutHandler;
 
-public class NoOpLogoutHandler implements LogoutHandler {
+public class NoOpSessionLogoutHandler implements SessionLogoutHandler {
 
 }

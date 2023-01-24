@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -232,12 +231,13 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             properties.getPropertyNames().forEach(propName -> {
                 ConnConfPropSchema schema = build(properties.getProperty(propName));
 
-                Optional<ConnConfProperty> property = connInstanceTO.getConf(propName);
-                if (property.isEmpty()) {
-                    property = Optional.of(new ConnConfProperty());
-                    connInstanceTO.getConf().add(property.get());
-                }
-                property.get().setSchema(schema);
+                ConnConfProperty property = connInstanceTO.getConf(propName).
+                        orElseGet(() -> {
+                            ConnConfProperty p = new ConnConfProperty();
+                            connInstanceTO.getConf().add(p);
+                            return p;
+                        });
+                property.setSchema(schema);
             });
         } catch (Exception e) {
             LOG.error("Could not get ConnId information for {} / {}#{}#{}",

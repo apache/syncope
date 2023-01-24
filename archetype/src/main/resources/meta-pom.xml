@@ -39,6 +39,8 @@ under the License.
     <ianal.phase>none</ianal.phase>
     <rat.skip>true</rat.skip>
     <checkstyle.skip>true</checkstyle.skip>
+
+    <cargo.servlet.port>9443</cargo.servlet.port>
   </properties>
 
   <name>Apache Syncope sample project</name>

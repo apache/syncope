@@ -21,8 +21,8 @@ under the License.
 
   <appenders>
 
-    <RollingRandomAccessFile name="main" fileName="${log.directory}/wa.log"
-                             filePattern="${log.directory}/wa-%d{yyyy-MM-dd}.log.gz"
+    <RollingRandomAccessFile name="main" fileName="${sys:syncope.log.dir}/wa.log"
+                             filePattern="${sys:syncope.log.dir}/wa-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
