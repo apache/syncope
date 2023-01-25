@@ -41,16 +41,47 @@ public class WARestClient {
 
     private final boolean useGZIPCompression;
 
+    private final String serviceDiscoveryAddress;
+
     private SyncopeClient client;
 
     public WARestClient(
             final String anonymousUser,
             final String anonymousKey,
-            final boolean useGZIPCompression) {
+            final boolean useGZIPCompression,
+            final String serviceDiscoveryAddress) {
 
         this.anonymousUser = anonymousUser;
         this.anonymousKey = anonymousKey;
         this.useGZIPCompression = useGZIPCompression;
+        this.serviceDiscoveryAddress = serviceDiscoveryAddress;
+    }
+
+    private Optional<NetworkService> getCore() {
+        try {
+            ApplicationContext context = ApplicationContextProvider.getApplicationContext();
+            if (context == null) {
+                return Optional.empty();
+            }
+
+            Collection<ServiceOps> serviceOpsList = context.getBeansOfType(ServiceOps.class).values();
+            if (serviceOpsList.isEmpty()) {
+                return Optional.empty();
+            }
+
+            ServiceOps serviceOps = serviceOpsList.iterator().next();
+
+            if (serviceOps.list(NetworkService.Type.WA).
+                    stream().anyMatch(s -> s.getAddress().equals(serviceDiscoveryAddress))) {
+
+                return Optional.of(serviceOps.get(NetworkService.Type.CORE));
+            }
+
+            return Optional.empty();
+        } catch (KeymasterException e) {
+            LOG.trace(e.getMessage());
+        }
+        return Optional.empty();
     }
 
     public SyncopeClient getSyncopeClient() {
@@ -72,30 +103,11 @@ public class WARestClient {
         }
     }
 
-    private static Optional<NetworkService> getCore() {
-        try {
-            ApplicationContext context = ApplicationContextProvider.getApplicationContext();
-            if (context == null) {
-                return Optional.empty();
-            }
-
-            Collection<ServiceOps> serviceOpsList = context.getBeansOfType(ServiceOps.class).values();
-            if (serviceOpsList.isEmpty()) {
-                return Optional.empty();
-            }
-            ServiceOps serviceOps = serviceOpsList.iterator().next();
-            return Optional.of(serviceOps.get(NetworkService.Type.CORE));
-        } catch (KeymasterException e) {
-            LOG.trace(e.getMessage());
-        }
-        return Optional.empty();
-    }
-
-    public static boolean isReady() {
+    public boolean isReady() {
         try {
             return getCore().isPresent();
         } catch (Exception e) {
-            LOG.trace(e.getMessage());
+            LOG.trace("While checking Core's availability: {}", e.getMessage());
         }
         return false;
     }

@@ -67,12 +67,12 @@ public class SRASessions {
         session.setAuthenticationDate(mapSession.getCreationTime().atOffset(OffsetDateTime.now().getOffset()));
 
         String principal;
-        if (ctx.getAuthentication() instanceof SAML2AuthenticationToken) {
-            principal = ((SAML2AuthenticationToken) ctx.getAuthentication()).getPrincipal().getNameId().getValue();
-        } else if (ctx.getAuthentication() instanceof CASAuthenticationToken) {
-            principal = ((CASAuthenticationToken) ctx.getAuthentication()).getPrincipal().getPrincipal().getName();
-        } else if (ctx.getAuthentication() instanceof OAuth2AuthenticationToken) {
-            principal = ((OAuth2AuthenticationToken) ctx.getAuthentication()).getPrincipal().getName();
+        if (ctx.getAuthentication() instanceof SAML2AuthenticationToken saml2AuthenticationToken) {
+            principal = saml2AuthenticationToken.getPrincipal().getUserProfile().getUsername();
+        } else if (ctx.getAuthentication() instanceof CASAuthenticationToken casAuthenticationToken) {
+            principal = casAuthenticationToken.getPrincipal().getPrincipal().getName();
+        } else if (ctx.getAuthentication() instanceof OAuth2AuthenticationToken oauth2AuthenticationToken) {
+            principal = oauth2AuthenticationToken.getPrincipal().getName();
         } else {
             principal = ctx.getAuthentication().getPrincipal().toString();
         }

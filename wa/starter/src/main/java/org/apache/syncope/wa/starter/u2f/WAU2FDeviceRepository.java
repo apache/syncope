@@ -133,7 +133,7 @@ public class WAU2FDeviceRepository extends BaseU2FDeviceRepository {
     }
 
     private U2FRegistrationService getU2FService() {
-        if (!WARestClient.isReady()) {
+        if (!waRestClient.isReady()) {
             throw new IllegalStateException("Syncope core is not yet ready");
         }
         return waRestClient.getSyncopeClient().getService(U2FRegistrationService.class);

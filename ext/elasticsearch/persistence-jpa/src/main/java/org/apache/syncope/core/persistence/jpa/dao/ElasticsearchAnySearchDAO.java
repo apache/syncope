@@ -394,14 +394,9 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 }
 
                 if (query == null) {
-                    Optional<AnyCond> anyCond = cond.getLeaf(AnyCond.class);
-                    if (anyCond.isPresent()) {
-                        query = getQuery(anyCond.get(), kind);
-                    } else {
-                        query = cond.getLeaf(AttrCond.class).
-                                map(leaf -> getQuery(leaf, kind)).
-                                orElse(null);
-                    }
+                    query = cond.getLeaf(AnyCond.class).map(ac -> getQuery(ac, kind)).
+                            or(() -> cond.getLeaf(AttrCond.class).map(ac -> getQuery(ac, kind))).
+                            orElse(null);
                 }
 
                 // allow for additional search conditions

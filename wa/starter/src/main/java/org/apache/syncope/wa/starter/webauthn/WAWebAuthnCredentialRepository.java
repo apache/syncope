@@ -128,7 +128,7 @@ public class WAWebAuthnCredentialRepository extends BaseWebAuthnCredentialReposi
     }
 
     private WebAuthnRegistrationService getService() {
-        if (!WARestClient.isReady()) {
+        if (!waRestClient.isReady()) {
             throw new IllegalStateException("Syncope core is not yet ready");
         }
         return waRestClient.getSyncopeClient().getService(WebAuthnRegistrationService.class);

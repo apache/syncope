@@ -37,14 +37,14 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
 
     private static final Logger LOG = LoggerFactory.getLogger(RestfulSamlIdPMetadataGenerator.class);
 
-    private final WARestClient restClient;
+    private final WARestClient waRestClient;
 
     public RestfulSamlIdPMetadataGenerator(
             final SamlIdPMetadataGeneratorConfigurationContext samlIdPMetadataGeneratorConfigurationContext,
-            final WARestClient restClient) {
+            final WARestClient waRestClient) {
 
         super(samlIdPMetadataGeneratorConfigurationContext);
-        this.restClient = restClient;
+        this.waRestClient = waRestClient;
     }
 
     @Override
@@ -97,10 +97,10 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
     }
 
     private SyncopeClient getSyncopeClient() {
-        if (!WARestClient.isReady()) {
+        if (!waRestClient.isReady()) {
             LOG.info("Syncope client is not yet ready");
             throw new IllegalStateException("Syncope core is not yet ready to access requests");
         }
-        return restClient.getSyncopeClient();
+        return waRestClient.getSyncopeClient();
     }
 }

@@ -413,7 +413,7 @@ under the License.
 
     <cxf.version>4.0.0</cxf.version>
     <bouncycastle.version>1.72</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.28</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.29</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.0.2</spring-boot.version>
     <spring-cloud-gateway.version>4.0.0</spring-cloud-gateway.version>
@@ -1488,7 +1488,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.5.0</version>
           <configuration>
             <outputDirectory>${bundles.directory}</outputDirectory>
             <artifactItems>

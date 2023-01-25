@@ -42,9 +42,12 @@ public class WABootstrapConfiguration {
         @Value("${wa.useGZIPCompression:true}")
         private boolean useGZIPCompression;
 
+        @Value("${service.discovery.address}")
+        private String serviceDiscoveryAddress;
+
         @Bean
         public WARestClient waRestClient() {
-            return new WARestClient(anonymousUser, anonymousKey, useGZIPCompression);
+            return new WARestClient(anonymousUser, anonymousKey, useGZIPCompression, serviceDiscoveryAddress);
         }
     }
 
