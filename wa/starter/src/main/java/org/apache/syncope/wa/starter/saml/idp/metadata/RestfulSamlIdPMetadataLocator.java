@@ -39,15 +39,15 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
 
     private static final Logger LOG = LoggerFactory.getLogger(RestfulSamlIdPMetadataLocator.class);
 
-    private final WARestClient restClient;
+    private final WARestClient waRestClient;
 
     public RestfulSamlIdPMetadataLocator(
             final CipherExecutor<String, String> metadataCipherExecutor,
             final Cache<String, SamlIdPMetadataDocument> metadataCache,
-            final WARestClient restClient) {
+            final WARestClient waRestClient) {
 
         super(metadataCipherExecutor, metadataCache);
-        this.restClient = restClient;
+        this.waRestClient = waRestClient;
     }
 
     @Override
@@ -122,10 +122,10 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
     }
 
     private SyncopeClient getSyncopeClient() {
-        if (!WARestClient.isReady()) {
+        if (!waRestClient.isReady()) {
             LOG.info("Syncope client is not yet ready");
             throw new IllegalStateException("Syncope core is not yet ready to access requests");
         }
-        return restClient.getSyncopeClient();
+        return waRestClient.getSyncopeClient();
     }
 }

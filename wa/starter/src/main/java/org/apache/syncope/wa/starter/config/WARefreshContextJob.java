@@ -37,6 +37,9 @@ public class WARefreshContextJob implements Job {
     private static final Logger LOG = LoggerFactory.getLogger(WARefreshContextJob.class);
 
     @Autowired
+    private WARestClient waRestClient;
+
+    @Autowired
     private ContextRefresher contextRefresher;
 
     @Autowired
@@ -46,7 +49,7 @@ public class WARefreshContextJob implements Job {
     public void execute(final JobExecutionContext jobExecutionContext) throws JobExecutionException {
         try {
             LOG.debug("Attempting to refresh WA application context");
-            if (!WARestClient.isReady()) {
+            if (!waRestClient.isReady()) {
                 LOG.debug("Syncope client is not yet ready");
                 throw new IllegalStateException("Syncope core is not yet ready to access requests");
             }
