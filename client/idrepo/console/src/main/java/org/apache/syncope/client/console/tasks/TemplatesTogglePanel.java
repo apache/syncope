@@ -97,7 +97,7 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
                     final AjaxWizard.NewItemActionEvent<AnyTO> payload =
                             new AjaxWizard.NewItemActionEvent<>(null, target);
 
-                    payload.setResourceModel(new StringResourceModel("inner.template.edit", container,
+                    payload.setTitleModel(new StringResourceModel("inner.template.edit", container,
                             Model.of(Pair.of(typeModel.getObject(), targetObject))).setDefaultValue(
                             "Edit template"));
 
