@@ -18,21 +18,13 @@
  */
 package org.apache.syncope.sra.security.saml2;
 
-import java.util.Optional;
-import org.apache.syncope.sra.SessionConfig;
 import org.apache.syncope.sra.security.pac4j.NoOpSessionStore;
-import org.apache.syncope.sra.security.pac4j.RedirectionActionUtils;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import org.pac4j.core.context.CallContext;
-import org.pac4j.core.exception.http.OkAction;
-import org.pac4j.core.exception.http.RedirectionAction;
-import org.pac4j.core.profile.factory.ProfileManagerFactory;
-import org.pac4j.core.util.Pac4jConstants;
+import org.pac4j.core.credentials.Credentials;
 import org.pac4j.saml.client.SAML2Client;
-import org.pac4j.saml.context.SAML2MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
@@ -51,46 +43,28 @@ public class SAML2LogoutResponseWebFilter implements WebFilter {
     public static final ServerWebExchangeMatcher MATCHER =
             ServerWebExchangeMatchers.pathMatchers("/logout/saml2/sso");
 
-    private static class ServerWebExchangeLogoutContext extends ServerWebExchangeContext {
-
-        ServerWebExchangeLogoutContext(final ServerWebExchange exchange) {
-            super(exchange);
-        }
-
-        @Override
-        public Optional<String> getRequestParameter(final String name) {
-            return Pac4jConstants.LOGOUT_ENDPOINT_PARAMETER.equals(name)
-                    ? Optional.of("true")
-                    : super.getRequestParameter(name);
-        }
-    }
-
     private final SAML2Client saml2Client;
 
     private final ServerLogoutSuccessHandler logoutSuccessHandler;
 
-    private final CacheManager cacheManager;
-
     public SAML2LogoutResponseWebFilter(
             final SAML2Client saml2Client,
-            final SAML2ServerLogoutSuccessHandler logoutSuccessHandler,
-            final CacheManager cacheManager) {
+            final SAML2ServerLogoutSuccessHandler logoutSuccessHandler) {
 
         this.saml2Client = saml2Client;
         this.logoutSuccessHandler = logoutSuccessHandler;
-        this.cacheManager = cacheManager;
     }
 
     private Mono<Void> handleLogoutResponse(
             final ServerWebExchange exchange, final WebFilterChain chain, final ServerWebExchangeContext swec) {
 
         try {
-            SAML2MessageContext ctx = saml2Client.getContextProvider().buildContext(
-                    new CallContext(swec, NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT),
-                    this.saml2Client);
-            saml2Client.getLogoutProfileHandler().receive(ctx);
-        } catch (OkAction e) {
-            LOG.debug("LogoutResponse was actually validated but no postLogoutURL was set", e);
+            CallContext ctx = new CallContext(swec, NoOpSessionStore.INSTANCE);
+            Credentials creds = saml2Client.getCredentialsExtractor().
+                    extract(ctx).
+                    orElseThrow(() -> new IllegalStateException("Could not extract credentials"));
+
+            saml2Client.getLogoutProcessor().processLogout(ctx, creds);
         } catch (Exception e) {
             LOG.error("Could not validate LogoutResponse", e);
         }
@@ -98,47 +72,20 @@ public class SAML2LogoutResponseWebFilter implements WebFilter {
         return logoutSuccessHandler.onLogoutSuccess(new WebFilterExchange(exchange, chain), null);
     }
 
-    private Mono<Void> handleLogoutRequest(
-            final ServerWebExchange exchange, final WebFilterChain chain, final ServerWebExchangeContext swec) {
-
-        return exchange.getSession().
-                switchIfEmpty(chain.filter(exchange).then(Mono.empty())).
-                flatMap(session -> {
-                    cacheManager.getCache(SessionConfig.DEFAULT_CACHE).evictIfPresent(session.getId());
-
-                    return session.invalidate().then(Mono.defer(() -> {
-                        try {
-                            saml2Client.getCredentialsExtractor().extract(new CallContext(
-                                    swec, NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT));
-                        } catch (RedirectionAction action) {
-                            return RedirectionActionUtils.handle(action, swec);
-                        }
-
-                        return chain.filter(exchange).then(Mono.empty());
-                    }));
-                });
-    }
-
     private Mono<Void> handleGET(final ServerWebExchange exchange, final WebFilterChain chain) {
         if (exchange.getRequest().getQueryParams().getFirst("SAMLResponse") != null) {
             return handleLogoutResponse(exchange, chain, new ServerWebExchangeContext(exchange));
-        } else if (exchange.getRequest().getQueryParams().getFirst("SAMLRequest") != null) {
-            return handleLogoutRequest(exchange, chain, new ServerWebExchangeLogoutContext(exchange));
         }
 
         return chain.filter(exchange).then(Mono.empty());
     }
 
     private Mono<Void> handlePOST(final ServerWebExchange exchange, final WebFilterChain chain) {
-        return exchange.getFormData().flatMap(form -> {
-            if (form.containsKey("SAMLResponse")) {
-                return handleLogoutResponse(exchange, chain, new ServerWebExchangeContext(exchange).setForm(form));
-            } else if (form.containsKey("SAMLRequest")) {
-                return handleLogoutRequest(exchange, chain, new ServerWebExchangeLogoutContext(exchange).setForm(form));
-            }
-
-            return chain.filter(exchange).then(Mono.empty());
-        });
+        return exchange.getFormData().
+                filter(form -> form.containsKey("SAMLResponse")).
+                flatMap(form -> handleLogoutResponse(
+                exchange, chain, new ServerWebExchangeContext(exchange).setForm(form))).
+                or(chain.filter(exchange).then(Mono.empty()));
     }
 
     @Override

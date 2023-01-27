@@ -35,19 +35,26 @@ import org.apereo.cas.util.crypto.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
+public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RestfulSamlIdPMetadataLocator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WASamlIdPMetadataLocator.class);
 
     private final WARestClient waRestClient;
 
-    public RestfulSamlIdPMetadataLocator(
+    public WASamlIdPMetadataLocator(
             final CipherExecutor<String, String> metadataCipherExecutor,
             final Cache<String, SamlIdPMetadataDocument> metadataCache,
             final WARestClient waRestClient) {
 
         super(metadataCipherExecutor, metadataCache);
         this.waRestClient = waRestClient;
+    }
+
+    @Override
+    public String getAppliesToFor(final Optional<SamlRegisteredService> registeredService) {
+        return registeredService.
+                map(SamlRegisteredService::getName).
+                orElse(SAML2IdPEntityService.DEFAULT_OWNER);
     }
 
     @Override
@@ -94,7 +101,7 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
                 if (LOG.isDebugEnabled()) {
                     LOG.error("While fetching SAML2 IdP metadata", e);
                 } else {
-                    LOG.error("While fetching SAML2 IdP metadata: " + e.getMessage());
+                    LOG.error("While fetching SAML2 IdP metadata: {}", e.getMessage());
                 }
             }
         }
@@ -103,16 +110,14 @@ public class RestfulSamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocato
     }
 
     private SAML2IdPEntityTO fetchFromCore(final Optional<SamlRegisteredService> registeredService) {
-        SAML2IdPEntityTO result = null;
+        SAML2IdPEntityService idpEntityService = getSyncopeClient().getService(SAML2IdPEntityService.class);
 
-        String appliesToFor = registeredService.map(SamlRegisteredService::getName).
-                orElse(SAML2IdPEntityService.DEFAULT_OWNER);
-        SAML2IdPEntityService service = getSyncopeClient().getService(SAML2IdPEntityService.class);
+        SAML2IdPEntityTO result = null;
         try {
-            result = service.get(appliesToFor);
+            result = idpEntityService.get(getAppliesToFor(registeredService));
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound && registeredService.isPresent()) {
-                result = service.get(SAML2IdPEntityService.DEFAULT_OWNER);
+                result = idpEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
             } else {
                 throw e;
             }

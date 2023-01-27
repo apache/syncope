@@ -27,6 +27,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.to.Item;
@@ -125,7 +126,19 @@ public class SAML2ClientCache {
     public SAML2Client add(
             final SAML2SP4UIIdP idp, final SAML2Configuration cfg, final String spEntityID, final String callbackUrl) {
 
-        cfg.setIdentityProviderMetadataResource((new ByteArrayResource(idp.getMetadata())));
+        cfg.setIdentityProviderEntityId(idp.getEntityID());
+        cfg.setIdentityProviderMetadataResource(new ByteArrayResource(idp.getMetadata()));
+        // remove when pac4j > 6.0.0-RC5 is available
+        cfg.setIdentityProviderMetadataResolver(new SAML2IdentityProviderMetadataResolver(cfg) {
+
+            private final AtomicBoolean hasChanged = new AtomicBoolean(true);
+
+            @Override
+            public boolean hasChanged() {
+                return hasChanged.getAndSet(false);
+            }
+        });
+
         cfg.setServiceProviderEntityId(spEntityID);
         getSPMetadataPath(spEntityID).ifPresent(cfg::setServiceProviderMetadataResourceFilepath);
 

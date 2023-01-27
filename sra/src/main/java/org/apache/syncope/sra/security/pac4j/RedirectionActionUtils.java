@@ -19,6 +19,7 @@
 package org.apache.syncope.sra.security.pac4j;
 
 import java.net.URI;
+import java.util.Optional;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.exception.http.WithContentAction;
 import org.pac4j.core.exception.http.WithLocationAction;
@@ -32,27 +33,24 @@ public final class RedirectionActionUtils {
             final RedirectionAction action,
             final ServerWebExchangeContext swec) {
 
-        if (action instanceof WithLocationAction) {
-            WithLocationAction withLocationAction = (WithLocationAction) action;
+        if (action instanceof WithLocationAction withLocationAction) {
             swec.getNative().getResponse().setStatusCode(HttpStatus.FOUND);
             swec.getNative().getResponse().getHeaders().setLocation(URI.create(withLocationAction.getLocation()));
             return swec.getNative().getResponse().setComplete();
-        } else if (action instanceof WithContentAction) {
-            WithContentAction withContentAction = (WithContentAction) action;
-            String content = withContentAction.getContent();
+        }
 
-            if (content == null) {
-                throw new IllegalArgumentException("No content set for POST AuthnRequest");
-            }
+        if (action instanceof WithContentAction withContentAction) {
+            String content = Optional.ofNullable(withContentAction.getContent()).
+                    orElseThrow(() -> new IllegalArgumentException("No content set for POST AuthnRequest"));
 
             return Mono.defer(() -> {
                 swec.getNative().getResponse().getHeaders().setContentType(MediaType.TEXT_HTML);
                 return swec.getNative().getResponse().
                         writeWith(Mono.just(swec.getNative().getResponse().bufferFactory().wrap(content.getBytes())));
             });
-        } else {
-            throw new IllegalArgumentException("Unsupported Action: " + action.getClass().getName());
         }
+
+        throw new IllegalArgumentException("Unsupported Action: " + action.getClass().getName());
     }
 
     private RedirectionActionUtils() {

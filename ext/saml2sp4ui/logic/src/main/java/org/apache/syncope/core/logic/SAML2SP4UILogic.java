@@ -72,14 +72,15 @@ import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.impl.AssertionConsumerServiceBuilder;
 import org.pac4j.core.context.CallContext;
+import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.exception.http.WithContentAction;
 import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.logout.NoLogoutActionBuilder;
-import org.pac4j.core.profile.factory.ProfileManagerFactory;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.context.SAML2MessageContext;
+import org.pac4j.saml.credentials.SAML2AuthenticationCredentials;
 import org.pac4j.saml.credentials.SAML2Credentials;
 import org.pac4j.saml.credentials.authenticator.SAML2Authenticator;
 import org.pac4j.saml.metadata.SAML2ServiceProviderMetadataResolver;
@@ -101,6 +102,28 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
     protected static final String JWT_CLAIM_SESSIONINDEX = "SESSIONINDEX";
 
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
+    protected static String validateUrl(final String url) {
+        boolean isValid = true;
+        if (url.contains("..")) {
+            isValid = false;
+        }
+        if (isValid) {
+            isValid = ResourceUtils.isUrl(url);
+        }
+
+        if (!isValid) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
+            sce.getElements().add("Invalid URL: " + url);
+            throw sce;
+        }
+
+        return url;
+    }
+
+    protected static String getCallbackUrl(final String spEntityID, final String urlContext) {
+        return validateUrl(spEntityID + urlContext + "/assertion-consumer");
+    }
 
     protected final SAML2SP4UILoader loader;
 
@@ -132,28 +155,6 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         this.userManager = userManager;
         this.idpDAO = idpDAO;
         this.authDataAccessor = authDataAccessor;
-    }
-
-    protected static String validateUrl(final String url) {
-        boolean isValid = true;
-        if (url.contains("..")) {
-            isValid = false;
-        }
-        if (isValid) {
-            isValid = ResourceUtils.isUrl(url);
-        }
-
-        if (!isValid) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
-            sce.getElements().add("Invalid URL: " + url);
-            throw sce;
-        }
-
-        return url;
-    }
-
-    protected static String getCallbackUrl(final String spEntityID, final String urlContext) {
-        return validateUrl(spEntityID + urlContext + "/assertion-consumer");
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -221,17 +222,13 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         return getSAML2Client(idp, spEntityID, urlContext);
     }
 
-    protected static SAML2Request buildRequest(final String idpEntityID, final RedirectionAction action) {
+    protected SAML2Request buildRequest(final String idpEntityID, final RedirectionAction action) {
         SAML2Request requestTO = new SAML2Request();
         requestTO.setIdpEntityID(idpEntityID);
-        if (action instanceof WithLocationAction) {
-            WithLocationAction withLocationAction = (WithLocationAction) action;
-
+        if (action instanceof WithLocationAction withLocationAction) {
             requestTO.setBindingType(SAML2BindingType.REDIRECT);
             requestTO.setContent(withLocationAction.getLocation());
-        } else if (action instanceof WithContentAction) {
-            WithContentAction withContentAction = (WithContentAction) action;
-
+        } else if (action instanceof WithContentAction withContentAction) {
             requestTO.setBindingType(SAML2BindingType.POST);
             requestTO.setContent(Base64.getMimeEncoder().encodeToString(withContentAction.getContent().getBytes()));
         }
@@ -294,7 +291,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
                 saml2Client.getConfiguration().getAuthnRequestBindingType(),
                 null);
         RedirectionAction action = saml2Client.getRedirectionAction(
-                new CallContext(ctx, NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT)).
+                new CallContext(ctx, NoOpSessionStore.INSTANCE)).
                 orElseThrow(() -> {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
                     sce.getElements().add("No RedirectionAction generated for AuthnRequest");
@@ -315,17 +312,20 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         SAML2Client saml2Client = getSAML2Client(idp, saml2Response.getSpEntityID(), saml2Response.getUrlContext());
 
         // 2. validate the provided SAML response
-        SAML2Credentials credentials;
+        SAML2SP4UIContext webCtx = new SAML2SP4UIContext(
+                saml2Client.getConfiguration().getAuthnRequestBindingType(),
+                saml2Response);
+        CallContext ctx = new CallContext(webCtx, NoOpSessionStore.INSTANCE);
+
+        SAML2AuthenticationCredentials authCreds;
         try {
-            SAML2SP4UIContext ctx = new SAML2SP4UIContext(
-                    saml2Client.getConfiguration().getAuthnRequestBindingType(),
-                    saml2Response);
+            Credentials creds = saml2Client.getCredentialsExtractor().
+                    extract(ctx).
+                    orElseThrow(() -> new IllegalStateException("Could not extract credentials"));
 
-            credentials = (SAML2Credentials) saml2Client.getCredentialsExtractor().
-                    extract(new CallContext(ctx, NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT)).
-                    orElseThrow(() -> new IllegalStateException("No AuthnResponse found"));
-
-            saml2Client.getAuthenticator().validate(new CallContext(ctx, NoOpSessionStore.INSTANCE), credentials);
+            authCreds = saml2Client.validateCredentials(ctx, creds).
+                    map(SAML2AuthenticationCredentials.class::cast).
+                    orElseThrow(() -> new IllegalArgumentException("Invalid SAML credentials provided"));
         } catch (Exception e) {
             LOG.error("While validating AuthnResponse", e);
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
@@ -338,7 +338,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         loginResp.setIdp(saml2Client.getIdentityProviderResolvedEntityId());
         loginResp.setSloSupported(!(saml2Client.getLogoutActionBuilder() instanceof NoLogoutActionBuilder));
 
-        SAML2Credentials.SAMLNameID nameID = credentials.getNameId();
+        SAML2AuthenticationCredentials.SAMLNameID nameID = authCreds.getNameId();
 
         Item connObjectKeyItem = idp.getConnObjectKeyItem().orElse(null);
 
@@ -350,11 +350,11 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
             keyValue = nameID.getValue();
         }
 
-        loginResp.setNotOnOrAfter(new Date(credentials.getConditions().getNotOnOrAfter().toInstant().toEpochMilli()));
+        loginResp.setNotOnOrAfter(new Date(authCreds.getConditions().getNotOnOrAfter().toInstant().toEpochMilli()));
 
-        loginResp.setSessionIndex(credentials.getSessionIndex());
+        loginResp.setSessionIndex(authCreds.getSessionIndex());
 
-        for (SAML2Credentials.SAMLAttribute attr : credentials.getAttributes()) {
+        for (SAML2AuthenticationCredentials.SAMLAttribute attr : authCreds.getAttributes()) {
             if (!attr.getAttributeValues().isEmpty()) {
                 String attrName = attr.getFriendlyName() == null ? attr.getName() : attr.getFriendlyName();
                 if (connObjectKeyItem != null && attrName.equals(connObjectKeyItem.getExtAttrName())) {
@@ -477,7 +477,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         SAML2SP4UIContext ctx = new SAML2SP4UIContext(
                 saml2Client.getConfiguration().getSpLogoutRequestBindingType(), null);
         RedirectionAction action = saml2Client.getLogoutAction(
-                new CallContext(ctx, NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT),
+                new CallContext(ctx, NoOpSessionStore.INSTANCE),
                 saml2Profile,
                 null).
                 orElseThrow(() -> {
@@ -504,17 +504,19 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         // 2. validate the provided SAML response
-        SAML2SP4UIContext ctx = new SAML2SP4UIContext(
-                saml2Client.getConfiguration().getSpLogoutRequestBindingType(),
+        SAML2SP4UIContext webCtx = new SAML2SP4UIContext(
+                saml2Client.getConfiguration().getAuthnRequestBindingType(),
                 saml2Response);
+        CallContext ctx = new CallContext(webCtx, NoOpSessionStore.INSTANCE);
 
         LogoutResponse logoutResponse;
         try {
-            SAML2MessageContext saml2Ctx = saml2Client.getContextProvider().buildContext(
-                    new CallContext(ctx, NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT), saml2Client);
-            saml2Client.getLogoutProfileHandler().receive(saml2Ctx);
+            Credentials creds = saml2Client.getCredentialsExtractor().
+                    extract(ctx).
+                    orElseThrow(() -> new IllegalStateException("Could not extract credentials"));
 
-            logoutResponse = (LogoutResponse) saml2Ctx.getMessageContext().getMessage();
+            saml2Client.getLogoutProcessor().processLogout(ctx, creds);
+            logoutResponse = (LogoutResponse) ((SAML2Credentials) creds).getContext().getMessageContext().getMessage();
         } catch (Exception e) {
             LOG.error("Could not validate LogoutResponse", e);
             return;

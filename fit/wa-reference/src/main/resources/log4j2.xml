@@ -39,6 +39,9 @@ under the License.
     <asyncLogger name="org.apereo.cas" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
+    <asyncLogger name="org.apereo.cas.support.saml.idp.metadata.generator" additivity="false" level="TRACE">
+      <appender-ref ref="main"/>
+    </asyncLogger>
 
     <asyncLogger name="org.apereo.services.persondir" additivity="false" level="INFO">
       <appender-ref ref="main"/>

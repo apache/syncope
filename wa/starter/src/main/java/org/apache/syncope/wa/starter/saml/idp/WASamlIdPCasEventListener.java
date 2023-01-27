@@ -16,22 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.wa.starter.saml.idp;
 
-public enum JWSAlgorithm {
-    HS256,
-    HS384,
-    HS512,
-    RS256,
-    RS384,
-    RS512,
-    ES256,
-    ES384,
-    ES512,
-    PS256,
-    PS384,
-    PS512,
-    EdDSA,
-    ES256K;
+import org.apereo.cas.support.saml.idp.SamlIdPCasEventListener;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 
+public class WASamlIdPCasEventListener implements SamlIdPCasEventListener {
+
+    @Override
+    public void handleApplicationReadyEvent(final ApplicationReadyEvent event) {
+        // skip generating IdP metadata at this stage, as
+        // org.apereo.cas.support.saml.idp.DefaultSamlIdPCasEventListener is doing
+    }
 }

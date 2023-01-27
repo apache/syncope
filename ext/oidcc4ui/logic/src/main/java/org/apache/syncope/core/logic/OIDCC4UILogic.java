@@ -54,7 +54,6 @@ import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.pac4j.core.context.CallContext;
 import org.pac4j.core.exception.http.WithLocationAction;
-import org.pac4j.core.profile.factory.ProfileManagerFactory;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -113,7 +112,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         // 2. create OIDCRequest
         WithLocationAction action = oidcClient.getRedirectionAction(
-                new CallContext(new OIDC4UIContext(), NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT)).
+                new CallContext(new OIDC4UIContext(), NoOpSessionStore.INSTANCE)).
                 map(WithLocationAction.class::cast).
                 orElseThrow(() -> {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
@@ -275,7 +274,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         profile.setIdTokenString((String) claimsSet.getClaim(JWT_CLAIM_ID_TOKEN));
 
         WithLocationAction action = oidcClient.getLogoutAction(
-                new CallContext(new OIDC4UIContext(), NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT),
+                new CallContext(new OIDC4UIContext(), NoOpSessionStore.INSTANCE),
                 profile,
                 redirectURI).
                 map(WithLocationAction.class::cast).

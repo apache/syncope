@@ -303,21 +303,19 @@ public class SecurityConfig {
                 anyExchange().authenticated();
 
         switch (props.getAmType()) {
-            case OIDC:
-            case OAUTH2:
+            case OIDC, OAUTH2 -> {
                 OAuth2SecurityConfigUtils.forLogin(http, props.getAmType(), ctx);
                 OAuth2SecurityConfigUtils.forLogout(builder, props.getAmType(), cacheManager, logoutRouteMatcher, ctx);
                 http.oauth2ResourceServer().jwt().jwtDecoder(ctx.getBean(ReactiveJwtDecoder.class));
-                break;
+            }
 
-            case SAML2:
+            case SAML2 ->
                 saml2Client.ifAvailable(client -> {
                     SAML2SecurityConfigUtils.forLogin(http, client, publicRouteMatcher);
                     SAML2SecurityConfigUtils.forLogout(builder, client, cacheManager, logoutRouteMatcher, ctx);
                 });
-                break;
 
-            case CAS:
+            case CAS -> {
                 CASSecurityConfigUtils.forLogin(
                         http,
                         props.getCas().getProtocol(),
@@ -329,9 +327,10 @@ public class SecurityConfig {
                         props.getCas().getServerPrefix(),
                         logoutRouteMatcher,
                         ctx);
-                break;
+            }
 
-            default:
+            default -> {
+            }
         }
 
         return builder.and().csrf().requireCsrfProtectionMatcher(csrfRouteMatcher).and().build();

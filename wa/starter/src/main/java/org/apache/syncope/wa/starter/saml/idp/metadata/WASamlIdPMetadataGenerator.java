@@ -33,13 +33,13 @@ import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerator {
+public class WASamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RestfulSamlIdPMetadataGenerator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WASamlIdPMetadataGenerator.class);
 
     private final WARestClient waRestClient;
 
-    public RestfulSamlIdPMetadataGenerator(
+    public WASamlIdPMetadataGenerator(
             final SamlIdPMetadataGeneratorConfigurationContext samlIdPMetadataGeneratorConfigurationContext,
             final WARestClient waRestClient) {
 
@@ -48,13 +48,33 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
     }
 
     @Override
+    public String getAppliesToFor(final Optional<SamlRegisteredService> registeredService) {
+        return registeredService.
+                map(SamlRegisteredService::getName).
+                orElse(SAML2IdPEntityService.DEFAULT_OWNER);
+    }
+
+    private SyncopeClient getSyncopeClient() {
+        if (!waRestClient.isReady()) {
+            LOG.info("Syncope client is not yet ready");
+            throw new IllegalStateException("Syncope core is not yet ready to access requests");
+        }
+        return waRestClient.getSyncopeClient();
+    }
+
+    @Override
+    public SamlIdPMetadataDocument generate(final Optional<SamlRegisteredService> registeredService) throws Exception {
+        return super.generate(registeredService);
+    }
+
+    @Override
     protected SamlIdPMetadataDocument finalizeMetadataDocument(
             final SamlIdPMetadataDocument doc,
             final Optional<SamlRegisteredService> registeredService) throws Exception {
 
-        LOG.info("Generating new SAML2 IdP metadata document");
+        doc.setAppliesTo(getAppliesToFor(registeredService));
 
-        doc.setAppliesTo(SAML2IdPEntityService.DEFAULT_OWNER);
+        LOG.info("Setting new SAML2 IdP metadata document for {}", doc.getAppliesTo());
 
         SAML2IdPEntityTO entityTO = new SAML2IdPEntityTO.Builder().
                 key(doc.getAppliesTo()).
@@ -84,23 +104,15 @@ public class RestfulSamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerato
 
     @Override
     public Pair<String, String> buildSelfSignedEncryptionCert(final Optional<SamlRegisteredService> registeredService)
-        throws Exception {
+            throws Exception {
 
         return generateCertificateAndKey();
     }
 
     @Override
     public Pair<String, String> buildSelfSignedSigningCert(final Optional<SamlRegisteredService> registeredService)
-        throws Exception {
+            throws Exception {
 
         return generateCertificateAndKey();
-    }
-
-    private SyncopeClient getSyncopeClient() {
-        if (!waRestClient.isReady()) {
-            LOG.info("Syncope client is not yet ready");
-            throw new IllegalStateException("Syncope core is not yet ready to access requests");
-        }
-        return waRestClient.getSyncopeClient();
     }
 }

@@ -84,7 +84,7 @@ public final class SAML2SecurityConfigUtils {
                     SAML2ServerLogoutSuccessHandler.class);
 
             SAML2LogoutResponseWebFilter logoutResponseWebFilter =
-                    new SAML2LogoutResponseWebFilter(saml2Client, logoutSuccessHandler, cacheManager);
+                    new SAML2LogoutResponseWebFilter(saml2Client, logoutSuccessHandler);
             builder.and().addFilterAt(logoutResponseWebFilter, SecurityWebFiltersOrder.LOGOUT);
         } catch (ClassNotFoundException e) {
             LOG.error("While creating instance of {}", SAML2ServerLogoutSuccessHandler.class.getName(), e);

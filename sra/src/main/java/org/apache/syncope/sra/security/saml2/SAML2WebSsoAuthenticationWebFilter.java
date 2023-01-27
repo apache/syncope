@@ -22,11 +22,10 @@ import java.net.URI;
 import org.apache.syncope.sra.security.pac4j.NoOpSessionStore;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import org.apache.syncope.sra.security.web.server.DoNothingIfCommittedServerRedirectStrategy;
-import org.apache.syncope.sra.session.SessionUtils;
 import org.pac4j.core.context.CallContext;
-import org.pac4j.core.profile.factory.ProfileManagerFactory;
+import org.pac4j.core.credentials.Credentials;
 import org.pac4j.saml.client.SAML2Client;
-import org.pac4j.saml.credentials.SAML2Credentials;
+import org.pac4j.saml.credentials.SAML2AuthenticationCredentials;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.ServerRedirectStrategy;
@@ -71,7 +70,7 @@ public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter 
 
     private ServerWebExchangeMatcher matchSamlResponse() {
         return exchange -> exchange.getFormData().
-                filter(form -> form.containsKey("SAMLResponse")).
+                filter(form -> form.containsKey("SAMLResponse") && form.containsKey("RelayState")).
                 flatMap(form -> ServerWebExchangeMatcher.MatchResult.match()).
                 switchIfEmpty(ServerWebExchangeMatcher.MatchResult.notMatch());
     }
@@ -79,18 +78,19 @@ public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter 
     private ServerAuthenticationConverter convertSamlResponse() {
         return exchange -> exchange.getFormData().
                 flatMap(form -> MATCHER.matches(exchange).
-                flatMap(matchResult -> {
+                flatMap(r -> {
                     ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange).setForm(form);
+                    CallContext ctx = new CallContext(swec, NoOpSessionStore.INSTANCE);
 
-                    SAML2Credentials credentials = (SAML2Credentials) saml2Client.getCredentialsExtractor().
-                            extract(new CallContext(
-                                    swec, NoOpSessionStore.INSTANCE, ProfileManagerFactory.DEFAULT)).
-                            orElseThrow(() -> new IllegalStateException("No AuthnResponse found"));
+                    Credentials creds = saml2Client.getCredentialsExtractor().
+                            extract(ctx).
+                            orElseThrow(() -> new IllegalStateException("Could not extract credentials"));
 
-                    saml2Client.getAuthenticator().validate(
-                            new CallContext(swec, NoOpSessionStore.INSTANCE), credentials);
+                    SAML2AuthenticationCredentials authCreds = saml2Client.validateCredentials(ctx, creds).
+                            map(SAML2AuthenticationCredentials.class::cast).
+                            orElseThrow(() -> new IllegalArgumentException("Invalid SAML credentials provided"));
 
-                    return Mono.just(new SAML2AuthenticationToken(credentials));
+                    return Mono.just(new SAML2AuthenticationToken(authCreds));
                 }));
     }
 
@@ -103,10 +103,10 @@ public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter 
             public Mono<Void> onAuthenticationSuccess(
                     final WebFilterExchange webFilterExchange, final Authentication authentication) {
 
-                return webFilterExchange.getExchange().getSession().
-                        flatMap(session -> this.redirectStrategy.sendRedirect(
+                return webFilterExchange.getExchange().getFormData().
+                        flatMap(form -> this.redirectStrategy.sendRedirect(
                         webFilterExchange.getExchange(),
-                        session.<URI>getRequiredAttribute(SessionUtils.INITIAL_REQUEST_URI)));
+                        URI.create(form.get("RelayState").get(0))));
             }
         };
     }

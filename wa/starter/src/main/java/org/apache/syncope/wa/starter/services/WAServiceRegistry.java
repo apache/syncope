@@ -20,6 +20,7 @@ package org.apache.syncope.wa.starter.services;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.types.ClientAppType;
@@ -142,14 +143,15 @@ public class WAServiceRegistry extends AbstractServiceRegistry {
 
     @Override
     public RegisteredService findServiceByExactServiceName(final String name) {
-        SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
-        if (syncopeClient == null) {
-            LOG.debug("Syncope client is not yet ready to fetch application definitions");
-            return null;
-        } else {
-            LOG.info("Searching for application definition by name {}", name);
-            return registeredServiceMapper.toRegisteredService(waRestClient.getSyncopeClient().
-                    getService(WAClientAppService.class).read(name, null));
-        }
+        return Optional.ofNullable(waRestClient.getSyncopeClient()).
+                map(syncopeClient -> {
+                    LOG.info("Searching for application definition by name {}", name);
+                    return registeredServiceMapper.toRegisteredService(waRestClient.getSyncopeClient().
+                            getService(WAClientAppService.class).read(name, null));
+                }).
+                orElseGet(() -> {
+                    LOG.debug("Syncope client is not yet ready to fetch application definitions");
+                    return null;
+                });
     }
 }

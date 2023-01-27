@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.sra.security.saml2;
 
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.pac4j.saml.credentials.SAML2Credentials;
+import org.pac4j.saml.credentials.SAML2AuthenticationCredentials;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -28,11 +30,12 @@ public class SAML2AuthenticationToken extends AbstractAuthenticationToken {
 
     private static final long serialVersionUID = 8322987617416135717L;
 
-    private final SAML2Credentials credentials;
+    private final SAML2AuthenticationCredentials credentials;
 
-    public SAML2AuthenticationToken(final SAML2Credentials credentials) {
-        super(credentials.getUserProfile().getRoles().stream().
-                map(SimpleGrantedAuthority::new).collect(Collectors.toSet()));
+    public SAML2AuthenticationToken(final SAML2AuthenticationCredentials credentials) {
+        super(Optional.ofNullable(credentials.getUserProfile()).
+                map(p -> p.getRoles().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet())).
+                orElse(Set.of()));
         this.credentials = credentials;
         this.setAuthenticated(true);
     }
@@ -43,7 +46,7 @@ public class SAML2AuthenticationToken extends AbstractAuthenticationToken {
     }
 
     @Override
-    public SAML2Credentials getPrincipal() {
+    public SAML2AuthenticationCredentials getPrincipal() {
         return credentials;
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic.oidc;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.SubjectType;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -38,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import org.pac4j.oidc.metadata.StaticOidcOpMetadataResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,18 +51,21 @@ public class OIDCClientCache {
 
     protected static final Logger LOG = LoggerFactory.getLogger(OIDCClientCache.class);
 
+    protected static final Function<String, String> DISCOVERY_URI =
+            issuer -> issuer + "/.well-known/openid-configuration";
+
     protected final List<OidcClient> cache = Collections.synchronizedList(new ArrayList<>());
 
     protected static OIDCProviderMetadata getDiscoveryDocument(final String issuer) {
-        String discoveryDocumentURL = issuer + "/.well-known/openid-configuration";
+        String discoveryDocumentURI = DISCOVERY_URI.apply(issuer);
         try {
             HttpResponse<String> response = HttpClient.newBuilder().build().send(
-                    HttpRequest.newBuilder(URI.create(discoveryDocumentURL)).GET().build(),
+                    HttpRequest.newBuilder(URI.create(discoveryDocumentURI)).GET().build(),
                     HttpResponse.BodyHandlers.ofString());
 
             return OIDCProviderMetadata.parse(response.body());
         } catch (IOException | InterruptedException | ParseException e) {
-            LOG.error("While getting the Discovery Document at {}", discoveryDocumentURL, e);
+            LOG.error("While getting the Discovery Document at {}", discoveryDocumentURI, e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
             sce.getElements().add(e.getMessage());
@@ -93,6 +99,7 @@ public class OIDCClientCache {
                 new Issuer(op.getIssuer()),
                 List.of(SubjectType.PUBLIC),
                 Optional.ofNullable(op.getJwksUri()).map(URI::create).orElse(null));
+        metadata.setIDTokenJWSAlgs(List.of(JWSAlgorithm.HS256));
         metadata.setAuthorizationEndpointURI(
                 Optional.ofNullable(op.getAuthorizationEndpoint()).map(URI::create).orElse(null));
         metadata.setTokenEndpointURI(
@@ -102,15 +109,17 @@ public class OIDCClientCache {
         metadata.setEndSessionEndpointURI(
                 Optional.ofNullable(op.getEndSessionEndpoint()).map(URI::create).orElse(null));
 
-        OidcConfiguration config = new OidcConfiguration();
-        config.setClientId(op.getClientID());
-        config.setSecret(op.getClientSecret());
-        config.setProviderMetadata(metadata);
-        config.setScope("openid profile email address phone offline_access");
-        config.setUseNonce(false);
-        config.setSessionLogoutHandler(new NoOpSessionLogoutHandler());
+        OidcConfiguration cfg = new OidcConfiguration();
+        cfg.setClientId(op.getClientID());
+        cfg.setSecret(op.getClientSecret());
+        cfg.setDiscoveryURI(DISCOVERY_URI.apply(op.getIssuer()));
+        cfg.setPreferredJwsAlgorithm(JWSAlgorithm.HS256);
+        cfg.setOpMetadataResolver(new StaticOidcOpMetadataResolver(cfg, metadata));
+        cfg.setScope("openid profile email address phone offline_access");
+        cfg.setUseNonce(false);
+        cfg.setSessionLogoutHandler(new NoOpSessionLogoutHandler());
 
-        OidcClient client = new OidcClient(config);
+        OidcClient client = new OidcClient(cfg);
         client.setName(op.getName());
         client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         client.setCallbackUrl(callbackUrl);
