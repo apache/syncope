@@ -29,7 +29,7 @@ public class AnyObjectDetails extends Details<AnyObjectTO> {
 
     private static final long serialVersionUID = 855618618337931784L;
 
-    protected final AjaxTextFieldPanel name;
+    protected AjaxTextFieldPanel name;
 
     public AnyObjectDetails(
             final AnyWrapper<AnyObjectTO> wrapper,
