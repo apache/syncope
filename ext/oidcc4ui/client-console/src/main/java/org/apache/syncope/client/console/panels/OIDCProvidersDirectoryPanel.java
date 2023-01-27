@@ -123,7 +123,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
             public void updateHeader(final AjaxRequestTarget target, final Serializable object) {
                 if (object instanceof OIDCC4UIProviderTO) {
                     setHeader(target,
-                        StringUtils.abbreviate(((OIDCC4UIProviderTO) object).getName(), HEADER_FIRST_ABBREVIATION));
+                            StringUtils.abbreviate(((OIDCC4UIProviderTO) object).getName(), HEADER_FIRST_ABBREVIATION));
                 } else {
                     super.updateHeader(target, object);
                 }
@@ -165,7 +165,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final OIDCC4UIProviderTO ignore) {
                 OIDCC4UIProviderTO object = OIDCProviderRestClient.read(model.getObject().getKey());
                 send(OIDCProvidersDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(object, target));
+                        new AjaxWizard.EditItemActionEvent<>(object, target));
                 modal.header(Model.of(StringUtils.capitalize(("Edit " + object.getName()))));
             }
         }, ActionLink.ActionType.EDIT, OIDC4UIEntitlement.OP_UPDATE);
@@ -179,10 +179,10 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                 final OIDCC4UIProviderTO object = OIDCProviderRestClient.read(model.getObject().getKey());
 
                 UserTemplateWizardBuilder builder = new UserTemplateWizardBuilder(
-                    object.getUserTemplate(),
-                    AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
-                    new UserFormLayoutInfo(),
-                    pageRef) {
+                        object.getUserTemplate(),
+                        AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
+                        new UserFormLayoutInfo(),
+                        pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770634L;
 
@@ -195,7 +195,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                     }
                 };
                 templateModal.header(Model.of(StringUtils.capitalize(
-                    new StringResourceModel("template.title", OIDCProvidersDirectoryPanel.this).getString())));
+                        new StringResourceModel("template.title", OIDCProvidersDirectoryPanel.this).getString())));
                 templateModal.setContent(builder.build(BaseModal.CONTENT_ID));
                 templateModal.show(true);
                 target.add(templateModal);
@@ -232,9 +232,9 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
             WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();
 
             if (newItemEvent instanceof AjaxWizard.NewItemActionEvent && modalPanel != null) {
-                final IModel<Serializable> model = new CompoundPropertyModel<>(modalPanel.getItem());
+                IModel<Serializable> model = new CompoundPropertyModel<>(modalPanel.getItem());
                 templateModal.setFormModel(model);
-                templateModal.header(newItemEvent.getResourceModel());
+                templateModal.header(newItemEvent.getTitleModel());
                 newItemEvent.getTarget().ifPresent(target -> target.add(templateModal.setContent(modalPanel)));
                 templateModal.show(true);
             } else if (newItemEvent instanceof AjaxWizard.NewItemCancelEvent) {

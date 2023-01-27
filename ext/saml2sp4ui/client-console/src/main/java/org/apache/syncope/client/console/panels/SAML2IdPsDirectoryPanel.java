@@ -148,7 +148,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
             public void updateHeader(final AjaxRequestTarget target, final Serializable modelObject) {
                 if (modelObject instanceof SAML2SP4UIIdPTO) {
                     setHeader(target, StringUtils.abbreviate(
-                        ((SAML2SP4UIIdPTO) modelObject).getName(), HEADER_FIRST_ABBREVIATION));
+                            ((SAML2SP4UIIdPTO) modelObject).getName(), HEADER_FIRST_ABBREVIATION));
                 } else {
                     super.updateHeader(target, modelObject);
                 }
@@ -194,10 +194,10 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                 SAML2SP4UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
                 metadataModal.header(Model.of(object.getName() + " - Metadata"));
                 metadataModal.setContent(new XMLEditorPanel(
-                    metadataModal,
-                    Model.of(new String(Base64.getMimeDecoder().decode(object.getMetadata()))),
-                    true,
-                    pageRef));
+                        metadataModal,
+                        Model.of(new String(Base64.getMimeDecoder().decode(object.getMetadata()))),
+                        true,
+                        pageRef));
                 metadataModal.show(true);
                 target.add(metadataModal);
             }
@@ -210,7 +210,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final SAML2SP4UIIdPTO ignore) {
                 SAML2SP4UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
                 send(SAML2IdPsDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(object, target));
+                        new AjaxWizard.EditItemActionEvent<>(object, target));
             }
         }, ActionLink.ActionType.EDIT, SAML2SP4UIEntitlement.IDP_UPDATE);
         panel.add(new ActionLink<>() {
@@ -222,10 +222,10 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                 final SAML2SP4UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
 
                 UserTemplateWizardBuilder builder = new UserTemplateWizardBuilder(
-                    object.getUserTemplate(),
-                    AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
-                    new UserFormLayoutInfo(),
-                    pageRef) {
+                        object.getUserTemplate(),
+                        AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
+                        new UserFormLayoutInfo(),
+                        pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770634L;
 
@@ -238,7 +238,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                     }
                 };
                 templateModal.header(Model.of(StringUtils.capitalize(
-                    new StringResourceModel("template.title", SAML2IdPsDirectoryPanel.this).getString())));
+                        new StringResourceModel("template.title", SAML2IdPsDirectoryPanel.this).getString())));
                 templateModal.setContent(builder.build(BaseModal.CONTENT_ID));
                 templateModal.show(true);
                 target.add(templateModal);
@@ -275,9 +275,9 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
             WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();
 
             if (newItemEvent instanceof AjaxWizard.NewItemActionEvent && modalPanel != null) {
-                final IModel<Serializable> model = new CompoundPropertyModel<>(modalPanel.getItem());
+                IModel<Serializable> model = new CompoundPropertyModel<>(modalPanel.getItem());
                 templateModal.setFormModel(model);
-                templateModal.header(newItemEvent.getResourceModel());
+                templateModal.header(newItemEvent.getTitleModel());
                 newItemEvent.getTarget().ifPresent(target -> target.add(templateModal.setContent(modalPanel)));
                 templateModal.show(true);
             } else if (newItemEvent instanceof AjaxWizard.NewItemCancelEvent) {

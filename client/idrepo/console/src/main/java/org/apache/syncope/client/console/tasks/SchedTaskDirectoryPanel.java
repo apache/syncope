@@ -271,7 +271,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
                                 TaskRestClient.readTask(taskType, model.getObject().getKey()),
-                                target).setResourceModel(
+                                target).setTitleModel(
                                 new StringResourceModel("inner.task.edit",
                                         SchedTaskDirectoryPanel.this,
                                         Model.of(Pair.of(ActionLink.ActionType.EDIT, model.getObject())))));
@@ -288,7 +288,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 final T clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.EditItemActionEvent<>(clone, target).setResourceModel(
+                        new AjaxWizard.EditItemActionEvent<>(clone, target).setTitleModel(
                                 new StringResourceModel("inner.task.clone",
                                         SchedTaskDirectoryPanel.this,
                                         Model.of(Pair.of(ActionLink.ActionType.CLONE, model.getObject())))));

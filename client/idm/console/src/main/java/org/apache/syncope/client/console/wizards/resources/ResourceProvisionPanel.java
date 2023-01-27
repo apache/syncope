@@ -85,20 +85,20 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         wizard = new ProvisionWizardBuilder(resourceTO, adminRealm, pageRef);
 
         ListViewPanel.Builder<ResourceProvision> builder = new ListViewPanel.Builder<>(
-            ResourceProvision.class, pageRef) {
+                ResourceProvision.class, pageRef) {
 
             private static final long serialVersionUID = 4907732721283972943L;
 
             @Override
             protected ResourceProvision getActualItem(
-                final ResourceProvision item, final List<ResourceProvision> list) {
+                    final ResourceProvision item, final List<ResourceProvision> list) {
 
                 return Optional.ofNullable(item).flatMap(resourceProvision -> list.stream()
-                    .filter(in -> ((resourceProvision.getKey() == null && in.getKey() == null)
+                        .filter(in -> ((resourceProvision.getKey() == null && in.getKey() == null)
                         || (in.getKey() != null && in.getKey().equals(resourceProvision.getKey())))
                         && ((resourceProvision.getAnyType() == null && in.getAnyType() == null)
                         || (in.getAnyType() != null && in.getAnyType().equals(resourceProvision.getAnyType())))).
-                    findAny()).orElse(null);
+                        findAny()).orElse(null);
             }
 
             @Override
@@ -150,10 +150,10 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
                 try {
                     send(ResourceProvisionPanel.this, Broadcast.DEPTH,
-                        new AjaxWizard.NewItemActionEvent<>(provision, 1, target).setResourceModel(
-                            new StringResourceModel("inner.provision.mapping",
-                                ResourceProvisionPanel.this,
-                                Model.of(provision))));
+                            new AjaxWizard.NewItemActionEvent<>(provision, 1, target).setTitleModel(
+                                    new StringResourceModel("inner.provision.mapping",
+                                            ResourceProvisionPanel.this,
+                                            Model.of(provision))));
                 } catch (SyncopeClientException e) {
                     LOG.error("While contacting resource", e);
                     SyncopeConsoleSession.get().onException(e);
@@ -172,7 +172,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While setting latest sync token for {}/{}",
-                                resourceTO.getKey(), provision.getAnyType(), e);
+                                    resourceTO.getKey(), provision.getAnyType(), e);
                             SyncopeConsoleSession.get().onException(e);
                         }
                         ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -189,7 +189,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While removing sync token for {}/{}",
-                                resourceTO.getKey(), provision.getAnyType(), e);
+                                    resourceTO.getKey(), provision.getAnyType(), e);
                             SyncopeConsoleSession.get().onException(e);
                         }
                         ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -224,7 +224,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 send(ResourceProvisionPanel.this, Broadcast.BREADTH,
-                    new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
+                        new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
                 objectTypeTogglePanel.setHeaderLabel(target);
                 objectTypeTogglePanel.toggle(target, true);
             }
@@ -305,8 +305,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             @Override
             protected List<String> load() {
                 List<String> anyTypes = AnyTypeRestClient.list().stream().
-                    filter(anyType -> resourceTO.getProvision(anyType).isEmpty()).
-                    collect(Collectors.toList());
+                        filter(anyType -> resourceTO.getProvision(anyType).isEmpty()).
+                        collect(Collectors.toList());
                 if (resourceTO.getOrgUnit() == null) {
                     anyTypes.add(SyncopeConstants.REALM_ANYTYPE);
                 }

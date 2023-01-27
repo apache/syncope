@@ -47,8 +47,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -58,9 +56,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
 
     private boolean readOnly = false;
 
-    private final String actualId;
+    protected final String actualId;
 
-    private final WebMarkupContainer container;
+    protected final WebMarkupContainer container;
 
     protected final Fragment initialFragment;
 
@@ -198,25 +196,27 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                 }
 
                 if (wizardInModal) {
-                    IModel<T> model = new CompoundPropertyModel<>(item);
-                    modal.setFormModel(model);
+                    modal.setFormModel(item);
 
                     target.ifPresent(t -> t.add(modal.setContent(modalPanel)));
 
-                    modal.header(new StringResourceModel(
-                            String.format("any.%s", newItemEvent.getEventDescription()),
-                            this,
-                            new Model<>(modalPanel.getItem())));
+                    modal.header(Optional.ofNullable(newItemEvent.getTitleModel()).
+                            orElse(new StringResourceModel(
+                                    String.format("any.%s", newItemEvent.getEventDescription()),
+                                    this,
+                                    Model.of(modalPanel.getItem()))));
                     modal.show(true);
                 } else {
                     Fragment fragment = new Fragment("content", "wizard", WizardMgtPanel.this);
 
-                    fragment.add(new Label("title", newItemEvent.getResourceModel() == null
-                            ? Model.of(StringUtils.EMPTY) : newItemEvent.getResourceModel()));
+                    fragment.add(new Label(
+                            "title",
+                            Optional.ofNullable(newItemEvent.getTitleModel()).orElse(Model.of(StringUtils.EMPTY))));
 
                     fragment.add(Component.class.cast(modalPanel));
                     container.addOrReplace(fragment);
                 }
+
                 target.ifPresent(this::customActionCallback);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
                 if (wizardInModal) {
@@ -224,6 +224,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                 } else {
                     container.addOrReplace(initialFragment);
                 }
+
                 target.ifPresent(this::customActionOnCancelCallback);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
@@ -256,6 +257,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
                 } else {
                     container.addOrReplace(initialFragment);
                 }
+
                 target.ifPresent(this::customActionOnFinishCallback);
             }
 

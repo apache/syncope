@@ -281,7 +281,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
         private final T item;
 
-        private IModel<String> resourceModel;
+        private IModel<String> titleModel;
 
         private final AjaxRequestTarget target;
 
@@ -309,12 +309,12 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
             return this;
         }
 
-        public IModel<String> getResourceModel() {
-            return resourceModel;
+        public IModel<String> getTitleModel() {
+            return titleModel;
         }
 
-        public NewItemEvent<T> setResourceModel(final IModel<String> resourceModel) {
-            this.resourceModel = resourceModel;
+        public NewItemEvent<T> setTitleModel(final IModel<String> titleModel) {
+            this.titleModel = titleModel;
             return this;
         }
 
