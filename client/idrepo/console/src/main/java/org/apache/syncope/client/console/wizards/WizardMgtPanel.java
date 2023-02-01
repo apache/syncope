@@ -58,7 +58,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
 
     protected final String actualId;
 
-    protected final WebMarkupContainer container;
+    private final WebMarkupContainer container;
 
     protected final Fragment initialFragment;
 
