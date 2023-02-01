@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.wa.starter.config;
 
+import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.warrenstrange.googleauth.IGoogleAuthenticator;
@@ -60,8 +61,9 @@ import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
 import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
 import org.apache.syncope.wa.starter.oidc.WAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
-import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataGenerator;
-import org.apache.syncope.wa.starter.saml.idp.metadata.RestfulSamlIdPMetadataLocator;
+import org.apache.syncope.wa.starter.saml.idp.WASamlIdPCasEventListener;
+import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataGenerator;
+import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataLocator;
 import org.apache.syncope.wa.starter.services.WAServiceRegistry;
 import org.apache.syncope.wa.starter.surrogate.WASurrogateAuthenticationService;
 import org.apache.syncope.wa.starter.u2f.WAU2FDeviceRepository;
@@ -82,9 +84,11 @@ import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
 import org.apereo.cas.support.pac4j.authentication.clients.DelegatedClientFactoryCustomizer;
 import org.apereo.cas.support.pac4j.authentication.handler.support.DelegatedClientAuthenticationHandler;
+import org.apereo.cas.support.saml.idp.SamlIdPCasEventListener;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
+import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
 import org.apereo.cas.util.DateTimeUtils;
 import org.apereo.cas.util.LdapUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
@@ -98,6 +102,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.ScopedProxyMode;
 
 @Configuration(proxyBeanMethods = false)
@@ -221,36 +226,49 @@ public class WAContext {
     @Bean
     public ServiceRegistryExecutionPlanConfigurer syncopeServiceRegistryConfigurer(
             final ConfigurableApplicationContext ctx,
-            final WARestClient restClient,
+            final WARestClient waRestClient,
             final RegisteredServiceMapper registeredServiceMapper,
             @Qualifier("serviceRegistryListeners")
             final ObjectProvider<List<ServiceRegistryListener>> serviceRegistryListeners) {
 
         WAServiceRegistry registry = new WAServiceRegistry(
-                restClient, registeredServiceMapper, ctx,
+                waRestClient, registeredServiceMapper, ctx,
                 Optional.ofNullable(serviceRegistryListeners.getIfAvailable()).orElseGet(ArrayList::new));
         return plan -> plan.registerServiceRegistry(registry);
     }
 
     @Bean
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Lazy(false)
+    public SamlIdPCasEventListener samlIdPCasEventListener() {
+        return new WASamlIdPCasEventListener();
+    }
+
+    @Bean
     public SamlIdPMetadataGenerator samlIdPMetadataGenerator(
-            final WARestClient restClient,
+            final WARestClient waRestClient,
             final SamlIdPMetadataGeneratorConfigurationContext context) {
 
-        return new RestfulSamlIdPMetadataGenerator(context, restClient);
+        return new WASamlIdPMetadataGenerator(context, waRestClient);
     }
 
     @Bean
-    public SamlIdPMetadataLocator samlIdPMetadataLocator(final WARestClient restClient) {
-        return new RestfulSamlIdPMetadataLocator(
-                CipherExecutor.noOpOfStringToString(),
-                Caffeine.newBuilder().build(),
-                restClient);
+    public SamlIdPMetadataLocator samlIdPMetadataLocator(
+            @Qualifier("samlIdPMetadataGeneratorCipherExecutor")
+            final CipherExecutor<String, String> cipherExecutor,
+            @Qualifier("samlIdPMetadataCache")
+            final Cache<String, SamlIdPMetadataDocument> samlIdPMetadataCache,
+            final WARestClient waRestClient) {
+
+        return new WASamlIdPMetadataLocator(
+                cipherExecutor,
+                samlIdPMetadataCache,
+                waRestClient);
     }
 
     @Bean
-    public AuditTrailExecutionPlanConfigurer auditConfigurer(final WARestClient restClient) {
-        return plan -> plan.registerAuditTrailManager(new WAAuditTrailManager(restClient));
+    public AuditTrailExecutionPlanConfigurer auditConfigurer(final WARestClient waRestClient) {
+        return plan -> plan.registerAuditTrailManager(new WAAuditTrailManager(waRestClient));
     }
 
     @ConditionalOnMissingBean(name = "syncopeWAEventRepositoryFilter")
@@ -261,25 +279,25 @@ public class WAContext {
 
     @Bean
     public CasEventRepository casEventRepository(
-            final WARestClient restClient,
+            final WARestClient waRestClient,
             @Qualifier("syncopeWAEventRepositoryFilter")
             final CasEventRepositoryFilter syncopeWAEventRepositoryFilter) {
 
-        return new WAEventRepository(syncopeWAEventRepositoryFilter, restClient);
+        return new WAEventRepository(syncopeWAEventRepositoryFilter, waRestClient);
     }
 
     @Bean
-    public DelegatedClientFactoryCustomizer<Client> delegatedClientCustomizer(final WARestClient restClient) {
-        return new WASAML2ClientCustomizer(restClient);
+    public DelegatedClientFactoryCustomizer<Client> delegatedClientCustomizer(final WARestClient waRestClient) {
+        return new WASAML2ClientCustomizer(waRestClient);
     }
 
     @Bean
     public WAGoogleMfaAuthTokenRepository oneTimeTokenAuthenticatorTokenRepository(
             final CasConfigurationProperties casProperties,
-            final WARestClient restClient) {
+            final WARestClient waRestClient) {
 
         return new WAGoogleMfaAuthTokenRepository(
-                restClient, casProperties.getAuthn().getMfa().getGauth().getCore().getTimeStepSize());
+                waRestClient, casProperties.getAuthn().getMfa().getGauth().getCore().getTimeStepSize());
     }
 
     @ConditionalOnMissingBean(name = CUSTOM_GOOGLE_AUTHENTICATOR_ACCOUNT_REGISTRY)
@@ -292,7 +310,7 @@ public class WAContext {
             @Qualifier("googleAuthenticatorScratchCodesCipherExecutor")
             final CipherExecutor<Number, Number> googleAuthenticatorScratchCodesCipherExecutor,
             final IGoogleAuthenticator googleAuthenticatorInstance,
-            final WARestClient restClient) {
+            final WARestClient waRestClient) {
 
         /*
          * Declaring the LDAP-based repository as a Spring bean that would be conditionally activated
@@ -314,16 +332,16 @@ public class WAContext {
                     connectionFactory,
                     ldap);
         }
-        return new WAGoogleMfaAuthCredentialRepository(restClient, googleAuthenticatorInstance);
+        return new WAGoogleMfaAuthCredentialRepository(waRestClient, googleAuthenticatorInstance);
     }
 
     @Bean
     public OidcJsonWebKeystoreGeneratorService oidcJsonWebKeystoreGeneratorService(
             final CasConfigurationProperties casProperties,
-            final WARestClient restClient) {
+            final WARestClient waRestClient) {
 
         return new WAOIDCJWKSGeneratorService(
-                restClient,
+                waRestClient,
                 casProperties.getAuthn().getOidc().getJwks().getCore().getJwksKeyId(),
                 casProperties.getAuthn().getOidc().getJwks().getCore().getJwksType(),
                 casProperties.getAuthn().getOidc().getJwks().getCore().getJwksKeySize());
@@ -332,15 +350,15 @@ public class WAContext {
     @Bean
     public WebAuthnCredentialRepository webAuthnCredentialRepository(
             final CasConfigurationProperties casProperties,
-            final WARestClient restClient) {
+            final WARestClient waRestClient) {
 
-        return new WAWebAuthnCredentialRepository(casProperties, restClient);
+        return new WAWebAuthnCredentialRepository(casProperties, waRestClient);
     }
 
     @Bean
     public U2FDeviceRepository u2fDeviceRepository(
             final CasConfigurationProperties casProperties,
-            final WARestClient restClient) {
+            final WARestClient waRestClient) {
 
         U2FCoreMultifactorAuthenticationProperties u2f = casProperties.getAuthn().getMfa().getU2f().getCore();
         OffsetDateTime expirationDate = OffsetDateTime.now().
@@ -348,18 +366,18 @@ public class WAContext {
         LoadingCache<String, String> requestStorage = Caffeine.newBuilder().
                 expireAfterWrite(u2f.getExpireRegistrations(), u2f.getExpireRegistrationsTimeUnit()).
                 build(key -> StringUtils.EMPTY);
-        return new WAU2FDeviceRepository(casProperties, requestStorage, restClient, expirationDate);
+        return new WAU2FDeviceRepository(casProperties, requestStorage, waRestClient, expirationDate);
     }
 
     @Bean
-    public SurrogateAuthenticationService surrogateAuthenticationService(final WARestClient restClient) {
-        return new WASurrogateAuthenticationService(restClient);
+    public SurrogateAuthenticationService surrogateAuthenticationService(final WARestClient waRestClient) {
+        return new WASurrogateAuthenticationService(waRestClient);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator(final WARestClient restClient) {
-        return new SyncopeCoreHealthIndicator(restClient);
+    public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator(final WARestClient waRestClient) {
+        return new SyncopeCoreHealthIndicator(waRestClient);
     }
 
     @ConditionalOnMissingBean

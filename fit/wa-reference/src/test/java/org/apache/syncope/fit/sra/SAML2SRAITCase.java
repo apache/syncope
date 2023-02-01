@@ -180,8 +180,7 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
             post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
             try (CloseableHttpResponse response = httpclient.execute(post, context)) {
                 assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
-                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue().
-                        replace("http://", "https://").replace(":8080", ":9443");
+                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
             }
         }
 
