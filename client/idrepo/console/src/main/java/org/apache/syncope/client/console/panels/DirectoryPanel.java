@@ -71,7 +71,7 @@ public abstract class DirectoryPanel<
     /**
      * Container used to refresh table.
      */
-    private final WebMarkupContainer container;
+    protected final WebMarkupContainer container;
 
     /**
      * Specify if results are about a filtered search or not. Using this attribute it is possible to use this panel to
