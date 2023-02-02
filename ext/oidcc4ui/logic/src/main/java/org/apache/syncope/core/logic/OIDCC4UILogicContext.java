@@ -75,21 +75,25 @@ public class OIDCC4UILogicContext {
     @ConditionalOnMissingBean
     @Bean
     public OIDCC4UILogic oidcc4UILogic(
-            final OIDCC4UIProviderDAO opDAO,
             final OIDCClientCache oidcClientCache,
             final AuthDataAccessor authDataAccessor,
             final AccessTokenDataBinder accessTokenDataBinder,
+            final OIDCC4UIProviderDAO opDAO,
             final OIDCUserManager userManager) {
 
-        return new OIDCC4UILogic(oidcClientCache, authDataAccessor,
-                accessTokenDataBinder, opDAO, userManager);
+        return new OIDCC4UILogic(
+                oidcClientCache,
+                authDataAccessor,
+                accessTokenDataBinder,
+                opDAO,
+                userManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public OIDCC4UIProviderLogic oidcc4UIProviderLogic(
-            final OIDCC4UIProviderDAO opDAO,
             final OIDCClientCache oidcClientCache,
+            final OIDCC4UIProviderDAO opDAO,
             final OIDCC4UIProviderDataBinder binder) {
 
         return new OIDCC4UIProviderLogic(oidcClientCache, opDAO, binder);

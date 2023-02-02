@@ -57,6 +57,10 @@ public interface SAML2SP4UIIdP extends Entity {
 
     void setBindingType(SAML2BindingType bindingType);
 
+    Implementation getRequestedAuthnContextProvider();
+
+    void setRequestedAuthnContextProvider(Implementation requestedAuthnContextProvider);
+
     SAML2SP4UIUserTemplate getUserTemplate();
 
     void setUserTemplate(SAML2SP4UIUserTemplate userTemplate);
@@ -70,8 +74,4 @@ public interface SAML2SP4UIIdP extends Entity {
     boolean add(Implementation action);
 
     List<? extends Implementation> getActions();
-
-    Implementation getRequestedAuthnContextProvider();
-
-    void setRequestedAuthnContextProvider(Implementation requestedAuthnContextProvider);
 }

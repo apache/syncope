@@ -48,7 +48,8 @@ public class SAML2SP4UIIdPServiceImpl extends AbstractService implements SAML2SP
 
     @Override
     public Response importFromMetadata(final InputStream input) {
-        return Response.ok().header(RESTHeaders.RESOURCE_KEY, logic.importFromMetadata(input)).build();
+        return Response.status(Response.Status.CREATED).
+                header(RESTHeaders.RESOURCE_KEY, logic.importFromMetadata(input)).build();
     }
 
     @Override

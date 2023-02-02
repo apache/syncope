@@ -124,6 +124,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         cas.setName("CAS");
         cas.setCreateUnmatching(true);
         cas.setSelfRegUnmatching(false);
+
         cas.getItems().clear();
 
         Item item = new Item();

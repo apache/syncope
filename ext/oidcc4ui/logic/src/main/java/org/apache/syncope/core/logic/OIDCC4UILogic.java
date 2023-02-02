@@ -95,20 +95,14 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         return oidcClientCache.get(op.getName()).orElseGet(() -> oidcClientCache.add(op, callbackUrl));
     }
 
-    protected OidcClient getOidcClient(final String opName, final String callbackUrl) {
-        OIDCC4UIProvider op = opDAO.findByName(opName);
-        if (op == null) {
-            throw new NotFoundException("OIDC Provider '" + opName + '\'');
-        }
-
-        return getOidcClient(op, callbackUrl);
-    }
-
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public OIDCRequest createLoginRequest(final String redirectURI, final String opName) {
+        // 0. look for OP
+        OIDCC4UIProvider op = Optional.ofNullable(opDAO.findByName(opName)).
+                orElseThrow(() -> new NotFoundException("OIDC Provider '" + opName + '\''));
+
         // 1. look for OidcClient
-        OidcClient oidcClient = getOidcClient(opName, redirectURI);
-        oidcClient.setCallbackUrl(redirectURI);
+        OidcClient oidcClient = getOidcClient(op, redirectURI);
 
         // 2. create OIDCRequest
         WithLocationAction action = oidcClient.getRedirectionAction(
@@ -128,14 +122,11 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public OIDCLoginResponse login(final String redirectURI, final String authorizationCode, final String opName) {
         // 0. look for OP
-        OIDCC4UIProvider op = opDAO.findByName(opName);
-        if (op == null) {
-            throw new NotFoundException("OIDC Provider '" + opName + '\'');
-        }
+        OIDCC4UIProvider op = Optional.ofNullable(opDAO.findByName(opName)).
+                orElseThrow(() -> new NotFoundException("OIDC Provider '" + opName + '\''));
 
         // 1. look for configured client
-        OidcClient oidcClient = getOidcClient(opName, redirectURI);
-        oidcClient.setCallbackUrl(redirectURI);
+        OidcClient oidcClient = getOidcClient(op, redirectURI);
 
         // 2. get OpenID Connect tokens
         String idTokenHint;
@@ -265,9 +256,10 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         // 1. look for OidcClient
-        OidcClient oidcClient =
-                getOidcClient((String) claimsSet.getClaim(JWT_CLAIM_OP_NAME), redirectURI);
-        oidcClient.setCallbackUrl(redirectURI);
+        OIDCC4UIProvider op = Optional.ofNullable(opDAO.findByName((String) claimsSet.getClaim(JWT_CLAIM_OP_NAME))).
+                orElseThrow(() -> new NotFoundException(""
+                + "OIDC Provider '" + claimsSet.getClaim(JWT_CLAIM_OP_NAME) + '\''));
+        OidcClient oidcClient = getOidcClient(op, redirectURI);
 
         // 2. create OIDCRequest
         OidcProfile profile = new OidcProfile();

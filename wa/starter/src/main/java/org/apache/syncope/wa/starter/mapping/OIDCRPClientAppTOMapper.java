@@ -82,8 +82,8 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         service.setLogoutUrl(rp.getLogoutUri());
 
         ChainingAttributeReleasePolicy chain;
-        if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy) {
-            chain = (ChainingAttributeReleasePolicy) attributeReleasePolicy;
+        if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy chainingAttributeReleasePolicy) {
+            chain = chainingAttributeReleasePolicy;
         } else {
             chain = new ChainingAttributeReleasePolicy();
             if (attributeReleasePolicy != null) {

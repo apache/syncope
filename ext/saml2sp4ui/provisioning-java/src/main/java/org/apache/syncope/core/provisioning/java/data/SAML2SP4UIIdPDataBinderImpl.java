@@ -174,6 +174,18 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
         idp.setUpdateMatching(idpTO.isUpdateMatching());
         idp.setBindingType(idpTO.getBindingType());
 
+        if (idpTO.getRequestedAuthnContextProvider() == null) {
+            idp.setRequestedAuthnContextProvider(null);
+        } else {
+            Implementation implementation = implementationDAO.find(idpTO.getRequestedAuthnContextProvider());
+            if (implementation == null) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                        idpTO.getRequestedAuthnContextProvider());
+            } else {
+                idp.setRequestedAuthnContextProvider(implementation);
+            }
+        }
+
         if (idpTO.getUserTemplate() == null) {
             idp.setUserTemplate(null);
         } else {
@@ -200,18 +212,6 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
         });
         // remove all implementations not contained in the TO
         idp.getActions().removeIf(impl -> !idpTO.getActions().contains(impl.getKey()));
-
-        if (idpTO.getRequestedAuthnContextProvider() == null) {
-            idp.setRequestedAuthnContextProvider(null);
-        } else {
-            Implementation implementation = implementationDAO.find(idpTO.getRequestedAuthnContextProvider());
-            if (implementation == null) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                        idpTO.getRequestedAuthnContextProvider());
-            } else {
-                idp.setRequestedAuthnContextProvider(implementation);
-            }
-        }
 
         return idapDAO.save(idp);
     }
@@ -251,18 +251,17 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
         idpTO.setSelfRegUnmatching(idp.isSelfRegUnmatching());
         idpTO.setUpdateMatching(idp.isUpdateMatching());
 
+        if (idp.getRequestedAuthnContextProvider() != null) {
+            idpTO.setRequestedAuthnContextProvider(idp.getRequestedAuthnContextProvider().getKey());
+        }
+
         if (idp.getUserTemplate() != null) {
             idpTO.setUserTemplate((UserTO) idp.getUserTemplate().get());
         }
 
         populateItems(idp, idpTO);
 
-        idpTO.getActions().addAll(
-                idp.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
-
-        if (idp.getRequestedAuthnContextProvider() != null) {
-            idpTO.setRequestedAuthnContextProvider(idp.getRequestedAuthnContextProvider().getKey());
-        }
+        idpTO.getActions().addAll(idp.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
 
         return idpTO;
     }

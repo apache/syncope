@@ -50,13 +50,13 @@ public class OIDCC4UIProviderTO extends ItemContainer implements EntityTO {
 
     private boolean hasDiscovery;
 
-    private UserTO userTemplate;
-
     private boolean createUnmatching;
 
     private boolean updateMatching;
 
     private boolean selfRegUnmatching;
+
+    private UserTO userTemplate;
 
     private final List<String> actions = new ArrayList<>();
 
