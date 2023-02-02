@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 
@@ -32,11 +31,11 @@ public class OIDCProviderRestClient extends BaseRestClient {
     }
 
     public static void create(final OIDCC4UIProviderTO op) {
-        SyncopeConsoleSession.get().getService(OIDCC4UIProviderService.class).create(op);
+        getService(OIDCC4UIProviderService.class).create(op);
     }
 
     public static void createFromDiscovery(final OIDCC4UIProviderTO op) {
-        SyncopeConsoleSession.get().getService(OIDCC4UIProviderService.class).createFromDiscovery(op);
+        getService(OIDCC4UIProviderService.class).createFromDiscovery(op);
     }
 
     public static OIDCC4UIProviderTO read(final String key) {

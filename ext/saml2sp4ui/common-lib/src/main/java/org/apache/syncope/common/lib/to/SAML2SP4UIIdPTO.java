@@ -37,21 +37,21 @@ public class SAML2SP4UIIdPTO extends ItemContainer implements EntityTO {
 
     private String metadata;
 
+    private SAML2BindingType bindingType;
+
+    private boolean logoutSupported;
+
+    private String requestedAuthnContextProvider;
+
     private boolean createUnmatching;
 
     private boolean updateMatching;
 
     private boolean selfRegUnmatching;
 
-    private SAML2BindingType bindingType;
-
-    private boolean logoutSupported;
-
     private UserTO userTemplate;
 
     private final List<String> actions = new ArrayList<>();
-
-    private String requestedAuthnContextProvider;
 
     @Override
     public String getKey() {
@@ -88,6 +88,30 @@ public class SAML2SP4UIIdPTO extends ItemContainer implements EntityTO {
         this.metadata = metadata;
     }
 
+    public SAML2BindingType getBindingType() {
+        return bindingType;
+    }
+
+    public void setBindingType(final SAML2BindingType bindingType) {
+        this.bindingType = bindingType;
+    }
+
+    public boolean isLogoutSupported() {
+        return logoutSupported;
+    }
+
+    public void setLogoutSupported(final boolean logoutSupported) {
+        this.logoutSupported = logoutSupported;
+    }
+
+    public String getRequestedAuthnContextProvider() {
+        return requestedAuthnContextProvider;
+    }
+
+    public void setRequestedAuthnContextProvider(final String requestedAuthnContextProvider) {
+        this.requestedAuthnContextProvider = requestedAuthnContextProvider;
+    }
+
     public boolean isCreateUnmatching() {
         return createUnmatching;
     }
@@ -112,22 +136,6 @@ public class SAML2SP4UIIdPTO extends ItemContainer implements EntityTO {
         this.updateMatching = updateMatching;
     }
 
-    public SAML2BindingType getBindingType() {
-        return bindingType;
-    }
-
-    public void setBindingType(final SAML2BindingType bindingType) {
-        this.bindingType = bindingType;
-    }
-
-    public boolean isLogoutSupported() {
-        return logoutSupported;
-    }
-
-    public void setLogoutSupported(final boolean logoutSupported) {
-        this.logoutSupported = logoutSupported;
-    }
-
     public UserTO getUserTemplate() {
         return userTemplate;
     }
@@ -140,13 +148,5 @@ public class SAML2SP4UIIdPTO extends ItemContainer implements EntityTO {
     @JacksonXmlProperty(localName = "action")
     public List<String> getActions() {
         return actions;
-    }
-
-    public String getRequestedAuthnContextProvider() {
-        return requestedAuthnContextProvider;
-    }
-
-    public void setRequestedAuthnContextProvider(final String requestedAuthnContextProvider) {
-        this.requestedAuthnContextProvider = requestedAuthnContextProvider;
     }
 }

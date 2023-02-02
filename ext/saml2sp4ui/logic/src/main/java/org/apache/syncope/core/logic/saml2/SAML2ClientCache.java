@@ -67,13 +67,6 @@ public class SAML2ClientCache {
         return Optional.ofNullable(METADATA_PATH).map(path -> path.resolve(entityIDPath).toAbsolutePath().toString());
     }
 
-    protected final List<SAML2Client> cache = Collections.synchronizedList(new ArrayList<>());
-
-    public Optional<SAML2Client> get(final String idpEntityID, final String spEntityID) {
-        return cache.stream().filter(c -> idpEntityID.equals(c.getIdentityProviderResolvedEntityId())
-                && spEntityID.equals(c.getConfiguration().getServiceProviderEntityId())).findFirst();
-    }
-
     public static SAML2SP4UIIdPTO importMetadata(
             final InputStream metadata, final SAML2Configuration cfg) throws IOException {
 
@@ -120,6 +113,13 @@ public class SAML2ClientCache {
         idpTO.setConnObjectKeyItem(connObjectKeyItem);
 
         return idpTO;
+    }
+
+    protected final List<SAML2Client> cache = Collections.synchronizedList(new ArrayList<>());
+
+    public Optional<SAML2Client> get(final String idpEntityID, final String spEntityID) {
+        return cache.stream().filter(c -> idpEntityID.equals(c.getIdentityProviderResolvedEntityId())
+                && spEntityID.equals(c.getConfiguration().getServiceProviderEntityId())).findFirst();
     }
 
     public SAML2Client add(

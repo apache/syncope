@@ -31,9 +31,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.apache.syncope.common.lib.SyncopeClientException;
+import java.util.function.Function;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.oidc.client.OidcClient;
@@ -48,27 +47,18 @@ public class OIDCClientCache {
 
     protected static final Logger LOG = LoggerFactory.getLogger(OIDCClientCache.class);
 
-    protected final List<OidcClient> cache = Collections.synchronizedList(new ArrayList<>());
+    protected static final Function<String, String> DISCOVERY_URI =
+            issuer -> issuer + "/.well-known/openid-configuration";
 
-    protected static OIDCProviderMetadata getDiscoveryDocument(final String issuer) {
-        String discoveryDocumentURL = issuer + "/.well-known/openid-configuration";
-        try {
-            HttpResponse<String> response = HttpClient.newBuilder().build().send(
-                    HttpRequest.newBuilder(URI.create(discoveryDocumentURL)).GET().build(),
-                    HttpResponse.BodyHandlers.ofString());
+    public static void importMetadata(final OIDCC4UIProviderTO opTO)
+            throws IOException, InterruptedException, ParseException {
 
-            return OIDCProviderMetadata.parse(response.body());
-        } catch (IOException | InterruptedException | ParseException e) {
-            LOG.error("While getting the Discovery Document at {}", discoveryDocumentURL, e);
+        String discoveryDocumentURI = DISCOVERY_URI.apply(opTO.getIssuer());
+        HttpResponse<String> response = HttpClient.newBuilder().build().send(
+                HttpRequest.newBuilder(URI.create(discoveryDocumentURI)).GET().build(),
+                HttpResponse.BodyHandlers.ofString());
 
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
-            sce.getElements().add(e.getMessage());
-            throw sce;
-        }
-    }
-
-    public static void importMetadata(final OIDCC4UIProviderTO opTO) {
-        OIDCProviderMetadata metadata = getDiscoveryDocument(opTO.getIssuer());
+        OIDCProviderMetadata metadata = OIDCProviderMetadata.parse(response.body());
 
         opTO.setIssuer(
                 Optional.ofNullable(metadata.getIssuer()).map(Issuer::getValue).orElse(null));
@@ -83,6 +73,8 @@ public class OIDCClientCache {
         opTO.setEndSessionEndpoint(
                 Optional.ofNullable(metadata.getEndSessionEndpointURI()).map(URI::toASCIIString).orElse(null));
     }
+
+    protected final List<OidcClient> cache = Collections.synchronizedList(new ArrayList<>());
 
     public Optional<OidcClient> get(final String opName) {
         return cache.stream().filter(c -> opName.equals(c.getName())).findFirst();
@@ -115,6 +107,8 @@ public class OIDCClientCache {
         client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         client.setCallbackUrl(callbackUrl);
         client.init();
+
+        cache.add(client);
         return client;
     }
 

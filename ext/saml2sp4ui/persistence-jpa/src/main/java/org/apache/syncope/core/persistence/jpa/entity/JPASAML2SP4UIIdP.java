@@ -71,14 +71,11 @@ public class JPASAML2SP4UIIdP extends AbstractGeneratedKeyEntity implements SAML
     @Basic(fetch = FetchType.EAGER)
     private Byte[] metadata;
 
+    @Column(nullable = false)
+    private SAML2BindingType bindingType;
+
     @NotNull
     private Boolean logoutSupported = false;
-
-    @Lob
-    private String items;
-
-    @Transient
-    private final List<Item> itemList = new ArrayList<>();
 
     @NotNull
     private Boolean createUnmatching = false;
@@ -89,11 +86,14 @@ public class JPASAML2SP4UIIdP extends AbstractGeneratedKeyEntity implements SAML
     @NotNull
     private Boolean updateMatching = false;
 
-    @Column(nullable = false)
-    private SAML2BindingType bindingType;
-
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "idp")
     private JPASAML2SP4UIUserTemplate userTemplate;
+
+    @Lob
+    private String items;
+
+    @Transient
+    private final List<Item> itemList = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "SAML2IdP4UIAction",
