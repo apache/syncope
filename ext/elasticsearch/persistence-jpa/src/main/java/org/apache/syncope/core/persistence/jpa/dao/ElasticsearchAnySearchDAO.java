@@ -152,17 +152,16 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 if (goRealm.isPresent()) {
                     groupOwners.add(goRealm.get().getRight());
                 } else if (realmPath.startsWith("/")) {
-                    Realm realm = realmDAO.findByFullPath(realmPath);
-                    if (realm == null) {
+                    Realm realm = Optional.ofNullable(realmDAO.findByFullPath(realmPath)).orElseThrow(() -> {
                         SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
                         noRealm.getElements().add("Invalid realm specified: " + realmPath);
-                        throw noRealm;
-                    } else {
-                        realmDAO.findDescendants(realm).forEach(descendant -> queries.add(
-                                new Query.Builder().term(QueryBuilders.term().
-                                        field("realm").value(FieldValue.of(descendant.getFullPath())).build()).
-                                        build()));
-                    }
+                        return noRealm;
+                    });
+
+                    realmDAO.findDescendants(realm).forEach(descendant -> queries.add(
+                            new Query.Builder().term(QueryBuilders.term().
+                                    field("realm").value(FieldValue.of(descendant.getKey())).build()).
+                                    build()));
                 } else {
                     DynRealm dynRealm = dynRealmDAO.find(realmPath);
                     if (dynRealm == null) {
@@ -178,7 +177,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         } else {
             if (adminRealms.stream().anyMatch(r -> base.getFullPath().startsWith(r))) {
                 queries.add(new Query.Builder().term(QueryBuilders.term().
-                        field("realm").value(FieldValue.of(base.getFullPath())).build()).
+                        field("realm").value(FieldValue.of(base.getKey())).build()).
                         build());
             }
         }
@@ -206,7 +205,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 query = new Query.Builder().bool(
                         QueryBuilders.bool().
                                 must(new Query.Builder().term(QueryBuilders.term().
-                                        field("realm").value(FieldValue.of(base.getFullPath())).build()).
+                                        field("realm").value(FieldValue.of(base.getKey())).build()).
                                         build()).
                                 must(query).build()).
                         build();
@@ -635,14 +634,10 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected Query getQuery(final AnyCond cond, final AnyTypeKind kind) {
-        if (JAXRSService.PARAM_REALM.equals(cond.getSchema())
-                && SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
-
-            Realm realm = realmDAO.find(cond.getExpression());
-            if (realm == null) {
-                throw new IllegalArgumentException("Invalid Realm key: " + cond.getExpression());
-            }
-            cond.setExpression(realm.getFullPath());
+        if (JAXRSService.PARAM_REALM.equals(cond.getSchema()) && cond.getExpression().startsWith("/")) {
+            Realm realm = Optional.ofNullable(realmDAO.findByFullPath(cond.getExpression())).
+                    orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + cond.getExpression()));
+            cond.setExpression(realm.getKey());
         }
 
         Triple<PlainSchema, PlainAttrValue, AnyCond> checked = check(cond, kind);

@@ -113,7 +113,7 @@ public class ElasticsearchAnySearchDAOTest {
     public void getAdminRealmsFilter4realm() throws IOException {
         // 1. mock
         Realm root = mock(Realm.class);
-        when(root.getFullPath()).thenReturn(SyncopeConstants.ROOT_REALM);
+        when(root.getKey()).thenReturn("rootKey");
 
         when(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenReturn(root);
         when(realmDAO.findDescendants(root)).thenReturn(List.of(root));
@@ -126,7 +126,7 @@ public class ElasticsearchAnySearchDAOTest {
         assertThat(
                 new Query.Builder().disMax(QueryBuilders.disMax().queries(
                         new Query.Builder().term(QueryBuilders.term().field("realm").value(
-                                FieldValue.of(SyncopeConstants.ROOT_REALM)).build()).build()).build()).
+                                FieldValue.of("rootKey")).build()).build()).build()).
                         build()).
                 usingRecursiveComparison().isEqualTo(filter.getLeft().get());
         assertEquals(Set.of(), filter.getMiddle());
