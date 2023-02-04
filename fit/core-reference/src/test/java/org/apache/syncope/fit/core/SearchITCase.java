@@ -50,6 +50,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectResult;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -57,6 +58,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
+import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.Name;
@@ -326,8 +328,6 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchByDate() {
-        CLIENT_FACTORY.create("bellini", "password").self();
-
         if (IS_ELASTICSEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
@@ -807,5 +807,54 @@ public class SearchITCase extends AbstractITCase {
                 fiql("lastChangeDate=ge=2022-01-25T17:00:06+0000").build());
         assertNotNull(matching2);
         assertFalse(matching2.getResult().isEmpty());
+    }
+
+    @Test
+    public void issueSYNCOPE1727() {
+        RealmTO realm = new RealmTO();
+        realm.setName("syncope1727");
+
+        // 1. create Realm
+        Response response = REALM_SERVICE.create("/even/two", realm);
+        RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
+        assertNotNull(actuals);
+        assertTrue(actuals.length > 0);
+        realm = actuals[0];
+        assertNotNull(realm.getKey());
+        assertEquals("syncope1727", realm.getName());
+        assertEquals("/even/two/syncope1727", realm.getFullPath());
+        assertEquals(realm.getParent(), getRealm("/even/two").get().getKey());
+
+        // 2. create user
+        UserCR userCR = UserITCase.getUniqueSample("syncope1727@syncope.apache.org");
+        userCR.setRealm(realm.getFullPath());
+        UserTO user = createUser(userCR).getEntity();
+
+        // 3. search for user
+        if (IS_ELASTICSEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("realm").
+                        equalTo(realm.getKey()).query()).build());
+        assertEquals(1, users.getResult().size());
+        assertEquals(user.getKey(), users.getResult().get(0).getKey());
+
+        // 4. update parent Realm
+        realm.setParent(getRealm("/odd").get().getKey());
+        REALM_SERVICE.update(realm);
+        realm = getRealm("/odd/syncope1727").get();
+
+        // 5. search again for user
+        users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("realm").
+                        equalTo(realm.getKey()).query()).build());
+        assertEquals(1, users.getResult().size());
+        assertEquals(user.getKey(), users.getResult().get(0).getKey());
     }
 }

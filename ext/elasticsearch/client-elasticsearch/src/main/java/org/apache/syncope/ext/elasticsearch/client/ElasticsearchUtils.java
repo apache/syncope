@@ -100,7 +100,7 @@ public class ElasticsearchUtils {
 
         Map<String, Object> builder = new HashMap<>();
         builder.put("id", any.getKey());
-        builder.put("realm", any.getRealm().getFullPath());
+        builder.put("realm", any.getRealm().getKey());
         builder.put("anyType", any.getType().getKey());
         builder.put("creationDate", any.getCreationDate());
         builder.put("creationContext", any.getCreationContext());

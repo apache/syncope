@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -59,10 +58,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class RealmITCase extends AbstractITCase {
-
-    private static Optional<RealmTO> getRealm(final String fullPath) {
-        return REALM_SERVICE.list(fullPath).stream().filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
-    }
 
     @Test
     public void search() {
