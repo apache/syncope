@@ -186,8 +186,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                     target.add(displayAttributeModal.setContent(new ChangePasswordModal(
                             displayAttributeModal,
-                            pageRef,
-                            new UserWrapper(model.getObject()))));
+                            new UserWrapper(model.getObject()),
+                            pageRef)));
 
                     displayAttributeModal.header(new Model<>(
                             getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
