@@ -52,10 +52,10 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
 
     public ChangePasswordModal(
             final BaseModal<AnyWrapper<UserTO>> baseModal,
-            final PageReference pageReference,
-            final UserWrapper wrapper) {
-        super(baseModal, pageReference);
+            final UserWrapper wrapper,
+            final PageReference pageRefer) {
 
+        super(baseModal, pageRefer);
         this.wrapper = wrapper;
 
         PasswordPanel passwordPanel = new PasswordPanel("passwordPanel", wrapper, false, false);
@@ -63,7 +63,7 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
         add(passwordPanel);
 
         statusModel = new ListModel<>(new ArrayList<>());
-        StatusPanel statusPanel = new StatusPanel("status", wrapper.getInnerObject(), statusModel, pageReference);
+        StatusPanel statusPanel = new StatusPanel("status", wrapper.getInnerObject(), statusModel, pageRefer);
         statusPanel.setCheckAvailability(ListViewPanel.CheckAvailability.AVAILABLE);
         add(statusPanel.setRenderBodyOnly(true));
     }
