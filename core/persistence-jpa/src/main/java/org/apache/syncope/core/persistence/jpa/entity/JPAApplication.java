@@ -69,5 +69,4 @@ public class JPAApplication extends AbstractProvidedKeyEntity implements Applica
     public List<? extends Privilege> getPrivileges() {
         return privileges;
     }
-
 }
