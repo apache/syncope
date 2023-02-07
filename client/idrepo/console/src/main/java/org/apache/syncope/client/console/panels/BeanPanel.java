@@ -237,9 +237,9 @@ public class BeanPanel<T extends Serializable> extends Panel {
                         }
 
                         panel = new AjaxPalettePanel.Builder<>().setName(fieldName).build(
-                                        "value",
-                                        new PropertyModel<>(bean.getObject(), fieldName),
-                                        new ListModel<>(choices.stream().map(SchemaTO::getKey).collect(Collectors.toList()))).
+                                "value",
+                                new PropertyModel<>(bean.getObject(), fieldName),
+                                new ListModel<>(choices.stream().map(SchemaTO::getKey).collect(Collectors.toList()))).
                                 hideLabel();
                     } else if (listItemType.isEnum()) {
                         panel = new AjaxPalettePanel.Builder<>().setName(fieldName).build(
