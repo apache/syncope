@@ -28,7 +28,7 @@ public class WorkflowResult<T> {
 
     private T result;
 
-    private PropagationByResource<String> propByRes;
+    private final PropagationByResource<String> propByRes;
 
     private final Set<String> performedTasks = new HashSet<>();
 
