@@ -248,7 +248,8 @@ public class BeanPanel<T extends Serializable> extends Panel {
                                 new ListModel(List.of(listItemType.getEnumConstants()))).hideLabel();
                     } else {
                         Triple<FieldPanel, Boolean, Optional<String>> single =
-                                buildSinglePanel(bean.getObject(), field.getType(), field, "value");
+                                buildSinglePanel(bean.getObject(), field.getType(), field.getName(),
+                                        field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class), "panel");
 
                         setRequired(item, single.getMiddle());
                         single.getRight().ifPresent(description -> setDescription(item, description));
@@ -264,7 +265,8 @@ public class BeanPanel<T extends Serializable> extends Panel {
                             "value", fieldName, new PropertyModel<>(bean, fieldName)).hideLabel();
                 } else {
                     Triple<FieldPanel, Boolean, Optional<String>> single =
-                            buildSinglePanel(bean.getObject(), field.getType(), field, "value");
+                            buildSinglePanel(bean.getObject(), field.getType(), field.getName(),
+                                    field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class), "value");
 
                     setRequired(item, single.getMiddle());
                     single.getRight().ifPresent(description -> setDescription(item, description));
@@ -277,35 +279,36 @@ public class BeanPanel<T extends Serializable> extends Panel {
         }.setReuseItems(true).setOutputMarkupId(true));
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static Triple<FieldPanel, Boolean, Optional<String>> buildSinglePanel(
-            final Serializable bean, final Class<?> type, final Field field, final String id) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Triple<FieldPanel, Boolean, Optional<String>> buildSinglePanel(
+            final Serializable bean, final Class<?> type, final String fieldName,
+            final io.swagger.v3.oas.annotations.media.Schema schema, final String id) {
 
-        PropertyModel model = new PropertyModel<>(bean, field.getName());
+        PropertyModel model = new PropertyModel<>(bean, fieldName);
 
         FieldPanel panel;
         if (ClassUtils.isAssignable(Boolean.class, type)) {
-            panel = new AjaxCheckBoxPanel(id, field.getName(), model);
+            panel = new AjaxCheckBoxPanel(id, fieldName, model);
         } else if (ClassUtils.isAssignable(Number.class, type)) {
             panel = new AjaxSpinnerFieldPanel.Builder<>().build(
-                    id, field.getName(), (Class<Number>) ClassUtils.resolvePrimitiveIfNecessary(type), model);
+                    id, fieldName, (Class<Number>) ClassUtils.resolvePrimitiveIfNecessary(type), model);
         } else if (Date.class.equals(type)) {
-            panel = new AjaxDateTimeFieldPanel(id, field.getName(), model,
+            panel = new AjaxDateTimeFieldPanel(id, fieldName, model,
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
         } else if (OffsetDateTime.class.equals(type)) {
-            panel = new AjaxDateTimeFieldPanel(id, field.getName(), new DateOps.WrappedDateModel(model),
+            panel = new AjaxDateTimeFieldPanel(id, fieldName, new DateOps.WrappedDateModel(model),
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
         } else if (type.isEnum()) {
-            panel = new AjaxDropDownChoicePanel(id, field.getName(), model).
+            panel = new AjaxDropDownChoicePanel(id, fieldName, model).
                     setChoices(List.of(type.getEnumConstants()));
         } else if (Duration.class.equals(type)) {
-            panel = new AjaxTextFieldPanel(id, field.getName(), new IModel<>() {
+            panel = new AjaxTextFieldPanel(id, fieldName, new IModel<>() {
 
                 private static final long serialVersionUID = 807008909842554829L;
 
                 @Override
                 public String getObject() {
-                    return Optional.ofNullable(PropertyResolver.getValue(field.getName(), bean)).
+                    return Optional.ofNullable(PropertyResolver.getValue(fieldName, bean)).
                             map(Object::toString).orElse(null);
                 }
 
@@ -314,19 +317,17 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     PropertyResolverConverter prc = new PropertyResolverConverter(
                             SyncopeWebApplication.get().getConverterLocator(),
                             SyncopeConsoleSession.get().getLocale());
-                    PropertyResolver.setValue(field.getName(), bean, Duration.parse(object), prc);
+                    PropertyResolver.setValue(fieldName, bean, Duration.parse(object), prc);
                 }
             });
         } else {
             // treat as String if nothing matched above
-            panel = new AjaxTextFieldPanel(id, field.getName(), model);
+            panel = new AjaxTextFieldPanel(id, fieldName, model);
         }
 
         boolean required = false;
         Optional<String> description = Optional.empty();
 
-        io.swagger.v3.oas.annotations.media.Schema schema =
-                field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class);
         if (schema != null) {
             panel.setReadOnly(schema.accessMode() == Schema.AccessMode.READ_ONLY);
 
