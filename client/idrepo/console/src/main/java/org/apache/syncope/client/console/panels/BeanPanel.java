@@ -282,7 +282,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private Triple<FieldPanel, Boolean, Optional<String>> buildSinglePanel(
             final Serializable bean, final Class<?> type, final String fieldName,
-            io.swagger.v3.oas.annotations.media.Schema schema, final String id) {
+            final io.swagger.v3.oas.annotations.media.Schema schema, final String id) {
 
         PropertyModel model = new PropertyModel<>(bean, fieldName);
 
