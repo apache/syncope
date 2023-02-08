@@ -37,14 +37,17 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: 17
+    - name: Setup Maven
+      uses: stCarolas/setup-maven@v4.5
+      with:
+        maven-version: 3.9.0
     - uses: actions/cache@v3
       with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
-#    - name: Setup tmate session
-#      uses: mxschmitt/action-tmate@v3
     - name: 'WA / SRA / CAS Client'
       run: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=org.apache.syncope.fit.sra.CASSRAITCase
