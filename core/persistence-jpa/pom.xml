@@ -178,11 +178,11 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <systemProperties>
+          <systemPropertyVariables>
             <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
             <h2.returnOffsetDateTime>true</h2.returnOffsetDateTime>
             <CORE_PROPERTIES>classpath:core-test.properties</CORE_PROPERTIES>
-          </systemProperties>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
 

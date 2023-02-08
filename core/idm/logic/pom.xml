@@ -127,9 +127,9 @@ under the License.
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <systemProperties>
+          <systemPropertyVariables>
             <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
-          </systemProperties>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
 
