@@ -115,7 +115,6 @@ under the License.
           <outputDirectory>${project.build.directory}/swagger-ui</outputDirectory>
           <includeGroupIds>org.webjars</includeGroupIds>
           <includeArtifactIds>swagger-ui</includeArtifactIds>
-          <overWrite>true</overWrite>
           <includes>**</includes>
           <excludes>**/*.gz</excludes>
           <scope>provided</scope>

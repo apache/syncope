@@ -540,6 +540,7 @@ under the License.
 
     <targetJdk>11</targetJdk>
     <rootpom.basedir>${basedir}</rootpom.basedir>
+    <maven.multiModuleProjectDirectory>${rootpom.basedir}</maven.multiModuleProjectDirectory>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -1732,7 +1733,6 @@ under the License.
           <version>2.22.2</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
-            <encoding>utf-8</encoding>
             <runOrder>alphabetical</runOrder>
           </configuration>
           <executions>
@@ -1758,7 +1758,6 @@ under the License.
           </dependencies>
           <configuration>
             <configLocation>${rootpom.basedir}/src/main/resources/org/apache/syncope/checkstyle.xml</configLocation>
-            <targetJdk>${targetJdk}</targetJdk>
             <includeTestSourceDirectory>true</includeTestSourceDirectory>
           </configuration>
         </plugin>
@@ -2326,6 +2325,7 @@ under the License.
       <id>skipTests</id>
 
       <properties>
+        <maven.build.cache.skipCache>true</maven.build.cache.skipCache>
         <skipTests>true</skipTests>
         <ianal.phase>none</ianal.phase>
         <modernizer.skip>true</modernizer.skip>
