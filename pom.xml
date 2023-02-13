@@ -413,7 +413,7 @@ under the License.
 
     <cxf.version>4.0.0</cxf.version>
     <bouncycastle.version>1.72</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.29</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.30.1</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.0.2</spring-boot.version>
     <spring-cloud-gateway.version>4.0.0</spring-cloud-gateway.version>
@@ -2294,59 +2294,6 @@ under the License.
       <modules>
         <module>docker</module>
       </modules>
-    </profile>
-
-    <profile>
-      <id>win</id>
-
-      <activation>
-        <os>
-          <family>Windows</family>
-        </os>
-      </activation>
-
-      <properties>
-        <syncope.conf.dir>${project.build.directory}/test-classes</syncope.conf.dir>
-      </properties>
-
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.gmavenplus</groupId>
-            <artifactId>gmavenplus-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>convert-win-paths</id>
-                <phase>generate-resources</phase>
-                <goals>
-                  <goal>execute</goal>
-                </goals>
-                <configuration>
-                  <bindAllProjectProperties>true</bindAllProjectProperties>
-                  <scripts>
-                    <script><![CDATA[
-                project.properties['win.syncope.conf.dir'] = project.properties['syncope.conf.dir'].replace("\\", "/")
-                ]]></script>
-                  </scripts>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven3-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <container>
-                <systemProperties>
-                  <syncope.conf.dir>${win.syncope.conf.dir}</syncope.conf.dir>
-                </systemProperties>
-              </container>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
     </profile>
   </profiles>
 
