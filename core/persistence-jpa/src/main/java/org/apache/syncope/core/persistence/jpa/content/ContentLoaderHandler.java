@@ -45,6 +45,8 @@ public class ContentLoaderHandler extends DefaultHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ContentLoaderHandler.class);
 
+    private static final String CONF_DIR = "syncope.conf.dir";
+
     private final JdbcTemplate jdbcTemplate;
 
     private final String rootElement;
@@ -66,6 +68,9 @@ public class ContentLoaderHandler extends DefaultHandler {
         this.continueOnError = continueOnError;
         this.paramSubstitutor = new StringSubstitutor(key -> {
             String value = env.getProperty(key, fetches.get(key));
+            if (value != null && CONF_DIR.equals(key)) {
+                value = value.replace('\\', '/');
+            }
             return StringUtils.isBlank(value) ? null : value;
         });
     }
