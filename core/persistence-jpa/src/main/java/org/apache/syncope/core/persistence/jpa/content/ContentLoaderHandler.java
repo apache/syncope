@@ -68,7 +68,7 @@ public class ContentLoaderHandler extends DefaultHandler {
         this.continueOnError = continueOnError;
         this.paramSubstitutor = new StringSubstitutor(key -> {
             String value = env.getProperty(key, fetches.get(key));
-            if (CONF_DIR.equals(key)) {
+            if (value != null && CONF_DIR.equals(key)) {
                 value = value.replace('\\', '/');
             }
             return StringUtils.isBlank(value) ? null : value;
