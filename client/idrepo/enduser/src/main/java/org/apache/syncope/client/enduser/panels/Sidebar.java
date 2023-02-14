@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
+import org.apache.syncope.client.enduser.layout.SidebarLayout;
 import org.apache.syncope.client.enduser.pages.BasePage;
 import org.apache.syncope.client.enduser.pages.Dashboard;
 import org.apache.syncope.client.enduser.pages.EditChangePassword;
@@ -122,55 +123,55 @@ public class Sidebar extends Panel {
             }
         }
 
-        ListView<Class<? extends BasePage>> extPages =
-                new ListView<>("extPages", extPageClasses.stream()
-                        .filter(epc -> SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout()
-                                .isExtensionEnabled(StringUtils.remove(epc.getAnnotation(ExtPage.class).label(),
-                                                StringUtils.SPACE)))
-                        .collect(Collectors.toList())) {
+        ListView<Class<? extends BasePage>> extPages = new ListView<>("extPages", extPageClasses.stream().
+                filter(epc -> SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
+                isExtensionEnabled(StringUtils.remove(epc.getAnnotation(ExtPage.class).label(), StringUtils.SPACE))).
+                collect(Collectors.toList())) {
 
-                private static final long serialVersionUID = 4949588177564901031L;
+            private static final long serialVersionUID = 4949588177564901031L;
 
-                @Override
-                protected void populateItem(final ListItem<Class<? extends BasePage>> item) {
-                    WebMarkupContainer containingLI = new WebMarkupContainer("extPageLI");
-                    item.add(containingLI);
+            @Override
+            protected void populateItem(final ListItem<Class<? extends BasePage>> item) {
+                WebMarkupContainer containingLI = new WebMarkupContainer("extPageLI");
+                item.add(containingLI);
 
-                    ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
+                ExtPage ann = item.getModelObject().getAnnotation(ExtPage.class);
 
-                    BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
+                BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
 
-                    link.add(new Label("extPageLabel", ann.label()));
+                link.add(new Label("extPageLabel", ann.label()));
 
-                    if (item.getModelObject().equals(pageRef.getPage().getClass())) {
-                        link.add(new Behavior() {
+                if (item.getModelObject().equals(pageRef.getPage().getClass())) {
+                    link.add(new Behavior() {
 
-                            private static final long serialVersionUID = 1469628524240283489L;
+                        private static final long serialVersionUID = 1469628524240283489L;
 
-                            @Override
-                            public void renderHead(final Component component, final IHeaderResponse response) {
-                                response.render(OnDomReadyHeaderItem.forScript(
+                        @Override
+                        public void renderHead(final Component component, final IHeaderResponse response) {
+                            response.render(OnDomReadyHeaderItem.forScript(
                                     "$('#extensionsLink').addClass('active')"));
-                            }
+                        }
 
-                            @Override
-                            public void onComponentTag(final Component component, final ComponentTag tag) {
-                                tag.append("class", "active", " ");
-                            }
-                        });
-                    }
-                    containingLI.add(link);
-
-                    Label extPageIcon = new Label("extPageIcon");
-                    extPageIcon.add(new AttributeModifier("class", "nav-icon " + ann.icon()));
-                    link.add(extPageIcon);
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            tag.append("class", "active", " ");
+                        }
+                    });
                 }
-            };
+                containingLI.add(link);
+
+                Label extPageIcon = new Label("extPageIcon");
+                extPageIcon.add(new AttributeModifier("class", "nav-icon " + ann.icon()));
+                link.add(extPageIcon);
+            }
+        };
 
         add(extPages.setRenderBodyOnly(true).setOutputMarkupId(true));
     }
 
     protected void buildBaseSidebar() {
+        SidebarLayout layout = SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout();
+
         dashboardLIContainer = new WebMarkupContainer(getLIContainerId("dashboard"));
         add(dashboardLIContainer);
         dashboardLIContainer.add(BookmarkablePageLinkBuilder.build(
@@ -180,33 +181,27 @@ public class Sidebar extends Panel {
         add(profileLIContainer);
         profileULContainer = new WebMarkupContainer(getULContainerId("profile"));
         profileLIContainer.add(profileULContainer);
-        profileLIContainer.setVisible(SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
-                isEditUserEnabled()
-                || SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
-                isPasswordManagementEnabled()
-                || (SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
-                isSecurityQuestionManagementEnabled()
+        profileLIContainer.setVisible(layout.isEditUserEnabled()
+                || layout.isPasswordManagementEnabled()
+                || (layout.isSecurityQuestionManagementEnabled()
                 && SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions()));
 
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("edituser"));
         profileULContainer.add(liContainer);
 
-        liContainer.add(BookmarkablePageLinkBuilder.build("edituser", EditUser.class))
-                .setVisible(SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout()
-                        .isEditUserEnabled());
+        liContainer.add(BookmarkablePageLinkBuilder.build("edituser", EditUser.class)).
+                setVisible(layout.isEditUserEnabled());
         liContainer = new WebMarkupContainer(getLIContainerId("editchangepassword"));
         profileULContainer.add(liContainer);
 
-        liContainer.add(BookmarkablePageLinkBuilder.build("editchangepassword", EditChangePassword.class))
-                .setVisible(SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
-                        isPasswordManagementEnabled());
+        liContainer.add(BookmarkablePageLinkBuilder.build("editchangepassword", EditChangePassword.class)).
+                setVisible(layout.isPasswordManagementEnabled());
 
         liContainer = new WebMarkupContainer(getLIContainerId("editsecurityquestion"));
         profileULContainer.add(liContainer);
         liContainer.add(BookmarkablePageLinkBuilder.build("editsecurityquestion", EditSecurityQuestion.class));
         liContainer.setOutputMarkupPlaceholderTag(true);
-        liContainer.setVisible(SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
-                isSecurityQuestionManagementEnabled()
+        liContainer.setVisible(layout.isSecurityQuestionManagementEnabled()
                 && SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions());
     }
 

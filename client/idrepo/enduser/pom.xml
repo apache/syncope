@@ -266,11 +266,12 @@ under the License.
       <id>debug</id>
 
       <properties>
+        <maven.build.cache.skipCache>true</maven.build.cache.skipCache>
         <skipTests>true</skipTests>
       </properties>
 
       <build>
-        <defaultGoal>clean package spring-boot:run</defaultGoal>
+        <defaultGoal>clean package</defaultGoal>
 
         <plugins>
           <plugin>
@@ -278,7 +279,9 @@ under the License.
             <artifactId>spring-boot-maven-plugin</artifactId>
             <configuration>
               <jvmArguments>
+                -Djavax.net.ssl.trustStore=${basedir}/../../../fit/wa-reference/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password
                 -Dwicket.core.settings.general.configuration-type=development
+                -Dwicket.ioc.useByteBuddy=true
                 -XX:HotswapAgent=fatjar
                 -Xdebug -Xrunjdwp:transport=dt_socket,address=8004,server=y,suspend=n
               </jvmArguments>
@@ -286,6 +289,14 @@ under the License.
                 <profile>debug</profile>
               </profiles>
             </configuration>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
 

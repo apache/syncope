@@ -83,7 +83,7 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
                 || IdMConstants.GUARDED_STRING.equalsIgnoreCase(property.getSchema().getType())
                 || IdMConstants.GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
 
-            field = new AjaxPasswordFieldPanel("panel", label, new Model<>(), false);
+            field = new AjaxPasswordFieldPanel("panel", label, Model.of(), false);
             ((PasswordTextField) field.getField()).setResetPassword(false);
 
             required = property.getSchema().isRequired();

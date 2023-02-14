@@ -19,10 +19,10 @@
 package org.apache.syncope.client.enduser.pages;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthConfig;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.markup.html.form.SyncopePasswordStrengthConfig;
 import org.apache.syncope.client.ui.commons.panels.CardPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
@@ -72,10 +72,7 @@ public class SelfConfirmPasswordReset extends BasePage {
                 new UserWrapper(fakeUserTO),
                 false,
                 false,
-                new PasswordStrengthBehavior(new PasswordStrengthConfig().
-                        withDebug(false).
-                        withShowVerdictsInsideProgressBar(true).
-                        withShowProgressBar(true)));
+                new PasswordStrengthBehavior(new SyncopePasswordStrengthConfig()));
         passwordPanel.setOutputMarkupId(true);
 
         form.add(new CardPanel.Builder<PasswordPanel>()

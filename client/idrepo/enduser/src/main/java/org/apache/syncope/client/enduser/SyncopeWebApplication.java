@@ -20,7 +20,7 @@ package org.apache.syncope.client.enduser;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.giffing.wicket.spring.boot.starter.app.WicketBootStandardWebApplication;
+import com.giffing.wicket.spring.boot.starter.app.WicketBootSecuredWebApplication;
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
@@ -28,6 +28,7 @@ import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.pages.BasePage;
@@ -47,12 +48,15 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
+import org.apache.wicket.authorization.IAuthorizationStrategy;
+import org.apache.wicket.authorization.IAuthorizationStrategy.AllowAllAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.ResourceIsolationRequestCycleListener;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.servlet.XForwardedRequestWrapperFactory;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
+import org.apache.wicket.request.component.IRequestableComponent;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
@@ -65,7 +69,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ResourceLoader;
 
-public class SyncopeWebApplication extends WicketBootStandardWebApplication {
+public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
 
@@ -116,6 +120,8 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         getResourceSettings().setUseMinifiedResources(true);
         getResourceSettings().setUseDefaultOnMissingResource(true);
         getResourceSettings().setThrowExceptionOnMissingResource(false);
+
+        getSecuritySettings().setAuthorizationStrategy(getAuthorizationStrategy());
 
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
@@ -201,6 +207,23 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         }
     }
 
+    protected IAuthorizationStrategy getAuthorizationStrategy() {
+        return new AllowAllAuthorizationStrategy() {
+
+            @Override
+            public <T extends IRequestableComponent> boolean isInstantiationAuthorized(final Class<T> componentClass) {
+                if (BasePage.class.isAssignableFrom(componentClass)) {
+                    return props.getPage().entrySet().stream().
+                            filter(entry -> componentClass.equals(entry.getValue())).
+                            map(Map.Entry::getKey).findFirst().
+                            map(k -> SyncopeEnduserSession.get().isAuthenticated()).
+                            orElse(true);
+                }
+                return true;
+            }
+        };
+    }
+
     @Override
     public Class<? extends Page> getHomePage() {
         return SyncopeEnduserSession.get().isAuthenticated()
@@ -247,6 +270,7 @@ public class SyncopeWebApplication extends WicketBootStandardWebApplication {
         return props.getPage().getOrDefault(name, defaultValue);
     }
 
+    @Override
     protected Class<? extends WebPage> getSignInPageClass() {
         return Login.class;
     }
