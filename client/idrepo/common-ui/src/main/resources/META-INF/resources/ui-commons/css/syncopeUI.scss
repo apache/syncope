@@ -19,11 +19,9 @@
 
 @import 'utils';
 
-
 pre {
   @include white_space_pre_wrap;
 }
-
 
 #veil {
   display: none;
@@ -66,21 +64,17 @@ pre {
       border-radius: 0.5em;
 
       @include animation(spinner 2000ms infinite linear);
-      @include shadow(rgba(0, 0, 0, 0.75) 1.5em 0 0 0, 
-      rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0, 
-      rgba(0, 0, 0, 0.75) 0 1.5em 0 0, 
-      rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0, 
-      rgba(0, 0, 0, 0.5) -1.5em 0 0 0, 
-      rgba(0, 0, 0, 0.5) -1.1em -1.1em 0 0, 
-      rgba(0, 0, 0, 0.75) 0 -1.5em 0 0, 
+      @include shadow(rgba(0, 0, 0, 0.75) 1.5em 0 0 0,
+      rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0,
+      rgba(0, 0, 0, 0.75) 0 1.5em 0 0,
+      rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0,
+      rgba(0, 0, 0, 0.5) -1.5em 0 0 0,
+      rgba(0, 0, 0, 0.5) -1.1em -1.1em 0 0,
+      rgba(0, 0, 0, 0.75) 0 -1.5em 0 0,
       rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0);
     }
   }
 }
-
-
-
-
 
 /* General
 ============================================================================= */
@@ -320,7 +314,6 @@ a.help {
   }
 }
 
-
 .wizard-buttons {
   padding: 10px 0px 5px 0px;
   position: absolute;
@@ -374,7 +367,7 @@ span.overridable div.checkbox {
   }
 }
 
-#outer.modal-lg, 
+#outer.modal-lg,
 #utilityModal.modal-lg {
   max-width: 1200px;
   width: 97%;
@@ -416,7 +409,11 @@ td.checkGroupColumn {
   color: #fff!important;
 }
 
-
+.pwstrengthProgress {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+}
 
 /* Style for Information panel
 ============================================================================= */
@@ -460,7 +457,6 @@ td.checkGroupColumn {
   width: 550px;
   margin-left: 155px;
 }
-
 
 #ownership div.toggle {
   width: 110px !important;
@@ -513,9 +509,6 @@ td.checkGroupColumn {
   padding-left: 15px;
 }
 
-
-
-
 /* Startat
 ============================================================================= */
 
@@ -540,10 +533,6 @@ td.checkGroupColumn {
     justify-content: space-between;
   }
 }
-
-
-
-
 
 /* Notifications
 ============================================================================= */
@@ -598,11 +587,6 @@ td.checkGroupColumn {
     width: 85%;
   }
 }
-
-
-
-
-
 
 /* Actions
 ============================================================================= */
@@ -665,12 +649,6 @@ div.listview-actions a {
   display: inline-table;
   margin: 0px;
 }
-
-
-
-
-
-
 
 /* Datatable
 ============================================================================= */
@@ -778,15 +756,12 @@ div.panel-collapse.collapse.show span.ui-spinner.ui-corner-all.ui-widget.ui-widg
   top: 5px !important;
 }
 
-
 /* Parameters Details
 ============================================================================= */
 
 div#parametersForm {
   min-height: 220px;
 }
-
-
 
 li.todoitem a {
   cursor: default;
@@ -843,11 +818,6 @@ div#userFilter {
   width: 20px;
 }
 
-
-
-
-
-
 /* Alert widget onside menu
 ============================================================================= */
 
@@ -897,10 +867,6 @@ div#userFilter {
     }
   }
 }
-
-
-
-
 
 /* Transformers toggle panel
 ============================================================================= */
@@ -965,9 +931,6 @@ div#userFilter {
   clear: both;
 }
 
-
-
-
 /* Events
 ============================================================================= */
 
@@ -1005,9 +968,6 @@ div#userFilter {
   width: 585px;
   min-width: 585px;
 }
-
-
-
 
 /* Others
 ============================================================================= */
@@ -1072,8 +1032,8 @@ th ul.menu {
   padding: 0;
 }
 
-#inline-actions ul.menu, 
-#tablehandling ul.menu, 
+#inline-actions ul.menu,
+#tablehandling ul.menu,
 .listview-actions ul.menu {
   list-style-type: none;
   margin: 0;
@@ -1088,7 +1048,7 @@ th ul.menu li {
 }
 
 #inline-actions ul.menu li,
-#tablehandling ul.menu li, 
+#tablehandling ul.menu li,
 .listview-actions ul.menu li {
   display: inline-block;
 }
@@ -1098,8 +1058,8 @@ th ul.menu li a {
   display: inline-block !important;
 }
 
-#inline-actions ul.menu li a, 
-.listview-actions ul.menu li a, 
+#inline-actions ul.menu li a,
+.listview-actions ul.menu li a,
 #tablehandling ul.menu li a {
   margin-left: 5px;
   display: inline-block !important;
@@ -1115,7 +1075,7 @@ ul.menu {
   }
 }
 
-#inline-actions ul.menu i, 
+#inline-actions ul.menu i,
 #tablehandling ul.menu i {
   width: auto !important;
 }
@@ -1163,9 +1123,6 @@ h3.card-title {
   border-radius: 10px;
   @include shadow(0px 0px 20px 1px rgba(0,0,0,0.75));
 }
-
-
-
 
 /* Utility classes
 ============================================================================= */

@@ -19,7 +19,6 @@
 package org.apache.syncope.client.enduser.pages;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
@@ -84,8 +83,7 @@ public class BasePage extends BaseWebPage {
                     PageReference.class,
                     List.class).
                     newInstance("sidebar", getPageReference(), lookup.getExtPageClasses());
-        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
-                | IllegalArgumentException | InvocationTargetException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Could not instantiate " + clazz.getName(), e);
         }
 
@@ -108,7 +106,7 @@ public class BasePage extends BaseWebPage {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 Session.get().setAttribute(Constants.MENU_COLLAPSE,
-                    Session.get().getAttribute(Constants.MENU_COLLAPSE) == null
+                        Session.get().getAttribute(Constants.MENU_COLLAPSE) == null
                         ? true
                         : !(Boolean) Session.get().getAttribute(Constants.MENU_COLLAPSE));
             }

@@ -19,7 +19,6 @@
 package org.apache.syncope.client.enduser.panels.any;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthConfig;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.rest.RealmRestClient;
@@ -27,6 +26,7 @@ import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.SyncopePasswordStrengthConfig;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -89,10 +89,7 @@ public class UserDetails extends Details<UserTO> {
                     wrapper,
                     false,
                     wrapper.getInnerObject().getKey() == null,
-                    new PasswordStrengthBehavior(new PasswordStrengthConfig().
-                            withDebug(false).
-                            withShowVerdictsInsideProgressBar(true).
-                            withShowProgressBar(true))));
+                    new PasswordStrengthBehavior(new SyncopePasswordStrengthConfig())));
         }
     }
 }

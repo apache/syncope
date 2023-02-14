@@ -57,7 +57,7 @@ public class PasswordPanel extends Panel {
         add(form);
 
         AjaxPasswordFieldPanel confirmPasswordField = new AjaxPasswordFieldPanel(
-                "confirmPassword", "confirmPassword", new Model<>(), false, null);
+                "confirmPassword", "confirmPassword", Model.of(), false);
         ((PasswordTextField) confirmPasswordField.getField()).setResetPassword(false);
         form.add(confirmPasswordField.setPlaceholder("confirmPassword").setMarkupId("confirmPassword"));
 
