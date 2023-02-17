@@ -2,6 +2,22 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.2
+================================================================================
+
+** Bug
+    * [SYNCOPE-1725] - Error when searching with high number of OR or AND conditions with Elasticsearch
+    * [SYNCOPE-1726] - WA does not always get configuration from Core on startup
+    * [SYNCOPE-1727] - Elasticsearch cannot find anything under given Realm in case of parent update
+    * [SYNCOPE-1728] - Unable to create LDAP authentication module from console
+    * [SYNCOPE-1730] - Standalone on Windows: Console Topology page does not show any Connector or Resource
+
+** Improvement
+    * [SYNCOPE-1722] - Allow password fields to reveal their value to the end-user
+    * [SYNCOPE-1723] - remove some non-reproducible bits
+    * [SYNCOPE-1724] - Provide health status for Elasticsearch
+    * [SYNCOPE-1729] - Configure Maven Build Cache Extension
+
 Release Notes - Syncope - Version 3.0.1
 ================================================================================
 
