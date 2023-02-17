@@ -430,7 +430,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.6.1</elasticsearch.version>
+    <elasticsearch.version>8.6.2</elasticsearch.version>
 
     <log4j2.version>2.19.0</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
@@ -471,7 +471,7 @@ under the License.
     <antlr4.version>4.11.1</antlr4.version>
 
     <curator.version>5.4.0</curator.version>
-    <zookeeper.version>3.8.0</zookeeper.version>
+    <zookeeper.version>3.8.1</zookeeper.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
     <testds.bindDn>uid=admin,ou=system</testds.bindDn>
