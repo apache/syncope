@@ -468,7 +468,7 @@ under the License.
     <wicket-bootstrap.version>5.0.6</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.1.7</wicket-spring-boot.version>
 
-    <antlr4.version>4.11.1</antlr4.version>
+    <antlr4.version>4.12.0</antlr4.version>
 
     <curator.version>5.4.0</curator.version>
     <zookeeper.version>3.8.1</zookeeper.version>
@@ -506,11 +506,11 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>10</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.5.1</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.5.4</jdbc.postgresql.version>
     <jdbc.mysql.version>8.0.32</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.0.10</jdbc.mariadb.version>
-    <jdbc.mssql.version>11.2.1.jre</jdbc.mssql.version>
-    <jdbc.oracle.version>21.8.0.0</jdbc.oracle.version>
+    <jdbc.mariadb.version>3.1.2</jdbc.mariadb.version>
+    <jdbc.mssql.version>12.2.0.jre</jdbc.mssql.version>
+    <jdbc.oracle.version>21.9.0.0</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
 
