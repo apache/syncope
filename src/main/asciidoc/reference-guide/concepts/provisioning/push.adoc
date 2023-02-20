@@ -23,8 +23,24 @@ With push, the matching set of internal entities can be sent to Identity Stores 
 (re)initialization purposes; for each external resource, one or more <<tasks-push,push tasks>> can be defined, run and 
 scheduled for period execution.
 
-Push task execution involves querying the internal storage and then processing each entity in an isolated transaction; 
-an internal entity can be:
+Push task execution involves querying the internal storage for all <<mapping,mapped>> <<anytype, any types>>, sorted
+according to the order defined by a custom implementation of
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/ProvisionSorter.java[ProvisionSorter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/ProvisionSorter.java[ProvisionSorter^]
+endif::[]
+or its default implementation
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultProvisionSorter.java[DefaultProvisionSorter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultProvisionSorter.java[DefaultProvisionSorter^]
+endif::[]
+.
+
+Each entity is then processed in an isolated transaction; an internal entity can be:
 
 . _matching_ if a corresponding remote entity was found, according to the <<policies-push,push policy>> set for the
 enclosing external resource;

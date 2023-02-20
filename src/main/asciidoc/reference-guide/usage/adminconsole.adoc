@@ -97,7 +97,7 @@ image::consoleDashboard.png[console-dashboard]
 ===== Realms
 
 The realms page provides the designated administrators with the power to manage <<realms>> as well as
-<<users-groups-and-any-objects>>, for all <<anytype, Any Types>> that are defined.
+<<users-groups-and-any-objects>>, for all <<anytype, any types>> that are defined.
 
 image::realmsUser.png[console-realms-user]
 
