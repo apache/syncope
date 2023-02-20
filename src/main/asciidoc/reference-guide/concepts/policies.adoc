@@ -403,7 +403,7 @@ When defining a pull policy, the following information must be provided:
 ** `FIRSTMATCH` - pull first matching object only
 ** `LASTMATCH` - pull last matching object only
 ** `ALL` - pull all matching objects
-* rules - set of correlation rules to evaluate with the current policy; for each defined <<anytype,Any Type>>, a
+* rules - set of correlation rules to evaluate with the current policy; for each defined <<anytype,any type>>, a
 different rule is required
 
 ===== Pull Correlation Rules

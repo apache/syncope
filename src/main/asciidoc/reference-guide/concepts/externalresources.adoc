@@ -115,7 +115,7 @@ configuring an external resource. Such information, in fact, plays a key role fo
 [.text-center]
 image::mapping.png[title="Sample mapping",alt="Sample mapping"]
 
-For each of the <<anytype,Any Types>> supported by the underlying connector, a different mapping is provided.
+For each of the <<anytype,any types>> supported by the underlying connector, a different mapping is provided.
 
 A mapping is essentially a collection of _mapping items_ describing the correspondence between an user / group / any
 object attribute and its counterpart on the Identity Store represented by the current external resource. Each item

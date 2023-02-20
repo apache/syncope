@@ -103,7 +103,7 @@ When defining a virtual schema, the following information must be provided:
 
 * External resource - linking resource
 * External attribute - attribute to be linked on the external resource
-* Any Type - reference <<anytype,Any Type>> on the external resource
+* Any Type - reference <<anytype,any type>> on the external resource
 * Read-only flag - whether the external attribute value(s) for this schema can only be read, or whether they can be written to as well
 
 [[virtual-attribute-cache]]
@@ -151,7 +151,7 @@ endif::[]
 
 Any type classes are aggregations of plain, derived and virtual schemas, provided with unique identifiers.
 
-Classes can be assigned to <<anytype, Any Types>> and are also available as auxiliary (hence to be specified on a
+Classes can be assigned to <<anytype, any types>> and are also available as auxiliary (hence to be specified on a
 given user / group / any object instance) and for <<type-extensions,type extensions>>.
 
 ==== AnyType
