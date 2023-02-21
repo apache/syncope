@@ -1082,6 +1082,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE307() {
+        assumeFalse(ElasticsearchDetector.isElasticSearchEnabled(syncopeService));
+
         UserTO userTO = UserITCase.getUniqueSampleTO("s307@apache.org");
         userTO.setUsername("test0");
         userTO.getPlainAttr("firstname").get().getValues().clear();

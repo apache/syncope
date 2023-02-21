@@ -135,6 +135,7 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<TaskExec> findAll(
             final Task task,
             final Date before,

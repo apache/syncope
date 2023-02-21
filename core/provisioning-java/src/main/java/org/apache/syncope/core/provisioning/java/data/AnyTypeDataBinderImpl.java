@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -85,9 +84,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                         new TypeReference<Set<SyncopeGrantedAuthority>>() {
                 }));
 
-                added.forEach(entitlement -> {
-                    authorities.add(new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM));
-                });
+                added.forEach(e -> authorities.add(new SyncopeGrantedAuthority(e, SyncopeConstants.ROOT_REALM)));
 
                 accessToken.setAuthorities(ENCRYPTOR.encode(
                         POJOHelper.serialize(authorities), CipherAlgorithm.AES).
@@ -116,15 +113,15 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
             throw sce;
         }
 
-        anyType.getClasses().clear();
         anyTypeTO.getClasses().forEach(anyTypeClassName -> {
             AnyTypeClass anyTypeClass = anyTypeClassDAO.find(anyTypeClassName);
             if (anyTypeClass == null) {
-                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...", anyTypeClassName);
+                LOG.debug("Invalid {} {}, ignoring...", AnyTypeClass.class.getSimpleName(), anyTypeClassName);
             } else {
                 anyType.add(anyTypeClass);
             }
         });
+        anyType.getClasses().removeIf(c -> c == null || !anyTypeTO.getClasses().contains(c.getKey()));
     }
 
     @Override
@@ -133,7 +130,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
         anyTypeDAO.delete(anyType.getKey());
 
-        final Set<String> removed = EntitlementsHolder.getInstance().removeFor(deleted.getKey());
+        Set<String> removed = EntitlementsHolder.getInstance().removeFor(deleted.getKey());
 
         if (!adminUser.equals(AuthContextUtils.getUsername())) {
             AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername());
@@ -164,7 +161,8 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
         AnyTypeTO anyTypeTO = new AnyTypeTO();
         anyTypeTO.setKey(anyType.getKey());
         anyTypeTO.setKind(anyType.getKind());
-        anyTypeTO.getClasses().addAll(anyType.getClasses().stream().map(Entity::getKey).collect(Collectors.toList()));
+        anyTypeTO.getClasses().addAll(anyType.getClasses().stream().
+                map(AnyTypeClass::getKey).collect(Collectors.toList()));
         return anyTypeTO;
     }
 }
