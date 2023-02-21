@@ -56,9 +56,12 @@ import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAccessMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAuthMapper;
+import org.apache.syncope.wa.starter.mapping.HttpRequestAccessMapper;
 import org.apache.syncope.wa.starter.mapping.OIDCRPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
+import org.apache.syncope.wa.starter.mapping.RemoteEndpointAccessMapper;
 import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
+import org.apache.syncope.wa.starter.mapping.TimeBasedAccessMapper;
 import org.apache.syncope.wa.starter.oidc.WAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.WASamlIdPCasEventListener;
@@ -133,21 +136,39 @@ public class WAContext {
                         new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"));
     }
 
-    @ConditionalOnMissingBean(name = "accessMapper")
+    @ConditionalOnMissingBean
     @Bean
-    public AccessMapper accessMapper() {
+    public AccessMapper defaultAccessMapper() {
         return new DefaultAccessMapper();
     }
 
-    @ConditionalOnMissingBean(name = "attrReleaseMapper")
+    @ConditionalOnMissingBean
     @Bean
-    public AttrReleaseMapper attrReleaseMapper() {
+    public HttpRequestAccessMapper httpRequestAccessMapper() {
+        return new HttpRequestAccessMapper();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RemoteEndpointAccessMapper remoteEndpointAccessMapper() {
+        return new RemoteEndpointAccessMapper();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public TimeBasedAccessMapper timeBasedAccessMapper() {
+        return new TimeBasedAccessMapper();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AttrReleaseMapper defaultAttrReleaseMapper() {
         return new DefaultAttrReleaseMapper();
     }
 
-    @ConditionalOnMissingBean(name = "authMapper")
+    @ConditionalOnMissingBean
     @Bean
-    public AuthMapper authMapper() {
+    public AuthMapper defaultAuthMapper() {
         return new DefaultAuthMapper();
     }
 
@@ -271,7 +292,7 @@ public class WAContext {
         return plan -> plan.registerAuditTrailManager(new WAAuditTrailManager(waRestClient));
     }
 
-    @ConditionalOnMissingBean(name = "syncopeWAEventRepositoryFilter")
+    @ConditionalOnMissingBean
     @Bean
     public CasEventRepositoryFilter syncopeWAEventRepositoryFilter() {
         return CasEventRepositoryFilter.noOp();
