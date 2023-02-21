@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,12 +59,8 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_READ + "')")
     @Transactional(readOnly = true)
     public AnyTypeTO read(final String key) {
-        AnyType anyType = anyTypeDAO.find(key);
-        if (anyType == null) {
-            LOG.error("Could not find anyType '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        AnyType anyType = Optional.ofNullable(anyTypeDAO.find(key)).
+                orElseThrow(() -> new NotFoundException("AnyType " + key));
 
         return binder.getAnyTypeTO(anyType);
     }
@@ -89,27 +86,18 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_UPDATE + "')")
-    public AnyTypeTO update(final AnyTypeTO anyTypeTO) {
-        AnyType anyType = anyTypeDAO.find(anyTypeTO.getKey());
-        if (anyType == null) {
-            LOG.error("Could not find anyType '" + anyTypeTO.getKey() + '\'');
-
-            throw new NotFoundException(anyTypeTO.getKey());
-        }
+    public void update(final AnyTypeTO anyTypeTO) {
+        AnyType anyType = Optional.ofNullable(anyTypeDAO.find(anyTypeTO.getKey())).
+                orElseThrow(() -> new NotFoundException("AnyType " + anyTypeTO.getKey()));
 
         binder.update(anyType, anyTypeTO);
-
-        return binder.getAnyTypeTO(anyTypeDAO.save(anyType));
+        anyTypeDAO.save(anyType);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_DELETE + "')")
     public AnyTypeTO delete(final String key) {
-        AnyType anyType = anyTypeDAO.find(key);
-        if (anyType == null) {
-            LOG.error("Could not find anyType '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        AnyType anyType = Optional.ofNullable(anyTypeDAO.find(key)).
+                orElseThrow(() -> new NotFoundException("AnyType " + key));
 
         Integer anyObjects = anyObjectDAO.countByType().get(anyType);
         if (anyObjects != null && anyObjects > 0) {
@@ -156,5 +144,4 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
 
         throw new UnresolvedReferenceException();
     }
-
 }

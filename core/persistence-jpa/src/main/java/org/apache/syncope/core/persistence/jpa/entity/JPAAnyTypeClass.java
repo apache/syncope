@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
@@ -39,9 +38,6 @@ public class JPAAnyTypeClass extends AbstractProvidedKeyEntity implements AnyTyp
     private static final long serialVersionUID = -1750247153774475453L;
 
     public static final String TABLE = "AnyTypeClass";
-
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "classes")
-    private List<JPAAnyType> types = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "anyTypeClass")
     private List<JPAPlainSchema> plainSchemas = new ArrayList<>();
@@ -84,5 +80,4 @@ public class JPAAnyTypeClass extends AbstractProvidedKeyEntity implements AnyTyp
     public List<? extends VirSchema> getVirSchemas() {
         return virSchemas;
     }
-
 }

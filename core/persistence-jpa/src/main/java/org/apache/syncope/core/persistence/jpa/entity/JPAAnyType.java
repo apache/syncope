@@ -22,15 +22,13 @@ import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -50,14 +48,12 @@ public class JPAAnyType extends AbstractProvidedKeyEntity implements AnyType {
     @Enumerated(EnumType.STRING)
     private AnyTypeKind kind;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(joinColumns =
             @JoinColumn(name = "anyType_id", referencedColumnName = "id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_id", referencedColumnName = "id"),
-            uniqueConstraints =
-            @UniqueConstraint(columnNames = { "anyType_id", "anyTypeClass_id" }))
-    private List<JPAAnyTypeClass> classes = new ArrayList<>();
+            @JoinColumn(name = "anyTypeClass_id", referencedColumnName = "id"))
+    private Set<JPAAnyTypeClass> classes = new HashSet<>();
 
     @Override
     public AnyTypeKind getKind() {
@@ -72,11 +68,11 @@ public class JPAAnyType extends AbstractProvidedKeyEntity implements AnyType {
     @Override
     public boolean add(final AnyTypeClass anyTypeClass) {
         checkType(anyTypeClass, JPAAnyTypeClass.class);
-        return classes.contains((JPAAnyTypeClass) anyTypeClass) || this.classes.add((JPAAnyTypeClass) anyTypeClass);
+        return classes.add((JPAAnyTypeClass) anyTypeClass);
     }
 
     @Override
-    public List<? extends AnyTypeClass> getClasses() {
+    public Set<? extends AnyTypeClass> getClasses() {
         return classes;
     }
 }
