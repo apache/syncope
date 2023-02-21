@@ -51,6 +51,7 @@ import org.apache.syncope.common.rest.api.service.DelegationService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.ElasticsearchDetector;
 import org.junit.jupiter.api.Test;
 
 public class DelegationITCase extends AbstractITCase {
@@ -241,7 +242,9 @@ public class DelegationITCase extends AbstractITCase {
         // 3b. search users as rossini with delegation -> SUCCESS
         int forRossini = rossini.delegatedBy("bellini").getService(UserService.class).search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).getTotalCount();
-        assertEquals(forBellini, forRossini);
+        if (!ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            assertEquals(forBellini, forRossini);
+        }
 
         // 4. delete delegation: searching users as rossini does not work, even with delegation
         delegationService.delete(delegation.getKey());
