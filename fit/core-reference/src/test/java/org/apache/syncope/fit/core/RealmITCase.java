@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
@@ -250,7 +249,7 @@ public class RealmITCase extends AbstractITCase {
     public void deletingAccessPolicy() {
         // 1. create access policy
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
-        conf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
+        conf.getRequiredAttrs().put("cn", "admin,Admin,TheAdmin");
 
         AccessPolicyTO policy = new AccessPolicyTO();
         policy.setName("Test Access policy");

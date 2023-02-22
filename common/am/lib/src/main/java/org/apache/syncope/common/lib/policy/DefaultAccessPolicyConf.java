@@ -19,11 +19,9 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.syncope.common.lib.Attr;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DefaultAccessPolicyConf implements AccessPolicyConf {
 
@@ -41,9 +39,9 @@ public class DefaultAccessPolicyConf implements AccessPolicyConf {
 
     private URI unauthorizedRedirectUrl;
 
-    private final List<Attr> requiredAttrs = new ArrayList<>();
+    private final Map<String, String> requiredAttrs = new HashMap<>();
 
-    private final List<Attr> rejectedAttrs = new ArrayList<>();
+    private final Map<String, String> rejectedAttrs = new HashMap<>();
 
     public int getOrder() {
         return order;
@@ -94,14 +92,12 @@ public class DefaultAccessPolicyConf implements AccessPolicyConf {
     }
 
     @JacksonXmlElementWrapper(localName = "requiredAttrs")
-    @JacksonXmlProperty(localName = "requiredAttr")
-    public List<Attr> getRequiredAttrs() {
+    public Map<String, String> getRequiredAttrs() {
         return requiredAttrs;
     }
 
     @JacksonXmlElementWrapper(localName = "rejectedAttrs")
-    @JacksonXmlProperty(localName = "rejectedAttr")
-    public List<Attr> getRejectedAttrs() {
+    public Map<String, String> getRejectedAttrs() {
         return rejectedAttrs;
     }
 }

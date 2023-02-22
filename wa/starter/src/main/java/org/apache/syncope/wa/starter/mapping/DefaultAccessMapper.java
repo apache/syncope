@@ -19,6 +19,8 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.HashSet;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy;
@@ -43,10 +45,12 @@ public class DefaultAccessMapper implements AccessMapper {
         accessStrategy.setUnauthorizedRedirectUrl(conf.getUnauthorizedRedirectUrl());
 
         conf.getRequiredAttrs().forEach(
-                attr -> accessStrategy.getRequiredAttributes().put(attr.getSchema(), new HashSet<>(attr.getValues())));
+                (k, v) -> accessStrategy.getRequiredAttributes().put(k,
+                        new HashSet<>(Set.of(StringUtils.split(v, ",")))));
 
         conf.getRejectedAttrs().forEach(
-                attr -> accessStrategy.getRejectedAttributes().put(attr.getSchema(), new HashSet<>(attr.getValues())));
+                (k, v) -> accessStrategy.getRejectedAttributes().put(k,
+                        new HashSet<>(Set.of(StringUtils.split(v, ",")))));
 
         return accessStrategy;
     }

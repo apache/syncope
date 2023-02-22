@@ -32,7 +32,6 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
@@ -273,9 +272,9 @@ public class PolicyITCase extends AbstractITCase {
         assertNotNull(newAccessPolicyTO);
 
         DefaultAccessPolicyConf accessPolicyConf = (DefaultAccessPolicyConf) newAccessPolicyTO.getConf();
-        accessPolicyConf.getRequiredAttrs().add(new Attr.Builder("ou").value("test").build());
-        accessPolicyConf.getRequiredAttrs().removeIf(attr -> "cn".equals(attr.getSchema()));
-        accessPolicyConf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin").build());
+        accessPolicyConf.getRequiredAttrs().put("ou", "test");
+        accessPolicyConf.getRequiredAttrs().remove("cn");
+        accessPolicyConf.getRequiredAttrs().put("cn", "admin,Admin");
 
         // update new authentication policy
         POLICY_SERVICE.update(PolicyType.ACCESS, newAccessPolicyTO);
@@ -284,8 +283,8 @@ public class PolicyITCase extends AbstractITCase {
 
         accessPolicyConf = (DefaultAccessPolicyConf) newAccessPolicyTO.getConf();
         assertEquals(2, accessPolicyConf.getRequiredAttrs().size());
-        assertTrue(accessPolicyConf.getRequiredAttrs().stream().anyMatch(attr -> "cn".equals(attr.getSchema())));
-        assertTrue(accessPolicyConf.getRequiredAttrs().stream().anyMatch(attr -> "ou".equals(attr.getSchema())));
+        assertTrue(accessPolicyConf.getRequiredAttrs().containsKey("cn"));
+        assertTrue(accessPolicyConf.getRequiredAttrs().containsKey("ou"));
     }
 
     @Test
