@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
@@ -46,11 +47,13 @@ public class DefaultAccessMapper implements AccessMapper {
 
         conf.getRequiredAttrs().forEach(
                 (k, v) -> accessStrategy.getRequiredAttributes().put(k,
-                        new HashSet<>(Set.of(StringUtils.split(v, ",")))));
+                        Stream.of(StringUtils.split(v, ",")).map(s -> StringUtils.trim(s))
+                                .collect(Collectors.toSet())));
 
         conf.getRejectedAttrs().forEach(
                 (k, v) -> accessStrategy.getRejectedAttributes().put(k,
-                        new HashSet<>(Set.of(StringUtils.split(v, ",")))));
+                        Stream.of(StringUtils.split(v, ",")).map(s -> StringUtils.trim(s))
+                                .collect(Collectors.toSet())));
 
         return accessStrategy;
     }

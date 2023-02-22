@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,12 +90,10 @@ public class DefaultAccessPolicyConf implements AccessPolicyConf {
         this.unauthorizedRedirectUrl = unauthorizedRedirectUrl;
     }
 
-    @JacksonXmlElementWrapper(localName = "requiredAttrs")
     public Map<String, String> getRequiredAttrs() {
         return requiredAttrs;
     }
 
-    @JacksonXmlElementWrapper(localName = "rejectedAttrs")
     public Map<String, String> getRejectedAttrs() {
         return rejectedAttrs;
     }
