@@ -281,7 +281,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
         }.setReuseItems(true).setOutputMarkupId(true));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private Triple<FieldPanel, Boolean, Optional<String>> buildSinglePanel(
             final Serializable bean, final Class<?> type, final String fieldName,
             final io.swagger.v3.oas.annotations.media.Schema schema, final String id) {
