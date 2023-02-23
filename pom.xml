@@ -344,16 +344,6 @@ under the License.
       </roles>
       <email>mmoayyed@apache.org</email>
     </developer>
-    <developer>
-      <id>sgarofalo</id>
-      <name>Samuel Garofalo</name>
-      <organization>Tirasa</organization>
-      <organizationUrl>http://www.tirasa.net/</organizationUrl>
-      <roles>
-        <role>committer</role>
-      </roles>
-      <email>sgarofalo@apache.org</email>
-    </developer>
   </developers>
   <contributors>
     <contributor>
