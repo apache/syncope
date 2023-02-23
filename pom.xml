@@ -415,8 +415,8 @@ under the License.
     <bouncycastle.version>1.72</bouncycastle.version>
     <nimbus-jose-jwt.version>9.30.1</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.0.2</spring-boot.version>
-    <spring-cloud-gateway.version>4.0.0</spring-cloud-gateway.version>
+    <spring-boot.version>3.0.3</spring-boot.version>
+    <spring-cloud-gateway.version>4.0.2</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.2</openjpa.version>
     <hikaricp.version>5.0.1</hikaricp.version>
@@ -1305,7 +1305,8 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
-        <version>${spring-cloud-gateway.version}</version>
+        <!-- TMP, it should be ${spring-cloud-gateway.version} -->
+        <version>4.0.1</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -1627,7 +1628,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.4</version>
+          <version>1.10.5</version>
           <configuration>
             <container>
               <log>${project.build.directory}/log/cargo.log</log>
