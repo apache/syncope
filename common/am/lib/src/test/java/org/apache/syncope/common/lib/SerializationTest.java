@@ -41,8 +41,8 @@ public abstract class SerializationTest {
         conf.setOrder(11);
         conf.setEnabled(true);
         conf.setUnauthorizedRedirectUrl(URI.create("https://syncope.apache.org"));
-        conf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
-        conf.getRejectedAttrs().add(new Attr.Builder("uid").values("plain").build());
+        conf.getRequiredAttrs().put("cn", "admin,Admin,TheAdmin");
+        conf.getRejectedAttrs().put("uid", "plain");
         policy.setConf(conf);
 
         StringWriter writer = new StringWriter();
