@@ -38,6 +38,8 @@ public interface ExternalResourceDAO extends DAO<ExternalResource> {
 
     List<MappingItem> findByTransformer(Implementation transformer);
 
+    List<ExternalResource> findByProvisionSorter(Implementation provisionSorter);
+
     List<ExternalResource> findByPropagationActions(Implementation propagationActions);
 
     List<ExternalResource> findByPolicy(Policy policy);
@@ -49,5 +51,4 @@ public interface ExternalResourceDAO extends DAO<ExternalResource> {
     void deleteMapping(String schemaName);
 
     void delete(String key);
-
 }

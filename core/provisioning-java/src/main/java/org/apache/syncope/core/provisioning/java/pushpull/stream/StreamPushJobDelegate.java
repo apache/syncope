@@ -148,6 +148,8 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
                     map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 
+            this.task = profile.getTask();
+
             for (PushActions action : profile.getActions()) {
                 action.beforeAll(profile);
             }
@@ -179,6 +181,8 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While stream pushing", e);
+        } finally {
+            setStatus(null);
         }
     }
 }

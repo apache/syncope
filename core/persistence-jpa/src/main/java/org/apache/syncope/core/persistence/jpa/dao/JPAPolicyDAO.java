@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -39,6 +40,7 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPropagationPolic
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
@@ -53,6 +55,10 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
     @Autowired
     @Lazy
     private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    @Lazy
+    private EntityCacheDAO entityCacheDAO;
 
     private <T extends Policy> Class<? extends AbstractPolicy> getEntityReference(final Class<T> reference) {
         return AccountPolicy.class.isAssignableFrom(reference)
@@ -141,7 +147,19 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
     @Override
     public <T extends Policy> T save(final T policy) {
-        return entityManager().merge(policy);
+        T merged = entityManager().merge(policy);
+
+        if (policy instanceof AccountPolicy
+                || policy instanceof PasswordPolicy
+                || policy instanceof PropagationPolicy
+                || policy instanceof PullPolicy
+                || policy instanceof PushPolicy) {
+
+            resourceDAO.findByPolicy(policy).
+                    forEach(resource -> entityCacheDAO.evict(JPAExternalResource.class, resource.getKey()));
+        }
+
+        return merged;
     }
 
     @Override

@@ -23,6 +23,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.BackOffStrategy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
@@ -41,6 +42,7 @@ public class JPAPropagationPolicy extends AbstractPolicy implements PropagationP
 
     private String backOffParams;
 
+    @Min(1)
     @NotNull
     private Integer maxAttempts = 3;
 

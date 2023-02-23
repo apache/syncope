@@ -56,10 +56,10 @@ public class JdbcAuditAppender extends DefaultAuditAppender {
             setConfiguration(ctx.getConfiguration()).setName("THROWABLE").setPattern("%ex{full}").build()
         };
 
-        Appender appender = ctx.getConfiguration().getAppender("audit_for_" + domain);
+        Appender appender = ctx.getConfiguration().getAppender(getTargetAppenderName());
         if (appender == null) {
             appender = JdbcAppender.newBuilder().
-                    setName("audit_for_" + domain).
+                    setName(getTargetAppenderName()).
                     setIgnoreExceptions(false).
                     setConnectionSource(new DataSourceConnectionSource(domain, domainsHolder.getDomains().get(domain))).
                     setBufferSize(0).
@@ -74,8 +74,7 @@ public class JdbcAuditAppender extends DefaultAuditAppender {
 
     @Override
     public String getTargetAppenderName() {
-        // not used
-        return null;
+        return "audit_for_" + domain;
     }
 
     protected static class DataSourceConnectionSource extends AbstractConnectionSource {

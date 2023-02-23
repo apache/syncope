@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Logger;
+import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
@@ -316,6 +317,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPABatch();
         } else if (reference.equals(Delegation.class)) {
             result = (E) new JPADelegation();
+        } else if (reference.equals(JobStatus.class)) {
+            result = (E) new JPAJobStatus();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

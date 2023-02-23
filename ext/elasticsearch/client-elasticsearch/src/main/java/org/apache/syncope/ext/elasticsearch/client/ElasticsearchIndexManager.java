@@ -19,9 +19,11 @@
 package org.apache.syncope.ext.elasticsearch.client;
 
 import java.io.IOException;
+import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -64,9 +66,14 @@ public class ElasticsearchIndexManager {
         this.elasticsearchUtils = elasticsearchUtils;
     }
 
-    public boolean existsIndex(final String domain, final AnyTypeKind kind) throws IOException {
+    public boolean existsAnyIndex(final String domain, final AnyTypeKind kind) throws IOException {
         return client.indices().exists(
-                new GetIndexRequest(ElasticsearchUtils.getContextDomainName(domain, kind)), RequestOptions.DEFAULT);
+                new GetIndexRequest(ElasticsearchUtils.getAnyIndex(domain, kind)), RequestOptions.DEFAULT);
+    }
+
+    public boolean existsAuditIndex(final String domain) throws IOException {
+        return client.indices().exists(
+                new GetIndexRequest(ElasticsearchUtils.getAuditIndex(domain)), RequestOptions.DEFAULT);
     }
 
     public XContentBuilder defaultSettings() throws IOException {
@@ -91,7 +98,7 @@ public class ElasticsearchIndexManager {
                 endObject();
     }
 
-    public XContentBuilder defaultMapping() throws IOException {
+    public XContentBuilder defaultAnyMapping() throws IOException {
         return XContentFactory.jsonBuilder().
                 startObject().
                 startArray("dynamic_templates").
@@ -108,19 +115,58 @@ public class ElasticsearchIndexManager {
                 endObject();
     }
 
-    protected CreateIndexResponse doCreateIndex(
+    public XContentBuilder defaultAuditMapping() throws IOException {
+        return XContentFactory.jsonBuilder().
+                startObject().
+                startArray("dynamic_templates").
+                startObject().
+                startObject("strings").
+                field("match_mapping_type", "string").
+                startObject("mapping").
+                field("type", "keyword").
+                field("normalizer", "string_lowercase").
+                endObject().
+                endObject().
+                endObject().
+                endArray().
+                startObject("properties").
+                startObject("message").
+                startObject("properties").
+                startObject("before").
+                field("type", "text").
+                field("analyzer", "standard").
+                endObject().
+                startObject("inputs").
+                field("type", "text").
+                field("analyzer", "standard").
+                endObject().
+                startObject("output").
+                field("type", "text").
+                field("analyzer", "standard").
+                endObject().
+                startObject("throwable").
+                field("type", "text").
+                field("analyzer", "standard").
+                endObject().
+                endObject().
+                endObject().
+                endObject().
+                endObject();
+    }
+
+    protected CreateIndexResponse doCreateAnyIndex(
             final String domain,
             final AnyTypeKind kind,
             final XContentBuilder settings,
             final XContentBuilder mapping) throws IOException {
 
         return client.indices().create(
-                new CreateIndexRequest(ElasticsearchUtils.getContextDomainName(domain, kind)).
+                new CreateIndexRequest(ElasticsearchUtils.getAnyIndex(domain, kind)).
                         settings(settings).
                         mapping(mapping), RequestOptions.DEFAULT);
     }
 
-    public void createIndex(
+    public void createAnyIndex(
             final String domain,
             final AnyTypeKind kind,
             final XContentBuilder settings,
@@ -128,49 +174,85 @@ public class ElasticsearchIndexManager {
             throws IOException {
 
         try {
-            CreateIndexResponse response = doCreateIndex(domain, kind, settings, mapping);
+            CreateIndexResponse response = doCreateAnyIndex(domain, kind, settings, mapping);
 
             LOG.debug("Successfully created {} for {}: {}",
-                    ElasticsearchUtils.getContextDomainName(domain, kind), kind.name(), response);
+                    ElasticsearchUtils.getAnyIndex(domain, kind), kind.name(), response);
         } catch (ElasticsearchStatusException e) {
             LOG.debug("Could not create index {} because it already exists",
-                    ElasticsearchUtils.getContextDomainName(domain, kind), e);
+                    ElasticsearchUtils.getAnyIndex(domain, kind), e);
 
-            removeIndex(domain, kind);
-            doCreateIndex(domain, kind, settings, mapping);
+            removeAnyIndex(domain, kind);
+            doCreateAnyIndex(domain, kind, settings, mapping);
         }
     }
 
-    public void removeIndex(final String domain, final AnyTypeKind kind) throws IOException {
+    public void removeAnyIndex(final String domain, final AnyTypeKind kind) throws IOException {
         AcknowledgedResponse acknowledgedResponse = client.indices().delete(
-                new DeleteIndexRequest(ElasticsearchUtils.getContextDomainName(domain, kind)), RequestOptions.DEFAULT);
+                new DeleteIndexRequest(ElasticsearchUtils.getAnyIndex(domain, kind)), RequestOptions.DEFAULT);
         LOG.debug("Successfully removed {}: {}",
-                ElasticsearchUtils.getContextDomainName(domain, kind), acknowledgedResponse);
+                ElasticsearchUtils.getAnyIndex(domain, kind), acknowledgedResponse);
+    }
+
+    protected CreateIndexResponse doCreateAuditIndex(
+            final String domain,
+            final XContentBuilder settings,
+            final XContentBuilder mapping) throws IOException {
+
+        return client.indices().create(
+                new CreateIndexRequest(ElasticsearchUtils.getAuditIndex(domain)).
+                        settings(settings).
+                        mapping(mapping), RequestOptions.DEFAULT);
+    }
+
+    public void createAuditIndex(
+            final String domain,
+            final XContentBuilder settings,
+            final XContentBuilder mapping)
+            throws IOException {
+
+        try {
+            CreateIndexResponse response = doCreateAuditIndex(domain, settings, mapping);
+
+            LOG.debug("Successfully created {} for {}: {}",
+                    ElasticsearchUtils.getAuditIndex(domain), response);
+        } catch (ElasticsearchStatusException e) {
+            LOG.debug("Could not create index {} because it already exists",
+                    ElasticsearchUtils.getAuditIndex(domain), e);
+
+            removeAuditIndex(domain);
+            doCreateAuditIndex(domain, settings, mapping);
+        }
+    }
+
+    public void removeAuditIndex(final String domain) throws IOException {
+        AcknowledgedResponse acknowledgedResponse = client.indices().delete(
+                new DeleteIndexRequest(ElasticsearchUtils.getAuditIndex(domain)), RequestOptions.DEFAULT);
+        LOG.debug("Successfully removed {}: {}",
+                ElasticsearchUtils.getAuditIndex(domain), acknowledgedResponse);
     }
 
     @TransactionalEventListener
-    public void after(final AnyLifecycleEvent<Any<?>> event) throws IOException {
+    public void any(final AnyLifecycleEvent<Any<?>> event) throws IOException {
         LOG.debug("About to {} index for {}", event.getType().name(), event.getAny());
 
         if (event.getType() == SyncDeltaType.DELETE) {
             DeleteRequest request = new DeleteRequest(
-                    ElasticsearchUtils.getContextDomainName(event.getDomain(), event.getAny().getType().getKind()),
+                    ElasticsearchUtils.getAnyIndex(event.getDomain(), event.getAny().getType().getKind()),
                     event.getAny().getKey());
             DeleteResponse response = client.delete(request, RequestOptions.DEFAULT);
             LOG.debug("Index successfully deleted for {}[{}]: {}",
                     event.getAny().getType().getKind(), event.getAny().getKey(), response);
         } else {
             GetRequest getRequest = new GetRequest(
-                    ElasticsearchUtils.getContextDomainName(
-                            event.getDomain(), event.getAny().getType().getKind()),
+                    ElasticsearchUtils.getAnyIndex(event.getDomain(), event.getAny().getType().getKind()),
                     event.getAny().getKey());
             GetResponse getResponse = client.get(getRequest, RequestOptions.DEFAULT);
             if (getResponse.isExists()) {
                 LOG.debug("About to update index for {}", event.getAny());
 
                 UpdateRequest request = new UpdateRequest(
-                        ElasticsearchUtils.getContextDomainName(
-                                event.getDomain(), event.getAny().getType().getKind()),
+                        ElasticsearchUtils.getAnyIndex(event.getDomain(), event.getAny().getType().getKind()),
                         event.getAny().getKey()).
                         retryOnConflict(elasticsearchUtils.getRetryOnConflict()).
                         doc(elasticsearchUtils.builder(event.getAny(), event.getDomain()));
@@ -180,13 +262,26 @@ public class ElasticsearchIndexManager {
                 LOG.debug("About to create index for {}", event.getAny());
 
                 IndexRequest request = new IndexRequest(
-                        ElasticsearchUtils.getContextDomainName(
-                                event.getDomain(), event.getAny().getType().getKind())).
+                        ElasticsearchUtils.getAnyIndex(event.getDomain(), event.getAny().getType().getKind())).
                         id(event.getAny().getKey()).
                         source(elasticsearchUtils.builder(event.getAny(), event.getDomain()));
                 IndexResponse response = client.index(request, RequestOptions.DEFAULT);
                 LOG.debug("Index successfully created for {}: {}", event.getAny(), response);
             }
         }
+    }
+
+    public void audit(final String domain, final long instant, final AuditEntry message)
+            throws IOException {
+
+        LOG.debug("About to audit");
+
+        IndexRequest request = new IndexRequest(
+                ElasticsearchUtils.getAuditIndex(domain)).
+                id(SecureRandomUtils.generateRandomUUID().toString()).
+                source(elasticsearchUtils.builder(instant, message, domain));
+        IndexResponse response = client.index(request, RequestOptions.DEFAULT);
+
+        LOG.debug("Audit successfully created: {}", response);
     }
 }

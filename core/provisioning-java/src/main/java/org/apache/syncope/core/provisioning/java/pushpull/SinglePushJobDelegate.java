@@ -69,6 +69,8 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
                 map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
         profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 
+        this.task = profile.getTask();
+
         for (PushActions action : profile.getActions()) {
             action.beforeAll(profile);
         }
@@ -111,6 +113,8 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While pushing to connector", e);
+        } finally {
+            setStatus(null);
         }
     }
 
@@ -138,6 +142,8 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While pushing to connector", e);
+        } finally {
+            setStatus(null);
         }
     }
 }

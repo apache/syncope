@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +48,7 @@ import javax.ws.rs.core.GenericType;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AttrPatch;
@@ -83,7 +85,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
@@ -357,9 +359,9 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE741() {
         for (int i = 0; i < 3; i++) {
-            taskService.execute(new ExecuteQuery.Builder().
+            taskService.execute(new ExecSpecs.Builder().
                     key("1e697572-b896-484c-ae7f-0c8f63fcbc6c").build());
-            taskService.execute(new ExecuteQuery.Builder().
+            taskService.execute(new ExecSpecs.Builder().
                     key("316285cc-ae52-4ea2-a33b-7355e189ac3f").build());
         }
         try {
@@ -395,8 +397,9 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertFalse(task.getExecutions().isEmpty());
 
         // check list executions
-        PagedResult<ExecTO> execs = taskService.listExecutions(new ExecQuery.Builder().key(
-                "1e697572-b896-484c-ae7f-0c8f63fcbc6c").
+        PagedResult<ExecTO> execs = taskService.listExecutions(new ExecQuery.Builder().
+                key("1e697572-b896-484c-ae7f-0c8f63fcbc6c").
+                before(DateUtils.addSeconds(new Date(), 30)).
                 page(1).size(2).build());
         assertTrue(execs.getTotalCount() >= execs.getResult().size());
     }

@@ -28,10 +28,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.syncope.common.lib.patch.AnyPatch;
+
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;

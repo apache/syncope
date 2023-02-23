@@ -29,7 +29,7 @@ import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.service.ReportService;
 
 public class ReportSyncopeOperations {
@@ -98,7 +98,7 @@ public class ReportSyncopeOperations {
     }
 
     public void execute(final String reportKey) {
-        reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
+        reportService.execute(new ExecSpecs.Builder().key(reportKey).build());
     }
 
     public void deleteExecution(final String executionKey) {

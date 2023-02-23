@@ -23,11 +23,11 @@ import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class ExecQuery extends AbstractQuery {
+public class ExecQuery extends AbstractTimeframeQuery {
 
     private static final long serialVersionUID = -8792519310029596796L;
 
-    public static class Builder extends AbstractQuery.Builder<ExecQuery, Builder> {
+    public static class Builder extends AbstractTimeframeQuery.Builder<ExecQuery, Builder> {
 
         @Override
         protected ExecQuery newInstance() {

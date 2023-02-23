@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.sql.Clob;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -45,6 +47,11 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
 
         protected String andIfNeeded() {
             return query.length() == 0 ? " " : " AND ";
+        }
+
+        protected int setParameter(final List<Object> parameters, final Object parameter) {
+            parameters.add(parameter);
+            return parameters.size();
         }
 
         protected MessageCriteriaBuilder entityKey(final String entityKey) {
@@ -98,6 +105,22 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
             return this;
         }
 
+        public MessageCriteriaBuilder before(final Date before, final List<Object> parameters) {
+            if (before != null) {
+                query.append(andIfNeeded()).append(AUDIT_ENTRY_EVENT_DATE_COLUMN).
+                        append(" <= ?").append(setParameter(parameters, before));
+            }
+            return this;
+        }
+
+        public MessageCriteriaBuilder after(final Date after, final List<Object> parameters) {
+            if (after != null) {
+                query.append(andIfNeeded()).append(AUDIT_ENTRY_EVENT_DATE_COLUMN).
+                        append(" >= ?").append(setParameter(parameters, after));
+            }
+            return this;
+        }
+
         public String build() {
             return query.toString();
         }
@@ -144,6 +167,16 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
         return new MessageCriteriaBuilder().entityKey(entityKey);
     }
 
+    protected void fillWithParameters(final Query query, final List<Object> parameters) {
+        for (int i = 0; i < parameters.size(); i++) {
+            if (parameters.get(i) instanceof Boolean) {
+                query.setParameter(i + 1, ((Boolean) parameters.get(i)) ? 1 : 0);
+            } else {
+                query.setParameter(i + 1, parameters.get(i));
+            }
+        }
+    }
+
     @Override
     public int countAuditEntries(
             final String entityKey,
@@ -151,8 +184,11 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
             final String category,
             final String subcategory,
             final List<String> events,
-            final AuditElements.Result result) {
+            final AuditElements.Result result,
+            final Date before,
+            final Date after) {
 
+        List<Object> parameters = new ArrayList<>();
         String queryString = "SELECT COUNT(0)"
                 + " FROM " + AUDIT_TABLE
                 + " WHERE " + messageCriteriaBuilder(entityKey).
@@ -161,10 +197,13 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
                         subcategory(subcategory).
                         result(result).
                         events(events).
+                        before(before, parameters).
+                        after(after, parameters).
                         build();
-        Query countQuery = entityManager().createNativeQuery(queryString);
+        Query query = entityManager().createNativeQuery(queryString);
+        fillWithParameters(query, parameters);
 
-        return ((Number) countQuery.getSingleResult()).intValue();
+        return ((Number) query.getSingleResult()).intValue();
     }
 
     protected String select() {
@@ -182,8 +221,11 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
             final String subcategory,
             final List<String> events,
             final AuditElements.Result result,
-            final List<OrderByClause> orderByClauses) {
+            final Date before,
+            final Date after,
+            final List<OrderByClause> orderBy) {
 
+        List<Object> parameters = new ArrayList<>();
         String queryString = "SELECT " + select()
                 + " FROM " + AUDIT_TABLE
                 + " WHERE " + messageCriteriaBuilder(entityKey).
@@ -192,14 +234,17 @@ public class JPALoggerDAO extends AbstractDAO<Logger> implements LoggerDAO {
                         subcategory(subcategory).
                         result(result).
                         events(events).
+                        before(before, parameters).
+                        after(after, parameters).
                         build();
-        if (!orderByClauses.isEmpty()) {
-            queryString += " ORDER BY " + orderByClauses.stream().
-                    map(orderBy -> orderBy.getField() + ' ' + orderBy.getDirection().name()).
+        if (!orderBy.isEmpty()) {
+            queryString += " ORDER BY " + orderBy.stream().
+                    map(clause -> clause.getField() + ' ' + clause.getDirection().name()).
                     collect(Collectors.joining(","));
         }
 
         Query query = entityManager().createNativeQuery(queryString);
+        fillWithParameters(query, parameters);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         if (itemsPerPage >= 0) {
             query.setMaxResults(itemsPerPage);

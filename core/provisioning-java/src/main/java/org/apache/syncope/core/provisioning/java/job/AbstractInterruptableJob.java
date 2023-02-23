@@ -29,11 +29,6 @@ public abstract class AbstractInterruptableJob implements InterruptableJob {
     private final JobDelegate embeddedDelegate = new JobDelegate() {
 
         @Override
-        public String currentStatus() {
-            return "RUNNING";
-        }
-
-        @Override
         public void interrupt() {
         }
 

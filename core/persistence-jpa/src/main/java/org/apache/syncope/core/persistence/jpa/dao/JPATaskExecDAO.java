@@ -77,52 +77,43 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO
         return findLatest(task, "end");
     }
 
-    @Override
-    public <T extends Task> List<TaskExec> findAll(
-            final T task,
-            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+    protected StringBuilder query(
+            final StringBuilder select,
+            final Task task,
+            final Date before,
+            final Date after) {
 
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPATaskExec.class.getSimpleName()).
+        StringBuilder query = select.
+                append(JPATaskExec.class.getSimpleName()).
                 append(" e WHERE e.task=:task ");
-
-        if (startedBefore != null) {
-            queryString.append(" AND e.start < :startedBefore");
+        if (before != null) {
+            query.append("AND e.start <= :before ");
         }
-        if (startedAfter != null) {
-            queryString.append(" AND e.start > :startedAfter");
-        }
-        if (endedBefore != null) {
-            queryString.append(" AND e.end < :endedBefore");
-        }
-        if (endedAfter != null) {
-            queryString.append(" AND e.end > :endedAfter");
+        if (after != null) {
+            query.append("AND e.start >= :after ");
         }
 
-        TypedQuery<TaskExec> query = entityManager().createQuery(queryString.toString(), TaskExec.class);
-        query.setParameter("task", task);
-        if (startedBefore != null) {
-            query.setParameter("startedBefore", startedBefore);
-        }
-        if (startedAfter != null) {
-            query.setParameter("startedAfter", startedAfter);
-        }
-        if (endedBefore != null) {
-            query.setParameter("endedBefore", endedBefore);
-        }
-        if (endedAfter != null) {
-            query.setParameter("endedAfter", endedAfter);
-        }
-
-        return query.getResultList();
+        return query;
     }
 
     @Override
-    public int count(final String taskKey) {
-        Query countQuery = entityManager().createNativeQuery(
-                "SELECT COUNT(e.id) FROM " + JPATaskExec.TABLE + " e WHERE e.task_id=?1");
-        countQuery.setParameter(1, taskKey);
+    public int count(
+            final Task task,
+            final Date before,
+            final Date after) {
 
-        return ((Number) countQuery.getSingleResult()).intValue();
+        StringBuilder queryString = query(new StringBuilder("SELECT COUNT(e) FROM "), task, before, after);
+
+        Query query = entityManager().createQuery(queryString.toString());
+        query.setParameter("task", task);
+        if (before != null) {
+            query.setParameter("before", before);
+        }
+        if (after != null) {
+            query.setParameter("after", after);
+        }
+
+        return ((Number) query.getSingleResult()).intValue();
     }
 
     private String toOrderByStatement(final List<OrderByClause> orderByClauses) {
@@ -136,23 +127,34 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec> implements TaskExecDAO
         });
 
         if (statement.length() == 0) {
-            statement.append("ORDER BY e.id DESC");
+            statement.append(" ORDER BY e.id DESC");
         } else {
-            statement.insert(0, "ORDER BY ");
+            statement.insert(0, " ORDER BY ");
         }
         return statement.toString();
     }
 
     @Override
-    public <T extends Task> List<TaskExec> findAll(
-            final T task, final int page, final int itemsPerPage, final List<OrderByClause> orderByClauses) {
+    @SuppressWarnings("unchecked")
+    public List<TaskExec> findAll(
+            final Task task,
+            final Date before,
+            final Date after,
+            final int page,
+            final int itemsPerPage,
+            final List<OrderByClause> orderByClauses) {
 
-        String queryString =
-                "SELECT e FROM " + JPATaskExec.class.getSimpleName() + " e WHERE e.task=:task "
-                + toOrderByStatement(orderByClauses);
+        StringBuilder queryString = query(new StringBuilder("SELECT e FROM "), task, before, after).
+                append(toOrderByStatement(orderByClauses));
 
-        TypedQuery<TaskExec> query = entityManager().createQuery(queryString, TaskExec.class);
+        Query query = entityManager().createQuery(queryString.toString());
         query.setParameter("task", task);
+        if (before != null) {
+            query.setParameter("before", before);
+        }
+        if (after != null) {
+            query.setParameter("after", after);
+        }
 
         // page starts from 1, while setFirtResult() starts from 0
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));

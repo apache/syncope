@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-ext</artifactId>
-    <version>2.1.13-SNAPSHOT</version>
+    <version>2.1.14-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Ext: Elasticsearch</name>
@@ -41,6 +41,7 @@ under the License.
     <module>client-elasticsearch</module>
     <module>persistence-jpa</module>
     <module>provisioning-java</module>
+    <module>logic</module>
   </modules>
 
 </project>

@@ -222,6 +222,8 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
                     virSchemaDAO.findByProvision(provision).stream().map(VirSchema::asLinkingMappingItem));
 
+            this.task = profile.getTask();
+            
             connector.fullReconciliation(
                     provision.getObjectClass(),
                     handler,
@@ -242,6 +244,8 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While stream pulling", e);
+        } finally {
+            setStatus(null);
         }
     }
 }

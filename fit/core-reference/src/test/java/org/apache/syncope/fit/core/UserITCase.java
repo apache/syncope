@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -642,12 +643,14 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void verifyTaskRegistration() {
         // get task list
-        PagedResult<PropagationTaskTO> tasks = taskService.search(
-                new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
-        assertNotNull(tasks);
-        assertFalse(tasks.getResult().isEmpty());
+        List<PropagationTaskTO> tasks = taskService.<PropagationTaskTO>search(
+                new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1000).build()).getResult();
+        assertFalse(tasks.isEmpty());
 
-        String maxKey = tasks.getResult().iterator().next().getKey();
+        String maxKey = tasks.stream().
+                max(Comparator.comparing(PropagationTaskTO::getStart, Comparator.nullsLast(Comparator.naturalOrder()))).
+                map(PropagationTaskTO::getKey).orElse(null);
+        assertNotNull(maxKey);
 
         // --------------------------------------
         // Create operation
@@ -663,11 +666,14 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
-        assertNotNull(tasks);
-        assertFalse(tasks.getResult().isEmpty());
+        tasks = taskService.<PropagationTaskTO>search(
+                new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1000).build()).getResult();
+        assertFalse(tasks.isEmpty());
 
-        String newMaxKey = tasks.getResult().iterator().next().getKey();
+        String newMaxKey = tasks.stream().
+                max(Comparator.comparing(PropagationTaskTO::getStart, Comparator.nullsLast(Comparator.naturalOrder()))).
+                map(PropagationTaskTO::getKey).orElse(null);
+        assertNotNull(newMaxKey);
 
         // default configuration for ws-target-resource2 during create:
         // only failed executions have to be registered
@@ -687,16 +693,18 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
+        tasks = taskService.<PropagationTaskTO>search(
+                new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1000).build()).getResult();
+        assertFalse(tasks.isEmpty());
 
         // default configuration for ws-target-resource2 during update:
         // all update executions have to be registered
-        newMaxKey = tasks.getResult().iterator().next().getKey();
+        newMaxKey = tasks.stream().
+                max(Comparator.comparing(PropagationTaskTO::getStart, Comparator.nullsLast(Comparator.naturalOrder()))).
+                map(PropagationTaskTO::getKey).orElse(null);
+        assertNotNull(newMaxKey);
 
-        PropagationTaskTO taskTO = taskService.read(TaskType.PROPAGATION, newMaxKey, true);
-
-        assertNotNull(taskTO);
-        assertEquals(1, taskTO.getExecutions().size());
+        assertNotNull(taskService.read(TaskType.PROPAGATION, newMaxKey, false));
 
         // --------------------------------------
         // Delete operation
@@ -704,10 +712,15 @@ public class UserITCase extends AbstractITCase {
         userService.delete(userTO.getKey());
 
         // get the new task list
-        tasks = taskService.search(new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build());
+        tasks = taskService.<PropagationTaskTO>search(
+                new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1000).build()).getResult();
+        assertFalse(tasks.isEmpty());
 
         maxKey = newMaxKey;
-        newMaxKey = tasks.getResult().iterator().next().getKey();
+        newMaxKey = tasks.stream().
+                max(Comparator.comparing(PropagationTaskTO::getStart, Comparator.nullsLast(Comparator.naturalOrder()))).
+                map(PropagationTaskTO::getKey).orElse(null);
+        assertNotNull(newMaxKey);
 
         // default configuration for ws-target-resource2: no delete executions have to be registered
         // --> no more tasks/executions should be added

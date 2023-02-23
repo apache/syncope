@@ -25,6 +25,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.slf4j.Logger;
@@ -91,6 +92,7 @@ public class ContentLoaderHandler extends DefaultHandler {
                 LOG.warn("Variable ${} could not be resolved", attrs.getValue(i));
                 value = attrs.getValue(i);
             }
+            value = StringEscapeUtils.unescapeXml(value);
 
             switch (colType) {
                 case Types.INTEGER:

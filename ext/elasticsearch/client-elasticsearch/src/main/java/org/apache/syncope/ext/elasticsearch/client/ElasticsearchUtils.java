@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.log.AuditEntry;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -47,8 +48,12 @@ import org.springframework.transaction.annotation.Transactional;
 @SuppressWarnings("deprecation")
 public class ElasticsearchUtils {
 
-    public static String getContextDomainName(final String domain, final AnyTypeKind kind) {
+    public static String getAnyIndex(final String domain, final AnyTypeKind kind) {
         return domain.toLowerCase() + '_' + kind.name().toLowerCase();
+    }
+
+    public static String getAuditIndex(final String domain) {
+        return domain.toLowerCase() + "_audit";
     }
 
     @Autowired
@@ -251,7 +256,49 @@ public class ElasticsearchUtils {
         return builder;
     }
 
-    protected XContentBuilder customizeBuilder(final XContentBuilder builder, final User user, final String domain)
+    protected XContentBuilder customizeBuilder(
+            final XContentBuilder builder, final User user, final String domain)
+            throws IOException {
+
+        return builder;
+    }
+
+    public XContentBuilder builder(
+            final long instant, final AuditEntry message, final String domain) throws IOException {
+
+        XContentBuilder builder = XContentFactory.jsonBuilder().
+                startObject().
+                field("instant", instant).
+                field("message").
+                startObject().
+                field("who", message.getWho()).
+                field("date", message.getDate()).
+                field("logger").
+                startObject().
+                field("type", message.getLogger().getType().name()).
+                field("category", message.getLogger().getCategory()).
+                field("subcategory", message.getLogger().getSubcategory()).
+                field("event", message.getLogger().getEvent()).
+                field("result", message.getLogger().getResult().name()).
+                endObject().
+                field("before", message.getBefore()).
+                field("output", message.getOutput()).
+                field("throwable", message.getThrowable()).
+                field("inputs").startArray();
+        for (String input : message.getInputs()) {
+            builder.value(input);
+        }
+        builder.endArray().
+                endObject().
+                endObject();
+
+        builder = customizeBuilder(builder, instant, message, domain);
+
+        return builder;
+    }
+
+    protected XContentBuilder customizeBuilder(
+            final XContentBuilder builder, final long instant, final AuditEntry message, final String domain)
             throws IOException {
 
         return builder;

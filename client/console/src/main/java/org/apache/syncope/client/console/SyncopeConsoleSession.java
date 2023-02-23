@@ -64,6 +64,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.util.CollectionUtils;
 
 public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
@@ -295,7 +296,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     public List<String> getSearchableRealms() {
         Set<String> roots = auth.get(StandardEntitlement.REALM_LIST);
-        return roots.isEmpty()
+        return CollectionUtils.isEmpty(roots)
                 ? Collections.emptyList()
                 : roots.stream().sorted().collect(Collectors.toList());
     }

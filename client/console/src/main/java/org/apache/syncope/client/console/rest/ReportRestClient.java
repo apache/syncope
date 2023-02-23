@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -89,7 +89,7 @@ public class ReportRestClient extends BaseRestClient
 
     @Override
     public void startExecution(final String reportKey, final Date start) {
-        getService(ReportService.class).execute(new ExecuteQuery.Builder().key(reportKey).startAt(start).build());
+        getService(ReportService.class).execute(new ExecSpecs.Builder().key(reportKey).startAt(start).build());
     }
 
     @Override
@@ -110,9 +110,8 @@ public class ReportRestClient extends BaseRestClient
     public List<ExecTO> listExecutions(
             final String taskKey, final int page, final int size, final SortParam<String> sort) {
 
-        return getService(ReportService.class).
-                listExecutions(new ExecQuery.Builder().key(taskKey).page(page).size(size).
-                        orderBy(toOrderBy(sort)).build()).getResult();
+        return getService(ReportService.class).listExecutions(new ExecQuery.Builder().
+                key(taskKey).page(page).size(size).orderBy(toOrderBy(sort)).build()).getResult();
     }
 
     @Override

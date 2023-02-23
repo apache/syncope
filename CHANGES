@@ -2,6 +2,20 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.1.13
+================================================================================
+
+** Bug
+    * [SYNCOPE-1693] - Must change password submit on console leads to errors
+    * [SYNCOPE-1704] - Policy update not affecting External Resources
+    * [SYNCOPE-1706] - Notification task not created with event category PROPAGATION
+
+** Improvement
+    * [SYNCOPE-1694] - Optimize creation of Implementation instances
+    * [SYNCOPE-1696] - Audit Elasticsearch persistence
+    * [SYNCOPE-1709] - Persist Jobs' current status in the database to support multi-node deployments
+    * [SYNCOPE-1713] - Support time-based conditions for Audit, Exec and Remediation queries
+
 Release Notes - Syncope - Version 2.1.12
 ================================================================================
 

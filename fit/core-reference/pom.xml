@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-fit</artifactId>
-    <version>2.1.13-SNAPSHOT</version>
+    <version>2.1.14-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope FIT Core Reference</name>
@@ -448,6 +448,11 @@ under the License.
       <dependencies>
         <dependency>
           <groupId>org.apache.syncope.ext.elasticsearch</groupId>
+          <artifactId>syncope-ext-elasticsearch-logic</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.elasticsearch</groupId>
           <artifactId>syncope-ext-elasticsearch-provisioning-java</artifactId>
           <version>${project.version}</version>
         </dependency>
@@ -499,6 +504,7 @@ under the License.
                       <discovery.type>single-node</discovery.type>
                       <cluster.name>elasticsearch</cluster.name>
                       <xpack.security.enabled>false</xpack.security.enabled>
+                      <ES_JAVA_OPTS>-Xms750m -Xmx750m</ES_JAVA_OPTS>
                     </env>
                     <ports>
                       <port>9200:9200</port>

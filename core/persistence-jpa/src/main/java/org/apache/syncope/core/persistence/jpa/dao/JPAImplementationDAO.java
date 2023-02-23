@@ -21,15 +21,25 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAImplementationDAO extends AbstractDAO<Implementation> implements ImplementationDAO {
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    private EntityCacheDAO entityCacheDAO;
 
     @Transactional(readOnly = true)
     @Override
@@ -59,6 +69,9 @@ public class JPAImplementationDAO extends AbstractDAO<Implementation> implements
 
         ImplementationManager.purge(merged.getKey());
 
+        resourceDAO.findByProvisionSorter(merged).
+                forEach(resource -> entityCacheDAO.evict(JPAExternalResource.class, resource.getKey()));
+
         return merged;
     }
 
@@ -72,5 +85,4 @@ public class JPAImplementationDAO extends AbstractDAO<Implementation> implements
         entityManager().remove(implementation);
         ImplementationManager.purge(key);
     }
-
 }

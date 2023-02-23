@@ -39,9 +39,8 @@ import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.ExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 
 public interface ExecutableService extends JAXRSService {
 
@@ -91,7 +90,7 @@ public interface ExecutableService extends JAXRSService {
                     description = "Batch results available, returned as Response entity"))
     @Path("{key}/executions")
     @Produces(RESTHeaders.MULTIPART_MIXED)
-    Response deleteExecutions(@BeanParam ExecDeleteQuery query);
+    Response deleteExecutions(@BeanParam ExecQuery query);
 
     /**
      * Executes the executable matching the given query.
@@ -102,7 +101,7 @@ public interface ExecutableService extends JAXRSService {
     @POST
     @Path("{key}/execute")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    ExecTO execute(@BeanParam ExecuteQuery query);
+    ExecTO execute(@BeanParam ExecSpecs query);
 
     /**
      * Returns job (running or scheduled) for the executable matching the given key.

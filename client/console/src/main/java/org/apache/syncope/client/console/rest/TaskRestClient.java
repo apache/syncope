@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
@@ -213,7 +213,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     public void startExecution(final String taskKey, final Date start, final boolean dryRun) {
         getService(TaskService.class).execute(
-                new ExecuteQuery.Builder().key(taskKey).startAt(start).dryRun(dryRun).build());
+                new ExecSpecs.Builder().key(taskKey).startAt(start).dryRun(dryRun).build());
     }
 
     @Override

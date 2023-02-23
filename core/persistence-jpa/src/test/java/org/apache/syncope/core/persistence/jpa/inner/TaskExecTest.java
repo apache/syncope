@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -52,7 +53,7 @@ public class TaskExecTest extends AbstractTest {
         calendar.clear();
         calendar.set(2015, 11, 18, 0, 0, 0);
 
-        List<TaskExec> execs = taskExecDAO.findAll(task, calendar.getTime(), null, null, null);
+        List<TaskExec> execs = taskExecDAO.findAll(task, calendar.getTime(), null, -1, -1, Collections.emptyList());
         assertNotNull(execs);
         assertEquals(1, execs.size());
     }

@@ -131,4 +131,12 @@ under the License.
   </bean>
 
   <bean class="org.apache.syncope.core.provisioning.api.IntAttrNameParser"/>
+
+  <bean class="org.apache.syncope.core.provisioning.java.job.JobStatusUpdater" />
+  <!--
+     This is a special thread executor that only created a single worker thread.
+     This is necessary to allow job status update operations to queue up serially
+     and not via multiple threads to avoid the "lost update" problem.
+  -->
+  <task:executor id="jobStatusUpdaterThreadExecutor" pool-size="1" />
 </beans>

@@ -24,10 +24,12 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 import javax.ws.rs.core.Response;
@@ -219,7 +221,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         // streaming SAX handler from a compressed byte array stream
         try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
-                ZipInputStream zis = new ZipInputStream(bais)) {
+             ZipInputStream zis = new ZipInputStream(bais)) {
 
             // a single ZipEntry in the ZipInputStream (see ReportJob)
             zis.getNextEntry();
@@ -300,16 +302,19 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
     @Override
     public Pair<Integer, List<ExecTO>> listExecutions(
-            final String key, final int page, final int size, final List<OrderByClause> orderByClauses) {
+            final String key,
+            final Date before,
+            final Date after,
+            final int page,
+            final int size,
+            final List<OrderByClause> orderByClauses) {
 
-        Report report = reportDAO.find(key);
-        if (report == null) {
-            throw new NotFoundException("Report " + key);
-        }
+        Report report = Optional.ofNullable(reportDAO.find(key)).
+                orElseThrow(() -> new NotFoundException("Report " + key));
 
-        Integer count = reportExecDAO.count(key);
+        Integer count = reportExecDAO.count(report, before, after);
 
-        List<ExecTO> result = reportExecDAO.findAll(report, page, size, orderByClauses).stream().
+        List<ExecTO> result = reportExecDAO.findAll(report, before, after, page, size, orderByClauses).stream().
                 map(reportExec -> binder.getExecTO(reportExec)).collect(Collectors.toList());
 
         return Pair.of(count, result);
@@ -339,16 +344,15 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @Override
     public List<BatchResponseItem> deleteExecutions(
             final String key,
-            final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
+            final Date before,
+            final Date after) {
 
-        Report report = reportDAO.find(key);
-        if (report == null) {
-            throw new NotFoundException("Report " + key);
-        }
+        Report report = Optional.ofNullable(reportDAO.find(key)).
+                orElseThrow(() -> new NotFoundException("Report " + key));
 
         List<BatchResponseItem> batchResponseItems = new ArrayList<>();
 
-        reportExecDAO.findAll(report, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
+        reportExecDAO.findAll(report, before, after, -1, -1, Collections.emptyList()).forEach(exec -> {
             BatchResponseItem item = new BatchResponseItem();
             item.getHeaders().put(RESTHeaders.RESOURCE_KEY, Arrays.asList(exec.getKey()));
             batchResponseItems.add(item);

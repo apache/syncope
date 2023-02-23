@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import java.util.Date;
-import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -27,20 +25,29 @@ import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import java.util.Date;
+import java.util.List;
 
 public abstract class AbstractExecutableLogic<T extends EntityTO> extends AbstractJobLogic<T> {
 
     public abstract ExecTO execute(String key, Date startAt, boolean dryRun);
 
     public abstract Pair<Integer, List<ExecTO>> listExecutions(
-            String key, int page, int size, List<OrderByClause> orderByClauses);
+            String key,
+            Date before,
+            Date after,
+            int page,
+            int size,
+            List<OrderByClause> orderByClauses);
 
     public abstract List<ExecTO> listRecentExecutions(int max);
 
     public abstract ExecTO deleteExecution(String executionKey);
 
     public abstract List<BatchResponseItem> deleteExecutions(
-            String key, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
+            String key,
+            Date before,
+            Date after);
 
     public abstract JobTO getJob(String key);
 

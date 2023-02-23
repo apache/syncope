@@ -46,7 +46,7 @@ import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
@@ -111,7 +111,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
         AtomicReference<TaskTO> taskTO = new AtomicReference<>(task);
         int preSyncSize = taskTO.get().getExecutions().size();
-        taskService.execute(new ExecuteQuery.Builder().key(task.getKey()).startAt(later).build());
+        taskService.execute(new ExecSpecs.Builder().key(task.getKey()).startAt(later).build());
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
