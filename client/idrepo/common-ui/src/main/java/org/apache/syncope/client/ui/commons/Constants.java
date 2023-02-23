@@ -108,7 +108,7 @@ public final class Constants {
     public static final String UNDEFINED_ICON = "fas fa-question-circle";
 
     public static final String NOT_FOUND_ICON = "fas fa-minus-circle";
-    
+
     public static final String WARNING_ICON = "fas fa-exclamation-circle";
 
     public static final int MAX_GROUP_LIST_SIZE = 30;
@@ -122,7 +122,7 @@ public final class Constants {
     public static final String NOTIFICATION_LEVEL_PARAM = "notificationLevel";
 
     public static final String ENDUSER_ANYLAYOUT = "enduser.anylayout";
-    
+
     public static final String CONTENT_ID = "content";
 
     public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {
@@ -148,24 +148,6 @@ public final class Constants {
                 Model.<String>of(),
                 Model.of(body.toString()),
                 new PopoverConfig().withHtml(true).withPlacement(placement)) {
-
-            private static final long serialVersionUID = -7867802555691605021L;
-
-            @Override
-            protected String createRelAttribute() {
-                return "jexlInfo";
-            }
-        });
-    }
-
-    public static Component getHelpPopover(
-            final TooltipConfig.Placement placement,
-            final String helpMessage) {
-
-        return new Label("helpInfo", Model.of()).add(new PopoverBehavior(
-                Model.<String>of(),
-                Model.of(helpMessage),
-                new PopoverConfig().withPlacement(placement)) {
 
             private static final long serialVersionUID = -7867802555691605021L;
 

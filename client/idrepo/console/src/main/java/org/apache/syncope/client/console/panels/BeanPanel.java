@@ -97,27 +97,8 @@ public class BeanPanel<T extends Serializable> extends Panel {
     public BeanPanel(
             final String id,
             final IModel<T> bean,
-            final PageReference pageRef,
-            final boolean enableHelp,
-            final String... excluded) {
-        this(id, bean, null, pageRef, enableHelp, excluded);
-    }
-
-    public BeanPanel(
-            final String id,
-            final IModel<T> bean,
             final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper,
             final PageReference pageRef,
-            final String... excluded) {
-        this(id, bean, sCondWrapper, pageRef, false, excluded);
-    }
-
-    public BeanPanel(
-            final String id,
-            final IModel<T> bean,
-            final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper,
-            final PageReference pageRef,
-            final boolean enableHelp,
             final String... excluded) {
 
         super(id, bean);
@@ -176,7 +157,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                 item.replace(fragment);
             }
 
-            @SuppressWarnings({ "unchecked", "rawtypes" })
+            @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
             protected void populateItem(final ListItem<String> item) {
                 item.add(new Fragment("required", "emptyFragment", this));
@@ -281,7 +262,9 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     }
                 } else if (Map.class.equals(field.getType())) {
                     panel = new AjaxGridFieldPanel(
-                            "value", fieldName, enableHelp, new PropertyModel<>(bean, fieldName)).hideLabel();
+                            "value", fieldName, new PropertyModel<>(bean, fieldName)).hideLabel();
+                    Optional.ofNullable(field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class))
+                            .ifPresent(annot -> setDescription(item, annot.description()));
                 } else {
                     Triple<FieldPanel, Boolean, Optional<String>> single =
                             buildSinglePanel(bean.getObject(), field.getType(), field.getName(),

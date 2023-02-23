@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.policy;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,8 +39,12 @@ public class DefaultAccessPolicyConf implements AccessPolicyConf {
 
     private URI unauthorizedRedirectUrl;
 
+    @Schema(description =
+            "Insert comma-separated values in the right input field if you like to specify more than one value")
     private final Map<String, String> requiredAttrs = new HashMap<>();
 
+    @Schema(description =
+            "Insert comma-separated values in the right input field if you like to specify more than one value")
     private final Map<String, String> rejectedAttrs = new HashMap<>();
 
     public int getOrder() {
