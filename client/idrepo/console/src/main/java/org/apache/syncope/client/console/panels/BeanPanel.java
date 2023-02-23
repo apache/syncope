@@ -97,8 +97,27 @@ public class BeanPanel<T extends Serializable> extends Panel {
     public BeanPanel(
             final String id,
             final IModel<T> bean,
+            final PageReference pageRef,
+            final boolean enableHelp,
+            final String... excluded) {
+        this(id, bean, null, pageRef, enableHelp, excluded);
+    }
+
+    public BeanPanel(
+            final String id,
+            final IModel<T> bean,
             final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper,
             final PageReference pageRef,
+            final String... excluded) {
+        this(id, bean, sCondWrapper, pageRef, false, excluded);
+    }
+
+    public BeanPanel(
+            final String id,
+            final IModel<T> bean,
+            final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper,
+            final PageReference pageRef,
+            final boolean enableHelp,
             final String... excluded) {
 
         super(id, bean);
@@ -262,7 +281,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     }
                 } else if (Map.class.equals(field.getType())) {
                     panel = new AjaxGridFieldPanel(
-                            "value", fieldName, new PropertyModel<>(bean, fieldName)).hideLabel();
+                            "value", fieldName, enableHelp, new PropertyModel<>(bean, fieldName)).hideLabel();
                 } else {
                     Triple<FieldPanel, Boolean, Optional<String>> single =
                             buildSinglePanel(bean.getObject(), field.getType(), field.getName(),

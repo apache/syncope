@@ -158,6 +158,24 @@ public final class Constants {
         });
     }
 
+    public static Component getHelpPopover(
+            final TooltipConfig.Placement placement,
+            final String helpMessage) {
+
+        return new Label("helpInfo", Model.of()).add(new PopoverBehavior(
+                Model.<String>of(),
+                Model.of(helpMessage),
+                new PopoverConfig().withPlacement(placement)) {
+
+            private static final long serialVersionUID = -7867802555691605021L;
+
+            @Override
+            protected String createRelAttribute() {
+                return "jexlInfo";
+            }
+        });
+    }
+
     private Constants() {
         // private constructor for static utility class
     }

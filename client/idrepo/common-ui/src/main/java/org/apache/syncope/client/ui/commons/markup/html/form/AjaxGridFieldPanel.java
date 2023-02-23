@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.client.ui.commons.markup.html.form;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
@@ -39,8 +41,19 @@ public class AjaxGridFieldPanel<K, V, S> extends Panel {
 
     private static final long serialVersionUID = 1L;
 
+    private Component questionMarkHelp;
+
+
     public AjaxGridFieldPanel(final String id, final String name, final IModel<Map<K, V>> model) {
+        this(id, name, false, model);
+    }
+
+    public AjaxGridFieldPanel(final String id, final String name, final boolean enableHelp,
+                              final IModel<Map<K, V>> model) {
         super(id, model);
+
+        questionMarkHelp = Constants.getHelpPopover(TooltipConfig.Placement.right, getString("help_message"));
+        add(questionMarkHelp.setVisible(enableHelp));
 
         add(new Label(AbstractFieldPanel.LABEL, new ResourceModel(name, name)));
 

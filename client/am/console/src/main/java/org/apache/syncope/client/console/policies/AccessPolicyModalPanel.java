@@ -47,7 +47,7 @@ public class AccessPolicyModalPanel extends AbstractModalPanel<AccessPolicyTO> {
         super(modal, pageRef);
         this.model = model;
 
-        add(new BeanPanel<>("bean", new PropertyModel<>(model, "conf"), pageRef).setRenderBodyOnly(true));
+        add(new BeanPanel<>("bean", new PropertyModel<>(model, "conf"), pageRef, true).setRenderBodyOnly(true));
     }
 
     @Override

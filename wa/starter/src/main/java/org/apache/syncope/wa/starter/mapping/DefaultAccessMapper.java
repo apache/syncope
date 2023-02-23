@@ -46,13 +46,11 @@ public class DefaultAccessMapper implements AccessMapper {
 
         conf.getRequiredAttrs().forEach(
                 (k, v) -> accessStrategy.getRequiredAttributes().put(k,
-                        Stream.of(StringUtils.split(v, ",")).map(s -> StringUtils.trim(s))
-                                .collect(Collectors.toSet())));
+                        Stream.of(StringUtils.split(v, ",")).map(String::trim).collect(Collectors.toSet())));
 
         conf.getRejectedAttrs().forEach(
                 (k, v) -> accessStrategy.getRejectedAttributes().put(k,
-                        Stream.of(StringUtils.split(v, ",")).map(s -> StringUtils.trim(s))
-                                .collect(Collectors.toSet())));
+                        Stream.of(StringUtils.split(v, ",")).map(String::trim).collect(Collectors.toSet())));
 
         return accessStrategy;
     }
