@@ -21,6 +21,7 @@ package org.apache.syncope.wa.bootstrap;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.Map;
+import org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf;
 import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,33 @@ public class AuthModulePropertySourceMapperTest {
 
         conf.setTokenLength(256);
         conf.setTimeToKillInSeconds(600);
+
+        Map<String, Object> map = new AuthModulePropertySourceMapper(null).map(authModuleTO, conf);
+        assertFalse(map.keySet().stream().anyMatch(k -> k.endsWith("defined")));
+    }
+
+    @Test
+    public void mapOAuth20AuthModuleConf() {
+        AuthModuleTO authModuleTO = new AuthModuleTO();
+        authModuleTO.setKey("oauth20");
+        authModuleTO.setOrder(0);
+
+        OAuth20AuthModuleConf conf = new OAuth20AuthModuleConf();
+
+        conf.setClientId("1000");
+        conf.setClientSecret("secret");
+        conf.setClientName("oauth20");
+        conf.setEnabled(true);
+        conf.setCustomParams(Map.of("param1", "param1"));
+        conf.setAuthUrl("https://localhost/oauth2/auth");
+        conf.setProfileAttrs(Map.of("uid", "id"));
+        conf.setProfileUrl("https://localhost/oauth2/profile");
+        conf.setProfilePath("/info");
+        conf.setTokenUrl("https://localhost/oauth2/token");
+        conf.setResponseType("code");
+        conf.setScope("cns");
+        conf.setUserIdAttribute("uid");
+        conf.setWithState(true);
 
         Map<String, Object> map = new AuthModulePropertySourceMapper(null).map(authModuleTO, conf);
         assertFalse(map.keySet().stream().anyMatch(k -> k.endsWith("defined")));

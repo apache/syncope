@@ -22,24 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 
-public class OIDCAuthModuleConf extends Pac4jAuthModuleConf implements AuthModuleConf {
+public class OIDCAuthModuleConf extends AbstractOIDCAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -471527731042579422L;
-
-    /**
-     * The client id.
-     */
-    protected String clientId;
-
-    /**
-     * The client secret.
-     */
-    protected String clientSecret;
-
-    /**
-     * The attribute value that should be used for the authenticated username, upon a successful authentication attempt.
-     */
-    protected String userIdAttribute;
 
     protected String discoveryUri;
 
@@ -81,22 +66,6 @@ public class OIDCAuthModuleConf extends Pac4jAuthModuleConf implements AuthModul
      * Possibles values includes "code", "token" or "id_token".
      */
     protected String responseType;
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public void setClientId(final String clientId) {
-        this.clientId = clientId;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    public void setClientSecret(final String clientSecret) {
-        this.clientSecret = clientSecret;
-    }
 
     public String getUserIdAttribute() {
         return userIdAttribute;
