@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.inner;
 
 import java.util.List;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
@@ -57,7 +56,7 @@ public class AbstractClientAppTest extends AbstractTest {
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
         conf.setEnabled(true);
         conf.setSsoEnabled(false);
-        conf.getRequiredAttrs().add(new Attr.Builder("attribute1").values("value1", "value2").build());
+        conf.getRequiredAttrs().put("attribute1", "value1,value2");
         accessPolicy.setConf(conf);
 
         return policyDAO.save(accessPolicy);

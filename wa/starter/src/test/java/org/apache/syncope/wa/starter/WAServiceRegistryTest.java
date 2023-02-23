@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
@@ -114,7 +113,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         AccessPolicyTO accessPolicy = new AccessPolicyTO();
         DefaultAccessPolicyConf accessPolicyConf = new DefaultAccessPolicyConf();
         accessPolicyConf.setEnabled(true);
-        accessPolicyConf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
+        accessPolicyConf.getRequiredAttrs().put("cn", "admin,Admin,TheAdmin");
         accessPolicy.setConf(accessPolicyConf);
         waClientApp.setAccessPolicy(accessPolicy);
 

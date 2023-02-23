@@ -957,7 +957,7 @@ public abstract class AbstractITCase {
 
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
         conf.setEnabled(true);
-        conf.getRequiredAttrs().add(new Attr.Builder("cn").values("admin", "Admin", "TheAdmin").build());
+        conf.getRequiredAttrs().put("cn", "admin,Admin,TheAdmin");
         policy.setConf(conf);
 
         return policy;

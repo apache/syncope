@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.policies;
 
 import java.util.List;
-import org.apache.syncope.client.console.panels.ModalDirectoryPanel;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -92,49 +91,5 @@ public class AccessPolicyDirectoryPanel extends PolicyDirectoryPanel<AccessPolic
                 policySpecModal.show(true);
             }
         }, ActionLink.ActionType.CHANGE_VIEW, IdRepoEntitlement.POLICY_UPDATE);
-
-        if (model.getObject().getConf() instanceof DefaultAccessPolicyConf) {
-            panel.add(new ActionLink<>() {
-
-                private static final long serialVersionUID = -3722207913631435501L;
-
-                @Override
-                public void onClick(final AjaxRequestTarget target, final AccessPolicyTO ignore) {
-                    model.setObject(PolicyRestClient.read(type, model.getObject().getKey()));
-                    target.add(ruleCompositionModal.setContent(new ModalDirectoryPanel<>(
-                            ruleCompositionModal,
-                            new AccessPolicyAttrsDirectoryPanel(
-                                    "panel",
-                                    ruleCompositionModal,
-                                    model,
-                                    DefaultAccessPolicyConf::getRequiredAttrs,
-                                    pageRef),
-                            pageRef)));
-                    ruleCompositionModal.header(new Model<>(getString("requiredAttrs.title", model)));
-                    ruleCompositionModal.show(true);
-                }
-            }, ActionLink.ActionType.TYPE_EXTENSIONS, IdRepoEntitlement.POLICY_UPDATE);
-
-            panel.add(new ActionLink<>() {
-
-                private static final long serialVersionUID = -3722207913631435501L;
-
-                @Override
-                public void onClick(final AjaxRequestTarget target, final AccessPolicyTO ignore) {
-                    model.setObject(PolicyRestClient.read(type, model.getObject().getKey()));
-                    target.add(ruleCompositionModal.setContent(new ModalDirectoryPanel<>(
-                            ruleCompositionModal,
-                            new AccessPolicyAttrsDirectoryPanel(
-                                    "panel",
-                                    ruleCompositionModal,
-                                    model,
-                                    DefaultAccessPolicyConf::getRejectedAttrs,
-                                    pageRef),
-                            pageRef)));
-                    ruleCompositionModal.header(new Model<>(getString("rejectedAttrs.title", model)));
-                    ruleCompositionModal.show(true);
-                }
-            }, ActionLink.ActionType.CLAIM, IdRepoEntitlement.POLICY_UPDATE);
-        }
     }
 }

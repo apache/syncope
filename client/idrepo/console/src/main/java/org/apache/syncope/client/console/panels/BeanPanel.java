@@ -157,7 +157,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                 item.replace(fragment);
             }
 
-            @SuppressWarnings({ "unchecked", "rawtypes" })
+            @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
             protected void populateItem(final ListItem<String> item) {
                 item.add(new Fragment("required", "emptyFragment", this));
@@ -263,6 +263,8 @@ public class BeanPanel<T extends Serializable> extends Panel {
                 } else if (Map.class.equals(field.getType())) {
                     panel = new AjaxGridFieldPanel(
                             "value", fieldName, new PropertyModel<>(bean, fieldName)).hideLabel();
+                    Optional.ofNullable(field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class))
+                            .ifPresent(annot -> setDescription(item, annot.description()));
                 } else {
                     Triple<FieldPanel, Boolean, Optional<String>> single =
                             buildSinglePanel(bean.getObject(), field.getType(), field.getName(),
@@ -279,7 +281,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
         }.setReuseItems(true).setOutputMarkupId(true));
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private Triple<FieldPanel, Boolean, Optional<String>> buildSinglePanel(
             final Serializable bean, final Class<?> type, final String fieldName,
             final io.swagger.v3.oas.annotations.media.Schema schema, final String id) {
