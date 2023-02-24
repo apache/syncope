@@ -60,6 +60,7 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -81,9 +82,11 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.retry.RetryException;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.backoff.ExponentialRandomBackOffPolicy;
@@ -129,6 +132,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     protected final PlainAttrValidationManager validator;
 
+    protected final ApplicationEventPublisher publisher;
+
     protected final Map<String, PropagationActions> perContextActions = new ConcurrentHashMap<>();
 
     public AbstractPropagationTaskExecutor(
@@ -146,7 +151,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final AnyUtilsFactory anyUtilsFactory,
             final TaskUtilsFactory taskUtilsFactory,
             final OutboundMatcher outboundMatcher,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final ApplicationEventPublisher publisher) {
 
         this.connectorManager = connectorManager;
         this.connObjectUtils = connObjectUtils;
@@ -163,6 +169,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         this.taskUtilsFactory = taskUtilsFactory;
         this.outboundMatcher = outboundMatcher;
         this.validator = validator;
+        this.publisher = publisher;
     }
 
     @Override
@@ -199,11 +206,18 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         taskInfo.getResource().getProvisionByAnyType(taskInfo.getAnyType()).
                 filter(provision -> provision.getUidOnCreate() != null).
-                ifPresent(provision -> anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind()).addAttr(
-                validator,
-                taskInfo.getEntityKey(),
-                plainSchemaDAO.find(provision.getUidOnCreate()),
-                result.getUidValue()));
+                ifPresent(provision -> {
+                    anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind()).addAttr(
+                            validator,
+                            taskInfo.getEntityKey(),
+                            plainSchemaDAO.find(provision.getUidOnCreate()),
+                            result.getUidValue());
+                    publisher.publishEvent(new AnyLifecycleEvent<>(
+                            this,
+                            SyncDeltaType.UPDATE,
+                            userDAO.find(taskInfo.getEntityKey()),
+                            AuthContextUtils.getDomain()));
+                });
 
         return result;
     }

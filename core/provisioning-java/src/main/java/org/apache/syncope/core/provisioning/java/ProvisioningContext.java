@@ -567,7 +567,8 @@ public class ProvisioningContext {
             final AuditManager auditManager,
             final TaskDataBinder taskDataBinder,
             final OutboundMatcher outboundMatcher,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final ApplicationEventPublisher publisher) {
 
         return new PriorityPropagationTaskExecutor(
                 connectorManager,
@@ -585,6 +586,7 @@ public class ProvisioningContext {
                 taskUtilsFactory,
                 outboundMatcher,
                 validator,
+                publisher,
                 propagationTaskExecutorAsyncExecutor);
     }
 
