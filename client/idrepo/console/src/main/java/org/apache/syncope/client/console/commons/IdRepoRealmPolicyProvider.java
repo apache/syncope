@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.commons;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
@@ -29,56 +30,36 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.markup.html.form.AbstractSingleSelectChoice;
 import org.apache.wicket.markup.repeater.RepeatingView;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
 public class IdRepoRealmPolicyProvider implements RealmPolicyProvider {
 
-    private static final long serialVersionUID = 1L;
-
-    private final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<>() {
-
-        private static final long serialVersionUID = -2012833443695917883L;
-
-        @Override
-        protected Map<String, String> load() {
-            return PolicyRestClient.list(PolicyType.ACCOUNT).stream().
-                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
-        }
-    };
-
-    private final IModel<Map<String, String>> passwordPolicies = new LoadableDetachableModel<>() {
-
-        private static final long serialVersionUID = -2012833443695917883L;
-
-        @Override
-        protected Map<String, String> load() {
-            return PolicyRestClient.list(PolicyType.PASSWORD).stream().
-                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
-        }
-    };
+    private static final long serialVersionUID = 2933826125264961282L;
 
     @Override
     public void add(final RealmTO realmTO, final RepeatingView view) {
+        Map<String, String> accountPolicies = PolicyRestClient.list(PolicyType.ACCOUNT).stream().
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         AjaxDropDownChoicePanel<String> accountPolicy = new AjaxDropDownChoicePanel<>(
                 view.newChildId(),
                 new ResourceModel("accountPolicy", "accountPolicy").getObject(),
                 new PropertyModel<>(realmTO, "accountPolicy"),
                 false);
         accountPolicy.setChoiceRenderer(new PolicyRenderer(accountPolicies));
-        accountPolicy.setChoices(new ArrayList<>(accountPolicies.getObject().keySet()));
+        accountPolicy.setChoices(new ArrayList<>(accountPolicies.keySet()));
         ((AbstractSingleSelectChoice<?>) accountPolicy.getField()).setNullValid(true);
         view.add(accountPolicy);
 
+        Map<String, String> passwordPolicies = PolicyRestClient.list(PolicyType.PASSWORD).stream().
+                collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         AjaxDropDownChoicePanel<String> passwordPolicy = new AjaxDropDownChoicePanel<>(
                 view.newChildId(),
                 new ResourceModel("passwordPolicy", "passwordPolicy").getObject(),
                 new PropertyModel<>(realmTO, "passwordPolicy"),
                 false);
         passwordPolicy.setChoiceRenderer(new PolicyRenderer(passwordPolicies));
-        passwordPolicy.setChoices(new ArrayList<>(passwordPolicies.getObject().keySet()));
+        passwordPolicy.setChoices(new ArrayList<>(passwordPolicies.keySet()));
         ((AbstractSingleSelectChoice<?>) passwordPolicy.getField()).setNullValid(true);
         view.add(passwordPolicy);
     }

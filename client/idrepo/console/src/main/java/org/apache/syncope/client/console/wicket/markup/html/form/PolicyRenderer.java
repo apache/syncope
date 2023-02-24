@@ -20,22 +20,21 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.util.Map;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.model.IModel;
 
 public class PolicyRenderer extends ChoiceRenderer<String> {
 
     private static final long serialVersionUID = 8060500161321947000L;
 
-    private final IModel<Map<String, String>> policies;
+    private final Map<String, String> policies;
 
-    public PolicyRenderer(final IModel<Map<String, String>> policies) {
+    public PolicyRenderer(final Map<String, String> policies) {
         super();
         this.policies = policies;
     }
 
     @Override
     public Object getDisplayValue(final String object) {
-        return policies.getObject().get(object);
+        return policies.get(object);
     }
 
     @Override
