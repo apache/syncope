@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
@@ -46,7 +47,7 @@ public class ResourceSecurityPanel extends WizardStep {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.PASSWORD).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
@@ -57,7 +58,7 @@ public class ResourceSecurityPanel extends WizardStep {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ACCOUNT).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
@@ -68,7 +69,7 @@ public class ResourceSecurityPanel extends WizardStep {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.PROPAGATION).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
@@ -79,7 +80,7 @@ public class ResourceSecurityPanel extends WizardStep {
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.PULL).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
@@ -111,7 +112,7 @@ public class ResourceSecurityPanel extends WizardStep {
                 new ResourceModel("passwordPolicy", "passwordPolicy").getObject(),
                 new PropertyModel<>(resourceTO, "passwordPolicy"),
                 false);
-        passwordPolicy.setChoiceRenderer(new PolicyRenderer(passwordPolicies));
+        passwordPolicy.setChoiceRenderer(new PolicyRenderer(passwordPolicies.getObject()));
         passwordPolicy.setChoices(new ArrayList<>(passwordPolicies.getObject().keySet()));
         ((DropDownChoice<?>) passwordPolicy.getField()).setNullValid(true);
         container.add(passwordPolicy);
@@ -125,7 +126,7 @@ public class ResourceSecurityPanel extends WizardStep {
                 new ResourceModel("accountPolicy", "accountPolicy").getObject(),
                 new PropertyModel<>(resourceTO, "accountPolicy"),
                 false);
-        accountPolicy.setChoiceRenderer(new PolicyRenderer(accountPolicies));
+        accountPolicy.setChoiceRenderer(new PolicyRenderer(accountPolicies.getObject()));
         accountPolicy.setChoices(new ArrayList<>(accountPolicies.getObject().keySet()));
         ((DropDownChoice<?>) accountPolicy.getField()).setNullValid(true);
         container.add(accountPolicy);
@@ -139,7 +140,7 @@ public class ResourceSecurityPanel extends WizardStep {
                 new ResourceModel("propagationPolicy", "propagationPolicy").getObject(),
                 new PropertyModel<>(resourceTO, "propagationPolicy"),
                 false);
-        propagationPolicy.setChoiceRenderer(new PolicyRenderer(propagationPolicies));
+        propagationPolicy.setChoiceRenderer(new PolicyRenderer(propagationPolicies.getObject()));
         propagationPolicy.setChoices(new ArrayList<>(propagationPolicies.getObject().keySet()));
         ((DropDownChoice<?>) propagationPolicy.getField()).setNullValid(true);
         container.add(propagationPolicy);
@@ -153,7 +154,7 @@ public class ResourceSecurityPanel extends WizardStep {
                 new ResourceModel("pullPolicy", "pullPolicy").getObject(),
                 new PropertyModel<>(resourceTO, "pullPolicy"),
                 false);
-        pullPolicy.setChoiceRenderer(new PolicyRenderer(pullPolicies));
+        pullPolicy.setChoiceRenderer(new PolicyRenderer(pullPolicies.getObject()));
         pullPolicy.setChoices(new ArrayList<>(pullPolicies.getObject().keySet()));
         ((DropDownChoice<?>) pullPolicy.getField()).setNullValid(true);
         container.add(pullPolicy);
@@ -167,7 +168,7 @@ public class ResourceSecurityPanel extends WizardStep {
                 new ResourceModel("pushPolicy", "pushPolicy").getObject(),
                 new PropertyModel<>(resourceTO, "pushPolicy"),
                 false);
-        pushPolicy.setChoiceRenderer(new PolicyRenderer(pushPolicies));
+        pushPolicy.setChoiceRenderer(new PolicyRenderer(pushPolicies.getObject()));
         pushPolicy.setChoices(new ArrayList<>(pushPolicies.getObject().keySet()));
         ((DropDownChoice<?>) pushPolicy.getField()).setNullValid(true);
         container.add(pushPolicy);

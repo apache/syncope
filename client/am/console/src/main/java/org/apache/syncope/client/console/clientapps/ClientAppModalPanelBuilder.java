@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.clientapps;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -84,7 +85,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ACCESS).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
@@ -95,7 +96,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.ATTR_RELEASE).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
@@ -106,7 +107,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         @Override
         protected Map<String, String> load() {
             return PolicyRestClient.list(PolicyType.AUTH).stream().
-                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
@@ -182,21 +183,21 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
             AjaxDropDownChoicePanel<String> accessPolicy = new AjaxDropDownChoicePanel<>(
                     "field", "accessPolicy", new PropertyModel<>(clientAppTO, "accessPolicy"), false);
-            accessPolicy.setChoiceRenderer(new PolicyRenderer(accessPolicies));
+            accessPolicy.setChoiceRenderer(new PolicyRenderer(accessPolicies.getObject()));
             accessPolicy.setChoices(new ArrayList<>(accessPolicies.getObject().keySet()));
             ((AbstractSingleSelectChoice<?>) accessPolicy.getField()).setNullValid(true);
             fields.add(accessPolicy);
 
             AjaxDropDownChoicePanel<String> attrReleasePolicy = new AjaxDropDownChoicePanel<>(
                     "field", "attrReleasePolicy", new PropertyModel<>(clientAppTO, "attrReleasePolicy"), false);
-            attrReleasePolicy.setChoiceRenderer(new PolicyRenderer(attrReleasePolicies));
+            attrReleasePolicy.setChoiceRenderer(new PolicyRenderer(attrReleasePolicies.getObject()));
             attrReleasePolicy.setChoices(new ArrayList<>(attrReleasePolicies.getObject().keySet()));
             ((AbstractSingleSelectChoice<?>) attrReleasePolicy.getField()).setNullValid(true);
             fields.add(attrReleasePolicy);
 
             AjaxDropDownChoicePanel<String> authPolicy = new AjaxDropDownChoicePanel<>(
                     "field", "authPolicy", new PropertyModel<>(clientAppTO, "authPolicy"), false);
-            authPolicy.setChoiceRenderer(new PolicyRenderer(authPolicies));
+            authPolicy.setChoiceRenderer(new PolicyRenderer(authPolicies.getObject()));
             authPolicy.setChoices(new ArrayList<>(authPolicies.getObject().keySet()));
             authPolicy.setRequired(true);
             ((AbstractSingleSelectChoice<?>) authPolicy.getField()).setNullValid(true);
