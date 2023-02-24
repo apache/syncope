@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apereo.cas.authentication.principal.DefaultPrincipalAttributesRepository;
 import org.apereo.cas.authentication.principal.cache.AbstractPrincipalAttributesRepository;
 import org.apereo.cas.authentication.principal.cache.CachingPrincipalAttributesRepository;
-import org.apereo.cas.configuration.model.core.authentication.PrincipalAttributesCoreProperties;
+import org.apereo.cas.configuration.model.core.authentication.PrincipalAttributesCoreProperties.MergingStrategyTypes;
 import org.apereo.cas.services.AbstractRegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
 import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
@@ -53,6 +53,7 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
         ReturnAllowedAttributeReleasePolicy returnAllowed = null;
         if (!conf.getAllowedAttrs().isEmpty()) {
             returnAllowed = new ReturnAllowedAttributeReleasePolicy();
+            returnAllowed.setAllowedAttributes(conf.getAllowedAttrs());
         }
 
         AbstractRegisteredServiceAttributeReleasePolicy attributeReleasePolicy;
@@ -83,8 +84,7 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
                     ? new CachingPrincipalAttributesRepository(parc.getTimeUnit().name(), parc.getExpiration())
                     : new DefaultPrincipalAttributesRepository();
 
-            par.setMergingStrategy(
-                    PrincipalAttributesCoreProperties.MergingStrategyTypes.valueOf(parc.getMergingStrategy().name()));
+            par.setMergingStrategy(MergingStrategyTypes.valueOf(parc.getMergingStrategy().name()));
             par.setIgnoreResolvedAttributes(par.isIgnoreResolvedAttributes());
             par.setAttributeRepositoryIds(new HashSet<>(parc.getAttrRepos()));
             attributeReleasePolicy.setPrincipalAttributesRepository(par);
@@ -93,6 +93,12 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
         if (returnMapped != null && returnAllowed != null) {
             ChainingAttributeReleasePolicy chain = new ChainingAttributeReleasePolicy();
             chain.addPolicies(returnMapped, returnAllowed);
+
+            if (conf.getPrincipalAttrRepoConf() != null && !conf.getPrincipalAttrRepoConf().getAttrRepos().isEmpty()) {
+                DefaultAttrReleasePolicyConf.PrincipalAttrRepoConf parc = conf.getPrincipalAttrRepoConf();
+                chain.setMergingPolicy(MergingStrategyTypes.valueOf(parc.getMergingStrategy().name()));
+            }
+
             return chain;
         }
 
