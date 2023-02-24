@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JDBCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JaasAuthModuleConf;
 import org.apache.syncope.common.lib.auth.LDAPAuthModuleConf;
+import org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
@@ -51,6 +52,7 @@ import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorM
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.simple.CasSimpleMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.pac4j.oauth.Pac4jOAuth20ClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGenericOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.saml.Pac4jSamlClientProperties;
@@ -146,6 +148,27 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         client.setGeneric(props);
 
         return prefix("cas.authn.pac4j.oidc[].generic.", CasCoreConfigurationUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final OAuth20AuthModuleConf conf) {
+        Pac4jOAuth20ClientProperties props = new Pac4jOAuth20ClientProperties();
+        props.setId(conf.getClientId());
+        props.setSecret(conf.getClientSecret());
+        props.setClientName(Optional.ofNullable(conf.getClientName()).orElse(authModuleTO.getKey()));
+        props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
+        props.setCustomParams(conf.getCustomParams());
+        props.setAuthUrl(conf.getAuthUrl());
+        props.setProfileAttrs(conf.getProfileAttrs());
+        props.setProfilePath(conf.getProfilePath());
+        props.setProfileUrl(conf.getProfileUrl());
+        props.setTokenUrl(conf.getTokenUrl());
+        props.setResponseType(conf.getResponseType());
+        props.setScope(conf.getScope());
+        props.setPrincipalAttributeId(conf.getUserIdAttribute());
+        props.setWithState(conf.isWithState());
+        
+        return prefix("cas.authn.pac4j.oauth2[].", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
