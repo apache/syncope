@@ -27,14 +27,12 @@ public class OAuth20AuthModuleConf extends AbstractOIDCAuthModuleConf implements
     private static final long serialVersionUID = 299820485764241682L;
 
     protected String authUrl;
-    
+
     protected String profileUrl;
-    
+
     protected Map<String, String> profileAttrs = new LinkedHashMap<>();
 
     protected boolean withState;
-
-    protected String profilePath;
 
     protected String profileVerb = "POST";
 
@@ -60,14 +58,6 @@ public class OAuth20AuthModuleConf extends AbstractOIDCAuthModuleConf implements
 
     public void setWithState(final boolean withState) {
         this.withState = withState;
-    }
-
-    public String getProfilePath() {
-        return profilePath;
-    }
-
-    public void setProfilePath(final String profilePath) {
-        this.profilePath = profilePath;
     }
 
     public String getProfileUrl() {

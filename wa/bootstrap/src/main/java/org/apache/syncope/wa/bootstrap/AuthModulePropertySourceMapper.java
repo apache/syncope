@@ -160,12 +160,12 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setCustomParams(conf.getCustomParams());
         props.setAuthUrl(conf.getAuthUrl());
         props.setProfileAttrs(conf.getProfileAttrs());
-        props.setProfilePath(conf.getProfilePath());
+        props.setProfileVerb(conf.getProfileVerb());
         props.setProfileUrl(conf.getProfileUrl());
         props.setTokenUrl(conf.getTokenUrl());
         props.setResponseType(conf.getResponseType());
         props.setScope(conf.getScope());
-        props.setPrincipalAttributeId(conf.getUserIdAttribute());
+        props.setPrincipalIdAttribute(conf.getUserIdAttribute());
         props.setWithState(conf.isWithState());
         
         return prefix("cas.authn.pac4j.oauth2[].", CasCoreConfigurationUtils.asMap(props));

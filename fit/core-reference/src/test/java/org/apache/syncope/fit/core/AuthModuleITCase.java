@@ -151,7 +151,6 @@ public class AuthModuleITCase extends AbstractITCase {
                 OAuth20AuthModuleConf.class.cast(conf).setAuthUrl("https://localhost/oauth2/auth");
                 OAuth20AuthModuleConf.class.cast(conf).setProfileAttrs(Map.of("uid", "id"));
                 OAuth20AuthModuleConf.class.cast(conf).setProfileUrl("https://localhost/oauth2/profile");
-                OAuth20AuthModuleConf.class.cast(conf).setProfilePath("/info");
                 OAuth20AuthModuleConf.class.cast(conf).setTokenUrl("https://localhost/oauth2/token");
                 OAuth20AuthModuleConf.class.cast(conf).setResponseType("code");
                 OAuth20AuthModuleConf.class.cast(conf).setScope("oauth test");

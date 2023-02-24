@@ -88,7 +88,7 @@ under the License.
   <AuthModule id="DefaultU2FAuthModule" authModuleState="ACTIVE"
               description="U2F auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.U2FAuthModuleConf","expireDevices":40}'/>
   <AuthModule id="DefaultOAuth20AuthModule" description="OAuth20 auth module" authModuleOrder="0" 
-              jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf","clientName":"oauth20","clientId":"OAUTH20","clientSecret":"secret","enabled":true,"customParams":{},"tokenUrl":"https://localhost/oauth2/token","responseType":"code","scope":"oauth test","userIdAttribute":"username","authUrl":"https://localhost/oauth2/auth","profileUrl":"https://localhost/oauth2/profile","profileAttrs":{},"withState":false,"profilePath":null,"profileVerb":"POST"}' authModuleState="ACTIVE"/>
+              jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf","clientName":"oauth20","clientId":"OAUTH20","clientSecret":"secret","enabled":true,"customParams":{},"tokenUrl":"https://localhost/oauth2/token","responseType":"code","scope":"oauth test","userIdAttribute":"username","authUrl":"https://localhost/oauth2/auth","profileUrl":"https://localhost/oauth2/profile","profileAttrs":{},"withState":false,"profileVerb":"POST"}' authModuleState="ACTIVE"/>
 
 
   <!-- Attribute repositories -->
