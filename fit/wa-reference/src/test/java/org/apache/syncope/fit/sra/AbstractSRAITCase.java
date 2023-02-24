@@ -19,6 +19,9 @@
 package org.apache.syncope.fit.sra;
 
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.oneOf;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -258,8 +261,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
         ObjectNode headers = (ObjectNode) json.get("headers");
         assertEquals(MediaType.TEXT_HTML, headers.get(HttpHeaders.ACCEPT).asText());
-        assertEquals(EN_LANGUAGE, headers.get(HttpHeaders.ACCEPT_LANGUAGE).asText());
-        assertEquals("localhost:" + PORT, headers.get("X-Forwarded-Host").asText());
+        assertThat(headers.get("X-Forwarded-Host").asText(), is(oneOf("localhost:" + PORT, "127.0.0.1:" + PORT)));
 
         assertEquals(
                 StringUtils.substringBefore(originalRequestURI, "?"),

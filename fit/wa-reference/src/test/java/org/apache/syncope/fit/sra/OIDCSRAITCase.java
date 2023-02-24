@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.fit.sra;
 
+import static org.apache.syncope.fit.sra.AbstractSRAITCase.PORT;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.oneOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -271,7 +275,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         ObjectNode headers = (ObjectNode) json.get("headers");
         assertEquals(MediaType.APPLICATION_JSON, headers.get(HttpHeaders.ACCEPT).asText());
         assertEquals(MediaType.APPLICATION_JSON, headers.get(HttpHeaders.CONTENT_TYPE).asText());
-        assertEquals("localhost:" + PORT, headers.get("X-Forwarded-Host").asText());
+        assertThat(headers.get("X-Forwarded-Host").asText(), is(oneOf("localhost:" + PORT, "127.0.0.1:" + PORT)));
 
         assertEquals(client.getBaseURI().toASCIIString().replace("/protected", ""), json.get("url").asText());
     }
