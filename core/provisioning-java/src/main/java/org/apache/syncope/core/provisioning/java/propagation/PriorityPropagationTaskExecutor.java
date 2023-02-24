@@ -52,6 +52,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
@@ -103,6 +104,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final TaskUtilsFactory taskUtilsFactory,
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
+            final ApplicationEventPublisher publisher,
             final ThreadPoolTaskExecutor taskExecutor) {
 
         super(connectorManager,
@@ -119,7 +121,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 anyUtilsFactory,
                 taskUtilsFactory,
                 outboundMatcher,
-                validator);
+                validator,
+                publisher);
         this.taskExecutor = taskExecutor;
     }
 
