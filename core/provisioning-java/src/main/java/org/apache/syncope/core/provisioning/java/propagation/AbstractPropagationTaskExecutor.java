@@ -48,6 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
@@ -78,10 +79,12 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.retry.RetryException;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.backoff.ExponentialRandomBackOffPolicy;
@@ -169,6 +172,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     @Autowired
     protected PlainAttrValidationManager validator;
 
+    @Autowired
+    protected ApplicationEventPublisher publisher;
+
     @Override
     public void expireRetryTemplate(final String resource) {
         retryTemplates.remove(resource);
@@ -231,6 +237,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                             task.getEntityKey(),
                             provision.getUidOnCreate(),
                             result.getUidValue());
+                    publisher.publishEvent(new AnyLifecycleEvent<>(
+                            this,
+                            SyncDeltaType.UPDATE,
+                            userDAO.find(task.getEntityKey()),
+                            AuthContextUtils.getDomain()));
                 }
             });
         } else {
