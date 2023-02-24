@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 
@@ -51,29 +50,10 @@ public class OIDCAuthModuleConf extends AbstractOIDCAuthModuleConf implements Au
     protected String maxClockSkew;
 
     /**
-     * Custom parameters to send along in authZ requests, etc.
-     */
-    protected final Map<String, String> customParams = new HashMap<>(0);
-
-    /**
      * The response mode specifies how the result of the authorization request is formatted.
      * Possible values includes "query", "fragment", "form_post", or "web_message"
      */
     protected String responseMode;
-
-    /**
-     * The response type tells the authorization server which grant to execute.
-     * Possibles values includes "code", "token" or "id_token".
-     */
-    protected String responseType;
-
-    public String getUserIdAttribute() {
-        return userIdAttribute;
-    }
-
-    public void setUserIdAttribute(final String userIdAttribute) {
-        this.userIdAttribute = userIdAttribute;
-    }
 
     public String getDiscoveryUri() {
         return discoveryUri;
@@ -89,14 +69,6 @@ public class OIDCAuthModuleConf extends AbstractOIDCAuthModuleConf implements Au
 
     public void setUseNonce(final boolean useNonce) {
         this.useNonce = useNonce;
-    }
-
-    public String getScope() {
-        return scope;
-    }
-
-    public void setScope(final String scope) {
-        this.scope = scope;
     }
 
     public String getPreferredJwsAlgorithm() {
@@ -115,24 +87,12 @@ public class OIDCAuthModuleConf extends AbstractOIDCAuthModuleConf implements Au
         this.maxClockSkew = maxClockSkew;
     }
 
-    public Map<String, String> getCustomParams() {
-        return customParams;
-    }
-
     public String getResponseMode() {
         return responseMode;
     }
 
     public void setResponseMode(final String responseMode) {
         this.responseMode = responseMode;
-    }
-
-    public String getResponseType() {
-        return responseType;
-    }
-
-    public void setResponseType(final String responseType) {
-        this.responseType = responseType;
     }
 
     @Override
