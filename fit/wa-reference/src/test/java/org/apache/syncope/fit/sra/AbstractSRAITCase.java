@@ -263,9 +263,9 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
         assertEquals(MediaType.TEXT_HTML, headers.get(HttpHeaders.ACCEPT).asText());
         assertThat(headers.get("X-Forwarded-Host").asText(), is(oneOf("localhost:" + PORT, "127.0.0.1:" + PORT)));
 
-        assertEquals(
-                StringUtils.substringBefore(originalRequestURI, "?"),
-                StringUtils.substringBefore(json.get("url").asText(), "?"));
+        String withHost = StringUtils.substringBefore(originalRequestURI, "?");
+        String withIP = withHost.replace("localhost", "127.0.0.1");
+        assertThat(StringUtils.substringBefore(json.get("url").asText(), "?"), is(oneOf(withHost, withIP)));
 
         return headers;
     }

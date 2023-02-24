@@ -277,6 +277,10 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         assertEquals(MediaType.APPLICATION_JSON, headers.get(HttpHeaders.CONTENT_TYPE).asText());
         assertThat(headers.get("X-Forwarded-Host").asText(), is(oneOf("localhost:" + PORT, "127.0.0.1:" + PORT)));
 
+        String withHost = client.getBaseURI().toASCIIString().replace("/protected", "");
+        String withIP = withHost.replace("localhost", "127.0.0.1");
+        assertThat(json.get("url").asText(), is(oneOf(withHost, withIP)));
+
         assertEquals(client.getBaseURI().toASCIIString().replace("/protected", ""), json.get("url").asText());
     }
 }
