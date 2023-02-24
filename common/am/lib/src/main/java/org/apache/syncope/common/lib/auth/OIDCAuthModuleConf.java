@@ -34,11 +34,6 @@ public class OIDCAuthModuleConf extends AbstractOIDCAuthModuleConf implements Au
     protected boolean useNonce;
 
     /**
-     * Requested scope(s).
-     */
-    protected String scope;
-
-    /**
      * The JWS algorithm to use forcefully when validating ID tokens.
      * If none is defined, the first algorithm from metadata will be used.
      */
