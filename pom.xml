@@ -998,7 +998,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.6.13</version>
+        <version>1.6.14</version>
       </dependency>
 
       <dependency>
@@ -1753,7 +1753,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.7.0</version>
+              <version>10.8.0</version>
             </dependency>
           </dependencies>
           <configuration>
