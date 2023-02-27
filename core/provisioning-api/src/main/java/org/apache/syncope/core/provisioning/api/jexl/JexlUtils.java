@@ -124,6 +124,10 @@ public final class JexlUtils {
     }
 
     public static void addFieldsToContext(final Object object, final JexlContext jexlContext) {
+        if (object == null) {
+            return;
+        }
+
         Set<Pair<PropertyDescriptor, Field>> cached = FIELD_CACHE.get(object.getClass());
         if (cached == null) {
             FIELD_CACHE.put(object.getClass(), Collections.synchronizedSet(new HashSet<>()));
