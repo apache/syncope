@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
@@ -37,8 +38,6 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -179,11 +178,32 @@ public class TemplateUtils {
 
             fillRelationships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
             fillMemberships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
-            if (realmMember instanceof UserTO) {
-                ((UserTO) realmMember).getRoles().addAll(((UserTO) template).getRoles());
-            } else if (realmMember instanceof UserCR) {
-                ((UserCR) realmMember).getRoles().addAll(((UserTO) template).getRoles());
-            }
+
+            ((UserTO) template).getRoles().forEach(role -> {
+                if (realmMember instanceof UserTO
+                        && !((UserTO) realmMember).getRoles().contains(role)) {
+
+                    ((UserTO) realmMember).getRoles().add(role);
+                } else if (realmMember instanceof UserCR
+                        && !((UserCR) realmMember).getRoles().contains(role)) {
+
+                    ((UserCR) realmMember).getRoles().add(role);
+                }
+            });
+
+            ((UserTO) template).getLinkedAccounts().forEach(account -> {
+                if (realmMember instanceof UserTO && ((UserTO) realmMember).getLinkedAccounts().stream().
+                        noneMatch(a -> Objects.equals(account.getConnObjectKeyValue(), a.getConnObjectKeyValue())
+                        && Objects.equals(account.getResource(), a.getResource()))) {
+
+                    ((UserTO) realmMember).getLinkedAccounts().add(account);
+                } else if (realmMember instanceof UserCR && ((UserCR) realmMember).getLinkedAccounts().stream().
+                        noneMatch(a -> Objects.equals(account.getConnObjectKeyValue(), a.getConnObjectKeyValue())
+                        && Objects.equals(account.getResource(), a.getResource()))) {
+
+                    ((UserCR) realmMember).getLinkedAccounts().add(account);
+                }
+            });
         } else if (template instanceof GroupTO) {
             if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
                 String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), jexlContext).toString();
@@ -196,26 +216,52 @@ public class TemplateUtils {
                 }
             }
 
-            if (((GroupTO) template).getUserOwner() != null) {
-                final User userOwner = userDAO.find(((GroupTO) template).getUserOwner());
-                if (userOwner != null) {
-                    if (realmMember instanceof GroupTO) {
-                        ((GroupTO) realmMember).setUserOwner(userOwner.getKey());
-                    } else if (realmMember instanceof GroupCR) {
-                        ((GroupCR) realmMember).setUserOwner(userOwner.getKey());
-                    }
+            Optional.ofNullable(((GroupTO) template).getUserOwner()).map(userDAO::find).ifPresent(userOwner -> {
+                if (realmMember instanceof GroupTO) {
+                    ((GroupTO) realmMember).setUserOwner(userOwner.getKey());
+                } else if (realmMember instanceof GroupCR) {
+                    ((GroupCR) realmMember).setUserOwner(userOwner.getKey());
                 }
-            }
-            if (((GroupTO) template).getGroupOwner() != null) {
-                final Group groupOwner = groupDAO.find(((GroupTO) template).getGroupOwner());
-                if (groupOwner != null) {
-                    if (realmMember instanceof GroupTO) {
-                        ((GroupTO) realmMember).setGroupOwner(groupOwner.getKey());
-                    } else if (realmMember instanceof GroupCR) {
-                        ((GroupCR) realmMember).setGroupOwner(groupOwner.getKey());
-                    }
+            });
+            Optional.ofNullable(((GroupTO) template).getGroupOwner()).map(groupDAO::find).ifPresent(groupOwner -> {
+                if (realmMember instanceof GroupTO) {
+                    ((GroupTO) realmMember).setGroupOwner(groupOwner.getKey());
+                } else if (realmMember instanceof GroupCR) {
+                    ((GroupCR) realmMember).setGroupOwner(groupOwner.getKey());
                 }
-            }
+            });
+
+            Optional.ofNullable(((GroupTO) template).getUDynMembershipCond()).ifPresent(udynMembershipCond -> {
+                if (realmMember instanceof GroupTO) {
+                    ((GroupTO) realmMember).setUDynMembershipCond(udynMembershipCond);
+                } else if (realmMember instanceof GroupCR) {
+                    ((GroupCR) realmMember).setUDynMembershipCond(udynMembershipCond);
+                }
+            });
+
+            ((GroupTO) template).getADynMembershipConds().forEach((anyType, cond) -> {
+                if (realmMember instanceof GroupTO
+                        && !((GroupTO) realmMember).getADynMembershipConds().containsKey(anyType)) {
+
+                    ((GroupTO) realmMember).getADynMembershipConds().put(anyType, cond);
+                } else if (realmMember instanceof GroupCR
+                        && !((GroupCR) realmMember).getADynMembershipConds().containsKey(anyType)) {
+
+                    ((GroupCR) realmMember).getADynMembershipConds().put(anyType, cond);
+                }
+            });
+
+            ((GroupTO) template).getTypeExtensions().forEach(typeExt -> {
+                if (realmMember instanceof GroupTO
+                        && !((GroupTO) realmMember).getTypeExtensions().contains(typeExt)) {
+
+                    ((GroupTO) realmMember).getTypeExtensions().add(typeExt);
+                } else if (realmMember instanceof GroupCR
+                        && !((GroupCR) realmMember).getTypeExtensions().contains(typeExt)) {
+
+                    ((GroupCR) realmMember).getTypeExtensions().add(typeExt);
+                }
+            });
         }
     }
 
