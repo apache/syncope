@@ -42,6 +42,7 @@ public abstract class AuditHistoryModal<T extends EntityTO> extends Panel implem
                 entity,
                 type,
                 category,
+                AuditHistoryDetails.DEFAULT_EVENTS,
                 auditRestoreEntitlement) {
 
             private static final long serialVersionUID = -5311898419151367494L;
