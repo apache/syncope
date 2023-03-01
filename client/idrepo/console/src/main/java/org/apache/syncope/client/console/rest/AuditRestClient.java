@@ -75,7 +75,7 @@ public class AuditRestClient extends BaseRestClient {
         }
     }
 
-    public List<AuditEntry> search(
+    public static List<AuditEntry> search(
             final String key,
             final int page,
             final int size,
@@ -99,7 +99,7 @@ public class AuditRestClient extends BaseRestClient {
         return getService(AuditService.class).search(query).getResult();
     }
 
-    public int count(
+    public static int count(
             final String key,
             final AuditElements.EventCategoryType type,
             final String category,

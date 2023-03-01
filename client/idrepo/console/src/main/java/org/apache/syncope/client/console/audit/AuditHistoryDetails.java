@@ -68,30 +68,10 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
     private static final Logger LOG = LoggerFactory.getLogger(AuditHistoryDetails.class);
 
-    private static final List<String> EVENTS = List.of("create", "update", "matchingrule_update",
-            "unmatchingrule_assign", "unmatchingrule_provision");
+    public static final List<String> DEFAULT_EVENTS = List.of(
+            "create", "update", "matchingrule_update", "unmatchingrule_assign", "unmatchingrule_provision");
 
     private static final SortParam<String> REST_SORT = new SortParam<>("event_date", false);
-
-    private EntityTO currentEntity;
-
-    private AuditElements.EventCategoryType type;
-
-    private String category;
-
-    private Class<T> reference;
-
-    private List<AuditEntry> auditEntries = new ArrayList<>();
-
-    private AuditEntry latestAuditEntry;
-
-    private AuditEntry after;
-
-    private AjaxDropDownChoicePanel<AuditEntry> beforeVersionsPanel;
-
-    private AjaxDropDownChoicePanel<AuditEntry> afterVersionsPanel;
-
-    private final AjaxLink<Void> restore;
 
     private static class SortingNodeFactory extends JsonNodeFactory {
 
@@ -157,21 +137,46 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
             registerModule(new SimpleModule().addSerializer(new SortedSetJsonSerializer(cast(Set.class)))).
             registerModule(new JavaTimeModule());
 
+    private EntityTO currentEntity;
+
+    private AuditElements.EventCategoryType type;
+
+    private String category;
+
+    private final List<String> events;
+
+    private Class<T> reference;
+
+    private final List<AuditEntry> auditEntries = new ArrayList<>();
+
+    private AuditEntry latestAuditEntry;
+
+    private AuditEntry after;
+
+    private AjaxDropDownChoicePanel<AuditEntry> beforeVersionsPanel;
+
+    private AjaxDropDownChoicePanel<AuditEntry> afterVersionsPanel;
+
+    private final AjaxLink<Void> restore;
+
     @SuppressWarnings("unchecked")
     public AuditHistoryDetails(
             final String id,
             final EntityTO currentEntity,
             final AuditElements.EventCategoryType type,
             final String category,
+            final List<String> events,
             final String auditRestoreEntitlement) {
 
         super(id);
 
-        this.setOutputMarkupId(true);
-        this.reference = (Class<T>) currentEntity.getClass();
         this.currentEntity = currentEntity;
         this.type = type;
         this.category = category;
+        this.events = events;
+        this.reference = (Class<T>) currentEntity.getClass();
+
+        setOutputMarkupId(true);
 
         IChoiceRenderer<AuditEntry> choiceRenderer = new IChoiceRenderer<>() {
 
@@ -212,8 +217,8 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
                 AuditEntry afterEntry = afterVersionsPanel.getModelObject() == null
                         ? after
                         : buildAfterAuditEntry(beforeEntry);
-                AuditHistoryDetails.this.addOrReplace(new JsonDiffPanel(toJSON(beforeEntry, reference),
-                        toJSON(afterEntry, reference)));
+                AuditHistoryDetails.this.addOrReplace(
+                        new JsonDiffPanel(toJSON(beforeEntry, reference), toJSON(afterEntry, reference)));
                 // change after audit entries in order to match only the ones newer than the current after one
                 afterVersionsPanel.setChoices(auditEntries.stream().
                         filter(ae -> ae.getDate().isAfter(beforeEntry.getDate())
@@ -225,8 +230,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
             }
         });
         afterVersionsPanel =
-                new AjaxDropDownChoicePanel<>("afterVersions", getString("afterVersions"), new Model<>(),
-                        true);
+                new AjaxDropDownChoicePanel<>("afterVersions", getString("afterVersions"), new Model<>(), true);
         afterVersionsPanel.setChoiceRenderer(choiceRenderer);
         afterVersionsPanel.add(new IndicatorAjaxEventBehavior(Constants.ON_CHANGE) {
 
@@ -278,20 +282,20 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
     protected void initDiff() {
         // audit fetch size is fixed, for the moment... 
-        this.auditEntries.clear();
-        this.auditEntries.addAll(new AuditRestClient().search(
+        auditEntries.clear();
+        auditEntries.addAll(AuditRestClient.search(
                 currentEntity.getKey(),
                 1,
                 50,
                 type,
                 category,
-                EVENTS,
+                events,
                 AuditElements.Result.SUCCESS,
                 REST_SORT));
 
         // the default selected is the newest one, if any
-        this.latestAuditEntry = auditEntries.isEmpty() ? null : auditEntries.get(0);
-        this.after = latestAuditEntry == null ? null : buildAfterAuditEntry(latestAuditEntry);
+        latestAuditEntry = auditEntries.isEmpty() ? null : auditEntries.get(0);
+        after = latestAuditEntry == null ? null : buildAfterAuditEntry(latestAuditEntry);
         // add default diff panel
         addOrReplace(new JsonDiffPanel(toJSON(latestAuditEntry, reference), toJSON(after, reference)));
 
