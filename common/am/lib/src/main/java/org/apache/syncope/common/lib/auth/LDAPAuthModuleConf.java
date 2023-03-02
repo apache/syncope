@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.AbstractLDAPConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
@@ -35,21 +33,12 @@ public class LDAPAuthModuleConf extends AbstractLDAPConf implements AuthModuleCo
      */
     private String userIdAttribute;
 
-    /**
-     * List of attribute names to fetch as user attributes.
-     */
-    private final List<String> principalAttributeList = new ArrayList<>();
-
     public String getUserIdAttribute() {
         return userIdAttribute;
     }
 
     public void setUserIdAttribute(final String userIdAttribute) {
         this.userIdAttribute = userIdAttribute;
-    }
-
-    public List<String> getPrincipalAttributeList() {
-        return principalAttributeList;
     }
 
     @Override

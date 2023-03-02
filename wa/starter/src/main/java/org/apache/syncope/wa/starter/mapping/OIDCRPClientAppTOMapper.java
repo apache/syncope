@@ -34,6 +34,7 @@ import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcEmailScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcPhoneScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcProfileScopeAttributeReleasePolicy;
+import org.apereo.cas.services.BaseMappedAttributeReleasePolicy;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
 import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
@@ -42,7 +43,6 @@ import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
-import org.apereo.cas.services.ReturnMappedAttributeReleasePolicy;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @ClientAppMapFor(clientAppClass = OIDCRPClientAppTO.class)
@@ -98,8 +98,8 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                     new OidcPhoneScopeAttributeReleasePolicy());
 
             Set<String> customClaims = new HashSet<>();
-            if (attributeReleasePolicy instanceof ReturnMappedAttributeReleasePolicy) {
-                customClaims.addAll(((ReturnMappedAttributeReleasePolicy) attributeReleasePolicy).
+            if (attributeReleasePolicy instanceof BaseMappedAttributeReleasePolicy) {
+                customClaims.addAll(((BaseMappedAttributeReleasePolicy) attributeReleasePolicy).
                         getAllowedAttributes().values().stream().
                         map(Objects::toString).collect(Collectors.toSet()));
             } else if (attributeReleasePolicy instanceof ReturnAllowedAttributeReleasePolicy) {

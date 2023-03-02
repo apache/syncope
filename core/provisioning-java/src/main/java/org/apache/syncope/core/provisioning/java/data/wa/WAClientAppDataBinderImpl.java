@@ -19,8 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data.wa;
 
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
-import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
@@ -39,22 +37,14 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
 
     protected final AuthModuleDataBinder authModuleDataBinder;
 
-    protected final AuthModuleDAO authModuleDAO;
-
-    protected final AttrRepoDAO attrRepoDAO;
-
     public WAClientAppDataBinderImpl(
             final ClientAppDataBinder clientAppDataBinder,
             final PolicyDataBinder policyDataBinder,
-            final AuthModuleDataBinder authModuleDataBinder,
-            final AuthModuleDAO authModuleDAO,
-            final AttrRepoDAO attrRepoDAO) {
+            final AuthModuleDataBinder authModuleDataBinder) {
 
         this.clientAppDataBinder = clientAppDataBinder;
         this.policyDataBinder = policyDataBinder;
         this.authModuleDataBinder = authModuleDataBinder;
-        this.authModuleDAO = authModuleDAO;
-        this.attrRepoDAO = attrRepoDAO;
     }
 
     @Override
