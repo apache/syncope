@@ -943,6 +943,8 @@ public abstract class AbstractITCase {
         policy.setStatus(Boolean.TRUE);
 
         DefaultAttrReleasePolicyConf conf = new DefaultAttrReleasePolicyConf();
+        conf.getReleaseAttrs().put("uid", "username");
+        conf.getReleaseAttrs().put("cn", "fullname");
         conf.getAllowedAttrs().addAll(List.of("cn", "givenName"));
         conf.getIncludeOnlyAttrs().add("cn");
 

@@ -58,9 +58,9 @@ under the License.
 
   <!-- Attr Release Policies -->
   <AttrReleasePolicy arporder="0" name="DenyAttrReleasePolicy" id="219935c7-deb3-40b3-8a9a-683037e523a2"
-                     jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf","allowedAttrs":[],"excludedAttrs":[],"includeOnlyAttrs":[],"principalIdAttr":null,"principalAttrRepoConf":{"mergingStrategy":"MULTIVALUED","ignoreResolvedAttributes":false,"expiration":0,"timeUnit":"HOURS","attrRepos":[]}}'/>
+                     jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf","releaseAttrs":[],"allowedAttrs":[],"excludedAttrs":[],"includeOnlyAttrs":[],"principalIdAttr":null,"principalAttrRepoConf":{"mergingStrategy":"MULTIVALUED","ignoreResolvedAttributes":false,"expiration":0,"timeUnit":"HOURS","attrRepos":[]}}'/>
   <AttrReleasePolicy arporder="0" name="AllowedAttrReleasePolicy" id="319935c7-deb3-40b3-8a9a-683037e523a2"
-                     jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf","allowedAttrs":["cn","givenName","uid"],"excludedAttrs":[],"includeOnlyAttrs":[],"principalIdAttr":null,"principalAttrRepoConf":{"mergingStrategy":"MULTIVALUED","ignoreResolvedAttributes":false,"expiration":0,"timeUnit":"HOURS","attrRepos":[]}}'/>
+                     jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf","releaseAttrs":[],"allowedAttrs":["cn","givenName","uid"],"excludedAttrs":[],"includeOnlyAttrs":[],"principalIdAttr":null,"principalAttrRepoConf":{"mergingStrategy":"MULTIVALUED","ignoreResolvedAttributes":false,"expiration":0,"timeUnit":"HOURS","attrRepos":[]}}'/>
 
   <!-- Authentication modules -->
   <AuthModule id="DefaultLDAPAuthModule" authModuleState="ACTIVE"

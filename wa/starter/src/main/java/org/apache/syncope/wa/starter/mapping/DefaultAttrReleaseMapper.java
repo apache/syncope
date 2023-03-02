@@ -19,7 +19,6 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.HashSet;
-import java.util.Map;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apereo.cas.authentication.principal.DefaultPrincipalAttributesRepository;
@@ -39,15 +38,13 @@ import org.apereo.cas.util.model.TriStateBoolean;
 public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
 
     @Override
-    public RegisteredServiceAttributeReleasePolicy build(
-            final AttrReleasePolicyTO policy, final Map<String, Object> releaseAttrs) {
-
+    public RegisteredServiceAttributeReleasePolicy build(final AttrReleasePolicyTO policy) {
         DefaultAttrReleasePolicyConf conf = (DefaultAttrReleasePolicyConf) policy.getConf();
 
         ReturnMappedAttributeReleasePolicy returnMapped = null;
-        if (!releaseAttrs.isEmpty()) {
+        if (!conf.getReleaseAttrs().isEmpty()) {
             returnMapped = new ReturnMappedAttributeReleasePolicy();
-            returnMapped.setAllowedAttributes(releaseAttrs);
+            returnMapped.setAllowedAttributes(conf.getReleaseAttrs());
         }
 
         ReturnAllowedAttributeReleasePolicy returnAllowed = null;
@@ -68,9 +65,7 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
         DefaultRegisteredServiceConsentPolicy consentPolicy = new DefaultRegisteredServiceConsentPolicy(
                 new HashSet<>(conf.getExcludedAttrs()), new HashSet<>(conf.getIncludeOnlyAttrs()));
         consentPolicy.setOrder(policy.getOrder());
-        consentPolicy.setStatus(policy.getStatus() == null
-                ? TriStateBoolean.UNDEFINED
-                : TriStateBoolean.fromBoolean(policy.getStatus()));
+        consentPolicy.setStatus(TriStateBoolean.fromBoolean(policy.getStatus()));
         attributeReleasePolicy.setConsentPolicy(consentPolicy);
 
         if (conf.getPrincipalIdAttr() != null) {

@@ -125,7 +125,7 @@ public class RegisteredServiceMapper {
                 attrReleasePolicyTO.getConf().getClass().getName());
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy =
                 Optional.ofNullable(attrReleasePolicyConfMapper).
-                        map(mapper -> mapper.build(attrReleasePolicyTO, clientApp.getReleaseAttrs())).
+                        map(mapper -> mapper.build(attrReleasePolicyTO)).
                         orElse(null);
 
         return clientAppMapper.map(ctx, clientApp, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy);
