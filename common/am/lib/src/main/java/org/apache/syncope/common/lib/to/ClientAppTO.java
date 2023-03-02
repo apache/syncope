@@ -53,6 +53,8 @@ public abstract class ClientAppTO implements NamedEntityTO {
 
     private String description;
 
+    private String logo;
+
     private String authPolicy;
 
     private String accessPolicy;
@@ -145,6 +147,14 @@ public abstract class ClientAppTO implements NamedEntityTO {
 
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(final String logo) {
+        this.logo = logo;
     }
 
     @JacksonXmlElementWrapper(localName = "properties")
