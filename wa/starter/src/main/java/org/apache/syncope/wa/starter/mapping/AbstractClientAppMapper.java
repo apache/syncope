@@ -36,6 +36,7 @@ abstract class AbstractClientAppMapper implements ClientAppMapper {
         service.setId(clientApp.getClientAppId());
         service.setName(clientApp.getName());
         service.setDescription(clientApp.getDescription());
+        service.setLogo(clientApp.getLogo());
 
         if (!clientApp.getProperties().isEmpty()) {
             Map<String, RegisteredServiceProperty> properties = clientApp.getProperties().stream().
