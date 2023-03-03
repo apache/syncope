@@ -250,11 +250,11 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
                 findFirst().
                 orElseGet(() -> {
                     DefaultAttrReleasePolicyConf policyConf = new DefaultAttrReleasePolicyConf();
-                    policyConf.getReleaseAttrs().put("syncopeUserAttr_surname", "family_name");
-                    policyConf.getReleaseAttrs().put("syncopeUserAttr_fullname", "name");
-                    policyConf.getReleaseAttrs().put("syncopeUserAttr_firstname", "given_name");
-                    policyConf.getReleaseAttrs().put("syncopeUserAttr_email", "email");
-                    policyConf.getReleaseAttrs().put("syncopeUserMemberships", "groups");
+                    policyConf.getAllowedAttrs().add("family_name");
+                    policyConf.getAllowedAttrs().add("name");
+                    policyConf.getAllowedAttrs().add("given_name");
+                    policyConf.getAllowedAttrs().add("email");
+                    policyConf.getAllowedAttrs().add("groups");
 
                     AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
                     policy.setName(description);
