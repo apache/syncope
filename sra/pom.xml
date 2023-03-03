@@ -257,6 +257,7 @@ under the License.
       <id>debug</id>
 
       <properties>
+        <maven.build.cache.skipCache>true</maven.build.cache.skipCache>
         <maven.test.skip>true</maven.test.skip>
       </properties>
 
@@ -269,7 +270,7 @@ under the License.
       </dependencies>
 
       <build>
-        <defaultGoal>clean spring-boot:run</defaultGoal>
+        <defaultGoal>clean package</defaultGoal>
 
         <plugins>
           <plugin>
@@ -287,6 +288,14 @@ under the License.
                 <profile>debug</profile>
               </profiles>
             </configuration>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
         

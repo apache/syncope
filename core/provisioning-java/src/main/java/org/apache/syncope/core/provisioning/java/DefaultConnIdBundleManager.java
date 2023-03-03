@@ -102,8 +102,7 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
         if (bundleFileURLs.isEmpty()) {
             LOG.warn("No connector bundles found in {}", location);
         }
-        LOG.debug("Configuring local connector server:"
-                + "\n\tFiles: {}", bundleFileURLs);
+        LOG.debug("Configuring local connector server:\n\tFiles: {}", bundleFileURLs);
 
         // 2. Get connector info manager
         ConnectorInfoManager manager =

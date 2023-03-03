@@ -113,7 +113,7 @@ public class DefaultAuthMapper implements AuthMapper {
         DefaultRegisteredServiceDelegatedAuthenticationPolicy delegatedAuthPolicy = null;
         if (!delegatedAuthHandlers.isEmpty()) {
             delegatedAuthPolicy = new DefaultRegisteredServiceDelegatedAuthenticationPolicy();
-            delegatedAuthPolicy.getAllowedProviders().addAll(
+            delegatedAuthPolicy.setAllowedProviders(
                     delegatedAuthHandlers.stream().map(Pair::getRight).collect(Collectors.toSet()));
         }
 
