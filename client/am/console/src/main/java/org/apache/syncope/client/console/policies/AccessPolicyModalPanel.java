@@ -38,7 +38,6 @@ public class AccessPolicyModalPanel extends AbstractModalPanel<AccessPolicyTO> {
 
     private final IModel<AccessPolicyTO> model;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public AccessPolicyModalPanel(
             final BaseModal<AccessPolicyTO> modal,
             final IModel<AccessPolicyTO> model,

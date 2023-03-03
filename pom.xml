@@ -413,7 +413,7 @@ under the License.
 
     <cxf.version>3.5.5</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.30.1</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
 
     <spring-boot.version>2.7.9</spring-boot.version>
     <spring-cloud-gateway.version>3.1.5</spring-cloud-gateway.version>
@@ -443,7 +443,7 @@ under the License.
 
     <pac4j.version>5.5.0</pac4j.version>
 
-    <cas.version>6.6.6</cas.version>
+    <cas.version>6.6.7-SNAPSHOT</cas.version>
     <cas-client.version>3.6.4</cas-client.version>
 
     <h2.version>2.1.214</h2.version>

@@ -34,6 +34,7 @@ import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcEmailScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcPhoneScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcProfileScopeAttributeReleasePolicy;
+import org.apereo.cas.services.BaseMappedAttributeReleasePolicy;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
 import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
@@ -41,6 +42,7 @@ import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
+import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @ClientAppMapFor(clientAppClass = OIDCRPClientAppTO.class)
@@ -91,12 +93,25 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             }
 
             chain.addPolicies(new OidcProfileScopeAttributeReleasePolicy(),
-                new OidcEmailScopeAttributeReleasePolicy(),
-                new OidcAddressScopeAttributeReleasePolicy(),
-                new OidcPhoneScopeAttributeReleasePolicy());
+                    new OidcEmailScopeAttributeReleasePolicy(),
+                    new OidcAddressScopeAttributeReleasePolicy(),
+                    new OidcPhoneScopeAttributeReleasePolicy());
 
-            Set<String> customClaims = clientApp.getReleaseAttrs().values().stream().
-                    map(Objects::toString).collect(Collectors.toCollection(HashSet::new));
+            Set<String> customClaims = new HashSet<>();
+            if (attributeReleasePolicy instanceof BaseMappedAttributeReleasePolicy) {
+                customClaims.addAll(((BaseMappedAttributeReleasePolicy) attributeReleasePolicy).
+                        getAllowedAttributes().values().stream().
+                        map(Objects::toString).collect(Collectors.toSet()));
+            } else if (attributeReleasePolicy instanceof ReturnAllowedAttributeReleasePolicy) {
+                customClaims.addAll(((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).
+                        getAllowedAttributes().stream().collect(Collectors.toSet()));
+            } else if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy) {
+                ((ChainingAttributeReleasePolicy) attributeReleasePolicy).getPolicies().stream().
+                        filter(ReturnAllowedAttributeReleasePolicy.class::isInstance).
+                        findFirst().map(ReturnAllowedAttributeReleasePolicy.class::cast).
+                        map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
+                        ifPresent(customClaims::addAll);
+            }
             customClaims.removeAll(OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
             customClaims.removeAll(OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
             customClaims.removeAll(OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS);

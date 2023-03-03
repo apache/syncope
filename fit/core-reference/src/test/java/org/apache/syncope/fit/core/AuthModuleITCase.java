@@ -128,8 +128,6 @@ public class AuthModuleITCase extends AbstractITCase {
                 conf = new JDBCAuthModuleConf();
                 JDBCAuthModuleConf.class.cast(conf).setSql("SELECT * FROM table WHERE name=?");
                 JDBCAuthModuleConf.class.cast(conf).setFieldPassword("password");
-                JDBCAuthModuleConf.class.cast(conf).getPrincipalAttributeList().addAll(
-                        List.of("sn", "cn:commonName", "givenName"));
                 break;
 
             case OIDC:

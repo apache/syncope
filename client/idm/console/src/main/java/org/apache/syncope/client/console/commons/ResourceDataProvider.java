@@ -19,11 +19,9 @@
 package org.apache.syncope.client.console.commons;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -67,7 +65,7 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
 
     @Override
     public Iterator<ResourceTO> iterator(final long first, final long count) {
-        List<ResourceTO> result = Collections.emptyList();
+        List<ResourceTO> result = List.of();
 
         try {
             currentPage = ((int) first / paginatorRows);
@@ -85,9 +83,8 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
             LOG.error("While searching", e);
             SyncopeConsoleSession.get().onException(e);
 
-            Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            target.ifPresent(ajaxRequestTarget
-                    -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(ajaxRequestTarget));
+            RequestCycle.get().find(AjaxRequestTarget.class).
+                    ifPresent(t -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(t));
         }
 
         SortParam<String> sortParam = getSort();
@@ -137,7 +134,7 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
             SyncopeConsoleSession.get().onException(e);
 
             RequestCycle.get().find(AjaxRequestTarget.class).
-                    ifPresent(target -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target));
+                    ifPresent(t -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(t));
         }
 
         return result;

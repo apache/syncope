@@ -28,16 +28,6 @@ public class LDAPAttrRepoConf extends AbstractLDAPConf implements AttrRepoConf {
     private static final long serialVersionUID = -471527731042579422L;
 
     /**
-     * Map of attributes to fetch from the database.
-     * Attributes are defined using a key-value structure
-     * where CAS allows the attribute name/key to be renamed virtually
-     * to a different attribute. The key is the attribute fetched
-     * from the data source and the value is the attribute name CAS should
-     * use for virtual renames.
-     */
-    private final Map<String, String> attributes = new HashMap<>(0);
-
-    /**
      * Whether all existing attributes should be passed
      * down to the query builder map and be used in the construction
      * of the filter.
@@ -57,10 +47,6 @@ public class LDAPAttrRepoConf extends AbstractLDAPConf implements AttrRepoConf {
 
     public void setUseAllQueryAttributes(final boolean useAllQueryAttributes) {
         this.useAllQueryAttributes = useAllQueryAttributes;
-    }
-
-    public Map<String, String> getAttributes() {
-        return attributes;
     }
 
     public Map<String, String> getQueryAttributes() {

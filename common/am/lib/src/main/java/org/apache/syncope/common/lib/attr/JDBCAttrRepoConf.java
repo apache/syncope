@@ -77,16 +77,6 @@ public class JDBCAttrRepoConf extends AbstractJDBCConf implements AttrRepoConf {
     private final List<String> username = new ArrayList<>(0);
 
     /**
-     * Map of attributes to fetch from the database.
-     * Attributes are defined using a key-value structure
-     * where CAS allows the attribute name/key to be renamed virtually
-     * to a different attribute. The key is the attribute fetched
-     * from the data source and the value is the attribute name CAS should
-     * use for virtual renames.
-     */
-    private final Map<String, String> attributes = new HashMap<>(0);
-
-    /**
      * Collection of attributes, used to build the SQL query, that should go through
      * a case canonicalization process defined as {@code key->value}.
      */
@@ -137,10 +127,6 @@ public class JDBCAttrRepoConf extends AbstractJDBCConf implements AttrRepoConf {
 
     public List<String> getUsername() {
         return username;
-    }
-
-    public Map<String, String> getAttributes() {
-        return attributes;
     }
 
     public List<String> getCaseInsensitiveQueryAttributes() {
