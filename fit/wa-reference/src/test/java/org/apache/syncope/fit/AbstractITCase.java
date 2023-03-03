@@ -22,9 +22,12 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.nimbusds.jose.util.IOUtils;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -48,6 +51,7 @@ import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.UserService;
+import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.fit.sra.AbstractSRAITCase;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -90,6 +94,8 @@ public abstract class AbstractITCase {
 
     protected static OIDCC4UIProviderService OIDCC4UI_PROVIDER_SERVICE;
 
+    protected static WAConfigService WA_CONFIG_SERVICE;
+
     @BeforeAll
     public static void restSetup() {
         CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(CORE_ADDRESS);
@@ -101,16 +107,32 @@ public abstract class AbstractITCase {
         SRA_ROUTE_SERVICE = ADMIN_CLIENT.getService(SRARouteService.class);
         SAML2SP4UI_IDP_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIIdPService.class);
         OIDCC4UI_PROVIDER_SERVICE = ADMIN_CLIENT.getService(OIDCC4UIProviderService.class);
+        WA_CONFIG_SERVICE = ADMIN_CLIENT.getService(WAConfigService.class);
     }
 
     @BeforeAll
     public static void waitForWARefresh() {
         SAML2IdPEntityService samlIdPEntityService = ADMIN_CLIENT.getService(SAML2IdPEntityService.class);
 
-        await().atMost(50, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+        await().atMost(50, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS).until(() -> {
             boolean refreshed = false;
             try {
-                WebClient.create(WA_ADDRESS + "/idp/metadata").get();
+                String metadata = IOUtils.readInputStreamToString(
+                        (InputStream) WebClient.create(
+                                WA_ADDRESS + "/idp/metadata").get().getEntity(),
+                        StandardCharsets.UTF_8);
+                if (metadata.contains("localhost:8080")) {
+                    WA_CONFIG_SERVICE.pushToWA();
+                    throw new IllegalStateException();
+                }
+                metadata = IOUtils.readInputStreamToString(
+                        (InputStream) WebClient.create(
+                                WA_ADDRESS + "/oidc/.well-known/openid-configuration").get().getEntity(),
+                        StandardCharsets.UTF_8);
+                if (metadata.contains("localhost:8080")) {
+                    WA_CONFIG_SERVICE.pushToWA();
+                    throw new IllegalStateException();
+                }
 
                 samlIdPEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
                 refreshed = true;
