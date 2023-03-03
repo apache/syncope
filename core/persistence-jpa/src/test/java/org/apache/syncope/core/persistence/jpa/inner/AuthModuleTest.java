@@ -217,7 +217,6 @@ public class AuthModuleTest extends AbstractTest {
         JDBCAuthModuleConf conf = new JDBCAuthModuleConf();
         conf.setSql("SELECT * FROM table WHERE name=?");
         conf.setFieldPassword("password");
-        conf.getPrincipalAttributeList().addAll(List.of("sn", "cn:commonName", "givenName"));
 
         saveAuthModule("JDBCAuthModuleTest", conf);
     }

@@ -262,6 +262,10 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
             }
         }
 
+        if (location.startsWith("http://localhost:8080/syncope-wa")) {
+            location = WA_ADDRESS + StringUtils.substringAfter(location, "http://localhost:8080/syncope-wa");
+        }
+
         get = new HttpGet(location);
         get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
         get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);

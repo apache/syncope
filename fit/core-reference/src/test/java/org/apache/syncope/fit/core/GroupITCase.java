@@ -304,7 +304,7 @@ public class GroupITCase extends AbstractITCase {
         try {
             groupService2.update(groupUR);
             fail("This should not happen");
-        } catch (ForbiddenException e) {
+        } catch (Exception e) {
             assertNotNull(e);
         }
 

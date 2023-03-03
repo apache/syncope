@@ -18,12 +18,11 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import java.util.Map;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 
 @FunctionalInterface
 public interface AttrReleaseMapper {
 
-    RegisteredServiceAttributeReleasePolicy build(AttrReleasePolicyTO policy, Map<String, Object> releaseAttrs);
+    RegisteredServiceAttributeReleasePolicy build(AttrReleasePolicyTO policy);
 }

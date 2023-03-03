@@ -37,7 +37,7 @@ import org.wicketstuff.egrid.provider.EditableListDataProvider;
 
 public class AjaxGridFieldPanel<K, V, S> extends Panel {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 7589570522964677729L;
 
     public AjaxGridFieldPanel(final String id, final String name, final IModel<Map<K, V>> model) {
         super(id, model);
@@ -45,13 +45,13 @@ public class AjaxGridFieldPanel<K, V, S> extends Panel {
         add(new Label(AbstractFieldPanel.LABEL, new ResourceModel(name, name)));
 
         add(new AjaxGrid<>(
-            "grid",
-            getColumns(),
-            new EditableListDataProvider<>(model.getObject().entrySet().stream().
-                map(entry -> MutablePair.of(entry.getKey(), entry.getValue())).
-                collect(Collectors.toList())), 10) {
+                "grid",
+                getColumns(),
+                new EditableListDataProvider<>(model.getObject().entrySet().stream().
+                        map(entry -> MutablePair.of(entry.getKey(), entry.getValue())).
+                        collect(Collectors.toList())), 10) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -1315456128897492459L;
 
             @Override
             protected boolean displayHeader() {

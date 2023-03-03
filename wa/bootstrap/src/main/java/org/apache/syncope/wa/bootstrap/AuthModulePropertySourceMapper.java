@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apereo.cas.configuration.CasCoreConfigurationUtils;
 import org.apereo.cas.configuration.model.core.authentication.AuthenticationHandlerStates;
@@ -92,7 +93,8 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
             props.setType(AbstractLdapAuthenticationProperties.AuthenticationTypes.AUTHENTICATED);
         }
         props.setPrincipalAttributeId(conf.getUserIdAttribute());
-        props.setPrincipalAttributeList(conf.getPrincipalAttributeList());
+        props.setPrincipalAttributeList(authModuleTO.getItems().stream().
+                map(item -> item.getIntAttrName() + ":" + item.getExtAttrName()).collect(Collectors.toList()));
         fill(props, conf);
 
         return prefix("cas.authn.ldap[].", CasCoreConfigurationUtils.asMap(props));
@@ -108,7 +110,8 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setFieldDisabled(conf.getFieldDisabled());
         props.setFieldExpired(conf.getFieldExpired());
         props.setFieldPassword(conf.getFieldPassword());
-        props.setPrincipalAttributeList(conf.getPrincipalAttributeList());
+        props.setPrincipalAttributeList(authModuleTO.getItems().stream().
+                map(item -> item.getIntAttrName() + ":" + item.getExtAttrName()).collect(Collectors.toList()));
         fill(props, conf);
 
         return prefix("cas.authn.jdbc.query[].", CasCoreConfigurationUtils.asMap(props));
@@ -167,7 +170,9 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setScope(conf.getScope());
         props.setPrincipalIdAttribute(conf.getUserIdAttribute());
         props.setWithState(conf.isWithState());
-        
+        props.setProfileAttrs(authModuleTO.getItems().stream().
+                collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
+
         return prefix("cas.authn.pac4j.oauth2[].", CasCoreConfigurationUtils.asMap(props));
     }
 
@@ -214,6 +219,8 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
         props.setDomain(conf.getDomain());
         props.setUrl(StringUtils.substringBefore(syncopeClient.getAddress(), "/rest"));
+        props.setAttributeMappings(authModuleTO.getItems().stream().
+                collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
 
         return prefix("cas.authn.syncope.", CasCoreConfigurationUtils.asMap(props));
     }

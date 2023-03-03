@@ -54,8 +54,8 @@ public class JPAAttrReleasePolicy extends AbstractPolicy implements AttrReleaseP
     }
 
     @Override
-    public Boolean getStatus() {
-        return status;
+    public boolean getStatus() {
+        return status == null ? true : status;
     }
 
     @Override

@@ -29,7 +29,7 @@ public class AttrReleasePolicyTO extends PolicyTO {
 
     private int order;
 
-    private Boolean status;
+    private boolean status = true;
 
     private AttrReleasePolicyConf conf;
 
@@ -50,7 +50,7 @@ public class AttrReleasePolicyTO extends PolicyTO {
         this.order = order;
     }
 
-    public Boolean getStatus() {
+    public boolean getStatus() {
         return status;
     }
 

@@ -31,8 +31,7 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
-import org.apache.syncope.common.lib.to.AuthModuleTO;
-import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
@@ -113,47 +112,12 @@ public class WAClientAppITCase extends AbstractITCase {
 
         WAClientApp waClientApp = WA_CLIENT_APP_SERVICE.read(oidcrpto.getClientAppId(), null);
         assertNotNull(waClientApp);
-        assertTrue(waClientApp.getReleaseAttrs().isEmpty());
+        assertTrue(waClientApp.getAttrReleasePolicy().getConf() instanceof DefaultAttrReleasePolicyConf);
 
-        // add items to the authentication module
-        addItems();
-        try {
-            waClientApp = WA_CLIENT_APP_SERVICE.read(oidcrpto.getClientAppId(), null);
-            assertNotNull(waClientApp);
-            assertFalse(waClientApp.getReleaseAttrs().isEmpty());
-            assertEquals("username", waClientApp.getReleaseAttrs().get("uid"));
-            assertEquals("fullname", waClientApp.getReleaseAttrs().get("cn"));
-        } finally {
-            removeItems();
-        }
-    }
-
-    private void addItems() {
-        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read(AUTH_MODULE);
-
-        Item keyMapping = new Item();
-        keyMapping.setIntAttrName("uid");
-        keyMapping.setExtAttrName("username");
-        authModuleTO.getItems().add(keyMapping);
-
-        Item fullnameMapping = new Item();
-        fullnameMapping.setIntAttrName("cn");
-        fullnameMapping.setExtAttrName("fullname");
-        authModuleTO.getItems().add(fullnameMapping);
-
-        AUTH_MODULE_SERVICE.update(authModuleTO);
-
-        authModuleTO = AUTH_MODULE_SERVICE.read(AUTH_MODULE);
-        assertFalse(authModuleTO.getItems().isEmpty());
-    }
-
-    private void removeItems() {
-        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read(AUTH_MODULE);
-        authModuleTO.getItems().clear();
-
-        AUTH_MODULE_SERVICE.update(authModuleTO);
-
-        authModuleTO = AUTH_MODULE_SERVICE.read(AUTH_MODULE);
-        assertTrue(authModuleTO.getItems().isEmpty());
+        DefaultAttrReleasePolicyConf attrReleasePolicyConf =
+                (DefaultAttrReleasePolicyConf) waClientApp.getAttrReleasePolicy().getConf();
+        assertFalse(attrReleasePolicyConf.getReleaseAttrs().isEmpty());
+        assertEquals("username", attrReleasePolicyConf.getReleaseAttrs().get("uid"));
+        assertEquals("fullname", attrReleasePolicyConf.getReleaseAttrs().get("cn"));
     }
 }

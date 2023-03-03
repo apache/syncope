@@ -21,9 +21,7 @@ package org.apache.syncope.common.lib.wa;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
@@ -44,8 +42,6 @@ public class WAClientApp implements BaseBean {
     private AuthPolicyTO authPolicy;
 
     private AttrReleasePolicyTO attrReleasePolicy;
-
-    private final Map<String, Object> releaseAttrs = new HashMap<>();
 
     public ClientAppTO getClientAppTO() {
         return clientAppTO;
@@ -83,9 +79,5 @@ public class WAClientApp implements BaseBean {
 
     public void setAttrReleasePolicy(final AttrReleasePolicyTO attrReleasePolicy) {
         this.attrReleasePolicy = attrReleasePolicy;
-    }
-
-    public Map<String, Object> getReleaseAttrs() {
-        return releaseAttrs;
     }
 }
