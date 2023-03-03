@@ -250,14 +250,12 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         // used to perform selectable enabling check condition
         this.check.setObject(check);
 
-        Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-        if (target.isPresent()) {
+        RequestCycle.get().find(AjaxRequestTarget.class).ifPresent(t -> {
             // reload group selector
-            target.get().add(
-                    groupSelector.setVisible(check == CheckAvailability.AVAILABLE), groupSelector.getMarkupId());
+            t.add(groupSelector.setVisible(check == CheckAvailability.AVAILABLE), groupSelector.getMarkupId());
             // reload the list view panel
-            target.get().add(ListViewPanel.this, getMarkupId());
-        }
+            t.add(ListViewPanel.this, getMarkupId());
+        });
     }
 
     protected abstract Component getValueComponent(String key, T bean);

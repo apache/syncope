@@ -53,7 +53,6 @@ import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceDelegatedAuthenticationPolicy;
-import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.util.RandomUtils;
@@ -95,7 +94,6 @@ public class WAServiceRegistryTest extends AbstractTest {
 
     private static void addPolicies(
             final WAClientApp waClientApp,
-            final boolean withReleaseAttributes,
             final boolean withAttrReleasePolicy) {
 
         DefaultAuthPolicyConf authPolicyConf = new DefaultAuthPolicyConf();
@@ -105,10 +103,6 @@ public class WAServiceRegistryTest extends AbstractTest {
         authPolicy.setConf(authPolicyConf);
 
         waClientApp.setAuthPolicy(authPolicy);
-
-        if (withReleaseAttributes) {
-            waClientApp.getReleaseAttrs().putAll(Map.of("uid", "username", "cn", "fullname"));
-        }
 
         AccessPolicyTO accessPolicy = new AccessPolicyTO();
         DefaultAccessPolicyConf accessPolicyConf = new DefaultAccessPolicyConf();
@@ -121,6 +115,7 @@ public class WAServiceRegistryTest extends AbstractTest {
             DefaultAttrReleasePolicyConf attrReleasePolicyConf = new DefaultAttrReleasePolicyConf();
             attrReleasePolicyConf.getAllowedAttrs().add("cn");
             attrReleasePolicyConf.getPrincipalAttrRepoConf().getAttrRepos().add("TestAttrRepo");
+            attrReleasePolicyConf.getReleaseAttrs().putAll(Map.of("uid", "username", "cn", "fullname"));
 
             AttrReleasePolicyTO attrReleasePolicy = new AttrReleasePolicyTO();
             attrReleasePolicy.setConf(attrReleasePolicyConf);
@@ -155,7 +150,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         WAClientApp waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(buildOIDCRP());
         Long clientAppId = waClientApp.getClientAppTO().getClientAppId();
-        addPolicies(waClientApp, false, false);
+        addPolicies(waClientApp, false);
 
         SyncopeCoreTestingServer.CLIENT_APPS.add(waClientApp);
         List<WAClientApp> apps = service.list();
@@ -185,7 +180,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(buildSAML2SP());
         clientAppId = waClientApp.getClientAppTO().getClientAppId();
-        addPolicies(waClientApp, false, true);
+        addPolicies(waClientApp, true);
 
         SyncopeCoreTestingServer.CLIENT_APPS.add(waClientApp);
         apps = service.list();
@@ -202,12 +197,12 @@ public class WAServiceRegistryTest extends AbstractTest {
         assertEquals(samlspto.getEntityId(), saml.getServiceId());
         assertTrue(saml.getAuthenticationPolicy().getRequiredAuthenticationHandlers().contains("TestAuthModule"));
         assertNotNull(found.getAccessStrategy());
-        assertTrue(saml.getAttributeReleasePolicy() instanceof ReturnAllowedAttributeReleasePolicy);
+        assertTrue(saml.getAttributeReleasePolicy() instanceof ChainingAttributeReleasePolicy);
 
         waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(buildSAML2SP());
         clientAppId = waClientApp.getClientAppTO().getClientAppId();
-        addPolicies(waClientApp, false, false);
+        addPolicies(waClientApp, false);
 
         SyncopeCoreTestingServer.CLIENT_APPS.add(waClientApp);
         apps = service.list();
@@ -246,7 +241,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         waClientApp.setClientAppTO(buildOIDCRP());
         waClientApp.getAuthModules().add(0, authModuleTO);
         Long clientAppId = waClientApp.getClientAppTO().getClientAppId();
-        addPolicies(waClientApp, false, false);
+        addPolicies(waClientApp, false);
         DefaultAuthPolicyConf authPolicyConf = (DefaultAuthPolicyConf) waClientApp.getAuthPolicy().getConf();
         authPolicyConf.getAuthModules().clear();
         authPolicyConf.getAuthModules().add(authModuleTO.getKey());

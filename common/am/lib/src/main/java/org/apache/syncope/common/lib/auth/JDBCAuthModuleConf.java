@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.AbstractJDBCConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
@@ -43,11 +41,6 @@ public class JDBCAuthModuleConf extends AbstractJDBCConf implements AuthModuleCo
      */
     private String fieldDisabled;
 
-    /**
-     * List of column names to fetch as user attributes.
-     */
-    private final List<String> principalAttributeList = new ArrayList<>();
-
     public String getFieldPassword() {
         return fieldPassword;
     }
@@ -70,10 +63,6 @@ public class JDBCAuthModuleConf extends AbstractJDBCConf implements AuthModuleCo
 
     public void setFieldDisabled(final String fieldDisabled) {
         this.fieldDisabled = fieldDisabled;
-    }
-
-    public List<String> getPrincipalAttributeList() {
-        return principalAttributeList;
     }
 
     @Override

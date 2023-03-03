@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -85,8 +84,8 @@ public class ConnectorDataProvider extends DirectoryDataProvider<Serializable> {
             LOG.error("While searching", e);
             SyncopeConsoleSession.get().onException(e);
 
-            Optional<AjaxRequestTarget> target = RequestCycle.get().find(AjaxRequestTarget.class);
-            target.ifPresent(t -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(t));
+            RequestCycle.get().find(AjaxRequestTarget.class).
+                    ifPresent(t -> ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(t));
         }
 
         SortParam<String> sortParam = getSort();

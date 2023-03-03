@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -109,6 +110,8 @@ public abstract class AbstractITCase {
         await().atMost(50, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             boolean refreshed = false;
             try {
+                WebClient.create(WA_ADDRESS + "/idp/metadata").get();
+
                 samlIdPEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
                 refreshed = true;
             } catch (Exception e) {

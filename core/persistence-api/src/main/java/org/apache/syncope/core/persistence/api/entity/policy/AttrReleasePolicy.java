@@ -26,7 +26,7 @@ public interface AttrReleasePolicy extends Policy {
 
     void setOrder(int order);
 
-    Boolean getStatus();
+    boolean getStatus();
 
     void setStatus(Boolean status);
 

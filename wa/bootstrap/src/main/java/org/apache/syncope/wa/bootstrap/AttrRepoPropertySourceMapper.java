@@ -19,6 +19,7 @@
 package org.apache.syncope.wa.bootstrap;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
@@ -27,6 +28,7 @@ import org.apache.syncope.common.lib.attr.LDAPAttrRepoConf;
 import org.apache.syncope.common.lib.attr.StubAttrRepoConf;
 import org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
+import org.apache.syncope.common.lib.to.Item;
 import org.apereo.cas.configuration.CasCoreConfigurationUtils;
 import org.apereo.cas.configuration.model.core.authentication.AttributeRepositoryStates;
 import org.apereo.cas.configuration.model.core.authentication.StubPrincipalAttributesProperties;
@@ -59,9 +61,10 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
         props.setId(attrRepoTO.getKey());
         props.setState(AttributeRepositoryStates.valueOf(attrRepoTO.getState().name()));
         props.setOrder(attrRepoTO.getOrder());
-        props.setAttributes(conf.getAttributes());
         props.setUseAllQueryAttributes(conf.isUseAllQueryAttributes());
         props.setQueryAttributes(conf.getQueryAttributes());
+        props.setAttributes(attrRepoTO.getItems().stream().
+                collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
         fill(props, conf);
 
         return prefix("cas.authn.attribute-repository.ldap[].", CasCoreConfigurationUtils.asMap(props));
@@ -80,9 +83,10 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
         props.setQueryType(conf.getQueryType().name());
         props.setColumnMappings(conf.getColumnMappings());
         props.setUsername(conf.getUsername());
-        props.setAttributes(conf.getAttributes());
         props.setCaseInsensitiveQueryAttributes(conf.getCaseInsensitiveQueryAttributes());
         props.setQueryAttributes(conf.getQueryAttributes());
+        props.setAttributes(attrRepoTO.getItems().stream().
+                collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
         fill(props, conf);
 
         return prefix("cas.authn.attribute-repository.jdbc[].", CasCoreConfigurationUtils.asMap(props));
@@ -106,6 +110,8 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
         props.setBasicAuthUsername(conf.getBasicAuthUsername());
         props.setBasicAuthPassword(conf.getBasicAuthPassword());
         props.setHeaders(props.getHeaders());
+        props.setAttributeMappings(attrRepoTO.getItems().
+                stream().collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
 
         return prefix("cas.authn.attribute-repository.syncope.", CasCoreConfigurationUtils.asMap(props));
     }

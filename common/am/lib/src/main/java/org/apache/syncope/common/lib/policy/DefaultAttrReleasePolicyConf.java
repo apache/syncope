@@ -22,7 +22,9 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
@@ -105,6 +107,8 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
         }
     }
 
+    private final Map<String, Object> releaseAttrs = new HashMap<>();
+
     /**
      * Specify the list of allowed attribute to release.
      * Use the special {@code *} to release everything.
@@ -118,6 +122,10 @@ public class DefaultAttrReleasePolicyConf implements AttrReleasePolicyConf {
     private String principalIdAttr;
 
     private final PrincipalAttrRepoConf principalAttrRepoConf = new PrincipalAttrRepoConf();
+
+    public Map<String, Object> getReleaseAttrs() {
+        return releaseAttrs;
+    }
 
     @JacksonXmlElementWrapper(localName = "allowedAttrs")
     @JacksonXmlProperty(localName = "allowedAttr")
