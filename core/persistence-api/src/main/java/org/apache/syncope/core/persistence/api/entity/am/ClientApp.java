@@ -40,6 +40,10 @@ public interface ClientApp extends Entity {
 
     void setDescription(String description);
 
+    String getLogo();
+
+    void setLogo(String logo);
+
     AuthPolicy getAuthPolicy();
 
     void setAuthPolicy(AuthPolicy policy);
