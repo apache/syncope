@@ -57,6 +57,9 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     private String description;
 
     @Column
+    private String logo;
+
+    @Column
     private String theme;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -102,6 +105,16 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     @Override
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    @Override
+    public String getLogo() {
+        return logo;
+    }
+
+    @Override
+    public void setLogo(final String logo) {
+        this.logo = logo;
     }
 
     @Override

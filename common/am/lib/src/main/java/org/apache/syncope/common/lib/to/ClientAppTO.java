@@ -53,6 +53,8 @@ public abstract class ClientAppTO implements NamedEntityTO {
 
     private String description;
 
+    private String logo;
+
     private String authPolicy;
 
     private String accessPolicy;
@@ -147,6 +149,14 @@ public abstract class ClientAppTO implements NamedEntityTO {
         this.description = description;
     }
 
+    public String getLogo() {
+        return logo;
+    }
+
+    public void setLogo(final String logo) {
+        this.logo = logo;
+    }
+
     @JacksonXmlElementWrapper(localName = "properties")
     @JacksonXmlProperty(localName = "property")
     public List<Attr> getProperties() {
@@ -162,6 +172,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(clientAppId)
                 .append(name)
                 .append(description)
+                .append(logo)
                 .append(authPolicy)
                 .append(accessPolicy)
                 .append(attrReleasePolicy)
@@ -189,6 +200,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(this.clientAppId, rhs.clientAppId)
                 .append(this.name, rhs.name)
                 .append(this.description, rhs.description)
+                .append(this.logo, rhs.logo)
                 .append(this.authPolicy, rhs.authPolicy)
                 .append(this.accessPolicy, rhs.accessPolicy)
                 .append(this.attrReleasePolicy, rhs.attrReleasePolicy)
