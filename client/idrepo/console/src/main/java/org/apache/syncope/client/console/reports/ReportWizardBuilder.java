@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.reports;
 
 import java.io.Serializable;
-import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.tasks.CrontabPanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
@@ -28,7 +27,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -79,8 +77,6 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
             AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<>(
                     "template", getString("template"),
                     new PropertyModel<>(reportTO, "template"));
-            template.setChoices(restClient.listTemplates().stream().
-                    map(ReportTemplateTO::getKey).collect(Collectors.toList()));
 
             template.addRequiredLabel();
             add(template);
@@ -100,6 +96,5 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
                     "schedule", new PropertyModel<>(reportTO, "cronExpression"), reportTO.getCronExpression());
             add(crontabPanel);
         }
-
     }
 }

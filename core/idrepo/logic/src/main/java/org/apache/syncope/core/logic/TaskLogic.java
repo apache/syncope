@@ -72,7 +72,6 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationJobDele
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
-import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -346,8 +345,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                             startAt,
                             confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
                             executor);
-
-                    jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
+                    jobDataMap.put(JobManager.DRY_RUN_JOBDETAIL_KEY, dryRun);
 
                     if (startAt == null) {
                         scheduler.getScheduler().triggerJob(JobNamer.getJobKey(task), new JobDataMap(jobDataMap));

@@ -18,13 +18,16 @@
  */
 package org.apache.syncope.core.provisioning.java.job.report;
 
-import java.util.Optional;
+import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -38,25 +41,20 @@ public class ReportJob extends AbstractInterruptableJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportJob.class);
 
-    @Autowired
-    private SecurityProperties securityProperties;
-
     /**
-     * Key, set by the caller, for identifying the report to be executed.
+     * Report execution status.
      */
-    private String reportKey;
+    public enum Status {
 
-    @Autowired
-    private ReportJobDelegate delegate;
+        SUCCESS,
+        FAILURE
 
-    /**
-     * Report id setter.
-     *
-     * @param reportKey to be set
-     */
-    public void setReportKey(final String reportKey) {
-        this.reportKey = reportKey;
     }
+
+    @Autowired
+    private DomainHolder domainHolder;
+
+    private ReportJobDelegate delegate;
 
     @Override
     public JobDelegate getDelegate() {
@@ -65,21 +63,36 @@ public class ReportJob extends AbstractInterruptableJob {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
+        String reportKey = context.getMergedJobDataMap().getString(JobManager.REPORT_KEY);
         try {
-            String domainKey = context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY);
-            String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
-                    orElse(securityProperties.getAdminUser());
+            String domain = context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY);
+            if (domainHolder.getDomains().containsKey(domain)) {
+                AuthContextUtils.callAsAdmin(domain, () -> {
+                    try {
+                        ImplementationDAO implementationDAO =
+                                ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);
+                        Implementation implementation = implementationDAO.find(
+                                context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION));
+                        if (implementation == null) {
+                            LOG.error("Could not find Implementation '{}', aborting",
+                                    context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION));
+                        } else {
+                            delegate = ImplementationManager.build(implementation);
+                            delegate.execute(
+                                    reportKey,
+                                    context.getMergedJobDataMap().getBoolean(JobManager.DRY_RUN_JOBDETAIL_KEY),
+                                    context);
+                        }
+                    } catch (Exception e) {
+                        LOG.error("While executing report {}", reportKey, e);
+                        throw new RuntimeException(e);
+                    }
 
-            AuthContextUtils.callAsAdmin(domainKey, () -> {
-                try {
-                    delegate.execute(reportKey, executor);
-                } catch (Exception e) {
-                    LOG.error("While executing report {}", reportKey, e);
-                    throw new RuntimeException(e);
-                }
-
-                return null;
-            });
+                    return null;
+                });
+            } else {
+                LOG.debug("Domain {} not found, skipping", domain);
+            }
         } catch (RuntimeException e) {
             LOG.error("While executing report {}", reportKey, e);
             throw new JobExecutionException("While executing report " + reportKey, e);

@@ -33,35 +33,23 @@ import org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
-import org.apache.syncope.common.lib.report.AuditReportletConf;
-import org.apache.syncope.common.lib.report.GroupReportletConf;
-import org.apache.syncope.common.lib.report.ReconciliationReportletConf;
-import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.common.lib.report.StaticReportletConf;
-import org.apache.syncope.common.lib.report.UserReportletConf;
+import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.logic.job.MacroRunJobDelegate;
-import org.apache.syncope.core.persistence.api.ImplementationLookup;
-import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.PasswordRule;
-import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
-import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
-import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.AlwaysTrueValidator;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidator;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator;
-import org.apache.syncope.core.persistence.jpa.dao.DefaultPullCorrelationRule;
-import org.apache.syncope.core.persistence.jpa.dao.DefaultPushCorrelationRule;
+import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
+import org.apache.syncope.core.provisioning.api.rules.AccountRule;
+import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
+import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
+import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup;
 import org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup;
-import org.apache.syncope.core.provisioning.java.job.report.AuditReportlet;
-import org.apache.syncope.core.provisioning.java.job.report.GroupReportlet;
-import org.apache.syncope.core.provisioning.java.job.report.ReconciliationReportlet;
-import org.apache.syncope.core.provisioning.java.job.report.StaticReportlet;
-import org.apache.syncope.core.provisioning.java.job.report.UserReportlet;
 import org.apache.syncope.core.provisioning.java.propagation.AzurePropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagationActions;
@@ -69,6 +57,8 @@ import org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropa
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.DefaultProvisionSorter;
+import org.apache.syncope.core.provisioning.java.pushpull.DefaultPullCorrelationRule;
+import org.apache.syncope.core.provisioning.java.pushpull.DefaultPushCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
@@ -93,13 +83,8 @@ public class ITImplementationLookup implements ImplementationLookup {
     private static final Set<Class<?>> JWTSSOPROVIDER_CLASSES =
             Set.of(SyncopeJWTSSOProvider.class, CustomJWTSSOProvider.class);
 
-    private static final Map<Class<? extends ReportletConf>, Class<? extends Reportlet>> REPORTLET_CLASSES =
-            Map.of(
-                    AuditReportletConf.class, AuditReportlet.class,
-                    ReconciliationReportletConf.class, ReconciliationReportlet.class,
-                    GroupReportletConf.class, GroupReportlet.class,
-                    UserReportletConf.class, UserReportlet.class,
-                    StaticReportletConf.class, StaticReportlet.class);
+    private static final Map<Class<? extends ReportConf>, Class<? extends ReportJobDelegate>> REPORT_CLASSES =
+            Map.of(SampleReportConf.class, SampleReportJobDelegate.class);
 
     private static final Map<Class<? extends AccountRuleConf>, Class<? extends AccountRule>> ACCOUNT_RULE_CLASSES =
             Map.of(
@@ -141,12 +126,8 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdRepoImplementationType.JWT_SSO_PROVIDER, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(ReconciliationReportletConf.class.getName());
-            classNames.add(UserReportletConf.class.getName());
-            classNames.add(GroupReportletConf.class.getName());
-            classNames.add(AuditReportletConf.class.getName());
-            classNames.add(StaticReportletConf.class.getName());
-            put(IdRepoImplementationType.REPORTLET, classNames);
+            classNames.add(SampleReportJobDelegate.class.getName());
+            put(IdRepoImplementationType.REPORT_DELEGATE, classNames);
 
             classNames = ITImplementationLookup.ACCOUNT_RULE_CLASSES.values().stream().
                     map(Class::getName).collect(Collectors.toSet());
@@ -287,10 +268,8 @@ public class ITImplementationLookup implements ImplementationLookup {
     }
 
     @Override
-    public Class<? extends Reportlet> getReportletClass(
-            final Class<? extends ReportletConf> reportletConfClass) {
-
-        return REPORTLET_CLASSES.get(reportletConfClass);
+    public Class<? extends ReportJobDelegate> getReportClass(final Class<? extends ReportConf> reportConfClass) {
+        return REPORT_CLASSES.get(reportConfClass);
     }
 
     @Override

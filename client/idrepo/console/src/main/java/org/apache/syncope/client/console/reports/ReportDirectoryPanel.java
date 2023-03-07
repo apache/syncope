@@ -218,20 +218,6 @@ public abstract class ReportDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
-                target.add(modal.setContent(new ReportletDirectoryPanel(modal, model.getObject().getKey(), pageRef)));
-
-                modal.header(new StringResourceModel(
-                        "reportlet.conf", ReportDirectoryPanel.this, Model.of(model.getObject())));
-                modal.show(true);
-            }
-        }, ActionLink.ActionType.COMPOSE, IdRepoEntitlement.REPORT_UPDATE);
-
-        panel.add(new ActionLink<>() {
-
-            private static final long serialVersionUID = -3722207913631435501L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
                 startAt.setExecutionDetail(
                         model.getObject().getKey(), model.getObject().getName(), target);
                 startAt.toggle(target, true);

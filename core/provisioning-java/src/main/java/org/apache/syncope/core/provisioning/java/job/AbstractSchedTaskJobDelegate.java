@@ -51,7 +51,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
     protected static final Logger LOG = LoggerFactory.getLogger(SchedTaskJobDelegate.class);
 
     @Autowired
-    private SecurityProperties securityProperties;
+    protected SecurityProperties securityProperties;
 
     protected TaskType taskType;
 
@@ -154,6 +154,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
         try {
             execution.setMessage(doExecute(dryRun, executor, context));
             execution.setStatus(TaskJob.Status.SUCCESS.name());
+
             result = AuditElements.Result.SUCCESS;
         } catch (JobExecutionException e) {
             LOG.error("While executing task {}", taskKey, e);

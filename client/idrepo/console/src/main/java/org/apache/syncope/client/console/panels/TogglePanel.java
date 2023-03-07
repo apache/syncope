@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.policies.PolicyRuleWrapper;
-import org.apache.syncope.client.console.reports.ReportletWrapper;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
@@ -176,8 +175,6 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
                     ? ((StatusBean) modelObject).getResource() : ((StatusBean) modelObject).getKey();
         } else if (modelObject instanceof PolicyRuleWrapper) {
             key = ((PolicyRuleWrapper) modelObject).getConf().getName();
-        } else if (modelObject instanceof ReportletWrapper) {
-            key = ((ReportletWrapper) modelObject).getConf().getName();
         } else if (modelObject instanceof JobTO) {
             key = ((JobTO) modelObject).getRefKey() == null
                     ? ((JobTO) modelObject).getRefDesc() : ((JobTO) modelObject).getRefKey();

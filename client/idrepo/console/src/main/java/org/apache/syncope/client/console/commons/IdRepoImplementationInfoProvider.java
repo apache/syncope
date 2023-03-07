@@ -27,7 +27,6 @@ import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -46,8 +45,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
     public ViewMode getViewMode(final ImplementationTO implementation) {
         return implementation.getEngine() == ImplementationEngine.GROOVY
                 ? ViewMode.GROOVY_BODY
-                : IdRepoImplementationType.REPORTLET.equals(implementation.getType())
-                || IdRepoImplementationType.ACCOUNT_RULE.equals(implementation.getType())
+                : IdRepoImplementationType.ACCOUNT_RULE.equals(implementation.getType())
                 || IdRepoImplementationType.PASSWORD_RULE.equals(implementation.getType())
                 ? ViewMode.JSON_BODY
                 : ViewMode.JAVA_CLASS;
@@ -61,11 +59,6 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
                     map(javaImplInfo -> new ArrayList<>(javaImplInfo.getClasses())).orElseGet(ArrayList::new);
         } else if (viewMode == ViewMode.JSON_BODY) {
             switch (implementation.getType()) {
-                case IdRepoImplementationType.REPORTLET:
-                    classes = lookup.getClasses(ReportletConf.class).stream().
-                            map(Class::getName).collect(Collectors.toList());
-                    break;
-
                 case IdRepoImplementationType.ACCOUNT_RULE:
                     classes = lookup.getClasses(AccountRuleConf.class).stream().
                             map(Class::getName).collect(Collectors.toList());
@@ -91,10 +84,6 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
         String templateClassName = null;
 
         switch (implementationType) {
-            case IdRepoImplementationType.REPORTLET:
-                templateClassName = "MyReportlet";
-                break;
-
             case IdRepoImplementationType.ACCOUNT_RULE:
                 templateClassName = "MyAccountRule";
                 break;
@@ -105,6 +94,10 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             case IdRepoImplementationType.TASKJOB_DELEGATE:
                 templateClassName = "MySchedTaskJobDelegate";
+                break;
+
+            case IdRepoImplementationType.REPORT_DELEGATE:
+                templateClassName = "MyReportJobDelegate";
                 break;
 
             case IdRepoImplementationType.LOGIC_ACTIONS:
@@ -137,11 +130,6 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
     public Class<?> getClass(final String implementationType, final String name) {
         Class<?> clazz = null;
         switch (implementationType) {
-            case IdRepoImplementationType.REPORTLET:
-                clazz = lookup.getClasses(ReportletConf.class).stream().
-                        filter(c -> c.getName().equals(name)).findFirst().orElse(null);
-                break;
-
             case IdRepoImplementationType.ACCOUNT_RULE:
                 clazz = lookup.getClasses(AccountRuleConf.class).stream().
                         filter(c -> c.getName().equals(name)).findFirst().orElse(null);

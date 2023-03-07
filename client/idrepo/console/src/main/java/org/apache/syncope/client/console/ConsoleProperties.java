@@ -63,8 +63,6 @@ public class ConsoleProperties extends CommonUIProperties {
 
     private String adminUser = "admin";
 
-    private String reconciliationReportKey;
-
     private final Map<String, Class<? extends BasePage>> page = new HashMap<>();
 
     private String defaultAnyPanelClass = AnyPanel.class.getName();
@@ -79,14 +77,6 @@ public class ConsoleProperties extends CommonUIProperties {
     @Override
     public void setAdminUser(final String adminUser) {
         this.adminUser = adminUser;
-    }
-
-    public String getReconciliationReportKey() {
-        return reconciliationReportKey;
-    }
-
-    public void setReconciliationReportKey(final String reconciliationReportKey) {
-        this.reconciliationReportKey = reconciliationReportKey;
     }
 
     public String getDefaultAnyPanelClass() {

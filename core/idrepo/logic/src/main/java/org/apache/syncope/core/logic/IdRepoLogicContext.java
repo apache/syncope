@@ -36,7 +36,6 @@ import org.apache.syncope.core.logic.init.EntitlementAccessor;
 import org.apache.syncope.core.logic.init.IdRepoEntitlementLoader;
 import org.apache.syncope.core.logic.init.IdRepoImplementationTypeLoader;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -63,7 +62,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
@@ -77,6 +75,7 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
+import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
@@ -452,16 +451,6 @@ public class IdRepoLogicContext {
                 confParamOps,
                 binder,
                 entityFactory);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ReportTemplateLogic reportTemplateLogic(
-            final ReportTemplateDAO reportTemplateDAO,
-            final ReportDAO reportDAO,
-            final EntityFactory entityFactory) {
-
-        return new ReportTemplateLogic(reportTemplateDAO, reportDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean

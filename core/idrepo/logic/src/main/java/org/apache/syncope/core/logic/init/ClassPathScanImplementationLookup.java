@@ -29,32 +29,32 @@ import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
-import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.core.logic.api.Command;
 import org.apache.syncope.core.logic.api.LogicActions;
-import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator;
-import org.apache.syncope.core.persistence.api.dao.AccountRule;
-import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
-import org.apache.syncope.core.persistence.api.dao.PasswordRule;
-import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
-import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
-import org.apache.syncope.core.persistence.api.dao.PullCorrelationRuleConfClass;
-import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
-import org.apache.syncope.core.persistence.api.dao.PushCorrelationRuleConfClass;
-import org.apache.syncope.core.persistence.api.dao.Reportlet;
-import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
+import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
+import org.apache.syncope.core.provisioning.api.job.report.ReportConfClass;
+import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
+import org.apache.syncope.core.provisioning.api.rules.AccountRule;
+import org.apache.syncope.core.provisioning.api.rules.AccountRuleConfClass;
+import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
+import org.apache.syncope.core.provisioning.api.rules.PasswordRuleConfClass;
+import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
+import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRuleConfClass;
+import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
+import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRuleConfClass;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
 import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
@@ -80,7 +80,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     private Set<Class<?>> jwtSSOProviderClasses;
 
-    private Map<Class<? extends ReportletConf>, Class<? extends Reportlet>> reportletClasses;
+    private Map<Class<? extends ReportConf>, Class<? extends ReportJobDelegate>> reportJobDelegateClasses;
 
     private Map<Class<? extends AccountRuleConf>, Class<? extends AccountRule>> accountRuleClasses;
 
@@ -120,7 +120,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         });
 
         jwtSSOProviderClasses = new HashSet<>();
-        reportletClasses = new HashMap<>();
+        reportJobDelegateClasses = new HashMap<>();
         accountRuleClasses = new HashMap<>();
         passwordRuleClasses = new HashMap<>();
         pullCRClasses = new HashMap<>();
@@ -137,13 +137,13 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     jwtSSOProviderClasses.add(clazz);
                 }
 
-                if (Reportlet.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    ReportletConfClass annotation = clazz.getAnnotation(ReportletConfClass.class);
+                if (ReportJobDelegate.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                    ReportConfClass annotation = clazz.getAnnotation(ReportConfClass.class);
                     if (annotation == null) {
-                        LOG.warn("Found Reportlet {} without declared configuration", clazz.getName());
+                        LOG.warn("Found Report {} without declared configuration", clazz.getName());
                     } else {
-                        classNames.get(IdRepoImplementationType.REPORTLET).add(clazz.getName());
-                        reportletClasses.put(annotation.value(), (Class<? extends Reportlet>) clazz);
+                        classNames.get(IdRepoImplementationType.REPORT_DELEGATE).add(clazz.getName());
+                        reportJobDelegateClasses.put(annotation.value(), (Class<? extends ReportJobDelegate>) clazz);
                     }
                 }
 
@@ -245,7 +245,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         LOG.debug("Implementation classes found: {}", classNames);
 
         jwtSSOProviderClasses = Collections.unmodifiableSet(jwtSSOProviderClasses);
-        reportletClasses = Collections.unmodifiableMap(reportletClasses);
+        reportJobDelegateClasses = Collections.unmodifiableMap(reportJobDelegateClasses);
         accountRuleClasses = Collections.unmodifiableMap(accountRuleClasses);
         passwordRuleClasses = Collections.unmodifiableMap(passwordRuleClasses);
         pullCRClasses = Collections.unmodifiableMap(pullCRClasses);
@@ -263,10 +263,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     }
 
     @Override
-    public Class<? extends Reportlet> getReportletClass(
-            final Class<? extends ReportletConf> reportletConfClass) {
-
-        return reportletClasses.get(reportletConfClass);
+    public Class<? extends ReportJobDelegate> getReportClass(final Class<? extends ReportConf> reportConfClass) {
+        return reportJobDelegateClasses.get(reportConfClass);
     }
 
     @Override

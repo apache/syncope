@@ -22,6 +22,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
@@ -53,7 +54,7 @@ public class JPASchedTask extends AbstractTask<SchedTask> implements SchedTask {
 
     private String cronExpression;
 
-    @NotNull
+    @Column(unique = true, nullable = false)
     private String name;
 
     private String description;

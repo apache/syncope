@@ -209,8 +209,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             final SchedTask task,
             final OffsetDateTime startAt,
             final long interruptMaxRetries,
-            final String executor)
-            throws SchedulerException {
+            final String executor) throws SchedulerException {
 
         Implementation jobDelegate = task.getJobDelegate() == null
                 ? task instanceof PullTask
@@ -231,7 +230,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         Map<String, Object> jobMap = createJobMapForExecutionContext(executor);
         jobMap.put(JobManager.TASK_TYPE, taskUtilsFactory.getInstance(task).getType());
         jobMap.put(JobManager.TASK_KEY, task.getKey());
-        jobMap.put(TaskJob.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
+        jobMap.put(JobManager.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
 
         registerJob(
                 JobNamer.getJobKey(task).getName(),
@@ -243,7 +242,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
     }
 
     @Override
-    public void register(
+    public Map<String, Object> register(
             final Report report,
             final OffsetDateTime startAt,
             final long interruptMaxRetries,
@@ -251,6 +250,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
         Map<String, Object> jobMap = createJobMapForExecutionContext(executor);
         jobMap.put(JobManager.REPORT_KEY, report.getKey());
+        jobMap.put(JobManager.DELEGATE_IMPLEMENTATION, report.getJobDelegate().getKey());
 
         registerJob(
                 JobNamer.getJobKey(report).getName(),
@@ -258,6 +258,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 report.getCronExpression(),
                 Optional.ofNullable(startAt).map(s -> new Date(s.toInstant().toEpochMilli())).orElse(null),
                 jobMap);
+        return jobMap;
     }
 
     protected Map<String, Object> createJobMapForExecutionContext(final String executor) {

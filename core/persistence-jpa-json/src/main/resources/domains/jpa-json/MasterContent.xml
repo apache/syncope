@@ -50,11 +50,11 @@ under the License.
   <Implementation id="ExpiredAccessTokenCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>
   <SchedTask id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
-        jobDelegate_id="ExpiredAccessTokenCleanup" cronExpression="0 0/5 * * * ?"/>
+             jobDelegate_id="ExpiredAccessTokenCleanup" cronExpression="0 0/5 * * * ?"/>
   <Implementation id="ExpiredBatchCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup"/>
   <SchedTask id="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" name="Expired Batch Operations Cleanup Task"  active="1"
-        jobDelegate_id="ExpiredBatchCleanup" cronExpression="0 0/5 * * * ?"/>
+             jobDelegate_id="ExpiredBatchCleanup" cronExpression="0 0/5 * * * ?"/>
 
   <!-- Password reset notifications -->
   <MailTemplate id="requestPasswordReset"
@@ -103,13 +103,6 @@ we are happy to inform you that the password request was successfully executed f
   <Notification id="bef0c250-e8a7-4848-bb63-2564fc409ce2" active="1" recipientAttrName="email" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset successful" template_id="confirmPasswordReset" 
                 traceLevel="FAILURES" events='["[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"]'/> 
-
-  <ReportTemplate id="empty"/>  
-
-  <Report id="c3520ad9-179f-49e7-b315-d684d216dd97" name="reconciliation" active="1" template_id="empty"/>
-  <Implementation id="ReconciliationReportletConf" type="REPORTLET" engine="JAVA"
-                  body='{"_class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
-  <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
 
   <SyncopeRole id="GROUP_OWNER" entitlements='["USER_SEARCH","USER_READ","USER_CREATE","USER_UPDATE","USER_DELETE","ANYTYPECLASS_READ","ANYTYPE_LIST","ANYTYPECLASS_LIST","RELATIONSHIPTYPE_LIST","ANYTYPE_READ","REALM_LIST","GROUP_SEARCH","GROUP_READ","GROUP_UPDATE","GROUP_DELETE"]'/>
 </dataset>

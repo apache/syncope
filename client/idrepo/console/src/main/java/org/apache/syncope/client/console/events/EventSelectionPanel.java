@@ -195,6 +195,9 @@ public abstract class EventSelectionPanel extends Panel {
             } else if (AuditElements.EventCategoryType.TASK == eventCategoryTO.getType()
                     && StringUtils.isNotEmpty(eventCategoryTO.getCategory())) {
                 res.add(eventCategoryTO.getCategory());
+            } else if (AuditElements.EventCategoryType.REPORT == eventCategoryTO.getType()
+                    && StringUtils.isNotEmpty(eventCategoryTO.getCategory())) {
+                res.add(eventCategoryTO.getCategory());
             }
         } else {
             Collections.sort(res);

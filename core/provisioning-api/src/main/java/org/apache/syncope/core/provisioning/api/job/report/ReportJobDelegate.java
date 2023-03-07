@@ -18,10 +18,31 @@
  */
 package org.apache.syncope.core.provisioning.api.job.report;
 
+import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.core.provisioning.api.job.JobDelegate;
+import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 public interface ReportJobDelegate extends JobDelegate {
 
-    void execute(String reportKey, String executor) throws JobExecutionException;
+    /**
+     * Optional configuration.
+     *
+     * @param conf configuration
+     */
+    default void setConf(ReportConf conf) {
+    }
+
+    /**
+     * Executes a Quartz Job to run the given Report.
+     *
+     * @param reportKey Report key to run
+     * @param dryRun indicates if execution shall be simulated with no actual changes
+     * @param context Quartz' execution context, can be used to pass parameters to the job
+     * @throws JobExecutionException if anything goes wrong
+     */
+    void execute(
+            String reportKey,
+            boolean dryRun,
+            JobExecutionContext context) throws JobExecutionException;
 }

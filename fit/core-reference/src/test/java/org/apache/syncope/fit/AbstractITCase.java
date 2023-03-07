@@ -137,7 +137,6 @@ import org.apache.syncope.common.rest.api.service.ReconciliationService;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.syncope.common.rest.api.service.RemediationService;
 import org.apache.syncope.common.rest.api.service.ReportService;
-import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
@@ -323,8 +322,6 @@ public abstract class AbstractITCase {
 
     protected static AuditService AUDIT_SERVICE;
 
-    protected static ReportTemplateService REPORT_TEMPLATE_SERVICE;
-
     protected static ReportService REPORT_SERVICE;
 
     protected static TaskService TASK_SERVICE;
@@ -451,7 +448,6 @@ public abstract class AbstractITCase {
         RESOURCE_SERVICE = ADMIN_CLIENT.getService(ResourceService.class);
         CONNECTOR_SERVICE = ADMIN_CLIENT.getService(ConnectorService.class);
         AUDIT_SERVICE = ADMIN_CLIENT.getService(AuditService.class);
-        REPORT_TEMPLATE_SERVICE = ADMIN_CLIENT.getService(ReportTemplateService.class);
         REPORT_SERVICE = ADMIN_CLIENT.getService(ReportService.class);
         TASK_SERVICE = ADMIN_CLIENT.getService(TaskService.class);
         RECONCILIATION_SERVICE = ADMIN_CLIENT.getService(ReconciliationService.class);

@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.widgets.JobWidget;
-import org.apache.syncope.client.console.widgets.ReconciliationWidget;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
@@ -40,13 +39,5 @@ public class DashboardControlPanel extends Panel {
                         IdRepoEntitlement.TASK_LIST,
                         IdRepoEntitlement.REPORT_LIST));
         add(job);
-
-        ReconciliationWidget reconciliation = new ReconciliationWidget("reconciliation", pageRef);
-        MetaDataRoleAuthorizationStrategy.authorize(job, Component.RENDER,
-                String.format("%s,%s,%s",
-                        IdRepoEntitlement.REPORT_EXECUTE,
-                        IdRepoEntitlement.REPORT_READ,
-                        IdRepoEntitlement.REPORT_LIST));
-        add(reconciliation);
     }
 }

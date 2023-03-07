@@ -63,7 +63,6 @@ import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
@@ -121,7 +120,6 @@ import org.apache.syncope.core.persistence.jpa.dao.JPARelationshipTypeDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPARemediationDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAReportDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAReportExecDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAReportTemplateDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPARoleDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPASAML2IdPEntityDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPASAML2SPClientAppDAO;
@@ -613,12 +611,6 @@ public class PersistenceContext {
     @Bean
     public RemediationDAO remediationDAO() {
         return new JPARemediationDAO();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ReportTemplateDAO reportTemplateDAO() {
-        return new JPAReportTemplateDAO();
     }
 
     @ConditionalOnMissingBean

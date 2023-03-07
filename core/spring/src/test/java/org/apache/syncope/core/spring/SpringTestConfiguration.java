@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.spring;
 
-import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.spring.security.DummyImplementationLookup;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

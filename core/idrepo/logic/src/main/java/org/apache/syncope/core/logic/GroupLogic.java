@@ -68,7 +68,6 @@ import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
-import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -435,7 +434,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                     confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
                     AuthContextUtils.getUsername());
 
-            jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, false);
+            jobDataMap.put(JobManager.DRY_RUN_JOBDETAIL_KEY, false);
             jobDataMap.put(GroupMemberProvisionTaskJobDelegate.GROUP_KEY_JOBDETAIL_KEY, key);
             jobDataMap.put(GroupMemberProvisionTaskJobDelegate.ACTION_JOBDETAIL_KEY, action);
 
