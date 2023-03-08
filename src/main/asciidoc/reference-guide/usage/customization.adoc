@@ -262,7 +262,7 @@ components:
 * <<commands,commands>>
 * <<tasks-macro,macros>>
 * <<tasks-scheduled,scheduled tasks>>
-* <<reportlets,reportlets>>
+* <<reports,reports>>
 * <<account-rules,account>> and <<password-rules,password>> rules for policies
 * <<plain,plain schema validators>>
 * <<mapping,mapping item transformers>>
