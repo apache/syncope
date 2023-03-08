@@ -36,7 +36,6 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -87,8 +86,6 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     protected final ReportExecDAO reportExecDAO;
 
-    protected final ConfParamOps confParamOps;
-
     protected final ReportDataBinder binder;
 
     protected final EntityFactory entityFactory;
@@ -99,7 +96,6 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             final JobStatusDAO jobStatusDAO,
             final ReportDAO reportDAO,
             final ReportExecDAO reportExecDAO,
-            final ConfParamOps confParamOps,
             final ReportDataBinder binder,
             final EntityFactory entityFactory) {
 
@@ -107,7 +103,6 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         this.reportDAO = reportDAO;
         this.reportExecDAO = reportExecDAO;
-        this.confParamOps = confParamOps;
         this.binder = binder;
         this.entityFactory = entityFactory;
     }
@@ -121,7 +116,6 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             jobManager.register(
                     report,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
                     AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
@@ -145,7 +139,6 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             jobManager.register(
                     report,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
                     AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
@@ -188,7 +181,6 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             Map<String, Object> jobDataMap = jobManager.register(
                     report,
                     startAt,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
                     AuthContextUtils.getUsername());
             jobDataMap.put(JobManager.DRY_RUN_JOBDETAIL_KEY, dryRun);
 
@@ -241,8 +233,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         }
 
         // streaming output from a compressed byte array stream
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
-             ZipInputStream zis = new ZipInputStream(bais)) {
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult()); ZipInputStream zis =
+                new ZipInputStream(bais)) {
 
             // a single ZipEntry in the ZipInputStream
             zis.getNextEntry();

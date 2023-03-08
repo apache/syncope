@@ -51,13 +51,11 @@ public interface JobManager {
     Map<String, Object> register(
             SchedTask task,
             OffsetDateTime startAt,
-            long interruptMaxRetries,
             String executor) throws SchedulerException;
 
     Map<String, Object> register(
             Report report,
             OffsetDateTime startAt,
-            long interruptMaxRetries,
             String executor) throws SchedulerException;
 
     void unregister(Task<?> task);

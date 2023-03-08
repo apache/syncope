@@ -314,7 +314,6 @@ public class IdRepoLogicContext {
             final AnySearchDAO anySearchDAO,
             final SchedulerFactoryBean scheduler,
             final TaskDAO taskDAO,
-            final ConfParamOps confParamOps,
             final GroupDataBinder groupDataBinder,
             final TaskDataBinder taskDataBinder,
             final ImplementationDAO implementationDAO,
@@ -333,7 +332,6 @@ public class IdRepoLogicContext {
                 groupDataBinder,
                 provisioningManager,
                 taskDataBinder,
-                confParamOps,
                 jobManager,
                 scheduler,
                 entityFactory);
@@ -434,7 +432,6 @@ public class IdRepoLogicContext {
     @Bean
     public ReportLogic reportLogic(
             final JobManager jobManager,
-            final ConfParamOps confParamOps,
             final ReportDataBinder binder,
             final SchedulerFactoryBean scheduler,
             final JobStatusDAO jobStatusDAO,
@@ -448,7 +445,6 @@ public class IdRepoLogicContext {
                 jobStatusDAO,
                 reportDAO,
                 reportExecDAO,
-                confParamOps,
                 binder,
                 entityFactory);
     }
@@ -520,7 +516,6 @@ public class IdRepoLogicContext {
             final TaskDAO taskDAO,
             final SchedulerFactoryBean scheduler,
             final JobStatusDAO jobStatusDAO,
-            final ConfParamOps confParamOps,
             final ExternalResourceDAO externalResourceDAO,
             final NotificationJobDelegate notificationJobDelegate,
             final TaskDataBinder taskDataBinder,
@@ -535,7 +530,6 @@ public class IdRepoLogicContext {
                 taskExecDAO,
                 externalResourceDAO,
                 notificationDAO,
-                confParamOps,
                 taskDataBinder,
                 taskExecutor,
                 notificationJobDelegate,

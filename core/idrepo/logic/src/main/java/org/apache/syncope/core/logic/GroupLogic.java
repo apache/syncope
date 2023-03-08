@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -100,8 +99,6 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
     protected final TaskDataBinder taskDataBinder;
 
-    protected final ConfParamOps confParamOps;
-
     protected final JobManager jobManager;
 
     protected final SchedulerFactoryBean scheduler;
@@ -121,7 +118,6 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             final GroupDataBinder binder,
             final GroupProvisioningManager provisioningManager,
             final TaskDataBinder taskDataBinder,
-            final ConfParamOps confParamOps,
             final JobManager jobManager,
             final SchedulerFactoryBean scheduler,
             final EntityFactory entityFactory) {
@@ -137,7 +133,6 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         this.binder = binder;
         this.provisioningManager = provisioningManager;
         this.taskDataBinder = taskDataBinder;
-        this.confParamOps = confParamOps;
         this.jobManager = jobManager;
         this.scheduler = scheduler;
         this.entityFactory = entityFactory;
@@ -431,7 +426,6 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             Map<String, Object> jobDataMap = jobManager.register(
                     task,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
                     AuthContextUtils.getUsername());
 
             jobDataMap.put(JobManager.DRY_RUN_JOBDETAIL_KEY, false);
