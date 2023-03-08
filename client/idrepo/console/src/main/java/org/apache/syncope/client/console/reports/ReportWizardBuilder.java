@@ -112,7 +112,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
         }
 
         wizardModel.add(new Profile(modelObject));
-        wizardModel.add(new Configuration(modelObject));
+        wizardModel.add(new Configuration());
         wizardModel.add(new Schedule(modelObject));
         return wizardModel;
     }
@@ -184,7 +184,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
 
         private static final long serialVersionUID = -785981096328637758L;
 
-        public Configuration(final ReportTO modelObject) {
+        public Configuration() {
             add(new BeanPanel<>("bean", conf, pageRef).setRenderBodyOnly(true));
         }
 
