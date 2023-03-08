@@ -300,6 +300,26 @@ under the License.
           </deployables>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.10</version>
+        <executions>
+          <execution>
+            <id>regex-property</id>
+            <goals>
+              <goal>regex-property</goal>
+            </goals>
+            <configuration>
+              <name>groupIdDocker</name>
+              <value>${groupId}</value>
+              <regex>\.</regex>
+              <replacement>/</replacement>
+              <failIfNoMatch>true</failIfNoMatch>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins> 
   </build>
   
@@ -428,7 +448,8 @@ under the License.
                     <volumes>
                       <bind>
                         <volume>${basedir}/../core/target/classes/domains/MasterContent.xml:/opt/syncope/conf/domains/MasterContent.xml:ro</volume>
-                        <volume>${settings.localRepository}/${groupId}/syncope-core/${project.version}/syncope-core-${project.version}-classes.jar:/opt/syncope/lib/${groupId}-syncope-core-classes.jar:ro</volume>
+                        <volume>${settings.localRepository}/${groupIdDocker}/syncope-core/${project.version}/syncope-core-${project.version}-classes.jar:/opt/syncope/lib/syncope-core-classes.jar:ro</volume>
+                        <volume>${settings.localRepository}/${groupIdDocker}/syncope-common/${project.version}/syncope-common-${project.version}.jar:/opt/syncope/lib/syncope-common.jar:ro</volume>
                       </bind>
                     </volumes>
                     <network>
@@ -463,7 +484,8 @@ under the License.
                     <volumes>
                       <bind>
                         <volume>${basedir}/src/test/resources/keystore.p12:/opt/syncope/conf/keystore.p12:ro</volume>
-                        <volume>${settings.localRepository}/${groupId}/syncope-console/${project.version}/syncope-console-${project.version}-classes.jar:/opt/syncope/lib/${groupId}-syncope-console-classes.jar:ro</volume>
+                        <volume>${settings.localRepository}/${groupIdDocker}/syncope-console/${project.version}/syncope-console-${project.version}-classes.jar:/opt/syncope/lib/syncope-console-classes.jar:ro</volume>
+                        <volume>${settings.localRepository}/${groupIdDocker}/syncope-common/${project.version}/syncope-common-${project.version}.jar:/opt/syncope/lib/syncope-common.jar:ro</volume>
                       </bind>
                     </volumes>
                     <network>
@@ -493,7 +515,8 @@ under the License.
                     </env>
                     <volumes>
                       <bind>
-                        <volume>${settings.localRepository}/${groupId}/syncope-enduser/${project.version}/syncope-enduser-${project.version}-classes.jar:/opt/syncope/lib/${groupId}-syncope-enduser-classes.jar:ro</volume>
+                        <volume>${settings.localRepository}/${groupIdDocker}/syncope-enduser/${project.version}/syncope-enduser-${project.version}-classes.jar:/opt/syncope/lib/syncope-enduser-classes.jar:ro</volume>
+                        <volume>${settings.localRepository}/${groupIdDocker}/syncope-common/${project.version}/syncope-common-${project.version}.jar:/opt/syncope/lib/syncope-common.jar:ro</volume>
                       </bind>
                     </volumes>
                     <network>
@@ -526,7 +549,8 @@ under the License.
                       <bind>
                         <volume>${basedir}/../wa/src/test/resources/wa-docker-https.properties:/opt/syncope/conf/wa-docker-https.properties:ro</volume>
                         <volume>${basedir}/src/test/resources/keystore.p12:/opt/syncope/conf/keystore.p12:ro</volume>
-                        <volume>${settings.localRepository}/${groupId}/syncope-wa/${project.version}/syncope-wa-${project.version}-classes.jar:/opt/syncope/lib/${groupId}-syncope-wa-classes.jar:ro</volume>
+                        <volume>${settings.localRepository}/${groupIdDocker}/syncope-wa/${project.version}/syncope-wa-${project.version}-classes.jar:/opt/syncope/lib/syncope-wa-classes.jar:ro</volume>
+                        <volume>${settings.localRepository}/${groupIdDocker}/syncope-common/${project.version}/syncope-common-${project.version}.jar:/opt/syncope/lib/syncope-common.jar:ro</volume>
                       </bind>
                     </volumes>
                     <network>
@@ -559,7 +583,8 @@ under the License.
                     </env>
                     <volumes>
                       <bind>
-                        <volume>${settings.localRepository}/${groupId}/syncope-sra/${project.version}/syncope-sra-${project.version}.jar:/opt/syncope/lib/${groupId}-syncope-sra.jar:ro</volume>
+                        <volume>${settings.localRepository}/${groupIdDocker}/syncope-sra/${project.version}/syncope-sra-${project.version}.jar:/opt/syncope/lib/syncope-sra.jar:ro</volume>
+                        <volume>${settings.localRepository}/${groupIdDocker}/syncope-common/${project.version}/syncope-common-${project.version}.jar:/opt/syncope/lib/syncope-common.jar:ro</volume>
                       </bind>
                     </volumes>
                     <network>
