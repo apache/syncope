@@ -47,7 +47,6 @@ import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.core.reference.SampleReportConf;
 import org.apache.syncope.fit.core.reference.SampleReportJobDelegate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -75,12 +74,12 @@ public class ReportITCase extends AbstractITCase {
     }
 
     @Test
-    public void getReportConfs() {
-        Set<String> reportConfs = ADMIN_CLIENT.platform().
+    public void getReportDelegates() {
+        Set<String> reportDelegates = ADMIN_CLIENT.platform().
                 getJavaImplInfo(IdRepoImplementationType.REPORT_DELEGATE).get().getClasses();
-        assertNotNull(reportConfs);
-        assertFalse(reportConfs.isEmpty());
-        assertTrue(reportConfs.contains(SampleReportConf.class.getName()));
+        assertNotNull(reportDelegates);
+        assertFalse(reportDelegates.isEmpty());
+        assertTrue(reportDelegates.contains(SampleReportJobDelegate.class.getName()));
     }
 
     @Test

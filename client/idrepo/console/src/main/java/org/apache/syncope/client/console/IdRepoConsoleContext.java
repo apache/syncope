@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console;
 
+import java.util.HashSet;
 import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
@@ -56,7 +57,7 @@ public class IdRepoConsoleContext {
             final ApplicationContext ctx, final ConsoleProperties props) {
 
         ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup(
-                ctx.getBeansOfType(ClassPathScanImplementationContributor.class).values(), props);
+                new HashSet<>(ctx.getBeansOfType(ClassPathScanImplementationContributor.class).values()), props);
         lookup.load();
         return lookup;
     }

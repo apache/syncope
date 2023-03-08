@@ -182,8 +182,8 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     new PropertyModel<>(clientAppTO, Constants.DESCRIPTION_FIELD_NAME), false));
             
             fields.add(new AjaxTextFieldPanel(
-                    "field", Constants.LOGO_FIELD_NAME,
-                    new PropertyModel<>(clientAppTO, Constants.LOGO_FIELD_NAME), false));
+                    "field", "logo",
+                    new PropertyModel<>(clientAppTO, "logo"), false));
 
             AjaxDropDownChoicePanel<String> accessPolicy = new AjaxDropDownChoicePanel<>(
                     "field", "accessPolicy", new PropertyModel<>(clientAppTO, "accessPolicy"), false);

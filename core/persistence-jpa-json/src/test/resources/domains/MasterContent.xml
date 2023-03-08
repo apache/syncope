@@ -946,7 +946,7 @@ $$ }&#10;
   <AnyAbout id="2e2ee845-2abf-43c6-b543-49243a84e2f1" anyType_id="USER" notification_id="9e2b911c-25de-4c77-bcea-b86ed9451050" anyType_filter="fullname==*o*;fullname==*i*"/>
 
   <Implementation id="SampleReportJobDelegate" type="REPORT_DELEGATE" engine="JAVA"
-                  body="org.apache.syncope.fit.core.reference.SampleReportJobDelegate"/>
+                  body='{"_class":"org.apache.syncope.fit.core.reference.SampleReportConf","stringValue":"a string","intValue":1,"longValue":45,"floatValue":1.2,"doubleValue":2.1}'/>
   <Report id="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" name="test" active="1" jobDelegate_id="SampleReportJobDelegate"
           mimeType="application/pdf" fileExt="pdf"/>
   <ReportExec report_id="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" id="c13f39c5-0d35-4bff-ba79-3cd5de940369"

@@ -34,6 +34,7 @@ import javax.xml.XMLConstants;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -212,7 +213,9 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         ReportExec reportExec = Optional.ofNullable(reportExecDAO.find(executionKey)).
                 orElseThrow(() -> new NotFoundException("Report execution " + executionKey));
 
-        return reportExec.getReport().getName() + reportExec.getReport().getFileExt();
+        return reportExec.getReport().getName()
+                + "."
+                + StringUtils.removeStart(reportExec.getReport().getFileExt(), ".");
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")

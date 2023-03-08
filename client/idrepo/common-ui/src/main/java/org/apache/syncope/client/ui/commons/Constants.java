@@ -47,8 +47,6 @@ public final class Constants {
 
     public static final String DESCRIPTION_FIELD_NAME = "description";
 
-    public static final String LOGO_FIELD_NAME = "logo";
-
     public static final String USERNAME_FIELD_NAME = "username";
 
     public static final String NAME_FIELD_NAME = "name";

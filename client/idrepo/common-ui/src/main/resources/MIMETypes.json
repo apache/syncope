@@ -139,7 +139,8 @@
     "name": "application/oda"
   },
   {
-    "name": "application/pdf"
+    "name": "application/pdf",
+    "extension": "pdf"
   },
   {
     "name": "application/pkcs10"
@@ -1024,6 +1025,10 @@
   {
     "name": "text/javascript",
     "extension": "js"
+  },
+  {
+    "name": "text/csv",
+    "extension": "csv"
   },
   {
     "name": "text/mcf"

@@ -18,10 +18,81 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.common.lib.report.ReportConf;
 
 public class SampleReportConf implements ReportConf {
 
     private static final long serialVersionUID = -882050095416116390L;
 
+    private String stringValue;
+
+    private int intValue;
+
+    private long longValue;
+
+    private float floatValue;
+
+    private double doubleValue;
+
+    private boolean booleanValue;
+
+    private List<String> listValues = new ArrayList<>();
+
+    public String getStringValue() {
+        return stringValue;
+    }
+
+    public void setStringValue(final String stringValue) {
+        this.stringValue = stringValue;
+    }
+
+    public int getIntValue() {
+        return intValue;
+    }
+
+    public void setIntValue(final int intValue) {
+        this.intValue = intValue;
+    }
+
+    public long getLongValue() {
+        return longValue;
+    }
+
+    public void setLongValue(final long longValue) {
+        this.longValue = longValue;
+    }
+
+    public float getFloatValue() {
+        return floatValue;
+    }
+
+    public void setFloatValue(final float floatValue) {
+        this.floatValue = floatValue;
+    }
+
+    public double getDoubleValue() {
+        return doubleValue;
+    }
+
+    public void setDoubleValue(final double doubleValue) {
+        this.doubleValue = doubleValue;
+    }
+
+    public boolean isBooleanValue() {
+        return booleanValue;
+    }
+
+    public void setBooleanValue(final boolean booleanValue) {
+        this.booleanValue = booleanValue;
+    }
+
+    public List<String> getListValues() {
+        return listValues;
+    }
+
+    public void setListValues(final List<String> listValues) {
+        this.listValues = listValues;
+    }
 }

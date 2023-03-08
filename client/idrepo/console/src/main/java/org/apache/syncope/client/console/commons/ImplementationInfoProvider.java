@@ -42,6 +42,8 @@ public interface ImplementationInfoProvider extends Serializable {
 
     IModel<List<String>> getTaskJobDelegates();
 
+    IModel<List<String>> getReportJobDelegates();
+
     IModel<List<String>> getReconFilterBuilders();
 
     IModel<List<String>> getPullActions();

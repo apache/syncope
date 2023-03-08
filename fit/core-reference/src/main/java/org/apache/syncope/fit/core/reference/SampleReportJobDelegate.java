@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.IOException;
 import java.io.OutputStream;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -26,6 +29,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName;
+import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.core.provisioning.api.job.report.ReportConfClass;
 import org.apache.syncope.core.provisioning.java.job.report.AbstractReportJobDelegate;
 import org.quartz.JobExecutionContext;
@@ -34,6 +38,8 @@ import org.springframework.http.MediaType;
 
 @ReportConfClass(SampleReportConf.class)
 public class SampleReportJobDelegate extends AbstractReportJobDelegate {
+
+    private SampleReportConf sampleReportConf;
 
     private void generateSamplePdfContent(final OutputStream os) throws IOException {
         try (PDDocument doc = new PDDocument()) {
@@ -76,11 +82,32 @@ public class SampleReportJobDelegate extends AbstractReportJobDelegate {
     }
 
     private void generateSampleCsvContent(final OutputStream os) throws IOException {
-        Object[] value = new Object[] {
-            new Object[] { "foo", 13, true },
-            new Object[] { "bar", 28, false } };
+        CsvMapper mapper = new CsvMapper();
+        mapper.configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true);
 
-        new CsvMapper().writeValue(os, value);
+        CsvSchema schema = CsvSchema.builder().
+                setUseHeader(true).
+                addColumn("stringValue").
+                addColumn("intValue").
+                addColumn("longValue").
+                addColumn("floatValue").
+                addColumn("doubleValue").
+                addColumn("booleanValue").
+                addColumn("listValues").
+                build();
+
+        ObjectWriter writer = mapper.writerFor(SampleReportConf.class).with(schema);
+
+        writer.writeValues(os).write(sampleReportConf);
+    }
+
+    @Override
+    public void setConf(final ReportConf conf) {
+        if (conf instanceof SampleReportConf) {
+            sampleReportConf = (SampleReportConf) conf;
+        } else {
+            throw new IllegalArgumentException("Expected " + SampleReportConf.class.getName() + ", got " + conf);
+        }
     }
 
     @Override

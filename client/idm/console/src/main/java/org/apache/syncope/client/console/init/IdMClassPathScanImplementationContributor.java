@@ -26,6 +26,8 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 
 public class IdMClassPathScanImplementationContributor implements ClassPathScanImplementationContributor {
 
+    private static final long serialVersionUID = 4797723744170531042L;
+
     @Override
     public void extend(final ClassPathScanningCandidateComponentProvider scanner) {
         scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRuleConf.class));

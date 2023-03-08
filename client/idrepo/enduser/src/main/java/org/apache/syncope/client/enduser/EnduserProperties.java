@@ -24,8 +24,11 @@ import org.apache.syncope.client.enduser.pages.BasePage;
 import org.apache.syncope.client.enduser.panels.Sidebar;
 import org.apache.syncope.client.ui.commons.CommonUIProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
 @ConfigurationProperties("enduser")
 public class EnduserProperties extends CommonUIProperties {
+
+    private static final long serialVersionUID = 7455729386695110295L;
 
     private Class<? extends Sidebar> sidebar = Sidebar.class;
 

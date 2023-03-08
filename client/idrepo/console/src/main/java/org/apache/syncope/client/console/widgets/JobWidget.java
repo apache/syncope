@@ -51,6 +51,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -82,6 +83,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class JobWidget extends BaseWidget {
 
@@ -135,6 +137,9 @@ public class JobWidget extends BaseWidget {
     private AvailableJobsPanel availableJobsPanel;
 
     private final List<ExecTO> recent;
+
+    @SpringBean
+    private MIMETypesLoader mimeTypesLoader;
 
     private RecentExecPanel recentExecPanel;
 
@@ -383,7 +388,7 @@ public class JobWidget extends BaseWidget {
                         case REPORT:
                             ReportTO reportTO = ReportRestClient.read(jobTO.getRefKey());
 
-                            ReportWizardBuilder rwb = new ReportWizardBuilder(reportTO, pageRef);
+                            ReportWizardBuilder rwb = new ReportWizardBuilder(reportTO, mimeTypesLoader, pageRef);
                             rwb.setEventSink(AvailableJobsPanel.this);
 
                             target.add(jobModal.setContent(rwb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));

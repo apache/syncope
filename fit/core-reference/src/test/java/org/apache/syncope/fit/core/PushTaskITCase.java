@@ -95,7 +95,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
     @Test
     public void createPushTask() {
         PushTaskTO task = new PushTaskTO();
-        task.setName("Test create Push");
+        task.setName(getUUIDString());
         task.setResource(RESOURCE_NAME_WS2);
         task.setSourceRealm(SyncopeConstants.ROOT_REALM);
         task.getFilters().put(AnyTypeKind.USER.name(),

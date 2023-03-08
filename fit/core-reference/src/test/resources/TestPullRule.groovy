@@ -18,9 +18,9 @@
  */
 import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.to.Provision
-import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond
+import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule
 import org.identityconnectors.framework.common.objects.SyncDelta
 
 /**

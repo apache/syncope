@@ -68,13 +68,13 @@ public class TaskJob extends AbstractInterruptableJob {
                     try {
                         ImplementationDAO implementationDAO =
                                 ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);
-                        Implementation implementation = implementationDAO.find(
+                        Implementation impl = implementationDAO.find(
                                 context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION));
-                        if (implementation == null) {
+                        if (impl == null) {
                             LOG.error("Could not find Implementation '{}', aborting",
                                     context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION));
                         } else {
-                            delegate = ImplementationManager.build(implementation);
+                            delegate = ImplementationManager.build(impl);
                             delegate.execute(
                                     (TaskType) context.getMergedJobDataMap().get(JobManager.TASK_TYPE),
                                     taskKey,

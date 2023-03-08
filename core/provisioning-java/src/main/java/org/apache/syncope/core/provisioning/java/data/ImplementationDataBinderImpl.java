@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.RuleConf;
+import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -92,6 +93,14 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
             }
 
             switch (implementation.getType()) {
+                case IdRepoImplementationType.REPORT_DELEGATE:
+                    ReportConf conf = POJOHelper.deserialize(implementation.getBody(), ReportConf.class);
+                    if (conf == null) {
+                        sce.getElements().add("Could not deserialize as " + ReportConf.class.getName());
+                        throw sce;
+                    }
+                    break;
+
                 case IdRepoImplementationType.ACCOUNT_RULE:
                 case IdRepoImplementationType.PASSWORD_RULE:
                 case IdMImplementationType.PULL_CORRELATION_RULE:

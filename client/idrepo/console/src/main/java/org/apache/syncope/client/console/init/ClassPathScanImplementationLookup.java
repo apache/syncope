@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.init;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -61,9 +62,11 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
 
-public class ClassPathScanImplementationLookup {
+public class ClassPathScanImplementationLookup implements Serializable {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ClassPathScanImplementationLookup.class);
+    private static final long serialVersionUID = 5047756409117925203L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ClassPathScanImplementationLookup.class);
 
     private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope";
 

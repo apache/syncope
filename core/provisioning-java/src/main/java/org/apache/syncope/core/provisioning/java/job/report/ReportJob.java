@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.job.report;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -51,6 +53,8 @@ public class ReportJob extends AbstractInterruptableJob {
 
     }
 
+    private final Map<String, ReportJobDelegate> perContextReportJobDelegates = new ConcurrentHashMap<>();
+
     @Autowired
     private DomainHolder domainHolder;
 
@@ -71,13 +75,18 @@ public class ReportJob extends AbstractInterruptableJob {
                     try {
                         ImplementationDAO implementationDAO =
                                 ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);
-                        Implementation implementation = implementationDAO.find(
+                        Implementation impl = implementationDAO.find(
                                 context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION));
-                        if (implementation == null) {
+                        if (impl == null) {
                             LOG.error("Could not find Implementation '{}', aborting",
                                     context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION));
                         } else {
-                            delegate = ImplementationManager.build(implementation);
+                            delegate = ImplementationManager.buildReportJobDelegate(
+                                    impl,
+                                    () -> perContextReportJobDelegates.get(impl.getKey()),
+                                    instance -> perContextReportJobDelegates.put(impl.getKey(), instance)).
+                                    orElseThrow(() -> new IllegalArgumentException(
+                                    "Could not instantiate " + impl.getBody()));
                             delegate.execute(
                                     reportKey,
                                     context.getMergedJobDataMap().getBoolean(JobManager.DRY_RUN_JOBDETAIL_KEY),
