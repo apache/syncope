@@ -657,6 +657,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(reconFilterBuilder);
 
             task = TASK_SERVICE.read(TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", true);
+            task.setName(getUUIDString());
             task.setPullMode(PullMode.FILTERED_RECONCILIATION);
             task.setReconFilterBuilder(reconFilterBuilder.getKey());
             response = TASK_SERVICE.create(TaskType.PULL, task);
@@ -797,6 +798,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         PullTaskTO pullTask = (PullTaskTO) TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PULL).
                 resource(RESOURCE_NAME_LDAP).build()).getResult().get(0);
         assertNotNull(pullTask);
+        pullTask.setName(getUUIDString());
         pullTask.setResource(ldap.getKey());
         pullTask.setRemediation(true);
         pullTask.getActions().clear();
@@ -1121,7 +1123,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         PullTaskTO task = new PullTaskTO();
         task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
-        task.setName("Test Pull Rule");
+        task.setName(getUUIDString());
         task.setActive(true);
         task.setResource(RESOURCE_NAME_WS2);
         task.setPullMode(PullMode.FULL_RECONCILIATION);
@@ -1364,7 +1366,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             pullTask = new PullTaskTO();
             pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
-            pullTask.setName("LDAP Pull Task");
+            pullTask.setName(getUUIDString());
             pullTask.setActive(true);
             pullTask.setPerformCreate(true);
             pullTask.setPerformUpdate(true);
@@ -1387,7 +1389,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             fail(e::getMessage);
         } finally {
             // Delete PullTask + user + reset the connector
-            if (pullTask != null) {
+            if (pullTask != null && pullTask.getKey() != null) {
                 TASK_SERVICE.delete(TaskType.PULL, pullTask.getKey());
             }
 

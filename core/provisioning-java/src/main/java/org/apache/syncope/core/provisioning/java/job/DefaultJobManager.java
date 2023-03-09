@@ -32,7 +32,6 @@ import java.util.Optional;
 import java.util.Set;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -208,9 +207,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
     public Map<String, Object> register(
             final SchedTask task,
             final OffsetDateTime startAt,
-            final long interruptMaxRetries,
-            final String executor)
-            throws SchedulerException {
+            final String executor) throws SchedulerException {
 
         Implementation jobDelegate = task.getJobDelegate() == null
                 ? task instanceof PullTask
@@ -231,7 +228,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         Map<String, Object> jobMap = createJobMapForExecutionContext(executor);
         jobMap.put(JobManager.TASK_TYPE, taskUtilsFactory.getInstance(task).getType());
         jobMap.put(JobManager.TASK_KEY, task.getKey());
-        jobMap.put(TaskJob.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
+        jobMap.put(JobManager.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
 
         registerJob(
                 JobNamer.getJobKey(task).getName(),
@@ -243,14 +240,14 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
     }
 
     @Override
-    public void register(
+    public Map<String, Object> register(
             final Report report,
             final OffsetDateTime startAt,
-            final long interruptMaxRetries,
             final String executor) throws SchedulerException {
 
         Map<String, Object> jobMap = createJobMapForExecutionContext(executor);
         jobMap.put(JobManager.REPORT_KEY, report.getKey());
+        jobMap.put(JobManager.DELEGATE_IMPLEMENTATION, report.getJobDelegate().getKey());
 
         registerJob(
                 JobNamer.getJobKey(report).getName(),
@@ -258,6 +255,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 report.getCronExpression(),
                 Optional.ofNullable(startAt).map(s -> new Date(s.toInstant().toEpochMilli())).orElse(null),
                 jobMap);
+        return jobMap;
     }
 
     protected Map<String, Object> createJobMapForExecutionContext(final String executor) {
@@ -308,21 +306,17 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             return;
         }
 
-        Pair<String, Long> conf = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
-            String notificationJobCronExpression = StringUtils.EMPTY;
+        String notificationJobCronExp = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
+            String result = StringUtils.EMPTY;
 
-            String notificationJobCronExp = confParamOps.get(
+            String conf = confParamOps.get(
                     SyncopeConstants.MASTER_DOMAIN, "notificationjob.cronExpression", null, String.class);
-            if (notificationJobCronExp == null) {
-                notificationJobCronExpression = NotificationJob.DEFAULT_CRON_EXP;
-            } else if (!StringUtils.EMPTY.equals(notificationJobCronExp)) {
-                notificationJobCronExpression = notificationJobCronExp;
+            if (conf == null) {
+                result = NotificationJob.DEFAULT_CRON_EXP;
+            } else if (!StringUtils.EMPTY.equals(conf)) {
+                result = conf;
             }
-
-            long interruptMaxRetries = confParamOps.get(
-                    SyncopeConstants.MASTER_DOMAIN, "tasks.interruptMaxRetries", 1L, Long.class);
-
-            return Pair.of(notificationJobCronExpression, interruptMaxRetries);
+            return result;
         });
 
         AuthContextUtils.callAsAdmin(domain, () -> {
@@ -335,7 +329,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             for (Iterator<SchedTask> it = tasks.iterator(); it.hasNext() && !loadException;) {
                 SchedTask task = it.next();
                 try {
-                    register(task, task.getStartAt(), conf.getRight(), securityProperties.getAdminUser());
+                    register(task, task.getStartAt(), securityProperties.getAdminUser());
                 } catch (Exception e) {
                     LOG.error("While loading job instance for task " + task.getKey(), e);
                     loadException = true;
@@ -349,7 +343,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 for (Iterator<Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
                     Report report = it.next();
                     try {
-                        register(report, null, conf.getRight(), securityProperties.getAdminUser());
+                        register(report, null, securityProperties.getAdminUser());
                     } catch (Exception e) {
                         LOG.error("While loading job instance for report " + report.getName(), e);
                         loadException = true;
@@ -366,19 +360,19 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
         if (SyncopeConstants.MASTER_DOMAIN.equals(domain)) {
             // 3. NotificationJob
-            if (StringUtils.isBlank(conf.getLeft())) {
+            if (StringUtils.isBlank(notificationJobCronExp)) {
                 LOG.debug("Empty value provided for {}'s cron, not registering anything on Quartz",
                         NotificationJob.class.getSimpleName());
             } else {
                 LOG.debug("{}'s cron expression: {} - registering Quartz job and trigger",
-                        NotificationJob.class.getSimpleName(), conf.getLeft());
+                        NotificationJob.class.getSimpleName(), notificationJobCronExp);
 
                 try {
                     Map<String, Object> jobData = createJobMapForExecutionContext(securityProperties.getAdminUser());
                     registerJob(
                             NOTIFICATION_JOB.getName(),
                             NotificationJob.class,
-                            conf.getLeft(),
+                            notificationJobCronExp,
                             null,
                             jobData);
                 } catch (Exception e) {

@@ -27,7 +27,7 @@ import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -46,7 +46,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
     public ViewMode getViewMode(final ImplementationTO implementation) {
         return implementation.getEngine() == ImplementationEngine.GROOVY
                 ? ViewMode.GROOVY_BODY
-                : IdRepoImplementationType.REPORTLET.equals(implementation.getType())
+                : IdRepoImplementationType.REPORT_DELEGATE.equals(implementation.getType())
                 || IdRepoImplementationType.ACCOUNT_RULE.equals(implementation.getType())
                 || IdRepoImplementationType.PASSWORD_RULE.equals(implementation.getType())
                 ? ViewMode.JSON_BODY
@@ -61,8 +61,8 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
                     map(javaImplInfo -> new ArrayList<>(javaImplInfo.getClasses())).orElseGet(ArrayList::new);
         } else if (viewMode == ViewMode.JSON_BODY) {
             switch (implementation.getType()) {
-                case IdRepoImplementationType.REPORTLET:
-                    classes = lookup.getClasses(ReportletConf.class).stream().
+                case IdRepoImplementationType.REPORT_DELEGATE:
+                    classes = lookup.getClasses(ReportConf.class).stream().
                             map(Class::getName).collect(Collectors.toList());
                     break;
 
@@ -91,10 +91,6 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
         String templateClassName = null;
 
         switch (implementationType) {
-            case IdRepoImplementationType.REPORTLET:
-                templateClassName = "MyReportlet";
-                break;
-
             case IdRepoImplementationType.ACCOUNT_RULE:
                 templateClassName = "MyAccountRule";
                 break;
@@ -105,6 +101,10 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             case IdRepoImplementationType.TASKJOB_DELEGATE:
                 templateClassName = "MySchedTaskJobDelegate";
+                break;
+
+            case IdRepoImplementationType.REPORT_DELEGATE:
+                templateClassName = "MyReportJobDelegate";
                 break;
 
             case IdRepoImplementationType.LOGIC_ACTIONS:
@@ -137,8 +137,8 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
     public Class<?> getClass(final String implementationType, final String name) {
         Class<?> clazz = null;
         switch (implementationType) {
-            case IdRepoImplementationType.REPORTLET:
-                clazz = lookup.getClasses(ReportletConf.class).stream().
+            case IdRepoImplementationType.REPORT_DELEGATE:
+                clazz = lookup.getClasses(ReportConf.class).stream().
                         filter(c -> c.getName().equals(name)).findFirst().orElse(null);
                 break;
 
@@ -167,6 +167,20 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
             @Override
             protected List<String> load() {
                 return ImplementationRestClient.list(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+            }
+        };
+    }
+
+    @Override
+    public IModel<List<String>> getReportJobDelegates() {
+        return new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return ImplementationRestClient.list(IdRepoImplementationType.REPORT_DELEGATE).stream().
                         map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };

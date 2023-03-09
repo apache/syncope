@@ -54,7 +54,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -112,7 +111,6 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
 import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
-import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -159,7 +157,6 @@ import org.apache.syncope.core.provisioning.java.job.SyncopeSpringBeanJobFactory
 import org.apache.syncope.core.provisioning.java.job.SystemLoadReporterJob;
 import org.apache.syncope.core.provisioning.java.job.notification.DefaultNotificationJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
-import org.apache.syncope.core.provisioning.java.job.report.DefaultReportJobDelegate;
 import org.apache.syncope.core.provisioning.java.notification.DefaultNotificationManager;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationManager;
 import org.apache.syncope.core.provisioning.java.propagation.PriorityPropagationTaskExecutor;
@@ -735,18 +732,6 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ReportJobDelegate reportJobDelegate(
-            final ReportDAO reportDAO,
-            final ReportExecDAO reportExecDAO,
-            final EntityFactory entityFactory,
-            final ReportDataBinder reportDataBinder,
-            final ApplicationEventPublisher publisher) {
-
-        return new DefaultReportJobDelegate(reportDAO, reportExecDAO, entityFactory, reportDataBinder, publisher);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public AccessTokenDataBinder accessTokenDataBinder(
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
@@ -1046,12 +1031,11 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public ReportDataBinder reportDataBinder(
-            final ReportTemplateDAO reportTemplateDAO,
             final ReportExecDAO reportExecDAO,
             final ImplementationDAO implementationDAO,
             final SchedulerFactoryBean scheduler) {
 
-        return new ReportDataBinderImpl(reportTemplateDAO, reportExecDAO, implementationDAO, scheduler);
+        return new ReportDataBinderImpl(reportExecDAO, implementationDAO, scheduler);
     }
 
     @ConditionalOnMissingBean

@@ -21,149 +21,17 @@
 Reports are a powerful tool to extract, filter and format relevant information from a running Apache Syncope deployment,
 for a wide range of purposes: from business to https://en.wikipedia.org/wiki/DevOps[DevOps^].
 
-A report is essentially defined by a <<report-templates,template>> and a sequence of <<reportlets,reportlets>>, where
-the latter is responsible for extracting the required information and the former defines how execution results will be
-presented, in the various available formats.
+When defining a report, the following information must be provided:
 
-Reports can be executed upon request or scheduled: execution results can be downloaded as:
-
-* XML
-* HTML
-* https://en.wikipedia.org/wiki/Portable_Document_Format[PDF^]
-* https://en.wikipedia.org/wiki/Rich_Text_Format[RTF^]
-* https://en.wikipedia.org/wiki/Comma-separated_values[CSV^]
-
-==== Report Templates
-
-A report template is defined as a triple of https://en.wikipedia.org/wiki/XSLT[XSLT^] documents, distinguished by their
-target format:
-
-* `FO` - transforms the given report result as https://en.wikipedia.org/wiki/XSL_Formatting_Objects[XSL-FO], which
-will be then made available as PDF and RTF
-* `HTML` - outputs the given report result as HTML
-* `CSV` - outputs the given report result as CSV
-
-[NOTE]
-====
-Report templates can be easily managed via the <<console-reports,admin console>>.
-====
-
-==== Reportlets
-
-Reportlets are the building blocks of reports.
-
-Each reportlet is composed by:
-
-* a Java class extending
+* mime type and file extension: the type of content that the report is expected to generate
+* job delegate class: Java class extending
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AbstractReportlet.java[AbstractReportlet^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AbstractReportJobDelegate.java[AbstractReportJobDelegate^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AbstractReportlet.java[AbstractReportlet^]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AbstractReportJobDelegate.java[AbstractReportJobDelegate^]
 endif::[]
-and implementing the information extraction logic and generating an XML stream as result
-* a Java class extending
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/report/AbstractReportletConf.java[AbstractReportletConf^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/report/AbstractReportletConf.java[AbstractReportletConf^]
-endif::[]
-and embedding the configuration options that can be tuned when incorporating a given reportlet into a report; when
-properly annotated, such options are manageable via the <<console-reports,admin console>>
-
-Some reportlets are available by default (and briefly presented below) either for direct usage or for acting as
-a reference when building new reportlets for specific Apache Syncope deployments.
-
-===== Static Reportlet
-
-Defined by
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/StaticReportlet.java[StaticReportlet^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/StaticReportlet.java[StaticReportlet^]
-endif::[]
-and
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/report/StaticReportletConf.java[StaticReportletConf^],
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/report/StaticReportletConf.java[StaticReportletConf^],
-endif::[]
-it is essentially a handy way to inject static values (of various types) into a report.
-
-===== User and Group Reportlets
-Defined by
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/UserReportlet.java[UserReportlet^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/UserReportlet.java[UserReportlet^]
-endif::[]
-and
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/report/UserReportletConf.java[UserReportletConf^],
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/report/UserReportletConf.java[UserReportletConf^],
-endif::[]
-it can be used to report various information about Users available in the internal storage, their attributes,
-memberships and relationships, external resources and so on.
-
-A similar reportlet is also available for Groups, defined by
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/GroupReportlet.java[GroupReportlet^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/GroupReportlet.java[GroupReportlet^]
-endif::[]
-and
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/report/GroupReportletConf.java[GroupReportletConf^].
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/report/GroupReportletConf.java[GroupReportletConf^].
-endif::[]
-
-===== Reconciliation Reportlet
-
-Defined by
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/ReconciliationReportlet.java[ReconciliationReportlet^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/ReconciliationReportlet.java[ReconciliationReportlet^]
-endif::[]
-and
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/report/ReconciliationReportletConf.java[ReconciliationReportletConf^],
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/report/ReconciliationReportletConf.java[ReconciliationReportletConf^],
-endif::[]
-it provides the global reconciliation status for all Users, Groups and Any Objects available in the internal storage,
-e.g. whether such entities are available on all Identity Stores matching the assigned
-<<external-resources,external resources>> and, if so, whether the <<mapping,mapped>> attributes feature the expected
-values.
-
-An instance of reconciliation reportlet is run by default from the admin console's <<dashboard,dashboard>>, and results
-are available as a widget.
-
-===== Audit Reportlet
-
-Defined by
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AuditReportlet.java[AuditReportlet^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AuditReportlet.java[AuditReportlet^]
-endif::[]
-and
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/report/AuditReportletConf.java[AuditReportletConf^],
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/report/AuditReportletConf.java[AuditReportletConf^],
-endif::[]
-it is mostly a sample reportlet showing how to extract data produced by <<audit>>.
+providing the custom logic to extract information from Syncope and generate output according to the configured mime type
+* scheduling information:
+** when to start
+** http://www.quartz-scheduler.org/documentation/quartz-2.2.x/tutorials/crontrigger.html[cron expression^]

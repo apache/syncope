@@ -73,10 +73,10 @@ https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/or
 endif::[]
 . enforcing in an implementation of
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/AccountRule.java[AccountRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/AccountRule.java[AccountRule^]
 endif::[]
 annotated via
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -89,10 +89,10 @@ referring to the configuration class.
 
 As `GROOVY` <<implementations,implementation>>, writing custom account rules means implementing
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/AccountRule.java[AccountRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/AccountRule.java[AccountRule^]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/AccountRule.java[AccountRule^]
 endif::[]
 ====
 
@@ -177,10 +177,10 @@ https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/or
 endif::[]
 . enforcing in an implementation of
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRule.java[PasswordRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PasswordRule.java[PasswordRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRule.java[PasswordRule^]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PasswordRule.java[PasswordRule^]
 endif::[]
 annotated via
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -193,10 +193,10 @@ referring to the configuration class.
 
 As `GROOVY` <<implementations,implementation>>, writing custom account rules means implementing
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRule.java[PasswordRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PasswordRule.java[PasswordRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PasswordRule.java[PasswordRule^]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PasswordRule.java[PasswordRule^]
 endif::[]
 ====
 
@@ -413,10 +413,10 @@ with existing Users (including <<linked-accounts>>), Groups or Any Objects.
 
 The
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPullCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultPullCorrelationRule.java[default^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPullCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultPullCorrelationRule.java[default^]
 endif::[]
 implementation attempts to match entities on the basis of the values of the provided plain attributes,
 according to the available <<mapping,mapping>>.
@@ -425,10 +425,10 @@ according to the available <<mapping,mapping>>.
 ====
 Custom pull correlation rules can be provided by <<implementations,implementing>> the
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PullCorrelationRule.java[PullCorrelationRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PullCorrelationRule.java[PullCorrelationRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PullCorrelationRule.java[PullCorrelationRule^]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PullCorrelationRule.java[PullCorrelationRule^]
 endif::[]
 interface.
 ====
@@ -450,11 +450,11 @@ objects existing on <<external-resources>>.
 
 The
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPushCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultPushCorrelationRule.java[default^]
 ]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/dao/DefaultPushCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultPushCorrelationRule.java[default^]
 endif::[]
 implementation attempts to match entities on the basis of the values of the provided plain attributes,
 according to the available <<mapping,mapping>>.
@@ -463,10 +463,10 @@ according to the available <<mapping,mapping>>.
 ====
 Custom push correlation rules can be provided by <<implementations,implementing>> the
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PushCorrelationRule.java[PushCorrelationRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PushCorrelationRule.java[PushCorrelationRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-api/src/main/java/org/apache/syncope/core/persistence/api/dao/PushCorrelationRule.java[PushCorrelationRule^]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PushCorrelationRule.java[PushCorrelationRule^]
 endif::[]
 interface.
 ====

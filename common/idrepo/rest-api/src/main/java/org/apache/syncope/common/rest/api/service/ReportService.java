@@ -36,13 +36,11 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
@@ -126,13 +124,10 @@ public interface ReportService extends ExecutableService {
      * Exports the report execution with matching key in the requested format.
      *
      * @param executionKey key of execution report to be selected
-     * @param fmt file-format selection
      * @return a stream for content download
      */
     @GET
     @Path("executions/{executionKey}/stream")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response exportExecutionResult(
-            @NotNull @PathParam("executionKey") String executionKey,
-            @QueryParam("format") ReportExecExportFormat fmt);
+    Response exportExecutionResult(@NotNull @PathParam("executionKey") String executionKey);
 }

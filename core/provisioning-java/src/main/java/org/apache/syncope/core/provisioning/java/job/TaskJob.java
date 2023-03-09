@@ -38,10 +38,6 @@ public class TaskJob extends AbstractInterruptableJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskJob.class);
 
-    public static final String DRY_RUN_JOBDETAIL_KEY = "dryRun";
-
-    public static final String DELEGATE_IMPLEMENTATION = "delegateImpl";
-
     /**
      * Task execution status.
      */
@@ -55,25 +51,7 @@ public class TaskJob extends AbstractInterruptableJob {
     @Autowired
     private DomainHolder domainHolder;
 
-    private TaskType taskType;
-
-    /**
-     * Key, set by the caller, for identifying the task to be executed.
-     */
-    private String taskKey;
-
     private SchedTaskJobDelegate delegate;
-
-    /**
-     * Task info setter.
-     *
-     * @param taskType task type
-     * @param taskKey task key
-     */
-    public void setTaskInfo(final TaskType taskType, final String taskKey) {
-        this.taskType = taskType;
-        this.taskKey = taskKey;
-    }
 
     @Override
     public JobDelegate getDelegate() {
@@ -82,6 +60,7 @@ public class TaskJob extends AbstractInterruptableJob {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
+        String taskKey = context.getMergedJobDataMap().getString(JobManager.TASK_KEY);
         try {
             String domain = context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY);
             if (domainHolder.getDomains().containsKey(domain)) {
@@ -89,17 +68,17 @@ public class TaskJob extends AbstractInterruptableJob {
                     try {
                         ImplementationDAO implementationDAO =
                                 ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);
-                        Implementation implementation = implementationDAO.find(
-                                context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
-                        if (implementation == null) {
+                        Implementation impl = implementationDAO.find(
+                                context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION));
+                        if (impl == null) {
                             LOG.error("Could not find Implementation '{}', aborting",
-                                    context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
+                                    context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION));
                         } else {
-                            delegate = ImplementationManager.build(implementation);
+                            delegate = ImplementationManager.build(impl);
                             delegate.execute(
-                                    taskType,
+                                    (TaskType) context.getMergedJobDataMap().get(JobManager.TASK_TYPE),
                                     taskKey,
-                                    context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
+                                    context.getMergedJobDataMap().getBoolean(JobManager.DRY_RUN_JOBDETAIL_KEY),
                                     context);
                         }
                     } catch (Exception e) {

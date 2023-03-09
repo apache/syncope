@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.common.lib.types.ReportExecStatus;
-
 public interface ReportExec extends Exec {
 
     byte[] getExecResult();
@@ -29,6 +27,4 @@ public interface ReportExec extends Exec {
     void setExecResult(byte[] execResult);
 
     void setReport(Report report);
-
-    void setStatus(ReportExecStatus status);
 }

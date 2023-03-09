@@ -44,7 +44,7 @@ public class ImplementationTest extends AbstractTest {
         List<Implementation> implementations = implementationDAO.findAll();
         assertFalse(implementations.isEmpty());
 
-        assertEquals(19, implementations.size());
+        assertEquals(18, implementations.size());
 
         implementations = implementationDAO.findByType(IdMImplementationType.PULL_ACTIONS);
         assertEquals(1, implementations.size());
@@ -55,8 +55,8 @@ public class ImplementationTest extends AbstractTest {
         implementations = implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE);
         assertEquals(6, implementations.size());
 
-        implementations = implementationDAO.findByType(IdRepoImplementationType.REPORTLET);
-        assertEquals(2, implementations.size());
+        implementations = implementationDAO.findByType(IdRepoImplementationType.REPORT_DELEGATE);
+        assertEquals(1, implementations.size());
 
         implementations = implementationDAO.findByType(IdRepoImplementationType.ACCOUNT_RULE);
         assertEquals(2, implementations.size());

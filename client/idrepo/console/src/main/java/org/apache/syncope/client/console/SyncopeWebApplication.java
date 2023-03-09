@@ -295,10 +295,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return props.getAnonymousKey();
     }
 
-    public String getReconciliationReportKey() {
-        return props.getReconciliationReportKey();
-    }
-
     public long getMaxWaitTimeInSeconds() {
         return props.getMaxWaitTimeOnApplyChanges();
     }

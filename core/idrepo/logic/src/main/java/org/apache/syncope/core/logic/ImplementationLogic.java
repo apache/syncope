@@ -177,10 +177,6 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
 
         boolean inUse = false;
         switch (implementation.getType()) {
-            case IdRepoImplementationType.REPORTLET:
-                inUse = !reportDAO.findByReportlet(implementation).isEmpty();
-                break;
-
             case IdRepoImplementationType.ACCOUNT_RULE:
                 inUse = !policyDAO.findByAccountRule(implementation).isEmpty();
                 break;
@@ -195,6 +191,10 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
 
             case IdRepoImplementationType.TASKJOB_DELEGATE:
                 inUse = !taskDAO.findByDelegate(implementation).isEmpty();
+                break;
+
+            case IdRepoImplementationType.REPORT_DELEGATE:
+                inUse = !reportDAO.findByDelegate(implementation).isEmpty();
                 break;
 
             case IdRepoImplementationType.COMMAND:
@@ -261,10 +261,10 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof ImplementationTO) {
-                    key = ((ImplementationTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof ImplementationTO implementationTO) {
+                    key = implementationTO.getKey();
                 }
             }
         }

@@ -19,10 +19,10 @@
 package org.apache.syncope.fit.core.reference;
 
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.core.persistence.api.dao.PasswordRule;
-import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
+import org.apache.syncope.core.provisioning.api.rules.PasswordRuleConfClass;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.slf4j.Logger;

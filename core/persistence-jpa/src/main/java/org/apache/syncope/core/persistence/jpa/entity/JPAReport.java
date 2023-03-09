@@ -22,13 +22,9 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +32,6 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
-import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ReportCheck;
 
 @Entity
@@ -48,18 +43,17 @@ public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
 
     public static final String TABLE = "Report";
 
+    @OneToOne(optional = false)
+    private JPAImplementation jobDelegate;
+
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = TABLE + "Reportlet",
-            joinColumns =
-            @JoinColumn(name = "report_id"),
-            inverseJoinColumns =
-            @JoinColumn(name = "implementation_id"),
-            uniqueConstraints =
-            @UniqueConstraint(columnNames = { "report_id", "implementation_id" }))
-    private List<JPAImplementation> reportlets = new ArrayList<>();
+    @NotNull
+    private String mimeType;
+
+    @NotNull
+    private String fileExt;
 
     private String cronExpression;
 
@@ -69,9 +63,17 @@ public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
     @NotNull
     private Boolean active = true;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "template_id")
-    private JPAReportTemplate template;
+    @Override
+    public Implementation getJobDelegate() {
+        return jobDelegate;
+    }
+
+    @Override
+    public void setJobDelegate(final Implementation jobDelegate) {
+        checkType(jobDelegate, JPAImplementation.class);
+        checkImplementationType(jobDelegate, IdRepoImplementationType.REPORT_DELEGATE);
+        this.jobDelegate = (JPAImplementation) jobDelegate;
+    }
 
     @Override
     public String getName() {
@@ -84,26 +86,23 @@ public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
     }
 
     @Override
-    public boolean add(final ReportExec exec) {
-        checkType(exec, JPAReportExec.class);
-        return exec != null && !executions.contains((JPAReportExec) exec) && executions.add((JPAReportExec) exec);
+    public String getMimeType() {
+        return mimeType;
     }
 
     @Override
-    public List<? extends ReportExec> getExecs() {
-        return executions;
+    public void setMimeType(final String mimeType) {
+        this.mimeType = mimeType;
     }
 
     @Override
-    public boolean add(final Implementation reportlet) {
-        checkType(reportlet, JPAImplementation.class);
-        checkImplementationType(reportlet, IdRepoImplementationType.REPORTLET);
-        return reportlets.contains((JPAImplementation) reportlet) || reportlets.add((JPAImplementation) reportlet);
+    public String getFileExt() {
+        return fileExt;
     }
 
     @Override
-    public List<? extends Implementation> getReportlets() {
-        return reportlets;
+    public void setFileExt(final String fileExt) {
+        this.fileExt = fileExt;
     }
 
     @Override
@@ -127,13 +126,13 @@ public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
     }
 
     @Override
-    public ReportTemplate getTemplate() {
-        return template;
+    public boolean add(final ReportExec exec) {
+        checkType(exec, JPAReportExec.class);
+        return exec != null && !executions.contains((JPAReportExec) exec) && executions.add((JPAReportExec) exec);
     }
 
     @Override
-    public void setTemplate(final ReportTemplate template) {
-        checkType(template, JPAReportTemplate.class);
-        this.template = (JPAReportTemplate) template;
+    public List<? extends ReportExec> getExecs() {
+        return executions;
     }
 }

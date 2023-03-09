@@ -27,5 +27,4 @@ public abstract class BaseWidget extends Panel {
     public BaseWidget(final String id) {
         super(id);
     }
-
 }

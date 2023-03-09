@@ -22,18 +22,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.UUID;
-import org.apache.syncope.common.lib.report.UserReportletConf;
-import org.apache.syncope.common.lib.types.IdRepoImplementationType;
-import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
-import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,9 +38,6 @@ public class ReportTest extends AbstractTest {
 
     @Autowired
     private ReportDAO reportDAO;
-
-    @Autowired
-    private ReportTemplateDAO reportTemplateDAO;
 
     @Autowired
     private ImplementationDAO implementationDAO;
@@ -63,33 +55,19 @@ public class ReportTest extends AbstractTest {
     public void findAll() {
         List<Report> reports = reportDAO.findAll();
         assertNotNull(reports);
-        assertEquals(2, reports.size());
+        assertEquals(1, reports.size());
     }
 
     @Test
     public void save() {
-        Implementation reportlet1 = entityFactory.newEntity(Implementation.class);
-        reportlet1.setKey("UserReportlet" + UUID.randomUUID().toString());
-        reportlet1.setEngine(ImplementationEngine.JAVA);
-        reportlet1.setType(IdRepoImplementationType.REPORTLET);
-        reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
-        reportlet1 = implementationDAO.save(reportlet1);
-
-        Implementation reportlet2 = entityFactory.newEntity(Implementation.class);
-        reportlet2.setKey("UserReportlet" + UUID.randomUUID().toString());
-        reportlet2.setEngine(ImplementationEngine.JAVA);
-        reportlet2.setType(IdRepoImplementationType.REPORTLET);
-        reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
-        reportlet2 = implementationDAO.save(reportlet2);
-
         int beforeCount = reportDAO.findAll().size();
 
         Report report = entityFactory.newEntity(Report.class);
         report.setName("new report");
+        report.setJobDelegate(implementationDAO.find("SampleReportJobDelegate"));
+        report.setMimeType(MediaType.TEXT_PLAIN);
+        report.setFileExt("txt");
         report.setActive(true);
-        report.add(reportlet1);
-        report.add(reportlet2);
-        report.setTemplate(reportTemplateDAO.find("sample"));
 
         report = reportDAO.save(report);
         assertNotNull(report);

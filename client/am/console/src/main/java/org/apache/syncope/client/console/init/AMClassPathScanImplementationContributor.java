@@ -29,6 +29,8 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 
 public class AMClassPathScanImplementationContributor implements ClassPathScanImplementationContributor {
 
+    private static final long serialVersionUID = 2493303413513242525L;
+
     @Override
     public void extend(final ClassPathScanningCandidateComponentProvider scanner) {
         scanner.addIncludeFilter(new AssignableTypeFilter(AuthModuleConf.class));

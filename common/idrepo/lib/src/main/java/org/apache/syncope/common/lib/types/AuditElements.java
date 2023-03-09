@@ -33,6 +33,7 @@ public final class AuditElements implements BaseBean {
         LOGIC,
         WA,
         TASK,
+        REPORT,
         PROPAGATION,
         PULL,
         PUSH,

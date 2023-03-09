@@ -19,10 +19,10 @@
 package org.apache.syncope.fit.core.reference;
 
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
-import org.apache.syncope.core.persistence.api.dao.AccountRule;
-import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.rules.AccountRule;
+import org.apache.syncope.core.provisioning.api.rules.AccountRuleConfClass;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.springframework.transaction.annotation.Transactional;
 

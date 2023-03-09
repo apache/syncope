@@ -21,30 +21,32 @@ package org.apache.syncope.core.logic;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
-import org.apache.syncope.common.lib.types.ReportExecExportFormat;
-import org.apache.syncope.core.persistence.api.dao.ReportDAO;
-import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.ReportExec;
-import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
-import org.apache.syncope.core.provisioning.java.job.report.DefaultReportJobDelegate;
+import org.apache.syncope.core.provisioning.java.job.report.AbstractReportJobDelegate;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.quartz.JobDataMap;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,6 +54,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class ReportLogicTest extends AbstractTest {
+
+    public static class TestReportJobDelegate extends AbstractReportJobDelegate {
+
+        @Override
+        protected String doExecute(
+                final boolean dryRun,
+                final OutputStream os,
+                final String executor,
+                final JobExecutionContext context) throws JobExecutionException {
+
+            try {
+                os.write("test".getBytes());
+            } catch (IOException e) {
+                throw new JobExecutionException(e);
+            }
+
+            return "";
+        }
+    }
 
     @BeforeAll
     public static void setAuthContext() {
@@ -74,27 +95,10 @@ public class ReportLogicTest extends AbstractTest {
     @Autowired
     private ReportLogic logic;
 
-    @Autowired
-    private ReportDAO reportDAO;
-
-    @Autowired
-    private ReportExecDAO reportExecDAO;
-
-    @Autowired
-    private EntityFactory entityFactory;
-
-    @Autowired
-    private ReportDataBinder reportDataBinder;
-
-    @Autowired
-    private ApplicationEventPublisher publisher;
-
-    private void checkExport(final String execKey, final ReportExecExportFormat fmt) throws IOException {
-        ReportExecExportFormat format = Optional.ofNullable(fmt).orElse(ReportExecExportFormat.XML);
-        ReportExec reportExec = logic.getReportExec(execKey);
+    private void checkExport(final String execKey) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        logic.exportExecutionResult(os, reportExec, format);
+        logic.exportExecutionResult(os, execKey);
 
         os.close();
         byte[] entity = os.toByteArray();
@@ -112,19 +116,19 @@ public class ReportLogicTest extends AbstractTest {
         report = logic.read(report.getKey());
         assertTrue(report.getExecutions().isEmpty());
 
-        ReportJobDelegate delegate = new DefaultReportJobDelegate(
-                reportDAO, reportExecDAO, entityFactory, reportDataBinder, publisher);
-        delegate.execute(report.getKey(), "test");
+        JobDataMap jobDataMap = new JobDataMap(Map.of(JobManager.EXECUTOR_KEY, "test"));
+        JobExecutionContext ctx = mock(JobExecutionContext.class);
+        when(ctx.getMergedJobDataMap()).thenReturn(jobDataMap);
+
+        ReportJobDelegate delegate = (ReportJobDelegate) ApplicationContextProvider.getBeanFactory().
+                createBean(TestReportJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        delegate.execute(report.getKey(), false, ctx);
 
         report = logic.read(report.getKey());
         assertFalse(report.getExecutions().isEmpty());
 
         String execKey = report.getExecutions().get(0).getKey();
 
-        checkExport(execKey, ReportExecExportFormat.XML);
-        checkExport(execKey, ReportExecExportFormat.HTML);
-        checkExport(execKey, ReportExecExportFormat.PDF);
-        checkExport(execKey, ReportExecExportFormat.RTF);
-        checkExport(execKey, ReportExecExportFormat.CSV);
+        checkExport(execKey);
     }
 }

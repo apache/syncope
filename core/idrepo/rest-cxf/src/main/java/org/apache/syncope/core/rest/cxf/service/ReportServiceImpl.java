@@ -23,14 +23,11 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.logic.ReportLogic;
-import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -72,14 +69,12 @@ public class ReportServiceImpl extends AbstractExecutableService implements Repo
     }
 
     @Override
-    public Response exportExecutionResult(final String executionKey, final ReportExecExportFormat fmt) {
-        ReportExecExportFormat format = Optional.ofNullable(fmt).orElse(ReportExecExportFormat.XML);
-        ReportExec reportExec = logic.getReportExec(executionKey);
-        StreamingOutput sout = os -> logic.exportExecutionResult(os, reportExec, format);
+    public Response exportExecutionResult(final String executionKey) {
+        String filename = logic.getFilename(executionKey);
+        StreamingOutput sout = os -> logic.exportExecutionResult(os, executionKey);
 
         return Response.ok(sout).
-                header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=" + reportExec.getReport().getName() + '.' + format.name().toLowerCase()).
+                header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename).
                 build();
     }
 

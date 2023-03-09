@@ -23,13 +23,13 @@ import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
-import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.core.persistence.api.ImplementationLookup;
-import org.apache.syncope.core.persistence.api.dao.AccountRule;
-import org.apache.syncope.core.persistence.api.dao.PasswordRule;
-import org.apache.syncope.core.persistence.api.dao.PullCorrelationRule;
-import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule;
-import org.apache.syncope.core.persistence.api.dao.Reportlet;
+import org.apache.syncope.common.lib.report.ReportConf;
+import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
+import org.apache.syncope.core.provisioning.api.rules.AccountRule;
+import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
+import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
+import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 
 public class DummyImplementationLookup implements ImplementationLookup {
 
@@ -49,9 +49,7 @@ public class DummyImplementationLookup implements ImplementationLookup {
     }
 
     @Override
-    public Class<Reportlet> getReportletClass(
-            final Class<? extends ReportletConf> reportletConfClass) {
-
+    public Class<? extends ReportJobDelegate> getReportClass(final Class<? extends ReportConf> reportConfClass) {
         return null;
     }
 

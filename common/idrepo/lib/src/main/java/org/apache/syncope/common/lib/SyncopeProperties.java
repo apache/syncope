@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.common.lib;
 
-public abstract class SyncopeProperties {
+import java.io.Serializable;
+
+public abstract class SyncopeProperties implements Serializable {
+
+    private static final long serialVersionUID = -2010397350183187681L;
 
     private String anonymousUser;
 

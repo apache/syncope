@@ -17,16 +17,13 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import org.apache.syncope.common.lib.types.TaskType
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
 
 @CompileStatic
-class MySchedTaskJobDelegate implements SchedTaskJobDelegate {	
-
-  String currentStatus() {
-    return "RUNNING"
-  }
+class MySchedTaskJobDelegate implements SchedTaskJobDelegate {
 
   void interrupt() {
   }
@@ -36,7 +33,8 @@ class MySchedTaskJobDelegate implements SchedTaskJobDelegate {
   }
 
   @Override
-  void execute(String taskKey, boolean dryRun, JobExecutionContext context) throws JobExecutionException {
-   
+  void execute(TaskType taskType, String taskKey, boolean dryRun, JobExecutionContext context)
+    throws JobExecutionException {
+
   }
 }

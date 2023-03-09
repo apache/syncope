@@ -25,11 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import jakarta.persistence.EntityExistsException;
+import jakarta.ws.rs.core.MediaType;
 import java.time.OffsetDateTime;
-import org.apache.syncope.common.lib.types.ReportExecStatus;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -44,10 +44,10 @@ public class ReportTest extends AbstractTest {
     private ReportDAO reportDAO;
 
     @Autowired
-    private ReportTemplateDAO reportTemplateDAO;
+    private ReportExecDAO reportExecDAO;
 
     @Autowired
-    private ReportExecDAO reportExecDAO;
+    private ImplementationDAO implementationDAO;
 
     @Test
     public void find() {
@@ -69,8 +69,10 @@ public class ReportTest extends AbstractTest {
 
             report = entityFactory.newEntity(Report.class);
             report.setName(name);
+            report.setJobDelegate(implementationDAO.find("SampleReportJobDelegate"));
+            report.setMimeType(MediaType.TEXT_PLAIN);
+            report.setFileExt("txt");
             report.setActive(true);
-            report.setTemplate(reportTemplateDAO.find("sample"));
 
             reportDAO.save(report);
             entityManager().flush();
@@ -87,7 +89,7 @@ public class ReportTest extends AbstractTest {
         reportExec.setReport(report);
         reportExec.setStart(OffsetDateTime.now());
         reportExec.setEnd(OffsetDateTime.now());
-        reportExec.setStatus(ReportExecStatus.SUCCESS);
+        reportExec.setStatus("SUCCESS");
         reportExec.setExecutor("admin");
 
         report.add(reportExec);

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.sra;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,11 +32,15 @@ import org.springframework.security.oauth2.core.oidc.OidcScopes;
 @ConfigurationProperties(SRAProperties.PREFIX)
 public class SRAProperties extends SyncopeProperties {
 
+    private static final long serialVersionUID = 1250377680268118123L;
+
     public static final String PREFIX = "sra";
 
     public static final String AM_TYPE = "am-type";
 
-    public static class Global {
+    public static class Global implements Serializable {
+
+        private static final long serialVersionUID = -2035267979830256742L;
 
         private URI error = URI.create("/error");
 
@@ -66,7 +71,9 @@ public class SRAProperties extends SyncopeProperties {
 
     }
 
-    public static class OIDC {
+    public static class OIDC implements Serializable {
+
+        private static final long serialVersionUID = 4428057402762583676L;
 
         private String configuration;
 
@@ -114,7 +121,9 @@ public class SRAProperties extends SyncopeProperties {
         }
     }
 
-    public static class OAUTH2 {
+    public static class OAUTH2 implements Serializable {
+
+        private static final long serialVersionUID = -5051777207539192764L;
 
         private String tokenUri;
 
@@ -207,7 +216,9 @@ public class SRAProperties extends SyncopeProperties {
         }
     }
 
-    public static class SAML2 {
+    public static class SAML2 implements Serializable {
+
+        private static final long serialVersionUID = 6819907914821190235L;
 
         private SAML2BindingType authnRequestBinding = SAML2BindingType.POST;
 
@@ -320,7 +331,9 @@ public class SRAProperties extends SyncopeProperties {
         }
     }
 
-    public static class CAS {
+    public static class CAS implements Serializable {
+
+        private static final long serialVersionUID = -5413988649759834473L;
 
         private String serverPrefix;
 

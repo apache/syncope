@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.init;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -61,9 +62,11 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
 
-public class ClassPathScanImplementationLookup {
+public class ClassPathScanImplementationLookup implements Serializable {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(ClassPathScanImplementationLookup.class);
+    private static final long serialVersionUID = 5047756409117925203L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ClassPathScanImplementationLookup.class);
 
     private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope";
 
@@ -133,7 +136,7 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtWidget.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ExtAlertWidget.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseSSOLoginFormPanel.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(ReportletConf.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(ReportConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AccountRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractResource.class));
@@ -202,8 +205,8 @@ public class ClassPathScanImplementationLookup {
                         addClass(UserFormFinalizer.class.getName(), clazz);
                     } else if (BaseSSOLoginFormPanel.class.isAssignableFrom(clazz)) {
                         addClass(BaseSSOLoginFormPanel.class.getName(), clazz);
-                    } else if (ReportletConf.class.isAssignableFrom(clazz)) {
-                        addClass(ReportletConf.class.getName(), clazz);
+                    } else if (ReportConf.class.isAssignableFrom(clazz)) {
+                        addClass(ReportConf.class.getName(), clazz);
                     } else if (AccountRuleConf.class.isAssignableFrom(clazz)) {
                         addClass(AccountRuleConf.class.getName(), clazz);
                     } else if (PasswordRuleConf.class.isAssignableFrom(clazz)) {

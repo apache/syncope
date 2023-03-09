@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -68,7 +67,6 @@ import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
-import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -101,8 +99,6 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
     protected final TaskDataBinder taskDataBinder;
 
-    protected final ConfParamOps confParamOps;
-
     protected final JobManager jobManager;
 
     protected final SchedulerFactoryBean scheduler;
@@ -122,7 +118,6 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             final GroupDataBinder binder,
             final GroupProvisioningManager provisioningManager,
             final TaskDataBinder taskDataBinder,
-            final ConfParamOps confParamOps,
             final JobManager jobManager,
             final SchedulerFactoryBean scheduler,
             final EntityFactory entityFactory) {
@@ -138,7 +133,6 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         this.binder = binder;
         this.provisioningManager = provisioningManager;
         this.taskDataBinder = taskDataBinder;
-        this.confParamOps = confParamOps;
         this.jobManager = jobManager;
         this.scheduler = scheduler;
         this.entityFactory = entityFactory;
@@ -432,10 +426,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             Map<String, Object> jobDataMap = jobManager.register(
                     task,
                     null,
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
                     AuthContextUtils.getUsername());
 
-            jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, false);
+            jobDataMap.put(JobManager.DRY_RUN_JOBDETAIL_KEY, false);
             jobDataMap.put(GroupMemberProvisionTaskJobDelegate.GROUP_KEY_JOBDETAIL_KEY, key);
             jobDataMap.put(GroupMemberProvisionTaskJobDelegate.ACTION_JOBDETAIL_KEY, action);
 

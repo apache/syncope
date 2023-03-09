@@ -84,9 +84,7 @@ public final class IdRepoConstants {
 
     public static final String PREF_PROPAGATION_TASKS_PAGINATOR_ROWS = "proagationtasks.paginator.rows";
 
-    public static final String PREF_REPORTLET_PAGINATOR_ROWS = "reportlet.paginator.rows";
-
-    public static final String PREF_FIQL_QUERIES_PAGINATOR_ROWS = "reportlet.paginator.rows";
+    public static final String PREF_FIQL_QUERIES_PAGINATOR_ROWS = "fiql.queries.paginator.rows";
 
     public static final String PREF_POLICY_RULE_PAGINATOR_ROWS = "policy.rules.paginator.rows";
 

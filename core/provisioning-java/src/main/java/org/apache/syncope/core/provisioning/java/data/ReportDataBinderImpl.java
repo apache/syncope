@@ -24,14 +24,13 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
-import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.quartz.Scheduler;
@@ -46,8 +45,6 @@ public class ReportDataBinderImpl extends AbstractExecutableDatabinder implement
 
     protected static final Logger LOG = LoggerFactory.getLogger(ReportDataBinder.class);
 
-    protected final ReportTemplateDAO reportTemplateDAO;
-
     protected final ReportExecDAO reportExecDAO;
 
     protected final ImplementationDAO implementationDAO;
@@ -55,12 +52,10 @@ public class ReportDataBinderImpl extends AbstractExecutableDatabinder implement
     protected final SchedulerFactoryBean scheduler;
 
     public ReportDataBinderImpl(
-            final ReportTemplateDAO reportTemplateDAO,
             final ReportExecDAO reportExecDAO,
             final ImplementationDAO implementationDAO,
             final SchedulerFactoryBean scheduler) {
 
-        this.reportTemplateDAO = reportTemplateDAO;
         this.reportExecDAO = reportExecDAO;
         this.implementationDAO = implementationDAO;
         this.scheduler = scheduler;
@@ -69,40 +64,30 @@ public class ReportDataBinderImpl extends AbstractExecutableDatabinder implement
     @Override
     public void getReport(final Report report, final ReportTO reportTO) {
         report.setName(reportTO.getName());
+        report.setMimeType(reportTO.getMimeType());
+        report.setFileExt(reportTO.getFileExt());
         report.setCronExpression(reportTO.getCronExpression());
         report.setActive(reportTO.isActive());
 
-        ReportTemplate template = reportTemplateDAO.find(reportTO.getTemplate());
-        if (template == null) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
-            sce.getElements().add("template");
+        Implementation jobDelegate = implementationDAO.find(reportTO.getJobDelegate());
+        if (jobDelegate == null || !IdRepoImplementationType.REPORT_DELEGATE.equals(jobDelegate.getType())) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementation);
+            sce.getElements().add("Null or invalid JobDelegate, expected " + IdRepoImplementationType.REPORT_DELEGATE);
             throw sce;
         }
-        report.setTemplate(template);
-
-        reportTO.getReportlets().forEach(reportletKey -> {
-            Implementation reportlet = implementationDAO.find(reportletKey);
-            if (reportlet == null) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", reportletKey);
-            } else {
-                report.add(reportlet);
-            }
-        });
-        // remove all implementations not contained in the TO
-        report.getReportlets().removeIf(reportlet -> !reportTO.getReportlets().contains(reportlet.getKey()));
+        report.setJobDelegate(jobDelegate);
     }
 
     @Override
     public ReportTO getReportTO(final Report report) {
         ReportTO reportTO = new ReportTO();
         reportTO.setKey(report.getKey());
-        reportTO.setTemplate(report.getTemplate().getKey());
         reportTO.setName(report.getName());
+        reportTO.setMimeType(report.getMimeType());
+        reportTO.setFileExt(report.getFileExt());
         reportTO.setCronExpression(report.getCronExpression());
+        reportTO.setJobDelegate(report.getJobDelegate().getKey());
         reportTO.setActive(report.isActive());
-
-        reportTO.getReportlets().addAll(
-                report.getReportlets().stream().map(Implementation::getKey).collect(Collectors.toList()));
 
         ReportExec latestExec = reportExecDAO.findLatestStarted(report);
         if (latestExec == null) {

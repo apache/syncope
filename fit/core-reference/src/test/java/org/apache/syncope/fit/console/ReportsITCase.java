@@ -41,23 +41,25 @@ public class ReportsITCase extends AbstractConsoleITCase {
 
     private static void createReport(final String name) {
         TESTER.clickLink(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:container:content:add");
+                "body:content:reportsPanel:firstLevelContainer:first:container:content:add");
 
         TESTER.assertComponent(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer", Modal.class);
+                "body:content:reportsPanel:firstLevelContainer:first:outerObjectsRepeater:0:outer", Modal.class);
 
         FormTester formTester = TESTER.newFormTester(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
+                "body:content:reportsPanel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:name:textField", name);
-        formTester.setValue("content:form:view:template:dropDownChoiceField", "0");
+        formTester.setValue("content:form:view:mimeType:textField", "application/pdf");
+        formTester.setValue("content:form:view:fileExt:textField", "pdf");
+        formTester.select("content:form:view:jobDelegate:dropDownChoiceField", 0);
         formTester.submit("content:form:buttons:next");
 
         TESTER.assertComponent(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater"
+                "body:content:reportsPanel:firstLevelContainer:first:outerObjectsRepeater"
                 + ":0:outer:form:content:form:view:schedule:seconds:textField", TextField.class);
 
         formTester = TESTER.newFormTester(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
+                "body:content:reportsPanel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
         assertSuccessMessage();
@@ -70,7 +72,7 @@ public class ReportsITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:reportsLI:reports", false);
 
         Component result = findComponentByProp(
-                "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
+                "name", "body:content:reportsPanel:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name);
 
         assertNotNull(result);
@@ -78,39 +80,39 @@ public class ReportsITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
-                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:5:action:action");
+                "body:content:reportsPanel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
+                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:4:action:action");
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
-                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:5:action:action"),
+                "body:content:reportsPanel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
+                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:4:action:action"),
                 Constants.ON_CLICK);
 
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp(
-                "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
+                "name", "body:content:reportsPanel:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "deleteReport"));
     }
 
     @Test
     public void read() {
         Component result = findComponentByProp(
-                "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
+                "name", "body:content:reportsPanel:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "test");
 
         assertNotNull(result);
 
         TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
+                "body:content:reportsPanel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
                 + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertModelValue(
-                "body:content:tabbedPanel:panel:secondLevelContainer:title", "Executions of report 'test'");
+                "body:content:reportsPanel:secondLevelContainer:title", "Executions of report 'test'");
         result = findComponentByProp("status",
-                "body:content:tabbedPanel:panel:secondLevelContainer:second:executions:"
+                "body:content:reportsPanel:secondLevelContainer:second:executions:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "SUCCESS");
 
@@ -118,44 +120,45 @@ public class ReportsITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(
-                "body:content:tabbedPanel:panel:secondLevelContainer:second:executions:firstLevelContainer:"
+                "body:content:reportsPanel:secondLevelContainer:second:executions:firstLevelContainer:"
                 + "first:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:actions:"
                 + "actions:actionRepeater:0:action:action");
 
         TESTER.clickLink(
-                "body:content:tabbedPanel:panel:secondLevelContainer:second:executions:secondLevelContainer:back");
+                "body:content:reportsPanel:secondLevelContainer:second:executions:secondLevelContainer:back");
 
-        TESTER.clickLink("body:content:tabbedPanel:panel:secondLevelContainer:back");
+        TESTER.clickLink("body:content:reportsPanel:secondLevelContainer:back");
 
         assertNotNull(findComponentByProp(
-                "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
-                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "reconciliation"));
+                "name", "body:content:reportsPanel:firstLevelContainer:first:container:"
+                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "test"));
     }
 
     @Test
     public void update() {
         createReport("updateReport");
         Component result = findComponentByProp(
-                "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
+                "name", "body:content:reportsPanel:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "updateReport");
 
         assertNotNull(result);
 
         TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
+                "body:content:reportsPanel:firstLevelContainer:first:outerObjectsRepeater:1:outer:"
                 + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
         TESTER.assertModelValue(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:"
+                "body:content:reportsPanel:firstLevelContainer:first:outerObjectsRepeater:"
                 + "0:outer:dialog:header:header-label", "Edit Report updateReport");
 
         FormTester formTester = TESTER.newFormTester(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:form:view:template:dropDownChoiceField", "1");
+                "body:content:reportsPanel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
+        formTester.setValue("content:form:view:mimeType:textField", "application/csv");
+        formTester.setValue("content:form:view:fileExt:textField", "csv");
 
         formTester = TESTER.newFormTester(
-                "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
+                "body:content:reportsPanel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
         assertSuccessMessage();

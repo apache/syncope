@@ -37,27 +37,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.report.AuditReportletConf;
-import org.apache.syncope.common.lib.report.UserReportletConf;
-import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
-import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.common.lib.types.ReportExecExportFormat;
-import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.core.reference.SampleReportJobDelegate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 
 public class ReportITCase extends AbstractITCase {
 
@@ -76,17 +69,17 @@ public class ReportITCase extends AbstractITCase {
             }
         });
         ExecTO exec = reportTO.get().getExecutions().get(reportTO.get().getExecutions().size() - 1);
-        assertEquals(ReportExecStatus.SUCCESS.name(), exec.getStatus());
+        assertEquals(ReportJob.Status.SUCCESS.name(), exec.getStatus());
         return exec.getKey();
     }
 
     @Test
-    public void getReportletConfs() {
-        Set<String> reportletConfs = ADMIN_CLIENT.platform().
-                getJavaImplInfo(IdRepoImplementationType.REPORTLET).get().getClasses();
-        assertNotNull(reportletConfs);
-        assertFalse(reportletConfs.isEmpty());
-        assertTrue(reportletConfs.contains(UserReportletConf.class.getName()));
+    public void getReportDelegates() {
+        Set<String> reportDelegates = ADMIN_CLIENT.platform().
+                getJavaImplInfo(IdRepoImplementationType.REPORT_DELEGATE).get().getClasses();
+        assertNotNull(reportDelegates);
+        assertFalse(reportDelegates.isEmpty());
+        assertTrue(reportDelegates.contains(SampleReportJobDelegate.class.getName()));
     }
 
     @Test
@@ -107,109 +100,30 @@ public class ReportITCase extends AbstractITCase {
     }
 
     @Test
-    public void create() {
-        ImplementationTO reportlet1 = new ImplementationTO();
-        reportlet1.setKey("UserReportletConf" + getUUIDString());
-        reportlet1.setEngine(ImplementationEngine.JAVA);
-        reportlet1.setType(IdRepoImplementationType.REPORTLET);
-        reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
-        Response response = IMPLEMENTATION_SERVICE.create(reportlet1);
-        reportlet1.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-
-        ImplementationTO reportlet2 = new ImplementationTO();
-        reportlet2.setKey("UserReportletConf" + getUUIDString());
-        reportlet2.setEngine(ImplementationEngine.JAVA);
-        reportlet2.setType(IdRepoImplementationType.REPORTLET);
-        reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
-        response = IMPLEMENTATION_SERVICE.create(reportlet2);
-        reportlet2.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-
+    public void crud() {
         ReportTO report = new ReportTO();
         report.setName("testReportForCreate" + getUUIDString());
-        report.getReportlets().add(reportlet1.getKey());
-        report.getReportlets().add(reportlet2.getKey());
-        report.setTemplate("sample");
+        report.setMimeType(MediaType.APPLICATION_PDF_VALUE);
+        report.setFileExt("pdf");
+        report.setJobDelegate(SampleReportJobDelegate.class.getSimpleName());
+        report.setActive(true);
 
         report = createReport(report);
         assertNotNull(report);
         ReportTO actual = REPORT_SERVICE.read(report.getKey());
         assertNotNull(actual);
         assertEquals(actual, report);
-    }
 
-    @Test
-    public void update() {
-        ImplementationTO reportlet1 = new ImplementationTO();
-        reportlet1.setKey("UserReportletConf" + getUUIDString());
-        reportlet1.setEngine(ImplementationEngine.JAVA);
-        reportlet1.setType(IdRepoImplementationType.REPORTLET);
-        reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
-        Response response = IMPLEMENTATION_SERVICE.create(reportlet1);
-        reportlet1.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-
-        ImplementationTO reportlet2 = new ImplementationTO();
-        reportlet2.setKey("UserReportletConf" + getUUIDString());
-        reportlet2.setEngine(ImplementationEngine.JAVA);
-        reportlet2.setType(IdRepoImplementationType.REPORTLET);
-        reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
-        response = IMPLEMENTATION_SERVICE.create(reportlet2);
-        reportlet2.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-
-        ReportTO report = new ReportTO();
-        report.setName("testReportForUpdate" + getUUIDString());
-        report.getReportlets().add(reportlet1.getKey());
-        report.getReportlets().add(reportlet2.getKey());
-        report.setTemplate("sample");
-
-        report = createReport(report);
-        assertNotNull(report);
-        assertEquals(2, report.getReportlets().size());
-
-        ImplementationTO reportlet3 = new ImplementationTO();
-        reportlet3.setKey("UserReportletConf" + getUUIDString());
-        reportlet3.setEngine(ImplementationEngine.JAVA);
-        reportlet3.setType(IdRepoImplementationType.REPORTLET);
-        reportlet3.setBody(POJOHelper.serialize(new UserReportletConf("last")));
-        response = IMPLEMENTATION_SERVICE.create(reportlet3);
-        reportlet3.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-
-        report.getReportlets().add(reportlet3.getKey());
+        report = actual;
+        report.setMimeType("text/csv");
+        report.setFileExt("csv");
 
         REPORT_SERVICE.update(report);
-        ReportTO updated = REPORT_SERVICE.read(report.getKey());
-        assertNotNull(updated);
-        assertEquals(3, updated.getReportlets().size());
-    }
-
-    @Test
-    public void delete() {
-        ImplementationTO reportlet1 = new ImplementationTO();
-        reportlet1.setKey("UserReportletConf" + getUUIDString());
-        reportlet1.setEngine(ImplementationEngine.JAVA);
-        reportlet1.setType(IdRepoImplementationType.REPORTLET);
-        reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
-        Response response = IMPLEMENTATION_SERVICE.create(reportlet1);
-        reportlet1.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-
-        ImplementationTO reportlet2 = new ImplementationTO();
-        reportlet2.setKey("UserReportletConf" + getUUIDString());
-        reportlet2.setEngine(ImplementationEngine.JAVA);
-        reportlet2.setType(IdRepoImplementationType.REPORTLET);
-        reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
-        response = IMPLEMENTATION_SERVICE.create(reportlet2);
-        reportlet2.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-
-        ReportTO report = new ReportTO();
-        report.setName("testReportForDelete" + getUUIDString());
-        report.getReportlets().add(reportlet1.getKey());
-        report.getReportlets().add(reportlet2.getKey());
-        report.setTemplate("sample");
-
-        report = createReport(report);
-        assertNotNull(report);
+        actual = REPORT_SERVICE.read(report.getKey());
+        assertNotNull(actual);
+        assertEquals("csv", actual.getFileExt());
 
         REPORT_SERVICE.delete(report.getKey());
-
         try {
             REPORT_SERVICE.read(report.getKey());
             fail("This should not happen");
@@ -218,45 +132,35 @@ public class ReportITCase extends AbstractITCase {
         }
     }
 
-    private static void checkExport(final String execKey, final ReportExecExportFormat fmt) throws IOException {
-        Response response = REPORT_SERVICE.exportExecutionResult(execKey, fmt);
-        assertNotNull(response);
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
-        assertNotNull(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));
-        assertTrue(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION).endsWith('.' + fmt.name().toLowerCase()));
-
-        Object entity = response.getEntity();
-        assertTrue(entity instanceof InputStream);
-        assertFalse(IOUtils.toString((InputStream) entity, StandardCharsets.UTF_8.name()).isEmpty());
-    }
-
     @Test
     public void executeAndExport() throws IOException {
-        ReportTO reportTO = REPORT_SERVICE.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
-        reportTO.setName("executeAndExport" + getUUIDString());
-        reportTO.setActive(false);
-        reportTO.getExecutions().clear();
-        reportTO = createReport(reportTO);
-        assertNotNull(reportTO);
+        ReportTO report = REPORT_SERVICE.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+        report.setActive(false);
+        report.getExecutions().clear();
+        REPORT_SERVICE.update(report);
 
         try {
-            execReport(reportTO.getKey());
+            execReport(report.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.Scheduling, e.getType());
             assertTrue(e.getElements().iterator().next().contains("active"));
         }
 
-        reportTO.setActive(true);
-        REPORT_SERVICE.update(reportTO);
+        report.setActive(true);
+        REPORT_SERVICE.update(report);
 
-        String execKey = execReport(reportTO.getKey());
+        String execKey = execReport(report.getKey());
 
-        checkExport(execKey, ReportExecExportFormat.XML);
-        checkExport(execKey, ReportExecExportFormat.HTML);
-        checkExport(execKey, ReportExecExportFormat.PDF);
-        checkExport(execKey, ReportExecExportFormat.RTF);
-        checkExport(execKey, ReportExecExportFormat.CSV);
+        Response response = REPORT_SERVICE.exportExecutionResult(execKey);
+        assertNotNull(response);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
+        assertNotNull(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));
+        assertTrue(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION).endsWith(".pdf"));
+
+        Object entity = response.getEntity();
+        assertTrue(entity instanceof InputStream);
+        assertFalse(IOUtils.toString((InputStream) entity, StandardCharsets.UTF_8.name()).isEmpty());
     }
 
     @Test
@@ -268,13 +172,13 @@ public class ReportITCase extends AbstractITCase {
             // ignore
         }
 
-        ReportTO reportTO = REPORT_SERVICE.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
-        reportTO.setName("deleteExecutions" + getUUIDString());
-        reportTO.getExecutions().clear();
-        reportTO = createReport(reportTO);
-        assertNotNull(reportTO);
+        ReportTO report = REPORT_SERVICE.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+        report.setName("deleteExecutions" + getUUIDString());
+        report.getExecutions().clear();
+        report = createReport(report);
+        assertNotNull(report);
 
-        String execKey = execReport(reportTO.getKey());
+        String execKey = execReport(report.getKey());
         assertNotNull(execKey);
 
         try {
@@ -284,64 +188,11 @@ public class ReportITCase extends AbstractITCase {
         OffsetDateTime end = OffsetDateTime.now();
 
         Response response = REPORT_SERVICE.deleteExecutions(
-                new ExecQuery.Builder().key(reportTO.getKey()).after(start).before(end).build());
+                new ExecQuery.Builder().key(report.getKey()).after(start).before(end).build());
         List<BatchResponseItem> batchResponseItems = parseBatchResponse(response);
         assertEquals(1, batchResponseItems.size());
         assertEquals(execKey, batchResponseItems.get(0).getHeaders().get(RESTHeaders.RESOURCE_KEY).get(0));
         assertEquals(Response.Status.OK.getStatusCode(), batchResponseItems.get(0).getStatus());
-    }
-
-    @Test
-    public void auditReport() throws IOException {
-        AuditLoggerName auditLoggerName = new AuditLoggerName(
-                AuditElements.EventCategoryType.LOGIC,
-                "UserLogic",
-                null,
-                "selfRead",
-                AuditElements.Result.SUCCESS);
-
-        try {
-            AuditConfTO audit = new AuditConfTO();
-            audit.setKey(auditLoggerName.toAuditKey());
-            AUDIT_SERVICE.set(audit);
-
-            ImplementationTO auditReportlet = new ImplementationTO();
-            auditReportlet.setKey("UserReportletConf" + getUUIDString());
-            auditReportlet.setEngine(ImplementationEngine.JAVA);
-            auditReportlet.setType(IdRepoImplementationType.REPORTLET);
-            auditReportlet.setBody(POJOHelper.serialize(new AuditReportletConf("auditReportlet" + getUUIDString())));
-            Response response = IMPLEMENTATION_SERVICE.create(auditReportlet);
-            auditReportlet.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-
-            ReportTO report = new ReportTO();
-            report.setName("auditReport" + getUUIDString());
-            report.setActive(true);
-            report.getReportlets().add(auditReportlet.getKey());
-            report.setTemplate("sample");
-            report = createReport(report);
-
-            String execKey = execReport(report.getKey());
-            checkExport(execKey, ReportExecExportFormat.XML);
-
-            report = REPORT_SERVICE.read(report.getKey());
-            assertNotNull(report.getLastExec());
-        } finally {
-            AUDIT_SERVICE.delete(auditLoggerName.toAuditKey());
-        }
-    }
-
-    @Test
-    public void issueSYNCOPE43() {
-        ReportTO reportTO = new ReportTO();
-        reportTO.setName("issueSYNCOPE43" + getUUIDString());
-        reportTO.setActive(true);
-        reportTO.setTemplate("sample");
-        reportTO = createReport(reportTO);
-        assertNotNull(reportTO.getKey());
-
-        execReport(reportTO.getKey());
-        reportTO = REPORT_SERVICE.read(reportTO.getKey());
-        assertEquals(1, reportTO.getExecutions().size());
     }
 
     @Test
