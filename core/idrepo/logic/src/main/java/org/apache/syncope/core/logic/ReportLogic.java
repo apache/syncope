@@ -365,10 +365,10 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
                 || "update".equals(method.getName())
                 || "delete".equals(method.getName()))) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof ReportTO) {
-                    key = ((ReportTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof ReportTO reportTO) {
+                    key = reportTO.getKey();
                 }
             }
         }

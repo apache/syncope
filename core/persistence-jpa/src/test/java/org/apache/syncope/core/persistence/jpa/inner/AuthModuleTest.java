@@ -172,7 +172,7 @@ public class AuthModuleTest extends AbstractTest {
         conf.setSearchFilter("cn={user}");
         conf.setSubtreeSearch(true);
         conf.setLdapUrl("ldap://localhost:1389");
-        conf.setUserIdAttribute("uid");
+        conf.setPrincipalAttributeId("uid");
         conf.setBindCredential("Password");
 
         saveAuthModule("LDAPAuthModuleTest", conf);
