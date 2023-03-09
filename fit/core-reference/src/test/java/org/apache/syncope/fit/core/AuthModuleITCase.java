@@ -93,7 +93,7 @@ public class AuthModuleITCase extends AbstractITCase {
                 LDAPAuthModuleConf.class.cast(conf).setSearchFilter("cn={user}");
                 LDAPAuthModuleConf.class.cast(conf).setSubtreeSearch(true);
                 LDAPAuthModuleConf.class.cast(conf).setLdapUrl("ldap://localhost:1389");
-                LDAPAuthModuleConf.class.cast(conf).setUserIdAttribute("uid");
+                LDAPAuthModuleConf.class.cast(conf).setPrincipalAttributeId("uid");
                 LDAPAuthModuleConf.class.cast(conf).setBaseDn("cn=Directory Manager,dc=example,dc=org");
                 LDAPAuthModuleConf.class.cast(conf).setBindCredential("Password");
                 break;

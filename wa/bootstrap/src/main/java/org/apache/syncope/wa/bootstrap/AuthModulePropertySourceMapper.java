@@ -45,7 +45,8 @@ import org.apereo.cas.configuration.model.core.authentication.AuthenticationHand
 import org.apereo.cas.configuration.model.support.generic.AcceptAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jaas.JaasAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jdbc.authn.QueryJdbcAuthenticationProperties;
-import org.apereo.cas.configuration.model.support.ldap.AbstractLdapAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.ldap.AbstractLdapAuthenticationProperties.AuthenticationTypes;
+import org.apereo.cas.configuration.model.support.ldap.AbstractLdapProperties;
 import org.apereo.cas.configuration.model.support.ldap.LdapAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.DuoSecurityMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorProperties;
@@ -88,12 +89,25 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setName(authModuleTO.getKey());
         props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
         props.setOrder(authModuleTO.getOrder());
-        if (StringUtils.isNotBlank(conf.getBindDn()) && StringUtils.isNotBlank(conf.getBindCredential())) {
-            props.setType(AbstractLdapAuthenticationProperties.AuthenticationTypes.AUTHENTICATED);
-        }
-        props.setPrincipalAttributeId(conf.getUserIdAttribute());
+
+        props.setType(AuthenticationTypes.valueOf(conf.getAuthenticationType().name()));
+        props.setDnFormat(conf.getDnFormat());
+        props.setEnhanceWithEntryResolver(conf.isEnhanceWithEntryResolver());
+        props.setDerefAliases(Optional.ofNullable(conf.getDerefAliases()).
+                map(LDAPAuthModuleConf.DerefAliasesType::name).orElse(null));
+        props.setResolveFromAttribute(conf.getResolveFromAttribute());
+
+        props.setPrincipalAttributeId(conf.getPrincipalAttributeId());
+        props.setPrincipalDnAttributeName(conf.getPrincipalDnAttributeName());
         props.setPrincipalAttributeList(authModuleTO.getItems().stream().
                 map(item -> item.getIntAttrName() + ":" + item.getExtAttrName()).collect(Collectors.toList()));
+        props.setAllowMultiplePrincipalAttributeValues(conf.isAllowMultiplePrincipalAttributeValues());
+        props.setAdditionalAttributes(conf.getAdditionalAttributes());
+        props.setAllowMissingPrincipalAttributeValue(conf.isAllowMissingPrincipalAttributeValue());
+        props.setCollectDnAttribute(props.isCollectDnAttribute());
+
+        props.getPasswordPolicy().setType(AbstractLdapProperties.LdapType.valueOf(conf.getLdapType().name()));
+
         fill(props, conf);
 
         return prefix("cas.authn.ldap[].", CasCoreConfigurationUtils.asMap(props));

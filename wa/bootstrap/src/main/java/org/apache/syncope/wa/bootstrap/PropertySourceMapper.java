@@ -19,13 +19,16 @@
 package org.apache.syncope.wa.bootstrap;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AbstractJDBCConf;
 import org.apache.syncope.common.lib.AbstractLDAPConf;
+import org.apache.syncope.common.lib.AbstractLDAPConf.LdapTrustManager;
 import org.apereo.cas.configuration.model.support.ConnectionPoolingProperties;
 import org.apereo.cas.configuration.model.support.jpa.AbstractJpaProperties;
 import org.apereo.cas.configuration.model.support.ldap.AbstractLdapProperties.LdapConnectionPoolPassivator;
+import org.apereo.cas.configuration.model.support.ldap.AbstractLdapProperties.LdapHostnameVerifierOptions;
 import org.apereo.cas.configuration.model.support.ldap.AbstractLdapSearchProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,12 +48,15 @@ public abstract class PropertySourceMapper {
         props.setBaseDn(conf.getBaseDn());
         props.setSearchFilter(conf.getSearchFilter());
         props.setSubtreeSearch(conf.isSubtreeSearch());
+        props.setPageSize(conf.getPageSize());
         props.setBindDn(conf.getBindDn());
         props.setBindCredential(conf.getBindCredential());
         props.setDisablePooling(conf.isDisablePooling());
         props.setMinPoolSize(conf.getMinPoolSize());
         props.setMaxPoolSize(conf.getMaxPoolSize());
         props.setPoolPassivator(LdapConnectionPoolPassivator.valueOf(conf.getPoolPassivator().name()).name());
+        props.setHostnameVerifier(LdapHostnameVerifierOptions.valueOf(conf.getHostnameVerifier().name()));
+        props.setTrustManager(Optional.ofNullable(conf.getTrustManager()).map(LdapTrustManager::name).orElse(null));
         props.setValidateOnCheckout(conf.isValidateOnCheckout());
         props.setValidatePeriodically(conf.isValidatePeriodically());
         props.setValidateTimeout(conf.getValidateTimeout().toString());

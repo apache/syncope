@@ -29,6 +29,30 @@ public abstract class AbstractLDAPConf implements Serializable {
     private static final long serialVersionUID = 3705514707899419599L;
 
     /**
+     * The ldap type used to handle specific ops.
+     */
+    public enum LdapType {
+
+        /**
+         * Generic ldap type (OpenLDAP, 389ds, etc).
+         */
+        GENERIC,
+        /**
+         * Active directory.
+         */
+        AD,
+        /**
+         * FreeIPA directory.
+         */
+        FreeIPA,
+        /**
+         * EDirectory.
+         */
+        EDirectory
+
+    }
+
+    /**
      * The ldap connection pool passivator.
      */
     public enum LdapConnectionPoolPassivator {
@@ -65,6 +89,43 @@ public abstract class AbstractLDAPConf implements Serializable {
 
     }
 
+    /**
+     * Describe hostname verification strategies.
+     */
+    public enum LdapHostnameVerifier {
+        /**
+         * Default option, forcing verification.
+         */
+        DEFAULT,
+        /**
+         * Skip hostname verification and allow all.
+         */
+        ANY
+
+    }
+
+    /**
+     * Describe trust manager strategies.
+     */
+    public enum LdapTrustManager {
+        /**
+         * Loads the trust managers from the default {@link javax.net.ssl.TrustManagerFactory} and delegates to those.
+         */
+        DEFAULT,
+        /**
+         * Trusts any client or server.
+         */
+        ANY
+
+    }
+
+    /**
+     * User filter to use for searching.
+     * Syntax is {@code cn={user}} or {@code cn={0}}.
+     *
+     * You may also provide an external groovy script in the syntax of {@code file:/path/to/GroovyScript.groovy}
+     * to fully build the final filter template dynamically.
+     */
     private String searchFilter;
 
     /**
@@ -72,7 +133,31 @@ public abstract class AbstractLDAPConf implements Serializable {
      */
     private boolean subtreeSearch = true;
 
+    /**
+     * Request that the server return results in batches of a
+     * specific size. See <a href="http://www.ietf.org/rfc/rfc2696.txt">RFC 2696</a>. This control is often
+     * used to work around server result size limits.
+     * A negative/zero value disables paged requests.
+     */
+    private int pageSize;
+
+    /**
+     * Base DN to use.
+     * There may be scenarios where different parts of a single LDAP tree could be considered as base-dns. Rather than
+     * duplicating the LDAP configuration block for each individual base-dn, each entry can be specified
+     * and joined together using a special delimiter character. The user DN is retrieved using the combination of all
+     * base-dn and DN resolvers in the order defined. DN resolution should fail if multiple DNs are found. Otherwise the
+     * first DN found is returned.
+     * Usual syntax is: {@code subtreeA,dc=example,dc=net|subtreeC,dc=example,dc=net}.
+     */
+    private String baseDn;
+
     private String ldapUrl;
+
+    /**
+     * LDAP type.
+     */
+    private LdapType ldapType = LdapType.GENERIC;
 
     /**
      * The bind DN to use when connecting to LDAP.
@@ -95,8 +180,6 @@ public abstract class AbstractLDAPConf implements Serializable {
      * The bind credential to use when connecting to LDAP.
      */
     private String bindCredential;
-
-    private String baseDn;
 
     /**
      * Whether to use a pooled connection factory in components.
@@ -146,6 +229,18 @@ public abstract class AbstractLDAPConf implements Serializable {
      * </ul>
      */
     private LdapConnectionPoolPassivator poolPassivator = LdapConnectionPoolPassivator.BIND;
+
+    /**
+     * Hostname verification options.
+     */
+    private LdapHostnameVerifier hostnameVerifier = LdapHostnameVerifier.DEFAULT;
+
+    /**
+     * Trust Manager options.
+     * Trust managers are responsible for managing the trust material that is used when making LDAP trust decisions,
+     * and for deciding whether credentials presented by a peer should be accepted.
+     */
+    private LdapTrustManager trustManager;
 
     /**
      * Whether connections should be validated when loaned out from the pool.
@@ -251,12 +346,28 @@ public abstract class AbstractLDAPConf implements Serializable {
         this.searchFilter = searchFilter;
     }
 
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(final int pageSize) {
+        this.pageSize = pageSize;
+    }
+
     public boolean isSubtreeSearch() {
         return subtreeSearch;
     }
 
     public void setSubtreeSearch(final boolean subtreeSearch) {
         this.subtreeSearch = subtreeSearch;
+    }
+
+    public LdapType getLdapType() {
+        return ldapType;
+    }
+
+    public void setLdapType(final LdapType ldapType) {
+        this.ldapType = ldapType;
     }
 
     public String getLdapUrl() {
@@ -321,6 +432,22 @@ public abstract class AbstractLDAPConf implements Serializable {
 
     public void setPoolPassivator(final LdapConnectionPoolPassivator poolPassivator) {
         this.poolPassivator = poolPassivator;
+    }
+
+    public LdapHostnameVerifier getHostnameVerifier() {
+        return hostnameVerifier;
+    }
+
+    public void setHostnameVerifier(final LdapHostnameVerifier hostnameVerifier) {
+        this.hostnameVerifier = hostnameVerifier;
+    }
+
+    public LdapTrustManager getTrustManager() {
+        return trustManager;
+    }
+
+    public void setTrustManager(final LdapTrustManager trustManager) {
+        this.trustManager = trustManager;
     }
 
     public boolean isValidateOnCheckout() {

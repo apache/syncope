@@ -26,13 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 import javax.ws.rs.core.Response;
-import javax.xml.XMLConstants;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.sax.SAXTransformerFactory;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -68,20 +64,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
-
-    protected static final Pattern XSLT_PARAMETER_NAME_PATTERN = Pattern.compile("[a-zA-Z_][\\w\\-\\.]*");
-
-    protected static final SAXTransformerFactory TRAX_FACTORY;
-
-    static {
-        TRAX_FACTORY = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-        TRAX_FACTORY.setURIResolver((href, base) -> null);
-        try {
-            TRAX_FACTORY.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-        } catch (TransformerConfigurationException e) {
-            LOG.error("Could not enable secure XML processing", e);
-        }
-    }
 
     protected final ReportDAO reportDAO;
 
