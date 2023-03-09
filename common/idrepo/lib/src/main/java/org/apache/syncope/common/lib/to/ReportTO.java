@@ -35,9 +35,15 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
 
     private String name;
 
-    private final List<String> reportlets = new ArrayList<>();
+    private String mimeType;
+
+    private String fileExt;
 
     private String cronExpression;
+
+    private String jobDelegate;
+
+    private boolean active;
 
     private final List<ExecTO> executions = new ArrayList<>();
 
@@ -46,10 +52,6 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
     private OffsetDateTime lastExec;
 
     private OffsetDateTime nextExec;
-
-    private boolean active;
-
-    private String template;
 
     private String lastExecutor;
 
@@ -74,10 +76,20 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
         this.name = name;
     }
 
-    @JacksonXmlElementWrapper(localName = "reportlets")
-    @JacksonXmlProperty(localName = "reportlets")
-    public List<String> getReportlets() {
-        return reportlets;
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(final String mimeType) {
+        this.mimeType = mimeType;
+    }
+
+    public String getFileExt() {
+        return fileExt;
+    }
+
+    public void setFileExt(final String fileExt) {
+        this.fileExt = fileExt;
     }
 
     public String getCronExpression() {
@@ -86,6 +98,14 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
 
     public void setCronExpression(final String cronExpression) {
         this.cronExpression = cronExpression;
+    }
+
+    public String getJobDelegate() {
+        return jobDelegate;
+    }
+
+    public void setJobDelegate(final String jobDelegate) {
+        this.jobDelegate = jobDelegate;
     }
 
     @JacksonXmlElementWrapper(localName = "executions")
@@ -126,14 +146,6 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
         this.active = active;
     }
 
-    public String getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(final String template) {
-        this.template = template;
-    }
-
     public String getLastExecutor() {
         return lastExecutor;
     }
@@ -148,14 +160,15 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
                 appendSuper(super.hashCode()).
                 append(key).
                 append(name).
-                append(reportlets).
+                append(mimeType).
+                append(fileExt).
                 append(cronExpression).
+                append(jobDelegate).
                 append(executions).
                 append(latestExecStatus).
                 append(lastExec).
                 append(nextExec).
                 append(active).
-                append(template).
                 append(lastExecutor).
                 build();
     }
@@ -176,14 +189,15 @@ public class ReportTO extends AbstractStartEndBean implements NamedEntityTO {
                 appendSuper(super.equals(obj)).
                 append(key, other.key).
                 append(name, other.name).
-                append(reportlets, other.reportlets).
+                append(mimeType, other.mimeType).
+                append(fileExt, other.fileExt).
                 append(cronExpression, other.cronExpression).
+                append(jobDelegate, other.jobDelegate).
                 append(executions, other.executions).
                 append(latestExecStatus, other.latestExecStatus).
                 append(lastExec, other.lastExec).
                 append(nextExec, other.nextExec).
                 append(active, other.active).
-                append(template, other.template).
                 append(lastExecutor, other.lastExecutor).
                 build();
     }

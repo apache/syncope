@@ -25,13 +25,13 @@ public final class IdRepoImplementationType {
 
     public static final String JWT_SSO_PROVIDER = "JWT_SSO_PROVIDER";
 
-    public static final String REPORTLET = "REPORTLET";
-
     public static final String ACCOUNT_RULE = "ACCOUNT_RULE";
 
     public static final String PASSWORD_RULE = "PASSWORD_RULE";
 
     public static final String TASKJOB_DELEGATE = "TASKJOB_DELEGATE";
+
+    public static final String REPORT_DELEGATE = "REPORT_DELEGATE";
 
     public static final String LOGIC_ACTIONS = "LOGIC_ACTIONS";
 
@@ -47,10 +47,10 @@ public final class IdRepoImplementationType {
 
     private static final Map<String, String> VALUES = Map.ofEntries(
             Pair.of(JWT_SSO_PROVIDER, "org.apache.syncope.core.spring.security.JWTSSOProvider"),
-            Pair.of(REPORTLET, "org.apache.syncope.core.persistence.api.dao.Reportlet"),
-            Pair.of(ACCOUNT_RULE, "org.apache.syncope.core.persistence.api.dao.AccountRule"),
-            Pair.of(PASSWORD_RULE, "org.apache.syncope.core.persistence.api.dao.PasswordRule"),
+            Pair.of(ACCOUNT_RULE, "org.apache.syncope.core.provisioning.api.rules.AccountRule"),
+            Pair.of(PASSWORD_RULE, "org.apache.syncope.core.provisioning.api.rules.PasswordRule"),
             Pair.of(TASKJOB_DELEGATE, "org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate"),
+            Pair.of(REPORT_DELEGATE, "org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate"),
             Pair.of(LOGIC_ACTIONS, "org.apache.syncope.core.logic.api.LogicActions"),
             Pair.of(VALIDATOR, "org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator"),
             Pair.of(COMMAND, "org.apache.syncope.core.logic.api.Command"),

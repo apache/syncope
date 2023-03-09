@@ -25,11 +25,6 @@ Audit events can also be processed differently, for example when using the <<ela
 
 Once events are reported, they can be used as input for external tools.
 
-[TIP]
-====
-An example of how audit entries can be extracted for reporting is shown by the <<audit-reportlet>>.
-====
-
 ==== Audit Events
 
 The information provided for <<notification-events,notification events>> is also valid for audit events, including examples -

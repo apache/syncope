@@ -41,8 +41,7 @@ public class RolesITCase extends AbstractConsoleITCase {
     private static void createRole(final String name) {
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer",
-                Modal.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");

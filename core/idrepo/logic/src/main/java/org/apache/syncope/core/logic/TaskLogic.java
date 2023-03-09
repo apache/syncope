@@ -31,7 +31,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -72,7 +71,6 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationJobDele
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
-import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -95,8 +93,6 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     protected final NotificationDAO notificationDAO;
 
-    protected final ConfParamOps confParamOps;
-
     protected final TaskDataBinder binder;
 
     protected final PropagationTaskExecutor taskExecutor;
@@ -113,7 +109,6 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             final TaskExecDAO taskExecDAO,
             final ExternalResourceDAO resourceDAO,
             final NotificationDAO notificationDAO,
-            final ConfParamOps confParamOps,
             final TaskDataBinder binder,
             final PropagationTaskExecutor taskExecutor,
             final NotificationJobDelegate notificationJobDelegate,
@@ -125,7 +120,6 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         this.taskExecDAO = taskExecDAO;
         this.resourceDAO = resourceDAO;
         this.notificationDAO = notificationDAO;
-        this.confParamOps = confParamOps;
         this.binder = binder;
         this.taskExecutor = taskExecutor;
         this.notificationJobDelegate = notificationJobDelegate;
@@ -159,7 +153,6 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             jobManager.register(
                     task,
                     task.getStartAt(),
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
                     AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
@@ -197,7 +190,6 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             jobManager.register(
                     task,
                     task.getStartAt(),
-                    confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
                     AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
@@ -344,10 +336,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     Map<String, Object> jobDataMap = jobManager.register(
                             (SchedTask) task,
                             startAt,
-                            confParamOps.get(AuthContextUtils.getDomain(), "tasks.interruptMaxRetries", 1L, Long.class),
                             executor);
-
-                    jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
+                    jobDataMap.put(JobManager.DRY_RUN_JOBDETAIL_KEY, dryRun);
 
                     if (startAt == null) {
                         scheduler.getScheduler().triggerJob(JobNamer.getJobKey(task), new JobDataMap(jobDataMap));

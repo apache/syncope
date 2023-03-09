@@ -29,7 +29,6 @@ import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
@@ -86,58 +85,10 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
                     downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.CSV)));
+                            model.getObject().getKey())));
                     downloadBehavior.initiate(target);
                 }
-            }, ActionLink.ActionType.EXPORT_CSV, IdRepoEntitlement.REPORT_READ);
-
-            panel.add(new ActionLink<>() {
-
-                private static final long serialVersionUID = -3722207913631435501L;
-
-                @Override
-                public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.HTML)));
-                    downloadBehavior.initiate(target);
-                }
-            }, ActionLink.ActionType.EXPORT_HTML, IdRepoEntitlement.REPORT_READ);
-
-            panel.add(new ActionLink<>() {
-
-                private static final long serialVersionUID = -3722207913631435501L;
-
-                @Override
-                public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.PDF)));
-                    downloadBehavior.initiate(target);
-                }
-            }, ActionLink.ActionType.EXPORT_PDF, IdRepoEntitlement.REPORT_READ);
-
-            panel.add(new ActionLink<>() {
-
-                private static final long serialVersionUID = -3722207913631435501L;
-
-                @Override
-                public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.RTF)));
-                    downloadBehavior.initiate(target);
-                }
-            }, ActionLink.ActionType.EXPORT_RTF, IdRepoEntitlement.REPORT_READ);
-
-            panel.add(new ActionLink<>() {
-
-                private static final long serialVersionUID = -3722207913631435501L;
-
-                @Override
-                public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey(), ReportExecExportFormat.XML)));
-                    downloadBehavior.initiate(target);
-                }
-            }, ActionLink.ActionType.EXPORT_XML, IdRepoEntitlement.REPORT_READ);
+            }, ActionLink.ActionType.EXPORT, IdRepoEntitlement.REPORT_READ);
         }
     }
 }

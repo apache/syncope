@@ -43,6 +43,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.widgets.JobActionPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
+import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -66,6 +67,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Reports page.
@@ -77,11 +79,14 @@ public abstract class ReportDirectoryPanel
 
     private final ReportStartAtTogglePanel startAt;
 
+    @SpringBean
+    private MIMETypesLoader mimeTypesLoader;
+
     protected ReportDirectoryPanel(final PageReference pageRef) {
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, true);
         restClient = new ReportRestClient();
 
-        addNewItemPanelBuilder(new ReportWizardBuilder(new ReportTO(), pageRef), true);
+        addNewItemPanelBuilder(new ReportWizardBuilder(new ReportTO(), mimeTypesLoader, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.REPORT_CREATE);
 
         modal.size(Modal.Size.Large);
@@ -211,20 +216,6 @@ public abstract class ReportDirectoryPanel
                         new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
         }, ActionLink.ActionType.CLONE, IdRepoEntitlement.REPORT_CREATE);
-
-        panel.add(new ActionLink<>() {
-
-            private static final long serialVersionUID = -3722207913631435501L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
-                target.add(modal.setContent(new ReportletDirectoryPanel(modal, model.getObject().getKey(), pageRef)));
-
-                modal.header(new StringResourceModel(
-                        "reportlet.conf", ReportDirectoryPanel.this, Model.of(model.getObject())));
-                modal.show(true);
-            }
-        }, ActionLink.ActionType.COMPOSE, IdRepoEntitlement.REPORT_UPDATE);
 
         panel.add(new ActionLink<>() {
 

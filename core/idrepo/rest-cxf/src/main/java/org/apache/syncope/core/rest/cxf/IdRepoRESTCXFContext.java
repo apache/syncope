@@ -67,7 +67,6 @@ import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.syncope.common.rest.api.service.ReportService;
-import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
@@ -93,7 +92,6 @@ import org.apache.syncope.core.logic.PolicyLogic;
 import org.apache.syncope.core.logic.RealmLogic;
 import org.apache.syncope.core.logic.RelationshipTypeLogic;
 import org.apache.syncope.core.logic.ReportLogic;
-import org.apache.syncope.core.logic.ReportTemplateLogic;
 import org.apache.syncope.core.logic.RoleLogic;
 import org.apache.syncope.core.logic.SchemaLogic;
 import org.apache.syncope.core.logic.SecurityQuestionLogic;
@@ -125,7 +123,6 @@ import org.apache.syncope.core.rest.cxf.service.PolicyServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.RealmServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.RelationshipTypeServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ReportServiceImpl;
-import org.apache.syncope.core.rest.cxf.service.ReportTemplateServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.RoleServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.SchemaServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.SecurityQuestionServiceImpl;
@@ -476,12 +473,6 @@ public class IdRepoRESTCXFContext {
     @Bean
     public ReportService reportService(final ReportLogic reportLogic) {
         return new ReportServiceImpl(reportLogic);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ReportTemplateService reportTemplateService(final ReportTemplateLogic reportTemplateLogic) {
-        return new ReportTemplateServiceImpl(reportTemplateLogic);
     }
 
     @ConditionalOnMissingBean

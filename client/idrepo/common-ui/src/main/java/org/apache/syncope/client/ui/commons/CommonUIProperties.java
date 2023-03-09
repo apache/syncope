@@ -24,6 +24,8 @@ import org.apache.syncope.common.lib.SyncopeProperties;
 
 public abstract class CommonUIProperties extends SyncopeProperties {
 
+    private static final long serialVersionUID = -4338560769317806322L;
+
     private String adminUser = "admin";
 
     private boolean xForward = true;

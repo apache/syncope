@@ -19,35 +19,27 @@
 package org.apache.syncope.client.console.rest;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Response;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.JobAction;
-import org.apache.syncope.common.lib.types.ReportExecExportFormat;
-import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.service.ReportService;
-import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
-public class ReportRestClient extends BaseRestClient
-        implements ExecutionRestClient, TemplateRestClient<ReportTemplateTO, ReportTemplateFormat> {
+public class ReportRestClient extends BaseRestClient implements ExecutionRestClient {
 
     private static final long serialVersionUID = 1644689667998953604L;
 
@@ -104,8 +96,8 @@ public class ReportRestClient extends BaseRestClient
         return getService(ReportService.class).listRecentExecutions(max);
     }
 
-    public static Response exportExecutionResult(final String executionKey, final ReportExecExportFormat fmt) {
-        return getService(ReportService.class).exportExecutionResult(executionKey, fmt);
+    public static Response exportExecutionResult(final String executionKey) {
+        return getService(ReportService.class).exportExecutionResult(executionKey);
     }
 
     @Override
@@ -120,44 +112,6 @@ public class ReportRestClient extends BaseRestClient
     public int countExecutions(final String taskKey) {
         return getService(ReportService.class).
                 listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(0).build()).getTotalCount();
-    }
-
-    @Override
-    public List<ReportTemplateTO> listTemplates() {
-        return getService(ReportTemplateService.class).list();
-    }
-
-    @Override
-    public void createTemplate(final ReportTemplateTO reportTemplateTO) {
-        getService(ReportTemplateService.class).create(reportTemplateTO);
-    }
-
-    @Override
-    public void deleteTemplate(final String key) {
-        getService(ReportTemplateService.class).delete(key);
-    }
-
-    @Override
-    public ReportTemplateTO readTemplate(final String key) {
-        return getService(ReportTemplateService.class).read(key);
-    }
-
-    @Override
-    public String readTemplateFormat(final String key, final ReportTemplateFormat format) {
-        try {
-            return IOUtils.toString(InputStream.class.cast(
-                    getService(ReportTemplateService.class).getFormat(key, format).getEntity()),
-                    StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            LOG.error("Error retrieving report template {} as {}", key, format, e);
-            return StringUtils.EMPTY;
-        }
-    }
-
-    @Override
-    public void updateTemplateFormat(final String key, final String content, final ReportTemplateFormat format) {
-        getService(ReportTemplateService.class).setFormat(
-                key, format, IOUtils.toInputStream(content, StandardCharsets.UTF_8));
     }
 
     @Override

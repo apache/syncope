@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.client.console.init;
 
+import java.io.Serializable;
 import java.util.Optional;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 
-public interface ClassPathScanImplementationContributor {
+public interface ClassPathScanImplementationContributor extends Serializable {
 
     void extend(ClassPathScanningCandidateComponentProvider scanner);
 

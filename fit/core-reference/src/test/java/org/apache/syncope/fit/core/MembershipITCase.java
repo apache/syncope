@@ -267,6 +267,7 @@ public class MembershipITCase extends AbstractITCase {
 
             // 4. create pull task and execute
             newTask = TASK_SERVICE.read(TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", true);
+            newTask.setName(getUUIDString());
             newTask.setResource(newResource.getKey());
             newTask.setDestinationRealm("/even/two");
 

@@ -38,12 +38,12 @@ public final class IdMImplementationType {
     public static final String PROVISION_SORTER = "PROVISION_SORTER";
 
     private static final Map<String, String> VALUES = Map.ofEntries(
-            Pair.of(RECON_FILTER_BUILDER, "org.apache.syncope.core.persistence.api.dao.Reportlet"),
+            Pair.of(RECON_FILTER_BUILDER, "org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder"),
             Pair.of(PROPAGATION_ACTIONS, "org.apache.syncope.core.provisioning.api.propagation.PropagationActions"),
             Pair.of(PULL_ACTIONS, "org.apache.syncope.core.provisioning.api.pushpull.PullActions"),
             Pair.of(PUSH_ACTIONS, "org.apache.syncope.core.provisioning.api.pushpull.PushActions"),
-            Pair.of(PULL_CORRELATION_RULE, "org.apache.syncope.core.persistence.api.dao.PullCorrelationRule"),
-            Pair.of(PUSH_CORRELATION_RULE, "org.apache.syncope.core.persistence.api.dao.PushCorrelationRule"),
+            Pair.of(PULL_CORRELATION_RULE, "org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule"),
+            Pair.of(PUSH_CORRELATION_RULE, "org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule"),
             Pair.of(PROVISION_SORTER, "org.apache.syncope.core.provisioning.api.ProvisionSorter"));
 
     public static Map<String, String> values() {

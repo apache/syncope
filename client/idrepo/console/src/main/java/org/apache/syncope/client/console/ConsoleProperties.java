@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -28,7 +29,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("console")
 public class ConsoleProperties extends CommonUIProperties {
 
-    public static class Topology {
+    private static final long serialVersionUID = -6444470724127309370L;
+
+    public static class Topology implements Serializable {
+
+        private static final long serialVersionUID = -4530238696048859905L;
 
         private int corePoolSize = 10;
 
@@ -63,8 +68,6 @@ public class ConsoleProperties extends CommonUIProperties {
 
     private String adminUser = "admin";
 
-    private String reconciliationReportKey;
-
     private final Map<String, Class<? extends BasePage>> page = new HashMap<>();
 
     private String defaultAnyPanelClass = AnyPanel.class.getName();
@@ -79,14 +82,6 @@ public class ConsoleProperties extends CommonUIProperties {
     @Override
     public void setAdminUser(final String adminUser) {
         this.adminUser = adminUser;
-    }
-
-    public String getReconciliationReportKey() {
-        return reconciliationReportKey;
-    }
-
-    public void setReconciliationReportKey(final String reconciliationReportKey) {
-        this.reconciliationReportKey = reconciliationReportKey;
     }
 
     public String getDefaultAnyPanelClass() {

@@ -27,11 +27,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
-import org.apache.syncope.core.persistence.api.dao.AccountRule;
-import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.rules.AccountRule;
+import org.apache.syncope.core.provisioning.api.rules.AccountRuleConfClass;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 

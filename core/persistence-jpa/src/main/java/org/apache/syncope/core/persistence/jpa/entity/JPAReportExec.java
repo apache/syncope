@@ -26,7 +26,6 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 
@@ -70,10 +69,5 @@ public class JPAReportExec extends AbstractExec implements ReportExec {
     @Override
     public void setExecResult(final byte[] execResult) {
         this.execResult = Optional.ofNullable(execResult).map(ArrayUtils::toObject).orElse(null);
-    }
-
-    @Override
-    public void setStatus(final ReportExecStatus status) {
-        super.setStatus(status.name());
     }
 }

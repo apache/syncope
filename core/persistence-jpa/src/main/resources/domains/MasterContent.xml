@@ -104,12 +104,5 @@ we are happy to inform you that the password request was successfully executed f
                 sender="admin@syncope.apache.org" subject="Password Reset successful" template_id="confirmPasswordReset" 
                 traceLevel="FAILURES" events='["[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"]'/> 
 
-  <ReportTemplate id="empty"/>  
-
-  <Report id="c3520ad9-179f-49e7-b315-d684d216dd97" name="reconciliation" active="1" template_id="empty"/>
-  <Implementation id="ReconciliationReportletConf" type="REPORTLET" engine="JAVA"
-                  body='{"_class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
-  <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
-
   <SyncopeRole id="GROUP_OWNER" entitlements='["USER_SEARCH","USER_READ","USER_CREATE","USER_UPDATE","USER_DELETE","ANYTYPECLASS_READ","ANYTYPE_LIST","ANYTYPECLASS_LIST","RELATIONSHIPTYPE_LIST","ANYTYPE_READ","REALM_LIST","GROUP_SEARCH","GROUP_READ","GROUP_UPDATE","GROUP_DELETE"]'/>
 </dataset>

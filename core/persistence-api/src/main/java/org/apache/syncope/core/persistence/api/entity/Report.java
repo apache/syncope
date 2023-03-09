@@ -26,13 +26,13 @@ public interface Report extends Entity {
 
     void setName(String name);
 
-    boolean add(ReportExec exec);
+    String getMimeType();
 
-    List<? extends ReportExec> getExecs();
+    void setMimeType(String mimeType);
 
-    boolean add(Implementation reportlet);
+    String getFileExt();
 
-    List<? extends Implementation> getReportlets();
+    void setFileExt(String fileExt);
 
     String getCronExpression();
 
@@ -42,7 +42,11 @@ public interface Report extends Entity {
 
     void setActive(boolean active);
 
-    ReportTemplate getTemplate();
+    void setJobDelegate(Implementation jobDelegate);
 
-    void setTemplate(ReportTemplate template);
+    Implementation getJobDelegate();
+
+    boolean add(ReportExec exec);
+
+    List<? extends ReportExec> getExecs();
 }

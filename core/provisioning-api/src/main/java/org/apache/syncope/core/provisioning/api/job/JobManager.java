@@ -34,21 +34,29 @@ public interface JobManager {
 
     String TASK_KEY = "taskKey";
 
-    String REPORT_KEY = "report";
+    String REPORT_KEY = "reportKey";
 
     String DOMAIN_KEY = "domain";
 
     String EXECUTOR_KEY = "executor";
 
+    String DRY_RUN_JOBDETAIL_KEY = "dryRun";
+
+    String DELEGATE_IMPLEMENTATION = "delegateImpl";
+
     JobKey NOTIFICATION_JOB = new JobKey("notificationJob", Scheduler.DEFAULT_GROUP);
 
     boolean isRunning(JobKey jobKey) throws SchedulerException;
 
-    Map<String, Object> register(SchedTask task, OffsetDateTime startAt, long interruptMaxRetries, String executor)
-            throws SchedulerException;
+    Map<String, Object> register(
+            SchedTask task,
+            OffsetDateTime startAt,
+            String executor) throws SchedulerException;
 
-    void register(Report report, OffsetDateTime startAt, long interruptMaxRetries, String executor)
-            throws SchedulerException;
+    Map<String, Object> register(
+            Report report,
+            OffsetDateTime startAt,
+            String executor) throws SchedulerException;
 
     void unregister(Task<?> task);
 

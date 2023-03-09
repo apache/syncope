@@ -24,6 +24,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("wa")
 public class WAProperties extends SyncopeProperties {
 
+    private static final long serialVersionUID = 7925827623055998239L;
+
     private long contextRefreshDelay = 15;
 
     public long getContextRefreshDelay() {
