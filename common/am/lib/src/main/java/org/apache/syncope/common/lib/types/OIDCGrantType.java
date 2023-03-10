@@ -22,6 +22,7 @@ public enum OIDCGrantType {
     authorization_code,
     password,
     client_credentials,
-    refresh_token;
+    refresh_token,
+    device_code;
 
 }
