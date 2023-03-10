@@ -180,7 +180,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
             fields.add(new AjaxTextFieldPanel(
                     "field", Constants.DESCRIPTION_FIELD_NAME,
                     new PropertyModel<>(clientAppTO, Constants.DESCRIPTION_FIELD_NAME), false));
-            
+
             fields.add(new AjaxTextFieldPanel(
                     "field", "logo",
                     new PropertyModel<>(clientAppTO, "logo"), false));
@@ -252,7 +252,6 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     fields.add(subjectType);
 
                     AjaxTextFieldPanel redirectUri = new AjaxTextFieldPanel("panel", "redirectUris", new Model<>());
-                    redirectUri.addValidator(new UrlValidator());
                     fields.add(new MultiFieldPanel.Builder<String>(
                             new PropertyModel<>(clientAppTO, "redirectUris")).build(
                             "field",
@@ -278,7 +277,6 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                 case SAML2SP:
                     AjaxTextFieldPanel entityId = new AjaxTextFieldPanel(
                             "field", "entityId", new PropertyModel<>(clientAppTO, "entityId"), false);
-                    entityId.addValidator(new UrlValidator());
                     fields.add(entityId.setRequired(true));
 
                     fields.add(new AjaxTextFieldPanel("field", "metadataLocation",

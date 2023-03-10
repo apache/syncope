@@ -21,7 +21,9 @@ package org.apache.syncope.common.lib.types;
 public enum OIDCResponseType {
     CODE("code"),
     TOKEN("token"),
-    ID_TOKEN_TOKEN("id_token token");
+    ID_TOKEN("id_token"),
+    ID_TOKEN_TOKEN("id_token token"),
+    DEVICE_CODE("device_code");
 
     private final String externalForm;
 
