@@ -35,6 +35,15 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private static final long serialVersionUID = -6370888503924521351L;
 
+    public enum SCOPE {
+        OPENID,
+        PROFILE,
+        EMAIL,
+        ADDRESS,
+        PHONE
+
+    }
+
     private String clientId;
 
     private String clientSecret;
@@ -52,6 +61,8 @@ public class OIDCRPClientAppTO extends ClientAppTO {
     private final List<OIDCResponseType> supportedResponseTypes = new ArrayList<>();
 
     private String logoutUri;
+
+    private final List<SCOPE> scopes = new ArrayList<>();
 
     private boolean bypassApprovalPrompt = true;
 
@@ -130,6 +141,12 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.jwtAccessToken = jwtAccessToken;
     }
 
+    @JacksonXmlElementWrapper(localName = "scopes")
+    @JacksonXmlProperty(localName = "scope")
+    public List<SCOPE> getScopes() {
+        return scopes;
+    }
+
     public boolean isBypassApprovalPrompt() {
         return bypassApprovalPrompt;
     }
@@ -161,6 +178,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(this.supportedResponseTypes, rhs.supportedResponseTypes)
                 .append(this.logoutUri, rhs.logoutUri)
                 .append(this.jwtAccessToken, rhs.jwtAccessToken)
+                .append(this.scopes, rhs.scopes)
                 .append(this.bypassApprovalPrompt, rhs.bypassApprovalPrompt)
                 .isEquals();
     }
@@ -178,6 +196,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(supportedResponseTypes)
                 .append(logoutUri)
                 .append(jwtAccessToken)
+                .append(scopes)
                 .append(bypassApprovalPrompt)
                 .toHashCode();
     }

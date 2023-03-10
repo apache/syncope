@@ -32,6 +32,7 @@ import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcEmailScopeAttributeReleasePolicy;
+import org.apereo.cas.oidc.claims.OidcOpenIdScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcPhoneScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcProfileScopeAttributeReleasePolicy;
 import org.apereo.cas.services.BaseMappedAttributeReleasePolicy;
@@ -91,43 +92,62 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             if (attributeReleasePolicy != null) {
                 chain.addPolicies(attributeReleasePolicy);
             }
+        }
 
-            chain.addPolicies(new OidcProfileScopeAttributeReleasePolicy(),
-                    new OidcEmailScopeAttributeReleasePolicy(),
-                    new OidcAddressScopeAttributeReleasePolicy(),
-                    new OidcPhoneScopeAttributeReleasePolicy());
+        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.OPENID)) {
+            chain.addPolicies(new OidcOpenIdScopeAttributeReleasePolicy());
+        }
+        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.PROFILE)) {
+            chain.addPolicies(new OidcProfileScopeAttributeReleasePolicy());
+        }
+        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.ADDRESS)) {
+            chain.addPolicies(new OidcAddressScopeAttributeReleasePolicy());
+        }
+        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.EMAIL)) {
+            chain.addPolicies(new OidcEmailScopeAttributeReleasePolicy());
+        }
+        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.PHONE)) {
+            chain.addPolicies(new OidcPhoneScopeAttributeReleasePolicy());
+        }
 
-            Set<String> customClaims = new HashSet<>();
-            if (attributeReleasePolicy instanceof BaseMappedAttributeReleasePolicy) {
-                customClaims.addAll(((BaseMappedAttributeReleasePolicy) attributeReleasePolicy).
-                        getAllowedAttributes().values().stream().
-                        map(Objects::toString).collect(Collectors.toSet()));
-            } else if (attributeReleasePolicy instanceof ReturnAllowedAttributeReleasePolicy) {
-                customClaims.addAll(((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).
-                        getAllowedAttributes().stream().collect(Collectors.toSet()));
-            } else if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy) {
-                ((ChainingAttributeReleasePolicy) attributeReleasePolicy).getPolicies().stream().
-                        filter(ReturnAllowedAttributeReleasePolicy.class::isInstance).
-                        findFirst().map(ReturnAllowedAttributeReleasePolicy.class::cast).
-                        map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
-                        ifPresent(customClaims::addAll);
-            }
+        Set<String> customClaims = new HashSet<>();
+        if (attributeReleasePolicy instanceof BaseMappedAttributeReleasePolicy) {
+            customClaims.addAll(((BaseMappedAttributeReleasePolicy) attributeReleasePolicy).
+                    getAllowedAttributes().values().stream().
+                    map(Objects::toString).collect(Collectors.toSet()));
+        } else if (attributeReleasePolicy instanceof ReturnAllowedAttributeReleasePolicy) {
+            customClaims.addAll(((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).
+                    getAllowedAttributes().stream().collect(Collectors.toSet()));
+        } else if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy) {
+            ((ChainingAttributeReleasePolicy) attributeReleasePolicy).getPolicies().stream().
+                    filter(ReturnAllowedAttributeReleasePolicy.class::isInstance).
+                    findFirst().map(ReturnAllowedAttributeReleasePolicy.class::cast).
+                    map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
+                    ifPresent(customClaims::addAll);
+        }
+        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.PROFILE)) {
             customClaims.removeAll(OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
-            customClaims.removeAll(OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
+        }
+        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.ADDRESS)) {
             customClaims.removeAll(OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
+        }
+        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.EMAIL)) {
+            customClaims.removeAll(OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
+        }
+        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.PHONE)) {
             customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
-            if (!customClaims.isEmpty()) {
-                CasConfigurationProperties properties = ctx.getBean(CasConfigurationProperties.class);
-                List<String> supportedClaims = properties.getAuthn().getOidc().getDiscovery().getClaims();
-                if (!supportedClaims.containsAll(customClaims)) {
-                    properties.getAuthn().getOidc().getDiscovery().setClaims(
-                            Stream.concat(supportedClaims.stream(), customClaims.stream()).
-                                    distinct().collect(Collectors.toList()));
-                }
-
-                chain.addPolicies(new OidcCustomScopeAttributeReleasePolicy(
-                        CUSTOM_SCOPE, customClaims.stream().collect(Collectors.toList())));
+        }
+        if (!customClaims.isEmpty()) {
+            CasConfigurationProperties properties = ctx.getBean(CasConfigurationProperties.class);
+            List<String> supportedClaims = properties.getAuthn().getOidc().getDiscovery().getClaims();
+            if (!supportedClaims.containsAll(customClaims)) {
+                properties.getAuthn().getOidc().getDiscovery().setClaims(
+                        Stream.concat(supportedClaims.stream(), customClaims.stream()).
+                                distinct().collect(Collectors.toList()));
             }
+
+            chain.addPolicies(new OidcCustomScopeAttributeReleasePolicy(
+                    CUSTOM_SCOPE, customClaims.stream().collect(Collectors.toList())));
         }
 
         setPolicies(service, authPolicy, mfaPolicy, accessStrategy, chain);
