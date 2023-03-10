@@ -114,8 +114,7 @@ image::engagements.png[console-engagements]
 ===== Reports
 
 The reports page presents the designated administrators with the list of <<reports,reports>> configured on the given
-deployment. +
-This page also allows the administratorss to create and edit <<report-templates,report templates>>.
+deployment.
 
 image::consoleReports.png[console-reports]
 
