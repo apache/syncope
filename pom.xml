@@ -437,9 +437,9 @@ under the License.
 
     <modernizer-maven.version>2.5.0</modernizer-maven.version>
 
-    <pac4j.version>6.0.0-RC5</pac4j.version>
+    <pac4j.version>6.0.0-RC6-SNAPSHOT</pac4j.version>
 
-    <cas.version>7.0.0-SNAPSHOT</cas.version>
+    <cas.version>7.0.0-RC5</cas.version>
     <cas-client.version>4.0.1</cas-client.version>
 
     <h2.version>2.1.214</h2.version>
@@ -865,6 +865,12 @@ under the License.
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-gateway</artifactId>
         <version>${spring-cloud-gateway.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
