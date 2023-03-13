@@ -28,21 +28,13 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
+import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 
 @Schema(allOf = { ClientAppTO.class })
 public class OIDCRPClientAppTO extends ClientAppTO {
 
     private static final long serialVersionUID = -6370888503924521351L;
-
-    public enum SCOPE {
-        OPENID,
-        PROFILE,
-        EMAIL,
-        ADDRESS,
-        PHONE
-
-    }
 
     private String clientId;
 
@@ -60,9 +52,9 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private final List<OIDCResponseType> supportedResponseTypes = new ArrayList<>();
 
-    private String logoutUri;
+    private final List<OIDCScope> scopes = new ArrayList<>();
 
-    private final List<SCOPE> scopes = new ArrayList<>();
+    private String logoutUri;
 
     private boolean bypassApprovalPrompt = true;
 
@@ -143,7 +135,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     @JacksonXmlElementWrapper(localName = "scopes")
     @JacksonXmlProperty(localName = "scope")
-    public List<SCOPE> getScopes() {
+    public List<OIDCScope> getScopes() {
         return scopes;
     }
 

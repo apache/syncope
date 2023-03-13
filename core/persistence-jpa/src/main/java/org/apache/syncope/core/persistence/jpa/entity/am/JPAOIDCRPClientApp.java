@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
+import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -56,6 +57,10 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     protected static final TypeReference<Set<OIDCResponseType>> RESPONSE_TYPE_TYPEREF =
             new TypeReference<Set<OIDCResponseType>>() {
+    };
+
+    protected static final TypeReference<Set<OIDCScope>> SCOPE_TYPEREF =
+            new TypeReference<Set<OIDCScope>>() {
     };
 
     @Column(unique = true, nullable = false)
@@ -89,6 +94,12 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     @Transient
     private Set<OIDCResponseType> supportedResponseTypesSet = new HashSet<>();
+
+    @Lob
+    private String scopes;
+
+    @Transient
+    private Set<OIDCScope> scopesSet = new HashSet<>();
 
     private String logoutUri;
 
@@ -168,6 +179,11 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     }
 
     @Override
+    public Set<OIDCScope> getScopes() {
+        return scopesSet;
+    }
+
+    @Override
     public String getLogoutUri() {
         return logoutUri;
     }
@@ -192,6 +208,9 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
         if (supportedResponseTypes != null) {
             getSupportedResponseTypes().addAll(POJOHelper.deserialize(supportedResponseTypes, RESPONSE_TYPE_TYPEREF));
         }
+        if (scopes != null) {
+            getScopes().addAll(POJOHelper.deserialize(scopes, SCOPE_TYPEREF));
+        }
     }
 
     @PostLoad
@@ -211,5 +230,6 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
         redirectUris = POJOHelper.serialize(getRedirectUris());
         supportedGrantTypes = POJOHelper.serialize(getSupportedGrantTypes());
         supportedResponseTypes = POJOHelper.serialize(getSupportedResponseTypes());
+        scopes = POJOHelper.serialize(getScopes());
     }
 }

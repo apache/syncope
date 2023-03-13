@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
+import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
@@ -94,19 +95,19 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             }
         }
 
-        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.OPENID)) {
+        if (rp.getScopes().contains(OIDCScope.OPENID)) {
             chain.addPolicies(new OidcOpenIdScopeAttributeReleasePolicy());
         }
-        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.PROFILE)) {
+        if (rp.getScopes().contains(OIDCScope.PROFILE)) {
             chain.addPolicies(new OidcProfileScopeAttributeReleasePolicy());
         }
-        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.ADDRESS)) {
+        if (rp.getScopes().contains(OIDCScope.ADDRESS)) {
             chain.addPolicies(new OidcAddressScopeAttributeReleasePolicy());
         }
-        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.EMAIL)) {
+        if (rp.getScopes().contains(OIDCScope.EMAIL)) {
             chain.addPolicies(new OidcEmailScopeAttributeReleasePolicy());
         }
-        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.PHONE)) {
+        if (rp.getScopes().contains(OIDCScope.PHONE)) {
             chain.addPolicies(new OidcPhoneScopeAttributeReleasePolicy());
         }
 
@@ -125,16 +126,16 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                     map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
                     ifPresent(customClaims::addAll);
         }
-        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.PROFILE)) {
+        if (rp.getScopes().contains(OIDCScope.PROFILE)) {
             customClaims.removeAll(OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.ADDRESS)) {
+        if (rp.getScopes().contains(OIDCScope.ADDRESS)) {
             customClaims.removeAll(OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.EMAIL)) {
+        if (rp.getScopes().contains(OIDCScope.EMAIL)) {
             customClaims.removeAll(OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCRPClientAppTO.SCOPE.PHONE)) {
+        if (rp.getScopes().contains(OIDCScope.PHONE)) {
             customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
         if (!customClaims.isEmpty()) {

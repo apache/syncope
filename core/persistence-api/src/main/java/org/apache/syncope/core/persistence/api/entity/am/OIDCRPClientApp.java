@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.am;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
+import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 
 public interface OIDCRPClientApp extends ClientApp {
@@ -38,6 +39,8 @@ public interface OIDCRPClientApp extends ClientApp {
     Set<OIDCGrantType> getSupportedGrantTypes();
 
     Set<OIDCResponseType> getSupportedResponseTypes();
+
+    Set<OIDCScope> getScopes();
 
     boolean isSignIdToken();
 
