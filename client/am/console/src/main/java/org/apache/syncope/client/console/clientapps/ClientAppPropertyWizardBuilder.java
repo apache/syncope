@@ -28,7 +28,7 @@ import org.apache.wicket.PageReference;
 
 public class ClientAppPropertyWizardBuilder extends AttrWizardBuilder {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -91564005263775261L;
 
     private final ClientAppType type;
 

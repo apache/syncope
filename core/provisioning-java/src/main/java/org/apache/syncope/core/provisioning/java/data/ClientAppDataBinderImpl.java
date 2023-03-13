@@ -225,6 +225,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.getSupportedGrantTypes().addAll(clientAppTO.getSupportedGrantTypes());
         clientApp.getSupportedResponseTypes().clear();
         clientApp.getSupportedResponseTypes().addAll(clientAppTO.getSupportedResponseTypes());
+        clientApp.getScopes().clear();
+        clientApp.getScopes().addAll(clientAppTO.getScopes());
         clientApp.setLogoutUri(clientAppTO.getLogoutUri());
     }
 
@@ -239,6 +241,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.getRedirectUris().addAll(clientApp.getRedirectUris());
         clientAppTO.getSupportedGrantTypes().addAll(clientApp.getSupportedGrantTypes());
         clientAppTO.getSupportedResponseTypes().addAll(clientApp.getSupportedResponseTypes());
+        clientAppTO.getScopes().addAll(clientApp.getScopes());
         clientAppTO.setLogoutUri(clientApp.getLogoutUri());
         clientAppTO.setJwtAccessToken(clientApp.isJwtAccessToken());
         clientAppTO.setBypassApprovalPrompt(clientApp.isBypassApprovalPrompt());

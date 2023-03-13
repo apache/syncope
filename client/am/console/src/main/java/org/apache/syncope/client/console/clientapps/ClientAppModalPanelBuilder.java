@@ -56,6 +56,7 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
+import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
@@ -267,6 +268,11 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                             "field",
                             new PropertyModel<>(clientAppTO, "supportedResponseTypes"),
                             new ListModel<>(List.of(OIDCResponseType.values()))));
+
+                    fields.add(new AjaxPalettePanel.Builder<OIDCScope>().setName("scopes").build(
+                            "field",
+                            new PropertyModel<>(clientAppTO, "scopes"),
+                            new ListModel<>(List.of(OIDCScope.values()))));
 
                     AjaxTextFieldPanel logoutUri = new AjaxTextFieldPanel(
                             "field", "logoutUri", new PropertyModel<>(clientAppTO, "logoutUri"), false);
