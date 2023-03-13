@@ -22,15 +22,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public abstract class AbstractOIDCAuthModuleConf extends Pac4jAuthModuleConf {
-    
+
+    private static final long serialVersionUID = -4716170241796764061L;
+
     protected String clientId;
 
     protected String clientSecret;
 
-    protected String clientName;
-
     protected boolean enabled;
-    
+
     protected Map<String, String> customParams = new LinkedHashMap<>();
 
     protected String tokenUrl;
@@ -55,16 +55,6 @@ public abstract class AbstractOIDCAuthModuleConf extends Pac4jAuthModuleConf {
 
     public void setClientSecret(final String clientSecret) {
         this.clientSecret = clientSecret;
-    }
-
-    @Override
-    public String getClientName() {
-        return clientName;
-    }
-
-    @Override
-    public void setClientName(final String clientName) {
-        this.clientName = clientName;
     }
 
     public boolean isEnabled() {
