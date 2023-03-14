@@ -61,8 +61,9 @@ public class DefaultAuthMapper implements AuthMapper {
         Set<Pair<String, String>> delegatedAuthHandlers = new HashSet<>();
 
         DefaultAuthPolicyConf policyConf = (DefaultAuthPolicyConf) policy.getConf();
-        if (!policyConf.getAuthModules().isEmpty()) {
-            Set<String> authHandlers = new HashSet<>(policyConf.getAuthModules());
+        Set<String> authHandlers = authModules.stream().map(AuthModuleTO::getKey).
+                collect(Collectors.toCollection(HashSet::new));
+        if (!authHandlers.isEmpty()) {
             mfaAuthHandlers.addAll(authEventExecPlan.getObject().getAuthenticationHandlers().stream().
                     filter(MultifactorAuthenticationHandler.class::isInstance).
                     filter(mfaAuthHander -> policyConf.getAuthModules().contains(mfaAuthHander.getName())).
