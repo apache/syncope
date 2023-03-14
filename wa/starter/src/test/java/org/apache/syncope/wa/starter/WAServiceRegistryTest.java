@@ -104,6 +104,10 @@ public class WAServiceRegistryTest extends AbstractTest {
 
         waClientApp.setAuthPolicy(authPolicy);
 
+        AuthModuleTO authModule = new AuthModuleTO();
+        authModule.setKey("TestAuthModule");
+        waClientApp.getAuthModules().add(authModule);
+
         AccessPolicyTO accessPolicy = new AccessPolicyTO();
         DefaultAccessPolicyConf accessPolicyConf = new DefaultAccessPolicyConf();
         accessPolicyConf.setEnabled(true);
@@ -260,7 +264,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         assertNotNull(service);
 
         assertEquals(
-                Set.of("DelegatedClientAuthenticationHandler"),
+                Set.of("TestAuthModule", "DelegatedClientAuthenticationHandler"),
                 service.getAuthenticationPolicy().getRequiredAuthenticationHandlers());
 
         RegisteredServiceAccessStrategy accessStrategy = service.getAccessStrategy();

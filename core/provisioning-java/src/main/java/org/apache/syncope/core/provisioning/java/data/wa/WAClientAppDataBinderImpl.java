@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.data.wa;
 
+import org.apache.syncope.common.lib.policy.AuthPolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
+import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
@@ -37,14 +41,18 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
 
     protected final AuthModuleDataBinder authModuleDataBinder;
 
+    protected final AuthModuleDAO authModuleDAO;
+
     public WAClientAppDataBinderImpl(
             final ClientAppDataBinder clientAppDataBinder,
             final PolicyDataBinder policyDataBinder,
-            final AuthModuleDataBinder authModuleDataBinder) {
+            final AuthModuleDataBinder authModuleDataBinder,
+            final AuthModuleDAO authModuleDAO) {
 
         this.clientAppDataBinder = clientAppDataBinder;
         this.policyDataBinder = policyDataBinder;
         this.authModuleDataBinder = authModuleDataBinder;
+        this.authModuleDAO = authModuleDAO;
     }
 
     @Override
@@ -53,10 +61,23 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
         waClientApp.setClientAppTO(clientAppDataBinder.getClientAppTO(clientApp));
 
         try {
+            AuthPolicyConf authPolicyConf = null;
             if (clientApp.getAuthPolicy() != null) {
+                authPolicyConf = clientApp.getAuthPolicy().getConf();
                 waClientApp.setAuthPolicy(policyDataBinder.getPolicyTO(clientApp.getAuthPolicy()));
             } else if (clientApp.getRealm() != null && clientApp.getRealm().getAuthPolicy() != null) {
+                authPolicyConf = clientApp.getRealm().getAuthPolicy().getConf();
                 waClientApp.setAuthPolicy(policyDataBinder.getPolicyTO(clientApp.getRealm().getAuthPolicy()));
+            }
+            if (authPolicyConf instanceof DefaultAuthPolicyConf) {
+                ((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().forEach(key -> {
+                    AuthModule authModule = authModuleDAO.find(key);
+                    if (authModule == null) {
+                        LOG.warn("AuthModule " + authModule + " not found");
+                    } else {
+                        waClientApp.getAuthModules().add(authModuleDataBinder.getAuthModuleTO(authModule));
+                    }
+                });
             }
 
             if (clientApp.getAccessPolicy() != null) {
