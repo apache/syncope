@@ -154,10 +154,11 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setKey(clientApp.getKey());
         clientAppTO.setRealm(Optional.ofNullable(clientApp.getRealm()).map(Realm::getFullPath).orElse(null));
         clientAppTO.setName(clientApp.getName());
+        clientAppTO.setClientAppId(clientApp.getClientAppId());
         clientAppTO.setDescription(clientApp.getDescription());
         clientAppTO.setLogo(clientApp.getLogo());
-        clientAppTO.setClientAppId(clientApp.getClientAppId());
         clientAppTO.setTheme(clientApp.getTheme());
+        clientAppTO.setUsernameAttributeProviderConf(clientApp.getUsernameAttributeProviderConf());
 
         clientAppTO.setAuthPolicy(
                 Optional.ofNullable(clientApp.getAuthPolicy()).map(AuthPolicy::getKey).orElse(null));
@@ -274,6 +275,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setDescription(clientAppTO.getDescription());
         clientApp.setLogo(clientAppTO.getLogo());
         clientApp.setTheme(clientAppTO.getTheme());
+        clientApp.setUsernameAttributeProviderConf(clientAppTO.getUsernameAttributeProviderConf());
 
         if (clientAppTO.getAuthPolicy() == null) {
             clientApp.setAuthPolicy(null);

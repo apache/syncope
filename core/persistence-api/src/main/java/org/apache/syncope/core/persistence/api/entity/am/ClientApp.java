@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.entity.am;
 
 import java.util.List;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.clientapps.UsernameAttributeProviderConf;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
@@ -44,6 +45,14 @@ public interface ClientApp extends Entity {
 
     void setLogo(String logo);
 
+    void setTheme(String name);
+
+    String getTheme();
+
+    UsernameAttributeProviderConf getUsernameAttributeProviderConf();
+
+    void setUsernameAttributeProviderConf(UsernameAttributeProviderConf conf);
+
     AuthPolicy getAuthPolicy();
 
     void setAuthPolicy(AuthPolicy policy);
@@ -59,10 +68,6 @@ public interface ClientApp extends Entity {
     Realm getRealm();
 
     void setRealm(Realm realm);
-
-    void setTheme(String name);
-
-    String getTheme();
 
     List<Attr> getProperties();
 
