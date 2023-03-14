@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -1223,8 +1224,13 @@ public class ProvisioningContext {
     public WAClientAppDataBinder waClientAppDataBinder(
             final ClientAppDataBinder clientAppDataBinder,
             final PolicyDataBinder policyDataBinder,
-            final AuthModuleDataBinder authModuleDataBinder) {
+            final AuthModuleDataBinder authModuleDataBinder,
+            final AuthModuleDAO authModuleDAO) {
 
-        return new WAClientAppDataBinderImpl(clientAppDataBinder, policyDataBinder, authModuleDataBinder);
+        return new WAClientAppDataBinderImpl(
+                clientAppDataBinder,
+                policyDataBinder,
+                authModuleDataBinder,
+                authModuleDAO);
     }
 }
