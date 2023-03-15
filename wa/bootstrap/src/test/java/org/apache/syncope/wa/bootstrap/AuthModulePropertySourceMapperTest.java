@@ -62,7 +62,6 @@ public class AuthModulePropertySourceMapperTest {
         conf.setEnabled(true);
         conf.setCustomParams(Map.of("param1", "param1"));
         conf.setAuthUrl("https://localhost/oauth2/auth");
-        conf.setProfileAttrs(Map.of("uid", "id"));
         conf.setProfileUrl("https://localhost/oauth2/profile");
         conf.setTokenUrl("https://localhost/oauth2/token");
         conf.setResponseType("code");

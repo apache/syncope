@@ -16,16 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.report;
+package org.apache.syncope.common.lib.clientapps;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public class DefaultUsernameAttributeProviderConf implements UsernameAttributeProviderConf {
 
-@Target({ ElementType.FIELD })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface SearchCondition {
+    private static final long serialVersionUID = 4315599812817709524L;
 
-    String type() default "USER";
+    @Override
+    public void map(final Mapper mapper) {
+        mapper.map(this);
+    }
 }

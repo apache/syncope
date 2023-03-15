@@ -19,6 +19,7 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ClientAppTO;
@@ -37,6 +38,11 @@ abstract class AbstractClientAppMapper implements ClientAppMapper {
         service.setName(clientApp.getName());
         service.setDescription(clientApp.getDescription());
         service.setLogo(clientApp.getLogo());
+        service.setTheme(clientApp.getTheme());
+        service.setInformationUrl(clientApp.getInformationUrl());
+        service.setPrivacyUrl(clientApp.getPrivacyUrl());
+        Optional.ofNullable(clientApp.getUsernameAttributeProviderConf()).
+                ifPresent(conf -> conf.map(new DefaultUsernameAttributeProviderConfMapper(service)));
 
         if (!clientApp.getProperties().isEmpty()) {
             Map<String, RegisteredServiceProperty> properties = clientApp.getProperties().stream().

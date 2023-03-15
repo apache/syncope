@@ -176,7 +176,6 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
         props.setCustomParams(conf.getCustomParams());
         props.setAuthUrl(conf.getAuthUrl());
-        props.setProfileAttrs(conf.getProfileAttrs());
         props.setProfileVerb(conf.getProfileVerb());
         props.setProfileUrl(conf.getProfileUrl());
         props.setTokenUrl(conf.getTokenUrl());
