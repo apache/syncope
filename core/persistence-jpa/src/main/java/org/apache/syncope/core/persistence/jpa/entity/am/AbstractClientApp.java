@@ -21,12 +21,14 @@ package org.apache.syncope.core.persistence.jpa.entity.am;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.clientapps.UsernameAttributeProviderConf;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
@@ -53,14 +55,18 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     @Column(unique = true, nullable = false)
     private Long clientAppId;
 
-    @Column
     private String description;
 
-    @Column
     private String logo;
 
-    @Column
+    @Lob
+    private String usernameAttributeProviderConf;
+
     private String theme;
+
+    private String informationUrl;
+
+    private String privacyUrl;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPARealm realm;
@@ -118,6 +124,47 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     }
 
     @Override
+    public String getTheme() {
+        return theme;
+    }
+
+    @Override
+    public void setTheme(final String theme) {
+        this.theme = theme;
+    }
+
+    @Override
+    public String getInformationUrl() {
+        return informationUrl;
+    }
+
+    @Override
+    public void setInformationUrl(final String informationUrl) {
+        this.informationUrl = informationUrl;
+    }
+
+    @Override
+    public String getPrivacyUrl() {
+        return privacyUrl;
+    }
+
+    @Override
+    public void setPrivacyUrl(final String privacyUrl) {
+        this.privacyUrl = privacyUrl;
+    }
+
+    @Override
+    public UsernameAttributeProviderConf getUsernameAttributeProviderConf() {
+        return Optional.ofNullable(usernameAttributeProviderConf).
+                map(conf -> POJOHelper.deserialize(conf, UsernameAttributeProviderConf.class)).orElse(null);
+    }
+
+    @Override
+    public void setUsernameAttributeProviderConf(final UsernameAttributeProviderConf conf) {
+        this.usernameAttributeProviderConf = conf == null ? null : POJOHelper.serialize(conf);
+    }
+
+    @Override
     public JPAAuthPolicy getAuthPolicy() {
         return authPolicy;
     }
@@ -159,16 +206,6 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     public void setRealm(final Realm realm) {
         checkType(realm, JPARealm.class);
         this.realm = (JPARealm) realm;
-    }
-
-    @Override
-    public String getTheme() {
-        return theme;
-    }
-
-    @Override
-    public void setTheme(final String theme) {
-        this.theme = theme;
     }
 
     @Override

@@ -34,18 +34,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
-import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
-import org.apache.syncope.client.console.panels.search.SearchClause;
-import org.apache.syncope.client.console.panels.search.SearchUtils;
-import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
@@ -55,8 +48,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
-import org.apache.syncope.common.lib.report.SearchCondition;
-import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
@@ -75,8 +66,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
@@ -88,23 +77,9 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
     private final List<String> excluded;
 
-    private final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper;
-
     public BeanPanel(final String id, final IModel<T> bean, final PageReference pageRef, final String... excluded) {
-        this(id, bean, null, pageRef, excluded);
-    }
-
-    public BeanPanel(
-            final String id,
-            final IModel<T> bean,
-            final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper,
-            final PageReference pageRef,
-            final String... excluded) {
-
         super(id, bean);
         setOutputMarkupId(true);
-
-        this.sCondWrapper = sCondWrapper;
 
         this.excluded = new ArrayList<>(List.of(excluded));
         this.excluded.add("serialVersionUID");
@@ -157,7 +132,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                 item.replace(fragment);
             }
 
-            @SuppressWarnings({"unchecked", "rawtypes"})
+            @SuppressWarnings({ "unchecked", "rawtypes" })
             @Override
             protected void populateItem(final ListItem<String> item) {
                 item.add(new Fragment("required", "emptyFragment", this));
@@ -172,40 +147,9 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     return;
                 }
 
-                BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean.getObject());
-
                 Panel panel;
 
-                SearchCondition scondAnnot = field.getAnnotation(SearchCondition.class);
-                if (scondAnnot != null) {
-                    String fiql = (String) wrapper.getPropertyValue(fieldName);
-
-                    List<SearchClause> clauses = SearchUtils.getSearchClauses(fiql);
-
-                    AbstractFiqlSearchConditionBuilder<?, ?, ?> builder;
-                    switch (scondAnnot.type()) {
-                        case "USER":
-                            panel = new UserSearchPanel.Builder(
-                                    new ListModel<>(clauses), pageRef).required(false).build("value");
-                            builder = SyncopeClient.getUserSearchConditionBuilder();
-                            break;
-
-                        case "GROUP":
-                            panel = new GroupSearchPanel.Builder(
-                                    new ListModel<>(clauses), pageRef).required(false).build("value");
-                            builder = SyncopeClient.getGroupSearchConditionBuilder();
-                            break;
-
-                        default:
-                            panel = new AnyObjectSearchPanel.Builder(
-                                    scondAnnot.type(),
-                                    new ListModel<>(clauses), pageRef).required(false).build("value");
-                            builder = SyncopeClient.getAnyObjectSearchConditionBuilder(scondAnnot.type());
-                    }
-
-                    Optional.ofNullable(BeanPanel.this.sCondWrapper).
-                            ifPresent(scw -> scw.put(fieldName, Pair.of(builder, clauses)));
-                } else if (List.class.equals(field.getType())) {
+                if (List.class.equals(field.getType())) {
                     Class<?> listItemType = field.getGenericType() instanceof ParameterizedType
                             ? (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]
                             : String.class;
@@ -278,7 +222,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
                 item.add(panel.setRenderBodyOnly(true));
             }
-        }.setReuseItems(true).setOutputMarkupId(true));
+        }.setReuseItems(false));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

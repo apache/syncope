@@ -135,6 +135,21 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
                 model.setObject(ClientAppRestClient.read(type, model.getObject().getKey()));
+                modal.setContent(new UsernameAttributeProviderModalPanelBuilder<>(
+                        type, model.getObject(), modal, pageRef).build(actualId, 1, AjaxWizard.Mode.EDIT));
+                modal.header(new Model<>(getString("usernameAttributeProviderConf.title", model)));
+                modal.show(true);
+                target.add(modal);
+            }
+        }, ActionLink.ActionType.COMPOSE, AMEntitlement.CLIENTAPP_UPDATE);
+
+        panel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
+                model.setObject(ClientAppRestClient.read(type, model.getObject().getKey()));
                 target.add(propertiesModal.setContent(new ModalDirectoryPanel<>(
                         propertiesModal,
                         new ClientAppPropertiesDirectoryPanel<>("panel", propertiesModal, type, model, pageRef),

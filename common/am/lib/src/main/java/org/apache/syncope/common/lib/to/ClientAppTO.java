@@ -30,6 +30,7 @@ import javax.ws.rs.PathParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.clientapps.UsernameAttributeProviderConf;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key", "description" })
@@ -55,13 +56,19 @@ public abstract class ClientAppTO implements NamedEntityTO {
 
     private String logo;
 
+    private String theme;
+
+    private String informationUrl;
+
+    private String privacyUrl;
+
+    private UsernameAttributeProviderConf usernameAttributeProviderConf;
+
     private String authPolicy;
 
     private String accessPolicy;
 
     private String attrReleasePolicy;
-
-    private String theme;
 
     private final List<Attr> properties = new ArrayList<>();
 
@@ -94,14 +101,6 @@ public abstract class ClientAppTO implements NamedEntityTO {
 
     public void setAuthPolicy(final String authPolicy) {
         this.authPolicy = authPolicy;
-    }
-
-    public String getTheme() {
-        return theme;
-    }
-
-    public void setTheme(final String theme) {
-        this.theme = theme;
     }
 
     @Override
@@ -157,6 +156,38 @@ public abstract class ClientAppTO implements NamedEntityTO {
         this.logo = logo;
     }
 
+    public String getTheme() {
+        return theme;
+    }
+
+    public void setTheme(final String theme) {
+        this.theme = theme;
+    }
+
+    public String getInformationUrl() {
+        return informationUrl;
+    }
+
+    public void setInformationUrl(final String informationUrl) {
+        this.informationUrl = informationUrl;
+    }
+
+    public String getPrivacyUrl() {
+        return privacyUrl;
+    }
+
+    public void setPrivacyUrl(final String privacyUrl) {
+        this.privacyUrl = privacyUrl;
+    }
+
+    public UsernameAttributeProviderConf getUsernameAttributeProviderConf() {
+        return usernameAttributeProviderConf;
+    }
+
+    public void setUsernameAttributeProviderConf(final UsernameAttributeProviderConf usernameAttributeProviderConf) {
+        this.usernameAttributeProviderConf = usernameAttributeProviderConf;
+    }
+
     @JacksonXmlElementWrapper(localName = "properties")
     @JacksonXmlProperty(localName = "property")
     public List<Attr> getProperties() {
@@ -173,10 +204,13 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(name)
                 .append(description)
                 .append(logo)
+                .append(theme)
+                .append(informationUrl)
+                .append(privacyUrl)
+                .append(usernameAttributeProviderConf)
                 .append(authPolicy)
                 .append(accessPolicy)
                 .append(attrReleasePolicy)
-                .append(theme)
                 .append(properties)
                 .toHashCode();
     }
@@ -201,10 +235,13 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(this.name, rhs.name)
                 .append(this.description, rhs.description)
                 .append(this.logo, rhs.logo)
+                .append(this.theme, rhs.theme)
+                .append(this.informationUrl, rhs.informationUrl)
+                .append(this.privacyUrl, rhs.privacyUrl)
+                .append(this.usernameAttributeProviderConf, rhs.usernameAttributeProviderConf)
                 .append(this.authPolicy, rhs.authPolicy)
                 .append(this.accessPolicy, rhs.accessPolicy)
                 .append(this.attrReleasePolicy, rhs.attrReleasePolicy)
-                .append(this.theme, rhs.theme)
                 .append(this.properties, rhs.properties)
                 .isEquals();
     }

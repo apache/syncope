@@ -52,24 +52,21 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
 
     private static final long serialVersionUID = -6163230263062920394L;
 
-    protected final LoadableDetachableModel<List<String>> authModuleConfs;
+    protected final LoadableDetachableModel<List<String>> authModuleConfs = new LoadableDetachableModel<>() {
+
+        private static final long serialVersionUID = 5275935387613157437L;
+
+        @Override
+        protected List<String> load() {
+            return SyncopeWebApplication.get().getLookup().getClasses(AuthModuleConf.class).stream().
+                    map(Class::getName).sorted().collect(Collectors.toList());
+        }
+    };
 
     protected Model<Class<? extends AuthModuleConf>> authModuleConfClass = Model.of();
 
     public AuthModuleWizardBuilder(final AuthModuleTO defaultItem, final PageReference pageRef) {
-
         super(defaultItem, pageRef);
-
-        authModuleConfs = new LoadableDetachableModel<>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected List<String> load() {
-                return SyncopeWebApplication.get().getLookup().getClasses(AuthModuleConf.class).stream().
-                        map(Class::getName).sorted().collect(Collectors.toList());
-            }
-        };
     }
 
     @Override
@@ -152,7 +149,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
                         authModule.setConf(clazz.getConstructor().newInstance());
                         authModuleConfClass.setObject(clazz);
                     } catch (Exception e) {
-                        LOG.error("During deserialization", e);
+                        LOG.error("Cannot instantiate {}", conf.getModelObject(), e);
                     }
                 }
             });
