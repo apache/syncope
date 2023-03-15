@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.auth.AzureAuthModuleConf;
 import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JDBCAuthModuleConf;
@@ -42,6 +43,7 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apereo.cas.configuration.CasCoreConfigurationUtils;
 import org.apereo.cas.configuration.model.core.authentication.AuthenticationHandlerStates;
+import org.apereo.cas.configuration.model.support.delegation.DelegationAutoRedirectTypes;
 import org.apereo.cas.configuration.model.support.generic.AcceptAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jaas.JaasAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jdbc.authn.QueryJdbcAuthenticationProperties;
@@ -53,7 +55,9 @@ import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorM
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.simple.CasSimpleMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.pac4j.Pac4jBaseClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oauth.Pac4jOAuth20ClientProperties;
+import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jAzureOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGenericOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.saml.Pac4jSamlClientProperties;
@@ -175,6 +179,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
         props.setCustomParams(conf.getCustomParams());
         props.setAuthUrl(conf.getAuthUrl());
+        props.setProfileAttrs(conf.getProfileAttrs());
         props.setProfilePath(conf.getProfilePath());
         props.setProfileVerb(conf.getProfileVerb());
         props.setProfileUrl(conf.getProfileUrl());
@@ -311,5 +316,33 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         }
 
         return prefix("cas.authn.mfa.simple.", CasCoreConfigurationUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final AzureAuthModuleConf conf) {
+        Pac4jAzureOidcClientProperties props = new Pac4jAzureOidcClientProperties();
+        props.setId(conf.getClientId());
+        props.setSecret(conf.getClientSecret());
+        props.setClientName(Optional.ofNullable(conf.getClientName()).orElse(authModuleTO.getKey()));
+        props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
+        props.setCustomParams(conf.getCustomParams());
+        props.setDiscoveryUri(conf.getDiscoveryUri());
+        props.setMaxClockSkew(conf.getMaxClockSkew());
+        props.setPreferredJwsAlgorithm(conf.getPreferredJwsAlgorithm());
+        props.setResponseMode(conf.getResponseMode());
+        props.setResponseType(conf.getResponseType());
+        props.setScope(conf.getScope());
+        props.setPrincipalAttributeId(conf.getUserIdAttribute());
+
+        props.setTenant(conf.getTenant());
+        props.setCallbackUrlType(Pac4jBaseClientProperties.CallbackUrlTypes.QUERY_PARAMETER);
+        props.setAutoRedirectType(DelegationAutoRedirectTypes.NONE);
+        props.setExpireSessionWithToken(Boolean.FALSE);
+        props.setTokenExpirationAdvance("0");
+
+        Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
+        client.setAzure(props);
+
+        return prefix("cas.authn.pac4j.oidc[].azure.", CasCoreConfigurationUtils.asMap(props));
     }
 }
