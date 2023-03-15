@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.init;
 import java.util.Optional;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.clientapps.UsernameAttributeProviderConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
@@ -38,6 +39,7 @@ public class AMClassPathScanImplementationContributor implements ClassPathScanIm
         scanner.addIncludeFilter(new AssignableTypeFilter(AccessPolicyConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AttrReleasePolicyConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AuthPolicyConf.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(UsernameAttributeProviderConf.class));
     }
 
     @Override
@@ -56,6 +58,9 @@ public class AMClassPathScanImplementationContributor implements ClassPathScanIm
         }
         if (AuthPolicyConf.class.isAssignableFrom(clazz)) {
             return Optional.of(AuthPolicyConf.class.getName());
+        }
+        if (UsernameAttributeProviderConf.class.isAssignableFrom(clazz)) {
+            return Optional.of(UsernameAttributeProviderConf.class.getName());
         }
         return Optional.empty();
     }

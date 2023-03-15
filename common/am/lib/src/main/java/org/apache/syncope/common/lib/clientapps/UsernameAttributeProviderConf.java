@@ -23,4 +23,19 @@ import org.apache.syncope.common.lib.BaseBean;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 public interface UsernameAttributeProviderConf extends BaseBean {
+
+    interface Mapper {
+
+        void map(AnonymousUsernameAttributeProviderConf conf);
+
+        void map(DefaultUsernameAttributeProviderConf conf);
+
+        void map(GroovyUsernameAttributeProviderConf conf);
+
+        void map(PairwiseOidcUsernameAttributeProviderConf conf);
+
+        void map(PrincipalAttributeUsernameAttributeProviderConf conf);
+    }
+
+    void map(Mapper mapper);
 }

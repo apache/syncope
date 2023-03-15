@@ -55,17 +55,18 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     @Column(unique = true, nullable = false)
     private Long clientAppId;
 
-    @Column
     private String description;
 
-    @Column
     private String logo;
 
     @Lob
     private String usernameAttributeProviderConf;
 
-    @Column
     private String theme;
+
+    private String informationUrl;
+
+    private String privacyUrl;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPARealm realm;
@@ -130,6 +131,26 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     @Override
     public void setTheme(final String theme) {
         this.theme = theme;
+    }
+
+    @Override
+    public String getInformationUrl() {
+        return informationUrl;
+    }
+
+    @Override
+    public void setInformationUrl(final String informationUrl) {
+        this.informationUrl = informationUrl;
+    }
+
+    @Override
+    public String getPrivacyUrl() {
+        return privacyUrl;
+    }
+
+    @Override
+    public void setPrivacyUrl(final String privacyUrl) {
+        this.privacyUrl = privacyUrl;
     }
 
     @Override

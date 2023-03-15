@@ -30,7 +30,7 @@ import org.apache.wicket.model.PropertyModel;
 
 public abstract class AttrWizardBuilder extends BaseAjaxWizardBuilder<Attr> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 7618745848468848923L;
 
     public AttrWizardBuilder(final Attr defaultItem, final PageReference pageRef) {
         super(defaultItem, pageRef);

@@ -158,6 +158,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setDescription(clientApp.getDescription());
         clientAppTO.setLogo(clientApp.getLogo());
         clientAppTO.setTheme(clientApp.getTheme());
+        clientAppTO.setInformationUrl(clientApp.getInformationUrl());
+        clientAppTO.setPrivacyUrl(clientApp.getPrivacyUrl());
         clientAppTO.setUsernameAttributeProviderConf(clientApp.getUsernameAttributeProviderConf());
 
         clientAppTO.setAuthPolicy(
@@ -275,6 +277,8 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setDescription(clientAppTO.getDescription());
         clientApp.setLogo(clientAppTO.getLogo());
         clientApp.setTheme(clientAppTO.getTheme());
+        clientApp.setInformationUrl(clientAppTO.getInformationUrl());
+        clientApp.setPrivacyUrl(clientAppTO.getPrivacyUrl());
         clientApp.setUsernameAttributeProviderConf(clientAppTO.getUsernameAttributeProviderConf());
 
         if (clientAppTO.getAuthPolicy() == null) {

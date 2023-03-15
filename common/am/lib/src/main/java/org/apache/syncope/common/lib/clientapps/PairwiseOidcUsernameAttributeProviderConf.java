@@ -36,6 +36,11 @@ public class PairwiseOidcUsernameAttributeProviderConf implements UsernameAttrib
     }
 
     @Override
+    public void map(final Mapper mapper) {
+        mapper.map(this);
+    }
+
+    @Override
     public int hashCode() {
         int hash = 7;
         hash = 97 * hash + Objects.hashCode(this.persistentIdGenerator);

@@ -30,8 +30,11 @@ Depending on the communication protocol, the following client applications are s
 When defining a client application, the following parameters shall be specified:
 
 . id - unique number identifier of the current client application
+. <<realms,realm>> - used to inherit policies
 . name - regular expression to match requests
 . description - optional textual description
+. username attribute provider, mapping to
+https://apereo.github.io/cas/6.6.x/integration/Attribute-Release-PrincipalId-Attribute.html[CAS Attribute-based Principal Id^]
 . <<policies-authentication,authentication policy>>
 . <<policies-access,access policy>>
 . <<policies-attribute-release,attribute release policy>>

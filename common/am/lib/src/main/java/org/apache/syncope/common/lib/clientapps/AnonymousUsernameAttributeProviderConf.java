@@ -36,6 +36,11 @@ public class AnonymousUsernameAttributeProviderConf implements UsernameAttribute
     }
 
     @Override
+    public void map(final Mapper mapper) {
+        mapper.map(this);
+    }
+
+    @Override
     public int hashCode() {
         int hash = 7;
         hash = 97 * hash + Objects.hashCode(this.persistentIdGenerator);

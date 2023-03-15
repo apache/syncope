@@ -22,4 +22,8 @@ public class DefaultUsernameAttributeProviderConf implements UsernameAttributePr
 
     private static final long serialVersionUID = 4315599812817709524L;
 
+    @Override
+    public void map(final Mapper mapper) {
+        mapper.map(this);
+    }
 }

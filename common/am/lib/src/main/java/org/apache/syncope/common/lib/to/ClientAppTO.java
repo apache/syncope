@@ -58,6 +58,10 @@ public abstract class ClientAppTO implements NamedEntityTO {
 
     private String theme;
 
+    private String informationUrl;
+
+    private String privacyUrl;
+
     private UsernameAttributeProviderConf usernameAttributeProviderConf;
 
     private String authPolicy;
@@ -160,6 +164,22 @@ public abstract class ClientAppTO implements NamedEntityTO {
         this.theme = theme;
     }
 
+    public String getInformationUrl() {
+        return informationUrl;
+    }
+
+    public void setInformationUrl(final String informationUrl) {
+        this.informationUrl = informationUrl;
+    }
+
+    public String getPrivacyUrl() {
+        return privacyUrl;
+    }
+
+    public void setPrivacyUrl(final String privacyUrl) {
+        this.privacyUrl = privacyUrl;
+    }
+
     public UsernameAttributeProviderConf getUsernameAttributeProviderConf() {
         return usernameAttributeProviderConf;
     }
@@ -185,6 +205,8 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(description)
                 .append(logo)
                 .append(theme)
+                .append(informationUrl)
+                .append(privacyUrl)
                 .append(usernameAttributeProviderConf)
                 .append(authPolicy)
                 .append(accessPolicy)
@@ -214,6 +236,8 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(this.description, rhs.description)
                 .append(this.logo, rhs.logo)
                 .append(this.theme, rhs.theme)
+                .append(this.informationUrl, rhs.informationUrl)
+                .append(this.privacyUrl, rhs.privacyUrl)
                 .append(this.usernameAttributeProviderConf, rhs.usernameAttributeProviderConf)
                 .append(this.authPolicy, rhs.authPolicy)
                 .append(this.accessPolicy, rhs.accessPolicy)

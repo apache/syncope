@@ -49,6 +49,14 @@ public interface ClientApp extends Entity {
 
     String getTheme();
 
+    String getInformationUrl();
+
+    void setInformationUrl(String informationUrl);
+
+    String getPrivacyUrl();
+
+    void setPrivacyUrl(String privacyUrl);
+
     UsernameAttributeProviderConf getUsernameAttributeProviderConf();
 
     void setUsernameAttributeProviderConf(UsernameAttributeProviderConf conf);
