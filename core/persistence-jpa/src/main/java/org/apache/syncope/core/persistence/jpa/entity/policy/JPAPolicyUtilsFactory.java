@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
+import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -39,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 
 public class JPAPolicyUtilsFactory implements PolicyUtilsFactory {
 
@@ -66,6 +68,8 @@ public class JPAPolicyUtilsFactory implements PolicyUtilsFactory {
             type = PolicyType.ACCESS;
         } else if (policy instanceof AttrReleasePolicy) {
             type = PolicyType.ATTR_RELEASE;
+        } else if (policy instanceof TicketExpirationPolicy) {
+            type = PolicyType.TICKET_EXPIRATION;
         } else {
             throw new IllegalArgumentException("Invalid policy: " + policy);
         }
@@ -92,6 +96,8 @@ public class JPAPolicyUtilsFactory implements PolicyUtilsFactory {
             type = PolicyType.ACCESS;
         } else if (policyClass == AttrReleasePolicyTO.class) {
             type = PolicyType.ATTR_RELEASE;
+        } else if (policyClass == TicketExpirationPolicyTO.class) {
+            type = PolicyType.TICKET_EXPIRATION;
         } else {
             throw new IllegalArgumentException("Invalid PolicyTO class: " + policyClass.getName());
         }

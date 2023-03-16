@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.policy.AbstractPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
@@ -50,6 +51,7 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationR
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPATicketExpirationPolicy;
 
 public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
@@ -70,6 +72,8 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
                 ? JPAAccessPolicy.class
                 : AttrReleasePolicy.class.isAssignableFrom(reference)
                 ? JPAAttrReleasePolicy.class
+                : TicketExpirationPolicy.class.isAssignableFrom(reference)
+                ? JPATicketExpirationPolicy.class
                 : null;
     }
 
@@ -218,6 +222,11 @@ public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
             casSPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setAttrReleasePolicy(null));
             oidcRPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setAttrReleasePolicy(null));
             saml2SPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setAttrReleasePolicy(null));
+        } else if (policy instanceof TicketExpirationPolicy) {
+            realmDAO.findByPolicy(policy).forEach(realm -> realm.setTicketExpirationPolicy(null));
+            casSPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setTicketExpirationPolicy(null));
+            oidcRPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setTicketExpirationPolicy(null));
+            saml2SPClientAppDAO.findByPolicy(policy).forEach(clientApp -> clientApp.setTicketExpirationPolicy(null));
         }
 
         entityManager().remove(policy);

@@ -34,11 +34,13 @@ import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAttrReleasePolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAuthPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPATicketExpirationPolicy;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @MappedSuperclass
@@ -79,6 +81,9 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAAttrReleasePolicy attrReleasePolicy;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPATicketExpirationPolicy ticketExpirationPolicy;
 
     @Lob
     private String properties;
@@ -195,6 +200,17 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     public void setAttrReleasePolicy(final AttrReleasePolicy policy) {
         checkType(policy, JPAAttrReleasePolicy.class);
         this.attrReleasePolicy = (JPAAttrReleasePolicy) policy;
+    }
+
+    @Override
+    public TicketExpirationPolicy getTicketExpirationPolicy() {
+        return this.ticketExpirationPolicy;
+    }
+
+    @Override
+    public void setTicketExpirationPolicy(final TicketExpirationPolicy policy) {
+        checkType(policy, JPATicketExpirationPolicy.class);
+        this.ticketExpirationPolicy = (JPATicketExpirationPolicy) policy;
     }
 
     @Override

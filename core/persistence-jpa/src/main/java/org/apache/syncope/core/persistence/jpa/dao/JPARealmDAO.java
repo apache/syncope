@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.ProvisioningPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -160,6 +161,8 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
             policyColumn = "accessPolicy";
         } else if (policy instanceof AttrReleasePolicy) {
             policyColumn = "attrReleasePolicy";
+        } else if (policy instanceof TicketExpirationPolicy) {
+            policyColumn = "ticketExpirationPolicy";
         }
 
         TypedQuery<Realm> query = entityManager().createQuery(

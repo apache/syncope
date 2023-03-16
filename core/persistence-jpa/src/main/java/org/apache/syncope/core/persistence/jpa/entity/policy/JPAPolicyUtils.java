@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtils;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 
 public class JPAPolicyUtils implements PolicyUtils {
 
@@ -68,8 +69,11 @@ public class JPAPolicyUtils implements PolicyUtils {
                 return PullPolicy.class;
 
             case PUSH:
-            default:
                 return PushPolicy.class;
+
+            case TICKET_EXPIRATION:
+            default:
+                return TicketExpirationPolicy.class;
         }
     }
 }

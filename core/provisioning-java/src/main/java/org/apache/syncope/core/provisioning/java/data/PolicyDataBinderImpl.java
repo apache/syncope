@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
+import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -49,6 +50,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRule
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -252,6 +254,15 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             attrReleasePolicy.setOrder(attrReleasePolicyTO.getOrder());
             attrReleasePolicy.setStatus(attrReleasePolicyTO.getStatus());
             attrReleasePolicy.setConf(attrReleasePolicyTO.getConf());
+        } else if (policyTO instanceof TicketExpirationPolicyTO) {
+            if (result == null) {
+                result = (T) entityFactory.newEntity(TicketExpirationPolicy.class);
+            }
+
+            TicketExpirationPolicy ticketExpirationPolicy = TicketExpirationPolicy.class.cast(result);
+            TicketExpirationPolicyTO ticketExpirationPolicyTO = TicketExpirationPolicyTO.class.cast(policyTO);
+
+            ticketExpirationPolicy.setConf(ticketExpirationPolicyTO.getConf());
         }
 
         if (result != null) {
@@ -345,6 +356,12 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             attrReleasePolicyTO.setOrder(attrReleasePolicy.getOrder());
             attrReleasePolicyTO.setStatus(attrReleasePolicy.getStatus());
             attrReleasePolicyTO.setConf(attrReleasePolicy.getConf());
+        } else if (policy instanceof TicketExpirationPolicy) {
+            TicketExpirationPolicy ticketExpirationPolicy = TicketExpirationPolicy.class.cast(policy);
+            TicketExpirationPolicyTO ticketExpirationPolicyTO = new TicketExpirationPolicyTO();
+            policyTO = (T) ticketExpirationPolicyTO;
+
+            ticketExpirationPolicyTO.setConf(ticketExpirationPolicy.getConf());
         }
 
         if (policyTO != null) {

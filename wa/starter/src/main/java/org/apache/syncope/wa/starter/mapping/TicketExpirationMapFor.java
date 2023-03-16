@@ -16,45 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.wa.starter.mapping;
 
-public enum PolicyType {
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import org.apache.syncope.common.lib.policy.TicketExpirationPolicyConf;
 
-    /**
-     * How username values should look like.
-     */
-    ACCOUNT,
-    /**
-     * How password values should look like.
-     */
-    PASSWORD,
-    /**
-     * How authentication policies should look like.
-     */
-    AUTH,
-    /**
-     * How attribute release policies should look like.
-     */
-    ATTR_RELEASE,
-    /**
-     * How access policies should be defined.
-     */
-    ACCESS,
-    /**
-     * For handling propagation behavior.
-     */
-    PROPAGATION,
-    /**
-     * For handling conflicts resolution during pull.
-     */
-    PULL,
-    /**
-     * For handling conflicts resolution during push.
-     */
-    PUSH,
-    /**
-     * Controls expiration of access tickets.
-     */
-    TICKET_EXPIRATION;
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+public @interface TicketExpirationMapFor {
 
+    Class<? extends TicketExpirationPolicyConf> ticketExpirationPolicyConfClass();
 }
