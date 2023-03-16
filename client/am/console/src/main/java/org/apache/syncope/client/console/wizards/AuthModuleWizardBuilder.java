@@ -162,8 +162,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
         private static final long serialVersionUID = -785981096328637758L;
 
         Configuration(final AuthModuleTO authModule) {
-            add(new BeanPanel<>(
-                    "bean", new PropertyModel<>(authModule, "conf"), pageRef, "ldap").setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", new PropertyModel<>(authModule, "conf"), "ldap").setRenderBodyOnly(true));
         }
     }
 
@@ -211,7 +210,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
             });
             add(enable);
 
-            add(new BeanPanel<>("bean", beanPanelModel, pageRef).setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", beanPanelModel).setRenderBodyOnly(true));
             setOutputMarkupId(true);
         }
 

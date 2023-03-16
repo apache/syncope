@@ -50,7 +50,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.core.util.lang.PropertyResolverConverter;
 import org.apache.wicket.markup.html.basic.Label;
@@ -77,7 +76,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
     private final List<String> excluded;
 
-    public BeanPanel(final String id, final IModel<T> bean, final PageReference pageRef, final String... excluded) {
+    public BeanPanel(final String id, final IModel<T> bean, final String... excluded) {
         super(id, bean);
         setOutputMarkupId(true);
 

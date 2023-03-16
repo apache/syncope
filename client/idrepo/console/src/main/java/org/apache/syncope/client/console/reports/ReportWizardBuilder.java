@@ -185,7 +185,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
         private static final long serialVersionUID = -785981096328637758L;
 
         public Configuration() {
-            add(new BeanPanel<>("bean", conf, pageRef).setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", conf).setRenderBodyOnly(true));
         }
 
         @Override

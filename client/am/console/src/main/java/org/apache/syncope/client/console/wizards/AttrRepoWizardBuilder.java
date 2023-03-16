@@ -53,7 +53,6 @@ public class AttrRepoWizardBuilder extends BaseAjaxWizardBuilder<AttrRepoTO> {
     protected Model<Class<? extends AttrRepoConf>> attrRepoConfClass = Model.of();
 
     public AttrRepoWizardBuilder(final AttrRepoTO defaultItem, final PageReference pageRef) {
-
         super(defaultItem, pageRef);
 
         attrRepoConfs = new LoadableDetachableModel<>() {
@@ -160,7 +159,7 @@ public class AttrRepoWizardBuilder extends BaseAjaxWizardBuilder<AttrRepoTO> {
         private static final long serialVersionUID = -785981096328637758L;
 
         Configuration(final AttrRepoTO attrRepo) {
-            add(new BeanPanel<>("bean", new PropertyModel<>(attrRepo, "conf"), pageRef).setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", new PropertyModel<>(attrRepo, "conf")).setRenderBodyOnly(true));
         }
     }
 
