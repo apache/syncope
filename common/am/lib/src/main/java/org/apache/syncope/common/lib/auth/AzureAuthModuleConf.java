@@ -21,12 +21,31 @@ package org.apache.syncope.common.lib.auth;
 import java.util.Map;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 
-public class OIDCAuthModuleConf extends AbstractOIDCAuthModuleConf implements AuthModuleConf {
+public class AzureAuthModuleConf extends AbstractOIDCAuthModuleConf implements AuthModuleConf {
 
-    private static final long serialVersionUID = -471527711042579422L;
+    private static final long serialVersionUID = -471527731042579522L;
+
+    /**
+     * Azure AD tenant name. After tenant is configured, #getDiscoveryUri() property will be overridden.
+     *
+     * Azure AD tenant name can take 4 different values:
+     * - organizations: Only users with work or school accounts from Azure AD can sign in.
+     * - consumers: Only users with a personal Microsoft account can sign in.
+     * - Specific tenant domain name or ID: Only user with account under that the specified tenant can login
+     */
+    protected String tenant;
+
+    public String getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(final String tenant) {
+        this.tenant = tenant;
+    }
 
     @Override
     public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
         return mapper.map(authModule, this);
     }
+
 }
