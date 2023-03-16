@@ -116,7 +116,7 @@ public abstract class AbstractOIDCAuthModuleConf extends AbstractOAuth20AuthModu
         return tokenExpirationAdvance;
     }
 
-    public void setTokenExpirationAdvance(String tokenExpirationAdvance) {
+    public void setTokenExpirationAdvance(final String tokenExpirationAdvance) {
         this.tokenExpirationAdvance = tokenExpirationAdvance;
     }
 }
