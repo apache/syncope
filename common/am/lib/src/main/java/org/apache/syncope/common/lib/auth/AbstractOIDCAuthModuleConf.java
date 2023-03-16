@@ -18,94 +18,105 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+public abstract class AbstractOIDCAuthModuleConf extends AbstractOAuth20AuthModuleConf {
 
-public abstract class AbstractOIDCAuthModuleConf extends Pac4jAuthModuleConf {
+    private static final long serialVersionUID = -471527731042579422L;
 
-    private static final long serialVersionUID = -4716170241796764061L;
+    protected String discoveryUri;
 
-    protected String clientId;
+    /**
+     * Whether an initial nonce should be to used
+     * initially for replay attack mitigation.
+     */
+    protected boolean useNonce;
 
-    protected String clientSecret;
+    /**
+     * The JWS algorithm to use forcefully when validating ID tokens.
+     * If none is defined, the first algorithm from metadata will be used.
+     */
+    protected String preferredJwsAlgorithm;
 
-    protected boolean enabled;
+    /**
+     * Clock skew in order to account for drift, when validating id tokens.
+     */
+    protected String maxClockSkew;
 
-    protected Map<String, String> customParams = new LinkedHashMap<>();
+    /**
+     * The response mode specifies how the result of the authorization request is formatted.
+     * Possible values includes "query", "fragment", "form_post", or "web_message"
+     */
+    protected String responseMode;
 
-    protected String tokenUrl;
+    /**
+     * Checks if sessions expire with token expiration.
+     */
+    protected boolean expireSessionWithToken;
 
-    protected String responseType = "code";
+    /**
+     * Default time period advance (in seconds) for considering an access token expired.
+     * This settings supports the java.time.Duration syntax.
+     * The format of the value will be PTnHnMnS, where n is the relevant hours, minutes or
+     * seconds part of the duration. Any fractional seconds are placed after a decimal point in the seconds section.
+     * If a section has a zero value, it is omitted. The hours, minutes and seconds will all have the same sign.
+     * Example values could be in the form of PT20S, PT15M, PT10H, PT6D, P2DT3H4M.
+     * If the value is set to 0 or never, the duration will be set to zero. If the value is blank, set to -1, or
+     * infinite, the value will effectively represent an unending duration.
+     */
+    protected String tokenExpirationAdvance;
 
-    protected String scope;
-
-    protected String userIdAttribute;
-
-    public String getClientId() {
-        return clientId;
+    public String getDiscoveryUri() {
+        return discoveryUri;
     }
 
-    public void setId(final String clientId) {
-        this.clientId = clientId;
+    public void setDiscoveryUri(final String discoveryUri) {
+        this.discoveryUri = discoveryUri;
     }
 
-    public String getClientSecret() {
-        return clientSecret;
+    public boolean isUseNonce() {
+        return useNonce;
     }
 
-    public void setClientSecret(final String clientSecret) {
-        this.clientSecret = clientSecret;
+    public void setUseNonce(final boolean useNonce) {
+        this.useNonce = useNonce;
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public String getPreferredJwsAlgorithm() {
+        return preferredJwsAlgorithm;
     }
 
-    public void setEnabled(final boolean enabled) {
-        this.enabled = enabled;
+    public void setPreferredJwsAlgorithm(final String preferredJwsAlgorithm) {
+        this.preferredJwsAlgorithm = preferredJwsAlgorithm;
     }
 
-    public Map<String, String> getCustomParams() {
-        return customParams;
+    public String getMaxClockSkew() {
+        return maxClockSkew;
     }
 
-    public void setCustomParams(final Map<String, String> customParams) {
-        this.customParams = customParams;
+    public void setMaxClockSkew(final String maxClockSkew) {
+        this.maxClockSkew = maxClockSkew;
     }
 
-    public String getTokenUrl() {
-        return tokenUrl;
+    public String getResponseMode() {
+        return responseMode;
     }
 
-    public void setTokenUrl(final String tokenUrl) {
-        this.tokenUrl = tokenUrl;
+    public void setResponseMode(final String responseMode) {
+        this.responseMode = responseMode;
     }
 
-    public String getResponseType() {
-        return responseType;
+    public boolean isExpireSessionWithToken() {
+        return expireSessionWithToken;
     }
 
-    public void setResponseType(final String responseType) {
-        this.responseType = responseType;
+    public void setExpireSessionWithToken(final boolean expireSessionWithToken) {
+        this.expireSessionWithToken = expireSessionWithToken;
     }
 
-    public String getScope() {
-        return scope;
+    public String getTokenExpirationAdvance() {
+        return tokenExpirationAdvance;
     }
 
-    public void setScope(final String scope) {
-        this.scope = scope;
-    }
-
-    public void setClientId(final String clientId) {
-        this.clientId = clientId;
-    }
-
-    public String getUserIdAttribute() {
-        return userIdAttribute;
-    }
-
-    public void setUserIdAttribute(final String userIdAttribute) {
-        this.userIdAttribute = userIdAttribute;
+    public void setTokenExpirationAdvance(final String tokenExpirationAdvance) {
+        this.tokenExpirationAdvance = tokenExpirationAdvance;
     }
 }
