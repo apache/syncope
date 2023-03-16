@@ -25,31 +25,6 @@ public class AzureAuthModuleConf extends AbstractOIDCAuthModuleConf implements A
 
     private static final long serialVersionUID = -471527731042579522L;
 
-    protected String discoveryUri;
-
-    /**
-     * Whether an initial nonce should be to used
-     * initially for replay attack mitigation.
-     */
-    protected boolean useNonce;
-
-    /**
-     * The JWS algorithm to use forcefully when validating ID tokens.
-     * If none is defined, the first algorithm from metadata will be used.
-     */
-    protected String preferredJwsAlgorithm;
-
-    /**
-     * Clock skew in order to account for drift, when validating id tokens.
-     */
-    protected String maxClockSkew;
-
-    /**
-     * The response mode specifies how the result of the authorization request is formatted.
-     * Possible values includes "query", "fragment", "form_post", or "web_message"
-     */
-    protected String responseMode;
-
     /**
      * Azure AD tenant name. After tenant is configured, #getDiscoveryUri() property will be overridden.
      *
@@ -59,46 +34,6 @@ public class AzureAuthModuleConf extends AbstractOIDCAuthModuleConf implements A
      * - Specific tenant domain name or ID: Only user with account under that the specified tenant can login
      */
     protected String tenant;
-
-    public String getDiscoveryUri() {
-        return discoveryUri;
-    }
-
-    public void setDiscoveryUri(final String discoveryUri) {
-        this.discoveryUri = discoveryUri;
-    }
-
-    public boolean isUseNonce() {
-        return useNonce;
-    }
-
-    public void setUseNonce(final boolean useNonce) {
-        this.useNonce = useNonce;
-    }
-
-    public String getPreferredJwsAlgorithm() {
-        return preferredJwsAlgorithm;
-    }
-
-    public void setPreferredJwsAlgorithm(final String preferredJwsAlgorithm) {
-        this.preferredJwsAlgorithm = preferredJwsAlgorithm;
-    }
-
-    public String getMaxClockSkew() {
-        return maxClockSkew;
-    }
-
-    public void setMaxClockSkew(final String maxClockSkew) {
-        this.maxClockSkew = maxClockSkew;
-    }
-
-    public String getResponseMode() {
-        return responseMode;
-    }
-
-    public void setResponseMode(final String responseMode) {
-        this.responseMode = responseMode;
-    }
 
     public String getTenant() {
         return tenant;

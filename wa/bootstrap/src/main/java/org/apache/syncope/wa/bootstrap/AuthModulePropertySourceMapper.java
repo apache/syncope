@@ -43,7 +43,6 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apereo.cas.configuration.CasCoreConfigurationUtils;
 import org.apereo.cas.configuration.model.core.authentication.AuthenticationHandlerStates;
-import org.apereo.cas.configuration.model.support.delegation.DelegationAutoRedirectTypes;
 import org.apereo.cas.configuration.model.support.generic.AcceptAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jaas.JaasAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jdbc.authn.QueryJdbcAuthenticationProperties;
@@ -55,7 +54,6 @@ import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorM
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.simple.CasSimpleMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
-import org.apereo.cas.configuration.model.support.pac4j.Pac4jBaseClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oauth.Pac4jOAuth20ClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jAzureOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGenericOidcClientProperties;
@@ -164,6 +162,8 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setResponseType(conf.getResponseType());
         props.setScope(conf.getScope());
         props.setPrincipalAttributeId(conf.getUserIdAttribute());
+        props.setExpireSessionWithToken(conf.isExpireSessionWithToken());
+        props.setTokenExpirationAdvance(conf.getTokenExpirationAdvance());
         Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
         client.setGeneric(props);
 
@@ -179,7 +179,6 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
         props.setCustomParams(conf.getCustomParams());
         props.setAuthUrl(conf.getAuthUrl());
-        props.setProfileAttrs(conf.getProfileAttrs());
         props.setProfilePath(conf.getProfilePath());
         props.setProfileVerb(conf.getProfileVerb());
         props.setProfileUrl(conf.getProfileUrl());
@@ -333,13 +332,9 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setResponseType(conf.getResponseType());
         props.setScope(conf.getScope());
         props.setPrincipalAttributeId(conf.getUserIdAttribute());
-
+        props.setExpireSessionWithToken(conf.isExpireSessionWithToken());
+        props.setTokenExpirationAdvance(conf.getTokenExpirationAdvance());
         props.setTenant(conf.getTenant());
-        props.setCallbackUrlType(Pac4jBaseClientProperties.CallbackUrlTypes.QUERY_PARAMETER);
-        props.setAutoRedirectType(DelegationAutoRedirectTypes.NONE);
-        props.setExpireSessionWithToken(Boolean.FALSE);
-        props.setTokenExpirationAdvance("0");
-
         Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
         client.setAzure(props);
 

@@ -18,16 +18,19 @@
  */
 package org.apache.syncope.common.lib.auth;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 
-public class OAuth20AuthModuleConf extends AbstractOIDCAuthModuleConf implements AuthModuleConf {
+public class OAuth20AuthModuleConf extends AbstractOAuth20AuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = 299820485764241682L;
 
     protected String authUrl;
-
+    
     protected String profileUrl;
+    
+    protected Map<String, String> profileAttrs = new LinkedHashMap<>();
 
     protected boolean withState;
 
@@ -41,6 +44,14 @@ public class OAuth20AuthModuleConf extends AbstractOIDCAuthModuleConf implements
 
     public void setAuthUrl(final String authUrl) {
         this.authUrl = authUrl;
+    }
+
+    public Map<String, String> getProfileAttrs() {
+        return profileAttrs;
+    }
+
+    public void setProfileAttrs(final Map<String, String> profileAttrs) {
+        this.profileAttrs = profileAttrs;
     }
 
     public boolean isWithState() {
