@@ -102,7 +102,6 @@ public class UsernameAttributeProviderModalPanelBuilder<T extends ClientAppTO> e
             BeanPanel<UsernameAttributeProviderConf> bean = new BeanPanel<>(
                     "bean",
                     beanPanelModel,
-                    pageRef,
                     Constants.NAME_FIELD_NAME,
                     "reportlet");
             add(bean.setRenderBodyOnly(false));
