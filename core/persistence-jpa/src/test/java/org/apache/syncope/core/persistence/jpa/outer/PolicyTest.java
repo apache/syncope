@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.jpa.inner.AbstractClientAppTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,11 +70,13 @@ public class PolicyTest extends AbstractClientAppTest {
         AuthPolicy authPolicy = buildAndSaveAuthPolicy();
         AccessPolicy accessPolicy = buildAndSaveAccessPolicy();
         AttrReleasePolicy attrPolicy = buildAndSaveAttrRelPolicy();
+        TicketExpirationPolicy ticketExpirationPolicy = buildAndSaveTicketExpirationPolicy();
 
         Realm realm = realmDAO.getRoot();
         realm.setAuthPolicy(authPolicy);
         realm.setAccessPolicy(accessPolicy);
         realm.setAttrReleasePolicy(attrPolicy);
+        realm.setTicketExpirationPolicy(ticketExpirationPolicy);
 
         realm = realmDAO.save(realm);
         assertNotNull(realm.getAuthPolicy());
@@ -83,12 +86,14 @@ public class PolicyTest extends AbstractClientAppTest {
         policyDAO.delete(authPolicy);
         policyDAO.delete(accessPolicy);
         policyDAO.delete(attrPolicy);
+        policyDAO.delete(ticketExpirationPolicy);
         entityManager().flush();
 
         realm = realmDAO.getRoot();
         assertNull(realm.getAuthPolicy());
         assertNull(realm.getAccessPolicy());
         assertNull(realm.getAttrReleasePolicy());
+        assertNull(realm.getTicketExpirationPolicy());
     }
 
     @Test
@@ -96,6 +101,7 @@ public class PolicyTest extends AbstractClientAppTest {
         // Create new policy
         AccessPolicy accessPolicy = buildAndSaveAccessPolicy();
         AuthPolicy authPolicy = buildAndSaveAuthPolicy();
+        TicketExpirationPolicy ticketExpirationPolicy = buildAndSaveTicketExpirationPolicy();
 
         // Create new client app and assign policy
         OIDCRPClientApp rp = entityFactory.newEntity(OIDCRPClientApp.class);
@@ -106,14 +112,22 @@ public class PolicyTest extends AbstractClientAppTest {
         rp.setClientSecret("secret");
         rp.setAccessPolicy(accessPolicy);
         rp.setAuthPolicy(authPolicy);
+        rp.setTicketExpirationPolicy(ticketExpirationPolicy);
 
         rp = oidcRelyingPartyDAO.save(rp);
-        assertNotNull(rp);
+        assertNotNull(rp.getAuthPolicy());
+        assertNotNull(rp.getAccessPolicy());
+        assertNotNull(rp.getTicketExpirationPolicy());
 
         policyDAO.delete(accessPolicy);
+        policyDAO.delete(authPolicy);
+        policyDAO.delete(ticketExpirationPolicy);
         entityManager().flush();
 
-        policyDAO.delete(authPolicy);
-        entityManager().flush();
+        rp = oidcRelyingPartyDAO.find(rp.getKey());
+        assertNotNull(rp);
+        assertNull(rp.getAuthPolicy());
+        assertNull(rp.getAccessPolicy());
+        assertNull(rp.getTicketExpirationPolicy());
     }
 }

@@ -31,18 +31,18 @@ public class DefaultTicketExpirationPolicyConf implements TicketExpirationPolicy
         /**
          * TTL of this ticket, in seconds.
          */
-        private long getMaxTimeToLiveInSeconds;
+        private long maxTimeToLiveInSeconds;
 
-        public long getGetMaxTimeToLiveInSeconds() {
-            return getMaxTimeToLiveInSeconds;
+        public long getMaxTimeToLiveInSeconds() {
+            return maxTimeToLiveInSeconds;
         }
 
-        public void setGetMaxTimeToLiveInSeconds(final long getMaxTimeToLiveInSeconds) {
-            this.getMaxTimeToLiveInSeconds = getMaxTimeToLiveInSeconds;
+        public void setMaxTimeToLiveInSeconds(final long maxTimeToLiveInSeconds) {
+            this.maxTimeToLiveInSeconds = maxTimeToLiveInSeconds;
         }
     }
 
-    public static class STConf implements Serializable {
+    public static class STConf extends TGTConf {
 
         private static final long serialVersionUID = -9141008704559934825L;
 
@@ -51,25 +51,12 @@ public class DefaultTicketExpirationPolicyConf implements TicketExpirationPolicy
          */
         private long numberOfUses;
 
-        /**
-         * TTL of this ticket, in seconds.
-         */
-        private long timeToLiveInSeconds;
-
         public long getNumberOfUses() {
             return numberOfUses;
         }
 
         public void setNumberOfUses(final long numberOfUses) {
             this.numberOfUses = numberOfUses;
-        }
-
-        public long getTimeToLiveInSeconds() {
-            return timeToLiveInSeconds;
-        }
-
-        public void setTimeToLiveInSeconds(final long timeToLiveInSeconds) {
-            this.timeToLiveInSeconds = timeToLiveInSeconds;
         }
     }
 

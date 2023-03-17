@@ -32,6 +32,8 @@ import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultTicketExpirationPolicyConf;
+import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
@@ -104,20 +106,29 @@ public class WAClientAppITCase extends AbstractITCase {
 
         AttrReleasePolicyTO attrReleasePolicyTO = createPolicy(PolicyType.ATTR_RELEASE, buildAttrReleasePolicyTO());
 
+        TicketExpirationPolicyTO ticketExpirationPolicyTO =
+                createPolicy(PolicyType.TICKET_EXPIRATION, buildTicketExpirationPolicyTO());
+
         oidcrpto.setAuthPolicy(authPolicyTO.getKey());
         oidcrpto.setAccessPolicy(accessPolicyTO.getKey());
         oidcrpto.setAttrReleasePolicy(attrReleasePolicyTO.getKey());
+        oidcrpto.setTicketExpirationPolicy(ticketExpirationPolicyTO.getKey());
 
         oidcrpto = createClientApp(ClientAppType.OIDCRP, oidcrpto);
 
         WAClientApp waClientApp = WA_CLIENT_APP_SERVICE.read(oidcrpto.getClientAppId(), null);
         assertNotNull(waClientApp);
         assertTrue(waClientApp.getAttrReleasePolicy().getConf() instanceof DefaultAttrReleasePolicyConf);
+        assertTrue(waClientApp.getTicketExpirationPolicy().getConf() instanceof DefaultTicketExpirationPolicyConf);
 
         DefaultAttrReleasePolicyConf attrReleasePolicyConf =
                 (DefaultAttrReleasePolicyConf) waClientApp.getAttrReleasePolicy().getConf();
         assertFalse(attrReleasePolicyConf.getReleaseAttrs().isEmpty());
         assertEquals("username", attrReleasePolicyConf.getReleaseAttrs().get("uid"));
         assertEquals("fullname", attrReleasePolicyConf.getReleaseAttrs().get("cn"));
+
+        DefaultTicketExpirationPolicyConf ticketExpirationPolicyConf =
+                (DefaultTicketExpirationPolicyConf) waClientApp.getTicketExpirationPolicy().getConf();
+        assertEquals(110, ticketExpirationPolicyConf.getTgtConf().getMaxTimeToLiveInSeconds());
     }
 }

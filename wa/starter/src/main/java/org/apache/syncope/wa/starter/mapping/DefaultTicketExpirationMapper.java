@@ -46,7 +46,7 @@ public class DefaultTicketExpirationMapper implements TicketExpirationMapper {
                 map(conf -> {
                     DefaultRegisteredServiceTicketGrantingTicketExpirationPolicy result =
                             new DefaultRegisteredServiceTicketGrantingTicketExpirationPolicy();
-                    result.setMaxTimeToLiveInSeconds(conf.getGetMaxTimeToLiveInSeconds());
+                    result.setMaxTimeToLiveInSeconds(conf.getMaxTimeToLiveInSeconds());
                     return result;
                 }).
                 orElse(null);
@@ -59,7 +59,7 @@ public class DefaultTicketExpirationMapper implements TicketExpirationMapper {
                     DefaultRegisteredServiceServiceTicketExpirationPolicy result =
                             new DefaultRegisteredServiceServiceTicketExpirationPolicy();
                     result.setNumberOfUses(conf.getNumberOfUses());
-                    result.setTimeToLive(String.valueOf(conf.getTimeToLiveInSeconds()));
+                    result.setTimeToLive(Long.toString(conf.getMaxTimeToLiveInSeconds()));
                     return result;
                 }).
                 orElse(null);
@@ -71,7 +71,7 @@ public class DefaultTicketExpirationMapper implements TicketExpirationMapper {
                 map(conf -> {
                     DefaultRegisteredServiceProxyGrantingTicketExpirationPolicy result =
                             new DefaultRegisteredServiceProxyGrantingTicketExpirationPolicy();
-                    result.setMaxTimeToLiveInSeconds(conf.getGetMaxTimeToLiveInSeconds());
+                    result.setMaxTimeToLiveInSeconds(conf.getMaxTimeToLiveInSeconds());
                     return result;
                 }).
                 orElse(null);
@@ -84,7 +84,7 @@ public class DefaultTicketExpirationMapper implements TicketExpirationMapper {
                     DefaultRegisteredServiceProxyTicketExpirationPolicy result =
                             new DefaultRegisteredServiceProxyTicketExpirationPolicy();
                     result.setNumberOfUses(conf.getNumberOfUses());
-                    result.setTimeToLive(String.valueOf(conf.getTimeToLiveInSeconds()));
+                    result.setTimeToLive(Long.toString(conf.getMaxTimeToLiveInSeconds()));
                     return result;
                 }).
                 orElse(null);

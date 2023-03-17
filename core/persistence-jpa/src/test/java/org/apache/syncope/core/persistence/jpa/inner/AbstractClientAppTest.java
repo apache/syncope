@@ -22,10 +22,12 @@ import java.util.List;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultTicketExpirationPolicyConf;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -71,5 +73,22 @@ public class AbstractClientAppTest extends AbstractTest {
         authPolicy.setConf(conf);
 
         return policyDAO.save(authPolicy);
+    }
+
+    protected TicketExpirationPolicy buildAndSaveTicketExpirationPolicy() {
+        TicketExpirationPolicy ticketExpirationPolicy = entityFactory.newEntity(TicketExpirationPolicy.class);
+        ticketExpirationPolicy.setName("TicketExpirationPolicyTest");
+
+        DefaultTicketExpirationPolicyConf conf = new DefaultTicketExpirationPolicyConf();
+        DefaultTicketExpirationPolicyConf.TGTConf tgtConf = new DefaultTicketExpirationPolicyConf.TGTConf();
+        tgtConf.setMaxTimeToLiveInSeconds(110);
+        conf.setTgtConf(tgtConf);
+        DefaultTicketExpirationPolicyConf.STConf stConf = new DefaultTicketExpirationPolicyConf.STConf();
+        stConf.setMaxTimeToLiveInSeconds(0);
+        stConf.setNumberOfUses(1);
+        conf.setStConf(stConf);
+        ticketExpirationPolicy.setConf(conf);
+
+        return policyDAO.save(ticketExpirationPolicy);
     }
 }

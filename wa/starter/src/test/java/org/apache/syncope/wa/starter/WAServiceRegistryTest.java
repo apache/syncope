@@ -34,6 +34,8 @@ import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultTicketExpirationPolicyConf;
+import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
@@ -125,6 +127,14 @@ public class WAServiceRegistryTest extends AbstractTest {
             attrReleasePolicy.setConf(attrReleasePolicyConf);
             waClientApp.setAttrReleasePolicy(attrReleasePolicy);
         }
+
+        TicketExpirationPolicyTO ticketExpirationPolicy = new TicketExpirationPolicyTO();
+        DefaultTicketExpirationPolicyConf ticketExpirationPolicyConf = new DefaultTicketExpirationPolicyConf();
+        DefaultTicketExpirationPolicyConf.TGTConf tgtConf = new DefaultTicketExpirationPolicyConf.TGTConf();
+        tgtConf.setMaxTimeToLiveInSeconds(110);
+        ticketExpirationPolicyConf.setTgtConf(tgtConf);
+        ticketExpirationPolicy.setConf(ticketExpirationPolicyConf);
+        waClientApp.setTicketExpirationPolicy(ticketExpirationPolicy);
     }
 
     @Autowired
@@ -274,5 +284,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         assertNotNull(delegatedAuthPolicy);
         assertEquals(1, delegatedAuthPolicy.getAllowedProviders().size());
         assertTrue(delegatedAuthPolicy.getAllowedProviders().contains(authModuleTO.getKey()));
+
+        assertNotNull(service.getTicketGrantingTicketExpirationPolicy());
     }
 }

@@ -62,6 +62,9 @@ public class JPAPolicyUtils implements PolicyUtils {
             case ACCESS:
                 return AccessPolicy.class;
 
+            case TICKET_EXPIRATION:
+                return TicketExpirationPolicy.class;
+
             case PROPAGATION:
                 return PropagationPolicy.class;
 
@@ -69,11 +72,8 @@ public class JPAPolicyUtils implements PolicyUtils {
                 return PullPolicy.class;
 
             case PUSH:
-                return PushPolicy.class;
-
-            case TICKET_EXPIRATION:
             default:
-                return TicketExpirationPolicy.class;
+                return PushPolicy.class;
         }
     }
 }

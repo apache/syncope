@@ -370,7 +370,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
             if (!(policy instanceof AuthPolicy)
                     && !(policy instanceof AccessPolicy)
-                    && !(policy instanceof AttrReleasePolicy)) {
+                    && !(policy instanceof AttrReleasePolicy)
+                    && !(policy instanceof TicketExpirationPolicy)) {
 
                 policyTO.getUsedByResources().addAll(
                         resourceDAO.findByPolicy(policy).stream().
