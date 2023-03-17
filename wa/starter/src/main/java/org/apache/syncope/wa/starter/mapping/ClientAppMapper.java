@@ -24,6 +24,10 @@ import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
+import org.apereo.cas.services.RegisteredServiceProxyGrantingTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @FunctionalInterface
@@ -35,5 +39,9 @@ public interface ClientAppMapper {
             RegisteredServiceAuthenticationPolicy authPolicy,
             RegisteredServiceMultifactorPolicy mfaPolicy,
             RegisteredServiceAccessStrategy accessStrategy,
-            RegisteredServiceAttributeReleasePolicy attributeReleasePolicy);
+            RegisteredServiceAttributeReleasePolicy attributeReleasePolicy,
+            RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy,
+            RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy,
+            RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy,
+            RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy);
 }

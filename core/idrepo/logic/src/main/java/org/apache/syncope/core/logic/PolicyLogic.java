@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -68,10 +69,8 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_UPDATE + "')")
     public PolicyTO update(final PolicyType type, final PolicyTO policyTO) {
-        Policy policy = policyDAO.find(policyTO.getKey());
-        if (policy == null) {
-            throw new NotFoundException("Policy " + policyTO.getKey() + " not found");
-        }
+        Policy policy = Optional.ofNullable(policyDAO.<Policy>find(policyTO.getKey())).
+                orElseThrow(() -> new NotFoundException("Policy " + policyTO.getKey() + " not found"));
 
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
         if (policyUtils.getType() != type) {
@@ -95,10 +94,8 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_READ + "')")
     @Transactional(readOnly = true)
     public <T extends PolicyTO> T read(final PolicyType type, final String key) {
-        Policy policy = policyDAO.find(key);
-        if (policy == null) {
-            throw new NotFoundException("Policy " + key + " not found");
-        }
+        Policy policy = Optional.ofNullable(policyDAO.<Policy>find(key)).
+                orElseThrow(() -> new NotFoundException("Policy " + key + " not found"));
 
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
         if (type != null && policyUtils.getType() != type) {
@@ -112,10 +109,8 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_DELETE + "')")
     public <T extends PolicyTO> T delete(final PolicyType type, final String key) {
-        Policy policy = policyDAO.find(key);
-        if (policy == null) {
-            throw new NotFoundException("Policy " + key + " not found");
-        }
+        Policy policy = Optional.ofNullable(policyDAO.<Policy>find(key)).
+                orElseThrow(() -> new NotFoundException("Policy " + key + " not found"));
 
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
         if (type != null && policyUtils.getType() != type) {

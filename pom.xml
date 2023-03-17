@@ -1380,7 +1380,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.10.1</version>
+          <version>3.11.0</version>
           <configuration>
             <release>${targetJdk}</release>
             <useIncrementalCompilation>false</useIncrementalCompilation>
@@ -1674,7 +1674,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.9.0</version>
+              <version>10.9.1</version>
             </dependency>
           </dependencies>
           <configuration>

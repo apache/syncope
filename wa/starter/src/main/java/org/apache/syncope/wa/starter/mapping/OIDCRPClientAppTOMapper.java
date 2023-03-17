@@ -44,6 +44,10 @@ import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
+import org.apereo.cas.services.RegisteredServiceProxyGrantingTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -59,7 +63,11 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             final RegisteredServiceAuthenticationPolicy authPolicy,
             final RegisteredServiceMultifactorPolicy mfaPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
-            final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
+            final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy,
+            final RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy,
+            final RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy,
+            final RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy,
+            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy) {
 
         OIDCRPClientAppTO rp = OIDCRPClientAppTO.class.cast(clientApp.getClientAppTO());
         OidcRegisteredService service = new OidcRegisteredService();
@@ -151,7 +159,8 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                     CUSTOM_SCOPE, customClaims.stream().collect(Collectors.toList())));
         }
 
-        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, chain);
+        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, chain,
+                tgtExpirationPolicy, stExpirationPolicy, tgtProxyExpirationPolicy, stProxyExpirationPolicy);
 
         return service;
     }

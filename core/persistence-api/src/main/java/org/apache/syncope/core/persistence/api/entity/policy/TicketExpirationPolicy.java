@@ -16,45 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.core.persistence.api.entity.policy;
 
-public enum PolicyType {
+import org.apache.syncope.common.lib.policy.TicketExpirationPolicyConf;
 
-    /**
-     * How username values should look like.
-     */
-    ACCOUNT,
-    /**
-     * How password values should look like.
-     */
-    PASSWORD,
-    /**
-     * How authentication policies should look like.
-     */
-    AUTH,
-    /**
-     * How attribute release policies should look like.
-     */
-    ATTR_RELEASE,
-    /**
-     * How access policies should be defined.
-     */
-    ACCESS,
-    /**
-     * Controls expiration of access tickets.
-     */
-    TICKET_EXPIRATION,
-    /**
-     * For handling propagation behavior.
-     */
-    PROPAGATION,
-    /**
-     * For handling conflicts resolution during pull.
-     */
-    PULL,
-    /**
-     * For handling conflicts resolution during push.
-     */
-    PUSH;
+public interface TicketExpirationPolicy extends Policy {
 
+    TicketExpirationPolicyConf getConf();
+
+    void setConf(TicketExpirationPolicyConf conf);
 }

@@ -470,3 +470,12 @@ https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/jav
 endif::[]
 interface.
 ====
+
+[[policies-ticket-expiration]]
+==== Ticket Expiration
+
+Ticket Expiration policies control the duration of various types of WA sessions.
+
+[NOTE]
+Ticket Expiration Policy instances are dynamically translated into
+https://apereo.github.io/cas/6.6.x/ticketing/Configuring-Ticket-Expiration-Policy.html[their CAS equivalent^].

@@ -42,10 +42,12 @@ import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
+import org.apache.syncope.common.lib.policy.DefaultTicketExpirationPolicyConf;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
+import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.BackOffStrategy;
@@ -213,6 +215,15 @@ public class PolicyITCase extends AbstractITCase {
         AccessPolicyTO accessPolicyTO = createPolicy(PolicyType.ACCESS, buildAccessPolicyTO());
         assertNotNull(accessPolicyTO);
         assertEquals("Test Access policy", accessPolicyTO.getName());
+
+        AttrReleasePolicyTO attrReleasePolicyTO = createPolicy(PolicyType.ATTR_RELEASE, buildAttrReleasePolicyTO());
+        assertNotNull(attrReleasePolicyTO);
+        assertEquals("Test Attribute Release policy", attrReleasePolicyTO.getName());
+
+        TicketExpirationPolicyTO ticketExpirationPolicyTO =
+                createPolicy(PolicyType.TICKET_EXPIRATION, buildTicketExpirationPolicyTO());
+        assertNotNull(ticketExpirationPolicyTO);
+        assertEquals("Test Ticket Expiration policy", ticketExpirationPolicyTO.getName());
     }
 
     @Test
@@ -309,6 +320,24 @@ public class PolicyITCase extends AbstractITCase {
     }
 
     @Test
+    public void updateTicketExpirationPolicy() {
+        TicketExpirationPolicyTO newPolicyTO =
+                createPolicy(PolicyType.TICKET_EXPIRATION, buildTicketExpirationPolicyTO());
+        assertNotNull(newPolicyTO);
+
+        DefaultTicketExpirationPolicyConf policyConf = (DefaultTicketExpirationPolicyConf) newPolicyTO.getConf();
+        policyConf.getStConf().setNumberOfUses(2);
+
+        // update new policy
+        POLICY_SERVICE.update(PolicyType.TICKET_EXPIRATION, newPolicyTO);
+        newPolicyTO = POLICY_SERVICE.read(PolicyType.TICKET_EXPIRATION, newPolicyTO.getKey());
+        assertNotNull(newPolicyTO);
+
+        policyConf = (DefaultTicketExpirationPolicyConf) newPolicyTO.getConf();
+        assertEquals(2, policyConf.getStConf().getNumberOfUses());
+    }
+
+    @Test
     public void delete() throws IOException {
         PullPolicyTO policy = buildPullPolicyTO();
 
@@ -345,6 +374,31 @@ public class PolicyITCase extends AbstractITCase {
 
         try {
             POLICY_SERVICE.read(PolicyType.ACCESS, accessPolicyTO.getKey());
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertNotNull(e);
+        }
+
+        AttrReleasePolicyTO attrReleasePolicyTO = createPolicy(PolicyType.ATTR_RELEASE, buildAttrReleasePolicyTO());
+        assertNotNull(attrReleasePolicyTO);
+
+        POLICY_SERVICE.delete(PolicyType.ATTR_RELEASE, attrReleasePolicyTO.getKey());
+
+        try {
+            POLICY_SERVICE.read(PolicyType.ATTR_RELEASE, attrReleasePolicyTO.getKey());
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertNotNull(e);
+        }
+
+        TicketExpirationPolicyTO ticketExpirationPolicyTO =
+                createPolicy(PolicyType.TICKET_EXPIRATION, buildTicketExpirationPolicyTO());
+        assertNotNull(ticketExpirationPolicyTO);
+
+        POLICY_SERVICE.delete(PolicyType.TICKET_EXPIRATION, ticketExpirationPolicyTO.getKey());
+
+        try {
+            POLICY_SERVICE.read(PolicyType.TICKET_EXPIRATION, ticketExpirationPolicyTO.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertNotNull(e);

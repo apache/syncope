@@ -42,7 +42,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void createAccountPolicy(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
         TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
@@ -99,7 +99,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void createPasswordPolicy(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
         TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
@@ -194,7 +194,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void deleteAccountPolicy(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name);
@@ -219,7 +219,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void deletePasswordPolicy(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name);
@@ -270,6 +270,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
     @Test
     public void read() {
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
         assertNotNull(findComponentByProp("name", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "an account policy"));
     }
@@ -511,7 +512,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:4:"
                 + "outer:form:content:container:content:wizard:form");
         formTester.submit("buttons:finish");
-        
+
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 

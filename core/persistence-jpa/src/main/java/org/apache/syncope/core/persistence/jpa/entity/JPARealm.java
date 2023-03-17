@@ -47,11 +47,13 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAttrReleasePolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAuthPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPATicketExpirationPolicy;
 import org.apache.syncope.core.persistence.jpa.validation.entity.RealmCheck;
 
 @Entity
@@ -85,6 +87,9 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAAttrReleasePolicy attrReleasePolicy;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPATicketExpirationPolicy ticketExpirationPolicy;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = TABLE + "Action",
@@ -219,6 +224,17 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     @Override
     public AttrReleasePolicy getAttrReleasePolicy() {
         return this.attrReleasePolicy;
+    }
+
+    @Override
+    public TicketExpirationPolicy getTicketExpirationPolicy() {
+        return this.ticketExpirationPolicy;
+    }
+
+    @Override
+    public void setTicketExpirationPolicy(final TicketExpirationPolicy policy) {
+        checkType(policy, JPATicketExpirationPolicy.class);
+        this.ticketExpirationPolicy = (JPATicketExpirationPolicy) policy;
     }
 
     @Override

@@ -73,7 +73,9 @@ import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultTicketExpirationPolicyConf;
 import org.apache.syncope.common.lib.policy.PolicyTO;
+import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
@@ -956,6 +958,23 @@ public abstract class AbstractITCase {
         DefaultAccessPolicyConf conf = new DefaultAccessPolicyConf();
         conf.setEnabled(true);
         conf.getRequiredAttrs().put("cn", "admin,Admin,TheAdmin");
+        policy.setConf(conf);
+
+        return policy;
+    }
+
+    protected static TicketExpirationPolicyTO buildTicketExpirationPolicyTO() {
+        TicketExpirationPolicyTO policy = new TicketExpirationPolicyTO();
+        policy.setName("Test Ticket Expiration policy");
+
+        DefaultTicketExpirationPolicyConf conf = new DefaultTicketExpirationPolicyConf();
+        DefaultTicketExpirationPolicyConf.TGTConf tgtConf = new DefaultTicketExpirationPolicyConf.TGTConf();
+        tgtConf.setMaxTimeToLiveInSeconds(110);
+        conf.setTgtConf(tgtConf);
+        DefaultTicketExpirationPolicyConf.STConf stConf = new DefaultTicketExpirationPolicyConf.STConf();
+        stConf.setMaxTimeToLiveInSeconds(0);
+        stConf.setNumberOfUses(1);
+        conf.setStConf(stConf);
         policy.setConf(conf);
 
         return policy;

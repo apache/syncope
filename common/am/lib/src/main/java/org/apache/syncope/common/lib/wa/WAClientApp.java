@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 
@@ -42,6 +43,8 @@ public class WAClientApp implements BaseBean {
     private AuthPolicyTO authPolicy;
 
     private AttrReleasePolicyTO attrReleasePolicy;
+
+    private TicketExpirationPolicyTO ticketExpirationPolicy;
 
     public ClientAppTO getClientAppTO() {
         return clientAppTO;
@@ -79,5 +82,13 @@ public class WAClientApp implements BaseBean {
 
     public void setAttrReleasePolicy(final AttrReleasePolicyTO attrReleasePolicy) {
         this.attrReleasePolicy = attrReleasePolicy;
+    }
+
+    public TicketExpirationPolicyTO getTicketExpirationPolicy() {
+        return ticketExpirationPolicy;
+    }
+
+    public void setTicketExpirationPolicy(final TicketExpirationPolicyTO ticketExpirationPolicy) {
+        this.ticketExpirationPolicy = ticketExpirationPolicy;
     }
 }

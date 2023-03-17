@@ -31,6 +31,10 @@ import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceDelegatedAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
+import org.apereo.cas.services.RegisteredServiceProxyGrantingTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -52,6 +56,8 @@ public class RegisteredServiceMapper {
 
     protected final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers;
 
+    protected final Map<String, TicketExpirationMapper> ticketExpirationPolicyConfMappers;
+
     protected final Map<String, ClientAppMapper> clientAppTOMappers;
 
     public RegisteredServiceMapper(
@@ -61,6 +67,7 @@ public class RegisteredServiceMapper {
             final Map<String, AuthMapper> authPolicyConfMappers,
             final Map<String, AccessMapper> accessPolicyConfMappers,
             final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers,
+            final Map<String, TicketExpirationMapper> ticketExpirationPolicyConfMappers,
             final Map<String, ClientAppMapper> clientAppTOMappers) {
 
         this.ctx = ctx;
@@ -69,6 +76,7 @@ public class RegisteredServiceMapper {
         this.authPolicyConfMappers = authPolicyConfMappers;
         this.accessPolicyConfMappers = accessPolicyConfMappers;
         this.attrReleasePolicyConfMappers = attrReleasePolicyConfMappers;
+        this.ticketExpirationPolicyConfMappers = ticketExpirationPolicyConfMappers;
         this.clientAppTOMappers = clientAppTOMappers;
     }
 
@@ -128,6 +136,31 @@ public class RegisteredServiceMapper {
                         map(mapper -> mapper.build(attrReleasePolicyTO)).
                         orElse(null);
 
-        return clientAppMapper.map(ctx, clientApp, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy);
+        RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy = null;
+        RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy = null;
+        RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy = null;
+        RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy = null;
+        if (clientApp.getTicketExpirationPolicy() != null) {
+            TicketExpirationMapper ticketExpirationMapper = ticketExpirationPolicyConfMappers.get(
+                    clientApp.getTicketExpirationPolicy().getConf().getClass().getName());
+            if (ticketExpirationMapper != null) {
+                tgtExpirationPolicy = ticketExpirationMapper.buildTGT(clientApp.getTicketExpirationPolicy());
+                stExpirationPolicy = ticketExpirationMapper.buildST(clientApp.getTicketExpirationPolicy());
+                tgtProxyExpirationPolicy = ticketExpirationMapper.buildProxyTGT(clientApp.getTicketExpirationPolicy());
+                stProxyExpirationPolicy = ticketExpirationMapper.buildProxyST(clientApp.getTicketExpirationPolicy());
+            }
+        }
+
+        return clientAppMapper.map(
+                ctx,
+                clientApp,
+                authPolicy,
+                mfaPolicy,
+                accessStrategy,
+                attributeReleasePolicy,
+                tgtExpirationPolicy,
+                stExpirationPolicy,
+                tgtProxyExpirationPolicy,
+                stProxyExpirationPolicy);
     }
 }

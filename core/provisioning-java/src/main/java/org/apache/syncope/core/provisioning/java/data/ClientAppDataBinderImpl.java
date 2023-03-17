@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 
 public class ClientAppDataBinderImpl implements ClientAppDataBinder {
@@ -62,13 +63,15 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     public <T extends ClientApp> T create(final ClientAppTO clientAppTO) {
         if (clientAppTO instanceof SAML2SPClientAppTO) {
             return (T) doCreate((SAML2SPClientAppTO) clientAppTO);
-        } else if (clientAppTO instanceof OIDCRPClientAppTO) {
-            return (T) doCreate((OIDCRPClientAppTO) clientAppTO);
-        } else if (clientAppTO instanceof CASSPClientAppTO) {
-            return (T) doCreate((CASSPClientAppTO) clientAppTO);
-        } else {
-            throw new IllegalArgumentException("Unsupported client app: " + clientAppTO.getClass().getName());
         }
+        if (clientAppTO instanceof OIDCRPClientAppTO) {
+            return (T) doCreate((OIDCRPClientAppTO) clientAppTO);
+        }
+        if (clientAppTO instanceof CASSPClientAppTO) {
+            return (T) doCreate((CASSPClientAppTO) clientAppTO);
+        }
+
+        throw new IllegalArgumentException("Unsupported client app: " + clientAppTO.getClass().getName());
     }
 
     @Override
@@ -162,12 +165,14 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setPrivacyUrl(clientApp.getPrivacyUrl());
         clientAppTO.setUsernameAttributeProviderConf(clientApp.getUsernameAttributeProviderConf());
 
-        clientAppTO.setAuthPolicy(
-                Optional.ofNullable(clientApp.getAuthPolicy()).map(AuthPolicy::getKey).orElse(null));
-        clientAppTO.setAccessPolicy(
-                Optional.ofNullable(clientApp.getAccessPolicy()).map(AccessPolicy::getKey).orElse(null));
-        clientAppTO.setAttrReleasePolicy(
-                Optional.ofNullable(clientApp.getAttrReleasePolicy()).map(AttrReleasePolicy::getKey).orElse(null));
+        clientAppTO.setAuthPolicy(Optional.ofNullable(clientApp.getAuthPolicy()).
+                map(AuthPolicy::getKey).orElse(null));
+        clientAppTO.setAccessPolicy(Optional.ofNullable(clientApp.getAccessPolicy()).
+                map(AccessPolicy::getKey).orElse(null));
+        clientAppTO.setAttrReleasePolicy(Optional.ofNullable(clientApp.getAttrReleasePolicy()).
+                map(AttrReleasePolicy::getKey).orElse(null));
+        clientAppTO.setTicketExpirationPolicy(Optional.ofNullable(clientApp.getTicketExpirationPolicy()).
+                map(TicketExpirationPolicy::getKey).orElse(null));
 
         clientAppTO.getProperties().addAll(clientApp.getProperties());
     }
@@ -318,6 +323,20 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
                 sce.getElements().add("Expected " + AttrReleasePolicy.class.getSimpleName()
+                        + ", found " + policy.getClass().getSimpleName());
+                throw sce;
+            }
+        }
+
+        if (clientAppTO.getTicketExpirationPolicy() == null) {
+            clientApp.setTicketExpirationPolicy(null);
+        } else {
+            Policy policy = policyDAO.find(clientAppTO.getTicketExpirationPolicy());
+            if (policy instanceof TicketExpirationPolicy) {
+                clientApp.setTicketExpirationPolicy((TicketExpirationPolicy) policy);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+                sce.getElements().add("Expected " + TicketExpirationPolicy.class.getSimpleName()
                         + ", found " + policy.getClass().getSimpleName());
                 throw sce;
             }

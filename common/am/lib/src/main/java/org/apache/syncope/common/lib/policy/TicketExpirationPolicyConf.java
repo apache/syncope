@@ -16,45 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.common.lib.policy;
 
-public enum PolicyType {
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.apache.syncope.common.lib.BaseBean;
 
-    /**
-     * How username values should look like.
-     */
-    ACCOUNT,
-    /**
-     * How password values should look like.
-     */
-    PASSWORD,
-    /**
-     * How authentication policies should look like.
-     */
-    AUTH,
-    /**
-     * How attribute release policies should look like.
-     */
-    ATTR_RELEASE,
-    /**
-     * How access policies should be defined.
-     */
-    ACCESS,
-    /**
-     * Controls expiration of access tickets.
-     */
-    TICKET_EXPIRATION,
-    /**
-     * For handling propagation behavior.
-     */
-    PROPAGATION,
-    /**
-     * For handling conflicts resolution during pull.
-     */
-    PULL,
-    /**
-     * For handling conflicts resolution during push.
-     */
-    PUSH;
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
+public interface TicketExpirationPolicyConf extends BaseBean {
 }

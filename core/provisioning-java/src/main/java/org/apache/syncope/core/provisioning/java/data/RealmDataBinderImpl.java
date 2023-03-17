@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Optional;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -39,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
@@ -163,6 +165,17 @@ public class RealmDataBinderImpl implements RealmDataBinder {
                 throw sce;
             }
         }
+        if (realmTO.getTicketExpirationPolicy() != null) {
+            Policy policy = policyDAO.find(realmTO.getTicketExpirationPolicy());
+            if (policy instanceof TicketExpirationPolicy) {
+                realm.setTicketExpirationPolicy((TicketExpirationPolicy) policy);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+                sce.getElements().add("Expected " + TicketExpirationPolicy.class.getSimpleName()
+                        + ", found " + policy.getClass().getSimpleName());
+                throw sce;
+            }
+        }
 
         realmTO.getActions().forEach(logicActionsKey -> {
             Implementation logicAction = implementationDAO.find(logicActionsKey);
@@ -262,6 +275,20 @@ public class RealmDataBinderImpl implements RealmDataBinder {
             }
         }
 
+        if (realmTO.getTicketExpirationPolicy() == null) {
+            realm.setTicketExpirationPolicy(null);
+        } else {
+            Policy policy = policyDAO.find(realmTO.getTicketExpirationPolicy());
+            if (policy instanceof TicketExpirationPolicy) {
+                realm.setTicketExpirationPolicy((TicketExpirationPolicy) policy);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+                sce.getElements().add("Expected " + TicketExpirationPolicy.class.getSimpleName()
+                        + ", found " + policy.getClass().getSimpleName());
+                throw sce;
+            }
+        }
+
         realmTO.getActions().forEach(logicActionsKey -> {
             Implementation logicActions = implementationDAO.find(logicActionsKey);
             if (logicActions == null) {
@@ -304,16 +331,22 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
         realmTO.setKey(realm.getKey());
         realmTO.setName(realm.getName());
-        realmTO.setParent(realm.getParent() == null ? null : realm.getParent().getKey());
+        Optional.ofNullable(realm.getParent()).ifPresent(parent -> realmTO.setParent(parent.getKey()));
         realmTO.setFullPath(realm.getFullPath());
 
         if (admin) {
-            realmTO.setAccountPolicy(realm.getAccountPolicy() == null ? null : realm.getAccountPolicy().getKey());
-            realmTO.setPasswordPolicy(realm.getPasswordPolicy() == null ? null : realm.getPasswordPolicy().getKey());
-            realmTO.setAuthPolicy(realm.getAuthPolicy() == null ? null : realm.getAuthPolicy().getKey());
-            realmTO.setAccessPolicy(realm.getAccessPolicy() == null ? null : realm.getAccessPolicy().getKey());
-            realmTO.setAttrReleasePolicy(
-                    realm.getAttrReleasePolicy() == null ? null : realm.getAttrReleasePolicy().getKey());
+            Optional.ofNullable(realm.getAccountPolicy()).
+                    ifPresent(policy -> realmTO.setAccountPolicy(policy.getKey()));
+            Optional.ofNullable(realm.getPasswordPolicy()).
+                    ifPresent(policy -> realmTO.setPasswordPolicy(policy.getKey()));
+            Optional.ofNullable(realm.getAuthPolicy()).
+                    ifPresent(policy -> realmTO.setAuthPolicy(policy.getKey()));
+            Optional.ofNullable(realm.getAccessPolicy()).
+                    ifPresent(policy -> realmTO.setAccessPolicy(policy.getKey()));
+            Optional.ofNullable(realm.getAttrReleasePolicy()).
+                    ifPresent(policy -> realmTO.setAttrReleasePolicy(policy.getKey()));
+            Optional.ofNullable(realm.getTicketExpirationPolicy()).
+                    ifPresent(policy -> realmTO.setTicketExpirationPolicy(policy.getKey()));
 
             realm.getActions().forEach(action -> realmTO.getActions().add(action.getKey()));
 

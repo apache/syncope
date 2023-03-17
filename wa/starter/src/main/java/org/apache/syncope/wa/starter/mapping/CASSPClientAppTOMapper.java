@@ -26,6 +26,10 @@ import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
+import org.apereo.cas.services.RegisteredServiceProxyGrantingTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @ClientAppMapFor(clientAppClass = CASSPClientAppTO.class)
@@ -38,7 +42,11 @@ public class CASSPClientAppTOMapper extends AbstractClientAppMapper {
             final RegisteredServiceAuthenticationPolicy authPolicy,
             final RegisteredServiceMultifactorPolicy mfaPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
-            final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
+            final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy,
+            final RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy,
+            final RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy,
+            final RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy,
+            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy) {
 
         CASSPClientAppTO cas = CASSPClientAppTO.class.cast(clientApp.getClientAppTO());
 
@@ -46,7 +54,8 @@ public class CASSPClientAppTOMapper extends AbstractClientAppMapper {
         service.setServiceId(cas.getServiceId());
         setCommon(service, cas);
 
-        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy);
+        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy,
+                tgtExpirationPolicy, stExpirationPolicy, tgtProxyExpirationPolicy, stProxyExpirationPolicy);
 
         return service;
     }

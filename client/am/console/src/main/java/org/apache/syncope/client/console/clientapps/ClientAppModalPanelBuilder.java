@@ -112,6 +112,17 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         }
     };
 
+    private final IModel<Map<String, String>> ticketExpirationPolicies = new LoadableDetachableModel<>() {
+
+        private static final long serialVersionUID = -2012833443695917883L;
+
+        @Override
+        protected Map<String, String> load() {
+            return PolicyRestClient.list(PolicyType.TICKET_EXPIRATION).stream().
+                    collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
+        }
+    };
+
     private final BaseModal<T> modal;
 
     private final ClientAppType type;
@@ -220,9 +231,15 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     "field", "authPolicy", new PropertyModel<>(clientAppTO, "authPolicy"), false);
             authPolicy.setChoiceRenderer(new PolicyRenderer(authPolicies.getObject()));
             authPolicy.setChoices(new ArrayList<>(authPolicies.getObject().keySet()));
-            authPolicy.setRequired(true);
-            ((AbstractSingleSelectChoice<?>) authPolicy.getField()).setNullValid(true);
             fields.add(authPolicy);
+
+            AjaxDropDownChoicePanel<String> ticketExpirationPolicy = new AjaxDropDownChoicePanel<>(
+                    "field", "ticketExpirationPolicy",
+                    new PropertyModel<>(clientAppTO, "ticketExpirationPolicy"), false);
+            ticketExpirationPolicy.setChoiceRenderer(new PolicyRenderer(ticketExpirationPolicies.getObject()));
+            ticketExpirationPolicy.setChoices(new ArrayList<>(ticketExpirationPolicies.getObject().keySet()));
+            ((AbstractSingleSelectChoice<?>) ticketExpirationPolicy.getField()).setNullValid(true);
+            fields.add(ticketExpirationPolicy);
 
             switch (type) {
                 case CASSP:
