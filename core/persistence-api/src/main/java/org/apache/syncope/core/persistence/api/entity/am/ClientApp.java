@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 
 public interface ClientApp extends Entity {
 
@@ -72,6 +73,10 @@ public interface ClientApp extends Entity {
     AttrReleasePolicy getAttrReleasePolicy();
 
     void setAttrReleasePolicy(AttrReleasePolicy policy);
+
+    TicketExpirationPolicy getTicketExpirationPolicy();
+
+    void setTicketExpirationPolicy(TicketExpirationPolicy policy);
 
     Realm getRealm();
 

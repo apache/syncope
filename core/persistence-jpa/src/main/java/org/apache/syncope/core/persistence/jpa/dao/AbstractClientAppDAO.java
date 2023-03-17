@@ -27,6 +27,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 
 public abstract class AbstractClientAppDAO<C extends ClientApp> extends AbstractDAO<C> implements ClientAppDAO<C> {
 
@@ -44,6 +45,8 @@ public abstract class AbstractClientAppDAO<C extends ClientApp> extends Abstract
             query.append("accessPolicy");
         } else if (AttrReleasePolicy.class.isAssignableFrom(policyClass)) {
             query.append("attrReleasePolicy");
+        } else if (TicketExpirationPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("ticketExpirationPolicy");
         }
 
         return query;

@@ -70,6 +70,8 @@ public abstract class ClientAppTO implements NamedEntityTO {
 
     private String attrReleasePolicy;
 
+    private String ticketExpirationPolicy;
+
     private final List<Attr> properties = new ArrayList<>();
 
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -77,30 +79,6 @@ public abstract class ClientAppTO implements NamedEntityTO {
 
     public void setDiscriminator(final String discriminator) {
         // do nothing
-    }
-
-    public String getAttrReleasePolicy() {
-        return attrReleasePolicy;
-    }
-
-    public void setAttrReleasePolicy(final String attrReleasePolicy) {
-        this.attrReleasePolicy = attrReleasePolicy;
-    }
-
-    public String getAccessPolicy() {
-        return accessPolicy;
-    }
-
-    public void setAccessPolicy(final String accessPolicy) {
-        this.accessPolicy = accessPolicy;
-    }
-
-    public String getAuthPolicy() {
-        return authPolicy;
-    }
-
-    public void setAuthPolicy(final String authPolicy) {
-        this.authPolicy = authPolicy;
     }
 
     @Override
@@ -188,6 +166,38 @@ public abstract class ClientAppTO implements NamedEntityTO {
         this.usernameAttributeProviderConf = usernameAttributeProviderConf;
     }
 
+    public String getAttrReleasePolicy() {
+        return attrReleasePolicy;
+    }
+
+    public void setAttrReleasePolicy(final String attrReleasePolicy) {
+        this.attrReleasePolicy = attrReleasePolicy;
+    }
+
+    public String getAccessPolicy() {
+        return accessPolicy;
+    }
+
+    public void setAccessPolicy(final String accessPolicy) {
+        this.accessPolicy = accessPolicy;
+    }
+
+    public String getAuthPolicy() {
+        return authPolicy;
+    }
+
+    public void setAuthPolicy(final String authPolicy) {
+        this.authPolicy = authPolicy;
+    }
+
+    public String getTicketExpirationPolicy() {
+        return ticketExpirationPolicy;
+    }
+
+    public void setTicketExpirationPolicy(final String ticketExpirationPolicy) {
+        this.ticketExpirationPolicy = ticketExpirationPolicy;
+    }
+
     @JacksonXmlElementWrapper(localName = "properties")
     @JacksonXmlProperty(localName = "property")
     public List<Attr> getProperties() {
@@ -211,6 +221,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(authPolicy)
                 .append(accessPolicy)
                 .append(attrReleasePolicy)
+                .append(ticketExpirationPolicy)
                 .append(properties)
                 .toHashCode();
     }
@@ -242,6 +253,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(this.authPolicy, rhs.authPolicy)
                 .append(this.accessPolicy, rhs.accessPolicy)
                 .append(this.attrReleasePolicy, rhs.attrReleasePolicy)
+                .append(this.ticketExpirationPolicy, rhs.ticketExpirationPolicy)
                 .append(this.properties, rhs.properties)
                 .isEquals();
     }

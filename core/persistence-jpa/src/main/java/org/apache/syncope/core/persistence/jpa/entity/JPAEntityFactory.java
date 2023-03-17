@@ -83,6 +83,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRule
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
@@ -136,6 +137,7 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationR
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPATicketExpirationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplatePullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
@@ -311,6 +313,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAAccessPolicy();
         } else if (reference.equals(AttrReleasePolicy.class)) {
             result = (E) new JPAAttrReleasePolicy();
+        } else if (reference.equals(TicketExpirationPolicy.class)) {
+            result = (E) new JPATicketExpirationPolicy();
         } else if (reference.equals(OIDCRPClientApp.class)) {
             result = (E) new JPAOIDCRPClientApp();
         } else if (reference.equals(CASSPClientApp.class)) {

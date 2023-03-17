@@ -24,12 +24,17 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apereo.cas.services.BaseWebBasedRegisteredService;
+import org.apereo.cas.services.CasRegisteredService;
 import org.apereo.cas.services.DefaultRegisteredServiceProperty;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.apereo.cas.services.RegisteredServiceProperty;
+import org.apereo.cas.services.RegisteredServiceProxyGrantingTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
+import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 
 abstract class AbstractClientAppMapper implements ClientAppMapper {
 
@@ -59,19 +64,33 @@ abstract class AbstractClientAppMapper implements ClientAppMapper {
             final RegisteredServiceAuthenticationPolicy authPolicy,
             final RegisteredServiceMultifactorPolicy mfaPolicy,
             final RegisteredServiceAccessStrategy accessStrategy,
-            final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy) {
+            final RegisteredServiceAttributeReleasePolicy attributeReleasePolicy,
+            final RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy,
+            final RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy,
+            final RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy,
+            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy) {
 
-        if (authPolicy != null) {
-            service.setAuthenticationPolicy(authPolicy);
-        }
-        if (mfaPolicy != null) {
-            service.setMultifactorAuthenticationPolicy(mfaPolicy);
-        }
-        if (accessStrategy != null) {
-            service.setAccessStrategy(accessStrategy);
-        }
-        if (attributeReleasePolicy != null) {
-            service.setAttributeReleasePolicy(attributeReleasePolicy);
+        Optional.ofNullable(authPolicy).ifPresent(service::setAuthenticationPolicy);
+
+        Optional.ofNullable(mfaPolicy).ifPresent(service::setMultifactorAuthenticationPolicy);
+
+        Optional.ofNullable(accessStrategy).ifPresent(service::setAccessStrategy);
+
+        Optional.ofNullable(attributeReleasePolicy).ifPresent(service::setAttributeReleasePolicy);
+
+        Optional.ofNullable(tgtExpirationPolicy).ifPresent(service::setTicketGrantingTicketExpirationPolicy);
+
+        if (service instanceof CasRegisteredService) {
+            CasRegisteredService casRegisteredService = (CasRegisteredService) service;
+
+            Optional.ofNullable(stExpirationPolicy).
+                    ifPresent(casRegisteredService::setServiceTicketExpirationPolicy);
+
+            Optional.ofNullable(tgtProxyExpirationPolicy).
+                    ifPresent(casRegisteredService::setProxyGrantingTicketExpirationPolicy);
+
+            Optional.ofNullable(stProxyExpirationPolicy).
+                    ifPresent(casRegisteredService::setProxyTicketExpirationPolicy);
         }
     }
 }

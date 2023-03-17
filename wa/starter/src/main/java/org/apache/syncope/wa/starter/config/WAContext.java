@@ -56,11 +56,14 @@ import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAccessMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAuthMapper;
+import org.apache.syncope.wa.starter.mapping.DefaultTicketExpirationMapper;
 import org.apache.syncope.wa.starter.mapping.HttpRequestAccessMapper;
 import org.apache.syncope.wa.starter.mapping.OIDCRPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
 import org.apache.syncope.wa.starter.mapping.RemoteEndpointAccessMapper;
 import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
+import org.apache.syncope.wa.starter.mapping.TicketExpirationMapFor;
+import org.apache.syncope.wa.starter.mapping.TicketExpirationMapper;
 import org.apache.syncope.wa.starter.mapping.TimeBasedAccessMapper;
 import org.apache.syncope.wa.starter.oidc.WAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
@@ -172,6 +175,12 @@ public class WAContext {
         return new DefaultAuthMapper();
     }
 
+    @ConditionalOnMissingBean
+    @Bean
+    public TicketExpirationMapper defaultTicketExpirationMapper() {
+        return new DefaultTicketExpirationMapper();
+    }
+
     @ConditionalOnMissingBean(name = "casSPClientAppTOMapper")
     @Bean
     public ClientAppMapper casSPClientAppTOMapper() {
@@ -200,26 +209,33 @@ public class WAContext {
 
         Map<String, AuthMapper> authPolicyConfMappers = new HashMap<>();
         ctx.getBeansOfType(AuthMapper.class).forEach((name, bean) -> {
-            AuthMapFor authMapFor = ctx.findAnnotationOnBean(name, AuthMapFor.class);
-            if (authMapFor != null) {
-                authPolicyConfMappers.put(authMapFor.authPolicyConfClass().getName(), bean);
+            AuthMapFor amf = ctx.findAnnotationOnBean(name, AuthMapFor.class);
+            if (amf != null) {
+                authPolicyConfMappers.put(amf.authPolicyConfClass().getName(), bean);
             }
         });
 
         Map<String, AccessMapper> accessPolicyConfMappers = new HashMap<>();
         ctx.getBeansOfType(AccessMapper.class).forEach((name, bean) -> {
-            AccessMapFor accessMapFor = ctx.findAnnotationOnBean(name, AccessMapFor.class);
-            if (accessMapFor != null) {
-                accessPolicyConfMappers.put(accessMapFor.accessPolicyConfClass().getName(), bean);
+            AccessMapFor amf = ctx.findAnnotationOnBean(name, AccessMapFor.class);
+            if (amf != null) {
+                accessPolicyConfMappers.put(amf.accessPolicyConfClass().getName(), bean);
             }
         });
 
         Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers = new HashMap<>();
         ctx.getBeansOfType(AttrReleaseMapper.class).forEach((name, bean) -> {
-            AttrReleaseMapFor attrReleaseMapFor =
-                    ctx.findAnnotationOnBean(name, AttrReleaseMapFor.class);
-            if (attrReleaseMapFor != null) {
-                attrReleasePolicyConfMappers.put(attrReleaseMapFor.attrReleasePolicyConfClass().getName(), bean);
+            AttrReleaseMapFor armpf = ctx.findAnnotationOnBean(name, AttrReleaseMapFor.class);
+            if (armpf != null) {
+                attrReleasePolicyConfMappers.put(armpf.attrReleasePolicyConfClass().getName(), bean);
+            }
+        });
+
+        Map<String, TicketExpirationMapper> ticketExpirationPolicyConfMappers = new HashMap<>();
+        ctx.getBeansOfType(TicketExpirationMapper.class).forEach((name, bean) -> {
+            TicketExpirationMapFor temf = ctx.findAnnotationOnBean(name, TicketExpirationMapFor.class);
+            if (temf != null) {
+                ticketExpirationPolicyConfMappers.put(temf.ticketExpirationPolicyConfClass().getName(), bean);
             }
         });
 
@@ -239,6 +255,7 @@ public class WAContext {
                 authPolicyConfMappers,
                 accessPolicyConfMappers,
                 attrReleasePolicyConfMappers,
+                ticketExpirationPolicyConfMappers,
                 clientAppTOMappers);
     }
 

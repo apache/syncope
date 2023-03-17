@@ -93,6 +93,14 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
                 waClientApp.setAttrReleasePolicy(
                         policyDataBinder.getPolicyTO(clientApp.getRealm().getAttrReleasePolicy()));
             }
+
+            if (clientApp.getTicketExpirationPolicy() != null) {
+                waClientApp.setTicketExpirationPolicy(
+                        policyDataBinder.getPolicyTO(clientApp.getTicketExpirationPolicy()));
+            } else if (clientApp.getRealm() != null && clientApp.getRealm().getTicketExpirationPolicy() != null) {
+                waClientApp.setTicketExpirationPolicy(
+                        policyDataBinder.getPolicyTO(clientApp.getRealm().getTicketExpirationPolicy()));
+            }
         } catch (Exception e) {
             LOG.error("While building the configuration from an application's policy ", e);
         }
