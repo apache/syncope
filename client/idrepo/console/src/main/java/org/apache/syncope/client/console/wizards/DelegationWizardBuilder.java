@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.DelegationRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -140,14 +141,14 @@ public class DelegationWizardBuilder extends BaseAjaxWizardBuilder<DelegationTO>
             add(new AjaxDateTimeFieldPanel(
                     "start",
                     "start",
-                    new PropertyModel<>(modelObject, "start"),
+                    new DateOps.WrappedDateModel(new PropertyModel<>(modelObject, "start")),
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT).
                     addRequiredLabel());
 
             add(new AjaxDateTimeFieldPanel(
                     "end",
                     "end",
-                    new PropertyModel<>(modelObject, "end"),
+                    new DateOps.WrappedDateModel(new PropertyModel<>(modelObject, "end")),
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT));
         }
     }
