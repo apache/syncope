@@ -33,11 +33,6 @@ public class IdRepoPolicyTabProvider implements PolicyTabProvider {
     private static final long serialVersionUID = 5017230231088263303L;
 
     @Override
-    public int getOrder() {
-        return 100;
-    }
-
-    @Override
     public List<ITab> buildTabList(final PageReference pageRef) {
         List<ITab> tabs = new ArrayList<>();
 

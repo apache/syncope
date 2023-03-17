@@ -47,17 +47,17 @@ public interface Realm extends Entity {
 
     void setPasswordPolicy(PasswordPolicy passwordPolicy);
 
-    void setAuthPolicy(AuthPolicy authPolicy);
-
     AuthPolicy getAuthPolicy();
 
-    void setAccessPolicy(AccessPolicy accessPolicy);
+    void setAuthPolicy(AuthPolicy authPolicy);
 
     AccessPolicy getAccessPolicy();
 
-    void setAttrReleasePolicy(AttrReleasePolicy policy);
+    void setAccessPolicy(AccessPolicy accessPolicy);
 
     AttrReleasePolicy getAttrReleasePolicy();
+
+    void setAttrReleasePolicy(AttrReleasePolicy policy);
 
     TicketExpirationPolicy getTicketExpirationPolicy();
 

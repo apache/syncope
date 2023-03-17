@@ -34,11 +34,6 @@ public class IdMPolicyTabProvider implements PolicyTabProvider {
     private static final long serialVersionUID = 2822554006571803418L;
 
     @Override
-    public int getOrder() {
-        return 300;
-    }
-
-    @Override
     public List<ITab> buildTabList(final PageReference pageRef) {
         List<ITab> tabs = new ArrayList<>();
 

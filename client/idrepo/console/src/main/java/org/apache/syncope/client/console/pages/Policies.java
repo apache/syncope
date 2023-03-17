@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -43,9 +42,9 @@ public class Policies extends BasePage {
         content.setMarkupId("policies");
 
         List<ITab> tabs = SyncopeWebApplication.get().getPolicyTabProviders().stream().
-                sorted(Comparator.comparing(PolicyTabProvider::getOrder)).
                 map(p -> p.buildTabList(getPageReference())).
                 flatMap(List::stream).
+                sorted(Comparator.comparing(tab -> tab.getTitle().getObject())).
                 collect(Collectors.toList());
         content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", tabs));
 
