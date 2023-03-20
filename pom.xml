@@ -1347,13 +1347,13 @@ under the License.
       <dependency>
         <groupId>org.passay</groupId>
         <artifactId>passay</artifactId>
-        <version>1.6.2</version>
+        <version>1.6.3</version>
       </dependency>
 
       <dependency>
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
-        <version>1.15.3</version>
+        <version>1.15.4</version>
       </dependency>
 
       <!-- TEST -->
@@ -1737,7 +1737,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.9.1</version>
+              <version>10.9.2</version>
             </dependency>
           </dependencies>
           <configuration>
