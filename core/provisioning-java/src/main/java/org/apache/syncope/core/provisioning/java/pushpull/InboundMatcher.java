@@ -140,6 +140,10 @@ public class InboundMatcher {
             final ExternalResource resource,
             final Connector connector) {
 
+        if (anyType == null) {
+            return Optional.empty();
+        }
+
         Optional<Provision> provision = resource.getProvisionByAnyType(anyType.getKey());
         if (provision.isEmpty()) {
             return Optional.empty();
@@ -151,24 +155,29 @@ public class InboundMatcher {
 
         List<ConnectorObject> found = new ArrayList<>();
 
-        Name nameAttr = new Name(nameValue);
-        connector.search(
-                new ObjectClass(provision.get().getObjectClass()),
-                provision.get().isIgnoreCaseMatch()
-                ? FilterBuilder.equalsIgnoreCase(nameAttr)
-                : FilterBuilder.equalTo(nameAttr),
-                new SearchResultsHandler() {
+        try {
+            Name nameAttr = new Name(nameValue);
+            connector.search(
+                    new ObjectClass(provision.get().getObjectClass()),
+                    provision.get().isIgnoreCaseMatch()
+                    ? FilterBuilder.equalsIgnoreCase(nameAttr)
+                    : FilterBuilder.equalTo(nameAttr),
+                    new SearchResultsHandler() {
 
-            @Override
-            public void handleResult(final SearchResult result) {
-                // nothing to do
-            }
+                @Override
+                public void handleResult(final SearchResult result) {
+                    // nothing to do
+                }
 
-            @Override
-            public boolean handle(final ConnectorObject connectorObject) {
-                return found.add(connectorObject);
-            }
-        }, MappingUtils.buildOperationOptions(mapItems));
+                @Override
+                public boolean handle(final ConnectorObject connectorObject) {
+                    return found.add(connectorObject);
+                }
+            }, MappingUtils.buildOperationOptions(mapItems));
+        } catch (Throwable t) {
+            LOG.warn("While searching for {} ...", nameValue);
+            LOG.warn("Unexpected searching error retrieved", t);
+        }
 
         Optional<PullMatch> result = Optional.empty();
 

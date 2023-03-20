@@ -186,20 +186,27 @@ public class LDAPMembershipPullActions implements PullActions {
         }
 
         getMembAttrValues(delta, profile.getConnector()).forEach(membValue -> {
-            Optional<PullMatch> match = inboundMatcher.match(
-                    anyTypeDAO.findUser(),
-                    membValue.toString(),
-                    profile.getTask().getResource(),
-                    profile.getConnector());
-            if (match.isPresent()) {
-                Set<String> memb = membershipsAfter.get(match.get().getAny().getKey());
-                if (memb == null) {
-                    memb = new HashSet<>();
-                    membershipsAfter.put(match.get().getAny().getKey(), memb);
+            try {
+                Optional<PullMatch> match = inboundMatcher.match(
+                        anyTypeDAO.findUser(),
+                        membValue.toString(),
+                        profile.getTask().getResource(),
+                        profile.getConnector());
+                if (match.isPresent()) {
+                    Set<String> memb = membershipsAfter.get(match.get().getAny().getKey());
+                    if (memb == null) {
+                        memb = new HashSet<>();
+                        membershipsAfter.put(match.get().getAny().getKey(), memb);
+                    }
+                    memb.add(entity.getKey());
+                } else {
+                    LOG.warn("Could not find matching user for {}", membValue);
                 }
-                memb.add(entity.getKey());
-            } else {
-                LOG.warn("Could not find matching user for {}", membValue);
+            } catch (Throwable t) {
+                LOG.error("---------------------------------");
+                LOG.error("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA", t);
+                LOG.error("---------------------------------");
+
             }
         });
     }
