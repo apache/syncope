@@ -175,8 +175,7 @@ public class InboundMatcher {
                 }
             }, MappingUtils.buildOperationOptions(mapItems));
         } catch (Throwable t) {
-            LOG.warn("While searching for {} ...", nameValue);
-            LOG.warn("Unexpected searching error retrieved", t);
+            LOG.warn("While searching for {} ...", nameValue, t);
         }
 
         Optional<PullMatch> result = Optional.empty();
