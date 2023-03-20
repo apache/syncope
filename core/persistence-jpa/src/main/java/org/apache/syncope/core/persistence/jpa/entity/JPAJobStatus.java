@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
 
 @Entity
@@ -30,6 +31,8 @@ public class JPAJobStatus extends AbstractProvidedKeyEntity implements JobStatus
 
     public static final String TABLE = "JobStatus";
 
+    private static final int STATUS_MAX_LENGTH = 255;
+
     private String jobStatus;
 
     @Override
@@ -39,6 +42,6 @@ public class JPAJobStatus extends AbstractProvidedKeyEntity implements JobStatus
 
     @Override
     public void setStatus(final String status) {
-        jobStatus = status;
+        jobStatus = StringUtils.abbreviate(status, STATUS_MAX_LENGTH);
     }
 }
