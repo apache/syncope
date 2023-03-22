@@ -41,14 +41,14 @@ bundle's version.
 If you want your own project to use a different version of a given connector bundle, all you need to do is to override
 the related property in your own project's root pom.xml.
 
-Hence, supposing that you would like to use `net.tirasa.connid.bundles.db.table` version `2.2.8-SNAPSHOT` rather than
-`2.2.7` shipped with Apache Syncope, add the following property to your own project's root `pom.xml`:
+Hence, supposing that you would like to use `net.tirasa.connid.bundles.db` version `3.0.0-SNAPSHOT` rather than
+the one with version shipped with Apache Syncope, add the following property to your own project's root `pom.xml`:
 
 [source,xml]
 ....
 <properties>
    ...
-   <connid.database.version>2.2.8-SNAPSHOT</connid.database.version>
+   <connid.db.version>3.0.0-SNAPSHOT</connid.db.version>
 </properties>
 ....
 

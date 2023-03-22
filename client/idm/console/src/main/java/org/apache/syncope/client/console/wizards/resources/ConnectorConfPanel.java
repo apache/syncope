@@ -45,13 +45,7 @@ public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInsta
                 ConnectorConfPanel.this.modelObject.getConf().clear();
 
                 // re-order properties
-                properties.sort((o1, o2) -> {
-                    if (o1 == null) {
-                        return -1;
-                    } else {
-                        return o1.compareTo(o2);
-                    }
-                });
+                properties.sort((o1, o2) -> o1 == null ? -1 : o1.compareTo(o2));
 
                 ConnectorConfPanel.this.modelObject.getConf().addAll(properties);
                 return properties;
