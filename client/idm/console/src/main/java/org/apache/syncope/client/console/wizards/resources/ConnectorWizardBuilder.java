@@ -99,39 +99,32 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
             connInstanceTO.setPoolConf(null);
         }
 
-        ConnInstanceTO res;
+        ConnInstanceTO connInstance;
         if (mode == AjaxWizard.Mode.CREATE) {
-            res = ConnectorRestClient.create(connInstanceTO);
+            connInstance = ConnectorRestClient.create(connInstanceTO);
         } else {
             ConnectorRestClient.update(connInstanceTO);
-            res = connInstanceTO;
+            connInstance = connInstanceTO;
         }
 
-        return res;
+        return connInstance;
     }
 
     @Override
     protected Serializable getCreateCustomPayloadEvent(final Serializable afterObject, final AjaxRequestTarget target) {
-        final ConnInstanceTO actual = ConnInstanceTO.class.cast(afterObject);
+        ConnInstanceTO connInstance = ConnInstanceTO.class.cast(afterObject);
         return new CreateEvent(
-                actual.getKey(),
-                actual.getDisplayName(),
+                connInstance.getKey(),
+                connInstance.getDisplayName(),
                 TopologyNode.Kind.CONNECTOR,
-                URI.create(actual.getLocation()).toASCIIString(),
+                URI.create(connInstance.getLocation()).toASCIIString(),
                 target);
     }
 
     protected static ConnIdBundle getBundle(final ConnInstanceTO connInstanceTO, final List<ConnIdBundle> bundles) {
-        List<ConnIdBundle> bundlesList;
-        if (bundles.isEmpty()) {
-            bundlesList = ConnectorRestClient.getAllBundles().stream().
-                    filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
-                    collect(Collectors.toList());
-        } else {
-            bundlesList = bundles;
-        }
-        return bundlesList.stream().filter(bundle
-                -> bundle.getBundleName().equals(connInstanceTO.getBundleName())
+        return bundles.stream().
+                filter(bundle -> bundle.getBundleName().equals(connInstanceTO.getBundleName())
+                && bundle.getConnectorName().equals(connInstanceTO.getConnectorName())
                 && bundle.getVersion().equals(connInstanceTO.getVersion())).
                 findFirst().orElse(null);
     }
