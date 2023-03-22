@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.client.console.wizards.resources;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
@@ -32,6 +31,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -157,10 +157,9 @@ public class ResourceDetailsPanel extends WizardStep {
                     "connector",
                     new ResourceModel("connector", "connector").getObject(),
                     new PropertyModel<>(resourceTO, "connector"), false);
-            Map<String, String> connectorsMap = new HashMap<>();
-            ConnectorRestClient.getAllConnectors().forEach(conn -> connectorsMap.put(conn.getKey(),
-                    conn.getDisplayName()));
-            connector.setChoices(new ArrayList<>(connectorsMap.keySet()));
+            Map<String, String> connectorsMap = ConnectorRestClient.getAllConnectors().stream().
+                    collect(Collectors.toMap(ConnInstanceTO::getKey, ConnInstanceTO::getDisplayName));
+            connector.setChoices(connectorsMap.keySet().stream().sorted().collect(Collectors.toList()));
             connector.setChoiceRenderer(new IChoiceRenderer<>() {
 
                 private static final long serialVersionUID = 91313845533448846L;
@@ -169,7 +168,7 @@ public class ResourceDetailsPanel extends WizardStep {
 
                 @Override
                 public String getDisplayValue(final String value) {
-                    return valueMap.get(value) == null ? value : valueMap.get(value);
+                    return Optional.ofNullable(valueMap.get(value)).orElse(null);
                 }
 
                 @Override

@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.client.console.wizards.resources;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.RealmsUtils;
-import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -41,7 +40,6 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.wizard.WizardStep;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.PropertyModel;
 
 public class ConnectorDetailsPanel extends WizardStep {
@@ -76,79 +74,40 @@ public class ConnectorDetailsPanel extends WizardStep {
         add(realm.addRequiredLabel().setOutputMarkupId(true));
 
         AjaxTextFieldPanel displayName = new AjaxTextFieldPanel(
-                "displayName", "displayName", new PropertyModel<>(connInstanceTO, "displayName"), false);
-        displayName.setOutputMarkupId(true);
-        displayName.addRequiredLabel();
-        add(displayName);
+                "displayName",
+                "displayName",
+                new PropertyModel<>(connInstanceTO, "displayName"), false);
+        add(displayName.addRequiredLabel().setOutputMarkupId(true));
 
-        final AjaxDropDownChoicePanel<String> bundleName = new AjaxDropDownChoicePanel<>(
+        AjaxTextFieldPanel location = new AjaxTextFieldPanel(
+                "location", "location", new PropertyModel<>(connInstanceTO, "location"), false);
+        add(location.addRequiredLabel().setOutputMarkupId(true).setEnabled(false));
+
+        AjaxDropDownChoicePanel<String> bundleName = new AjaxDropDownChoicePanel<>(
                 "bundleName",
                 "bundleName",
                 new PropertyModel<>(connInstanceTO, "bundleName"), false);
-
-        if (StringUtils.isNotBlank(connInstanceTO.getLocation())) {
-            AjaxTextFieldPanel location = new AjaxTextFieldPanel(
-                    "location", "location", new PropertyModel<>(connInstanceTO, "location"), false);
-            location.addRequiredLabel();
-            location.setOutputMarkupId(true);
-            location.setEnabled(false);
-            add(location);
-        } else {
-            final AjaxDropDownChoicePanel<String> location = new AjaxDropDownChoicePanel<>(
-                    "location", "location", new PropertyModel<>(connInstanceTO, "location"), false);
-            location.setChoices(new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getConnIdLocations()));
-            location.addRequiredLabel();
-            location.setOutputMarkupId(true);
-            location.getField().setOutputMarkupId(true);
-            add(location);
-
-            location.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-                private static final long serialVersionUID = -5609231641453245929L;
-
-                @Override
-                protected void onUpdate(final AjaxRequestTarget target) {
-                    ((DropDownChoice<String>) location.getField()).setNullValid(false);
-                    bundleName.setEnabled(true);
-
-                    List<ConnIdBundle> bundles = ConnectorRestClient.getAllBundles().stream().
-                            filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
-                            collect(Collectors.toList());
-
-                    List<String> listBundles = getBundles(connInstanceTO, bundles);
-                    if (listBundles.size() == 1) {
-                        connInstanceTO.setBundleName(listBundles.get(0));
-                        bundleName.getField().setModelObject(listBundles.get(0));
-                    }
-                    bundleName.setChoices(listBundles);
-
-                    target.add(bundleName);
-                }
-            });
-        }
-
-        ((DropDownChoice<String>) bundleName.getField()).setNullValid(true);
-
-        List<String> bundleNames = new ArrayList<>();
-        bundles.stream().
-                filter(bundle -> (!bundleNames.contains(bundle.getBundleName()))).
-                forEachOrdered(bundle -> bundleNames.add(bundle.getBundleName()));
-
-        bundleName.setChoices(bundleNames);
-        bundleName.addRequiredLabel();
-        bundleName.setOutputMarkupId(true);
         bundleName.setEnabled(connInstanceTO.getKey() == null);
+        bundleName.setChoices(bundles.stream().map(ConnIdBundle::getBundleName).
+                distinct().sorted().collect(Collectors.toList()));
         bundleName.getField().setOutputMarkupId(true);
-        add(bundleName);
+        add(bundleName.addRequiredLabel().setOutputMarkupId(true));
 
-        final AjaxDropDownChoicePanel<String> version = new AjaxDropDownChoicePanel<>(
+        AjaxDropDownChoicePanel<String> connectorName = new AjaxDropDownChoicePanel<>(
+                "connectorName",
+                "connectorName",
+                new PropertyModel<>(connInstanceTO, "connectorName"), false);
+        connectorName.setEnabled(connInstanceTO.getBundleName() == null);
+        Optional.ofNullable(connInstanceTO.getConnectorName()).ifPresent(v -> connectorName.setChoices(List.of(v)));
+        connectorName.getField().setOutputMarkupId(true);
+        add(connectorName.addRequiredLabel().setOutputMarkupId(true));
+
+        AjaxDropDownChoicePanel<String> version = new AjaxDropDownChoicePanel<>(
                 "version", "version", new PropertyModel<>(connInstanceTO, "version"), false);
-        version.setChoices(getVersions(connInstanceTO, bundles));
-        version.addRequiredLabel();
-        version.setEnabled(connInstanceTO.getBundleName() != null);
-        version.setOutputMarkupId(true);
+        version.setEnabled(connInstanceTO.getConnectorName() == null);
+        Optional.ofNullable(connInstanceTO.getVersion()).ifPresent(v -> version.setChoices(List.of(v)));
         version.getField().setOutputMarkupId(true);
-        add(version);
+        add(version.addRequiredLabel().setOutputMarkupId(true));
 
         bundleName.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -156,18 +115,54 @@ public class ConnectorDetailsPanel extends WizardStep {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                ((DropDownChoice<String>) bundleName.getField()).setNullValid(false);
-                version.setEnabled(true);
+                connectorName.setEnabled(true);
 
-                List<String> versions;
-                if (bundles.isEmpty()) {
-                    List<ConnIdBundle> bundles = ConnectorRestClient.getAllBundles().stream().
-                            filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
-                            collect(Collectors.toList());
-                    versions = getVersions(connInstanceTO, bundles);
+                List<Pair<String, String>> connectors = bundles.stream().
+                        filter(bundle -> bundle.getBundleName().equals(connInstanceTO.getBundleName())).
+                        map(bundle -> Pair.of(bundle.getConnectorName(), bundle.getVersion())).
+                        collect(Collectors.toList());
+                if (connectors.size() == 1) {
+                    Pair<String, String> entry = connectors.get(0);
+
+                    connInstanceTO.setConnectorName(entry.getLeft());
+                    connectorName.getField().setModelObject(entry.getLeft());
+                    connectorName.setChoices(List.of(entry.getLeft()));
+
+                    connInstanceTO.setVersion(entry.getRight());
+                    version.getField().setModelObject(entry.getRight());
+                    version.setChoices(List.of(entry.getRight()));
                 } else {
-                    versions = getVersions(connInstanceTO, bundles);
+                    connectorName.setChoices(connectors.stream().
+                            map(Pair::getLeft).distinct().sorted().collect(Collectors.toList()));
+
+                    List<String> versions = connectors.stream().
+                            map(Pair::getRight).distinct().sorted().collect(Collectors.toList());
+                    version.setChoices(versions);
+
+                    if (versions.size() == 1) {
+                        connInstanceTO.setVersion(versions.get(0));
+                        version.getField().setModelObject(versions.get(0));
+                    } else {
+                        connInstanceTO.setVersion(null);
+                        version.getField().setModelObject(null);
+                    }
                 }
+
+                target.add(version);
+                target.add(connectorName);
+            }
+        });
+
+        connectorName.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                List<String> versions = bundles.stream().
+                        filter(bundle -> bundle.getBundleName().equals(connInstanceTO.getBundleName())
+                        && bundle.getConnectorName().equals(connInstanceTO.getConnectorName())).
+                        map(ConnIdBundle::getVersion).collect(Collectors.toList());
                 if (versions.size() == 1) {
                     connInstanceTO.setVersion(versions.get(0));
                     version.getField().setModelObject(versions.get(0));
@@ -205,16 +200,5 @@ public class ConnectorDetailsPanel extends WizardStep {
         add(new AjaxSpinnerFieldPanel.Builder<Long>().min(0L).max(Long.MAX_VALUE).build(
                 "poolMinEvictableIdleTime", "poolMinEvictableIdleTime", Long.class,
                 new PropertyModel<>(connInstanceTO.getPoolConf(), "minEvictableIdleTimeMillis")));
-    }
-
-    private static List<String> getVersions(final ConnInstanceTO connInstanceTO, final List<ConnIdBundle> bundles) {
-        return bundles.stream().filter(object -> object.getLocation().equals(connInstanceTO.getLocation())
-                && object.getBundleName().equals(connInstanceTO.getBundleName())).
-                map(ConnIdBundle::getVersion).collect(Collectors.toList());
-    }
-
-    private List<String> getBundles(final ConnInstanceTO connInstanceTO, final List<ConnIdBundle> bundles) {
-        return bundles.stream().filter(object -> object.getLocation().equals(connInstanceTO.getLocation())).
-                map(ConnIdBundle::getBundleName).collect(Collectors.toList());
     }
 }

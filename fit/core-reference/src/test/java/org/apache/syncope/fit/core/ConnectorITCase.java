@@ -81,7 +81,7 @@ public class ConnectorITCase extends AbstractITCase {
             props.load(propStream);
 
             CONNID_SOAP_VERSION = props.getProperty("connid.soap.version");
-            CONNID_DB_VERSION = props.getProperty("connid.database.version");
+            CONNID_DB_VERSION = props.getProperty("connid.db.version");
 
             TEST_JDBC_URL = props.getProperty("testdb.url");
         } catch (Exception e) {
@@ -350,22 +350,14 @@ public class ConnectorITCase extends AbstractITCase {
     @Test
     public void checkSelectedLanguage() {
         // 1. Check Italian
-        List<ConnInstanceTO> connInstances = CONNECTOR_SERVICE.list("it");
-
-        for (ConnInstanceTO instance : connInstances) {
-            if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
-                assertEquals("Utente", instance.getConf("user").get().getSchema().getDisplayName());
-            }
-        }
+        assertTrue(CONNECTOR_SERVICE.list("it").stream().
+                filter(i -> "net.tirasa.connid.bundles.db.table.DatabaseTableConnector".equals(i.getConnectorName())).
+                allMatch(i -> "Utente".equals(i.getConf("user").get().getSchema().getDisplayName())));
 
         // 2. Check English (default)
-        connInstances = CONNECTOR_SERVICE.list(null);
-
-        for (ConnInstanceTO instance : connInstances) {
-            if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
-                assertEquals("User", instance.getConf("user").get().getSchema().getDisplayName());
-            }
-        }
+        assertTrue(CONNECTOR_SERVICE.list(null).stream().
+                filter(i -> "net.tirasa.connid.bundles.db.table.DatabaseTableConnector".equals(i.getConnectorName())).
+                allMatch(i -> "User".equals(i.getConf("user").get().getSchema().getDisplayName())));
     }
 
     @Test
@@ -375,7 +367,7 @@ public class ConnectorITCase extends AbstractITCase {
         connectorTO.setLocation(CONNECTOR_SERVER_LOCATION);
         connectorTO.setVersion(CONNID_DB_VERSION);
         connectorTO.setConnectorName("net.tirasa.connid.bundles.db.table.DatabaseTableConnector");
-        connectorTO.setBundleName("net.tirasa.connid.bundles.db.table");
+        connectorTO.setBundleName("net.tirasa.connid.bundles.db");
         connectorTO.setDisplayName("H2Test");
 
         // set the connector configuration using PropertyTO
