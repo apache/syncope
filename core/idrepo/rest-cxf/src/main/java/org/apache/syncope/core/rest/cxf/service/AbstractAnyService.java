@@ -111,11 +111,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                 result = any.getPlainAttr(schema);
         }
 
-        if (result.isEmpty()) {
-            throw new NotFoundException("Attribute for type " + schemaType + " and schema " + schema);
-        }
-
-        return result.get();
+        return result.
+                orElseThrow(() -> new NotFoundException("Attribute for type " + schemaType + " and schema " + schema));
     }
 
     @Override

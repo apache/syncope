@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,6 +31,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
@@ -169,9 +170,9 @@ public class DefaultPasswordRule implements PasswordRule {
             Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
             wordsNotPermitted.addAll(
                     conf.getSchemasNotPermitted().stream().
-                            map(user::getPlainAttr).
-                            filter(Optional::isPresent).
-                            map(attr -> attr.get().getValuesAsStrings()).
+                            map(schema -> user.getPlainAttr(schema).
+                            map(PlainAttr::getValuesAsStrings).orElse(null)).
+                            filter(Objects::nonNull).
                             filter(values -> !CollectionUtils.isEmpty(values)).
                             flatMap(Collection::stream).
                             collect(Collectors.toSet()));
@@ -185,9 +186,9 @@ public class DefaultPasswordRule implements PasswordRule {
     public void enforce(final LinkedAccount account) {
         conf.getWordsNotPermitted().addAll(
                 conf.getSchemasNotPermitted().stream().
-                        map(account::getPlainAttr).
-                        filter(Optional::isPresent).
-                        map(attr -> attr.get().getValuesAsStrings()).
+                        map(schema -> account.getPlainAttr(schema).
+                        map(PlainAttr::getValuesAsStrings).orElse(null)).
+                        filter(Objects::nonNull).
                         filter(values -> !CollectionUtils.isEmpty(values)).
                         flatMap(Collection::stream).
                         collect(Collectors.toList()));
@@ -206,9 +207,9 @@ public class DefaultPasswordRule implements PasswordRule {
                 Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
                 wordsNotPermitted.addAll(
                         conf.getSchemasNotPermitted().stream().
-                                map(account::getPlainAttr).
-                                filter(Optional::isPresent).
-                                map(attr -> attr.get().getValuesAsStrings()).
+                                map(schema -> account.getPlainAttr(schema).
+                                map(PlainAttr::getValuesAsStrings).orElse(null)).
+                                filter(Objects::nonNull).
                                 filter(values -> !CollectionUtils.isEmpty(values)).
                                 flatMap(Collection::stream).
                                 collect(Collectors.toSet()));

@@ -162,11 +162,9 @@ public class UserService {
         if (user.isEmpty()) {
             throw new NotFoundException(username);
         }
-        if (!password.equals(user.get().getPassword())) {
-            throw new ForbiddenException();
-        }
 
-        return user.get();
+        return user.filter(u -> password.equals(u.getPassword())).
+                orElseThrow(() -> new ForbiddenException());
     }
 
     @POST

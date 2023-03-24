@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
@@ -127,29 +126,29 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         Set<String> groupOwners = new HashSet<>();
 
         if (recursive) {
-            adminRealms.forEach(realmPath -> {
-                Optional<Pair<String, String>> goRealm = RealmUtils.parseGroupOwnerRealm(realmPath);
-                if (goRealm.isPresent()) {
-                    groupOwners.add(goRealm.get().getRight());
-                } else if (realmPath.startsWith("/")) {
-                    Realm realm = realmDAO.findByFullPath(realmPath);
-                    if (realm == null) {
-                        SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                        noRealm.getElements().add("Invalid realm specified: " + realmPath);
-                        throw noRealm;
-                    } else {
-                        realmKeys.addAll(realmDAO.findDescendants(realm).stream().
-                                map(Realm::getKey).collect(Collectors.toSet()));
-                    }
-                } else {
-                    DynRealm dynRealm = dynRealmDAO.find(realmPath);
-                    if (dynRealm == null) {
-                        LOG.warn("Ignoring invalid dynamic realm {}", realmPath);
-                    } else {
-                        dynRealmKeys.add(dynRealm.getKey());
-                    }
-                }
-            });
+            adminRealms.forEach(realmPath -> RealmUtils.parseGroupOwnerRealm(realmPath).ifPresentOrElse(
+                    goRealm -> groupOwners.add(goRealm.getRight()),
+                    () -> {
+                        if (realmPath.startsWith("/")) {
+                            Realm realm = realmDAO.findByFullPath(realmPath);
+                            if (realm == null) {
+                                SyncopeClientException noRealm = SyncopeClientException.build(
+                                        ClientExceptionType.InvalidRealm);
+                                noRealm.getElements().add("Invalid realm specified: " + realmPath);
+                                throw noRealm;
+                            } else {
+                                realmKeys.addAll(realmDAO.findDescendants(realm).stream().
+                                        map(Realm::getKey).collect(Collectors.toSet()));
+                            }
+                        } else {
+                            DynRealm dynRealm = dynRealmDAO.find(realmPath);
+                            if (dynRealm == null) {
+                                LOG.warn("Ignoring invalid dynamic realm {}", realmPath);
+                            } else {
+                                dynRealmKeys.add(dynRealm.getKey());
+                            }
+                        }
+                    }));
             if (!dynRealmKeys.isEmpty()) {
                 realmKeys.clear();
             }
@@ -591,19 +590,20 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 cond.getLeaf(ResourceCond.class).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
 
-                Optional<AnyCond> anyCond = cond.getLeaf(AnyCond.class);
-                if (anyCond.isPresent()) {
-                    query.append(getQuery(anyCond.get(), not, parameters, svs));
-                } else {
-                    cond.getLeaf(AttrCond.class).ifPresent(leaf -> {
-                        query.append(getQuery(leaf, not, parameters, svs));
-                        try {
-                            involvedPlainAttrs.add(check(leaf, svs.anyTypeKind).getLeft().getKey());
-                        } catch (IllegalArgumentException e) {
-                            // ignore
-                        }
-                    });
-                }
+                cond.getLeaf(AnyCond.class).ifPresentOrElse(
+                        anyCond -> {
+                            query.append(getQuery(anyCond, not, parameters, svs));
+                        },
+                        () -> {
+                            cond.getLeaf(AttrCond.class).ifPresent(leaf -> {
+                                query.append(getQuery(leaf, not, parameters, svs));
+                                try {
+                                    involvedPlainAttrs.add(check(leaf, svs.anyTypeKind).getLeft().getKey());
+                                } catch (IllegalArgumentException e) {
+                                    // ignore
+                                }
+                            });
+                        });
 
                 // allow for additional search conditions
                 getQueryForCustomConds(cond, parameters, svs, not, query);

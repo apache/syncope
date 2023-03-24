@@ -20,7 +20,7 @@ package org.apache.syncope.core.spring.policy;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.rules.AccountRule;
@@ -103,9 +104,9 @@ public class DefaultAccountRule implements AccountRule {
         Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
         wordsNotPermitted.addAll(
                 conf.getSchemasNotPermitted().stream().
-                        map(user::getPlainAttr).
-                        filter(Optional::isPresent).
-                        map(attr -> attr.get().getValuesAsStrings()).
+                        map(schema -> user.getPlainAttr(schema).
+                        map(PlainAttr::getValuesAsStrings).orElse(null)).
+                        filter(Objects::nonNull).
                         filter(values -> !CollectionUtils.isEmpty(values)).
                         flatMap(Collection::stream).
                         collect(Collectors.toSet()));
@@ -123,9 +124,9 @@ public class DefaultAccountRule implements AccountRule {
         Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
         wordsNotPermitted.addAll(
                 conf.getSchemasNotPermitted().stream().
-                        map(account::getPlainAttr).
-                        filter(Optional::isPresent).
-                        map(attr -> attr.get().getValuesAsStrings()).
+                        map(schema -> account.getPlainAttr(schema).
+                        map(PlainAttr::getValuesAsStrings).orElse(null)).
+                        filter(Objects::nonNull).
                         filter(values -> !CollectionUtils.isEmpty(values)).
                         flatMap(Collection::stream).
                         collect(Collectors.toSet()));

@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
@@ -137,8 +137,10 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
             final Collection<String> groups) {
 
         // 1. check if AuthContextUtils.getUsername() is owner of at least one group of which anyObject is member
-        boolean authorized = authRealms.stream().map(RealmUtils::parseGroupOwnerRealm).filter(Optional::isPresent).
-                anyMatch(pair -> groups.contains(pair.get().getRight()));
+        boolean authorized = authRealms.stream().
+                map(authRealm -> RealmUtils.parseGroupOwnerRealm(authRealm).orElse(null)).
+                filter(Objects::nonNull).
+                anyMatch(pair -> groups.contains(pair.getRight()));
 
         // 2. check if anyObject is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {

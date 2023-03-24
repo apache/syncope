@@ -196,8 +196,10 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             final Collection<String> groups) {
 
         // 1. check if AuthContextUtils.getUsername() is owner of at least one group of which user is member
-        boolean authorized = authRealms.stream().map(RealmUtils::parseGroupOwnerRealm).filter(Optional::isPresent).
-                anyMatch(pair -> groups.contains(pair.get().getRight()));
+        boolean authorized = authRealms.stream().
+                map(authRealm -> RealmUtils.parseGroupOwnerRealm(authRealm).orElse(null)).
+                filter(Objects::nonNull).
+                anyMatch(pair -> groups.contains(pair.getRight()));
 
         // 2. check if user is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
         if (!authorized) {

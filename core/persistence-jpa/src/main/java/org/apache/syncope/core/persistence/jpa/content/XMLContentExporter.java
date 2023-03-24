@@ -350,10 +350,10 @@ public class XMLContentExporter implements ContentExporter {
                     findFirst().
                     map(Map.Entry::getValue);
 
-            String outputTableName = entity.isPresent()
-                    ? entities.getKey(entity.get())
-                    : relationTables.keySet().stream().filter(tableName::equalsIgnoreCase).findFirst().
-                            orElse(tableName);
+            String outputTableName = entity.map(entities::getKey).
+                    orElseGet(() -> relationTables.keySet().stream().
+                    filter(tableName::equalsIgnoreCase).findFirst().
+                    orElse(tableName));
             if (isTask(tableName)) {
                 outputTableName = "Task";
             }
@@ -373,11 +373,9 @@ public class XMLContentExporter implements ContentExporter {
                     if (value != null && (!COLUMNS_TO_BE_NULLIFIED.containsKey(tableName)
                             || !COLUMNS_TO_BE_NULLIFIED.get(tableName).contains(columnName))) {
 
-                        String name = columnName;
-                        if (entity.isPresent()) {
-                            name = columnName(
-                                    () -> (Stream<Attribute<?, ?>>) entity.get().getAttributes().stream(), columnName);
-                        }
+                        String name = entity.map(e -> columnName(
+                                () -> (Stream<Attribute<?, ?>>) e.getAttributes().stream(), columnName)).
+                                orElse(columnName);
 
                         if (isTask(tableName)) {
                             name = columnName(

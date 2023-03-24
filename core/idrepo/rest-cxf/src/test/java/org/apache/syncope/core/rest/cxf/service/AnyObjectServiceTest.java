@@ -228,7 +228,9 @@ public class AnyObjectServiceTest {
         assertEquals("printer1", list.getResult().get(0).getName());
         assertEquals("PRINTER", list.getResult().get(0).getType());
 
-        assertEquals("there", list.getResult().get(1).getPlainAttr("location").get().getValues().get(0));
+        Attr location = list.getResult().get(1).getPlainAttr("location").orElse(null);
+        assertNotNull(location);
+        assertEquals("there", location.getValues().get(0));
     }
 
     @Test
