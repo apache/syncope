@@ -22,7 +22,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
@@ -89,12 +88,11 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         }
 
         Realm current = root;
-        for (final String pathElement : fullPath.substring(1).split("/")) {
-            Optional<Realm> first = findChildren(current).stream().
-                    filter(realm -> pathElement.equals(realm.getName())).findFirst();
-            if (first.isPresent()) {
-                current = first.get();
-            } else {
+        for (String pathElement : fullPath.substring(1).split("/")) {
+            current = findChildren(current).stream().
+                    filter(realm -> pathElement.equals(realm.getName())).findFirst().
+                    orElse(null);
+            if (current == null) {
                 return null;
             }
         }

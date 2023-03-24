@@ -58,9 +58,7 @@ public class DBPasswordPropagationActions implements PropagationActions {
                 filter(property -> "cipherAlgorithm".equals(property.getSchema().getName())
                 && property.getValues() != null && !property.getValues().isEmpty()).findFirst();
 
-        return cipherAlgorithm.isPresent()
-                ? (String) cipherAlgorithm.get().getValues().get(0)
-                : CLEARTEXT;
+        return cipherAlgorithm.map(a -> (String) a.getValues().get(0)).orElse(CLEARTEXT);
     }
 
     protected boolean cipherAlgorithmMatches(final String connectorAlgorithm, final CipherAlgorithm userAlgorithm) {

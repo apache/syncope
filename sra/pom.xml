@@ -120,11 +120,6 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.gaul</groupId>
-      <artifactId>modernizer-maven-annotations</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.syncope.common.keymaster</groupId>
       <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
       <version>${project.version}</version>

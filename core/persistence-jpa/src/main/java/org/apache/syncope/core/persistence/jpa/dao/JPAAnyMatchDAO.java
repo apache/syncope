@@ -370,7 +370,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                     return false;
                 }
 
-                found = attr.isPresent() && matches(attr.get().getValues(), attrValue, schema, cond);
+                found = attr.map(a -> matches(a.getValues(), attrValue, schema, cond)).orElse(false);
         }
         return not ? !found : found;
     }

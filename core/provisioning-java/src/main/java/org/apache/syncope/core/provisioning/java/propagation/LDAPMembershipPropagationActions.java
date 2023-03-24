@@ -110,9 +110,9 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
             return;
         }
 
-        Optional<Provision> groupProvision = taskInfo.getResource().getProvisionByAnyType(AnyTypeKind.GROUP.name());
-        if (groupProvision.isPresent() && groupProvision.get().getMapping() != null
-                && StringUtils.isNotBlank(groupProvision.get().getMapping().getConnObjectLink())) {
+        taskInfo.getResource().getProvisionByAnyType(AnyTypeKind.GROUP.name()).
+                map(Provision::getMapping).
+                filter(mapping -> StringUtils.isNotBlank(mapping.getConnObjectLink())).ifPresentOrElse(mapping -> {
 
             User user = userDAO.find(taskInfo.getEntityKey());
             Set<String> groups = new HashSet<>();
@@ -124,7 +124,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                     filter(group -> group.getResources().contains(taskInfo.getResource())).
                     forEach(group -> {
                         String groupConnObjectLink = evaluateGroupConnObjectLink(
-                                groupProvision.get().getMapping().getConnObjectLink(), group);
+                                mapping.getConnObjectLink(), group);
 
                         LOG.debug("ConnObjectLink for {} is '{}'", group, groupConnObjectLink);
                         if (StringUtils.isNotBlank(groupConnObjectLink)) {
@@ -153,7 +153,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                         Set<String> connObjectLinks = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
                         buildManagedGroupConnObjectLinks(
                                 taskInfo.getResource(),
-                                groupProvision.get().getMapping().getConnObjectLink(),
+                                mapping.getConnObjectLink(),
                                 connObjectLinks);
 
                         LOG.debug("Memberships not managed by Syncope: {}", beforeLdapGroups);
@@ -172,7 +172,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                 // if groups were added or removed by last update, compute and add the group's connector object link
                 for (MembershipUR memb : ((UserUR) taskInfo.getUpdateRequest()).getMemberships()) {
                     String connObjectLink = evaluateGroupConnObjectLink(
-                            groupProvision.get().getMapping().getConnObjectLink(),
+                            mapping.getConnObjectLink(),
                             groupDAO.find(memb.getGroup()));
                     if (memb.getOperation() == PatchOperation.ADD_REPLACE) {
                         groupsToAdd.add(connObjectLink);
@@ -197,11 +197,10 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                     LOG.debug("Adding Group connObjectLinks to attribute deltas: {}={},{}",
                             getGroupMembershipAttrName(), groupsToAdd, groupsToRemove);
                     data.getAttributeDeltas().add(
-                            AttributeDeltaBuilder.build(getGroupMembershipAttrName(), groupsToAdd, groupsToRemove));
+                            AttributeDeltaBuilder.build(getGroupMembershipAttrName(), groupsToAdd,
+                                    groupsToRemove));
                 }
             }
-        } else {
-            LOG.debug("Not about user, or group mapping missing for resource: not doing anything");
-        }
+        }, () -> LOG.debug("Not about user, or group mapping missing for resource: not doing anything"));
     }
 }
