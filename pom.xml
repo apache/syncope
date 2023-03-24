@@ -435,8 +435,6 @@ under the License.
     <commons-jexl.version>3.2.1</commons-jexl.version>
     <commons-text.version>1.10.0</commons-text.version>
 
-    <modernizer-maven.version>2.5.0</modernizer-maven.version>
-
     <pac4j.version>6.0.0-RC6-SNAPSHOT</pac4j.version>
 
     <cas.version>7.0.0-RC5</cas.version>
@@ -882,12 +880,6 @@ under the License.
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-text</artifactId>
         <version>${commons-text.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.gaul</groupId>
-        <artifactId>modernizer-maven-annotations</artifactId>
-        <version>${modernizer-maven.version}</version>
       </dependency>
 
       <dependency>
@@ -1753,12 +1745,15 @@ under the License.
       <plugin>
         <groupId>org.gaul</groupId>
         <artifactId>modernizer-maven-plugin</artifactId>
-        <version>${modernizer-maven.version}</version>
+        <version>2.6.0</version>
         <configuration>
           <javaVersion>${targetJdk}</javaVersion>
           <ignorePackages>
             <ignorePackage>org.apache.syncope.core.persistence.jpa.entity</ignorePackage>
           </ignorePackages>
+          <exclusions>
+            <exclusion>java/util/Optional.get:()Ljava/lang/Object;</exclusion>
+          </exclusions>
         </configuration>
         <executions>
           <execution>

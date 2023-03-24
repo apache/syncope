@@ -415,11 +415,10 @@ public class DefaultNotificationManager implements NotificationManager {
                     Optional<? extends UPlainAttr> attr = membership == null
                             ? user.getPlainAttr(recipientAttrName)
                             : user.getPlainAttr(recipientAttrName, membership);
-                    if (attr.isPresent()) {
-                        email = attr.get().getValuesAsStrings().isEmpty()
-                                ? null
-                                : attr.get().getValuesAsStrings().get(0);
-                    }
+                    email = attr.map(a -> a.getValuesAsStrings().isEmpty()
+                            ? null
+                            : a.getValuesAsStrings().get(0)).
+                            orElse(null);
                     break;
 
                 case DERIVED:
