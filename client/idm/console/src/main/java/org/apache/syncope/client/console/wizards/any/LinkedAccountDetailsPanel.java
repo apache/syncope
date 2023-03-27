@@ -21,6 +21,8 @@ package org.apache.syncope.client.console.wizards.any;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -68,19 +70,16 @@ public class LinkedAccountDetailsPanel extends WizardStep {
                 "resource",
                 new PropertyModel<>(linkedAccountTO, "resource"),
                 false);
+
         dropdownResourceField.setChoices(ResourceRestClient.list().stream().
-                filter(resource -> resource.getProvision(AnyTypeKind.USER.name()).isPresent()
-                && resource.getProvision(AnyTypeKind.USER.name()).get().getMapping() != null
-                && !resource.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems().isEmpty()).
+                filter(resource -> resource.getProvision(AnyTypeKind.USER.name()).
+                flatMap(provision -> Optional.ofNullable(provision.getMapping())).
+                filter(mapping -> !mapping.getItems().isEmpty()).isPresent()).
                 map(ResourceTO::getKey).
                 collect(Collectors.toList()));
-        dropdownResourceField.setOutputMarkupId(true);
-        dropdownResourceField.addRequiredLabel();
-        dropdownResourceField.setNullValid(false);
-        dropdownResourceField.setRequired(true);
-        add(dropdownResourceField);
+        add(dropdownResourceField.setNullValid(false).addRequiredLabel().setOutputMarkupId(true));
 
-        final String connObjectKeyFieldId = "connObjectKeyValue";
+        String connObjectKeyFieldId = "connObjectKeyValue";
         AjaxTextFieldPanel connObjectKeyField = new AjaxTextFieldPanel(
                 "connObjectKeyValue",
                 "connObjectKeyValue",
@@ -157,8 +156,10 @@ public class LinkedAccountDetailsPanel extends WizardStep {
 
         AtomicReference<String> resourceRemoteKey = new AtomicReference<>(ConnIdSpecialName.NAME);
         try {
-            resourceRemoteKey.set(ResourceRestClient.read(resource).getProvision(AnyTypeKind.USER.name()).get().
-                    getMapping().getConnObjectKeyItem().get().getExtAttrName());
+            ResourceRestClient.read(resource).getProvision(AnyTypeKind.USER.name()).
+                    flatMap(provision -> Optional.ofNullable(provision.getMapping())).
+                    flatMap(mapping -> mapping.getConnObjectKeyItem()).
+                    ifPresent(connObjectKeyItem -> resourceRemoteKey.set(connObjectKeyItem.getExtAttrName()));
         } catch (Exception ex) {
             LOG.error("While reading mapping for resource {}", resource, ex);
         }
@@ -175,9 +176,9 @@ public class LinkedAccountDetailsPanel extends WizardStep {
                 new SortParam<>(resourceRemoteKey.get(), true));
 
         connObjectKeyFieldValues = items.getRight().stream().
-                map(item -> item.getAttr(resourceRemoteKey.get()).get().getValues().get(0)).
+                map(item -> item.getAttr(resourceRemoteKey.get()).map(attr -> attr.getValues().get(0)).orElse(null)).
+                filter(Objects::nonNull).
                 collect(Collectors.toList());
         ajaxTextFieldPanel.setChoices(connObjectKeyFieldValues);
     }
-
 }

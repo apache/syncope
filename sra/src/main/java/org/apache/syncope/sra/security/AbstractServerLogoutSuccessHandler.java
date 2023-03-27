@@ -58,12 +58,9 @@ public abstract class AbstractServerLogoutSuccessHandler
         String routeId = exchange.getExchange().getAttribute(ServerWebExchangeUtils.GATEWAY_PREDICATE_ROUTE_ATTR);
         if (StringUtils.isNotBlank(routeId)) {
             Optional<URI> routePostLogout = Optional.ofNullable(CACHE.get(routeId)).orElseGet(() -> {
-                URI uri = null;
                 Optional<SRARouteTO> route = routeProvider.getRouteTOs().stream().
                         filter(r -> routeId.equals(r.getKey())).findFirst();
-                if (route.isPresent()) {
-                    uri = route.get().getPostLogout();
-                }
+                URI uri = route.map(SRARouteTO::getPostLogout).orElse(null);
 
                 CACHE.put(routeId, Optional.ofNullable(uri));
                 return CACHE.get(routeId);

@@ -91,8 +91,8 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
 
                     if (payload.getResult() instanceof ArrayList) {
                         modal.setContent(new ResultPanel<>(
-                            null,
-                            payload.getResult()) {
+                                null,
+                                payload.getResult()) {
 
                             private static final long serialVersionUID = -2630573849050255233L;
 
@@ -103,7 +103,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
 
                             @Override
                             protected Panel customResultBody(
-                                final String panelId, final Serializable item, final Serializable result) {
+                                    final String panelId, final Serializable item, final Serializable result) {
 
                                 @SuppressWarnings("unchecked")
                                 ArrayList<ProvisioningReport> reports = (ArrayList<ProvisioningReport>) result;
@@ -122,10 +122,10 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                         SyncopeConsoleSession.get().error(payload.getResult());
                     }
 
-                    if (target.isPresent()) {
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target.get());
-                        target.get().add(container);
-                    }
+                    target.ifPresent(t -> {
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(t);
+                        t.add(container);
+                    });
                 }
             }
         };
@@ -141,8 +141,8 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                 AnyQuery query = csvAnyQuery(realm, fiql, rows, panel.getDataProvider());
 
                 target.add(modal.setContent(new CSVPushWizardBuilder(spec, query, csvDownloadBehavior, pageRef).
-                    setEventSink(csvEventSink).
-                    build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+                        setEventSink(csvEventSink).
+                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
                 modal.header(new StringResourceModel("csvPush", panel, Model.of(spec)));
                 modal.show(true);
@@ -161,8 +161,8 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                 CSVPullSpec spec = csvPullSpec(type, realm);
 
                 target.add(modal.setContent(new CSVPullWizardBuilder(spec, pageRef).
-                    setEventSink(csvEventSink).
-                    build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+                        setEventSink(csvEventSink).
+                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
                 modal.header(new StringResourceModel("csvPull", panel, Model.of(spec)));
                 modal.show(true);

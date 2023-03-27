@@ -120,11 +120,11 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
     @Override
     protected void setAttrs() {
-        List<Attr> attrs = new ArrayList<>();
+        List<Attr> virAttrs = new ArrayList<>();
 
         Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(anyTO.getVirAttrs());
 
-        attrs.addAll(schemas.values().stream().map(schema -> {
+        virAttrs.addAll(schemas.values().stream().map(schema -> {
             Attr attrTO = new Attr();
             attrTO.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
@@ -136,34 +136,28 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
         }).collect(Collectors.toList()));
 
         anyTO.getVirAttrs().clear();
-        anyTO.getVirAttrs().addAll(attrs);
+        anyTO.getVirAttrs().addAll(virAttrs);
     }
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        List<Attr> attrs = new ArrayList<>();
+        Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).
+                map(gr -> EntityTOUtils.buildAttrMap(gr.getVirAttrs())).
+                orElseGet(() -> new HashMap<>());
 
-        final Map<String, Attr> attrMap;
-        if (GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).isPresent()) {
-            attrMap = EntityTOUtils.buildAttrMap(GroupableRelatableTO.class.cast(anyTO)
-                    .getMembership(membershipTO.getGroupKey()).get().getVirAttrs());
-        } else {
-            attrMap = new HashMap<>();
-        }
-
-        attrs.addAll(membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
-            Attr attrTO = new Attr();
-            attrTO.setSchema(schema.getKey());
-            if (attrMap.containsKey(schema.getKey())) {
-                attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
+        List<Attr> virAttrs = membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
+            Attr attr = new Attr();
+            attr.setSchema(schema.getKey());
+            if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
+                attr.getValues().add(StringUtils.EMPTY);
             } else {
-                attrTO.getValues().add(StringUtils.EMPTY);
+                attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
-            return attrTO;
-        }).collect(Collectors.toList()));
+            return attr;
+        }).collect(Collectors.toList());
 
         membershipTO.getVirAttrs().clear();
-        membershipTO.getVirAttrs().addAll(attrs);
+        membershipTO.getVirAttrs().addAll(virAttrs);
     }
 
     public class VirSchemas extends Schemas {

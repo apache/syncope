@@ -23,6 +23,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -162,14 +163,10 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             @Override
             protected Component getValueComponent(final String key, final PropagationStatus bean) {
                 if ("afterObj".equalsIgnoreCase(key)) {
-                    ConnObject afterObj = bean.getAfterObj();
-                    String remoteId = afterObj == null
-                            || afterObj.getAttrs().isEmpty()
-                            || afterObj.getAttr(ConnIdSpecialName.NAME).isEmpty()
-                            || afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues() == null
-                            || afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues().isEmpty()
-                            ? StringUtils.EMPTY
-                            : afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues().get(0);
+                    String remoteId = Optional.ofNullable(bean.getAfterObj()).
+                            flatMap(afterObj -> afterObj.getAttr(ConnIdSpecialName.NAME).
+                            filter(s -> !s.getValues().isEmpty()).map(s -> s.getValues().get(0))).
+                            orElse(StringUtils.EMPTY);
 
                     return new Label("field", remoteId);
                 }

@@ -71,14 +71,12 @@ public class SyncopeSRAWebExceptionHandler implements WebExceptionHandler, Appli
         String routeId = exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_PREDICATE_ROUTE_ATTR);
         if (StringUtils.isNotBlank(routeId)) {
             Optional<URI> routeError = Optional.ofNullable(CACHE.get(routeId)).orElseGet(() -> {
-                URI uri = null;
                 Optional<SRARouteTO> route = routeProvider.getRouteTOs().stream().
                         filter(r -> routeId.equals(r.getKey())).findFirst();
-                if (route.isPresent()) {
-                    uri = route.get().getError();
-                }
+                URI uri = route.map(SRARouteTO::getError).orElse(null);
 
-                return CACHE.put(routeId, Optional.ofNullable(uri));
+                CACHE.put(routeId, Optional.ofNullable(uri));
+                return CACHE.get(routeId);
             });
             if (routeError.isPresent()) {
                 error = routeError.get();

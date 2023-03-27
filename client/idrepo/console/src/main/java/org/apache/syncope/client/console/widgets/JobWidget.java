@@ -485,15 +485,11 @@ public class JobWidget extends BaseWidget {
         @Override
         @SuppressWarnings("unchecked")
         public void onEvent(final IEvent<?> event) {
-            if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
+            if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent
+                    || event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
+
                 Optional<AjaxRequestTarget> target = ((AjaxWizard.NewItemEvent<?>) event.getPayload()).getTarget();
-
-                if (target.isPresent()
-                        && event.getPayload() instanceof AjaxWizard.NewItemCancelEvent
-                        || event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-
-                    jobModal.close(target.get());
-                }
+                target.ifPresent(jobModal::close);
             }
 
             super.onEvent(event);

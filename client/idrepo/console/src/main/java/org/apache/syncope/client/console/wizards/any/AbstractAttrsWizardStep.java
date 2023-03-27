@@ -422,20 +422,17 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
         }
 
         protected void setExternalAction(final Attr attr, final AbstractFieldPanel<?> panel) {
-            Optional<Attr> prevAttr = previousObject == null
-                    ? Optional.empty()
-                    : previousObject.getPlainAttr(attr.getSchema());
-            if (previousObject != null
-                    && ((prevAttr.isEmpty() && attr.getValues().stream().anyMatch(StringUtils::isNotBlank))
-                    || (prevAttr.isPresent() && !ListUtils.isEqualList(
-                    prevAttr.get().getValues().stream().
-                            filter(StringUtils::isNotBlank).collect(Collectors.toList()),
-                    attr.getValues().stream().
-                            filter(StringUtils::isNotBlank).collect(Collectors.toList()))))) {
+            if (previousObject == null) {
+                return;
+            }
+            
+            Optional<Attr> prevAttr = previousObject.getPlainAttr(attr.getSchema());
+            if (prevAttr.map(a -> !ListUtils.isEqualList(
+                    a.getValues().stream().filter(StringUtils::isNotBlank).collect(Collectors.toList()),
+                    attr.getValues().stream().filter(StringUtils::isNotBlank).collect(Collectors.toList()))).
+                    orElseGet(() -> attr.getValues().stream().anyMatch(StringUtils::isNotBlank))) {
 
-                List<String> oldValues = prevAttr.isPresent()
-                        ? prevAttr.get().getValues()
-                        : List.of();
+                List<String> oldValues = prevAttr.map(Attr::getValues).orElse(List.of());
                 panel.showExternAction(new LabelInfo("externalAction", oldValues));
             }
         }

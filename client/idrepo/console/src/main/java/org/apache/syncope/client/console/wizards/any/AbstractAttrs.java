@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
@@ -41,12 +40,8 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWizardStep<S> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractAttrs.class);
 
     private static final long serialVersionUID = -5387344116983102292L;
 
@@ -110,14 +105,10 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
 
     protected List<String> getMembershipAuxClasses(final MembershipTO membershipTO, final String anyType) {
         try {
-            final GroupTO groupTO = groupRestClient.read(membershipTO.getGroupKey());
-            Optional<TypeExtensionTO> typeExtension = groupTO.getTypeExtension(anyType);
-            if (typeExtension.isEmpty()) {
-                LOG.trace("Unable to locate type extension for " + anyType);
-                return List.of();
-            }
-            return typeExtension.get().getAuxClasses();
-
+            GroupTO groupTO = groupRestClient.read(membershipTO.getGroupKey());
+            return groupTO.getTypeExtension(anyType).
+                    map(TypeExtensionTO::getAuxClasses).
+                    orElse(List.of());
         } catch (Exception e) {
             return List.of();
         }

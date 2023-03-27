@@ -61,8 +61,8 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
     @Override
     protected Optional<Details<AnyObjectTO>> addOptionalDetailsPanel(final AnyWrapper<AnyObjectTO> modelObject) {
         Optional<Details<AnyObjectTO>> details = super.addOptionalDetailsPanel(modelObject);
-        if (templatable instanceof RealmTO && details.isPresent()) {
-            details.get().disableRealmSpecification();
+        if (templatable instanceof RealmTO) {
+            details.ifPresent(Details::disableRealmSpecification);
         }
         return details;
     }
