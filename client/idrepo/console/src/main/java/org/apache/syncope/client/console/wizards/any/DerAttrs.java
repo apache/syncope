@@ -79,19 +79,19 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
             protected void populateItem(final ListItem<MembershipTO> item) {
                 final MembershipTO membershipTO = item.getModelObject();
                 item.add(new Accordion("membershipDerSchemas", List.of(new AbstractTab(
-                    new StringResourceModel(
-                        "attributes.membership.accordion",
-                        DerAttrs.this,
-                        Model.of(membershipTO))) {
+                        new StringResourceModel(
+                                "attributes.membership.accordion",
+                                DerAttrs.this,
+                                Model.of(membershipTO))) {
 
                     private static final long serialVersionUID = 1037272333056449378L;
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
                         return new DerAttrs.DerSchemas(
-                            panelId,
-                            membershipSchemas.get(membershipTO.getGroupKey()),
-                            new ListModel<>(getAttrsFromTO(membershipTO)));
+                                panelId,
+                                membershipSchemas.get(membershipTO.getGroupKey()),
+                                new ListModel<>(getAttrsFromTO(membershipTO)));
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
@@ -115,7 +115,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
     @Override
     protected void setAttrs() {
-        List<Attr> attrs = new ArrayList<>();
+        List<Attr> derAttrs = new ArrayList<>();
 
         Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
 
@@ -126,37 +126,31 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
                 attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
 
-            attrs.add(attrTO);
+            derAttrs.add(attrTO);
         });
 
         anyTO.getDerAttrs().clear();
-        anyTO.getDerAttrs().addAll(attrs);
+        anyTO.getDerAttrs().addAll(derAttrs);
     }
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        List<Attr> attrs = new ArrayList<>();
+        Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).
+                map(gr -> EntityTOUtils.buildAttrMap(gr.getDerAttrs())).
+                orElseGet(() -> new HashMap<>());
 
-        final Map<String, Attr> attrMap;
-        if (GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).isPresent()) {
-            attrMap = EntityTOUtils.buildAttrMap(GroupableRelatableTO.class.cast(anyTO)
-                    .getMembership(membershipTO.getGroupKey()).get().getDerAttrs());
-        } else {
-            attrMap = new HashMap<>();
-        }
-
-        membershipSchemas.get(membershipTO.getGroupKey()).values().forEach(schema -> {
-            Attr attrTO = new Attr();
-            attrTO.setSchema(schema.getKey());
+        List<Attr> derAttrs = membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
+            Attr attr = new Attr();
+            attr.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
-                attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
+                attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
 
-            attrs.add(attrTO);
-        });
+            return attr;
+        }).collect(Collectors.toList());
 
         membershipTO.getDerAttrs().clear();
-        membershipTO.getDerAttrs().addAll(attrs);
+        membershipTO.getDerAttrs().addAll(derAttrs);
     }
 
     public static class DerSchemas extends Schemas {
@@ -193,10 +187,10 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
                     }
 
                     AjaxTextFieldPanel panel = new AjaxTextFieldPanel(
-                        "panel",
-                        schemas.get(attrTO.getSchema()).getLabel(SyncopeConsoleSession.get().getLocale()),
-                        model,
-                        false);
+                            "panel",
+                            schemas.get(attrTO.getSchema()).getLabel(SyncopeConsoleSession.get().getLocale()),
+                            model,
+                            false);
                     panel.setEnabled(false);
                     panel.setRequired(true);
                     panel.setOutputMarkupId(true);

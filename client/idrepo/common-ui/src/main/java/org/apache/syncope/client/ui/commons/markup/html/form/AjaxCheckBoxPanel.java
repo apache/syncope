@@ -21,8 +21,10 @@ package org.apache.syncope.client.ui.commons.markup.html.form;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.Attributable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -118,7 +120,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
             @SuppressWarnings("unchecked")
             public void setObject(final Boolean object) {
                 item.setModelObject(Optional.ofNullable(object)
-                    .map(Object::toString).orElseGet(Boolean.FALSE::toString));
+                        .map(Object::toString).orElseGet(Boolean.FALSE::toString));
             }
         };
 
@@ -128,27 +130,25 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public FieldPanel<Boolean> setNewModel(final Attributable attributableTO, final String schema) {
+    public FieldPanel<Boolean> setNewModel(final Attributable attributable, final String schema) {
         field.setModel(new Model() {
 
             private static final long serialVersionUID = -4214654722524358000L;
 
             @Override
             public Serializable getObject() {
-                if (!attributableTO.getPlainAttr(schema).get().getValues().isEmpty()) {
-                    return Boolean.TRUE.toString().equalsIgnoreCase(
-                            attributableTO.getPlainAttr(schema).get().getValues().get(0));
-                }
-                return null;
+                return attributable.getPlainAttr(schema).map(Attr::getValues).filter(Predicate.not(List::isEmpty)).
+                        map(values -> Boolean.TRUE.toString().equalsIgnoreCase(values.get(0))).
+                        orElse(null);
             }
 
             @Override
             public void setObject(final Serializable object) {
-                attributableTO.getPlainAttr(schema).get().getValues().clear();
-                attributableTO.getPlainAttr(schema).get().getValues().add(
-                        object == null ? Boolean.FALSE.toString() : object.toString());
+                attributable.getPlainAttr(schema).ifPresent(plainAttr -> {
+                    plainAttr.getValues().clear();
+                    plainAttr.getValues().add(object == null ? Boolean.FALSE.toString() : object.toString());
+                });
             }
-
         });
 
         return this;

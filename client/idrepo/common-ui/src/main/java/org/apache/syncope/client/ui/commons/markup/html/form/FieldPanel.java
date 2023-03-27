@@ -24,8 +24,10 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.Attributable;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
@@ -130,24 +132,24 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public FieldPanel<T> setNewModel(final Attributable attributableTO, final String schema) {
+    public FieldPanel<T> setNewModel(final Attributable attributable, final String schema) {
         field.setModel(new Model() {
 
             private static final long serialVersionUID = -4214654722524358000L;
 
             @Override
             public Serializable getObject() {
-                return (!attributableTO.getPlainAttr(schema).get().getValues().isEmpty())
-                        ? attributableTO.getPlainAttr(schema).get().getValues().get(0)
-                        : null;
+                return attributable.getPlainAttr(schema).map(Attr::getValues).filter(Predicate.not(List::isEmpty)).
+                        map(values -> values.get(0)).
+                        orElse(null);
             }
 
             @Override
             public void setObject(final Serializable object) {
-                attributableTO.getPlainAttr(schema).get().getValues().clear();
-                if (object != null) {
-                    attributableTO.getPlainAttr(schema).get().getValues().add(object.toString());
-                }
+                attributable.getPlainAttr(schema).ifPresent(plainAttr -> {
+                    plainAttr.getValues().clear();
+                    Optional.ofNullable(object).ifPresent(o -> plainAttr.getValues().add(o.toString()));
+                });
             }
         });
 

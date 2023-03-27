@@ -639,13 +639,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         super.onEvent(event);
 
         if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-            final AjaxWizard.NewItemFinishEvent<?> item = AjaxWizard.NewItemFinishEvent.class.cast(event.getPayload());
-            final Serializable result = item.getResult();
-            final Optional<AjaxRequestTarget> target = item.getTarget();
-            if (result != null && result instanceof ConnInstanceTO && target.isPresent()) {
+            AjaxWizard.NewItemFinishEvent<?> item = AjaxWizard.NewItemFinishEvent.class.cast(event.getPayload());
+            Serializable result = item.getResult();
+            Optional<AjaxRequestTarget> target = item.getTarget();
+            if (result instanceof ConnInstanceTO) {
                 // update Toggle Panel header
-                ConnInstanceTO conn = ConnInstanceTO.class.cast(result);
-                setHeader(target.get(), conn.getDisplayName());
+                target.ifPresent(t -> setHeader(t, ConnInstanceTO.class.cast(result).getDisplayName()));
             }
         }
     }

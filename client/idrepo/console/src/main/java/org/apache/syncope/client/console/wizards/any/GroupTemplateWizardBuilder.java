@@ -59,8 +59,8 @@ public class GroupTemplateWizardBuilder extends GroupWizardBuilder implements Te
     @Override
     protected Optional<Details<GroupTO>> addOptionalDetailsPanel(final AnyWrapper<GroupTO> modelObject) {
         Optional<Details<GroupTO>> details = super.addOptionalDetailsPanel(modelObject);
-        if (templatable instanceof RealmTO && details.isPresent()) {
-            details.get().disableRealmSpecification();
+        if (templatable instanceof RealmTO) {
+            details.ifPresent(Details::disableRealmSpecification);
         }
         return details;
     }
