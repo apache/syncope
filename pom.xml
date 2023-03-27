@@ -458,7 +458,7 @@ under the License.
 
     <wicket.version>10.0.0-M1-SNAPSHOT</wicket.version>
     <wicketstuff.version>10.0.0-SNAPSHOT</wicketstuff.version>
-    <wicket-jqueryui.version>9.11.0</wicket-jqueryui.version>
+    <wicket-jqueryui.version>9.12.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>5.0.6</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.0.0-SNAPSHOT</wicket-spring-boot.version>
 
@@ -1660,7 +1660,7 @@ under the License.
             <dependency>
               <groupId>com.puppycrawl.tools</groupId>
               <artifactId>checkstyle</artifactId>
-              <version>10.9.2</version>
+              <version>10.9.3</version>
             </dependency>
           </dependencies>
           <configuration>

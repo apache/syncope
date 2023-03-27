@@ -77,8 +77,8 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
     @Override
     protected Optional<Details<UserTO>> addOptionalDetailsPanel(final AnyWrapper<UserTO> modelObject) {
         Optional<Details<UserTO>> details = super.addOptionalDetailsPanel(modelObject);
-        if (templatable instanceof RealmTO && details.isPresent()) {
-            details.get().disableRealmSpecification();
+        if (templatable instanceof RealmTO) {
+            details.ifPresent(Details::disableRealmSpecification);
         }
         return details;
     }

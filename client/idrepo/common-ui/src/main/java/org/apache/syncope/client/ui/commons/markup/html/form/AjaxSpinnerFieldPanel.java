@@ -26,10 +26,12 @@ import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerBehavior;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.Attributable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -102,19 +104,19 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
                 T value = null;
 
                 if (list != null && !list.isEmpty()
-                    && list.get(0) != null && StringUtils.isNotBlank(list.get(0).toString())) {
+                        && list.get(0) != null && StringUtils.isNotBlank(list.get(0).toString())) {
 
                     value = reference.equals(Integer.class)
-                        ? reference.cast(NumberUtils.toInt(list.get(0).toString()))
-                        : reference.equals(Long.class)
-                        ? reference.cast(NumberUtils.toLong(list.get(0).toString()))
-                        : reference.equals(Short.class)
-                        ? reference.cast(NumberUtils.toShort(list.get(0).toString()))
-                        : reference.equals(Float.class)
-                        ? reference.cast(NumberUtils.toFloat(list.get(0).toString()))
-                        : reference.equals(byte.class)
-                        ? reference.cast(NumberUtils.toByte(list.get(0).toString()))
-                        : reference.cast(NumberUtils.toDouble(list.get(0).toString()));
+                            ? reference.cast(NumberUtils.toInt(list.get(0).toString()))
+                            : reference.equals(Long.class)
+                            ? reference.cast(NumberUtils.toLong(list.get(0).toString()))
+                            : reference.equals(Short.class)
+                            ? reference.cast(NumberUtils.toShort(list.get(0).toString()))
+                            : reference.equals(Float.class)
+                            ? reference.cast(NumberUtils.toFloat(list.get(0).toString()))
+                            : reference.equals(byte.class)
+                            ? reference.cast(NumberUtils.toByte(list.get(0).toString()))
+                            : reference.cast(NumberUtils.toDouble(list.get(0).toString()));
                 }
 
                 return value;
@@ -149,16 +151,16 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
                     if (obj instanceof String) {
                         try {
                             number = reference.equals(Integer.class)
-                                ? reference.cast(Integer.valueOf((String) obj))
-                                : reference.equals(Long.class)
-                                ? reference.cast(Long.valueOf((String) obj))
-                                : reference.equals(Short.class)
-                                ? reference.cast(Short.valueOf((String) obj))
-                                : reference.equals(Float.class)
-                                ? reference.cast(Float.valueOf((String) obj))
-                                : reference.equals(byte.class)
-                                ? reference.cast(Byte.valueOf((String) obj))
-                                : reference.cast(Double.valueOf((String) obj));
+                                    ? reference.cast(Integer.valueOf((String) obj))
+                                    : reference.equals(Long.class)
+                                    ? reference.cast(Long.valueOf((String) obj))
+                                    : reference.equals(Short.class)
+                                    ? reference.cast(Short.valueOf((String) obj))
+                                    : reference.equals(Float.class)
+                                    ? reference.cast(Float.valueOf((String) obj))
+                                    : reference.equals(byte.class)
+                                    ? reference.cast(Byte.valueOf((String) obj))
+                                    : reference.cast(Double.valueOf((String) obj));
                         } catch (NumberFormatException e) {
                             LOG.error("While attempting to parse {}", obj, e);
                         }
@@ -183,36 +185,34 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public FieldPanel<T> setNewModel(final Attributable attributableTO, final String schema) {
+    public FieldPanel<T> setNewModel(final Attributable attributable, final String schema) {
         field.setModel(new Model() {
 
             private static final long serialVersionUID = -4214654722524358000L;
 
             @Override
             public Serializable getObject() {
-                List<String> values = attributableTO.getPlainAttr(schema).get().getValues();
-                if (!values.isEmpty()) {
-                    return reference.equals(Integer.class)
-                            ? reference.cast(NumberUtils.toInt(values.get(0)))
-                            : reference.equals(Long.class)
-                            ? reference.cast(NumberUtils.toLong(values.get(0)))
-                            : reference.equals(Short.class)
-                            ? reference.cast(NumberUtils.toShort(values.get(0)))
-                            : reference.equals(Float.class)
-                            ? reference.cast(NumberUtils.toFloat(values.get(0)))
-                            : reference.equals(byte.class)
-                            ? reference.cast(NumberUtils.toByte(values.get(0)))
-                            : reference.cast(NumberUtils.toDouble(values.get(0)));
-                }
-                return null;
+                return attributable.getPlainAttr(schema).map(Attr::getValues).filter(Predicate.not(List::isEmpty)).
+                        map(values -> reference.equals(Integer.class)
+                        ? reference.cast(NumberUtils.toInt(values.get(0)))
+                        : reference.equals(Long.class)
+                        ? reference.cast(NumberUtils.toLong(values.get(0)))
+                        : reference.equals(Short.class)
+                        ? reference.cast(NumberUtils.toShort(values.get(0)))
+                        : reference.equals(Float.class)
+                        ? reference.cast(NumberUtils.toFloat(values.get(0)))
+                        : reference.equals(byte.class)
+                        ? reference.cast(NumberUtils.toByte(values.get(0)))
+                        : reference.cast(NumberUtils.toDouble(values.get(0)))).
+                        orElse(null);
             }
 
             @Override
             public void setObject(final Serializable object) {
-                attributableTO.getPlainAttr(schema).get().getValues().clear();
-                if (object != null) {
-                    attributableTO.getPlainAttr(schema).get().getValues().add(object.toString());
-                }
+                attributable.getPlainAttr(schema).ifPresent(plainAttr -> {
+                    plainAttr.getValues().clear();
+                    Optional.ofNullable(object).ifPresent(o -> plainAttr.getValues().add(o.toString()));
+                });
             }
         });
 

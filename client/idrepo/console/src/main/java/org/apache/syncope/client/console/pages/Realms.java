@@ -160,15 +160,13 @@ public class Realms extends BasePage {
                 newItemEvent.getTarget().ifPresent(t -> t.add(templateModal.setContent(modalPanel)));
                 templateModal.show(true);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-                if (newItemEvent.getTarget().isPresent()) {
-                    templateModal.close(newItemEvent.getTarget().get());
-                }
+                newItemEvent.getTarget().ifPresent(templateModal::close);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
                 SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                if (newItemEvent.getTarget().isPresent()) {
-                    ((BasePage) getPage()).getNotificationPanel().refresh(newItemEvent.getTarget().get());
-                    templateModal.close(newItemEvent.getTarget().get());
-                }
+                newItemEvent.getTarget().ifPresent(t -> {
+                    ((BasePage) getPage()).getNotificationPanel().refresh(t);
+                    templateModal.close(t);
+                });
             }
         }
     }

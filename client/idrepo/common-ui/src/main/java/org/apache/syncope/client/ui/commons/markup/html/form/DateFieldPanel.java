@@ -24,7 +24,9 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.Attributable;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -129,22 +131,23 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
 
             @Override
             public Date getObject() {
-                if (!attributable.getPlainAttr(schema).get().getValues().isEmpty()) {
-                    try {
-                        return fmt.parse(attributable.getPlainAttr(schema).get().getValues().get(0));
-                    } catch (ParseException ex) {
-                        LOG.error("While parsing date", ex);
-                    }
-                }
-                return null;
+                return attributable.getPlainAttr(schema).map(Attr::getValues).filter(Predicate.not(List::isEmpty)).
+                        map(values -> {
+                            try {
+                                return fmt.parse(values.get(0));
+                            } catch (ParseException e) {
+                                LOG.error("While parsing date", e);
+                                return null;
+                            }
+                        }).orElse(null);
             }
 
             @Override
             public void setObject(final Date object) {
-                attributable.getPlainAttr(schema).get().getValues().clear();
-                if (object != null) {
-                    attributable.getPlainAttr(schema).get().getValues().add(fmt.format(object));
-                }
+                attributable.getPlainAttr(schema).ifPresent(plainAttr -> {
+                    plainAttr.getValues().clear();
+                    Optional.ofNullable(object).ifPresent(o -> plainAttr.getValues().add(fmt.format(object)));
+                });
             }
         });
 

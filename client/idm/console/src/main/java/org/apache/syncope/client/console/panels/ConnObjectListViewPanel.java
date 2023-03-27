@@ -194,12 +194,11 @@ public abstract class ConnObjectListViewPanel extends Panel {
                                 }
                             });
                 } else {
-                    Optional<Attr> attr =
-                            bean.getAttrs().stream().filter(object -> object.getSchema().equals(key)).findAny();
-
-                    return attr.isEmpty() || attr.get().getValues().isEmpty()
-                            ? new Label("field", StringUtils.EMPTY)
-                            : new CollectionPanel("field", attr.get().getValues());
+                    Optional<Attr> attr = bean.getAttrs().stream().
+                            filter(object -> object.getSchema().equals(key)).findAny();
+                    return attr.filter(a -> !a.getValues().isEmpty()).
+                            map(a -> (Component) new CollectionPanel("field", a.getValues())).
+                            orElseGet(() -> new Label("field", StringUtils.EMPTY));
                 }
             }
 

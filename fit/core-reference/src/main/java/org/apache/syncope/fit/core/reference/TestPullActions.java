@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import java.util.Optional;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
@@ -44,15 +43,15 @@ public class TestPullActions implements PullActions {
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final AnyCR anyCR)
             throws JobExecutionException {
 
-        Optional<Attr> attrTO = anyCR.getPlainAttrs().stream().
-                filter(attr -> "fullname".equals(attr.getSchema())).findFirst();
-        if (attrTO.isEmpty()) {
-            attrTO = Optional.of(new Attr());
-            attrTO.get().setSchema("fullname");
-            anyCR.getPlainAttrs().add(attrTO.get());
-        }
-        attrTO.get().getValues().clear();
-        attrTO.get().getValues().add(String.valueOf(counter++));
+        Attr attrTO = anyCR.getPlainAttrs().stream().
+                filter(attr -> "fullname".equals(attr.getSchema())).findFirst().
+                orElseGet(() -> {
+                    Attr a = new Attr();
+                    a.setSchema("fullname");
+                    return a;
+                });
+        attrTO.getValues().clear();
+        attrTO.getValues().add(String.valueOf(counter++));
     }
 
     @Override

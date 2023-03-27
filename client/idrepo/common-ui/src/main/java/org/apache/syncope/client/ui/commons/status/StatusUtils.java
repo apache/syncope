@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.LabelPanel;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObject;
@@ -42,18 +41,18 @@ public final class StatusUtils implements Serializable {
     public static StatusBean getStatusBean(
             final AnyTO anyTO,
             final String resource,
-            final ConnObject connObjectTO,
+            final ConnObject connObject,
             final boolean notUser) {
 
         StatusBean statusBean = new StatusBean(anyTO, resource);
 
-        if (connObjectTO != null) {
-            Boolean enabled = isEnabled(connObjectTO);
+        if (connObject != null) {
+            Boolean enabled = isEnabled(connObject);
             statusBean.setStatus(Optional.ofNullable(enabled).map(aBoolean -> aBoolean
                     ? Status.ACTIVE
                     : Status.SUSPENDED).orElseGet(() -> (notUser ? Status.ACTIVE : Status.UNDEFINED)));
 
-            statusBean.setConnObjectLink(getConnObjectLink(connObjectTO));
+            statusBean.setConnObjectLink(getConnObjectLink(connObject));
         }
 
         return statusBean;
@@ -62,33 +61,33 @@ public final class StatusUtils implements Serializable {
     public static StatusBean getStatusBean(
             final RealmTO realmTO,
             final String resource,
-            final ConnObject connObjectTO) {
+            final ConnObject connObject) {
 
         StatusBean statusBean = new StatusBean(realmTO, resource);
 
-        if (connObjectTO != null) {
-            Boolean enabled = isEnabled(connObjectTO);
+        if (connObject != null) {
+            Boolean enabled = isEnabled(connObject);
             statusBean.setStatus(Optional.ofNullable(enabled)
                     .filter(aBoolean -> !aBoolean).map(aBoolean -> Status.SUSPENDED).orElse(Status.ACTIVE));
 
-            statusBean.setConnObjectLink(getConnObjectLink(connObjectTO));
+            statusBean.setConnObjectLink(getConnObjectLink(connObject));
         }
 
         return statusBean;
     }
 
-    public static Boolean isEnabled(final ConnObject objectTO) {
-        Optional<Attr> status = objectTO.getAttr(ConnIdSpecialName.ENABLE);
-        return status.isPresent() && status.get().getValues() != null && !status.get().getValues().isEmpty()
-                ? Boolean.valueOf(status.get().getValues().get(0))
-                : Boolean.FALSE;
+    public static Boolean isEnabled(final ConnObject connObject) {
+        return connObject.getAttr(ConnIdSpecialName.ENABLE).
+                filter(s -> !s.getValues().isEmpty()).
+                map(s -> Boolean.valueOf(s.getValues().get(0))).
+                orElse(Boolean.FALSE);
     }
 
-    private static String getConnObjectLink(final ConnObject objectTO) {
-        Optional<Attr> name = Optional.ofNullable(objectTO).map(to -> to.getAttr(ConnIdSpecialName.NAME)).orElse(null);
-        return name != null && name.isPresent() && name.get().getValues() != null && !name.get().getValues().isEmpty()
-                ? name.get().getValues().get(0)
-                : null;
+    public static String getConnObjectLink(final ConnObject connObject) {
+        return connObject.getAttr(ConnIdSpecialName.NAME).
+                filter(s -> !s.getValues().isEmpty()).
+                map(s -> s.getValues().get(0)).
+                orElse(null);
     }
 
     public static StatusR.Builder statusR(final Collection<StatusBean> statuses) {
@@ -207,7 +206,7 @@ public final class StatusUtils implements Serializable {
         return new LabelPanel(componentId,
                 getLabel("label", "warning icon", "Propagation failed", Constants.WARNING_ICON));
     }
-    
+
     public static Label getLabel(final String componentId, final String alt, final String title, final String clazz) {
         return new Label(componentId, StringUtils.EMPTY) {
 

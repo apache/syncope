@@ -216,13 +216,9 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
     }
 
     private void setFixedAttr(final Collection<PlainSchemaTO> values) {
-        values.forEach(schema -> {
-            if (linkedAccountTO.getPlainAttr(schema.getKey()).isPresent()) {
-                fixedAttrs.add(linkedAccountTO.getPlainAttr(schema.getKey()).get());
-            } else if (userTO.getPlainAttr(schema.getKey()).isPresent()) {
-                fixedAttrs.add(userTO.getPlainAttr(schema.getKey()).get());
-            }
-        });
+        values.forEach(schema -> linkedAccountTO.getPlainAttr(schema.getKey()).ifPresentOrElse(
+                fixedAttrs::add,
+                () -> userTO.getPlainAttr(schema.getKey()).ifPresent(fixedAttrs::add)));
     }
 
     private boolean checkIsReadonlyAttr(final String schema) {
@@ -250,9 +246,9 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
                     final boolean isMultivalue = schemas.get(attrTO.getSchema()).isMultivalue();
 
                     AbstractFieldPanel<?> panel = setPanel(
-                        schemas,
-                        item,
-                        linkedAccountTO.getPlainAttr(attrTO.getSchema()).isEmpty());
+                            schemas,
+                            item,
+                            linkedAccountTO.getPlainAttr(attrTO.getSchema()).isEmpty());
 
                     panel.showExternAction(checkboxToggle(attrTO, panel, isMultivalue));
                 }
