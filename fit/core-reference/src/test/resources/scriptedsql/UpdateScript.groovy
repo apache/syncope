@@ -53,7 +53,7 @@ def sql = new Sql(connection);
 
 switch (action) {
 case "UPDATE":
-  if (attributes.get("LOCATION").get(0) != null) {
+  if (attributes.get("LOCATION") != null && !attributes.get("LOCATION").isEmpty() && attributes.get("LOCATION").get(0) != null) {
     sql.executeUpdate("UPDATE TESTPRINTER SET printername = ?, location = ?, lastmodification = ? where id = ?", 
       [
         attributes.get("PRINTERNAME").get(0), 
@@ -64,6 +64,8 @@ case "UPDATE":
 
     return attributes.get("__NAME__").get(0);
   }
+
+  return uid
   break
 
 case "UPDATE_DELTA":
