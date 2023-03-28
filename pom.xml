@@ -432,7 +432,7 @@ under the License.
 
     <disruptor.version>3.4.4</disruptor.version>
     
-    <commons-jexl.version>3.2.1</commons-jexl.version>
+    <commons-jexl.version>3.3</commons-jexl.version>
     <commons-text.version>1.10.0</commons-text.version>
 
     <pac4j.version>6.0.0-RC6-SNAPSHOT</pac4j.version>

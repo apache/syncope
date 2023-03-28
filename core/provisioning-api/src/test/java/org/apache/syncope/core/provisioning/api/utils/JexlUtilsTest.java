@@ -54,8 +54,6 @@ public class JexlUtilsTest extends AbstractTest {
     @Mock
     private JexlContext context;
 
-    private String expression;
-
     @Test
     public void newJxltEngine() {
         JxltEngine engine = JexlUtils.newJxltEngine();
@@ -64,7 +62,7 @@ public class JexlUtilsTest extends AbstractTest {
 
     @Test
     public void isExpressionValid() {
-        expression = "6 * 12 + 5 / 2.6";
+        String expression = "6 * 12 + 5 / 2.6";
         assertTrue(JexlUtils.isExpressionValid(expression));
 
         expression = "@inv4lid expression!";
@@ -73,6 +71,7 @@ public class JexlUtilsTest extends AbstractTest {
 
     @Test
     public void evaluate() {
+        String expression = null;
         assertEquals(StringUtils.EMPTY, JexlUtils.evaluate(expression, context));
 
         expression = "6 * 12 + 5 / 2.6";
@@ -143,6 +142,8 @@ public class JexlUtilsTest extends AbstractTest {
             final @Mock Any<?> any,
             final @Mock DerSchema derSchema) {
 
+        String expression = null;
+
         Map<DerSchema, String> derAttrs = new HashMap<>();
         derAttrs.put(derSchema, expression);
 
@@ -157,6 +158,8 @@ public class JexlUtilsTest extends AbstractTest {
             final @Mock Any<?> any,
             final @Mock DerSchema derSchema,
             final @Mock Collection<? extends PlainAttr<?>> plainAttrs) {
+
+        String expression = null;
 
         Map<DerSchema, String> derAttrs = new HashMap<>();
         derAttrs.put(derSchema, expression);
