@@ -37,6 +37,7 @@ import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.JxltEngine;
 import org.apache.commons.jexl3.MapContext;
+import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -73,8 +74,8 @@ public final class JexlUtils {
         synchronized (LOG) {
             if (JEXL_ENGINE == null) {
                 JEXL_ENGINE = new JexlBuilder().
-                        uberspect(new SandboxUberspect()).
                         loader(new EmptyClassLoader()).
+                        permissions(JexlPermissions.RESTRICTED.compose("java.time.*", "org.apache.syncope.*")).
                         namespaces(Map.of("syncope", new SyncopeJexlFunctions())).
                         cache(512).
                         silent(false).

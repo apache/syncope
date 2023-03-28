@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.OffsetDateTime;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -71,5 +72,16 @@ public class MappingTest extends AbstractTest {
         JexlUtils.addFieldsToContext(realm, jexlContext);
 
         assertEquals("ou=even,o=isp", JexlUtils.evaluate(connObjectLink, jexlContext));
+    }
+
+    @Test
+    public void datetime() {
+        OffsetDateTime now = OffsetDateTime.now();
+
+        JexlContext jexlContext = new MapContext();
+        jexlContext.set("value", now);
+
+        String expression = "value.toInstant().toEpochMilli()";
+        assertEquals(now.toInstant().toEpochMilli(), JexlUtils.evaluate(expression, jexlContext));
     }
 }
