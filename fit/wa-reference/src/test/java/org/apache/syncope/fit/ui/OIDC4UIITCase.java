@@ -52,6 +52,7 @@ import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -93,7 +94,7 @@ public class OIDC4UIITCase extends AbstractUIITCase {
         clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
-        CLIENT_APP_SERVICE.pushToWA();
+        WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
     }
 
     private static String getAppName(final String address) {

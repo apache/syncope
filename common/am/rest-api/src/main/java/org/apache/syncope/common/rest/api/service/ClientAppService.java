@@ -131,11 +131,4 @@ public interface ClientAppService extends JAXRSService {
     @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("type") ClientAppType type, @NotNull @PathParam("key") String key);
-
-    @ApiResponses(
-        @ApiResponse(responseCode = "204", description = "Operation was successful"))
-    @POST
-    @Path("push")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void pushToWA();
 }

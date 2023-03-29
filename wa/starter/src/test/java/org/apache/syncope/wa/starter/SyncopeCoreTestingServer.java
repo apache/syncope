@@ -171,7 +171,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
 
         @Override
-        public void pushToWA() {
+        public void pushToWA(final PushSubject subject, final List<String> services) {
             // nothing to do
         }
     }

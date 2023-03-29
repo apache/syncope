@@ -38,7 +38,7 @@ public class WAConfigRestClient extends BaseRestClient {
         getService(WAConfigService.class).delete(schema);
     }
 
-    public static void push() {
-        getService(WAConfigService.class).pushToWA();
+    public static void push(final WAConfigService.PushSubject subject, final List<String> services) {
+        getService(WAConfigService.class).pushToWA(subject, services);
     }
 }

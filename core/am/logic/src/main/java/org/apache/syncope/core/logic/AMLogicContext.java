@@ -95,12 +95,11 @@ public class AMLogicContext {
     @Bean
     public ClientAppLogic clientAppLogic(
             final ServiceOps serviceOps,
+            final ClientAppUtilsFactory clientAppUtilsFactory,
+            final ClientAppDataBinder binder,
             final CASSPClientAppDAO casSPClientAppDAO,
             final OIDCRPClientAppDAO oidcRPClientAppDAO,
-            final SAML2SPClientAppDAO saml2SPClientAppDAO,
-            final SecurityProperties securityProperties,
-            final ClientAppUtilsFactory clientAppUtilsFactory,
-            final ClientAppDataBinder binder) {
+            final SAML2SPClientAppDAO saml2SPClientAppDAO) {
 
         return new ClientAppLogic(
                 serviceOps,
@@ -108,8 +107,7 @@ public class AMLogicContext {
                 binder,
                 casSPClientAppDAO,
                 oidcRPClientAppDAO,
-                saml2SPClientAppDAO,
-                securityProperties);
+                saml2SPClientAppDAO);
     }
 
     @ConditionalOnMissingBean
