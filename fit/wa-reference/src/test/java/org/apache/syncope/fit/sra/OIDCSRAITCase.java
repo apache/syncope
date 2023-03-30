@@ -63,6 +63,7 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -122,7 +123,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
-        CLIENT_APP_SERVICE.pushToWA();
+        WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
     }
 
     @BeforeAll

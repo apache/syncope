@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.job.notification;
 
-import jakarta.mail.internet.MimeMessage;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -40,17 +39,13 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.transaction.annotation.Transactional;
 
-public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
+public abstract class AbstractNotificationJobDelegate implements NotificationJobDelegate {
 
     protected static final Logger LOG = LoggerFactory.getLogger(NotificationJobDelegate.class);
 
     protected final TaskDAO taskDAO;
-
-    protected final JavaMailSender mailSender;
 
     protected final TaskUtilsFactory taskUtilsFactory;
 
@@ -64,16 +59,14 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
 
     protected boolean interrupted;
 
-    public DefaultNotificationJobDelegate(
+    protected AbstractNotificationJobDelegate(
             final TaskDAO taskDAO,
-            final JavaMailSender mailSender,
             final TaskUtilsFactory taskUtilsFactory,
             final AuditManager auditManager,
             final NotificationManager notificationManager,
             final ApplicationEventPublisher publisher) {
 
         this.taskDAO = taskDAO;
-        this.mailSender = mailSender;
         this.taskUtilsFactory = taskUtilsFactory;
         this.auditManager = auditManager;
         this.notificationManager = notificationManager;
@@ -93,6 +86,9 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
     public boolean isInterrupted() {
         return interrupted;
     }
+
+    protected abstract void notify(String to, NotificationTask task, TaskExec<NotificationTask> execution)
+            throws Exception;
 
     @Transactional
     @Override
@@ -122,7 +118,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
             }
         } else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("About to send e-mails:\n"
+                LOG.debug("About to send notifications:\n"
                         + task.getRecipients() + '\n'
                         + task.getSender() + '\n'
                         + task.getSubject() + '\n'
@@ -134,38 +130,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
 
             for (String to : task.getRecipients()) {
                 try {
-                    MimeMessage message = mailSender.createMimeMessage();
-                    MimeMessageHelper helper = new MimeMessageHelper(message, true);
-                    helper.setTo(to);
-                    helper.setFrom(task.getSender());
-                    helper.setSubject(task.getSubject());
-                    helper.setText(task.getTextBody(), task.getHtmlBody());
-
-                    mailSender.send(message);
-
-                    execution.setStatus(NotificationJob.Status.SENT.name());
-
-                    StringBuilder report = new StringBuilder();
-                    switch (task.getTraceLevel()) {
-                        case ALL:
-                            report.append("FROM: ").append(task.getSender()).append('\n').
-                                    append("TO: ").append(to).append('\n').
-                                    append("SUBJECT: ").append(task.getSubject()).append('\n').append('\n').
-                                    append(task.getTextBody()).append('\n').append('\n').
-                                    append(task.getHtmlBody()).append('\n');
-                            break;
-
-                        case SUMMARY:
-                            report.append("E-mail sent to ").append(to).append('\n');
-                            break;
-
-                        case FAILURES:
-                        case NONE:
-                        default:
-                    }
-                    if (report.length() > 0) {
-                        execution.setMessage(report.toString());
-                    }
+                    notify(to, task, execution);
 
                     notificationManager.createTasks(
                             AuthContextUtils.getWho(),
@@ -179,7 +144,7 @@ public class DefaultNotificationJobDelegate implements NotificationJobDelegate {
                             task,
                             "Successfully sent notification to " + to);
                 } catch (Exception e) {
-                    LOG.error("Could not send e-mail", e);
+                    LOG.error("Could not send out notification", e);
 
                     execution.setStatus(NotificationJob.Status.NOT_SENT.name());
                     if (task.getTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal()) {

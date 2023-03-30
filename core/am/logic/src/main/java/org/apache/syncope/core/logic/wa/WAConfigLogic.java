@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.core.logic.AbstractTransactionalLogic;
 import org.apache.syncope.core.logic.UnresolvedReferenceException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -44,6 +45,7 @@ import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
 
@@ -91,19 +93,47 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
         waConfigDAO.delete(key);
     }
 
+    protected void registeredServices(final HttpClient client, final String serviceAddress) {
+        String target = StringUtils.appendIfMissing(serviceAddress, "/") + "actuator/registeredServices";
+        client.sendAsync(
+                HttpRequest.newBuilder(URI.create(target)).
+                        header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
+                                securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
+                        GET().build(),
+                HttpResponse.BodyHandlers.discarding()).
+                thenAcceptAsync(response -> LOG.info(
+                "Pushed to {} with HTTP status: {}", target, response.statusCode()));
+    }
+
+    protected void refresh(final HttpClient client, final String serviceAddress) {
+        String target = StringUtils.appendIfMissing(serviceAddress, "/") + "actuator/refresh";
+        client.sendAsync(
+                HttpRequest.newBuilder(URI.create(target)).
+                        header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
+                                securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
+                        POST(HttpRequest.BodyPublishers.noBody()).build(),
+                HttpResponse.BodyHandlers.discarding()).
+                thenAcceptAsync(response -> LOG.info(
+                "Pushed to {} with HTTP status: {}", target, response.statusCode()));
+    }
+
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_PUSH + "')")
-    public void pushToWA() {
+    public void pushToWA(final WAConfigService.PushSubject subject, final List<String> services) {
         HttpClient client = HttpClient.newHttpClient();
         try {
-            serviceOps.list(NetworkService.Type.WA).forEach(wa -> client.sendAsync(
-                    HttpRequest.newBuilder(URI.create(
-                            StringUtils.appendIfMissing(wa.getAddress(), "/") + "actuator/refresh")).
-                            header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
-                                    securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
-                            POST(HttpRequest.BodyPublishers.noBody()).build(),
-                    HttpResponse.BodyHandlers.discarding()).
-                    thenAcceptAsync(response -> LOG.info(
-                    "Pushed to WA instance {} with HTTP status: {}", wa.getAddress(), response.statusCode())));
+            serviceOps.list(NetworkService.Type.WA).stream().
+                    filter(wa -> CollectionUtils.isEmpty(services) || services.contains(wa.getAddress())).
+                    forEach(wa -> {
+                        switch (subject) {
+                            case clientApps:
+                                registeredServices(client, wa.getAddress());
+                                break;
+
+                            case conf:
+                            default:
+                                refresh(client, wa.getAddress());
+                        }
+                    });
         } catch (KeymasterException e) {
             throw new NotFoundException("Could not find any WA instance", e);
         }

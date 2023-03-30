@@ -88,13 +88,13 @@ public abstract class AbstractITCase {
 
     protected static ClientAppService CLIENT_APP_SERVICE;
 
+    protected static WAConfigService WA_CONFIG_SERVICE;
+
     protected static SRARouteService SRA_ROUTE_SERVICE;
 
     protected static SAML2SP4UIIdPService SAML2SP4UI_IDP_SERVICE;
 
     protected static OIDCC4UIProviderService OIDCC4UI_PROVIDER_SERVICE;
-
-    protected static WAConfigService WA_CONFIG_SERVICE;
 
     @BeforeAll
     public static void restSetup() {
@@ -104,10 +104,10 @@ public abstract class AbstractITCase {
         USER_SERVICE = ADMIN_CLIENT.getService(UserService.class);
         POLICY_SERVICE = ADMIN_CLIENT.getService(PolicyService.class);
         CLIENT_APP_SERVICE = ADMIN_CLIENT.getService(ClientAppService.class);
+        WA_CONFIG_SERVICE = ADMIN_CLIENT.getService(WAConfigService.class);
         SRA_ROUTE_SERVICE = ADMIN_CLIENT.getService(SRARouteService.class);
         SAML2SP4UI_IDP_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIIdPService.class);
         OIDCC4UI_PROVIDER_SERVICE = ADMIN_CLIENT.getService(OIDCC4UIProviderService.class);
-        WA_CONFIG_SERVICE = ADMIN_CLIENT.getService(WAConfigService.class);
     }
 
     @BeforeAll
@@ -122,7 +122,7 @@ public abstract class AbstractITCase {
                                 WA_ADDRESS + "/idp/metadata").get().getEntity(),
                         StandardCharsets.UTF_8);
                 if (metadata.contains("localhost:8080")) {
-                    WA_CONFIG_SERVICE.pushToWA();
+                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
                 metadata = IOUtils.readInputStreamToString(
@@ -130,7 +130,7 @@ public abstract class AbstractITCase {
                                 WA_ADDRESS + "/oidc/.well-known/openid-configuration").get().getEntity(),
                         StandardCharsets.UTF_8);
                 if (metadata.contains("localhost:8080")) {
-                    WA_CONFIG_SERVICE.pushToWA();
+                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
 

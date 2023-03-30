@@ -20,10 +20,12 @@ package org.apache.syncope.client.console.pages;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -40,10 +42,9 @@ import org.apache.syncope.client.console.panels.AuthModuleDirectoryPanel;
 import org.apache.syncope.client.console.panels.OIDC;
 import org.apache.syncope.client.console.panels.SAML2;
 import org.apache.syncope.client.console.panels.WAConfigDirectoryPanel;
-import org.apache.syncope.client.console.rest.WAConfigRestClient;
+import org.apache.syncope.client.console.panels.WAPushModalPanel;
 import org.apache.syncope.client.console.rest.WASessionRestClient;
-import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -65,6 +66,8 @@ public class WA extends BasePage {
 
     protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
+    protected final BaseModal<Serializable> modal;
+
     @SpringBean
     protected ServiceOps serviceOps;
 
@@ -78,20 +81,21 @@ public class WA extends BasePage {
 
         List<NetworkService> instances = serviceOps.list(NetworkService.Type.WA);
 
+        modal = new BaseModal<>("push-modal");
+        modal.setWindowClosedCallback(target -> modal.show(false));
+        modal.addSubmitButton();
+        body.add(modal.size(Modal.Size.Large));
+
         AjaxLink<?> push = new AjaxLink<>("push") {
 
             private static final long serialVersionUID = -817438685948164787L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                try {
-                    WAConfigRestClient.push();
-                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                } catch (Exception e) {
-                    LOG.error("While pushing to WA", e);
-                    SyncopeConsoleSession.get().onException(e);
-                }
-                ((BaseWebPage) getPageReference().getPage()).getNotificationPanel().refresh(target);
+                modal.header(new ResourceModel("push.options"));
+                modal.setContent(new WAPushModalPanel(modal, instances, getPageReference()));
+                modal.show(true);
+                target.add(modal);
             }
         };
         push.setEnabled(!instances.isEmpty() && SyncopeConsoleSession.get().owns(AMEntitlement.WA_CONFIG_PUSH));
@@ -106,7 +110,7 @@ public class WA extends BasePage {
         body.add(content);
 
         if (!instances.isEmpty()) {
-            String actuatorEndpoint = instances.get(0).getAddress() + "actuator/env";
+            String actuatorEndpoint = StringUtils.appendIfMissing(instances.get(0).getAddress(), "/") + "actuator/env";
             try {
                 Response response = WebClient.create(
                         actuatorEndpoint,

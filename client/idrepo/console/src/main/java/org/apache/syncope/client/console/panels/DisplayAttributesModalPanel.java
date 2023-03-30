@@ -76,9 +76,6 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         super(modal, pageRef);
         this.type = type;
 
-        final List<String> detailslList = SearchableFields.get(DisplayAttributesModalPanel.getTOClass(type))
-                .keySet().stream().collect(Collectors.toList());
-        Collections.sort(detailslList);
         Collections.sort(pSchemaNames);
         Collections.sort(dSchemaNames);
 
@@ -88,11 +85,12 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
 
             @Override
             protected List<String> load() {
-                return detailslList;
+                return SearchableFields.get(DisplayAttributesModalPanel.getTOClass(type))
+                        .keySet().stream().sorted().collect(Collectors.toList());
             }
         };
 
-        final IModel<List<String>> psnames = new LoadableDetachableModel<>() {
+        IModel<List<String>> psnames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -102,7 +100,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             }
         };
 
-        final IModel<List<String>> dsnames = new LoadableDetachableModel<>() {
+        IModel<List<String>> dsnames = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -120,7 +118,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         selectedPlainSchemas.retainAll(pSchemaNames);
         selectedDerSchemas.retainAll(dSchemaNames);
 
-        final WebMarkupContainer container = new WebMarkupContainer("container");
+        WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
 
@@ -188,10 +186,10 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
     public static final Class<? extends AnyTO> getTOClass(final String type) {
         if (type.equalsIgnoreCase(AnyTypeKind.USER.name())) {
             return UserTO.class;
-        } else if (type.equalsIgnoreCase(AnyTypeKind.GROUP.name())) {
-            return GroupTO.class;
-        } else {
-            return AnyObjectTO.class;
         }
+        if (type.equalsIgnoreCase(AnyTypeKind.GROUP.name())) {
+            return GroupTO.class;
+        }
+        return AnyObjectTO.class;
     }
 }

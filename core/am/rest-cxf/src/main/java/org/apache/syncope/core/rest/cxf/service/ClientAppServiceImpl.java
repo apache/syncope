@@ -65,9 +65,4 @@ public class ClientAppServiceImpl extends AbstractService implements ClientAppSe
     public void delete(final ClientAppType type, final String key) {
         logic.delete(type, key);
     }
-
-    @Override
-    public void pushToWA() {
-        logic.pushToWA();
-    }
 }

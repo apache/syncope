@@ -66,6 +66,8 @@ public class WAConfigModalPanel extends AbstractModalPanel<Attr> {
 
         add(new ParametersWizardPanel(form, null, pageRef) {
 
+            private static final long serialVersionUID = -1469319240177117600L;
+
             @Override
             protected WizardModel buildModelSteps(final ParametersForm modelObject, final WizardModel wizardModel) {
                 wizardModel.add(new ParametersWizardAttrStep(mode, modelObject));

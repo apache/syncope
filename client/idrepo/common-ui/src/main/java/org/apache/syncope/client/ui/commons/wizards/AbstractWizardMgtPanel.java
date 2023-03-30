@@ -31,5 +31,4 @@ public abstract class AbstractWizardMgtPanel<T extends Serializable> extends Pan
     public AbstractWizardMgtPanel(final String id) {
         super(id);
     }
-
 }

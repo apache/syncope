@@ -48,6 +48,7 @@ import org.apache.http.util.EntityUtils;
 import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -85,7 +86,7 @@ public class CASSRAITCase extends AbstractSRAITCase {
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
 
         CLIENT_APP_SERVICE.update(ClientAppType.CASSP, clientApp);
-        CLIENT_APP_SERVICE.pushToWA();
+        WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
     }
 
     @Test

@@ -35,6 +35,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import org.apache.syncope.common.lib.Attr;
@@ -50,6 +51,12 @@ import org.apache.syncope.common.rest.api.service.JAXRSService;
     @SecurityRequirement(name = "Bearer") })
 @Path("wa/config")
 public interface WAConfigService extends JAXRSService {
+
+    enum PushSubject {
+        clientApps,
+        conf
+
+    }
 
     @GET
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -95,10 +102,16 @@ public interface WAConfigService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("schema") String schema);
 
+    /**
+     * Push to WA according to the provided parameters.
+     *
+     * @param subject what is to be triggered for refresh on WA
+     * @param services WA instances to trigger; all if none specified
+     */
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
-    @Path("push")
+    @Path("push/{subject}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void pushToWA();
+    void pushToWA(@NotNull @PathParam("subject") PushSubject subject, @QueryParam("service") List<String> services);
 }

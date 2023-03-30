@@ -18,24 +18,12 @@
  */
 package org.apache.syncope.core.logic;
 
-import jakarta.ws.rs.InternalServerErrorException;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
-import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -52,7 +40,6 @@ import org.apache.syncope.core.persistence.api.entity.am.ClientAppUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
-import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,16 +57,13 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
 
     protected final SAML2SPClientAppDAO saml2SPClientAppDAO;
 
-    protected final SecurityProperties securityProperties;
-
     public ClientAppLogic(
             final ServiceOps serviceOps,
             final ClientAppUtilsFactory clientAppUtilsFactory,
             final ClientAppDataBinder binder,
             final CASSPClientAppDAO casSPClientAppDAO,
             final OIDCRPClientAppDAO oidcRPClientAppDAO,
-            final SAML2SPClientAppDAO saml2SPClientAppDAO,
-            final SecurityProperties securityProperties) {
+            final SAML2SPClientAppDAO saml2SPClientAppDAO) {
 
         this.serviceOps = serviceOps;
         this.clientAppUtilsFactory = clientAppUtilsFactory;
@@ -87,7 +71,6 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
         this.casSPClientAppDAO = casSPClientAppDAO;
         this.oidcRPClientAppDAO = oidcRPClientAppDAO;
         this.saml2SPClientAppDAO = saml2SPClientAppDAO;
-        this.securityProperties = securityProperties;
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_LIST + "')")
@@ -257,26 +240,5 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
         }
 
         throw new UnresolvedReferenceException();
-    }
-
-    @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_PUSH + "')")
-    public void pushToWA() {
-        try {
-            NetworkService wa = serviceOps.get(NetworkService.Type.WA);
-            String basicAuthHeader = DefaultBasicAuthSupplier.getBasicAuthHeader(
-                    securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey());
-            URI endpoint = URI.create(StringUtils.appendIfMissing(wa.getAddress(), "/")
-                    + "actuator/registeredServices");
-            HttpClient.newBuilder().build().send(
-                    HttpRequest.newBuilder(endpoint).
-                            header(HttpHeaders.AUTHORIZATION, basicAuthHeader).
-                            header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON).
-                            GET().build(),
-                    HttpResponse.BodyHandlers.discarding());
-        } catch (KeymasterException e) {
-            throw new NotFoundException("Could not find any WA instance", e);
-        } catch (IOException | InterruptedException e) {
-            throw new InternalServerErrorException("Errors while communicating with WA instance", e);
-        }
     }
 }

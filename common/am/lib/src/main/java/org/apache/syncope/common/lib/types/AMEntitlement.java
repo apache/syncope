@@ -48,8 +48,6 @@ public final class AMEntitlement {
 
     public static final String CLIENTAPP_DELETE = "CLIENTAPP_DELETE";
 
-    public static final String CLIENTAPP_PUSH = "CLIENTAPP_PUSH";
-
     public static final String AUTH_MODULE_LIST = "AUTH_MODULE_LIST";
 
     public static final String AUTH_MODULE_CREATE = "AUTH_MODULE_CREATE";
