@@ -48,6 +48,7 @@ import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.UserService;
+import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.fit.sra.AbstractSRAITCase;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -84,6 +85,8 @@ public abstract class AbstractITCase {
 
     protected static ClientAppService CLIENT_APP_SERVICE;
 
+    protected static WAConfigService WA_CONFIG_SERVICE;
+
     protected static SRARouteService SRA_ROUTE_SERVICE;
 
     protected static SAML2SP4UIIdPService SAML2SP4UI_IDP_SERVICE;
@@ -98,6 +101,7 @@ public abstract class AbstractITCase {
         USER_SERVICE = ADMIN_CLIENT.getService(UserService.class);
         POLICY_SERVICE = ADMIN_CLIENT.getService(PolicyService.class);
         CLIENT_APP_SERVICE = ADMIN_CLIENT.getService(ClientAppService.class);
+        WA_CONFIG_SERVICE = ADMIN_CLIENT.getService(WAConfigService.class);
         SRA_ROUTE_SERVICE = ADMIN_CLIENT.getService(SRARouteService.class);
         SAML2SP4UI_IDP_SERVICE = ADMIN_CLIENT.getService(SAML2SP4UIIdPService.class);
         OIDCC4UI_PROVIDER_SERVICE = ADMIN_CLIENT.getService(OIDCC4UIProviderService.class);

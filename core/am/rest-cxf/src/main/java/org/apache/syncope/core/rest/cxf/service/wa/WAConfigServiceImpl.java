@@ -55,7 +55,7 @@ public class WAConfigServiceImpl extends AbstractService implements WAConfigServ
     }
 
     @Override
-    public void pushToWA() {
-        logic.pushToWA();
+    public void pushToWA(final PushSubject subject, final List<String> services) {
+        logic.pushToWA(subject, services);
     }
 }
