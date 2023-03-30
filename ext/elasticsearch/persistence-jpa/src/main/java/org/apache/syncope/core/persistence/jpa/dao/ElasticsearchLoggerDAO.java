@@ -40,6 +40,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.core.CountRequest;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.DisMaxQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
@@ -72,7 +73,8 @@ public class ElasticsearchLoggerDAO extends JPALoggerDAO {
 
         if (entityKey != null) {
             queryBuilders.add(QueryBuilders.multiMatchQuery(
-                    entityKey, "message.before", "message.inputs", "message.output", "message.throwable"));
+                    entityKey, "message.before", "message.inputs", "message.output", "message.throwable").
+                    type(MultiMatchQueryBuilder.Type.PHRASE));
         }
 
         if (type != null) {
