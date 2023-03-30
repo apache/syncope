@@ -25,6 +25,7 @@ import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
@@ -72,6 +73,7 @@ public class ElasticsearchAuditConfDAO extends JPAAuditConfDAO {
             queries.add(new Query.Builder().
                     multiMatch(QueryBuilders.multiMatch().
                             fields("message.before", "message.inputs", "message.output", "message.throwable").
+                            type(TextQueryType.Phrase).
                             query(entityKey).build()).build());
         }
 
