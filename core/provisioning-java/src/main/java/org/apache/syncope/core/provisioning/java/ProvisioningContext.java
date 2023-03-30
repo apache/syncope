@@ -156,7 +156,7 @@ import org.apache.syncope.core.provisioning.java.job.JobStatusUpdater;
 import org.apache.syncope.core.provisioning.java.job.SchedulerDBInit;
 import org.apache.syncope.core.provisioning.java.job.SyncopeSpringBeanJobFactory;
 import org.apache.syncope.core.provisioning.java.job.SystemLoadReporterJob;
-import org.apache.syncope.core.provisioning.java.job.notification.DefaultNotificationJobDelegate;
+import org.apache.syncope.core.provisioning.java.job.notification.MailNotificationJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
 import org.apache.syncope.core.provisioning.java.notification.DefaultNotificationManager;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationManager;
@@ -707,18 +707,18 @@ public class ProvisioningContext {
     public NotificationJobDelegate notificationJobDelegate(
             final TaskUtilsFactory taskUtilsFactory,
             final TaskDAO taskDAO,
-            final JavaMailSender mailSender,
             final AuditManager auditManager,
             final NotificationManager notificationManager,
-            final ApplicationEventPublisher publisher) {
+            final ApplicationEventPublisher publisher,
+            final JavaMailSender mailSender) {
 
-        return new DefaultNotificationJobDelegate(
+        return new MailNotificationJobDelegate(
                 taskDAO,
-                mailSender,
                 taskUtilsFactory,
                 auditManager,
                 notificationManager,
-                publisher);
+                publisher,
+                mailSender);
     }
 
     @ConditionalOnMissingBean

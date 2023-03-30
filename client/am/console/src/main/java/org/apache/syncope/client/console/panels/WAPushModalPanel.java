@@ -32,7 +32,6 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
 
@@ -58,36 +57,25 @@ public class WAPushModalPanel extends AbstractModalPanel<Serializable> {
         add(new AjaxPalettePanel.Builder<String>().setName("services").setAllowMoveAll(true).build(
                 "services",
                 servicesModel,
-                new ListModel<>(addresses)));
+                new ListModel<>(addresses)).addRequiredLabel());
 
         add(new AjaxDropDownChoicePanel<>(
                 "subject", getString("subject"), subjectModel).
                 setChoices(List.of(WAConfigService.PushSubject.values())).
-                setChoiceRenderer(new IChoiceRenderer<WAConfigService.PushSubject>() {
-
-                    @Override
-                    public Object getDisplayValue(final WAConfigService.PushSubject subject) {
-                        return getString(subject.name(), Model.of(), subject.name());
-                    }
-                }).setNullValid(false));
+                setChoiceRenderer(s -> getString(s.name(), Model.of(), s.name())).setNullValid(false));
     }
 
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
-        if (servicesModel.getObject().isEmpty()) {
-            SyncopeConsoleSession.get().warn(getString("no_services_selected"));
-        } else {
-            try {
-                WAConfigRestClient.push(subjectModel.getObject(), servicesModel.getObject());
+        try {
+            WAConfigRestClient.push(subjectModel.getObject(), servicesModel.getObject());
 
-                SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                this.modal.close(target);
-            } catch (Exception e) {
-                LOG.error("While pushing to WA", e);
-                SyncopeConsoleSession.get().onException(e);
-            }
+            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+            this.modal.close(target);
+        } catch (Exception e) {
+            LOG.error("While pushing to WA", e);
+            SyncopeConsoleSession.get().onException(e);
         }
-
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 }
