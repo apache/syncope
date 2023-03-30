@@ -28,9 +28,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -44,14 +42,10 @@ import org.apache.syncope.wa.starter.audit.WAAuditTrailManager;
 import org.apache.syncope.wa.starter.events.WAEventRepository;
 import org.apache.syncope.wa.starter.gauth.WAGoogleMfaAuthCredentialRepository;
 import org.apache.syncope.wa.starter.gauth.WAGoogleMfaAuthTokenRepository;
-import org.apache.syncope.wa.starter.mapping.AccessMapFor;
 import org.apache.syncope.wa.starter.mapping.AccessMapper;
-import org.apache.syncope.wa.starter.mapping.AttrReleaseMapFor;
 import org.apache.syncope.wa.starter.mapping.AttrReleaseMapper;
-import org.apache.syncope.wa.starter.mapping.AuthMapFor;
 import org.apache.syncope.wa.starter.mapping.AuthMapper;
 import org.apache.syncope.wa.starter.mapping.CASSPClientAppTOMapper;
-import org.apache.syncope.wa.starter.mapping.ClientAppMapFor;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAccessMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAttrReleaseMapper;
@@ -62,7 +56,6 @@ import org.apache.syncope.wa.starter.mapping.OIDCRPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
 import org.apache.syncope.wa.starter.mapping.RemoteEndpointAccessMapper;
 import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
-import org.apache.syncope.wa.starter.mapping.TicketExpirationMapFor;
 import org.apache.syncope.wa.starter.mapping.TicketExpirationMapper;
 import org.apache.syncope.wa.starter.mapping.TimeBasedAccessMapper;
 import org.apache.syncope.wa.starter.oidc.WAOIDCJWKSGeneratorService;
@@ -205,58 +198,23 @@ public class WAContext {
     public RegisteredServiceMapper registeredServiceMapper(
             final ConfigurableApplicationContext ctx,
             final CasConfigurationProperties casProperties,
-            final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan) {
-
-        Map<String, AuthMapper> authPolicyConfMappers = new HashMap<>();
-        ctx.getBeansOfType(AuthMapper.class).forEach((name, bean) -> {
-            AuthMapFor amf = ctx.findAnnotationOnBean(name, AuthMapFor.class);
-            if (amf != null) {
-                authPolicyConfMappers.put(amf.authPolicyConfClass().getName(), bean);
-            }
-        });
-
-        Map<String, AccessMapper> accessPolicyConfMappers = new HashMap<>();
-        ctx.getBeansOfType(AccessMapper.class).forEach((name, bean) -> {
-            AccessMapFor amf = ctx.findAnnotationOnBean(name, AccessMapFor.class);
-            if (amf != null) {
-                accessPolicyConfMappers.put(amf.accessPolicyConfClass().getName(), bean);
-            }
-        });
-
-        Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers = new HashMap<>();
-        ctx.getBeansOfType(AttrReleaseMapper.class).forEach((name, bean) -> {
-            AttrReleaseMapFor armpf = ctx.findAnnotationOnBean(name, AttrReleaseMapFor.class);
-            if (armpf != null) {
-                attrReleasePolicyConfMappers.put(armpf.attrReleasePolicyConfClass().getName(), bean);
-            }
-        });
-
-        Map<String, TicketExpirationMapper> ticketExpirationPolicyConfMappers = new HashMap<>();
-        ctx.getBeansOfType(TicketExpirationMapper.class).forEach((name, bean) -> {
-            TicketExpirationMapFor temf = ctx.findAnnotationOnBean(name, TicketExpirationMapFor.class);
-            if (temf != null) {
-                ticketExpirationPolicyConfMappers.put(temf.ticketExpirationPolicyConfClass().getName(), bean);
-            }
-        });
-
-        Map<String, ClientAppMapper> clientAppTOMappers = new HashMap<>();
-        ctx.getBeansOfType(ClientAppMapper.class).forEach((name, bean) -> {
-            ClientAppMapFor clientAppMapFor = ctx.findAnnotationOnBean(name, ClientAppMapFor.class);
-            if (clientAppMapFor != null) {
-                clientAppTOMappers.put(clientAppMapFor.clientAppClass().getName(), bean);
-            }
-        });
+            final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan,
+            final List<AuthMapper> authMappers,
+            final List<AccessMapper> accessMappers,
+            final List<AttrReleaseMapper> attrReleaseMappers,
+            final List<TicketExpirationMapper> ticketExpirationMappers,
+            final List<ClientAppMapper> clientAppMappers) {
 
         return new RegisteredServiceMapper(
                 ctx,
                 Optional.ofNullable(casProperties.getAuthn().getPac4j().getCore().getName()).
                         orElse(DelegatedClientAuthenticationHandler.class.getSimpleName()),
                 authenticationEventExecutionPlan,
-                authPolicyConfMappers,
-                accessPolicyConfMappers,
-                attrReleasePolicyConfMappers,
-                ticketExpirationPolicyConfMappers,
-                clientAppTOMappers);
+                authMappers,
+                accessMappers,
+                attrReleaseMappers,
+                ticketExpirationMappers,
+                clientAppMappers);
     }
 
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)

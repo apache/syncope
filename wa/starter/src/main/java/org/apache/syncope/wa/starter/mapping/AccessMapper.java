@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
+import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 
-@FunctionalInterface
 public interface AccessMapper {
+
+    boolean supports(AccessPolicyConf conf);
 
     RegisteredServiceAccessStrategy build(AccessPolicyTO policy);
 }

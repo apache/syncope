@@ -19,6 +19,7 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.HashSet;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apereo.cas.authentication.principal.DefaultPrincipalAttributesRepository;
@@ -34,8 +35,12 @@ import org.apereo.cas.services.ReturnMappedAttributeReleasePolicy;
 import org.apereo.cas.services.consent.DefaultRegisteredServiceConsentPolicy;
 import org.apereo.cas.util.model.TriStateBoolean;
 
-@AttrReleaseMapFor(attrReleasePolicyConfClass = DefaultAttrReleasePolicyConf.class)
 public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
+
+    @Override
+    public boolean supports(final AttrReleasePolicyConf conf) {
+        return conf instanceof DefaultAttrReleasePolicyConf;
+    }
 
     @Override
     public RegisteredServiceAttributeReleasePolicy build(final AttrReleasePolicyTO policy) {

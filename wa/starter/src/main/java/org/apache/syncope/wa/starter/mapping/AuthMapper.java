@@ -19,14 +19,16 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.List;
+import org.apache.syncope.common.lib.policy.AuthPolicyConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ConfigurableApplicationContext;
 
-@FunctionalInterface
 public interface AuthMapper {
+
+    boolean supports(AuthPolicyConf conf);
 
     AuthMapperResult build(
             ConfigurableApplicationContext ctx,

@@ -21,13 +21,18 @@ package org.apache.syncope.wa.starter.mapping;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 
-@AccessMapFor(accessPolicyConfClass = DefaultAccessPolicyConf.class)
 public class DefaultAccessMapper implements AccessMapper {
+
+    @Override
+    public boolean supports(final AccessPolicyConf conf) {
+        return conf instanceof DefaultAccessPolicyConf;
+    }
 
     @Override
     public RegisteredServiceAccessStrategy build(final AccessPolicyTO policy) {
