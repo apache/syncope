@@ -49,7 +49,7 @@ public class DefaultAuthMapper implements AuthMapper {
 
     @Override
     public boolean supports(final AuthPolicyConf conf) {
-        return conf instanceof DefaultAuthPolicyConf;
+        return DefaultAuthPolicyConf.class.equals(conf.getClass());
     }
 
     @Override

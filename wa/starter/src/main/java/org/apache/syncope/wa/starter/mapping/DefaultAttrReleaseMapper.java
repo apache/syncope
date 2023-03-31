@@ -39,7 +39,7 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
 
     @Override
     public boolean supports(final AttrReleasePolicyConf conf) {
-        return conf instanceof DefaultAttrReleasePolicyConf;
+        return DefaultAttrReleasePolicyConf.class.equals(conf.getClass());
     }
 
     @Override

@@ -40,7 +40,7 @@ public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
 
     @Override
     public boolean supports(final ClientAppTO clientApp) {
-        return clientApp instanceof SAML2SPClientAppTO;
+        return SAML2SPClientAppTO.class.equals(clientApp.getClass());
     }
 
     @Override

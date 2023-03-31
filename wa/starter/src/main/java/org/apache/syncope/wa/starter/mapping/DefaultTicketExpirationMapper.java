@@ -35,7 +35,7 @@ public class DefaultTicketExpirationMapper implements TicketExpirationMapper {
 
     @Override
     public boolean supports(final TicketExpirationPolicyConf conf) {
-        return conf instanceof DefaultTicketExpirationPolicyConf;
+        return DefaultTicketExpirationPolicyConf.class.equals(conf.getClass());
     }
 
     protected Optional<DefaultTicketExpirationPolicyConf> conf(final TicketExpirationPolicyTO policy) {

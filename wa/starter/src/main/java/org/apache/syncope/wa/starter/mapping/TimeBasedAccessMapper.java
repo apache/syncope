@@ -30,7 +30,7 @@ public class TimeBasedAccessMapper implements AccessMapper {
 
     @Override
     public boolean supports(final AccessPolicyConf conf) {
-        return conf instanceof TimeBasedAccessPolicyConf;
+        return TimeBasedAccessPolicyConf.class.equals(conf.getClass());
     }
 
     @Override
