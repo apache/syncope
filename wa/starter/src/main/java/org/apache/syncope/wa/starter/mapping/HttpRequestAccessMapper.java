@@ -29,7 +29,7 @@ public class HttpRequestAccessMapper implements AccessMapper {
 
     @Override
     public boolean supports(final AccessPolicyConf conf) {
-        return conf instanceof HttpRequestAccessPolicyConf;
+        return HttpRequestAccessPolicyConf.class.equals(conf.getClass());
     }
 
     @Override

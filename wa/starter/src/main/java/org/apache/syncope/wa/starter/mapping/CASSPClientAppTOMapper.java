@@ -37,7 +37,7 @@ public class CASSPClientAppTOMapper extends AbstractClientAppMapper {
 
     @Override
     public boolean supports(final ClientAppTO clientApp) {
-        return clientApp instanceof CASSPClientAppTO;
+        return CASSPClientAppTO.class.equals(clientApp.getClass());
     }
 
     @Override

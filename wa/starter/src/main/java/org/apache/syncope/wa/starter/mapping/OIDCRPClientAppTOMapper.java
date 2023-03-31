@@ -58,7 +58,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
 
     @Override
     public boolean supports(final ClientAppTO clientApp) {
-        return clientApp instanceof OIDCRPClientAppTO;
+        return OIDCRPClientAppTO.class.equals(clientApp.getClass());
     }
 
     @Override

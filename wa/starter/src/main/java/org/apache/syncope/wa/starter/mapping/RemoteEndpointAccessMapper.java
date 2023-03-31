@@ -29,7 +29,7 @@ public class RemoteEndpointAccessMapper implements AccessMapper {
 
     @Override
     public boolean supports(final AccessPolicyConf conf) {
-        return conf instanceof RemoteEndpointAccessPolicyConf;
+        return RemoteEndpointAccessPolicyConf.class.equals(conf.getClass());
     }
 
     @Override

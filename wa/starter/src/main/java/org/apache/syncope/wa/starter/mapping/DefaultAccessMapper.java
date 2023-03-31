@@ -31,7 +31,7 @@ public class DefaultAccessMapper implements AccessMapper {
 
     @Override
     public boolean supports(final AccessPolicyConf conf) {
-        return conf instanceof DefaultAccessPolicyConf;
+        return DefaultAccessPolicyConf.class.equals(conf.getClass());
     }
 
     @Override
