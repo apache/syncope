@@ -46,26 +46,25 @@ where `<KEYMASTER_ADDRESS>` can be either:
 
 ==== Standalone
 
-Projects generated from Maven archetype feature a dedicated `executable` profile, which will re-package all
-applications according to Spring Boot's
-https://docs.spring.io/spring-boot/docs/current/reference/html/executable-jar.html[executable format^].
+Projects generated from Maven archetype feature a dedicated `standalone` profile, which will re-package all
+applications as standalone fat JAR or WAR files.
 
 [TIP]
 Spring Boot applications can also be
 https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#deployment.installing[installed as system services^].
 
-.Run Core application as executable under GNU / Linux
+.Run Core application as standalone under GNU / Linux
 ====
 Assuming that the JDBC driver JAR file for the configured <<dbms>> is available under `/opt/syncope/lib`,
 the Core application can be built and run as follows:
 
 [source,bash]
 ----
-$ mvn -P executable clean verify
+$ mvn -P standalone clean verify
 $ cp core/target/syncope.war /opt/syncope/lib
 $ cp core/target/classes/*properties /opt/syncope/conf
 
-$ export LOADER_PATH=/opt/syncope/conf,/opt/syncope/lib
+$ export LOADER_PATH=/opt/syncope/conf,/opt/syncope/lib,BOOT-INF/classes/WEB-INF/classes
 $ java -Dsyncope.conf.dir=/opt/syncope/conf \
   -Dsyncope.connid.location=file:/opt/syncope/bundles \
   -Dsyncope.log.dir=/opt/syncope/log \
