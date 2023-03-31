@@ -148,8 +148,8 @@ under the License.
     </profile>
     
     <profile>
-      <id>executable</id>
-      
+      <id>standalone</id>
+
       <dependencies>
         <dependency>
           <groupId>org.springframework.boot</groupId>

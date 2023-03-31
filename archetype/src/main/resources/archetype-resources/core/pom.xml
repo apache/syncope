@@ -168,16 +168,7 @@ under the License.
     </profile>
     
     <profile>
-      <!--
-      This profile builds an executable war file.
-      In order for the app to run, it is necessary to include the conf directory and the JDBC driver in the runtime
-      classpath; according to official docs [1] this can be achieved by setting the LOADER_PATH env variable as follows:
-      
-      export LOADER_PATH=/path/to/conf/dir,/path/to/jdbc-driver.jar
-      
-      [1] https://docs.spring.io/spring-boot/docs/current/reference/html/executable-jar.html
-      -->
-      <id>executable</id>
+      <id>standalone</id>
       
       <dependencies>
         <dependency>
