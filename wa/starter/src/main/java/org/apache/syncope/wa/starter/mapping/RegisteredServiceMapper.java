@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
@@ -50,41 +50,43 @@ public class RegisteredServiceMapper {
 
     protected final ObjectProvider<AuthenticationEventExecutionPlan> authEventExecPlan;
 
-    protected final Map<String, AuthMapper> authPolicyConfMappers;
+    protected final List<AuthMapper> authMappers;
 
-    protected final Map<String, AccessMapper> accessPolicyConfMappers;
+    protected final List<AccessMapper> accessMappers;
 
-    protected final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers;
+    protected final List<AttrReleaseMapper> attrReleaseMappers;
 
-    protected final Map<String, TicketExpirationMapper> ticketExpirationPolicyConfMappers;
+    protected final List<TicketExpirationMapper> ticketExpirationMappers;
 
-    protected final Map<String, ClientAppMapper> clientAppTOMappers;
+    protected final List<ClientAppMapper> clientAppMappers;
 
     public RegisteredServiceMapper(
             final ConfigurableApplicationContext ctx,
             final String pac4jCoreName,
             final ObjectProvider<AuthenticationEventExecutionPlan> authEventExecPlan,
-            final Map<String, AuthMapper> authPolicyConfMappers,
-            final Map<String, AccessMapper> accessPolicyConfMappers,
-            final Map<String, AttrReleaseMapper> attrReleasePolicyConfMappers,
-            final Map<String, TicketExpirationMapper> ticketExpirationPolicyConfMappers,
-            final Map<String, ClientAppMapper> clientAppTOMappers) {
+            final List<AuthMapper> authMappers,
+            final List<AccessMapper> accessMappers,
+            final List<AttrReleaseMapper> attrReleaseMappers,
+            final List<TicketExpirationMapper> ticketExpirationMappers,
+            final List<ClientAppMapper> clientAppMappers) {
 
         this.ctx = ctx;
         this.pac4jCoreName = pac4jCoreName;
         this.authEventExecPlan = authEventExecPlan;
-        this.authPolicyConfMappers = authPolicyConfMappers;
-        this.accessPolicyConfMappers = accessPolicyConfMappers;
-        this.attrReleasePolicyConfMappers = attrReleasePolicyConfMappers;
-        this.ticketExpirationPolicyConfMappers = ticketExpirationPolicyConfMappers;
-        this.clientAppTOMappers = clientAppTOMappers;
+        this.authMappers = authMappers;
+        this.accessMappers = accessMappers;
+        this.attrReleaseMappers = attrReleaseMappers;
+        this.ticketExpirationMappers = ticketExpirationMappers;
+        this.clientAppMappers = clientAppMappers;
     }
 
     public RegisteredService toRegisteredService(final WAClientApp clientApp) {
-        String key = clientApp.getClientAppTO().getClass().getName();
-        ClientAppMapper clientAppMapper = clientAppTOMappers.get(key);
+        ClientAppMapper clientAppMapper = clientAppMappers.stream().
+                filter(m -> m.supports(clientApp.getClientAppTO())).
+                findFirst().
+                orElse(null);
         if (clientAppMapper == null) {
-            LOG.warn("Unable to locate ClientAppMapper using key {}", key);
+            LOG.warn("Unable to locate ClientAppMapper for {}", clientApp.getClientAppTO().getClass().getName());
             return null;
         }
 
@@ -92,11 +94,12 @@ public class RegisteredServiceMapper {
         RegisteredServiceMultifactorPolicy mfaPolicy = null;
         RegisteredServiceDelegatedAuthenticationPolicy delegatedAuthPolicy = null;
         if (clientApp.getAuthPolicy() != null) {
-            AuthMapper authMapper = authPolicyConfMappers.get(
-                    clientApp.getAuthPolicy().getConf().getClass().getName());
-            AuthMapperResult result = Optional.ofNullable(authMapper).map(mapper -> mapper.build(
+            Optional<AuthMapper> authMapper = authMappers.stream().
+                    filter(m -> m.supports(clientApp.getAuthPolicy().getConf())).
+                    findFirst();
+            AuthMapperResult result = authMapper.map(mapper -> mapper.build(
                     ctx, pac4jCoreName, authEventExecPlan, clientApp.getAuthPolicy(), clientApp.getAuthModules())).
-                    orElseGet(() -> new AuthMapperResult(null, null, null));
+                    orElse(AuthMapperResult.EMPTY);
             authPolicy = result.getAuthPolicy();
             mfaPolicy = result.getMfaPolicy();
             delegatedAuthPolicy = result.getDelegateAuthPolicy();
@@ -104,11 +107,10 @@ public class RegisteredServiceMapper {
 
         RegisteredServiceAccessStrategy accessStrategy = null;
         if (clientApp.getAccessPolicy() != null) {
-            AccessMapper accessPolicyConfMapper = accessPolicyConfMappers.get(
-                    clientApp.getAccessPolicy().getConf().getClass().getName());
-            accessStrategy = Optional.ofNullable(accessPolicyConfMapper).
-                    map(mapper -> mapper.build(clientApp.getAccessPolicy())).
-                    orElse(null);
+            Optional<AccessMapper> accessMapper = accessMappers.stream().
+                    filter(m -> m.supports(clientApp.getAccessPolicy().getConf())).
+                    findFirst();
+            accessStrategy = accessMapper.map(mapper -> mapper.build(clientApp.getAccessPolicy())).orElse(null);
         }
         if (delegatedAuthPolicy != null) {
             if (accessStrategy == null) {
@@ -129,20 +131,20 @@ public class RegisteredServiceMapper {
                     arpTO.setConf(new DefaultAttrReleasePolicyConf());
                     return arpTO;
                 });
-        AttrReleaseMapper attrReleasePolicyConfMapper = attrReleasePolicyConfMappers.get(
-                attrReleasePolicyTO.getConf().getClass().getName());
+        Optional<AttrReleaseMapper> attrReleaseMapper = attrReleaseMappers.stream().
+                filter(m -> m.supports(attrReleasePolicyTO.getConf())).
+                findFirst();
         RegisteredServiceAttributeReleasePolicy attributeReleasePolicy =
-                Optional.ofNullable(attrReleasePolicyConfMapper).
-                        map(mapper -> mapper.build(attrReleasePolicyTO)).
-                        orElse(null);
+                attrReleaseMapper.map(mapper -> mapper.build(attrReleasePolicyTO)).orElse(null);
 
         RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy = null;
         RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy = null;
         RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy = null;
         RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy = null;
         if (clientApp.getTicketExpirationPolicy() != null) {
-            TicketExpirationMapper ticketExpirationMapper = ticketExpirationPolicyConfMappers.get(
-                    clientApp.getTicketExpirationPolicy().getConf().getClass().getName());
+            TicketExpirationMapper ticketExpirationMapper = ticketExpirationMappers.stream().
+                    filter(m -> m.supports(clientApp.getTicketExpirationPolicy().getConf())).
+                    findFirst().orElse(null);
             if (ticketExpirationMapper != null) {
                 tgtExpirationPolicy = ticketExpirationMapper.buildTGT(clientApp.getTicketExpirationPolicy());
                 stExpirationPolicy = ticketExpirationMapper.buildST(clientApp.getTicketExpirationPolicy());

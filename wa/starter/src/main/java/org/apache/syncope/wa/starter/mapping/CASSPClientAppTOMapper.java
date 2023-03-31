@@ -19,6 +19,7 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import org.apache.syncope.common.lib.to.CASSPClientAppTO;
+import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.services.CasRegisteredService;
 import org.apereo.cas.services.RegisteredService;
@@ -32,8 +33,12 @@ import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 import org.springframework.context.ConfigurableApplicationContext;
 
-@ClientAppMapFor(clientAppClass = CASSPClientAppTO.class)
 public class CASSPClientAppTOMapper extends AbstractClientAppMapper {
+
+    @Override
+    public boolean supports(final ClientAppTO clientApp) {
+        return clientApp instanceof CASSPClientAppTO;
+    }
 
     @Override
     public RegisteredService map(

@@ -24,6 +24,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
@@ -51,10 +52,14 @@ import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPo
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.springframework.context.ConfigurableApplicationContext;
 
-@ClientAppMapFor(clientAppClass = OIDCRPClientAppTO.class)
 public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
 
     private static final String CUSTOM_SCOPE = "syncope";
+
+    @Override
+    public boolean supports(final ClientAppTO clientApp) {
+        return clientApp instanceof OIDCRPClientAppTO;
+    }
 
     @Override
     public RegisteredService map(

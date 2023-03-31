@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.auth.MFAAuthModuleConf;
 import org.apache.syncope.common.lib.auth.Pac4jAuthModuleConf;
+import org.apache.syncope.common.lib.policy.AuthPolicyConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
@@ -42,10 +43,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ConfigurableApplicationContext;
 
-@AuthMapFor(authPolicyConfClass = DefaultAuthPolicyConf.class)
 public class DefaultAuthMapper implements AuthMapper {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DefaultAuthMapper.class);
+
+    @Override
+    public boolean supports(final AuthPolicyConf conf) {
+        return conf instanceof DefaultAuthPolicyConf;
+    }
 
     @Override
     public AuthMapperResult build(

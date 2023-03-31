@@ -19,13 +19,18 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.Optional;
+import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.RemoteEndpointAccessPolicyConf;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RemoteEndpointServiceAccessStrategy;
 
-@AccessMapFor(accessPolicyConfClass = RemoteEndpointAccessPolicyConf.class)
 public class RemoteEndpointAccessMapper implements AccessMapper {
+
+    @Override
+    public boolean supports(final AccessPolicyConf conf) {
+        return conf instanceof RemoteEndpointAccessPolicyConf;
+    }
 
     @Override
     public RegisteredServiceAccessStrategy build(final AccessPolicyTO policy) {

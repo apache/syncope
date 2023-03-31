@@ -20,13 +20,18 @@ package org.apache.syncope.wa.starter.mapping;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.TimeBasedAccessPolicyConf;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.TimeBasedRegisteredServiceAccessStrategy;
 
-@AccessMapFor(accessPolicyConfClass = TimeBasedAccessPolicyConf.class)
 public class TimeBasedAccessMapper implements AccessMapper {
+
+    @Override
+    public boolean supports(final AccessPolicyConf conf) {
+        return conf instanceof TimeBasedAccessPolicyConf;
+    }
 
     @Override
     public RegisteredServiceAccessStrategy build(final AccessPolicyTO policy) {

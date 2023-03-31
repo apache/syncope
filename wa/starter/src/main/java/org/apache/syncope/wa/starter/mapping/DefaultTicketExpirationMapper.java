@@ -20,6 +20,7 @@ package org.apache.syncope.wa.starter.mapping;
 
 import java.util.Optional;
 import org.apache.syncope.common.lib.policy.DefaultTicketExpirationPolicyConf;
+import org.apache.syncope.common.lib.policy.TicketExpirationPolicyConf;
 import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apereo.cas.services.DefaultRegisteredServiceProxyGrantingTicketExpirationPolicy;
 import org.apereo.cas.services.DefaultRegisteredServiceProxyTicketExpirationPolicy;
@@ -30,8 +31,12 @@ import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 
-@TicketExpirationMapFor(ticketExpirationPolicyConfClass = DefaultTicketExpirationPolicyConf.class)
 public class DefaultTicketExpirationMapper implements TicketExpirationMapper {
+
+    @Override
+    public boolean supports(final TicketExpirationPolicyConf conf) {
+        return conf instanceof DefaultTicketExpirationPolicyConf;
+    }
 
     protected Optional<DefaultTicketExpirationPolicyConf> conf(final TicketExpirationPolicyTO policy) {
         if (policy.getConf() instanceof DefaultTicketExpirationPolicyConf) {

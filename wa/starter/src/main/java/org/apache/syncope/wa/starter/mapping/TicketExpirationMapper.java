@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
+import org.apache.syncope.common.lib.policy.TicketExpirationPolicyConf;
 import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apereo.cas.services.RegisteredServiceProxyGrantingTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
@@ -25,6 +26,8 @@ import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 
 public interface TicketExpirationMapper {
+
+    boolean supports(TicketExpirationPolicyConf conf);
 
     RegisteredServiceTicketGrantingTicketExpirationPolicy buildTGT(TicketExpirationPolicyTO policy);
 

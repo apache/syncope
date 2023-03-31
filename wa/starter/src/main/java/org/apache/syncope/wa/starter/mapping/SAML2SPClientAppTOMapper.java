@@ -20,6 +20,7 @@ package org.apache.syncope.wa.starter.mapping;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.services.RegisteredService;
@@ -35,8 +36,12 @@ import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.util.model.TriStateBoolean;
 import org.springframework.context.ConfigurableApplicationContext;
 
-@ClientAppMapFor(clientAppClass = SAML2SPClientAppTO.class)
 public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
+
+    @Override
+    public boolean supports(final ClientAppTO clientApp) {
+        return clientApp instanceof SAML2SPClientAppTO;
+    }
 
     @Override
     public RegisteredService map(

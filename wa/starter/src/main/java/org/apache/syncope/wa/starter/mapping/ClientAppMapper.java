@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.wa.starter.mapping;
 
+import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
@@ -30,8 +31,9 @@ import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 import org.springframework.context.ConfigurableApplicationContext;
 
-@FunctionalInterface
 public interface ClientAppMapper {
+
+    boolean supports(ClientAppTO clientApp);
 
     RegisteredService map(
             ConfigurableApplicationContext ctx,
