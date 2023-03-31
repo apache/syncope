@@ -20,6 +20,7 @@ package org.apache.syncope.wa.starter.services;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -80,6 +81,7 @@ public class WAServiceRegistry extends AbstractServiceRegistry {
             LOG.info("Loading application definitions");
             return waRestClient.getSyncopeClient().getService(WAClientAppService.class).list().stream().
                     map(registeredServiceMapper::toRegisteredService).
+                    filter(Objects::nonNull).
                     collect(Collectors.toList());
         }
     }

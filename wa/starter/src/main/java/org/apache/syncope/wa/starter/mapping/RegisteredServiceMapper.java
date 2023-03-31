@@ -99,7 +99,7 @@ public class RegisteredServiceMapper {
                     findFirst();
             AuthMapperResult result = authMapper.map(mapper -> mapper.build(
                     ctx, pac4jCoreName, authEventExecPlan, clientApp.getAuthPolicy(), clientApp.getAuthModules())).
-                    orElseGet(() -> new AuthMapperResult(null, null, null));
+                    orElse(AuthMapperResult.EMPTY);
             authPolicy = result.getAuthPolicy();
             mfaPolicy = result.getMfaPolicy();
             delegatedAuthPolicy = result.getDelegateAuthPolicy();

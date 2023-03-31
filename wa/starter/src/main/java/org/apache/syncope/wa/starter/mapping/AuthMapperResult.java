@@ -24,6 +24,8 @@ import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 
 public class AuthMapperResult {
 
+    public static final AuthMapperResult EMPTY = new AuthMapperResult(null, null, null);
+
     private final RegisteredServiceAuthenticationPolicy authPolicy;
 
     private final RegisteredServiceMultifactorPolicy mfaPolicy;
