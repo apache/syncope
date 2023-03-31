@@ -428,7 +428,7 @@ under the License.
     <flowable.version>7.0.0.M1</flowable.version>
     <flowable-old.version>6.8.0</flowable-old.version>
 
-    <elasticsearch.version>8.6.2</elasticsearch.version>
+    <elasticsearch.version>8.7.0</elasticsearch.version>
 
     <disruptor.version>3.4.4</disruptor.version>
     

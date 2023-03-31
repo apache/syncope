@@ -19,13 +19,18 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.Optional;
+import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.HttpRequestAccessPolicyConf;
 import org.apereo.cas.services.HttpRequestRegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 
-@AccessMapFor(accessPolicyConfClass = HttpRequestAccessPolicyConf.class)
 public class HttpRequestAccessMapper implements AccessMapper {
+
+    @Override
+    public boolean supports(final AccessPolicyConf conf) {
+        return conf instanceof HttpRequestAccessPolicyConf;
+    }
 
     @Override
     public RegisteredServiceAccessStrategy build(final AccessPolicyTO policy) {
