@@ -487,10 +487,10 @@ public final class SearchUtils implements Serializable {
 
             if (notTheFirst) {
                 if (clause.getOperator() == SearchClause.Operator.AND) {
-                    condition = builder.and(prevCondition, condition);
+                    condition = builder.and(condition, prevCondition);
                 }
                 if (clause.getOperator() == SearchClause.Operator.OR) {
-                    condition = builder.or(prevCondition, condition);
+                    condition = builder.or(condition, prevCondition);
                 }
             }
 
