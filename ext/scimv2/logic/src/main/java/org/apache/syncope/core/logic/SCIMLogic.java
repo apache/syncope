@@ -101,8 +101,9 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
                                 conf.getGeneralConf().getLastChangeDate(),
                                 conf.getGeneralConf().getETagValue(),
                                 uriBuilder.build().toASCIIString()),
-                        new ConfigurationOption(false),
-                        new BulkConfigurationOption(false,
+                        new ConfigurationOption(true),
+                        new BulkConfigurationOption(
+                                false,
                                 conf.getGeneralConf().getBulkMaxOperations(),
                                 conf.getGeneralConf().getBulkMaxPayloadSize()),
                         new FilterConfigurationOption(true, conf.getGeneralConf().getFilterMaxResults()),

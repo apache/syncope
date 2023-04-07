@@ -22,9 +22,12 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.ResponseBuilder;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -43,18 +46,23 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
+import org.apache.syncope.ext.scimv2.api.data.Member;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
+import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOp;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
-import org.apache.syncope.ext.scimv2.api.service.GroupService;
+import org.apache.syncope.ext.scimv2.api.service.SCIMGroupService;
 import org.apache.syncope.ext.scimv2.api.type.ErrorType;
+import org.apache.syncope.ext.scimv2.api.type.PatchOp;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
+import org.springframework.util.CollectionUtils;
 
-public class GroupServiceImpl extends AbstractService<SCIMGroup> implements GroupService {
+public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> implements SCIMGroupService {
 
-    public GroupServiceImpl(
+    public SCIMGroupServiceImpl(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final UserLogic userLogic,
@@ -65,23 +73,26 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         super(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
     }
 
+    private void changeMembership(final String user, final String group, final PatchOp patchOp) {
+        UserUR req = new UserUR.Builder(user).
+                membership(new MembershipUR.Builder(group).operation(patchOp == PatchOp.remove
+                        ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).build()).
+                build();
+        try {
+            userLogic.update(req, false);
+        } catch (Exception e) {
+            LOG.error("While applying {} on membership of {} to {}", patchOp, group, user, e);
+        }
+    }
+
     @Override
     public Response create(final SCIMGroup group) {
         // first create group, no members assigned
-        ProvisioningResult<GroupTO> result = groupLogic.create(SCIMDataBinder.toGroupCR(group), false);
+        ProvisioningResult<GroupTO> result = groupLogic.create(binder.toGroupCR(group), false);
 
         // then assign members
-        group.getMembers().forEach(member -> {
-            UserUR req = new UserUR.Builder(member.getValue()).
-                    membership(new MembershipUR.Builder(result.getEntity().getKey()).
-                            operation(PatchOperation.ADD_REPLACE).build()).
-                    build();
-            try {
-                userLogic.update(req, false);
-            } catch (Exception e) {
-                LOG.error("While setting membership of {} to {}", result.getEntity().getKey(), member.getValue(), e);
-            }
-        });
+        group.getMembers().forEach(member -> changeMembership(
+                member.getValue(), result.getEntity().getKey(), PatchOp.add));
 
         return createResponse(
                 result.getEntity().getKey(),
@@ -93,7 +104,8 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
     }
 
     @Override
-    public SCIMGroup get(final String id,
+    public SCIMGroup get(
+            final String id,
             final String attributes,
             final String excludedAttributes) {
 
@@ -104,9 +116,60 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
                 List.of(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
     }
 
+    private Set<String> members(final String group) {
+        Set<String> members = new HashSet<>();
+
+        MembershipCond membCond = new MembershipCond();
+        membCond.setGroup(group);
+        SearchCond searchCond = SearchCond.getLeaf(membCond);
+        int count = userLogic.search(searchCond, 1, 1, List.of(), SyncopeConstants.ROOT_REALM, true, false).getLeft();
+        for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+            members.addAll(userLogic.search(
+                    searchCond,
+                    page,
+                    AnyDAO.DEFAULT_PAGE_SIZE,
+                    List.of(),
+                    SyncopeConstants.ROOT_REALM,
+                    true,
+                    false).
+                    getRight().stream().map(UserTO::getKey).collect(Collectors.toSet()));
+        }
+
+        return members;
+    }
+
     @Override
-    public Response update(final String id) {
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+    public Response update(final String id, final SCIMPatchOp patch) {
+        ResponseBuilder builder = checkETag(Resource.Group, id);
+        if (builder != null) {
+            return builder.build();
+        }
+
+        patch.getOperations().forEach(op -> {
+            if (op.getPath() != null && "members".equals(op.getPath().getAttribute())) {
+                if (CollectionUtils.isEmpty(op.getValue())) {
+                    members(id).stream().filter(member -> op.getPath().getFilter() == null
+                            ? true
+                            : BooleanUtils.toBoolean(JexlUtils.evaluate(
+                                    SCIMDataBinder.filter2JexlExpression(op.getPath().getFilter()),
+                                    new MapContext(Map.of("value", member))).toString())).
+                            forEach(member -> changeMembership(member, id, op.getOp()));
+                } else {
+                    op.getValue().stream().map(Member.class::cast).
+                            forEach(member -> changeMembership(member.getValue(), id, op.getOp()));
+                }
+            } else {
+                groupLogic.update(binder.toGroupUR(groupLogic.read(id), op), false);
+            }
+        });
+
+        return updateResponse(
+                id,
+                binder.toSCIMGroup(
+                        groupLogic.read(id),
+                        uriInfo.getAbsolutePathBuilder().path(id).build().toASCIIString(),
+                        List.of(),
+                        List.of()));
     }
 
     @Override
@@ -121,28 +184,11 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
         }
 
         // save current group members
-        Set<String> beforeMembers = new HashSet<>();
-
-        MembershipCond membCond = new MembershipCond();
-        membCond.setGroup(id);
-        SearchCond searchCond = SearchCond.getLeaf(membCond);
-        int count = userLogic.search(searchCond,
-                1, 1, List.of(), SyncopeConstants.ROOT_REALM, true, false).getLeft();
-        for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-            beforeMembers.addAll(userLogic.search(
-                    searchCond,
-                    page,
-                    AnyDAO.DEFAULT_PAGE_SIZE,
-                    List.of(),
-                    SyncopeConstants.ROOT_REALM,
-                    true,
-                    false).
-                    getRight().stream().map(UserTO::getKey).collect(Collectors.toSet()));
-        }
+        Set<String> beforeMembers = members(id);
 
         // update group, don't change members
         ProvisioningResult<GroupTO> result = groupLogic.update(
-                AnyOperations.diff(SCIMDataBinder.toGroupTO(group), groupLogic.read(id), false), false);
+                AnyOperations.diff(binder.toGroupTO(group, true), groupLogic.read(id), false), false);
 
         // assign new members
         Set<String> afterMembers = new HashSet<>();
@@ -150,30 +196,12 @@ public class GroupServiceImpl extends AbstractService<SCIMGroup> implements Grou
             afterMembers.add(member.getValue());
 
             if (!beforeMembers.contains(member.getValue())) {
-                UserUR req = new UserUR.Builder(member.getValue()).
-                        membership(new MembershipUR.Builder(result.getEntity().getKey()).
-                                operation(PatchOperation.ADD_REPLACE).build()).
-                        build();
-                try {
-                    userLogic.update(req, false);
-                } catch (Exception e) {
-                    LOG.error("While setting membership of {} to {}",
-                            result.getEntity().getKey(), member.getValue(), e);
-                }
+                changeMembership(member.getValue(), result.getEntity().getKey(), PatchOp.add);
             }
         });
         // remove unconfirmed members
-        beforeMembers.stream().filter(member -> !afterMembers.contains(member)).forEach(user -> {
-            UserUR req = new UserUR.Builder(user).
-                    membership(new MembershipUR.Builder(result.getEntity().getKey()).
-                            operation(PatchOperation.DELETE).build()).
-                    build();
-            try {
-                userLogic.update(req, false);
-            } catch (Exception e) {
-                LOG.error("While removing membership of {} from {}", result.getEntity().getKey(), user, e);
-            }
-        });
+        beforeMembers.stream().filter(member -> !afterMembers.contains(member)).forEach(user -> changeMembership(
+                user, result.getEntity().getKey(), PatchOp.remove));
 
         return updateResponse(
                 result.getEntity().getKey(),

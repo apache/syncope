@@ -63,5 +63,4 @@ public class SCIMComplexConf<E extends Enum<?>> implements Serializable {
     public void setPrimary(final boolean primary) {
         this.primary = primary;
     }
-
 }

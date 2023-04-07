@@ -21,11 +21,16 @@ package org.apache.syncope.ext.scimv2.cxf.service;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.ResponseBuilder;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.request.StatusR;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.UserLogic;
@@ -34,16 +39,17 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
+import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOp;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
-import org.apache.syncope.ext.scimv2.api.service.UserService;
+import org.apache.syncope.ext.scimv2.api.service.SCIMUserService;
 import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 
-public class UserServiceImpl extends AbstractService<SCIMUser> implements UserService {
+public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implements SCIMUserService {
 
-    public UserServiceImpl(
+    public SCIMUserServiceImpl(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final UserLogic userLogic,
@@ -79,8 +85,25 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
     }
 
     @Override
-    public Response update(final String id) {
-        return Response.status(Response.Status.NOT_IMPLEMENTED).build();
+    public Response update(final String id, final SCIMPatchOp patch) {
+        ResponseBuilder builder = checkETag(Resource.User, id);
+        if (builder != null) {
+            return builder.build();
+        }
+
+        patch.getOperations().forEach(op -> {
+            Pair<UserUR, StatusR> update = binder.toUserUpdate(userLogic.read(id), op);
+            userLogic.update(update.getLeft(), false);
+            Optional.ofNullable(update.getRight()).ifPresent(statusR -> userLogic.status(statusR, false));
+        });
+
+        return updateResponse(
+                id,
+                binder.toSCIMUser(
+                        userLogic.read(id),
+                        uriInfo.getAbsolutePathBuilder().path(id).build().toASCIIString(),
+                        List.of(),
+                        List.of()));
     }
 
     @Override
@@ -94,8 +117,18 @@ public class UserServiceImpl extends AbstractService<SCIMUser> implements UserSe
             return builder.build();
         }
 
+        UserTO before = userLogic.read(id);
+
         ProvisioningResult<UserTO> result = userLogic.update(
-                AnyOperations.diff(binder.toUserTO(user), userLogic.read(id), false), false);
+                AnyOperations.diff(binder.toUserTO(user, true), before, false), false);
+
+        if (before.isSuspended() == user.isActive()) {
+            StatusR statusR = new StatusR.Builder().key(before.getKey()).
+                    type(user.isActive() ? StatusRType.REACTIVATE : StatusRType.SUSPEND).
+                    build();
+            userLogic.status(statusR, false);
+        }
+
         return updateResponse(
                 result.getEntity().getKey(),
                 binder.toSCIMUser(

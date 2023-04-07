@@ -128,6 +128,22 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
             }
         });
 
+        tabs.add(new ITabComponent(
+                new Model<>(getString("tab4")), getString("tab4")) {
+
+            private static final long serialVersionUID = 1998052474181916792L;
+
+            @Override
+            public WebMarkupContainer getPanel(final String panelId) {
+                return new SCIMConfGroupPanel(panelId, scimConfTO);
+            }
+
+            @Override
+            public boolean isVisible() {
+                return true;
+            }
+        });
+
         return tabs;
     }
 

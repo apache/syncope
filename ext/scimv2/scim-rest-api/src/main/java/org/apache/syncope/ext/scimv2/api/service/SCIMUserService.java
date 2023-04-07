@@ -16,27 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.ext.scimv2.api.data;
+package org.apache.syncope.ext.scimv2.api.service;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.ws.rs.Path;
+import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
 
-public class FilterConfigurationOption extends ConfigurationOption {
-
-    private static final long serialVersionUID = 8218541842239260269L;
-
-    private final int maxResults;
-
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public FilterConfigurationOption(
-            @JsonProperty("supported") final boolean supported,
-            @JsonProperty("maxResults") final int maxResults) {
-
-        super(supported);
-        this.maxResults = maxResults;
-    }
-
-    public int getMaxResults() {
-        return maxResults;
-    }
+@Path("v2/Users")
+public interface SCIMUserService extends SCIMResourceService<SCIMUser> {
 }

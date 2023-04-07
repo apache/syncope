@@ -35,5 +35,4 @@ public class ConfigurationOption extends SCIMBean {
     public boolean isSupported() {
         return supported;
     }
-
 }

@@ -73,5 +73,4 @@ public class SCIMError extends SCIMBean {
     public int getStatus() {
         return status;
     }
-
 }

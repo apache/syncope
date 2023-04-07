@@ -92,5 +92,4 @@ public class SCIMSearchRequest extends SCIMBean {
     public int getCount() {
         return Optional.ofNullable(count).orElse(25);
     }
-
 }

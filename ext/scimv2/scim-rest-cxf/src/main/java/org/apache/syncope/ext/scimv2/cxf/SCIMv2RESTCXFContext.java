@@ -36,12 +36,12 @@ import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.ext.scimv2.api.service.GroupService;
+import org.apache.syncope.ext.scimv2.api.service.SCIMGroupService;
 import org.apache.syncope.ext.scimv2.api.service.SCIMService;
-import org.apache.syncope.ext.scimv2.api.service.UserService;
-import org.apache.syncope.ext.scimv2.cxf.service.GroupServiceImpl;
+import org.apache.syncope.ext.scimv2.api.service.SCIMUserService;
+import org.apache.syncope.ext.scimv2.cxf.service.SCIMGroupServiceImpl;
 import org.apache.syncope.ext.scimv2.cxf.service.SCIMServiceImpl;
-import org.apache.syncope.ext.scimv2.cxf.service.UserServiceImpl;
+import org.apache.syncope.ext.scimv2.cxf.service.SCIMUserServiceImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -119,7 +119,7 @@ public class SCIMv2RESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public GroupService scimv2GroupService(
+    public SCIMGroupService scimv2GroupService(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final UserLogic userLogic,
@@ -127,12 +127,12 @@ public class SCIMv2RESTCXFContext {
             final SCIMDataBinder binder,
             final SCIMConfManager confManager) {
 
-        return new GroupServiceImpl(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
+        return new SCIMGroupServiceImpl(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public UserService scimv2UserService(
+    public SCIMUserService scimv2UserService(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final UserLogic userLogic,
@@ -140,6 +140,6 @@ public class SCIMv2RESTCXFContext {
             final SCIMDataBinder binder,
             final SCIMConfManager confManager) {
 
-        return new UserServiceImpl(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
+        return new SCIMUserServiceImpl(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
     }
 }

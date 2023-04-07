@@ -78,5 +78,4 @@ public class AuthenticationScheme extends SCIMBean {
     public boolean isPrimary() {
         return primary;
     }
-
 }

@@ -20,6 +20,7 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,6 +32,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import jakarta.ws.rs.HttpMethod;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
@@ -44,6 +46,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
+import org.apache.syncope.common.lib.scim.SCIMGroupConf;
 import org.apache.syncope.common.lib.scim.SCIMUserConf;
 import org.apache.syncope.common.lib.scim.SCIMUserNameConf;
 import org.apache.syncope.common.lib.scim.types.EmailCanonicalType;
@@ -78,8 +81,14 @@ public class SCIMITCase extends AbstractITCase {
 
     static {
         CONF = new SCIMConf();
+
+        CONF.setGroupConf(new SCIMGroupConf());
+
+        CONF.getGroupConf().setExternalId("originalName");
+
         CONF.setUserConf(new SCIMUserConf());
 
+        CONF.getUserConf().setNickName("ctype");
         CONF.getUserConf().setDisplayName("cn");
 
         CONF.getUserConf().setName(new SCIMUserNameConf());
@@ -95,6 +104,29 @@ public class SCIMITCase extends AbstractITCase {
         email.setValue("email");
         email.setType(EmailCanonicalType.home);
         CONF.getUserConf().getEmails().add(email);
+    }
+
+    private static SCIMUser getSampleUser(final String username) {
+        SCIMUser user = new SCIMUser(null, List.of(Resource.User.schema()), null, username, true);
+        user.setPassword("password123");
+
+        SCIMUserName name = new SCIMUserName();
+        name.setGivenName(username);
+        name.setFamilyName("surname");
+        name.setFormatted(username);
+        user.setName(name);
+
+        SCIMComplexValue userId = new SCIMComplexValue();
+        userId.setType(EmailCanonicalType.work.name());
+        userId.setValue(username + "@syncope.apache.org");
+        user.getEmails().add(userId);
+
+        SCIMComplexValue email = new SCIMComplexValue();
+        email.setType(EmailCanonicalType.home.name());
+        email.setValue(username + "@syncope.apache.org");
+        user.getEmails().add(email);
+
+        return user;
     }
 
     @BeforeAll
@@ -132,7 +164,7 @@ public class SCIMITCase extends AbstractITCase {
 
         ServiceProviderConfig serviceProviderConfig = response.readEntity(ServiceProviderConfig.class);
         assertNotNull(serviceProviderConfig);
-        assertFalse(serviceProviderConfig.getPatch().isSupported());
+        assertTrue(serviceProviderConfig.getPatch().isSupported());
         assertFalse(serviceProviderConfig.getBulk().isSupported());
         assertTrue(serviceProviderConfig.getChangePassword().isSupported());
         assertTrue(serviceProviderConfig.getEtag().isSupported());
@@ -330,29 +362,6 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals(newUser.getUsername(), newSCIMUser.getUserName());
     }
 
-    private static SCIMUser getSampleUser(final String username) {
-        SCIMUser user = new SCIMUser(null, List.of(Resource.User.schema()), null, username, true);
-        user.setPassword("password123");
-
-        SCIMUserName name = new SCIMUserName();
-        name.setGivenName(username);
-        name.setFamilyName("surname");
-        name.setFormatted(username);
-        user.setName(name);
-
-        SCIMComplexValue userId = new SCIMComplexValue();
-        userId.setType(EmailCanonicalType.work.name());
-        userId.setValue(username + "@syncope.apache.org");
-        user.getEmails().add(userId);
-
-        SCIMComplexValue email = new SCIMComplexValue();
-        email.setType(EmailCanonicalType.home.name());
-        email.setValue(username + "@syncope.apache.org");
-        user.getEmails().add(email);
-
-        return user;
-    }
-
     @Test
     public void createUser() throws JsonProcessingException {
         SCIM_CONF_SERVICE.set(CONF);
@@ -379,6 +388,143 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals(user.getEmails().get(1).getValue(), userTO.getPlainAttr("email").get().getValues().get(0));
         assertEquals(user.getRoles().get(0).getValue(), userTO.getRoles().get(0));
         assertEquals(user.getGroups().get(0).getValue(), userTO.getMemberships().get(0).getGroupKey());
+    }
+
+    @Test
+    public void updateUser() {
+        SCIM_CONF_SERVICE.set(CONF);
+
+        SCIMUser user = getSampleUser(UUID.randomUUID().toString());
+
+        Response response = webClient().path("Users").post(user);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        user = response.readEntity(SCIMUser.class);
+        assertNotNull(user.getId());
+        assertNull(user.getNickName());
+        assertTrue(user.isActive());
+
+        // 1. update no path, add value and suspend
+        String body =
+                "{"
+                + "  \"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "  \"Operations\": ["
+                + "    {"
+                + "      \"op\": \"add\","
+                + "      \"value\": {"
+                + "        \"nickName\": \"" + user.getUserName() + "\","
+                + "        \"active\": false"
+                + "      }"
+                + "    }"
+                + "  ]"
+                + "}";
+        response = webClient().path("Users").path(user.getId()).invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        user = response.readEntity(SCIMUser.class);
+        assertEquals(user.getUserName(), user.getNickName());
+        assertFalse(user.isActive());
+
+        // 2. update with path, reactivate
+        body =
+                "{"
+                + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "\"Operations\":[{"
+                + "\"op\":\"Replace\","
+                + "\"path\":\"active\","
+                + "\"value\":true"
+                + "}]"
+                + "}";
+        response = webClient().path("Users").path(user.getId()).invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        user = response.readEntity(SCIMUser.class);
+        assertTrue(user.isActive());
+
+        // 3. update with path, replace simple value
+        assertNotEquals("newSurname", user.getName().getFamilyName());
+        body =
+                "{"
+                + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "\"Operations\":["
+                + "{"
+                + "\"op\":\"Replace\","
+                + "\"path\":\"name.familyName\","
+                + "\"value\":\"newSurname\""
+                + "},"
+                + "{"
+                + "\"op\":\"remove\","
+                + "\"path\":\"nickName\""
+                + "}"
+                + "]"
+                + "}";
+        response = webClient().path("Users").path(user.getId()).invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        user = response.readEntity(SCIMUser.class);
+        assertEquals("newSurname", user.getName().getFamilyName());
+        assertNull(user.getNickName());
+
+        // 4. update with path, replace complex value
+        String newMail = UUID.randomUUID().toString() + "@syncope.apache.org";
+        assertNotEquals(
+                newMail,
+                user.getEmails().stream().filter(v -> "work".equals(v.getType())).findFirst().get().getValue());
+        body =
+                "{"
+                + "     \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "     \"Operations\": [{"
+                + "       \"op\":\"replace\","
+                + "       \"path\":\"emails[type eq \\\"work\\\"]\","
+                + "       \"value\":"
+                + "       {"
+                + "         \"type\": \"work\","
+                + "         \"value\": \"" + newMail + "\","
+                + "         \"primary\": true"
+                + "       }"
+                + "     }]"
+                + "   }";
+        response = webClient().path("Users").path(user.getId()).invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        user = response.readEntity(SCIMUser.class);
+        assertEquals(
+                newMail,
+                user.getEmails().stream().filter(v -> "work".equals(v.getType())).findFirst().get().getValue());
+
+        // 5. update with path, filter and sub
+        newMail = "verycomplex" + UUID.randomUUID().toString() + "@syncope.apache.org";
+        body =
+                "{"
+                + "     \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "     \"Operations\": [{"
+                + "       \"op\":\"replace\","
+                + "       \"path\":\"emails[type eq \\\"work\\\"].value\","
+                + "       \"value\":\"" + newMail + "\""
+                + "     }]"
+                + "   }";
+        response = webClient().path("Users").path(user.getId()).invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        user = response.readEntity(SCIMUser.class);
+        assertEquals(
+                newMail,
+                user.getEmails().stream().filter(v -> "work".equals(v.getType())).findFirst().get().getValue());
+
+        // 6. remove with path and filter
+        body =
+                "{"
+                + "     \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "     \"Operations\": [{"
+                + "       \"op\":\"remove\","
+                + "       \"path\":\"emails[type eq \\\"home\\\"]\""
+                + "     }]"
+                + "   }";
+        response = webClient().path("Users").path(user.getId()).invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        user = response.readEntity(SCIMUser.class);
+        assertTrue(user.getEmails().stream().noneMatch(v -> "home".equals(v.getType())));
     }
 
     @Test
@@ -454,6 +600,87 @@ public class SCIMITCase extends AbstractITCase {
         SCIMError error = response.readEntity(SCIMError.class);
         assertEquals(Response.Status.CONFLICT.getStatusCode(), error.getStatus());
         assertEquals(ErrorType.uniqueness, error.getScimType());
+    }
+
+    @Test
+    public void updateGroup() {
+        SCIM_CONF_SERVICE.set(CONF);
+
+        SCIMGroup group = new SCIMGroup(null, null, UUID.randomUUID().toString());
+        group.getMembers().add(new Member("74cd8ece-715a-44a4-a736-e17b46c4e7e6", null, null));
+        group.getMembers().add(new Member("1417acbe-cbf6-4277-9372-e75e04f97000", null, null));
+        Response response = webClient().path("Groups").post(group);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        group = response.readEntity(SCIMGroup.class);
+        assertNotNull(group.getId());
+        assertNull(group.getExternalId());
+        assertEquals(2, group.getMembers().size());
+
+        // 1. update with path, add value
+        String body =
+                "{"
+                + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "\"Operations\":[{"
+                + "\"op\":\"Add\","
+                + "\"path\":\"externalId\","
+                + "\"value\":\"" + group.getId() + "\""
+                + "}]"
+                + "}";
+        response = webClient().path("Groups").path(group.getId()).invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        group = response.readEntity(SCIMGroup.class);
+        assertEquals(group.getId(), group.getExternalId());
+
+        // 2. add member, remove member, remove attribute
+        body =
+                "{"
+                + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "\"Operations\":["
+                + "{"
+                + "\"op\":\"Add\","
+                + "\"path\":\"members\","
+                + "\"value\":[{"
+                + "\"value\":\"b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee\"}]"
+                + "},"
+                + "{"
+                + "\"op\":\"remove\","
+                + "\"path\":\"members[value eq \\\"74cd8ece-715a-44a4-a736-e17b46c4e7e6\\\"]\""
+                + "},"
+                + "{"
+                + "\"op\":\"remove\","
+                + "\"path\":\"externalId\""
+                + "}"
+                + "]"
+                + "}";
+        response = webClient().path("Groups").path(group.getId()).invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        group = response.readEntity(SCIMGroup.class);
+        assertEquals(2, group.getMembers().size());
+        assertTrue(group.getMembers().stream().
+                anyMatch(m -> "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee".equals(m.getValue())));
+        assertTrue(group.getMembers().stream().
+                anyMatch(m -> "1417acbe-cbf6-4277-9372-e75e04f97000".equals(m.getValue())));
+        assertNull(group.getExternalId());
+
+        // 3. remove all members
+        body =
+                "{"
+                + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "\"Operations\":["
+                + "{"
+                + "\"op\":\"remove\","
+                + "\"path\":\"members\""
+                + "}"
+                + "]"
+                + "}";
+        response = webClient().path("Groups").path(group.getId()).invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        group = response.readEntity(SCIMGroup.class);
+        assertTrue(group.getMembers().isEmpty());
     }
 
     @Test

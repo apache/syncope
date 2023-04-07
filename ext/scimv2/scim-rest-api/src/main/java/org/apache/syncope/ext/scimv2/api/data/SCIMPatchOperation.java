@@ -18,33 +18,43 @@
  */
 package org.apache.syncope.ext.scimv2.api.data;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.io.Serializable;
+import java.util.List;
+import org.apache.syncope.ext.scimv2.api.type.PatchOp;
 
-public class BulkConfigurationOption extends ConfigurationOption {
+@JsonDeserialize(using = SCIMPatchOperationDeserializer.class)
+public class SCIMPatchOperation extends SCIMBean {
 
-    private static final long serialVersionUID = 8218541842239260269L;
+    private static final long serialVersionUID = 1802654766651071823L;
 
-    private final int maxOperations;
+    private PatchOp op;
 
-    private final int maxPayloadSize;
+    private SCIMPatchPath path;
 
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public BulkConfigurationOption(
-            @JsonProperty("supported") final boolean supported,
-            @JsonProperty("maxOperations") final int maxOperations,
-            @JsonProperty("maxPayloadSize") final int maxPayloadSize) {
+    private List<Serializable> value;
 
-        super(supported);
-        this.maxOperations = maxOperations;
-        this.maxPayloadSize = maxPayloadSize;
+    public PatchOp getOp() {
+        return op;
     }
 
-    public int getMaxOperations() {
-        return maxOperations;
+    public void setOp(final PatchOp op) {
+        this.op = op;
     }
 
-    public int getMaxPayloadSize() {
-        return maxPayloadSize;
+    public SCIMPatchPath getPath() {
+        return path;
+    }
+
+    public void setPath(final SCIMPatchPath path) {
+        this.path = path;
+    }
+
+    public List<Serializable> getValue() {
+        return value;
+    }
+
+    public void setValue(final List<Serializable> value) {
+        this.value = value;
     }
 }

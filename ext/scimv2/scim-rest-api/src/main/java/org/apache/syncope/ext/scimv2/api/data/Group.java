@@ -48,5 +48,4 @@ public class Group extends Reference {
     public String getType() {
         return Optional.ofNullable(type).map(Enum::name).orElse(null);
     }
-
 }

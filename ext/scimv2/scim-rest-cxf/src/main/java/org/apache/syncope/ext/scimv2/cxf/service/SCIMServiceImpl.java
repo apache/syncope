@@ -32,7 +32,7 @@ import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 import org.apache.syncope.ext.scimv2.api.data.ServiceProviderConfig;
 import org.apache.syncope.ext.scimv2.api.service.SCIMService;
 
-public class SCIMServiceImpl extends AbstractService<SCIMResource> implements SCIMService {
+public class SCIMServiceImpl extends AbstractSCIMService<SCIMResource> implements SCIMService {
 
     protected final SCIMLogic scimLogic;
 

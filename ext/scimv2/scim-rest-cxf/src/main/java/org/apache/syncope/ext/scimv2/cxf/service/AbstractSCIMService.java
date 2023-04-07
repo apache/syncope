@@ -54,9 +54,9 @@ import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class AbstractService<R extends SCIMResource> {
+abstract class AbstractSCIMService<R extends SCIMResource> {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractService.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractSCIMService.class);
 
     @Context
     protected UriInfo uriInfo;
@@ -76,7 +76,7 @@ abstract class AbstractService<R extends SCIMResource> {
 
     protected final SCIMConfManager confManager;
 
-    protected AbstractService(
+    protected AbstractSCIMService(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final UserLogic userLogic,
@@ -200,7 +200,8 @@ abstract class AbstractService<R extends SCIMResource> {
                         request.getAttributes(),
                         request.getExcludedAttributes());
             } else if (anyTO instanceof GroupTO) {
-                resource = binder.toSCIMGroup((GroupTO) anyTO,
+                resource = binder.toSCIMGroup(
+                        (GroupTO) anyTO,
                         uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString(),
                         request.getAttributes(),
                         request.getExcludedAttributes());
@@ -213,5 +214,4 @@ abstract class AbstractService<R extends SCIMResource> {
 
         return response;
     }
-
 }

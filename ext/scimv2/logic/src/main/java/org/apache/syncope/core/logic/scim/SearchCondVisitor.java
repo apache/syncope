@@ -79,49 +79,64 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
             attrCond.setSchema("lastChangeDate");
         }
 
-        if (resource == Resource.User) {
-            if (conf.getUserConf() != null) {
-                if (conf.getUserConf().getName() != null) {
-                    for (Map.Entry<String, String> entry : conf.getUserConf().getName().asMap().entrySet()) {
-                        if (schemaEquals(Resource.User, "name." + entry.getKey(), schema)) {
+        switch (resource) {
+            case User:
+                if (conf.getUserConf() != null) {
+                    if (conf.getUserConf().getName() != null) {
+                        for (Map.Entry<String, String> entry : conf.getUserConf().getName().asMap().entrySet()) {
+                            if (schemaEquals(Resource.User, "name." + entry.getKey(), schema)) {
+                                attrCond = new AttrCond();
+                                attrCond.setSchema(entry.getValue());
+                            }
+                        }
+                    }
+
+                    for (Map.Entry<String, String> entry : conf.getUserConf().asMap().entrySet()) {
+                        if (schemaEquals(Resource.User, entry.getKey(), schema)) {
+                            attrCond = new AttrCond();
+                            attrCond.setSchema(entry.getValue());
+                        }
+                    }
+
+                    for (SCIMUserAddressConf address : conf.getUserConf().getAddresses()) {
+                        for (Map.Entry<String, String> entry : address.asMap().entrySet()) {
+                            if (schemaEquals(Resource.User, "addresses." + entry.getKey(), schema)) {
+                                attrCond = new AttrCond();
+                                attrCond.setSchema(entry.getValue());
+                            }
+                        }
+                    }
+                }
+
+                if (conf.getEnterpriseUserConf() != null) {
+                    for (Map.Entry<String, String> entry : conf.getEnterpriseUserConf().asMap().entrySet()) {
+                        if (schemaEquals(Resource.EnterpriseUser, entry.getKey(), schema)) {
+                            attrCond = new AttrCond();
+                            attrCond.setSchema(entry.getValue());
+                        }
+                    }
+
+                    if (conf.getEnterpriseUserConf().getManager() != null
+                            && conf.getEnterpriseUserConf().getManager().getKey() != null) {
+
+                        attrCond = new AttrCond();
+                        attrCond.setSchema(conf.getEnterpriseUserConf().getManager().getKey());
+                    }
+                }
+                break;
+
+            case Group:
+                if (conf.getGroupConf() != null) {
+                    for (Map.Entry<String, String> entry : conf.getGroupConf().asMap().entrySet()) {
+                        if (schemaEquals(Resource.Group, entry.getKey(), schema)) {
                             attrCond = new AttrCond();
                             attrCond.setSchema(entry.getValue());
                         }
                     }
                 }
+                break;
 
-                for (Map.Entry<String, String> entry : conf.getUserConf().asMap().entrySet()) {
-                    if (schemaEquals(Resource.User, entry.getKey(), schema)) {
-                        attrCond = new AttrCond();
-                        attrCond.setSchema(entry.getValue());
-                    }
-                }
-
-                for (SCIMUserAddressConf address : conf.getUserConf().getAddresses()) {
-                    for (Map.Entry<String, String> entry : address.asMap().entrySet()) {
-                        if (schemaEquals(Resource.User, "addresses." + entry.getKey(), schema)) {
-                            attrCond = new AttrCond();
-                            attrCond.setSchema(entry.getValue());
-                        }
-                    }
-                }
-            }
-
-            if (conf.getEnterpriseUserConf() != null) {
-                for (Map.Entry<String, String> entry : conf.getEnterpriseUserConf().asMap().entrySet()) {
-                    if (schemaEquals(Resource.EnterpriseUser, entry.getKey(), schema)) {
-                        attrCond = new AttrCond();
-                        attrCond.setSchema(entry.getValue());
-                    }
-                }
-
-                if (conf.getEnterpriseUserConf().getManager() != null
-                        && conf.getEnterpriseUserConf().getManager().getKey() != null) {
-
-                    attrCond = new AttrCond();
-                    attrCond.setSchema(conf.getEnterpriseUserConf().getManager().getKey());
-                }
-            }
+            default:
         }
 
         if (attrCond == null) {
