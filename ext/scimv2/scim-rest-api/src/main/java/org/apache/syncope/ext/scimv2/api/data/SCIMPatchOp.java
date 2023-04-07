@@ -18,25 +18,28 @@
  */
 package org.apache.syncope.ext.scimv2.api.data;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import org.apache.syncope.ext.scimv2.api.type.Resource;
 
-public class FilterConfigurationOption extends ConfigurationOption {
+public class SCIMPatchOp extends SCIMBean {
 
-    private static final long serialVersionUID = 8218541842239260269L;
+    private static final long serialVersionUID = 3957352317667344898L;
 
-    private final int maxResults;
+    private final List<String> schemas = List.of(Resource.PatchOp.schema());
 
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public FilterConfigurationOption(
-            @JsonProperty("supported") final boolean supported,
-            @JsonProperty("maxResults") final int maxResults) {
+    @JsonProperty("Operations")
+    private List<SCIMPatchOperation> operations;
 
-        super(supported);
-        this.maxResults = maxResults;
+    public List<String> getSchemas() {
+        return schemas;
     }
 
-    public int getMaxResults() {
-        return maxResults;
+    public List<SCIMPatchOperation> getOperations() {
+        return operations;
+    }
+
+    public void setOperations(final List<SCIMPatchOperation> operations) {
+        this.operations = operations;
     }
 }

@@ -92,5 +92,4 @@ public class ResourceType extends SCIMBean {
     public Meta getMeta() {
         return meta;
     }
-
 }

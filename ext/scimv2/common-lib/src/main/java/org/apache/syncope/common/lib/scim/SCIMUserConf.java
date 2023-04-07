@@ -34,6 +34,8 @@ public class SCIMUserConf implements Serializable {
 
     private static final long serialVersionUID = -2700011089067219156L;
 
+    private String externalId;
+
     private SCIMUserNameConf name;
 
     private String displayName;
@@ -68,6 +70,10 @@ public class SCIMUserConf implements Serializable {
     public Map<String, String> asMap() {
         Map<String, String> map = new HashMap<>();
 
+        if (externalId != null) {
+            map.put("externalId", externalId);
+        }
+
         if (displayName != null) {
             map.put("displayName", displayName);
         }
@@ -94,6 +100,14 @@ public class SCIMUserConf implements Serializable {
         }
 
         return Collections.unmodifiableMap(map);
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(final String externalId) {
+        this.externalId = externalId;
     }
 
     public SCIMUserNameConf getName() {
@@ -191,5 +205,4 @@ public class SCIMUserConf implements Serializable {
     public List<String> getX509Certificates() {
         return x509Certificates;
     }
-
 }

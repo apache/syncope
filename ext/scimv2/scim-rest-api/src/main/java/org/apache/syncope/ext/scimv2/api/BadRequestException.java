@@ -39,5 +39,4 @@ public class BadRequestException extends RuntimeException {
     public ErrorType getErrorType() {
         return errorType;
     }
-
 }

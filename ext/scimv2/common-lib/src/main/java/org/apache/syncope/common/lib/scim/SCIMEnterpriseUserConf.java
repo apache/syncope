@@ -110,5 +110,4 @@ public class SCIMEnterpriseUserConf implements Serializable {
     public void setManager(final SCIMManagerConf manager) {
         this.manager = manager;
     }
-
 }

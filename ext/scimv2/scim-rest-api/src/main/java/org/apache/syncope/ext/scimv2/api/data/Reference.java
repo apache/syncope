@@ -42,5 +42,4 @@ abstract class Reference extends Value {
     public String getRef() {
         return ref;
     }
-
 }

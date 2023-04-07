@@ -45,5 +45,4 @@ public class SchemaExtension extends SCIMBean {
     public boolean isRequired() {
         return required;
     }
-
 }

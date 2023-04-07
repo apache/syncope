@@ -32,6 +32,8 @@ public class SCIMConf implements Serializable {
 
     private SCIMEnterpriseUserConf enterpriseUserConf;
 
+    private SCIMGroupConf groupConf;
+
     public SCIMGeneralConf getGeneralConf() {
         return generalConf;
     }
@@ -56,4 +58,11 @@ public class SCIMConf implements Serializable {
         this.enterpriseUserConf = enterpriseUserConf;
     }
 
+    public SCIMGroupConf getGroupConf() {
+        return groupConf;
+    }
+
+    public void setGroupConf(final SCIMGroupConf groupConf) {
+        this.groupConf = groupConf;
+    }
 }

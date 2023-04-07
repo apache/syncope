@@ -19,10 +19,12 @@
 package org.apache.syncope.ext.scimv2.api.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @JsonPropertyOrder({ "schemas", "id", "externalId",
     "userName", "password", "active",
@@ -39,11 +41,9 @@ public class SCIMUser extends SCIMResource {
 
     private String password;
 
-    private final boolean active;
+    private final Boolean active;
 
     private SCIMUserName name;
-
-    private String displayName;
 
     private String nickName;
 
@@ -86,7 +86,7 @@ public class SCIMUser extends SCIMResource {
             @JsonProperty("schemas") final List<String> schemas,
             @JsonProperty("meta") final Meta meta,
             @JsonProperty("userName") final String userName,
-            @JsonProperty("active") final boolean active) {
+            @JsonProperty("active") final Boolean active) {
 
         super(id, schemas, meta);
         this.userName = userName;
@@ -105,8 +105,13 @@ public class SCIMUser extends SCIMResource {
         return password;
     }
 
-    public boolean isActive() {
+    @JsonIgnore
+    public Boolean getActive() {
         return active;
+    }
+
+    public boolean isActive() {
+        return Optional.ofNullable(active).orElse(true);
     }
 
     public SCIMUserName getName() {
@@ -115,14 +120,6 @@ public class SCIMUser extends SCIMResource {
 
     public void setName(final SCIMUserName name) {
         this.name = name;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(final String displayName) {
-        this.displayName = displayName;
     }
 
     public String getNickName() {
@@ -224,5 +221,4 @@ public class SCIMUser extends SCIMResource {
     public void setEnterpriseInfo(final SCIMEnterpriseInfo enterpriseInfo) {
         this.enterpriseInfo = enterpriseInfo;
     }
-
 }

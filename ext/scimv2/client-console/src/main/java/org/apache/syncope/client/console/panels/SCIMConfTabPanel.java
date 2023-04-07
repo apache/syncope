@@ -26,21 +26,38 @@ import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.LoadableDetachableModel;
 
 public class SCIMConfTabPanel extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = -4482885585790492795L;
 
-    protected final List<String> plainSchemaNames = getPlainSchemas();
+    protected final LoadableDetachableModel<List<String>> userPlainSchemas = new LoadableDetachableModel<>() {
+
+        private static final long serialVersionUID = 4659376149825914247L;
+
+        @Override
+        protected List<String> load() {
+            return SchemaRestClient.getSchemas(SchemaType.PLAIN, AnyTypeKind.USER).stream().
+                    map(SchemaTO::getKey).
+                    filter(name -> !"password".equals(name)).
+                    sorted().collect(Collectors.toList());
+        }
+    };
+
+    protected final LoadableDetachableModel<List<String>> groupPlainSchemas = new LoadableDetachableModel<>() {
+
+        private static final long serialVersionUID = 4659376149825914247L;
+
+        @Override
+        protected List<String> load() {
+            return SchemaRestClient.getSchemas(SchemaType.PLAIN, AnyTypeKind.GROUP).stream().
+                    map(SchemaTO::getKey).
+                    sorted().collect(Collectors.toList());
+        }
+    };
 
     public SCIMConfTabPanel(final String id) {
         super(id);
-    }
-
-    private static List<String> getPlainSchemas() {
-        return SchemaRestClient.getSchemas(SchemaType.PLAIN, AnyTypeKind.USER).stream().
-                map(SchemaTO::getKey).
-                filter(name -> !"password".equals(name)).
-                sorted().collect(Collectors.toList());
     }
 }

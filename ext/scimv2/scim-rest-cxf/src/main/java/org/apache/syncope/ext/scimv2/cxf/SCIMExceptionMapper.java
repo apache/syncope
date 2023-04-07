@@ -53,19 +53,19 @@ import org.springframework.transaction.TransactionSystemException;
 @Provider
 public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SCIMExceptionMapper.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SCIMExceptionMapper.class);
 
-    private static Class<?> ENTITYEXISTS_EXCLASS = null;
+    protected static Class<?> ENTITYEXISTS_EXCLASS = null;
 
-    private static Class<?> PERSISTENCE_EXCLASS = null;
+    protected static Class<?> PERSISTENCE_EXCLASS = null;
 
-    private static Class<?> ROLLBACK_EXCLASS = null;
+    protected static Class<?> ROLLBACK_EXCLASS = null;
 
-    private static Class<?> JPASYSTEM_EXCLASS = null;
+    protected static Class<?> JPASYSTEM_EXCLASS = null;
 
-    private static Class<?> CONNECTOR_EXCLASS = null;
+    protected static Class<?> CONNECTOR_EXCLASS = null;
 
-    private static Class<?> IBATISPERSISTENCE_EXCLASS = null;
+    protected static Class<?> IBATISPERSISTENCE_EXCLASS = null;
 
     static {
         try {
@@ -122,6 +122,14 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
             if (builder == null && ex instanceof ValidationException) {
                 builder = builder(ClientExceptionType.RESTValidation, ExceptionUtils.getRootCauseMessage(ex));
             }
+            // process requests for features not yet implemented 
+            if (builder == null && ex instanceof UnsupportedOperationException) {
+                builder = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
+                        entity(new SCIMError(
+                                ErrorType.invalidSyntax,
+                                Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+                                ExceptionUtils.getRootCauseMessage(ex)));
+            }
             // ...or just report as InternalServerError
             if (builder == null) {
                 builder = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
@@ -132,7 +140,7 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
         return Optional.ofNullable(builder).map(ResponseBuilder::build).orElse(null);
     }
 
-    private static ResponseBuilder processInvalidEntityExceptions(final Exception ex) {
+    protected ResponseBuilder processInvalidEntityExceptions(final Exception ex) {
         InvalidEntityException iee = null;
 
         if (ex instanceof InvalidEntityException) {
@@ -173,7 +181,7 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
         return null;
     }
 
-    private static ResponseBuilder processBadRequestExceptions(final Exception ex) {
+    protected ResponseBuilder processBadRequestExceptions(final Exception ex) {
         if (ex instanceof WorkflowException) {
             return builder(ClientExceptionType.Workflow, ExceptionUtils.getRootCauseMessage(ex));
         } else if (PERSISTENCE_EXCLASS.isAssignableFrom(ex.getClass())) {
@@ -195,7 +203,7 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
         return null;
     }
 
-    private static ResponseBuilder builder(final ClientExceptionType hType, final String msg) {
+    protected ResponseBuilder builder(final ClientExceptionType hType, final String msg) {
         ResponseBuilder builder = Response.status(hType.getResponseStatus());
 
         ErrorType scimType = null;

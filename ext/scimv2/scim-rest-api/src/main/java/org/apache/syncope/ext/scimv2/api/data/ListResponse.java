@@ -69,5 +69,4 @@ public class ListResponse<R extends SCIMResource> extends SCIMBean {
     public int getItemsPerPage() {
         return itemsPerPage;
     }
-
 }
