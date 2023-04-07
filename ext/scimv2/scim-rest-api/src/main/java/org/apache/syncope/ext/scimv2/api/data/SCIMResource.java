@@ -29,11 +29,13 @@ public abstract class SCIMResource extends SCIMBean {
 
     private String externalId;
 
+    private String displayName;
+
     private final List<String> schemas;
 
     private final Meta meta;
 
-    public SCIMResource(final String id, final List<String> schemas, final Meta meta) {
+    protected SCIMResource(final String id, final List<String> schemas, final Meta meta) {
         this.id = id;
         this.schemas = Optional.ofNullable(schemas).orElse(List.of());
         this.meta = meta;
@@ -59,4 +61,11 @@ public abstract class SCIMResource extends SCIMBean {
         return externalId;
     }
 
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(final String displayName) {
+        this.displayName = displayName;
+    }
 }

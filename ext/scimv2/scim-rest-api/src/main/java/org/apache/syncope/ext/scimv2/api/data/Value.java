@@ -35,5 +35,4 @@ public class Value extends SCIMBean {
     public String getValue() {
         return value;
     }
-
 }

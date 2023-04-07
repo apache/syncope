@@ -463,8 +463,7 @@ abstract class AbstractAnyDataBinder {
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // 3. plain attributes
-        anyUR.getPlainAttrs().stream().
-                filter(patch -> patch.getAttr() != null).forEach(patch -> {
+        anyUR.getPlainAttrs().stream().filter(patch -> patch.getAttr() != null).forEach(patch -> {
             PlainSchema schema = getPlainSchema(patch.getAttr().getSchema());
             if (schema == null) {
                 LOG.debug("Invalid " + PlainSchema.class.getSimpleName() + " {}, ignoring...",

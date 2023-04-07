@@ -33,5 +33,4 @@ public class Member extends Reference {
 
         super(value, display, ref);
     }
-
 }

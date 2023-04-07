@@ -18,54 +18,49 @@
  */
 package org.apache.syncope.ext.scimv2.api.data;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
 
-public class SCIMComplexValue extends SCIMBean {
+public class SCIMPatchPath implements Serializable {
 
-    private static final long serialVersionUID = -3887211468327809832L;
+    private static final long serialVersionUID = -1092849408316419356L;
 
-    private String value;
+    private String schema;
 
-    private String display;
+    private String attribute;
 
-    private String type;
+    private String filter;
 
-    private boolean primary;
+    private String sub;
 
-    public String getValue() {
-        return value;
+    public String getSchema() {
+        return schema;
     }
 
-    public void setValue(final String value) {
-        this.value = value;
+    public void setSchema(final String schema) {
+        this.schema = schema;
     }
 
-    public String getDisplay() {
-        return display;
+    public String getAttribute() {
+        return attribute;
     }
 
-    public void setDisplay(final String display) {
-        this.display = display;
+    public void setAttribute(final String attribute) {
+        this.attribute = attribute;
     }
 
-    public String getType() {
-        return type;
+    public String getFilter() {
+        return filter;
     }
 
-    public void setType(final String type) {
-        this.type = type;
+    public void setFilter(final String filter) {
+        this.filter = filter;
     }
 
-    public boolean isPrimary() {
-        return primary;
+    public String getSub() {
+        return sub;
     }
 
-    public void setPrimary(final boolean primary) {
-        this.primary = primary;
-    }
-
-    @JsonIgnore
-    public boolean isEmpty() {
-        return value == null && display == null;
+    public void setSub(final String sub) {
+        this.sub = sub;
     }
 }

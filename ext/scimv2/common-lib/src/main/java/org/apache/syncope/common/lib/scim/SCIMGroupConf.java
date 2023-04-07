@@ -16,27 +16,36 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.ext.scimv2.api.data;
+package org.apache.syncope.common.lib.scim;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-public class FilterConfigurationOption extends ConfigurationOption {
+public class SCIMGroupConf implements Serializable {
 
-    private static final long serialVersionUID = 8218541842239260269L;
+    private static final long serialVersionUID = -2700011089067219156L;
 
-    private final int maxResults;
+    private String externalId;
 
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public FilterConfigurationOption(
-            @JsonProperty("supported") final boolean supported,
-            @JsonProperty("maxResults") final int maxResults) {
+    @JsonIgnore
+    public Map<String, String> asMap() {
+        Map<String, String> map = new HashMap<>();
 
-        super(supported);
-        this.maxResults = maxResults;
+        if (externalId != null) {
+            map.put("externalId", externalId);
+        }
+
+        return Collections.unmodifiableMap(map);
     }
 
-    public int getMaxResults() {
-        return maxResults;
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(final String externalId) {
+        this.externalId = externalId;
     }
 }

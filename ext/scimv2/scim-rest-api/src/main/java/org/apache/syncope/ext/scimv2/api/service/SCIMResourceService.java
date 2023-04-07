@@ -20,19 +20,24 @@ package org.apache.syncope.ext.scimv2.api.service;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+import org.apache.cxf.jaxrs.ext.PATCH;
 import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
+import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOp;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 
-public interface ReadService<R extends SCIMResource> {
+public interface SCIMResourceService<R extends SCIMResource> {
 
     @GET
     @Path("{id}")
@@ -57,4 +62,26 @@ public interface ReadService<R extends SCIMResource> {
     @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
     @Consumes({ SCIMConstants.APPLICATION_SCIM_JSON })
     ListResponse<R> search(SCIMSearchRequest request);
+
+    @POST
+    @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
+    @Consumes({ SCIMConstants.APPLICATION_SCIM_JSON })
+    Response create(R resource);
+
+    @PATCH
+    @Path("{id}")
+    @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
+    @Consumes({ SCIMConstants.APPLICATION_SCIM_JSON })
+    Response update(@NotNull @PathParam("id") String id, SCIMPatchOp patch);
+
+    @PUT
+    @Path("{id}")
+    @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
+    @Consumes({ SCIMConstants.APPLICATION_SCIM_JSON })
+    Response replace(@NotNull @PathParam("id") String id, R resource);
+
+    @DELETE
+    @Path("{id}")
+    @Produces({ SCIMConstants.APPLICATION_SCIM_JSON })
+    Response delete(@NotNull @PathParam("id") String id);
 }

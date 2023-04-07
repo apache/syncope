@@ -103,5 +103,4 @@ public class ServiceProviderConfig extends SCIMBean {
     public List<AuthenticationScheme> getAuthenticationSchemes() {
         return authenticationSchemes;
     }
-
 }
