@@ -993,6 +993,7 @@ public class SCIMDataBinder {
         attrs.putAll(EntityTOUtils.buildAttrMap(groupTO.getVirAttrs()));
 
         if (output(attributes, excludedAttributes, "externalId")
+                && conf.getGroupConf() != null
                 && conf.getGroupConf().getExternalId() != null
                 && attrs.containsKey(conf.getGroupConf().getExternalId())) {
 
