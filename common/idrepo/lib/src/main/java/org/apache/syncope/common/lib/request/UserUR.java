@@ -210,18 +210,21 @@ public class UserUR extends AnyUR {
     }
 
     @JsonIgnore
-    public boolean isEmptyButPassword() {
+    protected boolean isEmptyNotConsideringPassword() {
         return super.isEmpty()
                 && username == null && securityQuestion == null && securityAnswer == null
                 && mustChangePassword == null && relationships.isEmpty() && memberships.isEmpty() && roles.isEmpty()
                 && linkedAccounts.isEmpty();
     }
 
+    @JsonIgnore
+    public boolean isEmptyButPassword() {
+        return isEmptyNotConsideringPassword() && password != null;
+    }
+
     @Override
     public boolean isEmpty() {
-        return super.isEmpty()
-                && isEmptyButPassword()
-                && password == null;
+        return isEmptyNotConsideringPassword() && password == null;
     }
 
     @Override

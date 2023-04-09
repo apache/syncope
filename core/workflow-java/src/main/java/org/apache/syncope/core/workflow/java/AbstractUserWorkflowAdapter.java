@@ -171,8 +171,12 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         return result;
     }
 
-    protected Pair<Boolean, Boolean> enforcePolicies(final User user, final String clearPassword) {
-        if (clearPassword != null) {
+    protected Pair<Boolean, Boolean> enforcePolicies(
+            final User user,
+            final boolean disablePwdPolicyCheck,
+            final String clearPassword) {
+
+        if (!disablePwdPolicyCheck) {
             // ------------------------------
             // Verify password policies
             // ------------------------------
@@ -181,7 +185,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
             try {
                 int maxPPSpecHistory = 0;
                 for (PasswordPolicy policy : getPasswordPolicies(user)) {
-                    if (user.getPassword() == null && !policy.isAllowNullPassword()) {
+                    if (clearPassword == null && !policy.isAllowNullPassword()) {
                         throw new PasswordPolicyException("Password mandatory");
                     }
 
@@ -309,7 +313,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
         // enforce password and account policies
         User user = userDAO.find(result.getResult().getKey());
-        enforcePolicies(user, disablePwdPolicyCheck ? null : userCR.getPassword());
+        enforcePolicies(user, disablePwdPolicyCheck, disablePwdPolicyCheck ? null : userCR.getPassword());
         userDAO.save(user);
 
         return result;
@@ -355,7 +359,10 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         }
 
         // enforce password and account policies
-        enforcePolicies(user, Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null));
+        enforcePolicies(
+                user,
+                false,
+                Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null));
         user = userDAO.save(user);
 
         if (!AuthContextUtils.getUsername().equals(user.getUsername())) {
@@ -395,7 +402,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
         Pair<UserWorkflowResult<String>, Boolean> result = null;
 
-        Pair<Boolean, Boolean> enforce = enforcePolicies(user, null);
+        Pair<Boolean, Boolean> enforce = enforcePolicies(user, true, null);
         if (enforce.getKey()) {
             LOG.debug("User {} {} is over the max failed logins", user.getKey(), user.getUsername());
 
@@ -443,7 +450,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         User user = userDAO.authFind(key);
 
         // enforce password and account policies
-        enforcePolicies(user, password);
+        enforcePolicies(user, false, password);
         user = userDAO.save(user);
 
         return doConfirmPasswordReset(user, token, password, updater, context);

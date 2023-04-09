@@ -476,7 +476,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 2. request to change password only on testdb (no Syncope, no testdb2)
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
-        userUR.setPassword(new PasswordPatch.Builder().value(getUUIDString()).onSyncope(false).
+        userUR.setPassword(new PasswordPatch.Builder().value(UUID.randomUUID().toString()).onSyncope(false).
                 resource(RESOURCE_NAME_TESTDB).build());
 
         ProvisioningResult<UserTO> result = updateUser(userUR);
