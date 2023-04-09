@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import javax.naming.NamingException;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -1528,9 +1529,8 @@ public class UserIssuesITCase extends AbstractITCase {
                 .value("Other")
                 .build());
 
-        for (int i = 0; i < 2; i++) {
-            updateUser(userUR);
-        }
+        updateUser(userUR);
+        updateUser(userUR);
 
         // 2. remove resources, auxiliary classes and roles
         userUR.getResources().clear();
@@ -1567,17 +1567,34 @@ public class UserIssuesITCase extends AbstractITCase {
                 accept(MediaType.APPLICATION_JSON_TYPE).
                 type(MediaType.APPLICATION_JSON_TYPE);
 
-        Response response = webClient.invoke("PATCH", JSON_MAPPER.writeValueAsString(req));
+        Response response = webClient.invoke(HttpMethod.PATCH, JSON_MAPPER.writeValueAsString(req));
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         // Key is mismatched in the path parameter and the request body.
         req.setKey(UUID.randomUUID().toString());
-        response = webClient.invoke("PATCH", JSON_MAPPER.writeValueAsString(req));
+        response = webClient.invoke(HttpMethod.PATCH, JSON_MAPPER.writeValueAsString(req));
         assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
-        
+
         // reading user by its username still works
-        userTO = USER_SERVICE.read(userTO.getKey());
-        userTO = USER_SERVICE.read(userTO.getUsername());
+        userTO = USER_SERVICE.read(req.getUsername().getValue());
         assertNotNull(userTO);
+    }
+
+    @Test
+    public void issueSYNCOPE1750() {
+        UserCR userCR = UserITCase.getUniqueSample("syncope1750@apache.org");
+        userCR.getResources().add(RESOURCE_NAME_NOPROPAGATION);
+        UserTO userTO = createUser(userCR).getEntity();
+
+        UserUR req = new UserUR.Builder(userTO.getKey()).password(new PasswordPatch.Builder().
+                onSyncope(false).resource(RESOURCE_NAME_NOPROPAGATION).value("short").build()).build();
+
+        try {
+            USER_SERVICE.update(req);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidUser, e.getType());
+            assertTrue(e.getMessage().contains("InvalidPassword: Password must be 10 or more characters in length."));
+        }
     }
 }

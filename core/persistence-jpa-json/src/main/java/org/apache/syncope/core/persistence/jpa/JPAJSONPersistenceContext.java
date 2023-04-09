@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -128,7 +127,6 @@ public abstract class JPAJSONPersistenceContext {
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy RoleDAO roleDAO,
             final @Lazy AccessTokenDAO accessTokenDAO,
-            final @Lazy RealmDAO realmDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy DelegationDAO delegationDAO,
             final @Lazy FIQLQueryDAO fiqlQueryDAO,
@@ -141,7 +139,6 @@ public abstract class JPAJSONPersistenceContext {
                 dynRealmDAO,
                 roleDAO,
                 accessTokenDAO,
-                realmDAO,
                 groupDAO,
                 delegationDAO,
                 fiqlQueryDAO,

@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 import java.util.stream.Stream;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -69,9 +70,9 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
         }
     }
 
-    protected void enforce(final String clear) {
+    protected void enforce(final String clearPassword) {
         try {
-            String sha1 = ENCRYPTOR.encode(clear, CipherAlgorithm.SHA1);
+            String sha1 = ENCRYPTOR.encode(clearPassword, CipherAlgorithm.SHA1);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set(HttpHeaders.USER_AGENT, "Apache Syncope");
@@ -98,27 +99,25 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
 
     @Transactional(readOnly = true)
     @Override
-    public void enforce(final User user) {
-        if (user.getPassword() != null && user.getClearPassword() != null) {
-            enforce(user.getClearPassword());
-        }
+    public void enforce(final User user, final String clearPassword) {
+        Optional.ofNullable(clearPassword).ifPresent(this::enforce);
     }
 
     @Transactional(readOnly = true)
     @Override
     public void enforce(final LinkedAccount account) {
         if (account.getPassword() != null) {
-            String clear = null;
+            String clearPassword = null;
             if (account.canDecodeSecrets()) {
                 try {
-                    clear = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+                    clearPassword = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
                 } catch (Exception e) {
                     LOG.error("Could not decode password for {}", account, e);
                 }
             }
 
-            if (clear != null) {
-                enforce(clear);
+            if (clearPassword != null) {
+                enforce(clearPassword);
             }
         }
     }

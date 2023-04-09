@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -208,12 +209,19 @@ public class UserUR extends AnyUR {
         return linkedAccounts;
     }
 
+    @JsonIgnore
+    public boolean isEmptyButPassword() {
+        return super.isEmpty()
+                && username == null && securityQuestion == null && securityAnswer == null
+                && mustChangePassword == null && relationships.isEmpty() && memberships.isEmpty() && roles.isEmpty()
+                && linkedAccounts.isEmpty();
+    }
+
     @Override
     public boolean isEmpty() {
         return super.isEmpty()
-                && username == null && password == null && securityQuestion == null && securityAnswer == null
-                && mustChangePassword == null && relationships.isEmpty() && memberships.isEmpty() && roles.isEmpty()
-                && linkedAccounts.isEmpty();
+                && isEmptyButPassword()
+                && password == null;
     }
 
     @Override

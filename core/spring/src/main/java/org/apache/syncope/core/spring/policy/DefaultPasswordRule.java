@@ -165,8 +165,8 @@ public class DefaultPasswordRule implements PasswordRule {
 
     @Transactional(readOnly = true)
     @Override
-    public void enforce(final User user) {
-        if (user.getPassword() != null && user.getClearPassword() != null) {
+    public void enforce(final User user, final String clearPassword) {
+        if (clearPassword != null) {
             Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
             wordsNotPermitted.addAll(
                     conf.getSchemasNotPermitted().stream().
@@ -177,7 +177,7 @@ public class DefaultPasswordRule implements PasswordRule {
                             flatMap(Collection::stream).
                             collect(Collectors.toSet()));
 
-            enforce(user.getClearPassword(), user.getUsername(), wordsNotPermitted);
+            enforce(clearPassword, user.getUsername(), wordsNotPermitted);
         }
     }
 
