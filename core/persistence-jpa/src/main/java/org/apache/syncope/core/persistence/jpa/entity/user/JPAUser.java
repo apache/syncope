@@ -33,7 +33,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -85,9 +84,6 @@ public class JPAUser
 
     @Column(nullable = true)
     protected String password;
-
-    @Transient
-    protected String clearPassword;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -179,9 +175,6 @@ public class JPAUser
     @Column(nullable = true)
     protected String securityAnswer;
 
-    @Transient
-    protected String clearSecurityAnswer;
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     @Valid
     protected List<JPALinkedAccount> linkedAccounts = new ArrayList<>();
@@ -224,23 +217,7 @@ public class JPAUser
     }
 
     @Override
-    public String getClearPassword() {
-        return clearPassword;
-    }
-
-    public void setClearPassword(final String clearPassword) {
-        this.clearPassword = clearPassword;
-    }
-
-    @Override
-    public void removeClearPassword() {
-        setClearPassword(null);
-    }
-
-    @Override
     public void setEncodedPassword(final String password, final CipherAlgorithm cipherAlgorithm) {
-        this.clearPassword = null;
-
         this.password = password;
         this.cipherAlgorithm = cipherAlgorithm;
         setMustChangePassword(false);
@@ -248,8 +225,6 @@ public class JPAUser
 
     @Override
     public void setPassword(final String password) {
-        this.clearPassword = password;
-
         try {
             this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
                     ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
@@ -437,21 +412,7 @@ public class JPAUser
     }
 
     @Override
-    public String getClearSecurityAnswer() {
-        return clearSecurityAnswer;
-    }
-
-    @Override
-    public void setEncodedSecurityAnswer(final String securityAnswer) {
-        this.clearSecurityAnswer = null;
-
-        this.securityAnswer = securityAnswer;
-    }
-
-    @Override
     public void setSecurityAnswer(final String securityAnswer) {
-        this.securityAnswer = securityAnswer;
-
         try {
             this.securityAnswer = ENCRYPTOR.encode(securityAnswer, cipherAlgorithm == null
                     ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).

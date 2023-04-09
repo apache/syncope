@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.PersistenceException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
@@ -31,13 +30,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -45,21 +41,16 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
@@ -67,15 +58,9 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.provisioning.api.rules.AccountRule;
-import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
-import org.apache.syncope.core.spring.implementation.ImplementationManager;
-import org.apache.syncope.core.spring.policy.AccountPolicyException;
-import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,8 +71,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     protected final AccessTokenDAO accessTokenDAO;
 
-    protected final RealmDAO realmDAO;
-
     protected final GroupDAO groupDAO;
 
     protected final DelegationDAO delegationDAO;
@@ -96,10 +79,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     protected final SecurityProperties securityProperties;
 
-    protected final Map<String, AccountRule> perContextAccountRules = new ConcurrentHashMap<>();
-
-    protected final Map<String, PasswordRule> perContextPasswordRules = new ConcurrentHashMap<>();
-
     public JPAUserDAO(
             final AnyUtilsFactory anyUtilsFactory,
             final PlainSchemaDAO plainSchemaDAO,
@@ -107,7 +86,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
-            final RealmDAO realmDAO,
             final GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
@@ -116,7 +94,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         super(anyUtilsFactory, plainSchemaDAO, derSchemaDAO, dynRealmDAO);
         this.roleDAO = roleDAO;
         this.accessTokenDAO = accessTokenDAO;
-        this.realmDAO = realmDAO;
         this.groupDAO = groupDAO;
         this.delegationDAO = delegationDAO;
         this.fiqlQueryDAO = fiqlQueryDAO;
@@ -279,24 +256,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return entityManager().find(JPAUMembership.class, key);
     }
 
-    protected List<PasswordPolicy> getPasswordPolicies(final User user) {
-        List<PasswordPolicy> policies = new ArrayList<>();
-
-        // add resource policies
-        findAllResources(user).
-                forEach(resource -> Optional.ofNullable(resource.getPasswordPolicy()).
-                filter(p -> !policies.contains(p)).
-                ifPresent(policies::add));
-
-        // add realm policies
-        realmDAO.findAncestors(user.getRealm()).
-                forEach(realm -> Optional.ofNullable(realm.getPasswordPolicy()).
-                filter(p -> !policies.contains(p)).
-                ifPresent(policies::add));
-
-        return policies;
-    }
-
     @Override
     public List<User> findAll(final int page, final int itemsPerPage) {
         TypedQuery<User> query = entityManager().createQuery(
@@ -312,196 +271,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return findAllKeys(JPAUser.TABLE, page, itemsPerPage);
     }
 
-    protected List<AccountPolicy> getAccountPolicies(final User user) {
-        List<AccountPolicy> policies = new ArrayList<>();
-
-        // add resource policies
-        findAllResources(user).stream().
-                map(ExternalResource::getAccountPolicy).
-                filter(Objects::nonNull).
-                forEach(policies::add);
-
-        // add realm policies
-        realmDAO.findAncestors(user.getRealm()).stream().
-                map(Realm::getAccountPolicy).
-                filter(Objects::nonNull).
-                forEach(policies::add);
-
-        return policies;
-    }
-
-    protected List<AccountRule> getAccountRules(final AccountPolicy policy) {
-        List<AccountRule> result = new ArrayList<>();
-
-        for (Implementation impl : policy.getRules()) {
-            try {
-                ImplementationManager.buildAccountRule(
-                        impl,
-                        () -> perContextAccountRules.get(impl.getKey()),
-                        instance -> perContextAccountRules.put(impl.getKey(), instance)).
-                        ifPresent(result::add);
-            } catch (Exception e) {
-                LOG.warn("While building {}", impl, e);
-            }
-        }
-
-        return result;
-    }
-
-    protected List<PasswordRule> getPasswordRules(final PasswordPolicy policy) {
-        List<PasswordRule> result = new ArrayList<>();
-
-        for (Implementation impl : policy.getRules()) {
-            try {
-                ImplementationManager.buildPasswordRule(
-                        impl,
-                        () -> perContextPasswordRules.get(impl.getKey()),
-                        instance -> perContextPasswordRules.put(impl.getKey(), instance)).
-                        ifPresent(result::add);
-            } catch (Exception e) {
-                LOG.warn("While building {}", impl, e);
-            }
-        }
-
-        return result;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Pair<Boolean, Boolean> enforcePolicies(final User user) {
-        // ------------------------------
-        // Verify password policies
-        // ------------------------------
-        LOG.debug("Password Policy enforcement");
-
-        try {
-            int maxPPSpecHistory = 0;
-            for (PasswordPolicy policy : getPasswordPolicies(user)) {
-                if (user.getPassword() == null && !policy.isAllowNullPassword()) {
-                    throw new PasswordPolicyException("Password mandatory");
-                }
-
-                getPasswordRules(policy).forEach(rule -> {
-                    rule.enforce(user);
-
-                    user.getLinkedAccounts().stream().
-                            filter(account -> account.getPassword() != null).
-                            forEach(rule::enforce);
-                });
-
-                boolean matching = false;
-                if (policy.getHistoryLength() > 0) {
-                    List<String> pwdHistory = user.getPasswordHistory();
-                    matching = pwdHistory.subList(policy.getHistoryLength() >= pwdHistory.size()
-                            ? 0
-                            : pwdHistory.size() - policy.getHistoryLength(), pwdHistory.size()).stream().
-                            map(old -> Encryptor.getInstance().verify(
-                            user.getClearPassword(), user.getCipherAlgorithm(), old)).
-                            reduce(matching, (accumulator, item) -> accumulator | item);
-                }
-                if (matching) {
-                    throw new PasswordPolicyException("Password value was used in the past: not allowed");
-                }
-
-                if (policy.getHistoryLength() > maxPPSpecHistory) {
-                    maxPPSpecHistory = policy.getHistoryLength();
-                }
-            }
-
-            // update user's password history with encrypted password
-            if (maxPPSpecHistory > 0
-                    && user.getPassword() != null
-                    && !user.getPasswordHistory().contains(user.getPassword())) {
-
-                user.addToPasswordHistory(user.getPassword());
-            }
-            // keep only the last maxPPSpecHistory items in user's password history
-            if (maxPPSpecHistory < user.getPasswordHistory().size()) {
-                user.removeOldestEntriesFromPasswordHistory(user.getPasswordHistory().size() - maxPPSpecHistory);
-            }
-        } catch (PersistenceException | InvalidEntityException e) {
-            throw e;
-        } catch (Exception e) {
-            LOG.error("Invalid password for {}", user, e);
-            throw new InvalidEntityException(User.class, EntityViolationType.InvalidPassword, e.getMessage());
-        } finally {
-            // password has been validated, let's remove its clear version
-            user.removeClearPassword();
-        }
-
-        // ------------------------------
-        // Verify account policies
-        // ------------------------------
-        LOG.debug("Account Policy enforcement");
-
-        boolean suspend = false;
-        boolean propagateSuspension = false;
-        try {
-            if (user.getUsername() == null) {
-                throw new AccountPolicyException("Null username");
-            }
-
-            if (securityProperties.getAdminUser().equals(user.getUsername())
-                    || securityProperties.getAnonymousUser().equals(user.getUsername())) {
-
-                throw new AccountPolicyException("Not allowed: " + user.getUsername());
-            }
-
-            List<AccountPolicy> accountPolicies = getAccountPolicies(user);
-            if (accountPolicies.isEmpty()) {
-                if (!Entity.ID_PATTERN.matcher(user.getUsername()).matches()) {
-                    throw new AccountPolicyException("Character(s) not allowed: " + user.getUsername());
-                }
-                user.getLinkedAccounts().stream().
-                        filter(account -> account.getUsername() != null).
-                        forEach(account -> {
-                            if (!Entity.ID_PATTERN.matcher(account.getUsername()).matches()) {
-                                throw new AccountPolicyException("Character(s) not allowed: " + account.getUsername());
-                            }
-                        });
-            } else {
-                for (AccountPolicy policy : accountPolicies) {
-                    getAccountRules(policy).forEach(rule -> {
-                        rule.enforce(user);
-
-                        user.getLinkedAccounts().stream().
-                                filter(account -> account.getUsername() != null).
-                                forEach(rule::enforce);
-                    });
-
-                    suspend |= user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0
-                            && user.getFailedLogins() > policy.getMaxAuthenticationAttempts() && !user.isSuspended();
-                    propagateSuspension |= policy.isPropagateSuspension();
-                }
-            }
-        } catch (PersistenceException | InvalidEntityException e) {
-            throw e;
-        } catch (Exception e) {
-            LOG.error("Invalid username for {}", user, e);
-            throw new InvalidEntityException(User.class, EntityViolationType.InvalidUsername, e.getMessage());
-        }
-
-        return Pair.of(suspend, propagateSuspension);
-    }
-
     protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
-        // 1. save clear password value before save
-        String clearPwd = user.getClearPassword();
-
-        // 2. save
         User merged = super.save(user);
-
-        // 3. set back the sole clear password value
-        JPAUser.class.cast(merged).setClearPassword(clearPwd);
-
-        // 4. enforce password and account policies
-        try {
-            enforcePolicies(merged);
-        } catch (InvalidEntityException e) {
-            entityManager().remove(merged);
-            throw e;
-        }
-
         roleDAO.refreshDynMemberships(merged);
         Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);

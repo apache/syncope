@@ -33,7 +33,6 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -55,18 +54,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional("Master")
 public class ResourceDataBinderTest extends AbstractTest {
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
-
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private ResourceDataBinder resourceDataBinder;
-
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
-
     @BeforeAll
     public static void setAuthContext() {
         List<GrantedAuthority> authorities = IdMEntitlement.values().stream().
@@ -84,6 +71,15 @@ public class ResourceDataBinderTest extends AbstractTest {
     public static void unsetAuthContext() {
         SecurityContextHolder.getContext().setAuthentication(null);
     }
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    private ResourceDataBinder resourceDataBinder;
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
 
     @Test
     public void issue42() {
