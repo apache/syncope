@@ -84,7 +84,5 @@ public interface UserDAO extends AnyDAO<User> {
 
     List<LinkedAccount> findLinkedAccountsByPrivilege(Privilege privilege);
 
-    Pair<Boolean, Boolean> enforcePolicies(User user);
-
     Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(User user);
 }

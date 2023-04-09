@@ -55,11 +55,6 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         User user = entityFactory.newEntity(User.class);
         dataBinder.create(user, userTO, storePassword);
 
-        // this will make UserValidator not to consider password policies at all
-        if (disablePwdPolicyCheck) {
-            user.removeClearPassword();
-        }
-
         String status;
         boolean propagateEnable;
         if (enabled == null) {

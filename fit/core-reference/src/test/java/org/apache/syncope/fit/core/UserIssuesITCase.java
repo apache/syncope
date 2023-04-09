@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
@@ -489,7 +490,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 2. request to change password only on testdb (no Syncope, no testdb2)
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value(getUUIDString()).onSyncope(false).
+        userPatch.setPassword(new PasswordPatch.Builder().value(UUID.randomUUID().toString()).onSyncope(false).
                 resource(RESOURCE_NAME_TESTDB).build());
 
         ProvisioningResult<UserTO> result = updateUser(userPatch);
@@ -1543,9 +1544,8 @@ public class UserIssuesITCase extends AbstractITCase {
                 .value("Other")
                 .build());
 
-        for (int i = 0; i < 2; i++) {
-            updateUser(userPatch);
-        }
+        updateUser(userPatch);
+        updateUser(userPatch);
 
         // 2. remove resources, auxiliary classes and roles
         userPatch.getResources().clear();
@@ -1569,5 +1569,25 @@ public class UserIssuesITCase extends AbstractITCase {
         assertFalse(userTO.getResources().contains(RESOURCE_NAME_TESTDB), "Should not contain removed resources");
         assertFalse(userTO.getAuxClasses().contains("csv"), "Should not contain removed auxiliary classes");
         assertFalse(userTO.getRoles().contains("Other"), "Should not contain removed roles");
+    }
+
+    @Test
+    public void issueSYNCOPE1750() {
+        UserTO userTO = UserITCase.getUniqueSampleTO("syncope1750@apache.org");
+        userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION);
+        userTO = createUser(userTO).getEntity();
+
+        UserPatch patch = new UserPatch();
+        patch.setKey(userTO.getKey());
+        patch.setPassword(new PasswordPatch.Builder().
+                onSyncope(false).resource(RESOURCE_NAME_NOPROPAGATION).value("short").build());
+
+        try {
+            userService.update(patch);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidUser, e.getType());
+            assertTrue(e.getMessage().contains("InvalidPassword: Password must be 10 or more characters in length."));
+        }
     }
 }

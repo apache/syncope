@@ -56,18 +56,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional("Master")
 public class ResourceDataBinderTest extends AbstractTest {
 
-    @Autowired
-    private AnyTypeDAO anyTypeDAO;
-
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private ResourceDataBinder resourceDataBinder;
-
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
-
     @BeforeAll
     public static void setAuthContext() {
         List<GrantedAuthority> authorities = StandardEntitlement.values().stream().
@@ -85,6 +73,18 @@ public class ResourceDataBinderTest extends AbstractTest {
     public static void unsetAuthContext() {
         SecurityContextHolder.getContext().setAuthentication(null);
     }
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    private ResourceDataBinder resourceDataBinder;
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
 
     @Test
     public void issue42() {

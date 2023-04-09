@@ -55,8 +55,8 @@ public class TestPasswordRule implements PasswordRule {
 
     @Transactional(readOnly = true)
     @Override
-    public void enforce(final User user) {
-        if (user.getClearPassword() != null && !user.getClearPassword().endsWith(conf.getMustEndWith())) {
+    public void enforce(final User user, final String clearPassword) {
+        if (clearPassword != null && !clearPassword.endsWith(conf.getMustEndWith())) {
             throw new PasswordPolicyException("Password not ending with " + conf.getMustEndWith());
         }
     }
