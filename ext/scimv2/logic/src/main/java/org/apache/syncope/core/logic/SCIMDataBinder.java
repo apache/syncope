@@ -89,6 +89,12 @@ public class SCIMDataBinder {
 
     protected static final List<String> GROUP_SCHEMAS = List.of(Resource.Group.schema());
 
+    /**
+     * Translates the given SCIM filter into the equivalent JEXL expression.
+     *
+     * @param filter SCIM filter according to https://www.rfc-editor.org/rfc/rfc7644#section-3.4.2.2
+     * @return translated JEXL expression; see https://commons.apache.org/proper/commons-jexl/reference/syntax.html
+     * */
     public static String filter2JexlExpression(final String filter) {
         String jexlExpression = filter.
                 replace(" co ", " =~ ").

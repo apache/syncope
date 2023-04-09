@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.flowable.api.WorkflowTaskManager;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -43,6 +44,7 @@ import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.core.workflow.java.AbstractUserWorkflowAdapter;
 import org.flowable.bpmn.model.FlowElement;
@@ -67,12 +69,14 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     public FlowableUserWorkflowAdapter(
             final UserDataBinder dataBinder,
             final UserDAO userDAO,
+            final RealmDAO realmDAO,
             final EntityFactory entityFactory,
+            final SecurityProperties securityProperties,
             final DomainProcessEngine engine,
             final UserRequestHandler userRequestHandler,
             final ApplicationEventPublisher publisher) {
 
-        super(dataBinder, userDAO, entityFactory);
+        super(dataBinder, userDAO, realmDAO, entityFactory, securityProperties);
         this.engine = engine;
         this.userRequestHandler = userRequestHandler;
         this.publisher = publisher;
@@ -140,11 +144,6 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 procInst.getProcessInstanceId(), FlowableRuntimeUtils.ENABLED);
         if (updatedEnabled != null) {
             user.setSuspended(!updatedEnabled);
-        }
-
-        // this will make UserValidator not to consider password policies at all
-        if (disablePwdPolicyCheck) {
-            user.removeClearPassword();
         }
 
         metadata(user, creator, context);

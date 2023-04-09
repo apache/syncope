@@ -21,11 +21,13 @@ package org.apache.syncope.core.workflow.java;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -42,11 +44,20 @@ public class WorkflowContext {
     public UserWorkflowAdapter uwfAdapter(
             final UserDataBinder userDataBinder,
             final UserDAO userDAO,
+            final RealmDAO realmDAO,
             final EntityFactory entityFactory,
+            final SecurityProperties securityProperties,
             final ConfParamOps confParamOps,
             final ApplicationEventPublisher publisher) {
 
-        return new DefaultUserWorkflowAdapter(userDataBinder, userDAO, entityFactory, confParamOps, publisher);
+        return new DefaultUserWorkflowAdapter(
+                userDataBinder,
+                userDAO,
+                realmDAO,
+                entityFactory,
+                securityProperties,
+                confParamOps,
+                publisher);
     }
 
     @ConditionalOnMissingBean
