@@ -1587,7 +1587,7 @@ public class UserIssuesITCase extends AbstractITCase {
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidUser, e.getType());
-            assertTrue(e.getMessage().contains("InvalidPassword: Password must be 10 or more characters in length."));
+            assertTrue(e.getMessage().contains("InvalidPassword: Password too short"));
         }
     }
 }
