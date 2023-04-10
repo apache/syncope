@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.patch;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
@@ -131,12 +132,22 @@ public class UserPatch extends AnyPatch {
         return linkedAccounts;
     }
 
-    @Override
-    public boolean isEmpty() {
+    @JsonIgnore
+    protected boolean isEmptyNotConsideringPassword() {
         return super.isEmpty()
-                && username == null && password == null && securityQuestion == null && securityAnswer == null
+                && username == null && securityQuestion == null && securityAnswer == null
                 && mustChangePassword == null && relationships.isEmpty() && memberships.isEmpty() && roles.isEmpty()
                 && linkedAccounts.isEmpty();
+    }
+
+    @JsonIgnore
+    public boolean isEmptyButPassword() {
+        return isEmptyNotConsideringPassword() && password != null;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return isEmptyNotConsideringPassword() && password == null;
     }
 
     @Override

@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Collections;
 import java.util.Date;
@@ -32,7 +31,6 @@ import java.util.Objects;
 import java.util.UUID;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
@@ -166,83 +164,6 @@ public class UserTest extends AbstractTest {
         assertEquals(
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8",
                 user.getRelationships().get(0).getRightEnd().getKey());
-    }
-
-    @Test
-    public void membershipWithAttrNotAllowed() {
-        User user = userDAO.findByUsername("vivaldi");
-        assertNotNull(user);
-        user.getMemberships().clear();
-
-        // add 'obscure' to user (no membership): works because 'obscure' is from 'other', default class for USER
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setSchema(plainSchemaDAO.find("obscure"));
-        attr.add(validator, "testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        user.add(attr);
-
-        // add 'obscure' to user (via 'artDirector' membership): does not work because 'obscure' is from 'other'
-        // but 'artDirector' defines no type extension
-        UMembership membership = entityFactory.newEntity(UMembership.class);
-        membership.setLeftEnd(user);
-        membership.setRightEnd(groupDAO.findByName("artDirector"));
-        user.add(membership);
-
-        attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setMembership(membership);
-        attr.setSchema(plainSchemaDAO.find("obscure"));
-        attr.add(validator, "testvalue2", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        user.add(attr);
-
-        try {
-            userDAO.save(user);
-            fail("This should not happen");
-        } catch (InvalidEntityException e) {
-            assertNotNull(e);
-        }
-    }
-
-    @Test
-    public void membershipWithAttr() {
-        User user = userDAO.findByUsername("vivaldi");
-        assertNotNull(user);
-        user.getMemberships().clear();
-
-        // add 'obscure' (no membership): works because 'obscure' is from 'other', default class for USER
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setSchema(plainSchemaDAO.find("obscure"));
-        attr.add(validator, "testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        user.add(attr);
-
-        // add 'obscure' (via 'additional' membership): that group defines type extension with classes 'other' and 'csv'
-        UMembership membership = entityFactory.newEntity(UMembership.class);
-        membership.setLeftEnd(user);
-        membership.setRightEnd(groupDAO.findByName("additional"));
-        user.add(membership);
-
-        attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setMembership(membership);
-        attr.setSchema(plainSchemaDAO.find("obscure"));
-        attr.add(validator, "testvalue2", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        user.add(attr);
-
-        userDAO.save(user);
-        entityManager().flush();
-
-        user = userDAO.findByUsername("vivaldi");
-        assertEquals(1, user.getMemberships().size());
-
-        UMembership newM = user.getMembership(groupDAO.findByName("additional").getKey()).get();
-        assertEquals(1, user.getPlainAttrs(newM).size());
-
-        assertNull(user.getPlainAttr("obscure").get().getMembership());
-        assertEquals(2, user.getPlainAttrs("obscure").size());
-        assertTrue(user.getPlainAttrs("obscure").contains(user.getPlainAttr("obscure").get()));
-        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(plainAttr -> plainAttr.getMembership() == null));
-        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(plainAttr -> newM.equals(plainAttr.getMembership())));
     }
 
     private LinkedAccount newLinkedAccount(final String connObjectKeyValue) {

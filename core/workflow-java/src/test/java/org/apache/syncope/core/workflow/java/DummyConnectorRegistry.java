@@ -16,17 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
-import org.apache.syncope.core.persistence.api.dao.PasswordRule
-import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount
-import org.apache.syncope.core.persistence.api.entity.user.User
+package org.apache.syncope.core.workflow.java;
 
-@CompileStatic
-class MyPasswordRule implements PasswordRule {
-  
-  void enforce(User user, String clearPassword) {
-  }
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 
-  void enforce(LinkedAccount account) {
-  }
+public class DummyConnectorRegistry implements ConnectorRegistry {
+
+    @Override
+    public void registerConnector(final ExternalResource resource) throws NotFoundException {
+    }
+
+    @Override
+    public void unregisterConnector(final String id) {
+    }
 }

@@ -1215,7 +1215,7 @@ public class UserITCase extends AbstractITCase {
         }
 
         AssociationPatch associationPatch = new AssociationPatch.Builder().key(actual.getKey()).
-                value("password").action(ResourceAssociationAction.ASSIGN).resource(RESOURCE_NAME_CSV).build();
+                value("password123").action(ResourceAssociationAction.ASSIGN).resource(RESOURCE_NAME_CSV).build();
 
         assertNotNull(parseBatchResponse(userService.associate(associationPatch)));
 
