@@ -956,12 +956,12 @@ under the License.
         <version>2.0.0</version>
         <exclusions>
           <exclusion>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
           </exclusion>
           <exclusion>
-            <groupId>com.sun.activation</groupId>
-            <artifactId>jakarta.activation</artifactId>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
