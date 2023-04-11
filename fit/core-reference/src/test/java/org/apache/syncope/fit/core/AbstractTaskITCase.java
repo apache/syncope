@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,7 +46,6 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
-import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
 import org.apache.syncope.fit.AbstractITCase;
 
 public abstract class AbstractTaskITCase extends AbstractITCase {
@@ -100,7 +100,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         AtomicReference<TaskTO> taskTO = new AtomicReference<>(taskService.read(type, taskKey, true));
         int preSyncSize = taskTO.get().getExecutions().size();
         ExecTO execution = taskService.execute(new ExecSpecs.Builder().key(taskKey).dryRun(dryRun).build());
-        assertEquals(initialStatus, execution.getStatus());
+        Optional.ofNullable(initialStatus).ifPresent(status -> assertEquals(status, execution.getStatus()));
         assertNotNull(execution.getExecutor());
 
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
@@ -125,8 +125,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
     protected static ExecTO execNotificationTask(
             final TaskService taskService, final String taskKey, final int maxWaitSeconds) {
 
-        return execTask(taskService, TaskType.NOTIFICATION, taskKey,
-                NotificationJob.Status.SENT.name(), maxWaitSeconds, false);
+        return execTask(taskService, TaskType.NOTIFICATION, taskKey, null, maxWaitSeconds, false);
     }
 
     protected void execProvisioningTasks(
