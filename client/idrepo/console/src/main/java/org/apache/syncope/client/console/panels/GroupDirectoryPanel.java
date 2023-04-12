@@ -258,13 +258,14 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE)).
                 setRealms(realm, model.getObject().getDynRealms());
 
-        panel.add(new ActionLink<>() {
+        ActionLink<GroupTO> provisionMembers = new ActionLink<GroupTO>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 try {
+                    GroupRestClient.provisionMembers(model.getObject().getKey(), ProvisionAction.PROVISION);
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -273,11 +274,14 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionType.PROVISION_MEMBERS,
-                String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE)).
-                setRealm(realm);
+        }.confirmMessage("confirmProvisionMembers");
+        panel.add(
+                provisionMembers,
+                ActionType.PROVISION_MEMBERS,
+                String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE),
+                true).setRealm(realm);
 
-        panel.add(new ActionLink<>() {
+        ActionLink<GroupTO> deprovisionMembers = new ActionLink<GroupTO>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -293,9 +297,12 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionType.DEPROVISION_MEMBERS,
-                String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE)).
-                setRealm(realm);
+        }.confirmMessage("confirmDeprovisionMembers");
+        panel.add(
+                deprovisionMembers,
+                ActionType.DEPROVISION_MEMBERS,
+                String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE),
+                true).setRealm(realm);
 
         SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionLinksProvider().get(
                 model.getObject(),

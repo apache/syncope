@@ -30,10 +30,6 @@ public abstract class IndicatingOnConfirmAjaxLink<T> extends IndicatingAjaxLink<
 
     private final boolean enabled;
 
-    public IndicatingOnConfirmAjaxLink(final String id, final boolean enabled) {
-        this(id, "confirmDelete", enabled);
-    }
-
     public IndicatingOnConfirmAjaxLink(final String id, final String msg, final boolean enabled) {
         super(id);
 

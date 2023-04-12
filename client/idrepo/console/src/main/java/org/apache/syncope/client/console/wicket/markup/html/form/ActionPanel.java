@@ -97,7 +97,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
 
             actionLink = action.isOnConfirm()
                     ? new IndicatingOnConfirmAjaxLink<Void>(
-                            Constants.ACTION, 
+                            Constants.ACTION,
                             StringUtils.isNotBlank(action.getLink().getConfirmMessage())
                             ? action.getLink().getConfirmMessage()
                             : Constants.CONFIRM_DELETE, enabled) {
