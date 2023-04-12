@@ -227,7 +227,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     private Fragment getConnectorFragment(final TopologyNode node, final PageReference pageRef) {
         Fragment fragment = new Fragment("actions", "connectorActions", this);
 
-        AjaxLink<String> delete = new IndicatingOnConfirmAjaxLink<>("delete", true) {
+        AjaxLink<String> delete = new IndicatingOnConfirmAjaxLink<>("delete", Constants.CONFIRM_DELETE, true) {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -361,7 +361,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     private Fragment getResourceFragment(final TopologyNode node, final PageReference pageRef) {
         Fragment fragment = new Fragment("actions", "resourceActions", this);
 
-        AjaxLink<String> delete = new IndicatingOnConfirmAjaxLink<>("delete", true) {
+        AjaxLink<String> delete = new IndicatingOnConfirmAjaxLink<>("delete", Constants.CONFIRM_DELETE, true) {
 
             private static final long serialVersionUID = 3776750333491622263L;
 

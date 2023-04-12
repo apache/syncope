@@ -201,5 +201,4 @@ public final class Action<T extends Serializable> implements Serializable {
     public boolean hasIndicator() {
         return indicator;
     }
-
 }
