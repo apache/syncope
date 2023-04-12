@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -31,7 +30,6 @@ import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -40,7 +38,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUser;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 
 public class JPAJSONUserDAO extends JPAUserDAO {
@@ -54,7 +51,6 @@ public class JPAJSONUserDAO extends JPAUserDAO {
             final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
-            final RealmDAO realmDAO,
             final GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
@@ -67,7 +63,6 @@ public class JPAJSONUserDAO extends JPAUserDAO {
                 dynRealmDAO,
                 roleDAO,
                 accessTokenDAO,
-                realmDAO,
                 groupDAO,
                 delegationDAO,
                 fiqlQueryDAO,
@@ -106,23 +101,8 @@ public class JPAJSONUserDAO extends JPAUserDAO {
 
     @Override
     protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
-        // 1. save clear password value before save
-        String clearPwd = user.getClearPassword();
-
-        // 2. save
         entityManager().flush();
         User merged = entityManager().merge(user);
-
-        // 3. set back the sole clear password value
-        JPAUser.class.cast(merged).setClearPassword(clearPwd);
-
-        // 4. enforce password and account policies
-        try {
-            enforcePolicies(merged);
-        } catch (InvalidEntityException e) {
-            entityManager().remove(merged);
-            throw e;
-        }
 
         // ensure that entity listeners are invoked at this point
         entityManager().flush();

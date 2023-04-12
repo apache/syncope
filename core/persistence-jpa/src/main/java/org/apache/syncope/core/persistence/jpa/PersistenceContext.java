@@ -708,7 +708,6 @@ public class PersistenceContext {
             final @Lazy DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
-            final RealmDAO realmDAO,
             final @Lazy GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO) {
@@ -720,7 +719,6 @@ public class PersistenceContext {
                 dynRealmDAO,
                 roleDAO,
                 accessTokenDAO,
-                realmDAO,
                 groupDAO,
                 delegationDAO,
                 fiqlQueryDAO,

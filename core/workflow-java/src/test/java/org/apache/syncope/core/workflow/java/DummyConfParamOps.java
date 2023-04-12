@@ -16,17 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
-import org.apache.syncope.core.persistence.api.dao.PasswordRule
-import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount
-import org.apache.syncope.core.persistence.api.entity.user.User
+package org.apache.syncope.core.workflow.java;
 
-@CompileStatic
-class MyPasswordRule implements PasswordRule {
-  
-  void enforce(User user, String clearPassword) {
-  }
+import java.util.Map;
+import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 
-  void enforce(LinkedAccount account) {
-  }
+public class DummyConfParamOps implements ConfParamOps {
+
+    @Override
+    public Map<String, Object> list(final String domain) {
+        return Map.of();
+    }
+
+    @Override
+    public <T> T get(final String domain, final String key, final T defaultValue, final Class<T> reference) {
+        return defaultValue;
+    }
+
+    @Override
+    public <T> void set(final String domain, final String key, final T value) {
+    }
+
+    @Override
+    public void remove(final String domain, final String key) {
+    }
 }

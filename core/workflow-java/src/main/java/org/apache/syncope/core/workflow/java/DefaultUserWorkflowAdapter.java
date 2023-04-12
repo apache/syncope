@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -32,6 +33,7 @@ import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEventPublisher;
@@ -48,11 +50,13 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public DefaultUserWorkflowAdapter(
             final UserDataBinder dataBinder,
             final UserDAO userDAO,
+            final RealmDAO realmDAO,
             final EntityFactory entityFactory,
+            final SecurityProperties securityProperties,
             final ConfParamOps confParamOps,
             final ApplicationEventPublisher publisher) {
 
-        super(dataBinder, userDAO, entityFactory);
+        super(dataBinder, userDAO, realmDAO, entityFactory, securityProperties);
         this.confParamOps = confParamOps;
         this.publisher = publisher;
     }
@@ -67,11 +71,6 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         User user = entityFactory.newEntity(User.class);
         dataBinder.create(user, userCR);
-
-        // this will make UserValidator not to consider password policies at all
-        if (disablePwdPolicyCheck) {
-            user.removeClearPassword();
-        }
 
         String status;
         boolean propagateEnable;

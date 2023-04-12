@@ -39,10 +39,6 @@ public interface User extends Account, GroupableRelatable<User, UMembership, UPl
 
     boolean hasTokenExpired();
 
-    String getClearPassword();
-
-    void removeClearPassword();
-
     OffsetDateTime getChangePwdDate();
 
     void setChangePwdDate(OffsetDateTime changePwdDate);
@@ -58,10 +54,6 @@ public interface User extends Account, GroupableRelatable<User, UMembership, UPl
     void setSecurityQuestion(SecurityQuestion securityQuestion);
 
     String getSecurityAnswer();
-
-    String getClearSecurityAnswer();
-
-    void setEncodedSecurityAnswer(String securityAnswer);
 
     void setSecurityAnswer(String securityAnswer);
 

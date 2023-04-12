@@ -24,14 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -202,42 +200,6 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
-    public void saveInvalidPassword() {
-        User user = entityFactory.newEntity(User.class);
-        user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two"));
-        user.setCreator("admin");
-        user.setCreationDate(OffsetDateTime.now());
-        user.setCipherAlgorithm(CipherAlgorithm.SHA256);
-        user.setPassword("pass");
-
-        try {
-            userDAO.save(user);
-            fail("This should not happen");
-        } catch (InvalidEntityException e) {
-            assertNotNull(e);
-        }
-    }
-
-    @Test
-    public void saveInvalidUsername() {
-        User user = entityFactory.newEntity(User.class);
-        user.setUsername("username!");
-        user.setRealm(realmDAO.findByFullPath("/even/two"));
-        user.setCreator("admin");
-        user.setCreationDate(OffsetDateTime.now());
-        user.setCipherAlgorithm(CipherAlgorithm.SHA256);
-        user.setPassword("password123");
-
-        try {
-            userDAO.save(user);
-            fail("This should not happen");
-        } catch (InvalidEntityException e) {
-            assertNotNull(e);
-        }
-    }
-
-    @Test
     public void save() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
@@ -249,7 +211,9 @@ public class UserTest extends AbstractTest {
 
         User actual = userDAO.save(user);
         assertNotNull(actual);
-        assertEquals(1, actual.getPasswordHistory().size());
+
+        entityManager().flush();
+
         assertNotNull(userDAO.findLastChange(actual.getKey()));
         assertTrue(actual.getLastChangeDate().truncatedTo(ChronoUnit.SECONDS).
                 isEqual(userDAO.findLastChange(actual.getKey()).truncatedTo(ChronoUnit.SECONDS)));
