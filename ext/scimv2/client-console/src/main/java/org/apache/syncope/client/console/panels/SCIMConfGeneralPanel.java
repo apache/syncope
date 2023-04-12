@@ -76,9 +76,9 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
                 build("bulkMaxOperations", "bulkMaxOperations", Integer.class,
                         new PropertyModel<>(scimGeneralConf, "bulkMaxOperations"));
 
-        AjaxSpinnerFieldPanel<Integer> bulkMaxMaxPayloadSizePanel = new AjaxSpinnerFieldPanel.Builder<Integer>().
-                build("bulkMaxMaxPayloadSize", "bulkMaxMaxPayloadSize", Integer.class,
-                        new PropertyModel<>(scimGeneralConf, "bulkMaxMaxPayloadSize"));
+        AjaxSpinnerFieldPanel<Integer> bulkMaxPayloadSizePanel = new AjaxSpinnerFieldPanel.Builder<Integer>().
+                build("bulkMaxPayloadSize", "bulkMaxPayloadSize", Integer.class,
+                        new PropertyModel<>(scimGeneralConf, "bulkMaxPayloadSize"));
 
         AjaxSpinnerFieldPanel<Integer> filterMaxResultsPanel = new AjaxSpinnerFieldPanel.Builder<Integer>().
                 build("filterMaxResults", "filterMaxResults", Integer.class,
@@ -104,7 +104,7 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
         add(creationDatePanel);
         add(lastChangeDatePanel);
         add(bulkMaxOperationsPanel);
-        add(bulkMaxMaxPayloadSizePanel);
+        add(bulkMaxPayloadSizePanel);
         add(filterMaxResultsPanel);
         add(eTagValuePanel);
     }
