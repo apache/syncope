@@ -532,10 +532,6 @@ public class DefaultMappingManager implements MappingManager {
             }
         }
 
-        if (passwordAttrValue == null && resource.isRandomPwdIfNotProvided()) {
-            passwordAttrValue = passwordGenerator.generate(resource);
-        }
-
         return passwordAttrValue;
     }
 

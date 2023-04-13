@@ -212,6 +212,12 @@ public class ConnObjectUtils {
                     filter(r -> r != null && r.getPasswordPolicy() != null).
                     forEach(r -> passwordPolicies.add(r.getPasswordPolicy()));
 
+            // add realm policies
+            realmDAO.findAncestors(realmDAO.findByFullPath(userCR.getRealm())).
+                    forEach(r -> Optional.ofNullable(r.getPasswordPolicy()).
+                            filter(p -> !passwordPolicies.contains(p)).
+                            ifPresent(passwordPolicies::add));
+
             userCR.setPassword(passwordGenerator.generate(passwordPolicies));
         }
 

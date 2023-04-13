@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -46,6 +47,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -73,6 +75,7 @@ import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -118,6 +121,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     protected final PlainSchemaDAO plainSchemaDAO;
 
+    protected final RealmDAO realmDAO;
+
     protected final NotificationManager notificationManager;
 
     protected final AuditManager auditManager;
@@ -134,6 +139,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     protected final ApplicationEventPublisher publisher;
 
+    protected final PasswordGenerator passwordGenerator;
+
     protected final Map<String, PropagationActions> perContextActions = new ConcurrentHashMap<>();
 
     public AbstractPropagationTaskExecutor(
@@ -145,6 +152,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final TaskDAO taskDAO,
             final ExternalResourceDAO resourceDAO,
             final PlainSchemaDAO plainSchemaDAO,
+            final RealmDAO realmDAO,
             final NotificationManager notificationManager,
             final AuditManager auditManager,
             final TaskDataBinder taskDataBinder,
@@ -152,7 +160,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final TaskUtilsFactory taskUtilsFactory,
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
-            final ApplicationEventPublisher publisher) {
+            final ApplicationEventPublisher publisher,
+            final PasswordGenerator passwordGenerator) {
 
         this.connectorManager = connectorManager;
         this.connObjectUtils = connObjectUtils;
@@ -162,6 +171,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         this.taskDAO = taskDAO;
         this.resourceDAO = resourceDAO;
         this.plainSchemaDAO = plainSchemaDAO;
+        this.realmDAO = realmDAO;
         this.notificationManager = notificationManager;
         this.auditManager = auditManager;
         this.taskDataBinder = taskDataBinder;
@@ -170,6 +180,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         this.outboundMatcher = outboundMatcher;
         this.validator = validator;
         this.publisher = publisher;
+        this.passwordGenerator = passwordGenerator;
     }
 
     @Override
@@ -196,9 +207,24 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     protected Uid doCreate(
             final PropagationTaskInfo taskInfo,
-            final Set<Attribute> attributes,
             final Connector connector,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final AtomicReference<Boolean> propagationAttempted,
+            final List<PropagationActions> actions) {
+
+        // SYNCOPE-1751 set the random password if missing
+        if (AnyTypeKind.USER == taskInfo.getAnyTypeKind()
+        && AttributeUtil.getPasswordValue(taskInfo.getPropagationData().getAttributes()) == null
+                && taskInfo.getResource().isRandomPwdIfNotProvided()) {
+            taskInfo.getPropagationData().getAttributes().add(
+                    AttributeBuilder.buildPassword(passwordGenerator.generate(taskInfo.getResource(),
+                            realmDAO.findAncestors(userDAO.find(taskInfo.getEntityKey()).getRealm())).toCharArray()));
+        }
+
+        actions.forEach(action -> action.before(taskInfo));
+
+        Set<Attribute> attributes = taskInfo.getPropagationData().getAttributes();
+
+        checkMandatoryMissing(taskInfo, attributes);
 
         LOG.debug("Create {} on {}", attributes, taskInfo.getResource().getKey());
 
@@ -224,10 +250,16 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     protected Uid doUpdate(
             final PropagationTaskInfo taskInfo,
-            final Set<Attribute> attributes,
             final Connector connector,
             final ConnectorObject beforeObj,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final AtomicReference<Boolean> propagationAttempted,
+            final List<PropagationActions> actions) {
+
+        actions.forEach(action -> action.before(taskInfo));
+
+        Set<Attribute> attributes = taskInfo.getPropagationData().getAttributes();
+
+        checkMandatoryMissing(taskInfo, attributes);
 
         LOG.debug("Update {} on {}", attributes, taskInfo.getResource().getKey());
 
@@ -287,7 +319,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final PropagationTaskInfo taskInfo,
             final Set<AttributeDelta> modifications,
             final Connector connector,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final AtomicReference<Boolean> propagationAttempted,
+            final List<PropagationActions> actions) {
+
+        actions.forEach(action -> action.before(taskInfo));
 
         Uid uid = new Uid(taskInfo.getConnObjectKey());
 
@@ -308,46 +343,24 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final boolean fetchRemoteObj,
             final ConnectorObject beforeObj,
             final Connector connector,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final AtomicReference<Boolean> propagationAttempted,
+            final List<PropagationActions> actions) {
 
         PropagationData propagationData = taskInfo.getPropagationData();
 
         if (propagationData.getAttributeDeltas() == null) {
-            Set<Attribute> attrs = propagationData.getAttributes();
-
-            // check if there is any missing or null / empty mandatory attribute
-            Set<Object> mandatoryAttrNames = new HashSet<>();
-            Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs)).
-                    ifPresent(missing -> {
-                        attrs.remove(missing);
-
-                        if (taskInfo.getOperation() == ResourceOperation.CREATE) {
-                            mandatoryAttrNames.addAll(missing.getValue());
-                        }
-                    });
-            Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, attrs)).
-                    ifPresent(nullOrEmpty -> {
-                        attrs.remove(nullOrEmpty);
-
-                        mandatoryAttrNames.addAll(nullOrEmpty.getValue());
-                    });
-            if (!mandatoryAttrNames.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "Not attempted because there are mandatory attributes without value(s): " + mandatoryAttrNames);
-            }
-
             if (beforeObj != null) {
-                return doUpdate(taskInfo, attrs, connector, beforeObj, propagationAttempted);
+                return doUpdate(taskInfo, connector, beforeObj, propagationAttempted, actions);
             }
 
             if (fetchRemoteObj || taskInfo.getOperation() == ResourceOperation.CREATE) {
-                return doCreate(taskInfo, attrs, connector, propagationAttempted);
+                return doCreate(taskInfo, connector, propagationAttempted, actions);
             }
 
-            return doUpdate(taskInfo, attrs, connector, beforeObj, propagationAttempted);
+            return doUpdate(taskInfo, connector, beforeObj, propagationAttempted, actions);
         }
 
-        return doUpdateDelta(taskInfo, propagationData.getAttributeDeltas(), connector, propagationAttempted);
+        return doUpdateDelta(taskInfo, propagationData.getAttributeDeltas(), connector, propagationAttempted, actions);
     }
 
     protected Uid delete(
@@ -355,9 +368,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final boolean fetchRemoteObj,
             final ConnectorObject beforeObj,
             final Connector connector,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final AtomicReference<Boolean> propagationAttempted,
+            final List<PropagationActions> actions) {
+
+        actions.forEach(action -> action.before(taskInfo));
 
         Uid result;
+
         if (fetchRemoteObj && beforeObj == null) {
             LOG.debug("{} not found on {}: ignoring delete",
                     taskInfo.getConnObjectKey(), taskInfo.getResource().getKey());
@@ -543,18 +560,14 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 beforeObj = taskInfo.getBeforeObj().get();
             }
 
-            for (PropagationActions action : actions) {
-                action.before(taskInfo);
-            }
-
             switch (taskInfo.getOperation()) {
                 case CREATE:
                 case UPDATE:
-                    uid = createOrUpdate(taskInfo, fetchRemoteObj, beforeObj, connector, propagationAttempted);
+                    uid = createOrUpdate(taskInfo, fetchRemoteObj, beforeObj, connector, propagationAttempted, actions);
                     break;
 
                 case DELETE:
-                    uid = delete(taskInfo, fetchRemoteObj, beforeObj, connector, propagationAttempted);
+                    uid = delete(taskInfo, fetchRemoteObj, beforeObj, connector, propagationAttempted, actions);
                     break;
 
                 default:
@@ -859,5 +872,28 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         return obj;
+    }
+
+    private void checkMandatoryMissing(final PropagationTaskInfo taskInfo, final Set<Attribute> attrs) {
+        // check if there is any missing or null / empty mandatory attribute
+        Set<Object> mandatoryAttrNames = new HashSet<>();
+        Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs)).
+                ifPresent(missing -> {
+                    attrs.remove(missing);
+
+                    if (taskInfo.getOperation() == ResourceOperation.CREATE) {
+                        mandatoryAttrNames.addAll(missing.getValue());
+                    }
+                });
+        Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, attrs)).
+                ifPresent(nullOrEmpty -> {
+                    attrs.remove(nullOrEmpty);
+
+                    mandatoryAttrNames.addAll(nullOrEmpty.getValue());
+                });
+        if (!mandatoryAttrNames.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Not attempted because there are mandatory attributes without value(s): " + mandatoryAttrNames);
+        }
     }
 }
