@@ -21,11 +21,13 @@ package org.apache.syncope.core.spring.security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
@@ -56,12 +58,16 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
 
     @Transactional(readOnly = true)
     @Override
-    public String generate(final ExternalResource resource) {
+    public String generate(final ExternalResource resource, final List<Realm> realms) {
         List<PasswordPolicy> policies = new ArrayList<>();
 
-        if (resource.getPasswordPolicy() != null) {
-            policies.add(resource.getPasswordPolicy());
-        }
+        // add resource policy
+        Optional.ofNullable(resource.getPasswordPolicy()).ifPresent(policies::add);
+
+        // add realm policies
+        realms.forEach(r -> Optional.ofNullable(r.getPasswordPolicy()).
+                filter(p -> !policies.contains(p)).
+                ifPresent(policies::add));
 
         return generate(policies);
     }

@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -51,6 +52,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -97,6 +99,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final TaskDAO taskDAO,
             final ExternalResourceDAO resourceDAO,
             final PlainSchemaDAO plainSchemaDAO,
+            final RealmDAO realmDAO,
             final NotificationManager notificationManager,
             final AuditManager auditManager,
             final TaskDataBinder taskDataBinder,
@@ -105,6 +108,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
             final ApplicationEventPublisher publisher,
+            final PasswordGenerator passwordGenerator,
             final ThreadPoolTaskExecutor taskExecutor) {
 
         super(connectorManager,
@@ -115,6 +119,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 taskDAO,
                 resourceDAO,
                 plainSchemaDAO,
+                realmDAO,
                 notificationManager,
                 auditManager,
                 taskDataBinder,
@@ -122,7 +127,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 taskUtilsFactory,
                 outboundMatcher,
                 validator,
-                publisher);
+                publisher,
+                passwordGenerator);
         this.taskExecutor = taskExecutor;
     }
 
