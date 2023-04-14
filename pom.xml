@@ -411,7 +411,7 @@ under the License.
 
     <jackson.version>2.12.7</jackson.version>
 
-    <spring.version>5.2.23.RELEASE</spring.version>
+    <spring.version>5.2.24.RELEASE</spring.version>
     <spring-security.version>5.3.13.RELEASE</spring-security.version>
 
     <openjpa.version>3.2.2</openjpa.version>
@@ -1441,7 +1441,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>2.0.27</version>
+        <version>2.0.28</version>
       </dependency>
       
       <dependency>
