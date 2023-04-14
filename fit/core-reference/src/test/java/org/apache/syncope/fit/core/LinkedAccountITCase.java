@@ -80,7 +80,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         // 1. create user with linked account
         UserCR userCR = UserITCase.getSample(
                 "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
-        String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
+        String connObjectKeyValue = "firstAccountOf" + userCR.getUsername();
         String privilege = APPLICATION_SERVICE.read("mightyApp").getPrivileges().get(0).getKey();
 
         LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_LDAP, connObjectKeyValue).build();
@@ -107,7 +107,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(user.getPlainAttr("email").get().getValues(), ldapObj.getAttr("mail").get().getValues());
         assertEquals("LINKED_SURNAME", ldapObj.getAttr("sn").get().getValues().get(0));
 
-        // 3. remove linked account from user
+        // 3. update linked account
         UserUR userUR = new UserUR();
         userUR.setKey(user.getKey());
 

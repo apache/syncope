@@ -20,11 +20,12 @@ package org.apache.syncope.core.spring.security;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 
 public interface PasswordGenerator {
 
-    String generate(ExternalResource resource);
+    String generate(ExternalResource resource, List<Realm> realms);
 
     String generate(List<PasswordPolicy> policies);
 }

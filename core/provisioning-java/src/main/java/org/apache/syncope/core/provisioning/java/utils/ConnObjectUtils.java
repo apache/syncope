@@ -46,7 +46,6 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -200,17 +199,18 @@ public class ConnObjectUtils {
             UserCR userCR = (UserCR) anyCR;
             List<PasswordPolicy> passwordPolicies = new ArrayList<>();
 
-            Realm realm = realmDAO.findByFullPath(userCR.getRealm());
-            if (realm != null) {
-                realmDAO.findAncestors(realm).stream().
-                        filter(ancestor -> ancestor.getPasswordPolicy() != null).
-                        forEach(ancestor -> passwordPolicies.add(ancestor.getPasswordPolicy()));
-            }
-
+            // add resource policies
             userCR.getResources().stream().
                     map(resourceDAO::find).
                     filter(r -> r != null && r.getPasswordPolicy() != null).
                     forEach(r -> passwordPolicies.add(r.getPasswordPolicy()));
+
+            // add realm policies
+            Optional.ofNullable(realmDAO.findByFullPath(userCR.getRealm())).
+                    ifPresent(realm -> realmDAO.findAncestors(realm).stream().
+                    filter(ancestor -> ancestor.getPasswordPolicy() != null
+                    && !passwordPolicies.contains(ancestor.getPasswordPolicy())).
+                    forEach(ancestor -> passwordPolicies.add(ancestor.getPasswordPolicy())));
 
             userCR.setPassword(passwordGenerator.generate(passwordPolicies));
         }

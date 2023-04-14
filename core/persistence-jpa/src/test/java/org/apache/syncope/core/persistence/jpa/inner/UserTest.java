@@ -259,7 +259,8 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void testPasswordGenerator() {
-        String password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
+        String password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"),
+                List.of(realmDAO.getRoot()));
         assertNotNull(password);
 
         User user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
@@ -270,7 +271,8 @@ public class UserTest extends AbstractTest {
     @Test
     public void passwordGeneratorFailing() {
         assertThrows(IllegalArgumentException.class, () -> {
-            String password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"));
+            String password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"),
+                    List.of(realmDAO.getRoot()));
             assertNotNull(password);
 
             User user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
