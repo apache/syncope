@@ -99,7 +99,6 @@ import org.springframework.retry.backoff.FixedBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 @Transactional(rollbackFor = { Throwable.class })
 public abstract class AbstractPropagationTaskExecutor implements PropagationTaskExecutor {
@@ -260,9 +259,19 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                             toCharArray()));
 
             // remove __PASSWORD__ from MANDATORY_MISSING attribute
+            Set<Object> newMandatoryMissingAttrValues = new HashSet<>();
             Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs)).
-                    filter(missing -> !CollectionUtils.isEmpty(missing.getValue())).
-                    ifPresent(missing -> missing.getValue().remove(OperationalAttributes.PASSWORD_NAME));
+                    ifPresent(missing -> {
+                        newMandatoryMissingAttrValues.addAll(
+                                missing.getValue().stream().
+                                        filter(v -> !OperationalAttributes.PASSWORD_NAME.equals(v)).
+                                        collect(Collectors.toList()));
+                        attrs.remove(missing);
+                    });
+            if (!newMandatoryMissingAttrValues.isEmpty()) {
+                attrs.add(AttributeBuilder.build(
+                        PropagationManager.MANDATORY_MISSING_ATTR_NAME, newMandatoryMissingAttrValues));
+            }
         }
 
         actions.forEach(action -> action.before(taskInfo));
