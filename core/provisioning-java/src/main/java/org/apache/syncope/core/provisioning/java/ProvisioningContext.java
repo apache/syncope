@@ -447,7 +447,6 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public MappingManager mappingManager(
-            final PasswordGenerator passwordGenerator,
             final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
             final UserDAO userDAO,
@@ -474,7 +473,6 @@ public class ProvisioningContext {
                 derAttrHandler,
                 virAttrHandler,
                 virAttrCache,
-                passwordGenerator,
                 anyUtilsFactory,
                 intAttrNameParser);
     }

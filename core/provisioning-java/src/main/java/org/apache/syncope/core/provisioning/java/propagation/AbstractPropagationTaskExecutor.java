@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
@@ -98,6 +99,7 @@ import org.springframework.retry.backoff.FixedBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Transactional(rollbackFor = { Throwable.class })
 public abstract class AbstractPropagationTaskExecutor implements PropagationTaskExecutor {
@@ -206,47 +208,76 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
+    protected void checkMandatoryMissing(
+            final PropagationTaskInfo taskInfo,
+            final Set<Attribute> attrs,
+            final boolean enablePasswordCheck) {
+
+        // check if there is any missing or null / empty mandatory attribute
+        Set<Object> mandatoryAttrNames = new HashSet<>();
+        Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs)).
+                ifPresent(missing -> {
+                    attrs.remove(missing);
+
+                    if (taskInfo.getOperation() == ResourceOperation.CREATE) {
+                        // SYNCOPE-1751 remove __PASSWORD__ if enablePasswordCheck is false, this is needed to support
+                        // LinkedAccount update propagation without password
+                        mandatoryAttrNames.addAll(enablePasswordCheck
+                                ? missing.getValue()
+                                : missing.getValue().stream()
+                                        .filter(v -> !OperationalAttributes.PASSWORD_NAME.equals(v))
+                                        .collect(Collectors.toList()));
+                    }
+                });
+        Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, attrs)).
+                ifPresent(nullOrEmpty -> {
+                    attrs.remove(nullOrEmpty);
+
+                    mandatoryAttrNames.addAll(nullOrEmpty.getValue());
+                });
+        if (!mandatoryAttrNames.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Not attempted because there are mandatory attributes without value(s): " + mandatoryAttrNames);
+        }
+    }
+
     protected Uid doCreate(
             final PropagationTaskInfo taskInfo,
             final Connector connector,
             final AtomicReference<Boolean> propagationAttempted,
             final List<PropagationActions> actions) {
 
-        Set<Attribute> attributes = taskInfo.getPropagationData().getAttributes();
-        // SYNCOPE-1751 set the random password if missing
+        Set<Attribute> attrs = taskInfo.getPropagationData().getAttributes();
+
         if (AnyTypeKind.USER == taskInfo.getAnyTypeKind()
-                && AttributeUtil.getPasswordValue(taskInfo.getPropagationData().getAttributes()) == null
+                && AttributeUtil.getPasswordValue(attrs) == null
                 && taskInfo.getResource().isRandomPwdIfNotProvided()) {
-            attributes.add(AttributeBuilder.buildPassword(passwordGenerator.generate(taskInfo.getResource(),
-                    realmDAO.findAncestors(userDAO.find(taskInfo.getEntityKey()).getRealm())).toCharArray()));
+
+            // generate random password
+            attrs.add(AttributeBuilder.buildPassword(
+                    passwordGenerator.generate(taskInfo.getResource(),
+                            realmDAO.findAncestors(userDAO.find(taskInfo.getEntityKey()).getRealm())).
+                            toCharArray()));
+
             // remove __PASSWORD__ from MANDATORY_MISSING attribute
-            Set<Object> newMandatoryMissingAttrValues = new HashSet<>();
-            Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attributes)).
-                    ifPresent(missing -> {
-                        newMandatoryMissingAttrValues.addAll(missing.getValue().stream().filter(v -> v != null
-                                        && !v.toString().equals(OperationalAttributes.PASSWORD_NAME))
-                                .collect(Collectors.toList()));
-                        attributes.remove(missing);
-                    });
-            if (!newMandatoryMissingAttrValues.isEmpty()) {
-                attributes.add(
-                        AttributeBuilder.build(PropagationManager.MANDATORY_MISSING_ATTR_NAME,
-                                newMandatoryMissingAttrValues));
-            }
+            Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs)).
+                    filter(missing -> !CollectionUtils.isEmpty(missing.getValue())).
+                    ifPresent(missing -> missing.getValue().remove(OperationalAttributes.PASSWORD_NAME));
         }
 
         actions.forEach(action -> action.before(taskInfo));
 
-        checkMandatoryMissing(taskInfo, attributes, true);
+        checkMandatoryMissing(taskInfo, attrs, true);
 
-        LOG.debug("Create {} on {}", attributes, taskInfo.getResource().getKey());
+        LOG.debug("Create {} on {}", attrs, taskInfo.getResource().getKey());
 
-        Uid result = connector.create(taskInfo.getObjectClass(), attributes, null, propagationAttempted);
+        Uid result = connector.create(taskInfo.getObjectClass(), attrs, null, propagationAttempted);
 
         taskInfo.getResource().getProvisionByAnyType(taskInfo.getAnyType()).
                 filter(provision -> provision.getUidOnCreate() != null).
                 ifPresent(provision -> {
-                    anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind()).addAttr(
+                    AnyUtils anyUtils = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind());
+                    anyUtils.addAttr(
                             validator,
                             taskInfo.getEntityKey(),
                             plainSchemaDAO.find(provision.getUidOnCreate()),
@@ -254,7 +285,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     publisher.publishEvent(new AnyLifecycleEvent<>(
                             this,
                             SyncDeltaType.UPDATE,
-                            userDAO.find(taskInfo.getEntityKey()),
+                            anyUtils.dao().find(taskInfo.getEntityKey()),
                             AuthContextUtils.getDomain()));
                 });
 
@@ -270,14 +301,14 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         actions.forEach(action -> action.before(taskInfo));
 
-        Set<Attribute> attributes = taskInfo.getPropagationData().getAttributes();
+        Set<Attribute> attrs = taskInfo.getPropagationData().getAttributes();
 
-        checkMandatoryMissing(taskInfo, attributes, false);
+        checkMandatoryMissing(taskInfo, attrs, false);
 
-        LOG.debug("Update {} on {}", attributes, taskInfo.getResource().getKey());
+        LOG.debug("Update {} on {}", attrs, taskInfo.getResource().getKey());
 
         // 1. check if rename is really required
-        Name newName = AttributeUtil.getNameFromAttributes(attributes);
+        Name newName = AttributeUtil.getNameFromAttributes(attrs);
 
         LOG.debug("Rename required with value {}", newName);
 
@@ -286,7 +317,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 && !newName.getNameValue().equals(beforeObj.getUid().getUidValue())) {
 
             LOG.debug("Remote object name unchanged");
-            attributes.remove(newName);
+            attrs.remove(newName);
         }
 
         // 2. check whether anything is actually needing to be propagated, i.e. if there is attribute
@@ -295,7 +326,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         if (beforeObj != null) {
             originalAttrMap = beforeObj.getAttributes().stream().
                     collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), Function.identity()));
-            Map<String, Attribute> updateAttrMap = attributes.stream().
+            Map<String, Attribute> updateAttrMap = attrs.stream().
                     collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), Function.identity()));
 
             // Only compare attribute from beforeObj that are also being updated
@@ -303,14 +334,14 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         Uid result;
-        if (!originalAttrMap.isEmpty() && originalAttrMap.values().equals(attributes)) {
-            LOG.debug("Don't need to propagate anything: {} is equal to {}", originalAttrMap.values(), attributes);
-            result = AttributeUtil.getUidAttribute(attributes);
+        if (!originalAttrMap.isEmpty() && originalAttrMap.values().equals(attrs)) {
+            LOG.debug("Don't need to propagate anything: {} is equal to {}", originalAttrMap.values(), attrs);
+            result = AttributeUtil.getUidAttribute(attrs);
         } else {
-            LOG.debug("Attributes to update: {}", attributes);
+            LOG.debug("Attributes to update: {}", attrs);
 
             // 3. provision entry
-            LOG.debug("Update {} on {}", attributes, taskInfo.getResource().getKey());
+            LOG.debug("Update {} on {}", attrs, taskInfo.getResource().getKey());
 
             result = connector.update(
                     Optional.ofNullable(beforeObj).
@@ -320,7 +351,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                             map(ConnectorObject::getUid).
                             orElseGet(() -> new Uid(taskInfo.getOldConnObjectKey() == null
                             ? taskInfo.getConnObjectKey() : taskInfo.getOldConnObjectKey())),
-                    attributes,
+                    attrs,
                     null,
                     propagationAttempted);
         }
@@ -885,37 +916,5 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         return obj;
-    }
-
-    private void checkMandatoryMissing(
-            final PropagationTaskInfo taskInfo,
-            final Set<Attribute> attrs,
-            final boolean enablePasswordCheck) {
-        // check if there is any missing or null / empty mandatory attribute
-        Set<Object> mandatoryAttrNames = new HashSet<>();
-        Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs)).
-                ifPresent(missing -> {
-                    attrs.remove(missing);
-
-                    if (taskInfo.getOperation() == ResourceOperation.CREATE) {
-                        // SYNCOPE-1751 remove __PASSWORD__ if enablePasswordCheck is false, this is needed to support
-                        // LinkedAccount update propagation without password
-                        mandatoryAttrNames.addAll(enablePasswordCheck
-                                ? missing.getValue()
-                                : missing.getValue().stream()
-                                .filter(v -> !OperationalAttributes.PASSWORD_NAME.equals(v))
-                                .collect(Collectors.toList()));
-                    }
-                });
-        Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, attrs)).
-                ifPresent(nullOrEmpty -> {
-                    attrs.remove(nullOrEmpty);
-
-                    mandatoryAttrNames.addAll(nullOrEmpty.getValue());
-                });
-        if (!mandatoryAttrNames.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Not attempted because there are mandatory attributes without value(s): " + mandatoryAttrNames);
-        }
     }
 }

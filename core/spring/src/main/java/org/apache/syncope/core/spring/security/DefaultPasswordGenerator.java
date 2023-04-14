@@ -61,14 +61,13 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
     public String generate(final ExternalResource resource, final List<Realm> realms) {
         List<PasswordPolicy> policies = new ArrayList<>();
 
-        if (resource.getPasswordPolicy() != null) {
-            policies.add(resource.getPasswordPolicy());
-        }
+        // add resource policy
+        Optional.ofNullable(resource.getPasswordPolicy()).ifPresent(policies::add);
 
         // add realm policies
         realms.forEach(r -> Optional.ofNullable(r.getPasswordPolicy()).
-                        filter(p -> !policies.contains(p)).
-                        ifPresent(policies::add));
+                filter(p -> !policies.contains(p)).
+                ifPresent(policies::add));
 
         return generate(policies);
     }
