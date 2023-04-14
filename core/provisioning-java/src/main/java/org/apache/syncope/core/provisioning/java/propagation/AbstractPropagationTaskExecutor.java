@@ -85,6 +85,7 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
@@ -211,20 +212,32 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final AtomicReference<Boolean> propagationAttempted,
             final List<PropagationActions> actions) {
 
+        Set<Attribute> attributes = taskInfo.getPropagationData().getAttributes();
         // SYNCOPE-1751 set the random password if missing
         if (AnyTypeKind.USER == taskInfo.getAnyTypeKind()
-        && AttributeUtil.getPasswordValue(taskInfo.getPropagationData().getAttributes()) == null
+                && AttributeUtil.getPasswordValue(taskInfo.getPropagationData().getAttributes()) == null
                 && taskInfo.getResource().isRandomPwdIfNotProvided()) {
-            taskInfo.getPropagationData().getAttributes().add(
-                    AttributeBuilder.buildPassword(passwordGenerator.generate(taskInfo.getResource(),
-                            realmDAO.findAncestors(userDAO.find(taskInfo.getEntityKey()).getRealm())).toCharArray()));
+            attributes.add(AttributeBuilder.buildPassword(passwordGenerator.generate(taskInfo.getResource(),
+                    realmDAO.findAncestors(userDAO.find(taskInfo.getEntityKey()).getRealm())).toCharArray()));
+            // remove __PASSWORD__ from MANDATORY_MISSING attribute
+            Set<Object> newMandatoryMissingAttrValues = new HashSet<>();
+            Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attributes)).
+                    ifPresent(missing -> {
+                        newMandatoryMissingAttrValues.addAll(missing.getValue().stream().filter(v -> v != null
+                                        && !v.toString().equals(OperationalAttributes.PASSWORD_NAME))
+                                .collect(Collectors.toList()));
+                        attributes.remove(missing);
+                    });
+            if (!newMandatoryMissingAttrValues.isEmpty()) {
+                attributes.add(
+                        AttributeBuilder.build(PropagationManager.MANDATORY_MISSING_ATTR_NAME,
+                                newMandatoryMissingAttrValues));
+            }
         }
 
         actions.forEach(action -> action.before(taskInfo));
 
-        Set<Attribute> attributes = taskInfo.getPropagationData().getAttributes();
-
-        checkMandatoryMissing(taskInfo, attributes);
+        checkMandatoryMissing(taskInfo, attributes, true);
 
         LOG.debug("Create {} on {}", attributes, taskInfo.getResource().getKey());
 
@@ -259,7 +272,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         Set<Attribute> attributes = taskInfo.getPropagationData().getAttributes();
 
-        checkMandatoryMissing(taskInfo, attributes);
+        checkMandatoryMissing(taskInfo, attributes, false);
 
         LOG.debug("Update {} on {}", attributes, taskInfo.getResource().getKey());
 
@@ -874,7 +887,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return obj;
     }
 
-    private void checkMandatoryMissing(final PropagationTaskInfo taskInfo, final Set<Attribute> attrs) {
+    private void checkMandatoryMissing(
+            final PropagationTaskInfo taskInfo,
+            final Set<Attribute> attrs,
+            final boolean enablePasswordCheck) {
         // check if there is any missing or null / empty mandatory attribute
         Set<Object> mandatoryAttrNames = new HashSet<>();
         Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs)).
@@ -882,7 +898,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     attrs.remove(missing);
 
                     if (taskInfo.getOperation() == ResourceOperation.CREATE) {
-                        mandatoryAttrNames.addAll(missing.getValue());
+                        // SYNCOPE-1751 remove __PASSWORD__ if enablePasswordCheck is false, this is needed to support
+                        // LinkedAccount update propagation without password
+                        mandatoryAttrNames.addAll(enablePasswordCheck
+                                ? missing.getValue()
+                                : missing.getValue().stream()
+                                .filter(v -> !OperationalAttributes.PASSWORD_NAME.equals(v))
+                                .collect(Collectors.toList()));
                     }
                 });
         Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, attrs)).
