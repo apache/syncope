@@ -507,9 +507,7 @@ public class DefaultMappingManager implements MappingManager {
         }
     }
 
-    protected String getPasswordAttrValue(
-            final ExternalResource resource, final Account account, final String defaultValue) {
-
+    protected String getPasswordAttrValue(final Account account, final String defaultValue) {
         String passwordAttrValue;
         if (account instanceof LinkedAccount) {
             if (account.getPassword() != null) {
@@ -595,8 +593,7 @@ public class DefaultMappingManager implements MappingManager {
             if (item.isConnObjectKey()) {
                 result = Pair.of(objValues.isEmpty() ? null : objValues.iterator().next().toString(), null);
             } else if (item.isPassword() && any instanceof User) {
-                String passwordAttrValue =
-                        getPasswordAttrValue(resource, passwordAccountGetter.apply((User) any), password);
+                String passwordAttrValue = getPasswordAttrValue(passwordAccountGetter.apply((User) any), password);
                 if (passwordAttrValue == null) {
                     result = null;
                 } else {
