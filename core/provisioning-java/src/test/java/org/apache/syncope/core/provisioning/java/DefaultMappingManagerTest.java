@@ -127,7 +127,6 @@ public class DefaultMappingManagerTest extends AbstractTest {
         ldap = resourceDAO.save(ldap);
         entityManager().flush();
 
-        String encPassword = bellini.getPassword();
         attrs = mappingManager.prepareAttrsFromAny(
                 bellini,
                 null,
@@ -225,7 +224,6 @@ public class DefaultMappingManagerTest extends AbstractTest {
         ldap = resourceDAO.save(ldap);
         entityManager().flush();
 
-        String encPassword = vivaldi.getPassword();
         attrs = mappingManager.prepareAttrsFromLinkedAccount(
                 vivaldi,
                 account,
