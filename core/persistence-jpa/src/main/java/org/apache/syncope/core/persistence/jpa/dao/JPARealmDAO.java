@@ -136,6 +136,8 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
             queryString.append(" AND LOWER(e.name) LIKE ?").append(setParameter(parameters, keyword));
         }
 
+        queryString.append(" ORDER BY e.fullPath");
+
         return queryString;
     }
 
@@ -266,30 +268,43 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         return query.getResultList();
     }
 
-    protected StringBuilder buildDescendantQuery() {
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+    protected StringBuilder buildDescendantQuery(final String base, final List<Object> parameters) {
+        return new StringBuilder("SELECT e FROM ").
                 append(JPARealm.class.getSimpleName()).append(" e ").
-                append("WHERE e.fullPath LIKE :fullPath ORDER BY e.fullPath");
-
-        return queryString;
+                append("WHERE e.fullPath=?").
+                append(setParameter(parameters, base)).
+                append(" OR e.fullPath LIKE ?").
+                append(setParameter(parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
+                append(" ORDER BY e.fullPath");
     }
 
     @Override
     public int countDescendants(final Realm realm) {
-        StringBuilder queryString = buildDescendantQuery();
+        List<Object> parameters = new ArrayList<>();
+
+        StringBuilder queryString = buildDescendantQuery(realm.getFullPath(), parameters);
         Query query = entityManager().createQuery(StringUtils.replaceOnce(
                 queryString.toString(),
                 "SELECT e ",
                 "SELECT COUNT(e) "));
-        query.setParameter("fullPath", realm.getFullPath() + "/%");
+
+        for (int i = 1; i <= parameters.size(); i++) {
+            query.setParameter(i, parameters.get(i - 1));
+        }
 
         return ((Number) query.getSingleResult()).intValue();
     }
 
     @Override
     public List<Realm> findDescendants(final Realm realm, final int page, final int itemsPerPage) {
-        TypedQuery<Realm> query = entityManager().createQuery(buildDescendantQuery().toString(), Realm.class);
-        query.setParameter("fullPath", realm.getFullPath() + "/%");
+        List<Object> parameters = new ArrayList<>();
+
+        TypedQuery<Realm> query = entityManager().createQuery(
+                buildDescendantQuery(realm.getFullPath(), parameters).toString(), Realm.class);
+
+        for (int i = 1; i <= parameters.size(); i++) {
+            query.setParameter(i, parameters.get(i - 1));
+        }
 
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
