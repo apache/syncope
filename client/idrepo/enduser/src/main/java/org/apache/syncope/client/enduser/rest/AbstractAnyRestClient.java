@@ -32,5 +32,4 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestCl
     public TO read(final String key) {
         return getService(getAnyServiceClass()).read(key);
     }
-
 }

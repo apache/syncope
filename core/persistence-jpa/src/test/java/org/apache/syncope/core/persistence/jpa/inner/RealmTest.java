@@ -95,7 +95,7 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Realm> list = realmDAO.findAll();
+        List<Realm> list = realmDAO.findDescendants(realmDAO.getRoot(), -1, -1);
         assertNotNull(list);
         assertFalse(list.isEmpty());
         list.forEach(Assertions::assertNotNull);
@@ -161,10 +161,10 @@ public class RealmTest extends AbstractTest {
         Realm actual = realmDAO.save(realm);
         assertNotNull(actual);
 
-        String id = actual.getKey();
-        assertNotNull(realmDAO.find(id));
+        actual = realmDAO.find(actual.getKey());
+        assertNotNull(actual);
 
-        realmDAO.delete(id);
-        assertNull(realmDAO.find(id));
+        realmDAO.delete(actual);
+        assertNull(realmDAO.find(actual.getKey()));
     }
 }

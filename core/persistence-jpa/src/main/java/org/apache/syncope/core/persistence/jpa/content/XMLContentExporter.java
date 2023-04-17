@@ -400,11 +400,8 @@ public class XMLContentExporter implements ContentExporter {
             if (tableName.equalsIgnoreCase(JPARealm.TABLE)) {
                 List<Map<String, String>> realmRows = new ArrayList<>(rows);
                 rows.clear();
-                realmDAO.findAll().forEach(realm -> realmRows.stream().filter(row -> {
-                    String id = row.get("ID");
-                    if (id == null) {
-                        id = row.get("id");
-                    }
+                realmDAO.findDescendants(realmDAO.getRoot(), -1, -1).forEach(realm -> realmRows.stream().filter(row -> {
+                    String id = Optional.ofNullable(row.get("ID")).orElseGet(() -> row.get("id"));
                     return realm.getKey().equals(id);
                 }).findFirst().ifPresent(rows::add));
             }

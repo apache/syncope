@@ -18,7 +18,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <dataset>
-  <Realm id="ea696a4f-e77a-4ef1-be67-8f8093bc8686" name="/"/>
+  <Realm id="ea696a4f-e77a-4ef1-be67-8f8093bc8686" name="/" fullPath="/"/>
 
   <AnyType id="USER" kind="USER"/>
   <AnyTypeClass id="BaseUser"/>

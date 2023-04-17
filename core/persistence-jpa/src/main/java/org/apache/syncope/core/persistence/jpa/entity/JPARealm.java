@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -34,8 +35,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -72,6 +71,9 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
 
     @ManyToOne
     private JPARealm parent;
+
+    @Column(nullable = false, unique = true)
+    private String fullPath;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPasswordPolicy passwordPolicy;
@@ -125,9 +127,7 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
 
     @Override
     public String getFullPath() {
-        return getParent() == null
-                ? SyncopeConstants.ROOT_REALM
-                : StringUtils.appendIfMissing(getParent().getFullPath(), "/") + getName();
+        return fullPath;
     }
 
     @Override
@@ -149,6 +149,10 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     public void setParent(final Realm parent) {
         checkType(parent, JPARealm.class);
         this.parent = (JPARealm) parent;
+    }
+
+    public void setFullPath(final String fullPath) {
+        this.fullPath = fullPath;
     }
 
     @Override

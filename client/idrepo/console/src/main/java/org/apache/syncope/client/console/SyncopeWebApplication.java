@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console;
 
+
 import com.giffing.wicket.spring.boot.starter.app.WicketBootSecuredWebApplication;
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
@@ -33,6 +34,7 @@ import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
 import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
@@ -40,6 +42,7 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.console.pages.MustChangePassword;
+import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -51,6 +54,7 @@ import org.apache.syncope.client.ui.commons.themes.AdminLTE;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
@@ -301,6 +305,17 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     public int getMaxUploadFileSizeMB() {
         return props.getMaxUploadFileSizeMB();
+    }
+
+    public boolean fullRealmsTree() {
+        if (props.getRealmsFullTreeThreshold() <= 0) {
+            return false;
+        }
+
+        RealmQuery query = RealmsUtils.buildRootQuery();
+        query.setPage(1);
+        query.setSize(0);
+        return RealmRestClient.search(query).getTotalCount() < props.getRealmsFullTreeThreshold();
     }
 
     public ExternalResourceProvider getResourceProvider() {

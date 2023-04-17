@@ -83,8 +83,8 @@ public class MultitenancyTest extends AbstractTest {
 
     @Test
     public void readRealm() {
-        assertEquals(1, realmDAO.findAll().size());
-        assertEquals(realmDAO.getRoot(), realmDAO.findAll().get(0));
+        assertEquals(1, realmDAO.findDescendants(realmDAO.getRoot(), -1, -1).size());
+        assertEquals(realmDAO.getRoot(), realmDAO.findDescendants(realmDAO.getRoot(), -1, -1).get(0));
     }
 
     @Test

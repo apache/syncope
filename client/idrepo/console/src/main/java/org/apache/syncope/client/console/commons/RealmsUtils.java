@@ -18,20 +18,11 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 
 public final class RealmsUtils {
-
-    public static final int REALMS_VIEW_SIZE = 20;
-
-    private RealmsUtils() {
-        // private constructor for static utility class
-    }
 
     public static String getFullPath(final String fullpath) {
         String display = fullpath;
@@ -41,26 +32,19 @@ public final class RealmsUtils {
         return display;
     }
 
-    public static boolean isSearchEnabled() {
-        return isSearchEnabled(SyncopeConsoleSession.get().getAuthRealms());
-    }
-
-    public static boolean isSearchEnabled(final List<String> realms) {
-        return realms.isEmpty()
-                ? false
-                : RealmRestClient.search(
-                        new RealmQuery.Builder().keyword(
-                                realms.contains(SyncopeConstants.ROOT_REALM)
-                                ? SyncopeConstants.ROOT_REALM
-                                : realms.get(0)).build()).
-                        getTotalCount() > REALMS_VIEW_SIZE;
-    }
-
     public static boolean checkInput(final String input) {
         return StringUtils.isNotBlank(input) && !"*".equals(input);
     }
 
-    public static RealmQuery buildQuery(final String input) {
+    public static RealmQuery buildKeywordQuery(final String input) {
         return new RealmQuery.Builder().keyword(input.contains("*") ? input : "*" + input + "*").build();
+    }
+
+    public static RealmQuery buildRootQuery() {
+        return new RealmQuery.Builder().base(SyncopeConstants.ROOT_REALM).build();
+    }
+
+    private RealmsUtils() {
+        // private constructor for static utility class
     }
 }

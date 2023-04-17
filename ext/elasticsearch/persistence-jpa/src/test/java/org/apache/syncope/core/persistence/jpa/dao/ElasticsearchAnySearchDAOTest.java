@@ -116,7 +116,7 @@ public class ElasticsearchAnySearchDAOTest {
         when(root.getKey()).thenReturn("rootKey");
 
         when(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenReturn(root);
-        when(realmDAO.findDescendants(root)).thenReturn(List.of(root));
+        when(realmDAO.findDescendants(root, -1, -1)).thenReturn(List.of(root));
 
         // 2. test
         Set<String> adminRealms = Set.of(SyncopeConstants.ROOT_REALM);

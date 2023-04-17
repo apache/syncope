@@ -72,6 +72,8 @@ public class ConsoleProperties extends CommonUIProperties {
 
     private String defaultAnyPanelClass = AnyPanel.class.getName();
 
+    private int realmsFullTreeThreshold = 20;
+
     private final Topology topology = new Topology();
 
     @Override
@@ -84,6 +86,10 @@ public class ConsoleProperties extends CommonUIProperties {
         this.adminUser = adminUser;
     }
 
+    public Map<String, Class<? extends BasePage>> getPage() {
+        return page;
+    }
+
     public String getDefaultAnyPanelClass() {
         return defaultAnyPanelClass;
     }
@@ -92,8 +98,12 @@ public class ConsoleProperties extends CommonUIProperties {
         this.defaultAnyPanelClass = defaultAnyPanelClass;
     }
 
-    public Map<String, Class<? extends BasePage>> getPage() {
-        return page;
+    public int getRealmsFullTreeThreshold() {
+        return realmsFullTreeThreshold;
+    }
+
+    public void setRealmsFullTreeThreshold(final int realmsFullTreeThreshold) {
+        this.realmsFullTreeThreshold = realmsFullTreeThreshold;
     }
 
     public Topology getTopology() {
