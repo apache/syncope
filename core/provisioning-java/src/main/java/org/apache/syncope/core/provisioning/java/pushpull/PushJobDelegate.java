@@ -206,7 +206,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
             });
 
             // Never push the root realm
-            List<Realm> realms = realmDAO.findDescendants(profile.getTask().getSourceRealm()).stream().
+            List<Realm> realms = realmDAO.findDescendants(
+                    profile.getTask().getSourceRealm().getFullPath(), null, -1, -1).stream().
                     filter(realm -> realm.getParent() != null).collect(Collectors.toList());
             boolean result = true;
             for (int i = 0; i < realms.size() && result; i++) {

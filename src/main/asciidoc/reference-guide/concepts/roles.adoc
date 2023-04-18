@@ -93,7 +93,7 @@ For example, the following entitlements are normally required to be granted for 
 . `RELATIONSHIPTYPE_LIST`
 . `USER_READ`
 . `ANYTYPE_READ`
-. `REALM_LIST`
+. `REALM_SEARCH`
 . `GROUP_SEARCH`
 ====
 
@@ -122,7 +122,7 @@ The actual Entitlements are assigned through the predefined `GROUP_OWNER` Role:
 . `ANYTYPECLASS_LIST`
 . `RELATIONSHIPTYPE_LIST`
 . `ANYTYPE_READ`
-. `REALM_LIST`
+. `REALM_SEARCH`
 . `GROUP_SEARCH`
 . `GROUP_READ`
 . `GROUP_UPDATE`

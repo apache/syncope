@@ -41,7 +41,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.util.List;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -59,28 +58,14 @@ import org.apache.syncope.common.rest.api.beans.RealmQuery;
 public interface RealmService extends JAXRSService {
 
     /**
-     * Returns a list of existing realms matching the given query (not including descendant realms) and the total number
-     * of descendant realms.
+     * Returns a paged list of existing realms matching the given query.
      *
      * @param query query conditions
-     * @return list of existing realms matching the given query (not including descendant realms) and the total number
-     * of descedant realms
+     * @return paged list of existing realms matching the given query
      */
     @GET
-    @Path("search")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PagedResult<RealmTO> search(@BeanParam RealmQuery query);
-
-    /**
-     * Returns realms rooted at the given path, including descendant realms.
-     *
-     * @param fullPath full path of the root realm where to read from
-     * @return realms rooted at the given path, including descendant realms
-     */
-    @GET
-    @Path("{fullPath:.*}")
-    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<RealmTO> list(@NotNull @PathParam("fullPath") String fullPath);
 
     /**
      * Creates a new realm under the given path.

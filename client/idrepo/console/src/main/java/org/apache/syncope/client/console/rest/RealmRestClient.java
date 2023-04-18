@@ -40,10 +40,6 @@ public class RealmRestClient extends BaseRestClient {
         return getService(RealmService.class).search(query);
     }
 
-    public static List<RealmTO> list(final String fullpath) {
-        return getService(RealmService.class).list(fullpath);
-    }
-
     public static List<DynRealmTO> listDynRealms() {
         return getService(DynRealmService.class).list();
     }

@@ -22,6 +22,7 @@ import jakarta.persistence.Query;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -130,16 +131,15 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     goRealm -> groupOwners.add(goRealm.getRight()),
                     () -> {
                         if (realmPath.startsWith("/")) {
-                            Realm realm = realmDAO.findByFullPath(realmPath);
-                            if (realm == null) {
-                                SyncopeClientException noRealm = SyncopeClientException.build(
-                                        ClientExceptionType.InvalidRealm);
+                            Realm realm = Optional.ofNullable(realmDAO.findByFullPath(realmPath)).orElseThrow(() -> {
+                                SyncopeClientException noRealm =
+                                        SyncopeClientException.build(ClientExceptionType.InvalidRealm);
                                 noRealm.getElements().add("Invalid realm specified: " + realmPath);
-                                throw noRealm;
-                            } else {
-                                realmKeys.addAll(realmDAO.findDescendants(realm).stream().
-                                        map(Realm::getKey).collect(Collectors.toSet()));
-                            }
+                                return noRealm;
+                            });
+
+                            realmKeys.addAll(realmDAO.findDescendants(realm.getFullPath(), null, -1, -1).stream().
+                                    map(Realm::getKey).collect(Collectors.toSet()));
                         } else {
                             DynRealm dynRealm = dynRealmDAO.find(realmPath);
                             if (dynRealm == null) {

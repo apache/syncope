@@ -71,12 +71,12 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
     private CrontabPanel crontabPanel;
 
-    private final boolean isSearchEnabled;
+    private final boolean fullRealmsTree;
 
     public SchedTaskWizardBuilder(final TaskType type, final T taskTO, final PageReference pageRef) {
         super(taskTO, pageRef);
         this.type = type;
-        this.isSearchEnabled = RealmsUtils.isSearchEnabled();
+        this.fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
     }
 
     @Override
@@ -105,10 +105,11 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
         return wizardModel;
     }
 
-    private List<RealmTO> searchRealms(final String realmQuery) {
-        return isSearchEnabled
-                ? RealmRestClient.search(RealmsUtils.buildQuery(realmQuery)).getResult()
-                : RealmRestClient.list(SyncopeConstants.ROOT_REALM);
+    protected List<String> searchRealms(final String realmQuery) {
+        return RealmRestClient.search(fullRealmsTree
+                ? RealmsUtils.buildRootQuery()
+                : RealmsUtils.buildKeywordQuery(realmQuery)).
+                getResult().stream().map(RealmTO::getFullPath).collect(Collectors.toList());
     }
 
     public class Profile extends WizardStep {
@@ -154,8 +155,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             add(jobDelegate);
 
             AutoCompleteSettings settings = new AutoCompleteSettings();
-            settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
-            settings.setShowListOnEmptyInput(!isSearchEnabled);
+            settings.setShowCompleteListOnFocusGain(fullRealmsTree);
+            settings.setShowListOnEmptyInput(fullRealmsTree);
 
             // ------------------------------
             // Only for macro tasks
@@ -172,7 +173,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                 @Override
                 protected Iterator<String> getChoices(final String input) {
                     return (RealmsUtils.checkInput(input)
-                            ? searchRealms(input).stream().map(RealmTO::getFullPath).collect(Collectors.toList())
+                            ? searchRealms(input)
                             : List.<String>of()).iterator();
                 }
             };
@@ -247,7 +248,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                 @Override
                 protected Iterator<String> getChoices(final String input) {
                     return (RealmsUtils.checkInput(input)
-                            ? searchRealms(input).stream().map(RealmTO::getFullPath).collect(Collectors.toList())
+                            ? searchRealms(input)
                             : List.<String>of()).iterator();
                 }
             };
@@ -283,7 +284,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                 @Override
                 protected Iterator<String> getChoices(final String input) {
                     return (RealmsUtils.checkInput(input)
-                            ? searchRealms(input).stream().map(RealmTO::getFullPath).collect(Collectors.toList())
+                            ? searchRealms(input)
                             : List.<String>of()).iterator();
                 }
             };

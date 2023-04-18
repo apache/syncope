@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.CommandQuery;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.TestCommand;
 import org.apache.syncope.fit.core.reference.TestCommandArgs;
@@ -107,7 +108,8 @@ public class CommandITCase extends AbstractITCase {
             AnyObjectTO printer = ANY_OBJECT_SERVICE.read(args.getPrinterName());
             assertNotNull(printer);
             assertEquals(args.getParentRealm() + "/" + args.getRealmName(), printer.getRealm());
-            assertFalse(REALM_SERVICE.list(printer.getRealm()).isEmpty());
+            assertFalse(REALM_SERVICE.search(
+                    new RealmQuery.Builder().base(printer.getRealm()).build()).getResult().isEmpty());
         } finally {
             ANY_OBJECT_SERVICE.delete(args.getPrinterName());
             REALM_SERVICE.delete(args.getParentRealm() + "/" + args.getRealmName());

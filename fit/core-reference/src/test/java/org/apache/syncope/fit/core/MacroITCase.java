@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.TestCommand;
@@ -134,7 +135,8 @@ public class MacroITCase extends AbstractITCase {
         AnyObjectTO printer = ANY_OBJECT_SERVICE.read(TCA.getPrinterName());
         assertNotNull(printer);
         assertEquals(TCA.getParentRealm() + "/" + TCA.getRealmName(), printer.getRealm());
-        assertFalse(REALM_SERVICE.list(printer.getRealm()).isEmpty());
+        assertFalse(REALM_SERVICE.search(
+                new RealmQuery.Builder().base(printer.getRealm()).build()).getResult().isEmpty());
     }
 
     @Test

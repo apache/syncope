@@ -18,7 +18,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <dataset>
-  <Realm id="ea696a4f-e77a-4ef1-be67-8f8093bc8686" name="/"/>
+  <Realm id="ea696a4f-e77a-4ef1-be67-8f8093bc8686" name="/" fullPath="/"/>
 
   <AnyType id="USER" kind="USER"/>
   <AnyTypeClass id="BaseUser"/>
@@ -104,5 +104,5 @@ we are happy to inform you that the password request was successfully executed f
                 sender="admin@syncope.apache.org" subject="Password Reset successful" template_id="confirmPasswordReset" 
                 traceLevel="FAILURES" events='["[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"]'/> 
 
-  <SyncopeRole id="GROUP_OWNER" entitlements='["USER_SEARCH","USER_READ","USER_CREATE","USER_UPDATE","USER_DELETE","ANYTYPECLASS_READ","ANYTYPE_LIST","ANYTYPECLASS_LIST","RELATIONSHIPTYPE_LIST","ANYTYPE_READ","REALM_LIST","GROUP_SEARCH","GROUP_READ","GROUP_UPDATE","GROUP_DELETE"]'/>
+  <SyncopeRole id="GROUP_OWNER" entitlements='["USER_SEARCH","USER_READ","USER_CREATE","USER_UPDATE","USER_DELETE","ANYTYPECLASS_READ","ANYTYPE_LIST","ANYTYPECLASS_LIST","RELATIONSHIPTYPE_LIST","ANYTYPE_READ","REALM_SEARCH","GROUP_SEARCH","GROUP_READ","GROUP_UPDATE","GROUP_DELETE"]'/>
 </dataset>

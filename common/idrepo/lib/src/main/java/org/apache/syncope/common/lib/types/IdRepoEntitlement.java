@@ -38,7 +38,7 @@ public final class IdRepoEntitlement {
 
     public static final String DOMAIN_DELETE = "DOMAIN_DELETE";
 
-    public static final String REALM_LIST = "REALM_LIST";
+    public static final String REALM_SEARCH = "REALM_SEARCH";
 
     public static final String REALM_CREATE = "REALM_CREATE";
 

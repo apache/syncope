@@ -286,7 +286,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     public List<String> getSearchableRealms() {
-        Set<String> roots = auth.get(IdRepoEntitlement.REALM_LIST);
+        Set<String> roots = auth.get(IdRepoEntitlement.REALM_SEARCH);
         return CollectionUtils.isEmpty(roots)
                 ? List.of()
                 : roots.stream().sorted().collect(Collectors.toList());

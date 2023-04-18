@@ -19,30 +19,28 @@
 package org.apache.syncope.common.rest.api.beans;
 
 import jakarta.ws.rs.QueryParam;
-import java.io.Serializable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class RealmQuery implements Serializable {
+public class RealmQuery extends AbstractQuery {
 
     private static final long serialVersionUID = -2278419397595186866L;
 
-    public static class Builder {
+    public static class Builder extends AbstractQuery.Builder<RealmQuery, Builder> {
 
-        private final RealmQuery instance = new RealmQuery();
+        @Override
+        protected RealmQuery newInstance() {
+            return new RealmQuery();
+        }
 
         public Builder keyword(final String keyword) {
-            instance.setKeyword(keyword);
+            getInstance().setKeyword(keyword);
             return this;
         }
 
         public Builder base(final String base) {
-            instance.setBase(base);
+            getInstance().setBase(base);
             return this;
-        }
-
-        public RealmQuery build() {
-            return instance;
         }
     }
 

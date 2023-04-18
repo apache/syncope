@@ -33,7 +33,7 @@ import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 
 /**
- * Console client for invoking Rest Group's services.
+ * Enduser client for invoking Rest Group's services.
  */
 public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
 

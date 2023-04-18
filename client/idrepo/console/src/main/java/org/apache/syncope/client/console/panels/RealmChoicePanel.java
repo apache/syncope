@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.WebMarkupContainerNoVeil;
@@ -47,6 +48,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -92,16 +94,16 @@ public class RealmChoicePanel extends Panel {
 
     protected List<RealmTO> realmsChoices;
 
-    protected final boolean isSearchEnabled;
+    protected final boolean fullRealmsTree;
 
     protected final ListView<String> breadcrumb;
 
-    public RealmChoicePanel(final String id, final String initialRealm, final PageReference pageRef) {
+    public RealmChoicePanel(final String id, final String base, final PageReference pageRef) {
         super(id);
         this.pageRef = pageRef;
 
         tree = new HashMap<>();
-        isSearchEnabled = RealmsUtils.isSearchEnabled(SyncopeConsoleSession.get().getSearchableRealms());
+        fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
 
         realmTree = new LoadableDetachableModel<>() {
 
@@ -111,13 +113,13 @@ public class RealmChoicePanel extends Panel {
             protected List<Pair<String, RealmTO>> load() {
                 Map<String, Pair<RealmTO, List<RealmTO>>> map = reloadRealmParentMap();
                 Stream<Pair<String, RealmTO>> full;
-                if (isSearchEnabled) {
-                    full = map.entrySet().stream().
-                            map(el -> Pair.of(el.getKey(), el.getValue().getLeft()));
-                } else {
+                if (fullRealmsTree) {
                     full = map.entrySet().stream().
                             map(el -> Pair.of(el.getValue().getLeft().getFullPath(), el.getValue().getKey())).
                             sorted(Comparator.comparing(Pair::getLeft));
+                } else {
+                    full = map.entrySet().stream().
+                            map(el -> Pair.of(el.getKey(), el.getValue().getLeft()));
                 }
                 return full.filter(realm -> SyncopeConsoleSession.get().getSearchableRealms().stream().anyMatch(
                         availableRealm -> realm.getValue().getFullPath().startsWith(availableRealm))).
@@ -147,11 +149,11 @@ public class RealmChoicePanel extends Panel {
             }
         };
 
-        RealmTO realm = SyncopeConsoleSession.get().getRootRealm(initialRealm).map(rootRealm -> {
+        RealmTO realm = SyncopeConsoleSession.get().getRootRealm(base).map(rootRealm -> {
             String rootRealmName = StringUtils.substringAfterLast(rootRealm, "/");
 
             List<RealmTO> realmTOs = RealmRestClient.search(
-                    RealmsUtils.buildQuery(SyncopeConstants.ROOT_REALM.equals(rootRealm)
+                    RealmsUtils.buildKeywordQuery(SyncopeConstants.ROOT_REALM.equals(rootRealm)
                             ? SyncopeConstants.ROOT_REALM : rootRealmName)).getResult();
 
             return realmTOs.stream().
@@ -187,8 +189,8 @@ public class RealmChoicePanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        RealmRestClient.list(item.getModelObject()).stream().
-                                filter(r -> item.getModelObject().equals(r.getFullPath())).
+                        RealmRestClient.search(
+                                new RealmQuery.Builder().base(item.getModelObject()).build()).getResult().stream().
                                 findFirst().ifPresent(t -> chooseRealm(t, target));
                     }
                 };
@@ -202,7 +204,7 @@ public class RealmChoicePanel extends Panel {
         container.addOrReplace(breadcrumb.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
         setBreadcrumb(model.getObject());
 
-        reloadRealmTree();
+        reloadRealmsTree();
     }
 
     protected void setBreadcrumb(final RealmTO realm) {
@@ -232,8 +234,28 @@ public class RealmChoicePanel extends Panel {
         send(pageRef.getPage(), Broadcast.EXACT, new ChosenRealm<>(realm, target));
     }
 
-    public void reloadRealmTree() {
-        if (isSearchEnabled) {
+    public void reloadRealmsTree() {
+        if (fullRealmsTree) {
+            DropDownButton realms = new DropDownButton(
+                    "realms", new ResourceModel("select", ""), new Model<>(FontAwesome5IconType.folder_open_r)) {
+
+                private static final long serialVersionUID = -5560086780455361131L;
+
+                @Override
+                protected List<AbstractLink> newSubMenuButtons(final String buttonMarkupId) {
+                    buildRealmLinks();
+                    return RealmChoicePanel.this.links;
+                }
+            };
+            realms.setOutputMarkupId(true);
+            realms.setAlignment(DropDownAlignmentBehavior.Alignment.RIGHT);
+            realms.setType(Buttons.Type.Menu);
+
+            MetaDataRoleAuthorizationStrategy.authorize(realms, ENABLE, IdRepoEntitlement.REALM_SEARCH);
+            Fragment fragment = new Fragment("realmsFragment", "realmsListFragment", container);
+            fragment.addOrReplace(realms);
+            container.addOrReplace(fragment);
+        } else {
             realmsChoices = buildRealmChoices();
             AutoCompleteSettings settings = new AutoCompleteSettings();
             settings.setShowCompleteListOnFocusGain(false);
@@ -293,26 +315,6 @@ public class RealmChoicePanel extends Panel {
 
             Fragment fragment = new Fragment("realmsFragment", "realmsSearchFragment", container);
             fragment.addOrReplace(searchRealms);
-            container.addOrReplace(fragment);
-        } else {
-            DropDownButton realms = new DropDownButton(
-                    "realms", new ResourceModel("select", ""), new Model<>(FontAwesome5IconType.folder_open_r)) {
-
-                private static final long serialVersionUID = -5560086780455361131L;
-
-                @Override
-                protected List<AbstractLink> newSubMenuButtons(final String buttonMarkupId) {
-                    buildRealmLinks();
-                    return RealmChoicePanel.this.links;
-                }
-            };
-            realms.setOutputMarkupId(true);
-            realms.setAlignment(DropDownAlignmentBehavior.Alignment.RIGHT);
-            realms.setType(Buttons.Type.Menu);
-
-            MetaDataRoleAuthorizationStrategy.authorize(realms, ENABLE, IdRepoEntitlement.REALM_LIST);
-            Fragment fragment = new Fragment("realmsFragment", "realmsListFragment", container);
-            fragment.addOrReplace(realms);
             container.addOrReplace(fragment);
         }
     }
@@ -419,7 +421,7 @@ public class RealmChoicePanel extends Panel {
     }
 
     public final RealmChoicePanel reloadRealmTree(final AjaxRequestTarget target) {
-        reloadRealmTree();
+        reloadRealmsTree();
         chooseRealm(model.getObject(), target);
         target.add(container);
         return this;
@@ -432,9 +434,9 @@ public class RealmChoicePanel extends Panel {
     }
 
     protected Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap() {
-        List<RealmTO> realmsToList = isSearchEnabled
-                ? RealmRestClient.search(RealmsUtils.buildQuery(searchQuery)).getResult()
-                : RealmRestClient.list(SyncopeConstants.ROOT_REALM);
+        List<RealmTO> realmsToList = RealmRestClient.search(fullRealmsTree
+                ? RealmsUtils.buildRootQuery()
+                : RealmsUtils.buildKeywordQuery(searchQuery)).getResult();
 
         return reloadRealmParentMap(realmsToList.stream().
                 sorted(Comparator.comparing(RealmTO::getName)).

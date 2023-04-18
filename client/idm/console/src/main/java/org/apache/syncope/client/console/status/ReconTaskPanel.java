@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.client.console.status;
 
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
@@ -72,7 +72,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
-                map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
@@ -83,7 +83,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
         @Override
         protected List<String> load() {
             return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
-                map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
@@ -116,10 +116,10 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
             form.add(new Label("realm", ""));
             form.add(new Label("remediation", ""));
         } else {
-            boolean isSearchEnabled = RealmsUtils.isSearchEnabled();
+            boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
             AutoCompleteSettings settings = new AutoCompleteSettings();
-            settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
-            settings.setShowListOnEmptyInput(!isSearchEnabled);
+            settings.setShowCompleteListOnFocusGain(fullRealmsTree);
+            settings.setShowListOnEmptyInput(fullRealmsTree);
 
             AjaxSearchFieldPanel realm = new AjaxSearchFieldPanel(
                     "realm", "destinationRealm", new PropertyModel<>(taskTO, "destinationRealm"), settings) {
@@ -129,11 +129,10 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
                 @Override
                 protected Iterator<String> getChoices(final String input) {
                     return (RealmsUtils.checkInput(input)
-                            ? (isSearchEnabled
-                                    ? RealmRestClient.search(RealmsUtils.buildQuery(input)).getResult()
-                                    : RealmRestClient.list(SyncopeConstants.ROOT_REALM))
+                            ? (RealmRestClient.search(fullRealmsTree
+                                    ? RealmsUtils.buildRootQuery()
+                                    : RealmsUtils.buildKeywordQuery(input)).getResult())
                             : List.<RealmTO>of()).stream().
-                            sorted(Comparator.comparing(RealmTO::getName)).
                             map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
                 }
             };

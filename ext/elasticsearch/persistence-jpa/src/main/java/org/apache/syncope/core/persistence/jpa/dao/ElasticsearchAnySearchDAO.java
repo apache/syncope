@@ -158,7 +158,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                         return noRealm;
                     });
 
-                    realmDAO.findDescendants(realm).forEach(descendant -> queries.add(
+                    realmDAO.findDescendants(realm.getFullPath(), null, -1, -1).forEach(descendant -> queries.add(
                             new Query.Builder().term(QueryBuilders.term().
                                     field("realm").value(FieldValue.of(descendant.getKey())).build()).
                                     build()));

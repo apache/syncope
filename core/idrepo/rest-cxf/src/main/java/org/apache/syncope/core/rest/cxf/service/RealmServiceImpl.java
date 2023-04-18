@@ -21,6 +21,7 @@ package org.apache.syncope.core.rest.cxf.service;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -44,15 +45,12 @@ public class RealmServiceImpl extends AbstractService implements RealmService {
 
     @Override
     public PagedResult<RealmTO> search(final RealmQuery query) {
-        String keyword = query.getKeyword() == null ? null : query.getKeyword().replace('*', '%');
-
-        Pair<Integer, List<RealmTO>> result = logic.search(keyword, query.getBase());
+        Pair<Integer, List<RealmTO>> result = logic.search(
+                Optional.ofNullable(query.getKeyword()).map(k -> k.replace('*', '%')).orElse(null),
+                query.getBase(),
+                query.getPage(),
+                query.getSize());
         return buildPagedResult(result.getRight(), 1, result.getRight().size(), result.getLeft());
-    }
-
-    @Override
-    public List<RealmTO> list(final String fullPath) {
-        return logic.list(StringUtils.prependIfMissing(fullPath, SyncopeConstants.ROOT_REALM));
     }
 
     @Override

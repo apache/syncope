@@ -114,9 +114,10 @@ public class ElasticsearchAnySearchDAOTest {
         // 1. mock
         Realm root = mock(Realm.class);
         when(root.getKey()).thenReturn("rootKey");
+        when(root.getFullPath()).thenReturn(SyncopeConstants.ROOT_REALM);
 
         when(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenReturn(root);
-        when(realmDAO.findDescendants(root)).thenReturn(List.of(root));
+        when(realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, null, -1, -1)).thenReturn(List.of(root));
 
         // 2. test
         Set<String> adminRealms = Set.of(SyncopeConstants.ROOT_REALM);
