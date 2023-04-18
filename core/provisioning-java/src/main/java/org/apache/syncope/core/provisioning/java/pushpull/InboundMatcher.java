@@ -489,7 +489,7 @@ public class InboundMatcher {
 
             case "name":
                 if (orgUnit.isIgnoreCaseMatch()) {
-                    result.addAll(realmDAO.findMatching(SyncopeConstants.ROOT_REALM, connObjectKey, -1, -1));
+                    result.addAll(realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, connObjectKey, -1, -1));
                 } else {
                     result.addAll(realmDAO.findByName(connObjectKey).stream().collect(Collectors.toList()));
                 }

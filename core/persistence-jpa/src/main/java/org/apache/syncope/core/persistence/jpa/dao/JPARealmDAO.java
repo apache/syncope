@@ -120,32 +120,31 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         return parameters.size();
     }
 
-    protected StringBuilder buildMatchingQuery(
+    protected StringBuilder buildDescendantQuery(
             final String base,
             final String keyword,
             final List<Object> parameters) {
 
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(JPARealm.class.getSimpleName()).append(" e ").
-                append("WHERE e.fullPath=?").
+                append("WHERE (e.fullPath=?").
                 append(setParameter(parameters, base)).
                 append(" OR e.fullPath LIKE ?").
-                append(setParameter(parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%"));
+                append(setParameter(parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
+                append(')');
 
         if (keyword != null) {
             queryString.append(" AND LOWER(e.name) LIKE ?").append(setParameter(parameters, keyword));
         }
 
-        queryString.append(" ORDER BY e.fullPath");
-
         return queryString;
     }
 
     @Override
-    public int countMatching(final String base, final String keyword) {
+    public int countDescendants(final String base, final String keyword) {
         List<Object> parameters = new ArrayList<>();
 
-        StringBuilder queryString = buildMatchingQuery(base, keyword, parameters);
+        StringBuilder queryString = buildDescendantQuery(base, keyword, parameters);
         Query query = entityManager().createQuery(StringUtils.replaceOnce(
                 queryString.toString(),
                 "SELECT e ",
@@ -159,7 +158,7 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
     }
 
     @Override
-    public List<Realm> findMatching(
+    public List<Realm> findDescendants(
             final String base,
             final String keyword,
             final int page,
@@ -167,8 +166,9 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
         List<Object> parameters = new ArrayList<>();
 
-        StringBuilder queryString = buildMatchingQuery(base, keyword, parameters);
-        TypedQuery<Realm> query = entityManager().createQuery(queryString.toString(), Realm.class);
+        StringBuilder queryString = buildDescendantQuery(base, keyword, parameters);
+        TypedQuery<Realm> query = entityManager().createQuery(
+                queryString.append(" ORDER BY e.fullPath").toString(), Realm.class);
 
         for (int i = 1; i <= parameters.size(); i++) {
             query.setParameter(i, parameters.get(i - 1));
@@ -278,43 +278,6 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
                 append(" ORDER BY e.fullPath");
     }
 
-    @Override
-    public int countDescendants(final Realm realm) {
-        List<Object> parameters = new ArrayList<>();
-
-        StringBuilder queryString = buildDescendantQuery(realm.getFullPath(), parameters);
-        Query query = entityManager().createQuery(StringUtils.replaceOnce(
-                queryString.toString(),
-                "SELECT e ",
-                "SELECT COUNT(e) "));
-
-        for (int i = 1; i <= parameters.size(); i++) {
-            query.setParameter(i, parameters.get(i - 1));
-        }
-
-        return ((Number) query.getSingleResult()).intValue();
-    }
-
-    @Override
-    public List<Realm> findDescendants(final Realm realm, final int page, final int itemsPerPage) {
-        List<Object> parameters = new ArrayList<>();
-
-        TypedQuery<Realm> query = entityManager().createQuery(
-                buildDescendantQuery(realm.getFullPath(), parameters).toString(), Realm.class);
-
-        for (int i = 1; i <= parameters.size(); i++) {
-            query.setParameter(i, parameters.get(i - 1));
-        }
-
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-        if (itemsPerPage > 0) {
-            query.setMaxResults(itemsPerPage);
-        }
-
-        return query.getResultList();
-    }
-
     protected String buildFullPath(final Realm realm) {
         return realm.getParent() == null
                 ? SyncopeConstants.ROOT_REALM
@@ -329,7 +292,11 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
     @Override
     public void delete(final Realm realm) {
-        findDescendants(realm, -1, -1).forEach(toBeDeleted -> {
+        if (realm == null || realm.getParent() == null) {
+            return;
+        }
+
+        findDescendants(realm.getFullPath(), null, -1, -1).forEach(toBeDeleted -> {
             roleDAO.findByRealm(toBeDeleted).forEach(role -> role.getRealms().remove(toBeDeleted));
 
             toBeDeleted.setParent(null);

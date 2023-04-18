@@ -303,7 +303,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
             String realmKeysArg = AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.TASK_LIST).stream().
                     map(realmDAO::findByFullPath).
                     filter(Objects::nonNull).
-                    flatMap(r -> realmDAO.findDescendants(r, -1, -1).stream()).
+                    flatMap(r -> realmDAO.findDescendants(r.getFullPath(), null, -1, -1).stream()).
                     map(Realm::getKey).
                     distinct().
                     map(realmKey -> "?" + setParameter(parameters, realmKey)).

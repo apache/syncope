@@ -95,7 +95,7 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Realm> list = realmDAO.findDescendants(realmDAO.getRoot(), -1, -1);
+        List<Realm> list = realmDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, -1, -1);
         assertNotNull(list);
         assertFalse(list.isEmpty());
         list.forEach(Assertions::assertNotNull);

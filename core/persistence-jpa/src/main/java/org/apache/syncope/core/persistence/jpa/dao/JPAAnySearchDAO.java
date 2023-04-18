@@ -138,7 +138,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                                 return noRealm;
                             });
 
-                            realmKeys.addAll(realmDAO.findDescendants(realm, -1, -1).stream().
+                            realmKeys.addAll(realmDAO.findDescendants(realm.getFullPath(), null, -1, -1).stream().
                                     map(Realm::getKey).collect(Collectors.toSet()));
                         } else {
                             DynRealm dynRealm = dynRealmDAO.find(realmPath);

@@ -41,9 +41,9 @@ public interface RealmDAO extends DAO<Realm> {
 
     List<Realm> findByResource(ExternalResource resource);
 
-    int countMatching(String base, String keyword);
+    int countDescendants(String base, String keyword);
 
-    List<Realm> findMatching(String base, String keyword, int page, int itemsPerPage);
+    List<Realm> findDescendants(String base, String keyword, int page, int itemsPerPage);
 
     <T extends Policy> List<Realm> findByPolicy(T policy);
 
@@ -52,10 +52,6 @@ public interface RealmDAO extends DAO<Realm> {
     List<Realm> findAncestors(Realm realm);
 
     List<Realm> findChildren(Realm realm);
-
-    int countDescendants(Realm realm);
-
-    List<Realm> findDescendants(Realm realm, int page, int itemsPerPage);
 
     Realm save(Realm realm);
 

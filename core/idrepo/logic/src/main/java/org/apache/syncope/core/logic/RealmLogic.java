@@ -111,9 +111,9 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         Realm baseRealm = Optional.ofNullable(base == null ? realmDAO.getRoot() : realmDAO.findByFullPath(base)).
                 orElseThrow(() -> new NotFoundException(base));
 
-        int count = realmDAO.countMatching(baseRealm.getFullPath(), keyword);
+        int count = realmDAO.countDescendants(baseRealm.getFullPath(), keyword);
 
-        List<Realm> result = realmDAO.findMatching(baseRealm.getFullPath(), keyword, page, size);
+        List<Realm> result = realmDAO.findDescendants(baseRealm.getFullPath(), keyword, page, size);
 
         return Pair.of(
                 count,
