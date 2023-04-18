@@ -43,7 +43,8 @@ public class TestCommand implements Command<TestCommandArgs> {
     private AnyObjectLogic anyObjectLogic;
 
     private Optional<RealmTO> getRealm(final String fullPath) {
-        return realmLogic.list(fullPath).stream().filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
+        return realmLogic.search(null, fullPath, -1, -1).getRight().stream().
+                filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)

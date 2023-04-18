@@ -29,5 +29,4 @@ public class SecurityQuestionRestClient extends BaseRestClient {
     public static List<SecurityQuestionTO> list() {
         return getService(SecurityQuestionService.class).list();
     }
-
 }

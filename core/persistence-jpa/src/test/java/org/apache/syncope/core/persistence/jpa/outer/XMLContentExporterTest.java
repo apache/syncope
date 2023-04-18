@@ -60,8 +60,8 @@ public class XMLContentExporterTest extends AbstractTest {
                 filter(row -> row.trim().startsWith("<Realm")).collect(Collectors.toList());
         assertEquals(4, realms.size());
         assertTrue(realms.get(0).contains("name=\"/\""));
-        assertTrue(realms.get(1).contains("name=\"odd\""));
-        assertTrue(realms.get(2).contains("name=\"even\""));
-        assertTrue(realms.get(3).contains("name=\"two\""));
+        assertTrue(realms.get(1).contains("name=\"even\""));
+        assertTrue(realms.get(2).contains("name=\"two\""));
+        assertTrue(realms.get(3).contains("name=\"odd\""));
     }
 }

@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.ClientAppRestClient;
@@ -49,7 +50,6 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -154,10 +154,10 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
             List<Component> fields = new ArrayList<>();
 
-            boolean isSearchEnabled = RealmsUtils.isSearchEnabled();
+            boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
             AutoCompleteSettings settings = new AutoCompleteSettings();
-            settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
-            settings.setShowListOnEmptyInput(!isSearchEnabled);
+            settings.setShowCompleteListOnFocusGain(fullRealmsTree);
+            settings.setShowListOnEmptyInput(fullRealmsTree);
             AjaxSearchFieldPanel realm = new AjaxSearchFieldPanel(
                     "field", "realm", new PropertyModel<>(clientAppTO, "realm"), settings) {
 
@@ -165,11 +165,9 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
                 @Override
                 protected Iterator<String> getChoices(final String input) {
-                    return (isSearchEnabled
-                            ? RealmRestClient.search(RealmsUtils.buildQuery(input)).getResult()
-                            : RealmRestClient.list(SyncopeConstants.ROOT_REALM)).
-                            stream().filter(realm -> SyncopeConsoleSession.get().getAuthRealms().stream().
-                            anyMatch(authRealm -> realm.getFullPath().startsWith(authRealm))).
+                    return RealmRestClient.search(fullRealmsTree
+                            ? RealmsUtils.buildRootQuery()
+                            : RealmsUtils.buildKeywordQuery(input)).getResult().stream().
                             map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
                 }
             };

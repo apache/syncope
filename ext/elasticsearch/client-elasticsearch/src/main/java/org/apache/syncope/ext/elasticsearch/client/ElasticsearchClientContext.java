@@ -72,7 +72,7 @@ public class ElasticsearchClientContext {
         return new ElasticsearchIndexLoader(indexManager);
     }
 
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = "syncopeElasticsearchHealthContributor")
     @Bean(name = {
         "syncopeElasticsearchHealthContributor", "elasticsearchHealthIndicator", "elasticsearchHealthContributor" })
     public HealthContributor syncopeElasticsearchHealthContributor(final ElasticsearchClient client) {

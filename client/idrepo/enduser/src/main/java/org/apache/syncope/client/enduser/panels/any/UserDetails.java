@@ -19,9 +19,8 @@
 package org.apache.syncope.client.enduser.panels.any;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
-import java.util.stream.Collectors;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.rest.RealmRestClient;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -29,7 +28,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.SyncopePasswordStrengthConfig;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
-import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.basic.Label;
@@ -40,8 +39,6 @@ import org.apache.wicket.model.ResourceModel;
 public class UserDetails extends Details<UserTO> {
 
     private static final long serialVersionUID = 6592027822510220463L;
-
-    private final FieldPanel<String> realm;
 
     protected final AjaxTextFieldPanel username;
 
@@ -68,12 +65,15 @@ public class UserDetails extends Details<UserTO> {
         // ------------------------
         // Realm
         // ------------------------
-        realm = new AjaxDropDownChoicePanel<>(
-                "destinationRealm", "destinationRealm", new PropertyModel<>(userTO, "realm"), false);
+        add(buildDestinationRealm());
+    }
 
-        ((AjaxDropDownChoicePanel<String>) realm).setChoices(
-                RealmRestClient.list().stream().map(RealmTO::getFullPath).collect(Collectors.toList()));
-        add(realm);
+    protected FieldPanel<String> buildDestinationRealm() {
+        AjaxDropDownChoicePanel<String> destinationRealm = new AjaxDropDownChoicePanel<>(
+                "destinationRealm", "destinationRealm", new PropertyModel<>(userTO, "realm"), false);
+        destinationRealm.setNullValid(false);
+        destinationRealm.setChoices(List.of(SyncopeConstants.ROOT_REALM));
+        return destinationRealm;
     }
 
     protected static class EditUserPasswordPanel extends Panel {

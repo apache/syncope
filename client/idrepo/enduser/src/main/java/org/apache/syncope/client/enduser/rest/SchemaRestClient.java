@@ -35,7 +35,7 @@ import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 
 /**
- * Console client for invoking rest schema services.
+ * Enduser client for invoking rest schema services.
  */
 public class SchemaRestClient extends BaseRestClient {
 

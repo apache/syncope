@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
@@ -488,9 +489,7 @@ public class InboundMatcher {
 
             case "name":
                 if (orgUnit.isIgnoreCaseMatch()) {
-                    String realmName = connObjectKey;
-                    result.addAll(realmDAO.findAll().stream().
-                            filter(r -> r.getName().equalsIgnoreCase(realmName)).collect(Collectors.toList()));
+                    result.addAll(realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, connObjectKey, -1, -1));
                 } else {
                     result.addAll(realmDAO.findByName(connObjectKey).stream().collect(Collectors.toList()));
                 }

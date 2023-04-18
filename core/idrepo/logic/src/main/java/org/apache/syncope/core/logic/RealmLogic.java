@@ -100,67 +100,42 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         this.taskExecutor = taskExecutor;
     }
 
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_LIST + "')")
-    @Transactional(readOnly = true)
-    public Pair<Integer, List<RealmTO>> search(final String keyword, final String base) {
-        Realm baseRealm = base == null ? realmDAO.getRoot() : realmDAO.findByFullPath(base);
-        if (baseRealm == null) {
-            LOG.error("Could not find realm '" + base + "'");
-
-            throw new NotFoundException(base);
-        }
-
-        Set<String> roots = AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_LIST).stream().
-                filter(auth -> auth.startsWith(baseRealm.getFullPath())).collect(Collectors.toSet());
-
-        Set<Realm> match = realmDAO.findMatching(keyword).stream().
-                filter(realm -> roots.stream().anyMatch(root -> realm.getFullPath().startsWith(root))).
-                collect(Collectors.toSet());
-
-        int descendants = Math.toIntExact(
-                match.stream().flatMap(realm -> realmDAO.findDescendants(realm).stream()).distinct().count());
-
-        return Pair.of(
-                descendants,
-                match.stream().map(realm -> binder.getRealmTO(realm, true)).
-                        sorted(Comparator.comparing(RealmTO::getFullPath)).
-                        collect(Collectors.toList()));
-    }
-
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public List<RealmTO> list(final String fullPath) {
-        Realm realm = realmDAO.findByFullPath(fullPath);
-        if (realm == null) {
-            LOG.error("Could not find realm '" + fullPath + '\'');
+    public Pair<Integer, List<RealmTO>> search(
+            final String keyword,
+            final String base,
+            final int page,
+            final int size) {
 
-            throw new NotFoundException(fullPath);
-        }
+        Realm baseRealm = Optional.ofNullable(base == null ? realmDAO.getRoot() : realmDAO.findByFullPath(base)).
+                orElseThrow(() -> new NotFoundException(base));
 
-        boolean admin = AuthContextUtils.getAuthorizations().keySet().contains(IdRepoEntitlement.REALM_LIST);
-        return realmDAO.findDescendants(realm).stream().
-                map(descendant -> binder.getRealmTO(descendant, admin)).collect(Collectors.toList());
+        int count = realmDAO.countDescendants(baseRealm.getFullPath(), keyword);
+
+        List<Realm> result = realmDAO.findDescendants(baseRealm.getFullPath(), keyword, page, size);
+
+        return Pair.of(
+                count,
+                result.stream().map(realm -> binder.getRealmTO(
+                realm,
+                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_SEARCH).stream().
+                        anyMatch(auth -> realm.getFullPath().startsWith(auth)))).
+                        sorted(Comparator.comparing(RealmTO::getFullPath)).
+                        collect(Collectors.toList()));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_CREATE + "')")
     public ProvisioningResult<RealmTO> create(final String parentPath, final RealmTO realmTO) {
         Realm parent;
         if (StringUtils.isBlank(realmTO.getParent())) {
-            parent = realmDAO.findByFullPath(parentPath);
-            if (parent == null) {
-                LOG.error("Could not find parent realm " + parentPath);
-
-                throw new NotFoundException(parentPath);
-            }
+            parent = Optional.ofNullable(realmDAO.findByFullPath(parentPath)).
+                    orElseThrow(() -> new NotFoundException(parentPath));
 
             realmTO.setParent(parent.getFullPath());
         } else {
-            parent = realmDAO.find(realmTO.getParent());
-            if (parent == null) {
-                LOG.error("Could not find parent realm " + realmTO.getParent());
-
-                throw new NotFoundException(realmTO.getParent());
-            }
+            parent = Optional.ofNullable(realmDAO.find(realmTO.getParent())).
+                    orElseThrow(() -> new NotFoundException(realmTO.getParent()));
 
             if (!parent.getFullPath().equals(parentPath)) {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPath);
@@ -190,12 +165,8 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_UPDATE + "')")
     public ProvisioningResult<RealmTO> update(final RealmTO realmTO) {
-        Realm realm = realmDAO.findByFullPath(realmTO.getFullPath());
-        if (realm == null) {
-            LOG.error("Could not find realm '" + realmTO.getFullPath() + '\'');
-
-            throw new NotFoundException(realmTO.getFullPath());
-        }
+        Realm realm = Optional.ofNullable(realmDAO.findByFullPath(realmTO.getFullPath())).
+                orElseThrow(() -> new NotFoundException(realmTO.getFullPath()));
 
         Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(realm);
 
@@ -219,7 +190,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_DELETE + "')")
     public ProvisioningResult<RealmTO> delete(final String fullPath) {
         Realm realm = Optional.ofNullable(realmDAO.findByFullPath(fullPath)).
-                orElseThrow(() -> new NotFoundException("Realm " + fullPath));
+                orElseThrow(() -> new NotFoundException(fullPath));
 
         if (!realmDAO.findChildren(realm).isEmpty()) {
             throw SyncopeClientException.build(ClientExceptionType.RealmContains);

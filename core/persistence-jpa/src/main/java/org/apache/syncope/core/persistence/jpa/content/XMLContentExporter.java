@@ -71,6 +71,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.openjpa.lib.util.collections.BidiMap;
 import org.apache.openjpa.lib.util.collections.DualHashBidiMap;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
@@ -400,11 +401,10 @@ public class XMLContentExporter implements ContentExporter {
             if (tableName.equalsIgnoreCase(JPARealm.TABLE)) {
                 List<Map<String, String>> realmRows = new ArrayList<>(rows);
                 rows.clear();
-                realmDAO.findAll().forEach(realm -> realmRows.stream().filter(row -> {
-                    String id = row.get("ID");
-                    if (id == null) {
-                        id = row.get("id");
-                    }
+                realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, null, -1, -1).
+                        forEach(realm -> realmRows.stream().filter(row -> {
+
+                    String id = Optional.ofNullable(row.get("ID")).orElseGet(() -> row.get("id"));
                     return realm.getKey().equals(id);
                 }).findFirst().ifPresent(rows::add));
             }

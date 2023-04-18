@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -55,10 +56,10 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
-import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.Name;
@@ -816,10 +817,8 @@ public class SearchITCase extends AbstractITCase {
 
         // 1. create Realm
         Response response = REALM_SERVICE.create("/even/two", realm);
-        RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
-        assertNotNull(actuals);
-        assertTrue(actuals.length > 0);
-        realm = actuals[0];
+        realm = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
+                orElseThrow(() -> new NotFoundException());
         assertNotNull(realm.getKey());
         assertEquals("syncope1727", realm.getName());
         assertEquals("/even/two/syncope1727", realm.getFullPath());

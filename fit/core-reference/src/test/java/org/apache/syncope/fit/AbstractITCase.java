@@ -112,6 +112,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
+import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -1003,7 +1004,8 @@ public abstract class AbstractITCase {
     }
 
     protected static Optional<RealmTO> getRealm(final String fullPath) {
-        return REALM_SERVICE.list(fullPath).stream().filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
+        return REALM_SERVICE.search(new RealmQuery.Builder().base(fullPath).build()).getResult().stream().
+                filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
     }
 
     @Autowired

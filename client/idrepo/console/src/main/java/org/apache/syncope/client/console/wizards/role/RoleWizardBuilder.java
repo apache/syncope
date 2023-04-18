@@ -20,26 +20,33 @@ package org.apache.syncope.client.console.wizards.role;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -99,7 +106,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         return wizardModel;
     }
 
-    public class Details extends WizardStep {
+    protected class Details extends WizardStep {
 
         private static final long serialVersionUID = 5514523040031722255L;
 
@@ -129,7 +136,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         }
     }
 
-    public static class Entitlements extends WizardStep {
+    protected static class Entitlements extends WizardStep {
 
         private static final long serialVersionUID = 5514523040031722256L;
 
@@ -155,21 +162,40 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         }
     }
 
-    public static class Realms extends WizardStep {
+    protected static class Realms extends WizardStep {
 
         private static final long serialVersionUID = 5514523040031722257L;
 
+        @SuppressWarnings("unchecked")
         public Realms(final RoleTO modelObject) {
             setTitleModel(new ResourceModel("realms"));
-            add(new AjaxPalettePanel.Builder<>().build("realms",
-                    new PropertyModel<>(modelObject, "realms"),
-                    new ListModel<>(RealmRestClient.list(SyncopeConstants.ROOT_REALM).stream().
-                            map(RealmTO::getFullPath).collect(Collectors.toList()))).
-                    hideLabel().setOutputMarkupId(true));
+
+            boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
+            AutoCompleteSettings settings = new AutoCompleteSettings();
+            settings.setShowCompleteListOnFocusGain(fullRealmsTree);
+            settings.setShowListOnEmptyInput(fullRealmsTree);
+            AbstractFieldPanel<?> realm = new AjaxSearchFieldPanel(
+                    "panel", "realm", new Model<>(), settings) {
+
+                private static final long serialVersionUID = -6390474600233486704L;
+
+                @Override
+                protected Iterator<String> getChoices(final String input) {
+                    return RealmRestClient.search(fullRealmsTree
+                            ? RealmsUtils.buildRootQuery()
+                            : RealmsUtils.buildKeywordQuery(input)).getResult().stream().
+                            map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
+                }
+            };
+            add(new MultiFieldPanel.Builder<>(
+                    new PropertyModel<>(modelObject, "realms")).build(
+                    "realms",
+                    "realms",
+                    (FieldPanel) realm).hideLabel());
         }
     }
 
-    public static class DynRealms extends WizardStep {
+    protected static class DynRealms extends WizardStep {
 
         private static final long serialVersionUID = 6846234574424462255L;
 
@@ -183,7 +209,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         }
     }
 
-    public static class Privileges extends WizardStep {
+    protected static class Privileges extends WizardStep {
 
         private static final long serialVersionUID = 6896014330702958579L;
 

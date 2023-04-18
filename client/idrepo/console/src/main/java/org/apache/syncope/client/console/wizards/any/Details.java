@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.console.rest.RealmRestClient;
@@ -30,7 +30,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchField
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.Component;
@@ -70,10 +69,10 @@ public class Details<T extends AnyTO> extends WizardStep {
             AjaxTextFieldPanel.class.cast(realm).enableJexlHelp();
             fragment = new Fragment("realmsFragment", "realmsTemplateFragment", this);
         } else {
-            boolean isSearchEnabled = RealmsUtils.isSearchEnabled();
-            final AutoCompleteSettings settings = new AutoCompleteSettings();
-            settings.setShowCompleteListOnFocusGain(!isSearchEnabled);
-            settings.setShowListOnEmptyInput(!isSearchEnabled);
+            boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
+            AutoCompleteSettings settings = new AutoCompleteSettings();
+            settings.setShowCompleteListOnFocusGain(fullRealmsTree);
+            settings.setShowListOnEmptyInput(fullRealmsTree);
 
             realm = new AjaxSearchFieldPanel("destinationRealm", "destinationRealm",
                     new PropertyModel<>(inner, "realm"), settings) {
@@ -82,11 +81,11 @@ public class Details<T extends AnyTO> extends WizardStep {
 
                 @Override
                 protected Iterator<String> getChoices(final String input) {
-                    return (isSearchEnabled
-                            ? RealmRestClient.search(RealmsUtils.buildQuery(input)).getResult()
-                            : pageRef.getPage() instanceof Realms
+                    return (pageRef.getPage() instanceof Realms
                             ? getRealmsFromLinks(Realms.class.cast(pageRef.getPage()).getRealmChoicePanel().getLinks())
-                            : RealmRestClient.list(SyncopeConstants.ROOT_REALM)).
+                            : (fullRealmsTree
+                                    ? RealmRestClient.search(RealmsUtils.buildRootQuery())
+                                    : RealmRestClient.search(RealmsUtils.buildKeywordQuery(input))).getResult()).
                             stream().filter(realm -> authRealms.stream().anyMatch(
                             authRealm -> realm.getFullPath().startsWith(authRealm))).
                             map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
@@ -112,13 +111,10 @@ public class Details<T extends AnyTO> extends WizardStep {
     }
 
     private static List<RealmTO> getRealmsFromLinks(final List<AbstractLink> realmLinks) {
-        List<RealmTO> realms = new ArrayList<>();
-
-        realmLinks.stream().
+        return realmLinks.stream().
                 map(Component::getDefaultModelObject).
-                filter(modelObject -> modelObject instanceof RealmTO).
-                forEachOrdered(modelObject -> realms.add((RealmTO) modelObject));
-
-        return realms;
+                filter(RealmTO.class::isInstance).
+                map(RealmTO.class::cast).
+                collect(Collectors.toList());
     }
 }

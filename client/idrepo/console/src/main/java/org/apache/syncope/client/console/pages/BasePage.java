@@ -149,7 +149,7 @@ public class BasePage extends BaseWebPage {
         body.add(liContainer);
 
         BookmarkablePageLink<? extends BasePage> link = BookmarkablePageLinkBuilder.build("realms", Realms.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.REALM_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, IdRepoEntitlement.REALM_SEARCH);
 
         liContainer.add(link);
 
