@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.logic;
 
+import static org.apache.syncope.core.logic.AbstractLogic.LOG;
+
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -92,27 +94,25 @@ public class AttrRepoLogic extends AbstractTransactionalLogic<AttrRepoTO> {
     protected AttrRepoTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        String key = null;
-
-        if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof AttrRepoTO) {
-                    key = ((AttrRepoTO) args[i]).getKey();
-                }
-            }
+        if (ArrayUtils.isEmpty(args)) {
+            throw new UnresolvedReferenceException();
         }
 
-        if (key != null) {
-            try {
-                return binder.getAttrRepoTO(attrRepoDAO.find(key));
-            } catch (Throwable ignore) {
-                LOG.debug("Unresolved reference", ignore);
-                throw new UnresolvedReferenceException(ignore);
-            }
+        final String key;
+
+        if (args[0] instanceof String) {
+            key = (String) args[0];
+        } else if (args[0] instanceof AttrRepoTO) {
+            key = ((AttrRepoTO) args[0]).getKey();
+        } else {
+            throw new UnresolvedReferenceException();
         }
 
-        throw new UnresolvedReferenceException();
+        try {
+            return binder.getAttrRepoTO(attrRepoDAO.find(key));
+        } catch (Throwable ignore) {
+            LOG.debug("Unresolved reference", ignore);
+            throw new UnresolvedReferenceException(ignore);
+        }
     }
 }
