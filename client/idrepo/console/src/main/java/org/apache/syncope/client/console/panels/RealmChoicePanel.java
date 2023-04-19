@@ -122,7 +122,7 @@ public class RealmChoicePanel extends Panel {
                             map(el -> Pair.of(el.getKey(), el.getValue().getLeft()));
                 }
                 return full.filter(realm -> SyncopeConsoleSession.get().getSearchableRealms().stream().anyMatch(
-                        availableRealm -> realm.getValue().getFullPath().startsWith(availableRealm))).
+                        r -> realm.getValue().getFullPath().startsWith(r))).
                         collect(Collectors.toList());
             }
         };

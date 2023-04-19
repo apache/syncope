@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.widgets;
 
+import java.text.NumberFormat;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -122,7 +123,9 @@ public class NumberWidget extends BaseWidget {
 
         add(box);
 
-        numberLabel = new Label("number", number);
+        numberLabel = new Label(
+                "number",
+                NumberFormat.getInstance(SyncopeConsoleSession.get().getLocale()).format(number));
         numberLabel.setOutputMarkupId(true);
         box.add(numberLabel);
         box.add(new Label("label", label));
@@ -135,7 +138,8 @@ public class NumberWidget extends BaseWidget {
     public boolean refresh(final Number number) {
         if (this.number != number) {
             this.number = number;
-            numberLabel.setDefaultModelObject(number);
+            numberLabel.setDefaultModelObject(
+                    NumberFormat.getInstance(SyncopeConsoleSession.get().getLocale()).format(number));
             return true;
         }
         return false;
