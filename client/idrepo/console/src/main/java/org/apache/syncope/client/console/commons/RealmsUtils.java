@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.commons;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 
@@ -41,7 +42,11 @@ public final class RealmsUtils {
     }
 
     public static RealmQuery buildRootQuery() {
-        return new RealmQuery.Builder().base(SyncopeConstants.ROOT_REALM).build();
+        String base = SyncopeConsoleSession.get().getSearchableRealms().isEmpty()
+                || SyncopeConsoleSession.get().getSearchableRealms().contains(SyncopeConstants.ROOT_REALM)
+                ? SyncopeConstants.ROOT_REALM
+                : SyncopeConsoleSession.get().getSearchableRealms().get(0);
+        return new RealmQuery.Builder().base(base).build();
     }
 
     private RealmsUtils() {
