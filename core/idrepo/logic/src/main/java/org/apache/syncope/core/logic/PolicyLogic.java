@@ -151,7 +151,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
                 throw new RuntimeException("Invalid ClientApp key");
             }
 
-            return binder.getPolicyTO(read(type, key));
+            return read(type, key);
         } catch (Throwable t) {
             throw new UnresolvedReferenceException();
         }
