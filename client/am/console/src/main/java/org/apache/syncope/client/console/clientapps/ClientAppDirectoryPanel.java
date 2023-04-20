@@ -19,14 +19,17 @@
 package org.apache.syncope.client.console.clientapps;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalDirectoryPanel;
 import org.apache.syncope.client.console.rest.ClientAppRestClient;
@@ -42,7 +45,9 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -62,6 +67,8 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
     private final ClientAppType type;
 
     protected final BaseModal<T> propertiesModal;
+
+    protected final BaseModal<Serializable> historyModal;
 
     public ClientAppDirectoryPanel(final String id, final ClientAppType type, final PageReference pageRef) {
         super(id, pageRef, true);
@@ -90,6 +97,10 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
         addOuterObject(propertiesModal);
 
         disableCheckBoxes();
+
+        historyModal = new BaseModal<>(Constants.OUTER);
+        historyModal.size(Modal.Size.Large);
+        addOuterObject(historyModal);
     }
 
     @Override
@@ -158,6 +169,44 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
                 propertiesModal.show(true);
             }
         }, ActionLink.ActionType.TYPE_EXTENSIONS, AMEntitlement.CLIENTAPP_UPDATE);
+
+        panel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -5432034353017728756L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
+                model.setObject(ClientAppRestClient.read(type, model.getObject().getKey()));
+
+                target.add(historyModal.setContent(new AuditHistoryModal<>(
+                        AuditElements.EventCategoryType.LOGIC,
+                        "ClientAppLogic",
+                        model.getObject(),
+                        AMEntitlement.CLIENTAPP_UPDATE) {
+
+                    private static final long serialVersionUID = -3712506022627033811L;
+
+                    @Override
+                    protected void restore(final String json, final AjaxRequestTarget target) {
+                        try {
+                            ClientAppTO updated = MAPPER.readValue(json, ClientAppTO.class);
+                            ClientAppRestClient.update(type, updated);
+
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                        } catch (Exception e) {
+                            LOG.error("While restoring ClientApp {}", ((ClientAppTO) model.getObject()).getKey(), e);
+                            SyncopeConsoleSession.get().onException(e);
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                }));
+
+                historyModal.header(new Model<>(getString("auditHistory.title", new Model<>(model.getObject()))));
+
+                historyModal.show(true);
+            }
+        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, String.format("%s,%s", AMEntitlement.CLIENTAPP_READ,
+                IdRepoEntitlement.AUDIT_LIST));
 
         panel.add(new ActionLink<>() {
 

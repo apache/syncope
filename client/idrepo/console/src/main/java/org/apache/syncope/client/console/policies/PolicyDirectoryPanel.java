@@ -19,14 +19,17 @@
 package org.apache.syncope.client.console.policies;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
@@ -41,6 +44,7 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.PolicyTO;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
@@ -51,6 +55,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
 /**
@@ -62,6 +67,8 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
         extends DirectoryPanel<T, T, DirectoryDataProvider<T>, PolicyRestClient> {
 
     private static final long serialVersionUID = 4984337552918213290L;
+
+    protected final BaseModal<Serializable> historyModal;
 
     protected final BaseModal<T> ruleCompositionModal = new BaseModal<>(Constants.OUTER) {
 
@@ -101,6 +108,10 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
         setFooterVisibility(true);
 
         disableCheckBoxes();
+
+        historyModal = new BaseModal<>(Constants.OUTER);
+        historyModal.size(Modal.Size.Large);
+        addOuterObject(historyModal);
     }
 
     @Override
@@ -137,8 +148,8 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
                 send(PolicyDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(
-                        PolicyRestClient.read(type, model.getObject().getKey()), target));
+                        new AjaxWizard.EditItemActionEvent<>(
+                                PolicyRestClient.read(type, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.POLICY_UPDATE);
 
@@ -151,11 +162,50 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
                 final PolicyTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(PolicyDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(clone, target));
+                        new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
         }, ActionLink.ActionType.CLONE, IdRepoEntitlement.POLICY_CREATE);
 
         addCustomActions(panel, model);
+
+        panel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -5432034353017728756L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
+                model.setObject(PolicyRestClient.read(type, model.getObject().getKey()));
+
+                target.add(historyModal.setContent(new AuditHistoryModal<>(
+                        AuditElements.EventCategoryType.LOGIC,
+                        "PolicyLogic",
+                        model.getObject(),
+                        IdRepoEntitlement.POLICY_UPDATE) {
+
+                    private static final long serialVersionUID = -3712506022627033822L;
+
+                    @Override
+                    protected void restore(final String json, final AjaxRequestTarget target) {
+                        try {
+                            PolicyTO updated = MAPPER.readValue(json, PolicyTO.class);
+                            PolicyRestClient.update(type, updated);
+
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                        } catch (Exception e) {
+                            LOG.error("While restoring {}:{} policy",
+                                    type.name(), ((PolicyTO) model.getObject()).getKey(), e);
+                            SyncopeConsoleSession.get().onException(e);
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                }));
+
+                historyModal.header(new Model<>(getString("auditHistory.title", new Model<>(model.getObject()))));
+
+                historyModal.show(true);
+            }
+        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, String.format("%s,%s", IdRepoEntitlement.POLICY_READ,
+                IdRepoEntitlement.AUDIT_LIST));
 
         panel.add(new ActionLink<>() {
 
