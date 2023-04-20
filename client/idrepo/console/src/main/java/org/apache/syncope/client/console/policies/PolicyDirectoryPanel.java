@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.policies;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -201,9 +200,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
                     }
                 }));
 
-                historyModal.header(
-                        new Model<>(MessageFormat.format(getString("menu.history"),
-                                ((PolicyTO) model.getObject()).getKey())));
+                historyModal.header(new Model<>(getString("auditHistory.title", new Model<>(model.getObject()))));
 
                 historyModal.show(true);
             }

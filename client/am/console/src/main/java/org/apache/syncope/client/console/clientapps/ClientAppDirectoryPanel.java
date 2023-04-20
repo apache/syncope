@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.clientapps;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -202,9 +201,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
                     }
                 }));
 
-                historyModal.header(
-                        new Model<>(MessageFormat.format(getString("menu.history"),
-                                ((ClientAppTO) model.getObject()).getKey())));
+                historyModal.header(new Model<>(getString("auditHistory.title", new Model<>(model.getObject()))));
 
                 historyModal.show(true);
             }
