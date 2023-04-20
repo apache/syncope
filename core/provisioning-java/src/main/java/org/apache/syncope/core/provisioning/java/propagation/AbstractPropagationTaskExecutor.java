@@ -808,12 +808,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected Optional<PropagationTask> hasToBeregistered(
             final PropagationTaskInfo taskInfo, final TaskExec<PropagationTask> execution) {
 
-        boolean result;
-
         boolean failed = ExecStatus.valueOf(execution.getStatus()) != ExecStatus.SUCCESS;
 
         ExternalResource resource = taskInfo.getResource();
 
+        boolean result;
         switch (taskInfo.getOperation()) {
 
             case CREATE:
@@ -839,15 +838,20 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             return Optional.empty();
         }
 
-        PropagationTask task = taskUtilsFactory.getInstance(TaskType.PROPAGATION).newTask();
-        task.setResource(resourceDAO.find(resource.getKey()));
-        task.setObjectClassName(taskInfo.getObjectClass().getObjectClassValue());
-        task.setAnyTypeKind(taskInfo.getAnyTypeKind());
-        task.setAnyType(taskInfo.getAnyType());
-        task.setEntityKey(taskInfo.getEntityKey());
-        task.setOperation(taskInfo.getOperation());
-        task.setConnObjectKey(taskInfo.getConnObjectKey());
-        task.setOldConnObjectKey(taskInfo.getOldConnObjectKey());
+        PropagationTask task = Optional.ofNullable(taskInfo.getKey()).
+                map(key -> taskDAO.<PropagationTask>find(TaskType.PROPAGATION, key)).
+                orElseGet(() -> {
+                    PropagationTask t = taskUtilsFactory.getInstance(TaskType.PROPAGATION).newTask();
+                    t.setResource(resourceDAO.find(resource.getKey()));
+                    t.setObjectClassName(taskInfo.getObjectClass().getObjectClassValue());
+                    t.setAnyTypeKind(taskInfo.getAnyTypeKind());
+                    t.setAnyType(taskInfo.getAnyType());
+                    t.setEntityKey(taskInfo.getEntityKey());
+                    t.setOperation(taskInfo.getOperation());
+                    t.setConnObjectKey(taskInfo.getConnObjectKey());
+                    t.setOldConnObjectKey(taskInfo.getOldConnObjectKey());
+                    return t;
+                });
         task.setPropagationData(taskInfo.getPropagationData());
 
         return Optional.of(task);
