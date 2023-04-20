@@ -286,8 +286,19 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
     @Override
     public Realm save(final Realm realm) {
-        ((JPARealm) realm).setFullPath(buildFullPath(realm));
-        return entityManager().merge(realm);
+        String fullPathBefore = realm.getFullPath();
+        String fullPathAfter = buildFullPath(realm);
+        if (!fullPathAfter.equals(fullPathBefore)) {
+            ((JPARealm) realm).setFullPath(fullPathAfter);
+        }
+
+        Realm merged = entityManager().merge(realm);
+
+        if (!fullPathAfter.equals(fullPathBefore)) {
+            findChildren(realm).forEach(this::save);
+        }
+
+        return merged;
     }
 
     @Override
