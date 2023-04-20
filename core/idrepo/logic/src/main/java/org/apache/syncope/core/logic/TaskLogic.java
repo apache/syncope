@@ -305,6 +305,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                         propagationTask.getEntityKey(),
                         propagationTask.getConnObjectKey(),
                         propagationTask.getPropagationData());
+                taskInfo.setKey(propagationTask.getKey());
                 taskInfo.setOldConnObjectKey(propagationTask.getOldConnObjectKey());
 
                 TaskExec<PropagationTask> propExec = taskExecutor.execute(
