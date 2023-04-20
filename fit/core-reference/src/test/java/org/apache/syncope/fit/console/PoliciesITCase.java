@@ -204,11 +204,11 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
-                + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"));
+                + "togglePanelContainer:container:actions:actions:actionRepeater:4:action:action"));
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
-                + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"),
+                + "togglePanelContainer:container:actions:actions:actionRepeater:4:action:action"),
                 Constants.ON_CLICK);
 
         assertSuccessMessage();
@@ -229,11 +229,11 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
-                + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"));
+                + "togglePanelContainer:container:actions:actions:actionRepeater:4:action:action"));
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
-                + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"),
+                + "togglePanelContainer:container:actions:actions:actionRepeater:4:action:action"),
                 Constants.ON_CLICK);
 
         assertSuccessMessage();
@@ -254,11 +254,11 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
-                + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"));
+                + "togglePanelContainer:container:actions:actions:actionRepeater:4:action:action"));
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
-                + "togglePanelContainer:container:actions:actions:actionRepeater:3:action:action"),
+                + "togglePanelContainer:container:actions:actions:actionRepeater:4:action:action"),
                 Constants.ON_CLICK);
 
         assertSuccessMessage();

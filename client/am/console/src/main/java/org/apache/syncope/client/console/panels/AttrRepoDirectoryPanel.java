@@ -19,16 +19,20 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AttrRepoDirectoryPanel.AttrRepoProvider;
 import org.apache.syncope.client.console.rest.AttrRepoRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AttrRepoWizardBuilder;
@@ -38,6 +42,8 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
+import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -50,6 +56,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -57,6 +64,8 @@ public class AttrRepoDirectoryPanel
         extends DirectoryPanel<AttrRepoTO, AttrRepoTO, AttrRepoProvider, AttrRepoRestClient> {
 
     private static final long serialVersionUID = 1005345990563741296L;
+
+    protected final BaseModal<Serializable> historyModal;
 
     public AttrRepoDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);
@@ -69,6 +78,10 @@ public class AttrRepoDirectoryPanel
 
         modal.size(Modal.Size.Extra_large);
         initResultTable();
+
+        historyModal = new BaseModal<>(Constants.OUTER);
+        historyModal.size(Modal.Size.Large);
+        addOuterObject(historyModal);
     }
 
     @Override
@@ -129,6 +142,44 @@ public class AttrRepoDirectoryPanel
                         AttrRepoRestClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.ATTR_REPO_UPDATE);
+
+        panel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -5432034353017728756L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AttrRepoTO ignore) {
+                model.setObject(AttrRepoRestClient.read(model.getObject().getKey()));
+
+                target.add(historyModal.setContent(new AuditHistoryModal<>(
+                        AuditElements.EventCategoryType.LOGIC,
+                        "AttrRepoLogic",
+                        model.getObject(),
+                        AMEntitlement.ATTR_REPO_UPDATE) {
+
+                    private static final long serialVersionUID = -3712506022627033822L;
+
+                    @Override
+                    protected void restore(final String json, final AjaxRequestTarget target) {
+                        try {
+                            AttrRepoTO updated = MAPPER.readValue(json, AttrRepoTO.class);
+                            AttrRepoRestClient.update(updated);
+
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                        } catch (Exception e) {
+                            LOG.error("While restoring AttrRepo {}", ((AttrRepoTO) model.getObject()).getKey(), e);
+                            SyncopeConsoleSession.get().onException(e);
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                }));
+
+                historyModal.header(new Model<>(getString("auditHistory.title", new Model<>(model.getObject()))));
+
+                historyModal.show(true);
+            }
+        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, String.format("%s,%s", AMEntitlement.ATTR_REPO_READ,
+                IdRepoEntitlement.AUDIT_LIST));
 
         panel.add(new ActionLink<>() {
 

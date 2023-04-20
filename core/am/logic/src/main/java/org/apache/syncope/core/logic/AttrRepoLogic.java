@@ -92,27 +92,25 @@ public class AttrRepoLogic extends AbstractTransactionalLogic<AttrRepoTO> {
     protected AttrRepoTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        String key = null;
-
-        if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String string) {
-                    key = string;
-                } else if (args[i] instanceof AttrRepoTO attrRepoTO) {
-                    key = attrRepoTO.getKey();
-                }
-            }
+        if (ArrayUtils.isEmpty(args)) {
+            throw new UnresolvedReferenceException();
         }
 
-        if (key != null) {
-            try {
-                return binder.getAttrRepoTO(attrRepoDAO.find(key));
-            } catch (Throwable ignore) {
-                LOG.debug("Unresolved reference", ignore);
-                throw new UnresolvedReferenceException(ignore);
-            }
+        final String key;
+
+        if (args[0] instanceof String string) {
+            key = string;
+        } else if (args[0] instanceof AttrRepoTO attrRepoTO) {
+            key = attrRepoTO.getKey();
+        } else {
+            throw new UnresolvedReferenceException();
         }
 
-        throw new UnresolvedReferenceException();
+        try {
+            return binder.getAttrRepoTO(attrRepoDAO.find(key));
+        } catch (Throwable ignore) {
+            LOG.debug("Unresolved reference", ignore);
+            throw new UnresolvedReferenceException(ignore);
+        }
     }
 }

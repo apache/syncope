@@ -136,7 +136,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_CREATE + "')")
-    public ClientAppTO create(final ClientAppType type, final ClientAppTO clientAppTO) {
+    public <T extends ClientAppTO> T create(final ClientAppType type, final ClientAppTO clientAppTO) {
         checkType(type, clientAppUtilsFactory.getInstance(clientAppTO));
 
         switch (type) {
@@ -151,7 +151,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_UPDATE + "')")
-    public void update(final ClientAppType type, final ClientAppTO clientAppTO) {
+    public <T extends ClientAppTO> T update(final ClientAppType type, final ClientAppTO clientAppTO) {
         checkType(type, clientAppUtilsFactory.getInstance(clientAppTO));
 
         switch (type) {
@@ -161,16 +161,14 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                     throw new NotFoundException("Client app " + clientAppTO.getKey() + " not found");
                 }
                 binder.update(oidcrp, clientAppTO);
-                oidcRPClientAppDAO.save(oidcrp);
-                break;
+                return binder.getClientAppTO(oidcRPClientAppDAO.save(oidcrp));
             case CASSP:
                 CASSPClientApp cassp = casSPClientAppDAO.find(clientAppTO.getKey());
                 if (cassp == null) {
                     throw new NotFoundException("Client app " + clientAppTO.getKey() + " not found");
                 }
                 binder.update(cassp, clientAppTO);
-                casSPClientAppDAO.save(cassp);
-                break;
+                return binder.getClientAppTO(casSPClientAppDAO.save(cassp));
             case SAML2SP:
             default:
                 SAML2SPClientApp saml2sp = saml2SPClientAppDAO.find(clientAppTO.getKey());
@@ -178,12 +176,13 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                     throw new NotFoundException("Client app " + clientAppTO.getKey() + " not found");
                 }
                 binder.update(saml2sp, clientAppTO);
-                saml2SPClientAppDAO.save(saml2sp);
+                return binder.getClientAppTO(saml2SPClientAppDAO.save(saml2sp));
         }
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.CLIENTAPP_DELETE + "')")
-    public void delete(final ClientAppType type, final String key) {
+    public <T extends ClientAppTO> T delete(final ClientAppType type, final String key) {
+        final T deleted;
         switch (type) {
             case OIDCRP:
                 OIDCRPClientApp oidcrp = oidcRPClientAppDAO.find(key);
@@ -191,6 +190,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                     throw new NotFoundException("Client app " + key + " not found");
                 }
                 oidcRPClientAppDAO.delete(oidcrp);
+                deleted = binder.getClientAppTO(oidcrp);
                 break;
             case CASSP:
                 CASSPClientApp cassp = casSPClientAppDAO.find(key);
@@ -198,6 +198,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                     throw new NotFoundException("Client app " + key + " not found");
                 }
                 casSPClientAppDAO.delete(cassp);
+                deleted = binder.getClientAppTO(cassp);
                 break;
             case SAML2SP:
             default:
@@ -206,39 +207,56 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                     throw new NotFoundException("Client app " + key + " not found");
                 }
                 saml2SPClientAppDAO.delete(saml2sp);
+                deleted = binder.getClientAppTO(saml2sp);
         }
+
+        return deleted;
     }
 
     @Override
     protected ClientAppTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        String key = null;
-
-        if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String string) {
-                    key = string;
-                } else if (args[i] instanceof ClientAppTO clientAppTO) {
-                    key = clientAppTO.getKey();
-                }
-            }
+        if (ArrayUtils.isEmpty(args) || args.length != 2) {
+            throw new UnresolvedReferenceException();
         }
 
-        if (key != null) {
-            try {
-                ClientApp clientApp = saml2SPClientAppDAO.find(key);
-                if (clientApp == null) {
+        try {
+            final String key;
+            final ClientAppType type;
+
+            if (args[0] instanceof ClientAppType clientAppType) {
+                type = clientAppType;
+            } else {
+                throw new RuntimeException("Invalid ClientApp type");
+            }
+
+            if (args[1] instanceof String string) {
+                key = string;
+            } else if (args[1] instanceof ClientAppTO clientAppTO) {
+                key = clientAppTO.getKey();
+            } else {
+                throw new RuntimeException("Invalid ClientApp key");
+            }
+
+            final ClientApp clientApp;
+            switch (type) {
+                case CASSP:
+                    clientApp = casSPClientAppDAO.find(key);
+                    break;
+                case SAML2SP:
+                    clientApp = saml2SPClientAppDAO.find(key);
+                    break;
+                case OIDCRP:
                     clientApp = oidcRPClientAppDAO.find(key);
-                }
-
-                return binder.getClientAppTO(clientApp);
-            } catch (Throwable ex) {
-                LOG.debug("Unresolved reference", ex);
-                throw new UnresolvedReferenceException(ex);
+                    break;
+                default:
+                    throw new RuntimeException("Unexpected ClientApp type");
             }
-        }
 
-        throw new UnresolvedReferenceException();
+            return binder.getClientAppTO(clientApp);
+        } catch (Throwable t) {
+            throw new UnresolvedReferenceException();
+        }
     }
 }
