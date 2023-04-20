@@ -129,27 +129,31 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
     protected PolicyTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        String key = null;
-
-        if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof PolicyTO) {
-                    key = ((PolicyTO) args[i]).getKey();
-                }
-            }
+        if (ArrayUtils.isEmpty(args) || args.length != 2) {
+            throw new UnresolvedReferenceException();
         }
 
-        if (key != null) {
-            try {
-                return binder.getPolicyTO(policyDAO.find(key));
-            } catch (Throwable ignore) {
-                LOG.debug("Unresolved reference", ignore);
-                throw new UnresolvedReferenceException(ignore);
-            }
-        }
+        try {
+            final String key;
+            final PolicyType type;
 
-        throw new UnresolvedReferenceException();
+            if (args[0] instanceof PolicyType) {
+                type = (PolicyType) args[0];
+            } else {
+                throw new RuntimeException("Invalid Policy type");
+            }
+
+            if (args[1] instanceof String) {
+                key = (String) args[1];
+            } else if (args[1] instanceof PolicyTO) {
+                key = ((PolicyTO) args[1]).getKey();
+            } else {
+                throw new RuntimeException("Invalid ClientApp key");
+            }
+
+            return read(type, key);
+        } catch (Throwable t) {
+            throw new UnresolvedReferenceException();
+        }
     }
 }
