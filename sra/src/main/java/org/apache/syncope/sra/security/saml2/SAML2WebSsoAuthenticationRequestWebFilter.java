@@ -24,7 +24,6 @@ import org.apache.syncope.sra.security.pac4j.RedirectionActionUtils;
 import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContext;
 import org.apache.syncope.sra.session.SessionUtils;
 import org.pac4j.core.context.CallContext;
-import org.pac4j.core.util.generator.ValueGenerator;
 import org.pac4j.saml.client.SAML2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,13 +60,8 @@ public class SAML2WebSsoAuthenticationRequestWebFilter implements WebFilter {
                     LOG.debug("Creating SAML2 SP Authentication Request for IDP[{}]",
                             saml2Client.getIdentityProviderResolvedEntityId());
 
-                    saml2Client.setStateGenerator(new ValueGenerator() {
-
-                        @Override
-                        public String generateValue(final CallContext ctx) {
-                            return session.<URI>getRequiredAttribute(SessionUtils.INITIAL_REQUEST_URI).toASCIIString();
-                        }
-                    });
+                    saml2Client.setStateGenerator(
+                            ctx -> session.<URI>getRequiredAttribute(SessionUtils.INITIAL_REQUEST_URI).toASCIIString());
 
                     ServerWebExchangeContext swec = new ServerWebExchangeContext(exchange);
 
