@@ -30,6 +30,8 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public class PropagationTaskInfo {
 
+    private String key;
+
     private final ExternalResource resource;
 
     private final ResourceOperation operation;
@@ -72,6 +74,14 @@ public class PropagationTaskInfo {
         this.entityKey = entityKey;
         this.connObjectKey = connObjectKey;
         this.propagationData = propagationData;
+    }
+
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
+    public String getKey() {
+        return key;
     }
 
     public ExternalResource getResource() {
@@ -145,7 +155,8 @@ public class PropagationTaskInfo {
     @Override
     public String toString() {
         return "PropagationTaskInfo{"
-                + "resource=" + resource.getKey()
+                + "key=" + key
+                + ",resource=" + resource.getKey()
                 + ", operation=" + operation
                 + ", objectClass=" + objectClass
                 + ", anyTypeKind=" + anyTypeKind
