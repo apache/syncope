@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.panels.DirectoryPanel.LOG;
-import static org.apache.syncope.client.console.panels.DirectoryPanel.MAPPER;
-
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.text.MessageFormat;
