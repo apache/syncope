@@ -643,7 +643,7 @@ public class SCIMDataBinder {
             }
         }
 
-        if (conf.getEnterpriseUserConf() != null) {
+        if (conf.getEnterpriseUserConf() != null && user.getEnterpriseInfo() != null) {
             setAttribute(
                     userTO,
                     conf.getEnterpriseUserConf().getEmployeeNumber(),
