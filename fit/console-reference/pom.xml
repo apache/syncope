@@ -101,6 +101,21 @@ under the License.
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>set-bundles</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.codehaus.cargo</groupId>
         <artifactId>cargo-maven3-plugin</artifactId>
         <inherited>true</inherited>
@@ -154,7 +169,7 @@ under the License.
           </deployables>
         </configuration>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -175,9 +190,17 @@ under the License.
         <directory>src/test/resources</directory>
         <filtering>true</filtering>
       </testResource>
+      <testResource>
+        <directory>${basedir}/../core-reference/src/test/resources/rest</directory>
+        <targetPath>${project.build.testOutputDirectory}/rest</targetPath>
+      </testResource>
+      <testResource>
+        <directory>${basedir}/../core-reference/src/test/resources/scriptedsql</directory>
+        <targetPath>${project.build.testOutputDirectory}/scriptedsql</targetPath>
+      </testResource>
     </testResources>
   </build>
-  
+
   <profiles>
     <profile>
       <id>skipTests</id>

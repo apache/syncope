@@ -379,14 +379,18 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         Uid uid = new Uid(taskInfo.getConnObjectKey());
 
-        LOG.debug("Update Delta {} for {} on {}", modifications, uid, taskInfo.getResource().getKey());
+        if (modifications.isEmpty()) {
+            LOG.debug("Nothing to modify for {} on {}", uid, taskInfo.getResource().getKey());
+        } else {
+            LOG.debug("Update Delta {} for {} on {}", modifications, uid, taskInfo.getResource().getKey());
 
-        connector.updateDelta(
-                taskInfo.getObjectClass(),
-                uid,
-                modifications,
-                null,
-                propagationAttempted);
+            connector.updateDelta(
+                    taskInfo.getObjectClass(),
+                    uid,
+                    modifications,
+                    null,
+                    propagationAttempted);
+        }
 
         return uid;
     }
