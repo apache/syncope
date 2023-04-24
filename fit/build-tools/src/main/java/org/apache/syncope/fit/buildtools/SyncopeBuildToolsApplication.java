@@ -102,8 +102,8 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
     public Server restProvisioning(
             final GreenMailService greenMailService,
             final UserService userService,
-            final ApplicationContext ctx,
-            final Bus bus) {
+            final Bus bus,
+            final ApplicationContext ctx) {
 
         SpringJAXRSServerFactoryBean restProvisioning = new SpringJAXRSServerFactoryBean();
         restProvisioning.setApplicationContext(ctx);

@@ -72,32 +72,32 @@ public class SCIMv2RESTCXFContext {
     @ConditionalOnMissingBean(name = "scimv2Container")
     @Bean
     public Server scimv2Container(
-            final ApplicationContext ctx,
-            final Bus bus,
+            final SCIMService scimService,
+            final SCIMGroupService scimv2GroupService,
+            final SCIMUserService scimv2UserService,
+            final GZIPInInterceptor gzipInInterceptor,
+            final GZIPOutInterceptor gzipOutInterceptor,
+            final JAXRSBeanValidationInInterceptor validationInInterceptor,
             final JacksonJsonProvider scimJacksonJsonProvider,
             final SCIMExceptionMapper scimExceptionMapper,
-            final AddETagFilter scimAddETagFilter) {
+            final AddETagFilter scimAddETagFilter,
+            final Bus bus,
+            final ApplicationContext ctx) {
 
         SpringJAXRSServerFactoryBean scimv2Container = new SpringJAXRSServerFactoryBean();
         scimv2Container.setBus(bus);
         scimv2Container.setAddress("/scim");
         scimv2Container.setStaticSubresourceResolution(true);
-        scimv2Container.setBasePackages(List.of(
-                "org.apache.syncope.ext.scimv2.api.service",
-                "org.apache.syncope.ext.scimv2.cxf.service"));
+
         scimv2Container.setProperties(Map.of("convert.wadl.resources.to.dom", "false"));
 
-        scimv2Container.setInInterceptors(List.of(
-                ctx.getBean(GZIPInInterceptor.class),
-                ctx.getBean(JAXRSBeanValidationInInterceptor.class)));
+        scimv2Container.setServiceBeans(List.of(scimService, scimv2GroupService, scimv2UserService));
 
-        scimv2Container.setOutInterceptors(List.of(
-                ctx.getBean(GZIPOutInterceptor.class)));
+        scimv2Container.setInInterceptors(List.of(gzipInInterceptor, validationInInterceptor));
 
-        scimv2Container.setProviders(List.of(
-                scimJacksonJsonProvider,
-                scimExceptionMapper,
-                scimAddETagFilter));
+        scimv2Container.setOutInterceptors(List.of(gzipOutInterceptor));
+
+        scimv2Container.setProviders(List.of(scimJacksonJsonProvider, scimExceptionMapper, scimAddETagFilter));
 
         scimv2Container.setApplicationContext(ctx);
         return scimv2Container.create();
