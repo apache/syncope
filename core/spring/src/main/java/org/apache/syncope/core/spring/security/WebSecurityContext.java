@@ -42,14 +42,13 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
 
@@ -76,6 +75,7 @@ public class WebSecurityContext {
     public SecurityFilterChain filterChain(
             final HttpSecurity http,
             final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
+            final AccessDeniedHandler accessDeniedHandler,
             final AuthDataAccessor authDataAccessor,
             final DefaultCredentialChecker defaultCredentialChecker,
             final SecurityProperties securityProperties) throws Exception {
@@ -84,6 +84,7 @@ public class WebSecurityContext {
                 parentAuthenticationManager(null).
                 authenticationProvider(usernamePasswordAuthenticationProvider).
                 build();
+        http.authenticationManager(authenticationManager);
 
         SyncopeAuthenticationDetailsSource authenticationDetailsSource =
                 new SyncopeAuthenticationDetailsSource();
@@ -96,10 +97,16 @@ public class WebSecurityContext {
                         securityProperties.getAnonymousUser(),
                         AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
         anonymousAuthenticationFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
+        http.anonymous(customizer -> customizer.
+                authenticationProvider(anonymousAuthenticationProvider).
+                authenticationFilter(anonymousAuthenticationFilter));
 
         SyncopeBasicAuthenticationEntryPoint basicAuthenticationEntryPoint =
                 new SyncopeBasicAuthenticationEntryPoint();
         basicAuthenticationEntryPoint.setRealmName("Apache Syncope authentication");
+        http.httpBasic(customizer -> customizer.
+                authenticationEntryPoint(basicAuthenticationEntryPoint).
+                authenticationDetailsSource(authenticationDetailsSource));
 
         JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(
                 authenticationManager,
@@ -107,24 +114,17 @@ public class WebSecurityContext {
                 authenticationDetailsSource,
                 authDataAccessor,
                 defaultCredentialChecker);
+        http.addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
 
         MustChangePasswordFilter mustChangePasswordFilter = new MustChangePasswordFilter();
+        http.addFilterBefore(mustChangePasswordFilter, AuthorizationFilter.class);
 
-        http.authenticationManager(authenticationManager).
-                authorizeHttpRequests().
-                requestMatchers("/**").permitAll().and().
-                sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().
-                securityContext().securityContextRepository(new NullSecurityContextRepository()).and().
-                anonymous().
-                authenticationProvider(anonymousAuthenticationProvider).
-                authenticationFilter(anonymousAuthenticationFilter).and().
-                httpBasic().authenticationEntryPoint(basicAuthenticationEntryPoint).
-                authenticationDetailsSource(authenticationDetailsSource).and().
-                exceptionHandling().accessDeniedHandler(accessDeniedHandler()).and().
-                addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class).
-                addFilterBefore(mustChangePasswordFilter, AuthorizationFilter.class).
-                headers().disable().
-                csrf().disable();
+        http.authorizeHttpRequests(customizer -> customizer.requestMatchers("/**").permitAll());
+        http.securityContext(AbstractHttpConfigurer::disable);
+        http.sessionManagement(AbstractHttpConfigurer::disable);
+        http.headers(AbstractHttpConfigurer::disable);
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.exceptionHandling(customizer -> customizer.accessDeniedHandler(accessDeniedHandler));
 
         return http.build();
     }

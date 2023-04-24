@@ -54,6 +54,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.FileUrlResource;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
@@ -88,21 +89,30 @@ public class SecurityConfig {
     public SecurityWebFilterChain saml2SecurityFilterChain(final ServerHttpSecurity http) {
         ServerWebExchangeMatcher metadataMatcher =
                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, SAML2MetadataEndpoint.METADATA_URL);
-        return http.securityMatcher(metadataMatcher).
-                authorizeExchange().anyExchange().permitAll().
-                and().csrf().requireCsrfProtectionMatcher(new NegatedServerWebExchangeMatcher(metadataMatcher)).
-                and().build();
+        http.securityMatcher(metadataMatcher);
+
+        http.authorizeExchange(customizer -> customizer.anyExchange().permitAll());
+
+        http.csrf(customizer -> customizer.
+                requireCsrfProtectionMatcher(new NegatedServerWebExchangeMatcher(metadataMatcher)));
+
+        return http.build();
     }
 
     @Bean
     @Order(1)
     public SecurityWebFilterChain actuatorSecurityFilterChain(final ServerHttpSecurity http) {
         ServerWebExchangeMatcher actuatorMatcher = EndpointRequest.toAnyEndpoint();
-        return http.securityMatcher(actuatorMatcher).
-                authorizeExchange().anyExchange().authenticated().
-                and().httpBasic().
-                and().csrf().requireCsrfProtectionMatcher(new NegatedServerWebExchangeMatcher(actuatorMatcher)).
-                and().build();
+        http.securityMatcher(actuatorMatcher);
+
+        http.authorizeExchange(customizer -> customizer.anyExchange().authenticated());
+
+        http.httpBasic(Customizer.withDefaults());
+
+        http.csrf(customizer -> customizer.
+                requireCsrfProtectionMatcher(new NegatedServerWebExchangeMatcher(actuatorMatcher)));
+
+        return http.build();
     }
 
     @Bean
@@ -298,21 +308,22 @@ public class SecurityConfig {
             final CsrfRouteMatcher csrfRouteMatcher,
             final ConfigurableApplicationContext ctx) {
 
-        ServerHttpSecurity.AuthorizeExchangeSpec builder = http.authorizeExchange().
+        http.authorizeExchange(customizer -> customizer.
                 matchers(publicRouteMatcher).permitAll().
-                anyExchange().authenticated();
+                anyExchange().authenticated());
 
         switch (props.getAmType()) {
             case OIDC, OAUTH2 -> {
                 OAuth2SecurityConfigUtils.forLogin(http, props.getAmType(), ctx);
-                OAuth2SecurityConfigUtils.forLogout(builder, props.getAmType(), cacheManager, logoutRouteMatcher, ctx);
-                http.oauth2ResourceServer().jwt().jwtDecoder(ctx.getBean(ReactiveJwtDecoder.class));
+                OAuth2SecurityConfigUtils.forLogout(http, props.getAmType(), cacheManager, logoutRouteMatcher, ctx);
+                http.oauth2ResourceServer(customizer -> customizer.jwt(
+                        c -> c.jwtDecoder(ctx.getBean(ReactiveJwtDecoder.class))));
             }
 
             case SAML2 ->
                 saml2Client.ifAvailable(client -> {
                     SAML2SecurityConfigUtils.forLogin(http, client, publicRouteMatcher);
-                    SAML2SecurityConfigUtils.forLogout(builder, client, cacheManager, logoutRouteMatcher, ctx);
+                    SAML2SecurityConfigUtils.forLogout(http, client, cacheManager, logoutRouteMatcher, ctx);
                 });
 
             case CAS -> {
@@ -322,7 +333,7 @@ public class SecurityConfig {
                         props.getCas().getServerPrefix(),
                         publicRouteMatcher);
                 CASSecurityConfigUtils.forLogout(
-                        builder,
+                        http,
                         cacheManager,
                         props.getCas().getServerPrefix(),
                         logoutRouteMatcher,
@@ -333,6 +344,7 @@ public class SecurityConfig {
             }
         }
 
-        return builder.and().csrf().requireCsrfProtectionMatcher(csrfRouteMatcher).and().build();
+        http.csrf(customizer -> customizer.requireCsrfProtectionMatcher(csrfRouteMatcher));
+        return http.build();
     }
 }
