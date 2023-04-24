@@ -67,7 +67,7 @@ public final class CASSecurityConfigUtils {
     }
 
     public static void forLogout(
-            final ServerHttpSecurity.AuthorizeExchangeSpec builder,
+            final ServerHttpSecurity http,
             final CacheManager cacheManager,
             final String casServerUrlPrefix,
             final LogoutRouteMatcher logoutRouteMatcher,
@@ -87,7 +87,7 @@ public final class CASSecurityConfigUtils {
             LOG.error("While creating instance of {}", CASServerLogoutSuccessHandler.class.getName(), e);
         }
 
-        builder.and().addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
+        http.addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
     }
 
     private CASSecurityConfigUtils() {

@@ -107,11 +107,12 @@ public final class OAuth2SecurityConfigUtils {
         htmlMatcher.setIgnoredMediaTypes(Set.of(MediaType.ALL));
         ServerAuthenticationEntryPoint entrypoint =
                 new RedirectServerAuthenticationEntryPoint("/oauth2/authorization/" + amType.name());
-        http.exceptionHandling().authenticationEntryPoint(new DelegateEntry(htmlMatcher, entrypoint).getEntryPoint());
+        http.exceptionHandling(customizer -> customizer.authenticationEntryPoint(
+                new DelegateEntry(htmlMatcher, entrypoint).getEntryPoint()));
     }
 
     public static void forLogout(
-            final ServerHttpSecurity.AuthorizeExchangeSpec builder,
+            final ServerHttpSecurity http,
             final SRAProperties.AMType amType,
             final CacheManager cacheManager,
             final LogoutRouteMatcher logoutRouteMatcher,
@@ -134,7 +135,8 @@ public final class OAuth2SecurityConfigUtils {
             }
         }
 
-        builder.and().logout().disable().addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
+        http.logout(customizer -> customizer.disable());
+        http.addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
     }
 
     private OAuth2SecurityConfigUtils() {

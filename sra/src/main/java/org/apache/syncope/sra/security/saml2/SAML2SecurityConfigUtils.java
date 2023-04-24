@@ -66,7 +66,7 @@ public final class SAML2SecurityConfigUtils {
     }
 
     public static void forLogout(
-            final ServerHttpSecurity.AuthorizeExchangeSpec builder,
+            final ServerHttpSecurity http,
             final SAML2Client saml2Client,
             final CacheManager cacheManager,
             final LogoutRouteMatcher logoutRouteMatcher,
@@ -85,12 +85,12 @@ public final class SAML2SecurityConfigUtils {
 
             SAML2LogoutResponseWebFilter logoutResponseWebFilter =
                     new SAML2LogoutResponseWebFilter(saml2Client, logoutSuccessHandler);
-            builder.and().addFilterAt(logoutResponseWebFilter, SecurityWebFiltersOrder.LOGOUT);
+            http.addFilterAt(logoutResponseWebFilter, SecurityWebFiltersOrder.LOGOUT);
         } catch (ClassNotFoundException e) {
             LOG.error("While creating instance of {}", SAML2ServerLogoutSuccessHandler.class.getName(), e);
         }
 
-        builder.and().addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
+        http.addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
     }
 
     private SAML2SecurityConfigUtils() {
