@@ -94,29 +94,31 @@ public class SelfKeymasterContext {
     @Conditional(SelfKeymasterCondition.class)
     @Bean
     public Server selfKeymasterContainer(
+            final ConfParamService confParamService,
+            final NetworkServiceService networkServiceService,
+            final DomainService domainService,
             final JacksonJsonProvider jsonProvider,
-            final ApplicationContext ctx,
-            final Bus bus) {
+            final GZIPInInterceptor gzipInInterceptor,
+            final GZIPOutInterceptor gzipOutInterceptor,
+            final JAXRSBeanValidationInInterceptor validationInInterceptor,
+            final RestServiceExceptionMapper restServiceExceptionMapper,
+            final Bus bus,
+            final ApplicationContext ctx) {
 
         SpringJAXRSServerFactoryBean selfKeymasterContainer = new SpringJAXRSServerFactoryBean();
         selfKeymasterContainer.setBus(bus);
         selfKeymasterContainer.setAddress("/keymaster");
         selfKeymasterContainer.setStaticSubresourceResolution(true);
-        selfKeymasterContainer.setBasePackages(List.of(
-                "org.apache.syncope.common.keymaster.rest.api.service",
-                "org.apache.syncope.core.keymaster.rest.cxf.service"));
+
         selfKeymasterContainer.setProperties(Map.of("convert.wadl.resources.to.dom", "false"));
 
-        selfKeymasterContainer.setInInterceptors(List.of(
-                ctx.getBean(GZIPInInterceptor.class),
-                ctx.getBean(JAXRSBeanValidationInInterceptor.class)));
+        selfKeymasterContainer.setServiceBeans(List.of(confParamService, networkServiceService, domainService));
 
-        selfKeymasterContainer.setOutInterceptors(List.of(
-                ctx.getBean(GZIPOutInterceptor.class)));
+        selfKeymasterContainer.setInInterceptors(List.of(gzipInInterceptor, validationInInterceptor));
 
-        selfKeymasterContainer.setProviders(List.of(
-                ctx.getBean(RestServiceExceptionMapper.class),
-                jsonProvider));
+        selfKeymasterContainer.setOutInterceptors(List.of(gzipOutInterceptor));
+
+        selfKeymasterContainer.setProviders(List.of(restServiceExceptionMapper, jsonProvider));
 
         selfKeymasterContainer.setApplicationContext(ctx);
         return selfKeymasterContainer.create();

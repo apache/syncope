@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.ext.ContextProvider;
@@ -61,6 +62,7 @@ import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.FIQLQueryService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
@@ -312,6 +314,7 @@ public class IdRepoRESTCXFContext {
     @ConditionalOnMissingBean
     @Bean
     public Server restContainer(
+            final List<JAXRSService> services,
             final AddETagFilter addETagFilter,
             final AddDomainFilter addDomainFilter,
             final ContextProvider<SearchContext> searchContextProvider,
@@ -325,24 +328,23 @@ public class IdRepoRESTCXFContext {
             final GZIPOutInterceptor gzipOutInterceptor,
             final ThreadLocalCleanupOutInterceptor threadLocalCleanupOutInterceptor,
             final OpenApiFeature openapiFeature,
-            final Bus bus,
-            final ApplicationContext ctx,
             final CheckDomainFilter checkDomainFilter,
-            final RestServiceExceptionMapper restServiceExceptionMapper) {
+            final RestServiceExceptionMapper restServiceExceptionMapper,
+            final Bus bus,
+            final ApplicationContext ctx) {
 
         SpringJAXRSServerFactoryBean restContainer = new SpringJAXRSServerFactoryBean();
         restContainer.setBus(bus);
         restContainer.setAddress("/");
         restContainer.setStaticSubresourceResolution(true);
-        restContainer.setBasePackages(List.of(
-                "org.apache.syncope.common.rest.api.service",
-                "org.apache.syncope.core.rest.cxf.service"));
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(SearchContextImpl.CUSTOM_SEARCH_PARSER_CLASS_PROPERTY, SyncopeFiqlParser.class.getName());
         properties.put(SearchUtils.LAX_PROPERTY_MATCH, "true");
         properties.put("convert.wadl.resources.to.dom", "false");
         restContainer.setProperties(properties);
+
+        restContainer.setServiceBeans(services.stream().map(Object.class::cast).collect(Collectors.toList()));
 
         restContainer.setProviders(List.of(
                 dateParamConverterProvider,
