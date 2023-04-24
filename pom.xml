@@ -415,11 +415,10 @@ under the License.
     <bouncycastle.version>1.72</bouncycastle.version>
     <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.1.0-M2</spring-boot.version>
+    <spring-boot.version>3.1.0-RC1</spring-boot.version>
     <spring-cloud-gateway.version>4.0.4</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.2</openjpa.version>
-    <hikaricp.version>5.0.1</hikaricp.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -427,8 +426,6 @@ under the License.
 
     <flowable.version>7.0.0.M1</flowable.version>
     <flowable-old.version>6.8.0</flowable-old.version>
-
-    <elasticsearch.version>8.7.0</elasticsearch.version>
 
     <disruptor.version>3.4.4</disruptor.version>
 
@@ -443,7 +440,7 @@ under the License.
     <h2.version>2.1.214</h2.version>
 
     <swagger-core.version>2.2.9</swagger-core.version>
-    <swagger-ui.version>4.18.1</swagger-ui.version>
+    <swagger-ui.version>4.18.2</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
@@ -611,12 +608,6 @@ under the License.
       <!-- /Swagger -->
 
       <dependency>
-        <groupId>co.elastic.clients</groupId>
-        <artifactId>elasticsearch-java</artifactId>
-        <version>${elasticsearch.version}</version>
-      </dependency>
-
-      <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa</artifactId>
         <version>${openjpa.version}</version>
@@ -648,12 +639,6 @@ under the License.
         <groupId>com.fasterxml.uuid</groupId>
         <artifactId>java-uuid-generator</artifactId>
         <version>4.1.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.zaxxer</groupId>
-        <artifactId>HikariCP</artifactId>
-        <version>${hikaricp.version}</version>
       </dependency>
 
       <dependency>
@@ -902,52 +887,6 @@ under the License.
         <groupId>net.tirasa.connid</groupId>
         <artifactId>slf4j-logging</artifactId>
         <version>${connid.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.groovy</groupId>
-        <artifactId>groovy</artifactId>
-        <version>${groovy.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.groovy</groupId>
-        <artifactId>groovy-templates</artifactId>
-        <version>${groovy.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.groovy</groupId>
-        <artifactId>groovy-xml</artifactId>
-        <version>${groovy.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.groovy</groupId>
-        <artifactId>groovy-jsr223</artifactId>
-        <version>${groovy.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.groovy</groupId>
-        <artifactId>groovy-datetime</artifactId>
-        <version>${groovy.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.groovy</groupId>
-        <artifactId>groovy-dateutil</artifactId>
-        <version>${groovy.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.groovy</groupId>
-        <artifactId>groovy-sql</artifactId>
-        <version>${groovy.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.groovy</groupId>
-        <artifactId>groovy-json</artifactId>
-        <version>${groovy.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.groovy</groupId>
-        <artifactId>groovy-groovysh</artifactId>
-        <version>${groovy.version}</version>
       </dependency>
 
       <dependency>
@@ -2026,12 +1965,12 @@ under the License.
             <link>http://www.slf4j.org/api/</link>
             <link>http://connid.tirasa.net/apidocs/1.5/</link>
             <link>https://cxf.apache.org/javadoc/latest/</link>
-            <link>http://fasterxml.github.io/jackson-core/javadoc/2.14/</link>
-            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.14/</link>
-            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.14/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.14/</link>
-            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.14/</link>
-            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.14/</link>
+            <link>http://fasterxml.github.io/jackson-core/javadoc/2.15/</link>
+            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.15/</link>
+            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.15/</link>
+            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.15/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.15/</link>
+            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.15/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
