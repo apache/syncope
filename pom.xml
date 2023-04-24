@@ -422,12 +422,12 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>4.0.11</groovy.version>
-
     <flowable.version>7.0.0.M1</flowable.version>
     <flowable-old.version>6.8.0</flowable-old.version>
 
     <disruptor.version>3.4.4</disruptor.version>
+
+    <elasticsearch.version>8.7.0</elasticsearch.version>
 
     <commons-jexl.version>3.3</commons-jexl.version>
     <commons-text.version>1.10.0</commons-text.version>
@@ -606,6 +606,12 @@ under the License.
         <version>${swagger-ui.version}</version>
       </dependency>
       <!-- /Swagger -->
+
+      <dependency>
+        <groupId>co.elastic.clients</groupId>
+        <artifactId>elasticsearch-java</artifactId>
+        <version>${elasticsearch.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.apache.openjpa</groupId>
@@ -1762,13 +1768,6 @@ under the License.
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
         <version>2.1.0</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.groovy</groupId>
-            <artifactId>groovy-ant</artifactId>
-            <version>${groovy.version}</version>
-          </dependency>
-        </dependencies>
         <executions>
           <execution>
             <phase>generate-resources</phase>
