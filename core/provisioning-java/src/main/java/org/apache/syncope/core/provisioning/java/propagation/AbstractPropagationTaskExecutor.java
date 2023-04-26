@@ -707,7 +707,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 exec.setTask(task);
                 task.add(exec);
 
-                taskDAO.save(task);
+                taskInfo.setKey(taskDAO.save(task).getKey());
             });
 
             String fiql = provision == null
