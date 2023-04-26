@@ -95,7 +95,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     private Map<String, String> status(
             final StatusRType type, final String etag, final String userKey, final List<StatusBean> statuses) {
 
-        StatusR statusR = StatusUtils.statusR(statuses).key(userKey).type(type).build();
+        StatusR statusR = StatusUtils.statusR(userKey, type, statuses);
 
         Map<String, String> results;
         synchronized (this) {

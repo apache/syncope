@@ -397,8 +397,7 @@ public class AuthenticationITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        StatusR reactivate = new StatusR.Builder().key(userTO.getKey()).
-                type(StatusRType.REACTIVATE).build();
+        StatusR reactivate = new StatusR.Builder(userTO.getKey(), StatusRType.REACTIVATE).build();
         userTO = USER_SERVICE.status(reactivate).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);

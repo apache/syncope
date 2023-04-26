@@ -30,6 +30,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -90,9 +91,8 @@ public final class StatusUtils implements Serializable {
                 orElse(null);
     }
 
-    public static StatusR.Builder statusR(final Collection<StatusBean> statuses) {
-        StatusR.Builder builder = new StatusR.Builder();
-        builder.onSyncope(false);
+    public static StatusR statusR(final String key, final StatusRType type, final Collection<StatusBean> statuses) {
+        StatusR.Builder builder = new StatusR.Builder(key, type).onSyncope(false);
         statuses.forEach(status -> {
             if (Constants.SYNCOPE.equalsIgnoreCase(status.getResource())) {
                 builder.onSyncope(true);
@@ -101,7 +101,7 @@ public final class StatusUtils implements Serializable {
             }
         });
 
-        return builder;
+        return builder.build();
     }
 
     public static Panel getStatusImagePanel(final String componentId, final Status status) {

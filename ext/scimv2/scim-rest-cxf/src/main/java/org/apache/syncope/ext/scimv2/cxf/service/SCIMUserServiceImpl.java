@@ -123,8 +123,9 @@ public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implement
                 AnyOperations.diff(binder.toUserTO(user, true), before, false), false);
 
         if (before.isSuspended() == user.isActive()) {
-            StatusR statusR = new StatusR.Builder().key(before.getKey()).
-                    type(user.isActive() ? StatusRType.REACTIVATE : StatusRType.SUSPEND).
+            StatusR statusR = new StatusR.Builder(
+                    before.getKey(),
+                    user.isActive() ? StatusRType.REACTIVATE : StatusRType.SUSPEND).
                     build();
             userLogic.status(statusR, false);
         }

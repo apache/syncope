@@ -776,8 +776,9 @@ public class SCIMDataBinder {
             SCIMUser after = (SCIMUser) op.getValue().get(0);
 
             if (after.getActive() != null && before.isSuspended() == after.isActive()) {
-                statusR = new StatusR.Builder().key(before.getKey()).
-                        type(after.isActive() ? StatusRType.REACTIVATE : StatusRType.SUSPEND).
+                statusR = new StatusR.Builder(
+                        before.getKey(),
+                        after.isActive() ? StatusRType.REACTIVATE : StatusRType.SUSPEND).
                         build();
             }
 
@@ -814,8 +815,9 @@ public class SCIMDataBinder {
 
             case "active":
                 if (!CollectionUtils.isEmpty(op.getValue())) {
-                    statusR = new StatusR.Builder().key(before.getKey()).
-                            type((boolean) op.getValue().get(0) ? StatusRType.REACTIVATE : StatusRType.SUSPEND).
+                    statusR = new StatusR.Builder(
+                            before.getKey(),
+                            (boolean) op.getValue().get(0) ? StatusRType.REACTIVATE : StatusRType.SUSPEND).
                             build();
                 }
                 break;

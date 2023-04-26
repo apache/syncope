@@ -729,8 +729,7 @@ public class UserITCase extends AbstractITCase {
 
         assertEquals("created", userTO.getStatus());
 
-        StatusR statusR = new StatusR.Builder().key(userTO.getKey()).
-                type(StatusRType.ACTIVATE).token(userTO.getToken()).build();
+        StatusR statusR = new StatusR.Builder(userTO.getKey(), StatusRType.ACTIVATE).token(userTO.getToken()).build();
 
         userTO = USER_SERVICE.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
@@ -754,15 +753,14 @@ public class UserITCase extends AbstractITCase {
                 ? "active"
                 : "created", userTO.getStatus());
 
-        StatusR statusR = new StatusR.Builder().key(userTO.getKey()).
-                type(StatusRType.SUSPEND).token(userTO.getToken()).build();
+        StatusR statusR = new StatusR.Builder(userTO.getKey(), StatusRType.SUSPEND).token(userTO.getToken()).build();
 
         userTO = USER_SERVICE.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        statusR = new StatusR.Builder().key(userTO.getKey()).type(StatusRType.REACTIVATE).build();
+        statusR = new StatusR.Builder(userTO.getKey(), StatusRType.REACTIVATE).build();
 
         userTO = USER_SERVICE.status(statusR).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
@@ -792,8 +790,7 @@ public class UserITCase extends AbstractITCase {
         String userKey = userTO.getKey();
 
         // Suspend with effect on syncope, ldap and db => user should be suspended in syncope and all resources
-        StatusR statusR = new StatusR.Builder().key(userKey).
-                type(StatusRType.SUSPEND).
+        StatusR statusR = new StatusR.Builder(userKey, StatusRType.SUSPEND).
                 onSyncope(true).
                 resources(RESOURCE_NAME_TESTDB, RESOURCE_NAME_LDAP).
                 build();
@@ -810,8 +807,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
 
         // Suspend and reactivate only on ldap => db and syncope should still show suspended
-        statusR = new StatusR.Builder().key(userKey).
-                type(StatusRType.SUSPEND).
+        statusR = new StatusR.Builder(userKey, StatusRType.SUSPEND).
                 onSyncope(false).
                 resources(RESOURCE_NAME_LDAP).
                 build();
@@ -826,8 +822,7 @@ public class UserITCase extends AbstractITCase {
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         // Reactivate on syncope and db => syncope and db should show the user as active
-        statusR = new StatusR.Builder().key(userKey).
-                type(StatusRType.REACTIVATE).
+        statusR = new StatusR.Builder(userKey, StatusRType.REACTIVATE).
                 onSyncope(true).
                 resources(RESOURCE_NAME_TESTDB).
                 build();
@@ -1040,7 +1035,7 @@ public class UserITCase extends AbstractITCase {
         BatchRequest batchRequest = ADMIN_CLIENT.batch();
 
         UserService batchUserService = batchRequest.getService(UserService.class);
-        users.forEach(user -> batchUserService.status(new StatusR.Builder().key(user).type(StatusRType.SUSPEND).
+        users.forEach(user -> batchUserService.status(new StatusR.Builder(user, StatusRType.SUSPEND).
                 onSyncope(true).
                 build()));
         List<BatchResponseItem> batchResponseItems = parseBatchResponse(batchRequest.commit().getResponse());
@@ -1051,7 +1046,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals("suspended", USER_SERVICE.read(users.get(3)).getStatus());
 
         UserService batchUserService2 = batchRequest.getService(UserService.class);
-        users.forEach(user -> batchUserService2.status(new StatusR.Builder().key(user).type(StatusRType.REACTIVATE).
+        users.forEach(user -> batchUserService2.status(new StatusR.Builder(user, StatusRType.REACTIVATE).
                 onSyncope(true).
                 build()));
         batchResponseItems = parseBatchResponse(batchRequest.commit().getResponse());
