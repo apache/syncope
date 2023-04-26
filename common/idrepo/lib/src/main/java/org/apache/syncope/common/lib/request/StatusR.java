@@ -30,6 +30,11 @@ public class StatusR extends PasswordPatch {
 
     public static class Builder extends PasswordPatch.Builder {
 
+        public Builder(final String key, final StatusRType type) {
+            getInstance().setKey(key);
+            getInstance().setType(type);
+        }
+
         @Override
         protected StatusR newInstance() {
             return new StatusR();
@@ -63,16 +68,6 @@ public class StatusR extends PasswordPatch {
         @Override
         public Builder resources(final String... resources) {
             return (Builder) super.resources(resources);
-        }
-
-        public Builder key(final String key) {
-            getInstance().setKey(key);
-            return this;
-        }
-
-        public Builder type(final StatusRType type) {
-            getInstance().setType(type);
-            return this;
         }
 
         public Builder token(final String token) {

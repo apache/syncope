@@ -241,9 +241,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                     items.forEach(item -> {
                                         UserTO user = (UserTO) item;
 
-                                        StatusR req = new StatusR.Builder().
-                                                key(user.getKey()).
-                                                type(StatusRType.SUSPEND).
+                                        StatusR req = new StatusR.Builder(user.getKey(), StatusRType.SUSPEND).
                                                 onSyncope(true).
                                                 resources(user.getResources()).
                                                 build();
@@ -256,9 +254,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
                                     items.forEach(item -> {
                                         UserTO user = (UserTO) item;
 
-                                        StatusR req = new StatusR.Builder().
-                                                key(user.getKey()).
-                                                type(StatusRType.REACTIVATE).
+                                        StatusR req = new StatusR.Builder(user.getKey(), StatusRType.REACTIVATE).
                                                 onSyncope(true).
                                                 resources(user.getResources()).
                                                 build();

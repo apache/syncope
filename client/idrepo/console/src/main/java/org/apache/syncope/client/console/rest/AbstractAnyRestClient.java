@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
@@ -92,7 +93,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestCl
                 client.accept(RESTHeaders.MULTIPART_MIXED);
             }
 
-            StatusR statusR = StatusUtils.statusR(statuses).build();
+            StatusR statusR = StatusUtils.statusR(key, StatusRType.ACTIVATE, statuses);
 
             ResourceAR resourceAR = new ResourceAR.Builder().key(key).
                     action(action).
@@ -131,7 +132,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestCl
 
             ResourceDR resourceDR = new ResourceDR.Builder().key(key).
                     action(action).
-                    resources(StatusUtils.statusR(statuses).build().getResources()).build();
+                    resources(StatusUtils.statusR(key, StatusRType.ACTIVATE, statuses).getResources()).build();
             try {
                 List<BatchResponseItem> items = parseBatchResponse(service.deassociate(resourceDR));
                 for (int i = 0; i < items.size(); i++) {
