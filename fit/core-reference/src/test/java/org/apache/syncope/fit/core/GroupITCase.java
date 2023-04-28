@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.core;
 
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -956,7 +957,6 @@ public class GroupITCase extends AbstractITCase {
         groupUR.setKey(groupTO.getKey());
         groupUR.getResources().add(new StringPatchItem.Builder().value(RESOURCE_NAME_LDAP).build());
         ProvisioningResult<GroupTO> groupUpdateResult = updateGroup(groupUR);
-        groupTO = groupUpdateResult.getEntity();
 
         PropagationStatus propStatus = groupUpdateResult.getPropagationStatuses().get(0);
         assertEquals(RESOURCE_NAME_LDAP, propStatus.getResource());
@@ -990,6 +990,9 @@ public class GroupITCase extends AbstractITCase {
             ConnObject userOnLdap =
                     RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(userOnLdap);
+
+            // 7. attempt to execute the same task again: no errors
+            assertDoesNotThrow(() -> GROUP_SERVICE.provisionMembers(groupTO.getKey(), ProvisionAction.PROVISION));
         } finally {
             GROUP_SERVICE.delete(groupTO.getKey());
             USER_SERVICE.delete(userTO.getKey());

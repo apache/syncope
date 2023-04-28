@@ -89,9 +89,6 @@ required configuration or capabilities.
 Given a selected connector instance, the following information is required to define an external resource:
 
 * priority - integer value, in use by the default <<propagation,propagation task executor>>
-* generate random password flag - under some circumstances, a password might be mandatory but no actual value could be
-available: with this flag set, a random value will be generated, compliant with the defined
-<<policies-password,password policy>> (if set)
 * propagation actions - which <<propagationactions,actions>> shall be executed during propagation
 * trace levels - control how much tracing (including logs and execution details) shall be carried over during
 <<propagation,propagation>>, <<provisioning-pull,pull>> and <<provisioning-push,push>>

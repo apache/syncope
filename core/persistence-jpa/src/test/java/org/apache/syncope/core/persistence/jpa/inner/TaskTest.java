@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -39,6 +40,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
@@ -63,6 +65,13 @@ public class TaskTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Test
+    public void findByName() {
+        Optional<SchedTask> task = taskDAO.findByName(TaskType.SCHEDULED, "SampleJob Task");
+        assertTrue(task.isPresent());
+        assertEquals(taskDAO.find(TaskType.SCHEDULED, "e95555d2-1b09-42c8-b25b-f4c4ec597979"), task.get());
+    }
 
     @Test
     public void findWithoutExecs() {

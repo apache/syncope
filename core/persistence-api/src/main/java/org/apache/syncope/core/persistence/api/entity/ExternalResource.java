@@ -100,10 +100,6 @@ public interface ExternalResource extends ProvidedKeyEntity {
 
     void setEnforceMandatoryCondition(boolean enforce);
 
-    boolean isRandomPwdIfNotProvided();
-
-    void setRandomPwdIfNotProvided(boolean condition);
-
     Optional<Provision> getProvisionByAnyType(String anyType);
 
     Optional<Provision> getProvisionByObjectClass(String objectClass);

@@ -101,11 +101,6 @@ public class ResourceDetailsPanel extends WizardStep {
                 Integer.class,
                 new PropertyModel<>(resourceTO, "propagationPriority")));
 
-        container.add(new AjaxCheckBoxPanel("randomPwdIfNotProvided",
-                new ResourceModel("randomPwdIfNotProvided", "randomPwdIfNotProvided").getObject(),
-                new PropertyModel<>(resourceTO, "randomPwdIfNotProvided"),
-                false));
-
         container.add(new AjaxPalettePanel.Builder<String>().
                 setAllowMoveAll(true).setAllowOrder(true).
                 build("propagationActions",

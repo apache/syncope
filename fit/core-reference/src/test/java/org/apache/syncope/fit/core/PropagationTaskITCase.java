@@ -1013,33 +1013,32 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE1751() {
         // 1. Create a Group with a resource assigned
-        GroupTO groupTO =
-                createGroup(new GroupCR.Builder(SyncopeConstants.ROOT_REALM, "SYNCOPEGROUP1751-" + getUUIDString())
-                        .resource(RESOURCE_NAME_LDAP)
-                        .build()).getEntity();
+        GroupTO groupTO = createGroup(
+                new GroupCR.Builder(SyncopeConstants.ROOT_REALM, "SYNCOPEGROUP1751-" + getUUIDString()).
+                        resource(RESOURCE_NAME_LDAP).build()).getEntity();
         // 2. Create a user
-        String username = "SYNCOPEUSER1750" + getUUIDString();
+        String username = "SYNCOPEUSER1751" + getUUIDString();
         UserTO userTO = createUser(
-                new UserCR.Builder(SyncopeConstants.ROOT_REALM, username)
-                        .plainAttrs(new Attr.Builder("userId").value(username + "@syncope.org").build(),
-                                new Attr.Builder("fullname").value(username).build(),
-                                new Attr.Builder("surname").value(username).build())
-                        .build()).getEntity();
+                new UserCR.Builder(SyncopeConstants.ROOT_REALM, username).plainAttrs(
+                        new Attr.Builder("userId").value(username + "@syncope.org").build(),
+                        new Attr.Builder("fullname").value(username).build(),
+                        new Attr.Builder("surname").value(username).build()).
+                        build()).getEntity();
         // 3. Update the user assigning the group previously created -> group-based provisioning
         userTO = updateUser(
-                new UserUR.Builder(userTO.getKey()).membership(new MembershipUR.Builder(groupTO.getKey()).build())
-                        .build()).getEntity();
+                new UserUR.Builder(userTO.getKey()).
+                        membership(new MembershipUR.Builder(groupTO.getKey()).build()).
+                        build()).getEntity();
         // since the resource is flagged to generate random pwd must populate the password on effective create on the
         // resource, even if it is an update on Syncope
-        PagedResult<TaskTO> propTasks = TASK_SERVICE.search(
-                new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).anyTypeKind(AnyTypeKind.USER)
-                        .entityKey(userTO.getKey()).build());
+        PagedResult<TaskTO> propTasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                resource(RESOURCE_NAME_LDAP).anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).build());
         assertFalse(propTasks.getResult().isEmpty());
         assertEquals(1, propTasks.getSize());
-        PropagationData propagationData =
-                POJOHelper.deserialize(PropagationTaskTO.class.cast(propTasks.getResult().get(0)).getPropagationData(),
-                        PropagationData.class);
-        assertTrue(propagationData.getAttributes().stream()
-                .anyMatch(a -> OperationalAttributes.PASSWORD_NAME.equals(a.getName())));
+        PropagationData propagationData = POJOHelper.deserialize(
+                PropagationTaskTO.class.cast(propTasks.getResult().get(0)).getPropagationData(),
+                PropagationData.class);
+        assertTrue(propagationData.getAttributes().stream().
+                anyMatch(a -> OperationalAttributes.PASSWORD_NAME.equals(a.getName())));
     }
 }

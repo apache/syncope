@@ -105,12 +105,6 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
      */
     private Integer propagationPriority;
 
-    /**
-     * Generate random password, if not provided.
-     */
-    @NotNull
-    private Boolean randomPwdIfNotProvided = false;
-
     @Enumerated(EnumType.STRING)
     @NotNull
     private TraceLevel createTraceLevel = TraceLevel.FAILURES;
@@ -235,16 +229,6 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @Override
     public void setPropagationPriority(final Integer propagationPriority) {
         this.propagationPriority = propagationPriority;
-    }
-
-    @Override
-    public boolean isRandomPwdIfNotProvided() {
-        return randomPwdIfNotProvided;
-    }
-
-    @Override
-    public void setRandomPwdIfNotProvided(final boolean randomPwdIfNotProvided) {
-        this.randomPwdIfNotProvided = randomPwdIfNotProvided;
     }
 
     @Override
