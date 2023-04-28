@@ -30,9 +30,14 @@ github:
     # disable rebase button:
     rebase:  true
 
+  github:
+    dependabot_alerts:  false
+    dependabot_updates: true
+
   notifications:
     commits:              commits@syncope.apache.org
     issues:               dev@syncope.apache.org
     pullrequests_status:  dev@syncope.apache.org
     pullrequests_comment: dev@syncope.apache.org
+    pullrequests_bot_dependabot: dev@syncope.apache.org
     jira_options:         link label worklog
