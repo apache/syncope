@@ -446,7 +446,7 @@ under the License.
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
 
     <bootbox.version>5.5.2</bootbox.version>
-    <font-awesome.version>5.15.4</font-awesome.version>
+    <font-awesome.version>6.4.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <codemirror.version>5.62.2</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
