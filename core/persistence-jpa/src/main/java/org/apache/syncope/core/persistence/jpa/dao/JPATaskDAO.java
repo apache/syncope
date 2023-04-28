@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Query;
@@ -50,6 +51,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
@@ -102,6 +104,24 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
     @Override
     public <T extends Task<T>> T find(final TaskType type, final String key) {
         return (T) entityManager().find(taskUtilsFactory.getInstance(type).getTaskEntity(), key);
+    }
+
+    @Transactional(readOnly = true)
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends SchedTask> Optional<T> findByName(final TaskType type, final String name) {
+        TaskUtils taskUtils = taskUtilsFactory.getInstance(type);
+        TypedQuery<T> query = (TypedQuery<T>) entityManager().createQuery(
+                "SELECT e FROM " + taskUtils.getTaskEntity().getSimpleName() + " e WHERE e.name = :name",
+                taskUtils.getTaskEntity());
+        query.setParameter("name", name);
+
+        try {
+            return Optional.of(query.getSingleResult());
+        } catch (NoResultException e) {
+            LOG.debug("No task found with name {}", name, e);
+            return Optional.empty();
+        }
     }
 
     @Override

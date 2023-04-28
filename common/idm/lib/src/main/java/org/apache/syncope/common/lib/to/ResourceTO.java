@@ -53,8 +53,6 @@ public class ResourceTO implements EntityTO {
 
     private Integer propagationPriority;
 
-    private boolean randomPwdIfNotProvided;
-
     private boolean enforceMandatoryCondition;
 
     private TraceLevel createTraceLevel = TraceLevel.ALL;
@@ -130,14 +128,6 @@ public class ResourceTO implements EntityTO {
 
     public void setPropagationPriority(final Integer propagationPriority) {
         this.propagationPriority = propagationPriority;
-    }
-
-    public boolean isRandomPwdIfNotProvided() {
-        return randomPwdIfNotProvided;
-    }
-
-    public void setRandomPwdIfNotProvided(final boolean randomPwdIfNotProvided) {
-        this.randomPwdIfNotProvided = randomPwdIfNotProvided;
     }
 
     public TraceLevel getCreateTraceLevel() {
@@ -288,7 +278,6 @@ public class ResourceTO implements EntityTO {
         }
         ResourceTO other = (ResourceTO) obj;
         return new EqualsBuilder().
-                append(randomPwdIfNotProvided, other.randomPwdIfNotProvided).
                 append(enforceMandatoryCondition, other.enforceMandatoryCondition).
                 append(overrideCapabilities, other.overrideCapabilities).
                 append(key, other.key).
@@ -324,7 +313,6 @@ public class ResourceTO implements EntityTO {
                 append(provisions).
                 append(orgUnit).
                 append(propagationPriority).
-                append(randomPwdIfNotProvided).
                 append(enforceMandatoryCondition).
                 append(createTraceLevel).
                 append(updateTraceLevel).

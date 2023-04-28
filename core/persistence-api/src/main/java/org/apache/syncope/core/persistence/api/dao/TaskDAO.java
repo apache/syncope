@@ -42,6 +42,8 @@ public interface TaskDAO extends DAO<Task<?>> {
 
     <T extends Task<T>> T find(TaskType type, String key);
 
+    <T extends SchedTask> Optional<T> findByName(TaskType type, String name);
+
     Optional<Task<?>> find(String key);
 
     List<SchedTask> findByDelegate(Implementation delegate);

@@ -44,6 +44,7 @@ import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ProvisionAction;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.logic.api.LogicActions;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -415,9 +416,14 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                     return groupMemberProvision;
                 });
 
-        SchedTask task = entityFactory.newEntity(SchedTask.class);
-        task.setName((action == ProvisionAction.DEPROVISION ? "de" : "")
-                + "provision members of group " + group.getName());
+        String name = (action == ProvisionAction.DEPROVISION ? "de" : "")
+                + "provision members of group " + group.getName();
+        SchedTask task = taskDAO.<SchedTask>findByName(TaskType.SCHEDULED, name).
+                orElseGet(() -> {
+                    SchedTask t = entityFactory.newEntity(SchedTask.class);
+                    t.setName(name);
+                    return t;
+                });
         task.setActive(true);
         task.setJobDelegate(jobDelegate);
         task = taskDAO.save(task);

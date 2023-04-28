@@ -140,8 +140,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resource.setPropagationPriority(resourceTO.getPropagationPriority());
 
-        resource.setRandomPwdIfNotProvided(resourceTO.isRandomPwdIfNotProvided());
-
         // 1. add or update all (valid) provisions from TO
         resourceTO.getProvisions().forEach(provisionTO -> {
             AnyType anyType = anyTypeDAO.find(provisionTO.getAnyType());
@@ -400,7 +398,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         });
         // remove all implementations not contained in the TO
         resource.getPropagationActions().
-                removeIf(implementation -> !resourceTO.getPropagationActions().contains(implementation.getKey()));
+                removeIf(propActions -> !resourceTO.getPropagationActions().contains(propActions.getKey()));
 
         return resource;
     }
@@ -661,8 +659,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setEnforceMandatoryCondition(resource.isEnforceMandatoryCondition());
 
         resourceTO.setPropagationPriority(resource.getPropagationPriority());
-
-        resourceTO.setRandomPwdIfNotProvided(resource.isRandomPwdIfNotProvided());
 
         resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
         resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());

@@ -174,8 +174,8 @@ public class ConnObjectUtils {
      * @param pullTask pull task
      * @param anyTypeKind any type kind
      * @param provision provision information
-     * @param generatePasswordIfPossible whether password value shall be generated, in case not found from
-     * connector object and allowed by resource configuration
+     * @param generatePassword whether password value shall be generated, in case not found from
+     * connector object
      * @param <C> create request type
      * @return create request
      */
@@ -185,16 +185,16 @@ public class ConnObjectUtils {
             final PullTask pullTask,
             final AnyTypeKind anyTypeKind,
             final Provision provision,
-            final boolean generatePasswordIfPossible) {
+            final boolean generatePassword) {
 
         AnyTO anyTO = getAnyTOFromConnObject(obj, pullTask, anyTypeKind, provision);
         C anyCR = anyUtilsFactory.getInstance(anyTypeKind).newAnyCR();
         EntityTOUtils.toAnyCR(anyTO, anyCR);
 
-        // (for users) if password was not set above, generate if resource is configured for that
+        // (for users) if password was not set above, generate if possible
         if (anyCR instanceof UserCR
                 && StringUtils.isBlank(((UserCR) anyCR).getPassword())
-                && generatePasswordIfPossible && pullTask.getResource().isRandomPwdIfNotProvided()) {
+                && generatePassword) {
 
             UserCR userCR = (UserCR) anyCR;
             List<PasswordPolicy> passwordPolicies = new ArrayList<>();

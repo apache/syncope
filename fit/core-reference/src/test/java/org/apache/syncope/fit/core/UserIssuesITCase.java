@@ -83,16 +83,39 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
+import org.apache.syncope.core.provisioning.java.propagation.GenerateRandomPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class UserIssuesITCase extends AbstractITCase {
+
+    @BeforeAll
+    public static void testPropagationActionsSetup() {
+        ImplementationTO propagationActions = null;
+        try {
+            propagationActions = IMPLEMENTATION_SERVICE.read(
+                    IdMImplementationType.PULL_ACTIONS, LDAPPasswordPropagationActions.class.getSimpleName());
+        } catch (SyncopeClientException e) {
+            if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
+                propagationActions = new ImplementationTO();
+                propagationActions.setKey(LDAPPasswordPropagationActions.class.getSimpleName());
+                propagationActions.setEngine(ImplementationEngine.JAVA);
+                propagationActions.setType(IdMImplementationType.PROPAGATION_ACTIONS);
+                propagationActions.setBody(LDAPPasswordPropagationActions.class.getName());
+                Response response = IMPLEMENTATION_SERVICE.create(propagationActions);
+                propagationActions = IMPLEMENTATION_SERVICE.read(
+                        propagationActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+            }
+        }
+        assertNotNull(propagationActions);
+    }
 
     @Test
     public void issue186() {
@@ -1019,20 +1042,10 @@ public class UserIssuesITCase extends AbstractITCase {
         assertTrue(user.getResources().isEmpty());
 
         // 2. Add LDAPPasswordPropagationActions
-        ImplementationTO propagationActions = new ImplementationTO();
-        propagationActions.setKey(LDAPPasswordPropagationActions.class.getSimpleName());
-        propagationActions.setEngine(ImplementationEngine.JAVA);
-        propagationActions.setType(IdMImplementationType.PROPAGATION_ACTIONS);
-        propagationActions.setBody(LDAPPasswordPropagationActions.class.getName());
-        Response response = IMPLEMENTATION_SERVICE.create(propagationActions);
-        propagationActions = IMPLEMENTATION_SERVICE.read(
-                propagationActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-        assertNotNull(propagationActions);
-
         ResourceTO resourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         assertNotNull(resourceTO);
-        resourceTO.getPropagationActions().add(propagationActions.getKey());
-        resourceTO.setRandomPwdIfNotProvided(false);
+        resourceTO.getPropagationActions().add(LDAPPasswordPropagationActions.class.getSimpleName());
+        resourceTO.getPropagationActions().remove(GenerateRandomPasswordPropagationActions.class.getSimpleName());
         RESOURCE_SERVICE.update(resourceTO);
 
         // 3. Add a resource to the User
@@ -1059,8 +1072,8 @@ public class UserIssuesITCase extends AbstractITCase {
         // 5. Remove LDAPPasswordPropagationActions
         resourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         assertNotNull(resourceTO);
-        resourceTO.getPropagationActions().remove(propagationActions.getKey());
-        resourceTO.setRandomPwdIfNotProvided(true);
+        resourceTO.getPropagationActions().remove(LDAPPasswordPropagationActions.class.getSimpleName());
+        resourceTO.getPropagationActions().add(0, GenerateRandomPasswordPropagationActions.class.getSimpleName());
         RESOURCE_SERVICE.update(resourceTO);
     }
 

@@ -551,31 +551,22 @@ public class ProvisioningContext {
             final AnyUtilsFactory anyUtilsFactory,
             final ConnectorManager connectorManager,
             final ConnObjectUtils connObjectUtils,
-            final UserDAO userDAO,
-            final GroupDAO groupDAO,
-            final AnyObjectDAO anyObjectDAO,
             final TaskDAO taskDAO,
             final ExternalResourceDAO resourceDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final RealmDAO realmDAO,
             final NotificationManager notificationManager,
             final AuditManager auditManager,
             final TaskDataBinder taskDataBinder,
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
-            final ApplicationEventPublisher publisher,
-            final PasswordGenerator passwordGenerator) {
+            final ApplicationEventPublisher publisher) {
 
         return new PriorityPropagationTaskExecutor(
                 connectorManager,
                 connObjectUtils,
-                userDAO,
-                groupDAO,
-                anyObjectDAO,
                 taskDAO,
                 resourceDAO,
                 plainSchemaDAO,
-                realmDAO,
                 notificationManager,
                 auditManager,
                 taskDataBinder,
@@ -584,7 +575,6 @@ public class ProvisioningContext {
                 outboundMatcher,
                 validator,
                 publisher,
-                passwordGenerator,
                 propagationTaskExecutorAsyncExecutor);
     }
 
