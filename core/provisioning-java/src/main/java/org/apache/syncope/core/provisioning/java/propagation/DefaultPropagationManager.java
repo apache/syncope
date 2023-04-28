@@ -247,7 +247,13 @@ public class DefaultPropagationManager implements PropagationManager {
                     dao().findAllResourceKeys(userUR.getKey());
             pwdResourceNames.retainAll(allResourceNames);
 
-            pwdWFResult.getPropByRes().addAll(ResourceOperation.UPDATE, pwdResourceNames);
+            if (wfResult.getPropByRes() == null || wfResult.getPropByRes().isEmpty()) {
+                pwdWFResult.getPropByRes().addAll(ResourceOperation.UPDATE, pwdResourceNames);
+            } else {
+                Map<String, ResourceOperation> wfPropByResMap = wfResult.getPropByRes().asMap();
+                pwdResourceNames.forEach(r -> pwdWFResult.getPropByRes().
+                        add(wfPropByResMap.getOrDefault(r, ResourceOperation.UPDATE), r));
+            }
             if (!pwdWFResult.getPropByRes().isEmpty()) {
                 Set<String> toBeExcluded = new HashSet<>(allResourceNames);
                 toBeExcluded.addAll(userUR.getResources().stream().
