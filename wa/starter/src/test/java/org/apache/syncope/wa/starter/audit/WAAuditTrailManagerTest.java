@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
+import java.util.Map;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.rest.api.service.AuditService;
@@ -50,7 +51,7 @@ public class WAAuditTrailManagerTest extends AbstractTest {
     @Test
     public void saveAuditRecord() {
         AuditActionContext audit = new AuditActionContext("principal", "resourceOperatedUpon", "actionPerformed",
-                "applicationCode", new Date(), "clientIpAddress", "serverIpAddress", "userAgent");
+                "applicationCode", new Date(), "clientIpAddress", "serverIpAddress", "userAgent", Map.of());
         WAAuditTrailManager auditTrailManager = new WAAuditTrailManager(getWaRestClient());
         auditTrailManager.saveAuditRecord(audit);
         verify(LOGGER_SERVICE).create(any(AuditEntry.class));
