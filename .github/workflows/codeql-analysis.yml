@@ -82,7 +82,7 @@ jobs:
     #    uses a compiled language
 
     - run: |
-       mvn -T 1C -PskipTests,all
+       mvn -U -T 1C -PskipTests,all
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
