@@ -421,6 +421,14 @@ public class PullTaskITCase extends AbstractTaskITCase {
         PullTaskTO task = TASK_SERVICE.read(TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", false);
         assertEquals(SyncopeConstants.ROOT_REALM, task.getDestinationRealm());
 
+        if (IS_ELASTICSEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
         // 2. verify that pulled group is found
         PagedResult<GroupTO> matchingGroups = GROUP_SERVICE.search(new AnyQuery.Builder().realm(
                 SyncopeConstants.ROOT_REALM).
@@ -587,6 +595,14 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertTrue(connObjectTO.getAttr("LOCATION").get().getValues().get(0).startsWith(prefix));
 
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
+            if (IS_ELASTICSEARCH_ENABLED) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+
             PagedResult<AnyObjectTO> matchingPrinters = ANY_OBJECT_SERVICE.search(
                     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                             fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).
@@ -616,6 +632,14 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
             // hence PrefixItemTransformer was applied during pull)
+            if (IS_ELASTICSEARCH_ENABLED) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+
             matchingPrinters = ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).
                             is("location").equalTo("pull*").query()).build());
