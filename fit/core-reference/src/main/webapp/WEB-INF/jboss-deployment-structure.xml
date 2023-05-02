@@ -25,7 +25,7 @@ under the License.
       <subsystem name="bean-validation"/>
     </exclude-subsystems>
     <dependencies>
-      <module name="org.reactivestreams"/>
+      <module name="org.jboss.vfs"/>
     </dependencies>
     <exclusions>
       <module name="org.hibernate.validator"/> 

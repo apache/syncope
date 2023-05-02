@@ -1580,7 +1580,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly28x</containerId>
+                <containerId>wildfly27x</containerId>
                 <zipUrlInstaller>
                   <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
@@ -1592,6 +1592,7 @@ under the License.
                   <cargo.jvmargs>-Djava.net.preferIPv4Stack=true -Dspring.profiles.active=embedded,wildfly
                     -XX:+UseG1GC -Xmx2048m -Xms1024m
                     --add-opens java.base/java.util=ALL-UNNAMED
+                    --add-opens=java.base/java.lang=ALL-UNNAMED
                     --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</cargo.jvmargs>
                 </properties>
               </configuration>
