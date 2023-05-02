@@ -22,7 +22,10 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.nimbusds.jose.util.IOUtils;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -111,10 +114,25 @@ public abstract class AbstractITCase {
     public static void waitForWARefresh() {
         SAML2IdPEntityService samlIdPEntityService = ADMIN_CLIENT.getService(SAML2IdPEntityService.class);
 
-        await().atMost(50, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+        await().atMost(50, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS).until(() -> {
             boolean refreshed = false;
             try {
-                WebClient.create(WA_ADDRESS + "/idp/metadata").get();
+                String metadata = IOUtils.readInputStreamToString(
+                        (InputStream) WebClient.create(
+                                WA_ADDRESS + "/idp/metadata").get().getEntity(),
+                        StandardCharsets.UTF_8);
+                if (metadata.contains("localhost:8080")) {
+                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
+                    throw new IllegalStateException();
+                }
+                metadata = IOUtils.readInputStreamToString(
+                        (InputStream) WebClient.create(
+                                WA_ADDRESS + "/oidc/.well-known/openid-configuration").get().getEntity(),
+                        StandardCharsets.UTF_8);
+                if (metadata.contains("localhost:8080")) {
+                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
+                    throw new IllegalStateException();
+                }
 
                 samlIdPEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
                 refreshed = true;

@@ -72,7 +72,7 @@ public class CASSRAITCase extends AbstractSRAITCase {
                     CASSPClientAppTO app = new CASSPClientAppTO();
                     app.setName(appName);
                     app.setClientAppId(4L);
-                    app.setServiceId("http://localhost:8080/.*");
+                    app.setServiceId("http://127.0.0.1:8080/.*");
 
                     Response response = CLIENT_APP_SERVICE.create(ClientAppType.CASSP, app);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {

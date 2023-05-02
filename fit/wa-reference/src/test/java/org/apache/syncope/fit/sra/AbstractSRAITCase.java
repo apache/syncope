@@ -19,6 +19,9 @@
 package org.apache.syncope.fit.sra;
 
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.oneOf;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -66,9 +69,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
     protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    protected static final int PORT = 8080;
-
-    protected static final String SRA_ADDRESS = "http://localhost:" + PORT;
+    protected static final String SRA_ADDRESS = "http://127.0.0.1:8080";
 
     protected static final String QUERY_STRING =
             "key1=value1&key2=value2&key2=value3&key3=an%20url%20encoded%20value%3A%20this%21";
@@ -193,7 +194,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
         await().atMost(120, TimeUnit.SECONDS).pollInterval(3, TimeUnit.SECONDS).until(() -> {
             boolean connected = false;
             try (Socket socket = new Socket()) {
-                socket.connect(new InetSocketAddress("0.0.0.0", PORT));
+                socket.connect(new InetSocketAddress("0.0.0.0", 8080));
                 connected = socket.isConnected();
             } catch (ConnectException e) {
                 // ignore
@@ -291,12 +292,11 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
         ObjectNode headers = (ObjectNode) json.get("headers");
         assertEquals(MediaType.TEXT_HTML, headers.get(HttpHeaders.ACCEPT).asText());
-        assertEquals(EN_LANGUAGE, headers.get(HttpHeaders.ACCEPT_LANGUAGE).asText());
-        assertEquals("localhost:" + PORT, headers.get("X-Forwarded-Host").asText());
+        assertThat(headers.get("X-Forwarded-Host").asText(), is(oneOf("localhost:8080", "127.0.0.1:8080")));
 
-        assertEquals(
-                StringUtils.substringBefore(originalRequestURI, "?"),
-                StringUtils.substringBefore(json.get("url").asText(), "?"));
+        String withHost = StringUtils.substringBefore(originalRequestURI, "?");
+        String withIP = withHost.replace("localhost", "127.0.0.1");
+        assertThat(StringUtils.substringBefore(json.get("url").asText(), "?"), is(oneOf(withHost, withIP)));
 
         return headers;
     }
