@@ -50,7 +50,6 @@ import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -92,7 +91,7 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
 
         CLIENT_APP_SERVICE.update(ClientAppType.SAML2SP, clientApp);
-        WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
+        waitForWARefresh();
     }
 
     @Test
