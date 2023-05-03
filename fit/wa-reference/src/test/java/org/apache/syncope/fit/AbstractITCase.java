@@ -133,6 +133,14 @@ public abstract class AbstractITCase {
                     WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
+                metadata = IOUtils.readInputStreamToString(
+                        (InputStream) WebClient.create(
+                                WA_ADDRESS + "/actuator/registeredServices", "anonymous", "anonymousKey", null).
+                                get().getEntity(), StandardCharsets.UTF_8);
+                if (metadata.contains("localhost:8080/syncope-wa")) {
+                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
+                    throw new IllegalStateException();
+                }
 
                 samlIdPEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
                 refreshed = true;
