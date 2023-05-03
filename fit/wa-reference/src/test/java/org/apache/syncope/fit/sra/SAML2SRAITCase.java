@@ -101,8 +101,6 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
 
     @Test
     public void web() throws IOException {
-        waitForWARefresh();
-
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpClientContext context = HttpClientContext.create();
         context.setCookieStore(new BasicCookieStore());
