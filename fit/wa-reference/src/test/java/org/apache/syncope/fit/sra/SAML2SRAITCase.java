@@ -24,8 +24,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.nimbusds.jose.util.IOUtils;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -33,6 +36,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.Consts;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -50,6 +54,7 @@ import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -91,7 +96,7 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
 
         CLIENT_APP_SERVICE.update(ClientAppType.SAML2SP, clientApp);
-        waitForWARefresh();
+        WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
     }
 
     @Test
@@ -108,6 +113,13 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
             ObjectNode headers = checkGetResponse(response, get.getURI().toASCIIString().replace("/public", ""));
             assertFalse(headers.has(HttpHeaders.COOKIE));
         }
+
+        // 1.5 actuator
+        String services = IOUtils.readInputStreamToString(
+                (InputStream) WebClient.create(
+                        WA_ADDRESS + "/actuator/registeredServices", "anonymous", "anonymousKey", null).
+                        get().getEntity(), StandardCharsets.UTF_8);
+        LOG.info("*****************\n{}*************\n", services);
 
         // 2. protected
         get = new HttpGet(SRA_ADDRESS + "/protected/get?" + QUERY_STRING);
