@@ -1,6 +1,7 @@
 *.i??
 *.orig
 .idea
+.vscode
 .project
 .classpath
 .settings
