@@ -114,7 +114,7 @@ public abstract class AbstractITCase {
     public static void waitForWARefresh() {
         SAML2IdPEntityService samlIdPEntityService = ADMIN_CLIENT.getService(SAML2IdPEntityService.class);
 
-        await().atMost(50, TimeUnit.SECONDS).pollInterval(5, TimeUnit.SECONDS).until(() -> {
+        await().atMost(60, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
             boolean refreshed = false;
             try {
                 String metadata = IOUtils.readInputStreamToString(
@@ -130,6 +130,14 @@ public abstract class AbstractITCase {
                                 WA_ADDRESS + "/oidc/.well-known/openid-configuration").get().getEntity(),
                         StandardCharsets.UTF_8);
                 if (metadata.contains("localhost:8080")) {
+                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
+                    throw new IllegalStateException();
+                }
+                metadata = IOUtils.readInputStreamToString(
+                        (InputStream) WebClient.create(
+                                WA_ADDRESS + "/actuator/registeredServices", "anonymous", "anonymousKey", null).
+                                get().getEntity(), StandardCharsets.UTF_8);
+                if (metadata.contains("localhost:8080/syncope-wa")) {
                     WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
