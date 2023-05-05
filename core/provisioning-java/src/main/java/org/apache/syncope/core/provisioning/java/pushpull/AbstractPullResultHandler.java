@@ -836,7 +836,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
             case DELETE:
                 // Skip DELETE in case of PullCorrelationRule.NO_MATCH
-                if (matches.get(0).getAny() != null) {
+                if (matches.get(0).getAny() == null) {
+                    end(provision.getAnyType().getKind(),
+                            MatchingRule.toEventName(MatchingRule.IGNORE), Result.SUCCESS, null, null, delta);
+                } else {
                     profile.getResults().addAll(delete(delta, matches, provision));
                 }
                 break;
