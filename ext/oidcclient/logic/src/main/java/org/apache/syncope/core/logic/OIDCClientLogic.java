@@ -154,6 +154,8 @@ public class OIDCClientLogic extends AbstractTransactionalLogic<EntityTO> {
 
         // 3. prepare the result:
         final OIDCLoginResponseTO responseTO = new OIDCLoginResponseTO();
+        responseTO.setIdToken(tokenEndpointResponse.getIdToken());
+
         responseTO.setLogoutSupported(StringUtils.isNotBlank(op.getEndSessionEndpoint()));
 
         // 3a. extract user info from userInfoEndpoint if exists otherwise from idToken

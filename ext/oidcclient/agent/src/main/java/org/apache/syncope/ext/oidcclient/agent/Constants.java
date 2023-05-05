@@ -26,6 +26,8 @@ public final class Constants {
 
     public static final String PARAM_OP = "op";
 
+    public static final String ID_TOKEN = "id.token";
+
     public static final String CONTEXT_PARAM_LOGIN_SUCCESS_URL = "oidcclient.login.success.url";
 
     public static final String CONTEXT_PARAM_LOGIN_ERROR_URL = "oidcclient.login.error.url";

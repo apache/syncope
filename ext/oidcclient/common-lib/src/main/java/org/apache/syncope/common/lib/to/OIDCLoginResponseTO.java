@@ -44,6 +44,8 @@ public class OIDCLoginResponseTO implements Serializable {
 
     private String accessToken;
 
+    private String idToken;
+
     private Date accessTokenExpiryTime;
 
     private final Set<AttrTO> attrs = new HashSet<>();
@@ -78,6 +80,14 @@ public class OIDCLoginResponseTO implements Serializable {
 
     public void setAccessToken(final String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public String getIdToken() {
+        return idToken;
+    }
+
+    public void setIdToken(final String idToken) {
+        this.idToken = idToken;
     }
 
     public Date getAccessTokenExpiryTime() {
