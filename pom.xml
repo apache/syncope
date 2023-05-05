@@ -26,7 +26,7 @@ under the License.
 
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope</artifactId>
-  <version>2.1.14</version>
+  <version>2.1.15-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <parent>
@@ -52,7 +52,7 @@ under the License.
     <connection>scm:git:https://gitbox.apache.org/repos/asf/syncope.git</connection>
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/syncope.git</developerConnection>
     <url>https://gitbox.apache.org/repos/asf?p=syncope.git</url>
-    <tag>syncope-2.1.14</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
@@ -390,7 +390,7 @@ under the License.
   </contributors>
 
   <properties>
-    <project.build.outputTimestamp>2023-05-05T13:29:32Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2023-05-05T13:38:12Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
     <connid.version>1.5.2.0</connid.version>
