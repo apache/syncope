@@ -2,6 +2,37 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.3
+================================================================================
+
+** Bug
+    * [SYNCOPE-1731] - Performance issue with multiple any type classes
+    * [SYNCOPE-1734] - Elasticsearch not updated for uidOnCreate
+    * [SYNCOPE-1735] - Can't retrieve all policies during Realm create and update
+    * [SYNCOPE-1736] - Templates do not set the latest additions to Users and Groups
+    * [SYNCOPE-1737] - Cannot specifiy attribute mapping for AttributeRelease policies
+    * [SYNCOPE-1739] - Wrong volume mapping for source code in fit docker profile
+    * [SYNCOPE-1742] - Exception in console when defining a date for delegation
+    * [SYNCOPE-1749] - Incorrect Dynamic Group Membership Condition save from Console
+    * [SYNCOPE-1750] - Password policy not enforced if password is not stored in Syncope
+
+** New Feature
+    * [SYNCOPE-1741] - Add support form Azure Active Directory delegated authentication
+    * [SYNCOPE-1746] - Provide Software Bill Of Materials (SBOM)
+
+** Improvement
+    * [SYNCOPE-1732] - Console does not support custom Access Policy Configuration
+    * [SYNCOPE-1733] - Support OAUTH20 authentication module in WA
+    * [SYNCOPE-1738] - Refactor Report management
+    * [SYNCOPE-1740] - Allow to specify UsernameAttributeProvider for Client Applications
+    * [SYNCOPE-1743] - Add support for Ticket Expiration Policies into ClientApp
+    * [SYNCOPE-1745] - Allow to manage ConnId bundles with more Connectors
+    * [SYNCOPE-1747] - Provide controls to refresh WA client applications from Console
+    * [SYNCOPE-1748] - SCIM 2.0 Implement PATCH operations
+    * [SYNCOPE-1751] - Improve password auto generation on propagation
+    * [SYNCOPE-1752] - Support large number of Realms
+    * [SYNCOPE-1753] - Extend changes' history management to most relevant WA configuration objects
+
 Release Notes - Syncope - Version 3.0.2
 ================================================================================
 
