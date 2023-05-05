@@ -415,7 +415,7 @@ under the License.
     <bouncycastle.version>1.73</bouncycastle.version>
     <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.1.0-RC1</spring-boot.version>
+    <spring-boot.version>3.1.0-RC2</spring-boot.version>
     <spring-cloud-gateway.version>4.0.4</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.2</openjpa.version>
@@ -1550,8 +1550,8 @@ under the License.
           <dependencies>
             <dependency>
               <groupId>xalan</groupId>
-              <artifactId>xalan</artifactId>
-              <version>2.7.2</version>
+              <artifactId>serializer</artifactId>
+              <version>2.7.3</version>
             </dependency>
           </dependencies>
         </plugin>
