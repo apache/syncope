@@ -24,12 +24,14 @@ public final class OIDCConstants {
 
     public static final String CLIENT_SECRET = "client_secret";
 
+    public static final String ID_TOKEN_HINT = "id_token_hint";
+
     public static final String SCOPE = "scope";
 
     public static final String RESPONSE_TYPE = "response_type";
 
     public static final String STATE = "state";
-    
+
     public static final String POST_LOGOUT_REDIRECT_URI = "post_logout_redirect_uri";
 
     public static final String REDIRECT_URI = "redirect_uri";

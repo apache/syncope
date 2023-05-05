@@ -85,6 +85,7 @@ public class CodeConsumer extends HttpServlet {
                             Constants.OIDCCLIENTJWT, responseTO.getAccessToken());
                     request.getSession().setAttribute(
                             Constants.OIDCCLIENTJWT_EXPIRE, responseTO.getAccessTokenExpiryTime());
+                    request.getSession().setAttribute(Constants.ID_TOKEN, responseTO.getIdToken());
 
                     String successURL = getServletContext().getInitParameter(Constants.CONTEXT_PARAM_LOGIN_SUCCESS_URL);
                     if (successURL == null) {

@@ -52,6 +52,10 @@ public class BeforeLogout extends HttpServlet {
         if (StringUtils.isBlank(accessToken)) {
             throw new IllegalArgumentException("No access token found ");
         }
+        String idToken = (String) request.getSession().getAttribute(Constants.ID_TOKEN);
+        if (StringUtils.isBlank(idToken)) {
+            throw new IllegalArgumentException("No id token found ");
+        }
         SyncopeClient client = clientFactory.create(accessToken);
         OIDCLogoutRequestTO requestTO = client.getService(OIDCClientService.class).
                 createLogoutRequest(request.getSession().getAttribute(OIDCConstants.OP).toString());
@@ -60,6 +64,7 @@ public class BeforeLogout extends HttpServlet {
                 + "/logout";
         UriBuilder ub = UriBuilder.fromUri(requestTO.getEndSessionEndpoint());
         ub.queryParam(OIDCConstants.POST_LOGOUT_REDIRECT_URI, postLogoutRedirectURI);
+        ub.queryParam(OIDCConstants.ID_TOKEN_HINT, idToken);
         response.setHeader(HttpHeaders.LOCATION, ub.build().toASCIIString());
     }
 }
