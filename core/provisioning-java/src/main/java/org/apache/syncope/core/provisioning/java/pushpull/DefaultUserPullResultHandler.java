@@ -147,11 +147,11 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
         Result global = Result.SUCCESS;
         for (PullMatch match : matches) {
-            User user = (User) match.getAny();
-            if (user == null) {
+            if (match.getAny() == null) {
                 LOG.error("Could not find linking user, cannot process match {}", match);
                 return Result.FAILURE;
             }
+            User user = (User) match.getAny();
 
             Optional<? extends LinkedAccount> found =
                     user.getLinkedAccount(profile.getTask().getResource().getKey(), delta.getUid().getUidValue());

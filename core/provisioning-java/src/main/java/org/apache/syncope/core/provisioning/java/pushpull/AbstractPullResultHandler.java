@@ -810,7 +810,8 @@ public abstract class AbstractPullResultHandler
                 break;
 
             case DELETE:
-                result = delete(delta, matches, provision);
+                // Skip DELETE in case of PullCorrelationRule.NO_MATCH
+                result = matches.get(0).getAny() == null ? Result.SUCCESS : delete(delta, matches, provision);
                 break;
 
             default:
