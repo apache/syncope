@@ -136,11 +136,11 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             final Provision provision) throws JobExecutionException {
 
         for (PullMatch match : matches) {
-            User user = (User) match.getAny();
-            if (user == null) {
+            if (match.getAny() == null) {
                 LOG.error("Could not find linking user, cannot process match {}", match);
                 return;
             }
+            User user = (User) match.getAny();
 
             Optional<? extends LinkedAccount> found =
                     user.getLinkedAccount(provision.getResource().getKey(), delta.getUid().getUidValue());
