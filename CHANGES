@@ -2,6 +2,20 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.1.14
+================================================================================
+
+** Bug
+    * [SYNCOPE-1731] - Performance issue with multiple any type classes
+    * [SYNCOPE-1734] - Elasticsearch not updated for uidOnCreate
+    * [SYNCOPE-1749] - Incorrect Dynamic Group Membership Condition save from Console
+    * [SYNCOPE-1750] - Password policy not enforced if password is not stored in Syncope
+    * [SYNCOPE-1755] - NullPointer exception during PULL delete operation in case of NO_MATCH
+    * [SYNCOPE-1756] - Add an id_token_hint parameter to the logout provider url for OIDC
+
+** Improvement
+    * [SYNCOPE-1720] - Switch persistence identifiers to UUID version 7
+
 Release Notes - Syncope - Version 2.1.13
 ================================================================================
 
