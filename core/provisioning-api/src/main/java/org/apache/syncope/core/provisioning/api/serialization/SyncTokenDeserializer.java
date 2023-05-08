@@ -36,31 +36,54 @@ class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
 
         ObjectNode tree = jp.readValueAsTree();
 
-        Object value = null;
-        if (tree.has("value")) {
-            JsonNode node = tree.get("value");
-            if (node.isBoolean()) {
-                value = node.asBoolean();
-            } else if (node.isDouble()) {
-                value = node.asDouble();
-            } else if (node.isLong()) {
-                value = node.asLong();
-            } else if (node.isInt()) {
-                value = node.asInt();
-            } else {
-                value = node.asText();
-            }
-
-            if (value instanceof String) {
-                String base64 = (String) value;
-                try {
-                    value = Base64.getDecoder().decode(base64);
-                } catch (RuntimeException e) {
-                    value = base64;
-                }
-            }
-        }
+        Object value = tree.has("value")
+                ? tree.has("type")
+                ? deserialize(tree.get("value"), tree.get("type"))
+                : deserialize(tree.get("value"))
+                : null;
 
         return new SyncToken(Objects.requireNonNull(value));
+    }
+
+    private Object deserialize(final JsonNode value, final JsonNode type) {
+        if (Boolean.class.getSimpleName().equals(type.asText())) {
+            return value.asBoolean();
+        }
+
+        if (Double.class.getSimpleName().equals(type.asText())) {
+            return value.asDouble();
+        }
+        if (Long.class.getSimpleName().equals(type.asText())) {
+            return value.asLong();
+        }
+        if (Integer.class.getSimpleName().equals(type.asText())) {
+            return value.asInt();
+        }
+
+        return value.asText();
+    }
+
+    private Object deserialize(final JsonNode value) {
+        if (value.isBoolean()) {
+            return value.asBoolean();
+        }
+
+        if (value.isDouble()) {
+            return value.asDouble();
+        }
+
+        if (value.isLong()) {
+            return value.asLong();
+        }
+
+        if (value.isInt()) {
+            return value.asInt();
+        }
+
+        try {
+            return Base64.getDecoder().decode(value.asText());
+        } catch (RuntimeException e) {
+            return value.asText();
+        }
     }
 }
