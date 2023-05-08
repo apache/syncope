@@ -18,13 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.api.serialization;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.UUID;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.identityconnectors.framework.common.objects.SyncToken;
@@ -42,32 +41,37 @@ public class SyncTokenSerializerTest extends AbstractTest {
         SyncToken source = new SyncToken(UUID.randomUUID().toString());
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeStartObject();
-        verify(jgen).writeFieldName("value");
+        verify(jgen).writeStringField("type", "String");
+        verify(jgen).writeStringField("value", source.getValue().toString());
         verify(jgen).writeEndObject();
 
         boolean bool = false;
         source = new SyncToken(bool);
         serializer.serialize(source, jgen, sp);
-        verify(jgen).writeBoolean(bool);
+        verify(jgen).writeStringField("type", "Boolean");
+        verify(jgen).writeBooleanField("value", false);
 
         double doubleNum = 9000.1;
         source = new SyncToken(doubleNum);
         serializer.serialize(source, jgen, sp);
-        verify(jgen).writeNumber(doubleNum);
+        verify(jgen).writeStringField("type", "Double");
+        verify(jgen).writeNumberField("value", doubleNum);
 
         long longNum = 9001;
         source = new SyncToken(longNum);
         serializer.serialize(source, jgen, sp);
-        verify(jgen).writeNumber(longNum);
+        verify(jgen).writeStringField("type", "Long");
+        verify(jgen).writeNumberField("value", longNum);
 
         int intNum = 9000;
         source = new SyncToken(intNum);
         serializer.serialize(source, jgen, sp);
-        verify(jgen).writeNumber(intNum);
+        verify(jgen).writeStringField("type", "Integer");
+        verify(jgen).writeNumberField("value", intNum);
 
         byte[] bytes = new byte[] { 9, 0, 0, 1 };
         source = new SyncToken(bytes);
         serializer.serialize(source, jgen, sp);
-        verify(jgen, times(2)).writeString(anyString());
+        verify(jgen).writeStringField("value", Base64.getEncoder().encodeToString(bytes));
     }
 }
