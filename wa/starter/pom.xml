@@ -133,6 +133,10 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-webconfig</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-thymeleaf</artifactId>
     </dependency>
     <dependency>
@@ -344,10 +348,6 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-core-services-authentication</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-webapp-config</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
