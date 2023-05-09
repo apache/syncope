@@ -7,7 +7,6 @@
 target
 maven-eclipse.xml
 .externalToolBuilders
-archetype/src/main/resources/archetype-resources/pom.xml
 *nb-configuration.xml
 node_modules
 **/checkstyle.cache
