@@ -26,11 +26,11 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version></version>
+    <version>syncopeVersion</version>
   </parent>
 
   <properties>
-    <syncope.version></syncope.version>
+    <syncope.version>syncopeVersion</syncope.version>
     <secretKey>${secretKey}</secretKey>
     <anonymousKey>${anonymousKey}</anonymousKey>
     <jwsKey>${jwsKey}</jwsKey>

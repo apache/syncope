@@ -1503,19 +1503,6 @@ under the License.
         </plugin>
 
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>xml-maven-plugin</artifactId>
-          <version>1.0.2</version>
-          <dependencies>
-            <dependency>
-              <groupId>xalan</groupId>
-              <artifactId>serializer</artifactId>
-              <version>2.7.3</version>
-            </dependency>
-          </dependencies>
-        </plugin>
-
-        <plugin>
           <groupId>org.springframework.boot</groupId>
           <artifactId>spring-boot-maven-plugin</artifactId>
           <version>${spring-boot.version}</version>
