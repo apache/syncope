@@ -38,7 +38,7 @@ services:
      restart: always
      environment:
        SPRING_PROFILES_ACTIVE: docker,mariadb
-       DB_URL: jdbc:mysql://db:3306/syncope?characterEncoding=UTF-8&relaxAutoCommit=true&useSSL=false
+       DB_URL: jdbc:mariadb://db:3306/syncope?characterEncoding=UTF-8&relaxAutoCommit=true&useSSL=false
        DB_USER: syncope
        DB_PASSWORD: syncope
        DB_POOL_MAX: 20
