@@ -18,8 +18,10 @@
  */
 package org.apache.syncope.wa.starter.config;
 
+import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
@@ -30,7 +32,6 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.context.refresh.ContextRefresher;
 
 public class WARefreshContextJob implements Job {
 
@@ -38,9 +39,6 @@ public class WARefreshContextJob implements Job {
 
     @Autowired
     private WARestClient waRestClient;
-
-    @Autowired
-    private ContextRefresher contextRefresher;
 
     @Autowired
     private SamlIdPMetadataGenerator metadataGenerator;
@@ -53,7 +51,10 @@ public class WARefreshContextJob implements Job {
                 LOG.debug("Syncope client is not yet ready");
                 throw new IllegalStateException("Syncope core is not yet ready to access requests");
             }
-            contextRefresher.refresh();
+
+            waRestClient.getSyncopeClient().
+                    getService(WAConfigService.class).pushToWA(WAConfigService.PushSubject.conf, List.of());
+
             LOG.info("Refreshed application context to bootstrap property sources, etc...");
 
             LOG.info("Generating SAML2 IdP metadata metadata");
