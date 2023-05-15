@@ -32,7 +32,7 @@ public class JPATicketExpirationPolicy extends AbstractPolicy implements TicketE
 
     private static final long serialVersionUID = -4190607009908888884L;
 
-    public static final String TABLE = "TicketExpiration";
+    public static final String TABLE = "TicketExpirationPolicy";
 
     @Lob
     private String jsonConf;
