@@ -41,6 +41,13 @@ under the License.
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+
+      <!-- CAS 6.6.x pulls CXF 3.5.3 -->
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-transports-http</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
