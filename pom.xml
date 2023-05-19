@@ -434,7 +434,7 @@ under the License.
 
     <pac4j.version>6.0.0-RC7-SNAPSHOT</pac4j.version>
 
-    <cas.version>7.0.0-SNAPSHOT</cas.version>
+    <cas.version>7.0.0-RC6</cas.version>
     <cas-client.version>4.0.1</cas-client.version>
 
     <h2.version>2.1.214</h2.version>
@@ -1249,16 +1249,6 @@ under the License.
       </releases>
       <snapshots>
         <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>repository.spring.milestone</id>
-      <url>https://repo.spring.io/milestone</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
       </snapshots>
     </repository>
   </repositories>
