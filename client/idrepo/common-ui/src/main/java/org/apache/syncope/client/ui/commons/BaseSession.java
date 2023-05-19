@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.ui.commons;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -76,4 +78,14 @@ public interface BaseSession {
     void onException(Exception e);
 
     <T> Future<T> execute(Callable<T> command);
+
+    default List<Locale> getSupportedLocales() {
+        return List.of(
+                Locale.ENGLISH,
+                Locale.CANADA_FRENCH,
+                Locale.ITALIAN,
+                Locale.JAPANESE,
+                new Locale("pt", "BR"),
+                new Locale("ru"));
+    }
 }

@@ -26,8 +26,6 @@ import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
@@ -72,9 +70,6 @@ import org.springframework.core.io.ResourceLoader;
 public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
-
-    public static final List<Locale> SUPPORTED_LOCALES = List.of(
-            Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru"), Locale.JAPANESE);
 
     protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 

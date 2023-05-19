@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console;
 
-
 import com.giffing.wicket.spring.boot.starter.app.WicketBootSecuredWebApplication;
 import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
