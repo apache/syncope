@@ -163,6 +163,14 @@ public class DefaultPasswordRule implements PasswordRule {
                 });
     }
 
+    @Override
+    public void enforce(final String username, final String clearPassword) {
+        if (clearPassword != null) {
+            Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
+            enforce(clearPassword, username, wordsNotPermitted);
+        }
+    }
+
     @Transactional(readOnly = true)
     @Override
     public void enforce(final User user, final String clearPassword) {

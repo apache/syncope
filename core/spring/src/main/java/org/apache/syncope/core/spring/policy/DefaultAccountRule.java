@@ -98,6 +98,12 @@ public class DefaultAccountRule implements AccountRule {
                 });
     }
 
+    @Override
+    public void enforce(final String username) {
+        Set<String> wordsNotPermitted = new HashSet<>(conf.getWordsNotPermitted());
+        enforce(username, wordsNotPermitted);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public void enforce(final User user) {

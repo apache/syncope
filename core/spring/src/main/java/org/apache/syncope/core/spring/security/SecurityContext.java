@@ -24,7 +24,10 @@ import com.nimbusds.jose.KeyLengthException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.policy.DefaultRuleEnforcer;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.slf4j.Logger;
@@ -110,6 +113,12 @@ public class SecurityContext {
     @Bean
     public PasswordGenerator passwordGenerator() {
         return new DefaultPasswordGenerator();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RuleEnforcer ruleEnforcer(final RealmDAO realmDAO) {
+        return new DefaultRuleEnforcer(realmDAO);
     }
 
     @Bean

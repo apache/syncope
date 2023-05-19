@@ -16,20 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
-import org.apache.syncope.core.persistence.api.dao.AccountRule
-import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount
-import org.apache.syncope.core.persistence.api.entity.user.User
+package org.apache.syncope.core.provisioning.api.rules;
 
-@CompileStatic
-class MyAccountRule implements AccountRule {
-  
-  void enforce(String username) {
-  }
+import java.util.Collection;
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 
-  void enforce(User user) {
-  }
+public interface RuleEnforcer {
 
-  void enforce(LinkedAccount account) {
-  }
+    List<AccountPolicy> getAccountPolicies(Realm realm, Collection<ExternalResource> resources);
+
+    List<AccountRule> getAccountRules(AccountPolicy policy);
+
+    List<PasswordPolicy> getPasswordPolicies(Realm realm, Collection<ExternalResource> resources);
+
+    List<PasswordRule> getPasswordRules(PasswordPolicy policy);
 }

@@ -444,7 +444,8 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         // 3. change password
-        vivaldiClient.getService(UserSelfService.class).mustChangePassword("password123");
+        vivaldiClient.getService(UserSelfService.class).
+                mustChangePassword(new PasswordPatch.Builder().value("password123").build());
 
         // 4. verify it worked
         Triple<Map<String, Set<String>>, List<String>, UserTO> self =

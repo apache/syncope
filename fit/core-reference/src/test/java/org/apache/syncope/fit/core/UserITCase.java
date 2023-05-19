@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -85,6 +86,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -973,6 +975,15 @@ public class UserITCase extends AbstractITCase {
         try {
             UserCR userCR = getUniqueSample("custompolicyrules@syncope.apache.org");
             userCR.setRealm(realm.getFullPath());
+
+            try {
+                ANONYMOUS_CLIENT.getService(UserSelfService.class).compliance(
+                        new ComplianceQuery.Builder().password(userCR.getPassword()).realm(userCR.getRealm()).build());
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.InvalidUser, e.getType());
+                assertTrue(e.getElements().iterator().next().startsWith("InvalidPassword"));
+            }
+
             try {
                 createUser(userCR);
                 fail("This should not happen");
@@ -981,7 +992,16 @@ public class UserITCase extends AbstractITCase {
                 assertTrue(e.getElements().iterator().next().startsWith("InvalidPassword"));
             }
 
+            try {
+                ANONYMOUS_CLIENT.getService(UserSelfService.class).compliance(
+                        new ComplianceQuery.Builder().username(userCR.getUsername()).realm(userCR.getRealm()).build());
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.InvalidUser, e.getType());
+                assertTrue(e.getElements().iterator().next().startsWith("InvalidUsername"));
+            }
+
             userCR.setPassword(userCR.getPassword() + "XXX");
+
             try {
                 createUser(userCR);
                 fail("This should not happen");
@@ -991,6 +1011,12 @@ public class UserITCase extends AbstractITCase {
             }
 
             userCR.setUsername("YYY" + userCR.getUsername());
+
+            assertDoesNotThrow(() -> ANONYMOUS_CLIENT.getService(UserSelfService.class).compliance(
+                    new ComplianceQuery.Builder().password(userCR.getPassword()).realm(userCR.getRealm()).build()));
+            assertDoesNotThrow(() -> ANONYMOUS_CLIENT.getService(UserSelfService.class).compliance(
+                    new ComplianceQuery.Builder().username(userCR.getUsername()).realm(userCR.getRealm()).build()));
+
             UserTO userTO = createUser(userCR).getEntity();
             assertNotNull(userTO);
         } finally {
