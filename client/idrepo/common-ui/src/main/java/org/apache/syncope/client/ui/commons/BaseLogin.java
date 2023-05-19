@@ -63,26 +63,22 @@ public abstract class BaseLogin extends WebPage {
 
     protected static final Logger LOG = LoggerFactory.getLogger(BaseLogin.class);
 
-    public static final List<Locale> SUPPORTED_LOCALES = List.of(
-            Locale.ENGLISH, Locale.CANADA_FRENCH, Locale.ITALIAN, Locale.JAPANESE, new Locale("pt", "BR"),
-            new Locale("ru"));
-
     @SpringBean
-    private DomainOps domainOps;
+    protected DomainOps domainOps;
 
     protected final NotificationPanel notificationPanel;
 
     protected final StatelessForm<Void> form;
 
-    private final TextField<String> usernameField;
+    protected final TextField<String> usernameField;
 
-    private final TextField<String> passwordField;
+    protected final TextField<String> passwordField;
 
     protected String notificationMessage;
 
     protected String notificationLevel;
 
-    private final LoadableDetachableModel<List<String>> domains = new LoadableDetachableModel<>() {
+    protected final LoadableDetachableModel<List<String>> domains = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 4659376149825914247L;
 
@@ -232,11 +228,11 @@ public abstract class BaseLogin extends WebPage {
     /**
      * Inner class which implements (custom) Locale DropDownChoice component.
      */
-    private class LocaleDropDown extends DropDownChoice<Locale> {
+    protected class LocaleDropDown extends DropDownChoice<Locale> {
 
         private static final long serialVersionUID = 2349382679992357202L;
 
-        private class LocaleRenderer extends ChoiceRenderer<Locale> {
+        protected class LocaleRenderer extends ChoiceRenderer<Locale> {
 
             private static final long serialVersionUID = -3657529581555164741L;
 
@@ -246,8 +242,8 @@ public abstract class BaseLogin extends WebPage {
             }
         }
 
-        LocaleDropDown(final String id) {
-            super(id, SUPPORTED_LOCALES);
+        protected LocaleDropDown(final String id) {
+            super(id, getBaseSession().getSupportedLocales());
 
             setChoiceRenderer(new LocaleRenderer());
             setModel(new IModel<>() {
@@ -277,7 +273,9 @@ public abstract class BaseLogin extends WebPage {
                     getHeader(HttpHeaders.ACCEPT_LANGUAGE);
             if (StringUtils.isNotBlank(acceptLanguage)) {
                 try {
-                    filtered = Locale.filter(Locale.LanguageRange.parse(acceptLanguage), SUPPORTED_LOCALES);
+                    filtered = Locale.filter(
+                            Locale.LanguageRange.parse(acceptLanguage),
+                            getBaseSession().getSupportedLocales());
                 } catch (Exception e) {
                     LOG.debug("Could not parse {} HTTP header value '{}'",
                             HttpHeaders.ACCEPT_LANGUAGE, acceptLanguage, e);
