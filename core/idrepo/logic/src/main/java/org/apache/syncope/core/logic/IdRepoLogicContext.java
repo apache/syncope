@@ -103,6 +103,7 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationJobDele
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
@@ -546,11 +547,13 @@ public class IdRepoLogicContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnySearchDAO anySearchDAO,
+            final ExternalResourceDAO resourceDAO,
             final AccessTokenDAO accessTokenDAO,
             final DelegationDAO delegationDAO,
             final ConfParamOps confParamOps,
             final UserProvisioningManager provisioningManager,
-            final SyncopeLogic syncopeLogic) {
+            final SyncopeLogic syncopeLogic,
+            final RuleEnforcer ruleEnforcer) {
 
         return new UserLogic(
                 realmDAO,
@@ -559,11 +562,13 @@ public class IdRepoLogicContext {
                 userDAO,
                 groupDAO,
                 anySearchDAO,
+                resourceDAO,
                 accessTokenDAO,
                 delegationDAO,
                 confParamOps,
                 binder,
                 provisioningManager,
-                syncopeLogic);
+                syncopeLogic,
+                ruleEnforcer);
     }
 }

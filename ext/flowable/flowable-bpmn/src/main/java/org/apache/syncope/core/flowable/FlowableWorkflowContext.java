@@ -45,6 +45,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
+import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.flowable.common.engine.impl.AbstractEngineConfiguration;
@@ -173,6 +174,7 @@ public class FlowableWorkflowContext {
             final RealmDAO realmDAO,
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
+            final RuleEnforcer ruleEnforcer,
             final DomainProcessEngine engine,
             final UserRequestHandler userRequestHandler,
             final ApplicationEventPublisher publisher) {
@@ -183,6 +185,7 @@ public class FlowableWorkflowContext {
                 realmDAO,
                 entityFactory,
                 securityProperties,
+                ruleEnforcer,
                 engine,
                 userRequestHandler,
                 publisher);

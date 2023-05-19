@@ -18,14 +18,10 @@
  */
 package org.apache.syncope.core.workflow.java;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -38,18 +34,13 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.core.provisioning.api.rules.AccountRule;
-import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
-import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -76,99 +67,27 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
     protected final SecurityProperties securityProperties;
 
-    protected final Map<String, AccountRule> perContextAccountRules = new ConcurrentHashMap<>();
-
-    protected final Map<String, PasswordRule> perContextPasswordRules = new ConcurrentHashMap<>();
+    protected final RuleEnforcer ruleEnforcer;
 
     public AbstractUserWorkflowAdapter(
             final UserDataBinder dataBinder,
             final UserDAO userDAO,
             final RealmDAO realmDAO,
             final EntityFactory entityFactory,
-            final SecurityProperties securityProperties) {
+            final SecurityProperties securityProperties,
+            final RuleEnforcer ruleEnforcer) {
 
         this.dataBinder = dataBinder;
         this.userDAO = userDAO;
         this.realmDAO = realmDAO;
         this.entityFactory = entityFactory;
         this.securityProperties = securityProperties;
+        this.ruleEnforcer = ruleEnforcer;
     }
 
     @Override
     public String getPrefix() {
         return null;
-    }
-
-    protected List<AccountPolicy> getAccountPolicies(final User user) {
-        List<AccountPolicy> policies = new ArrayList<>();
-
-        // add resource policies
-        userDAO.findAllResources(user).stream().
-                map(ExternalResource::getAccountPolicy).
-                filter(Objects::nonNull).
-                forEach(policies::add);
-
-        // add realm policies
-        realmDAO.findAncestors(user.getRealm()).stream().
-                map(Realm::getAccountPolicy).
-                filter(Objects::nonNull).
-                forEach(policies::add);
-
-        return policies;
-    }
-
-    protected List<AccountRule> getAccountRules(final AccountPolicy policy) {
-        List<AccountRule> result = new ArrayList<>();
-
-        for (Implementation impl : policy.getRules()) {
-            try {
-                ImplementationManager.buildAccountRule(
-                        impl,
-                        () -> perContextAccountRules.get(impl.getKey()),
-                        instance -> perContextAccountRules.put(impl.getKey(), instance)).
-                        ifPresent(result::add);
-            } catch (Exception e) {
-                LOG.warn("While building {}", impl, e);
-            }
-        }
-
-        return result;
-    }
-
-    protected List<PasswordPolicy> getPasswordPolicies(final User user) {
-        List<PasswordPolicy> policies = new ArrayList<>();
-
-        // add resource policies
-        userDAO.findAllResources(user).
-                forEach(resource -> Optional.ofNullable(resource.getPasswordPolicy()).
-                filter(p -> !policies.contains(p)).
-                ifPresent(policies::add));
-
-        // add realm policies
-        realmDAO.findAncestors(user.getRealm()).
-                forEach(realm -> Optional.ofNullable(realm.getPasswordPolicy()).
-                filter(p -> !policies.contains(p)).
-                ifPresent(policies::add));
-
-        return policies;
-    }
-
-    protected List<PasswordRule> getPasswordRules(final PasswordPolicy policy) {
-        List<PasswordRule> result = new ArrayList<>();
-
-        for (Implementation impl : policy.getRules()) {
-            try {
-                ImplementationManager.buildPasswordRule(
-                        impl,
-                        () -> perContextPasswordRules.get(impl.getKey()),
-                        instance -> perContextPasswordRules.put(impl.getKey(), instance)).
-                        ifPresent(result::add);
-            } catch (Exception e) {
-                LOG.warn("While building {}", impl, e);
-            }
-        }
-
-        return result;
     }
 
     protected Pair<Boolean, Boolean> enforcePolicies(
@@ -184,12 +103,14 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
             try {
                 int maxPPSpecHistory = 0;
-                for (PasswordPolicy policy : getPasswordPolicies(user)) {
+                for (PasswordPolicy policy : ruleEnforcer.getPasswordPolicies(
+                        user.getRealm(), userDAO.findAllResources(user))) {
+
                     if (clearPassword == null && !policy.isAllowNullPassword()) {
                         throw new PasswordPolicyException("Password mandatory");
                     }
 
-                    getPasswordRules(policy).forEach(rule -> {
+                    ruleEnforcer.getPasswordRules(policy).forEach(rule -> {
                         rule.enforce(user, clearPassword);
 
                         user.getLinkedAccounts().stream().
@@ -253,7 +174,8 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
                 throw new AccountPolicyException("Not allowed: " + user.getUsername());
             }
 
-            List<AccountPolicy> accountPolicies = getAccountPolicies(user);
+            List<AccountPolicy> accountPolicies =
+                    ruleEnforcer.getAccountPolicies(user.getRealm(), userDAO.findAllResources(user));
             if (accountPolicies.isEmpty()) {
                 if (!Entity.ID_PATTERN.matcher(user.getUsername()).matches()) {
                     throw new AccountPolicyException("Character(s) not allowed: " + user.getUsername());
@@ -267,7 +189,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
                         });
             } else {
                 for (AccountPolicy policy : accountPolicies) {
-                    getAccountRules(policy).forEach(rule -> {
+                    ruleEnforcer.getAccountRules(policy).forEach(rule -> {
                         rule.enforce(user);
 
                         user.getLinkedAccounts().stream().

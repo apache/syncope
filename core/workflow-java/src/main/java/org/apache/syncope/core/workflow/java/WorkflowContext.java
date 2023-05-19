@@ -27,6 +27,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
@@ -47,6 +48,7 @@ public class WorkflowContext {
             final RealmDAO realmDAO,
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
+            final RuleEnforcer ruleEnforcer,
             final ConfParamOps confParamOps,
             final ApplicationEventPublisher publisher) {
 
@@ -56,6 +58,7 @@ public class WorkflowContext {
                 realmDAO,
                 entityFactory,
                 securityProperties,
+                ruleEnforcer,
                 confParamOps,
                 publisher);
     }

@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -43,13 +44,17 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.syncope.core.logic.api.LogicActions;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -57,14 +62,21 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
+import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
+import org.apache.syncope.core.spring.policy.AccountPolicyException;
+import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -82,6 +94,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
     protected final AnySearchDAO searchDAO;
 
+    protected final ExternalResourceDAO resourceDAO;
+
     protected final AccessTokenDAO accessTokenDAO;
 
     protected final DelegationDAO delegationDAO;
@@ -94,6 +108,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
     protected final SyncopeLogic syncopeLogic;
 
+    protected final RuleEnforcer ruleEnforcer;
+
     public UserLogic(
             final RealmDAO realmDAO,
             final AnyTypeDAO anyTypeDAO,
@@ -101,24 +117,28 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnySearchDAO searchDAO,
+            final ExternalResourceDAO resourceDAO,
             final AccessTokenDAO accessTokenDAO,
             final DelegationDAO delegationDAO,
             final ConfParamOps confParamOps,
             final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
-            final SyncopeLogic syncopeLogic) {
+            final SyncopeLogic syncopeLogic,
+            final RuleEnforcer ruleEnforcer) {
 
         super(realmDAO, anyTypeDAO, templateUtils);
 
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.searchDAO = searchDAO;
+        this.resourceDAO = resourceDAO;
         this.accessTokenDAO = accessTokenDAO;
         this.delegationDAO = delegationDAO;
         this.confParamOps = confParamOps;
         this.binder = binder;
         this.provisioningManager = provisioningManager;
         this.syncopeLogic = syncopeLogic;
+        this.ruleEnforcer = ruleEnforcer;
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
@@ -337,15 +357,17 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "')")
-    public ProvisioningResult<UserTO> mustChangePassword(final String password, final boolean nullPriorityAsync) {
+    public ProvisioningResult<UserTO> mustChangePassword(
+            final PasswordPatch password, final boolean nullPriorityAsync) {
+
         UserTO userTO = binder.getAuthenticatedUserTO();
 
+        password.setOnSyncope(true);
+        password.getResources().clear();
+        password.getResources().addAll(userDAO.findAllResourceKeys(userTO.getKey()));
+
         UserUR userUR = new UserUR.Builder(userTO.getKey()).
-                password(new PasswordPatch.Builder().
-                        value(password).
-                        onSyncope(true).
-                        resources(userDAO.findAllResourceKeys(userTO.getKey())).
-                        build()).
+                password(password).
                 mustChangePassword(new BooleanReplacePatchItem.Builder().value(false).build()).
                 build();
         ProvisioningResult<UserTO> result = selfUpdate(userUR, nullPriorityAsync);
@@ -357,16 +379,61 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     }
 
     @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    @Transactional
-    public void requestPasswordReset(final String username, final String securityAnswer) {
-        if (username == null) {
-            throw new NotFoundException("Null username");
+    @Transactional(readOnly = true)
+    public void compliance(final ComplianceQuery query) {
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RESTValidation);
+
+        if (query.isEmpty()) {
+            sce.getElements().add("Nothing to check");
+            throw sce;
         }
 
-        User user = userDAO.findByUsername(username);
-        if (user == null) {
-            throw new NotFoundException("User " + username);
+        Realm realm = null;
+        if (StringUtils.isNotBlank(query.getRealm())) {
+            realm = Optional.ofNullable(realmDAO.findByFullPath(query.getRealm())).
+                    orElseThrow(() -> new NotFoundException("Realm " + query.getRealm()));
         }
+        Set<ExternalResource> resources = query.getResources().stream().
+                map(resourceDAO::find).filter(Objects::nonNull).collect(Collectors.toSet());
+        if (realm == null && resources.isEmpty()) {
+            sce.getElements().add("Nothing to check");
+            throw sce;
+        }
+
+        if (StringUtils.isNotBlank(query.getUsername())) {
+            List<AccountPolicy> accountPolicies = ruleEnforcer.getAccountPolicies(realm, resources);
+            try {
+                if (accountPolicies.isEmpty()) {
+                    if (!Entity.ID_PATTERN.matcher(query.getUsername()).matches()) {
+                        throw new AccountPolicyException("Character(s) not allowed: " + query.getUsername());
+                    }
+                } else {
+                    for (AccountPolicy policy : accountPolicies) {
+                        ruleEnforcer.getAccountRules(policy).forEach(rule -> rule.enforce(query.getUsername()));
+                    }
+                }
+            } catch (AccountPolicyException e) {
+                throw new InvalidEntityException(User.class, EntityViolationType.InvalidUsername, e.getMessage());
+            }
+        }
+
+        if (StringUtils.isNotBlank(query.getPassword())) {
+            try {
+                for (PasswordPolicy policy : ruleEnforcer.getPasswordPolicies(realm, resources)) {
+                    ruleEnforcer.getPasswordRules(policy).
+                            forEach(rule -> rule.enforce(query.getUsername(), query.getPassword()));
+                }
+            } catch (PasswordPolicyException e) {
+                throw new InvalidEntityException(User.class, EntityViolationType.InvalidPassword, e.getMessage());
+            }
+        }
+    }
+
+    @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @Transactional
+    public void requestPasswordReset(final String username, final String securityAnswer) {
+        User user = Optional.ofNullable(userDAO.findByUsername(username)).
+                orElseThrow(() -> new NotFoundException("User " + username));
 
         if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
                 && (securityAnswer == null || !Encryptor.getInstance().
@@ -381,10 +448,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional
     public void confirmPasswordReset(final String token, final String password) {
-        User user = userDAO.findByToken(token);
-        if (user == null) {
-            throw new NotFoundException("User with token " + token);
-        }
+        User user = Optional.ofNullable(userDAO.findByToken(token)).
+                orElseThrow(() -> new NotFoundException("User with token " + token));
+
         provisioningManager.confirmPasswordReset(
                 user.getKey(), token, password, AuthContextUtils.getUsername(), REST_CONTEXT);
     }

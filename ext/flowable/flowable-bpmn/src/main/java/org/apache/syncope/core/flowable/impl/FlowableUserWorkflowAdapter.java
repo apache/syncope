@@ -43,6 +43,7 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.WorkflowException;
@@ -72,11 +73,12 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             final RealmDAO realmDAO,
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
+            final RuleEnforcer ruleEnforcer,
             final DomainProcessEngine engine,
             final UserRequestHandler userRequestHandler,
             final ApplicationEventPublisher publisher) {
 
-        super(dataBinder, userDAO, realmDAO, entityFactory, securityProperties);
+        super(dataBinder, userDAO, realmDAO, entityFactory, securityProperties, ruleEnforcer);
         this.engine = engine;
         this.userRequestHandler = userRequestHandler;
         this.publisher = publisher;
