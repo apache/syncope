@@ -34,6 +34,8 @@ public interface PasswordRule {
     default void setConf(PasswordRuleConf conf) {
     }
 
+    void enforce(String username, String clearPassword);
+
     void enforce(User user, String clearPassword);
 
     void enforce(LinkedAccount account);

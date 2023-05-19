@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.rest;
 
 import jakarta.ws.rs.core.GenericType;
+import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -30,7 +31,7 @@ public class UserSelfRestClient extends BaseRestClient {
     private static final long serialVersionUID = -1575748964398293968L;
 
     public static void mustChangePassword(final String password) {
-        getService(UserSelfService.class).mustChangePassword(password);
+        getService(UserSelfService.class).mustChangePassword(new PasswordPatch.Builder().value(password).build());
     }
 
     public static void requestPasswordReset(final String username, final String securityAnswer) {

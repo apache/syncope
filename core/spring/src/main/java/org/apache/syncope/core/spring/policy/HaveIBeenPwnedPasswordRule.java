@@ -97,6 +97,11 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
         }
     }
 
+    @Override
+    public void enforce(final String username, final String clearPassword) {
+        Optional.ofNullable(clearPassword).ifPresent(this::enforce);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public void enforce(final User user, final String clearPassword) {

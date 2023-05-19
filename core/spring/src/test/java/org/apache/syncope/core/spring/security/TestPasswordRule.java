@@ -46,6 +46,11 @@ public class TestPasswordRule implements PasswordRule {
     }
 
     @Override
+    public void enforce(final String username, final String clearPassword) {
+        // nothing to do
+    }
+
+    @Override
     public void enforce(final User user, final String clearPassword) {
         // nothing to do
     }

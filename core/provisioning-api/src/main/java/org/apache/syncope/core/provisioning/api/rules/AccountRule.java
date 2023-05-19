@@ -30,6 +30,8 @@ public interface AccountRule {
     default void setConf(AccountRuleConf conf) {
     }
 
+    void enforce(String username);
+
     void enforce(User user);
 
     void enforce(LinkedAccount accout);

@@ -41,12 +41,17 @@ public class TestAccountRule implements AccountRule {
         }
     }
 
+    @Override
+    public void enforce(final String username) {
+        if (!username.contains(conf.getMustContainSubstring())) {
+            throw new AccountPolicyException("Username not containing " + conf.getMustContainSubstring());
+        }
+    }
+
     @Transactional(readOnly = true)
     @Override
     public void enforce(final User user) {
-        if (!user.getUsername().contains(conf.getMustContainSubstring())) {
-            throw new AccountPolicyException("Username not containing " + conf.getMustContainSubstring());
-        }
+        enforce(user.getUsername());
     }
 
     @Transactional(readOnly = true)

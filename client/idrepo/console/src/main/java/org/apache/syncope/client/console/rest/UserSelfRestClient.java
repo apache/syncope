@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 
 public class UserSelfRestClient extends BaseRestClient {
@@ -25,7 +26,6 @@ public class UserSelfRestClient extends BaseRestClient {
     private static final long serialVersionUID = 100731599744900931L;
 
     public static void changePassword(final String password) {
-        getService(UserSelfService.class).mustChangePassword(password);
+        getService(UserSelfService.class).mustChangePassword(new PasswordPatch.Builder().value(password).build());
     }
-
 }

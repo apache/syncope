@@ -60,7 +60,6 @@ public class PasswordPatch extends StringReplacePatchItem {
             }
             return this;
         }
-
     }
 
     /**

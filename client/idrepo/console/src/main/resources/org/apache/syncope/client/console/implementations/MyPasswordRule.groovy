@@ -24,6 +24,9 @@ import org.apache.syncope.core.persistence.api.entity.user.User
 @CompileStatic
 class MyPasswordRule implements PasswordRule {
   
+  void enforce(String username, String clearPassword) {
+  }
+
   void enforce(User user, String clearPassword) {
   }
 

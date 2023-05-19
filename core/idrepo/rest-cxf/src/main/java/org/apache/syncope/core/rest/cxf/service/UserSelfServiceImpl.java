@@ -22,6 +22,7 @@ import jakarta.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -29,6 +30,7 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.core.logic.SyncopeLogic;
 import org.apache.syncope.core.logic.UserLogic;
@@ -94,9 +96,14 @@ public class UserSelfServiceImpl extends AbstractService implements UserSelfServ
     }
 
     @Override
-    public Response mustChangePassword(final String password) {
+    public Response mustChangePassword(final PasswordPatch password) {
         ProvisioningResult<UserTO> updated = logic.mustChangePassword(password, isNullPriorityAsync());
         return modificationResponse(updated);
+    }
+
+    @Override
+    public void compliance(final ComplianceQuery query) {
+        logic.compliance(query);
     }
 
     @Override

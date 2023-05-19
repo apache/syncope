@@ -41,12 +41,14 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 
 /**
  * REST operations for user self-management.
@@ -236,7 +238,24 @@ public interface UserSelfService extends JAXRSService {
     @POST
     @Path("mustChangePassword")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    Response mustChangePassword(String password);
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    Response mustChangePassword(@NotNull PasswordPatch password);
+
+    /**
+     * Checks compliance of the given username and / or password with applicable policies.
+     *
+     * @param query compliance query
+     */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
+    @Operation(security = {
+        @SecurityRequirement(name = "BasicAuthentication"),
+        @SecurityRequirement(name = "Bearer") })
+    @POST
+    @Path("compliance")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void compliance(@NotNull ComplianceQuery query);
 
     /**
      * Provides answer for the security question configured for user matching the given username, if any.
