@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.panels.any;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
@@ -72,7 +73,8 @@ public class UserDetails extends Details<UserTO> {
         AjaxDropDownChoicePanel<String> destinationRealm = new AjaxDropDownChoicePanel<>(
                 "destinationRealm", "destinationRealm", new PropertyModel<>(userTO, "realm"), false);
         destinationRealm.setNullValid(false);
-        destinationRealm.setChoices(List.of(SyncopeConstants.ROOT_REALM));
+        destinationRealm.setChoices(List.of(
+                Optional.ofNullable(userTO.getRealm()).orElse(SyncopeConstants.ROOT_REALM)));
         return destinationRealm;
     }
 
