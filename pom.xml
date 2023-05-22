@@ -459,7 +459,7 @@ under the License.
     <wicket-bootstrap.version>7.0.0-SNAPSHOT</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.0.0-SNAPSHOT</wicket-spring-boot.version>
 
-    <antlr4.version>4.12.0</antlr4.version>
+    <antlr4.version>4.13.0</antlr4.version>
 
     <curator.version>5.5.0</curator.version>
     <zookeeper.version>3.8.1</zookeeper.version>
@@ -488,7 +488,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>10.1.8</tomcat.version>
+    <tomcat.version>10.1.9</tomcat.version>
     <wildfly.version>28.0.0.Final</wildfly.version>
     <payara.version>6.2023.4</payara.version>
     <jakarta.faces.version>4.0.2</jakarta.faces.version>
@@ -1566,7 +1566,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.42.1</version>
+          <version>0.43.0</version>
         </plugin>
 
         <plugin>
