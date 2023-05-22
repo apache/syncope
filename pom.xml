@@ -466,7 +466,7 @@ under the License.
     <wicket-bootstrap.version>5.0.6</wicket-bootstrap.version>
     <wicket-spring-boot.version>3.1.7</wicket-spring-boot.version>
 
-    <antlr4.version>4.12.0</antlr4.version>
+    <antlr4.version>4.13.0</antlr4.version>
 
     <curator.version>5.5.0</curator.version>
     <zookeeper.version>3.8.1</zookeeper.version>
@@ -1715,7 +1715,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.42.1</version>
+          <version>0.43.0</version>
         </plugin>
 
         <plugin>
