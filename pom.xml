@@ -511,21 +511,23 @@ under the License.
     <secretKey>1abcdefghilmnopqrstuvz2!</secretKey>
     <jwsKey>ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f</jwsKey>
 
-    <!--
-    Surefire plugin argLine can be defined as a Maven property to avoid JVM errors on startup with no jacaco-maven-plugin
-    https://www.eclemma.org/jacoco/trunk/doc/prepare-agent-mojo.html
-    -->
-    <argLine>-Xms512m -Xmx1024m -Xss256k</argLine>
+
 
     <ianal.phase>verify</ianal.phase>
     <sass.skip>false</sass.skip>
     <remote-resources.skip>true</remote-resources.skip>
 
+    <!-- SonarCloud and JaCoCo-->
     <sonar.language>java</sonar.language>
     <sonar.java.source>${targetJdk}</sonar.java.source>
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+    <sonar.organization>0xmenna01</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.internal.analysis.dbd>false</sonar.internal.analysis.dbd>
     <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
-    <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    <sonar.coverage.jacoco.xmlReportPaths>${rootpom.basedir}/tests/target/site/jacoco-aggregate/jacoco.xml
+    </sonar.coverage.jacoco.xmlReportPaths>
+
 
     <targetJdk>17</targetJdk>
     <rootpom.basedir>${basedir}</rootpom.basedir>
@@ -1527,11 +1529,6 @@ under the License.
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.1.0</version>
-          <configuration>
-            <redirectTestOutputToFile>true</redirectTestOutputToFile>
-            <encoding>utf-8</encoding>
-            <runOrder>alphabetical</runOrder>
-          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1595,17 +1592,14 @@ under the License.
           </configuration>
         </plugin>
 
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.9</version>
-        </plugin>
 
         <plugin>
           <groupId>org.sonarsource.scanner.maven</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
           <version>3.9.1.2184</version>
         </plugin>
+
+
       </plugins>
     </pluginManagement>
 
@@ -1675,28 +1669,7 @@ under the License.
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <configuration>
-          <skip>${skipTests}</skip>
-        </configuration>
-        <executions>
-          <execution>
-            <id>prepare-jacoco-agent</id>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>generate-code-coverage-report</id>
-            <phase>test</phase>
-            <goals>
-              <goal>report</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+
 
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
@@ -1829,25 +1802,6 @@ under the License.
                 </resource>
               </resources>
             </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.geronimo.genesis.plugins</groupId>
-        <artifactId>tools-maven-plugin</artifactId>
-        <version>1.4</version>
-        <configuration>
-          <!-- Fail the build if any artifacts are missing legal files -->
-          <strict>true</strict>
-        </configuration>
-        <executions>
-          <execution>
-            <id>verify-legal-files</id>
-            <phase>${ianal.phase}</phase>
-            <goals>
-              <goal>verify-legal-files</goal>
-            </goals>
           </execution>
         </executions>
       </plugin>
@@ -2176,6 +2130,32 @@ under the License.
         <module>docker</module>
       </modules>
     </profile>
+
+    <!-- JaCoCo profile -->
+    <profile>
+      <id>jacoco-coverage</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.8</version>
+            <executions>
+              <execution>
+                <id>prepare-agent</id>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
 
   <modules>
@@ -2188,6 +2168,7 @@ under the License.
     <module>ext</module>
     <module>archetype</module>
     <module>standalone</module>
+    <module>tests</module>
   </modules>
 
 </project>
