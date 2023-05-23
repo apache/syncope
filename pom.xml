@@ -301,8 +301,6 @@ under the License.
     <developer>
       <id>skylark17</id>
       <name>Matteo Alessandroni</name>
-      <organization>Tirasa</organization>
-      <organizationUrl>https://www.tirasa.net/</organizationUrl>
       <roles>
         <role>PMC member</role>
       </roles>
@@ -1705,7 +1703,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.2.2</version>
+          <version>3.3.0</version>
           <configuration>
             <configLocation>${rootpom.basedir}/src/main/resources/org/apache/syncope/checkstyle.xml</configLocation>
             <includeTestSourceDirectory>true</includeTestSourceDirectory>
