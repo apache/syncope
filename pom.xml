@@ -433,7 +433,7 @@ under the License.
     <pac4j.version>6.0.0-RC7-SNAPSHOT</pac4j.version>
 
     <cas.version>7.0.0-RC6</cas.version>
-    <cas-client.version>4.0.1</cas-client.version>
+    <cas-client.version>4.0.2</cas-client.version>
 
     <h2.version>2.1.214</h2.version>
 
@@ -487,7 +487,7 @@ under the License.
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
     <tomcat.version>10.1.9</tomcat.version>
-    <wildfly.version>28.0.0.Final</wildfly.version>
+    <wildfly.version>28.0.1.Final</wildfly.version>
     <payara.version>6.2023.4</payara.version>
     <jakarta.faces.version>4.0.2</jakarta.faces.version>
 
@@ -1701,7 +1701,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>2.1.0</version>
+        <version>3.0.0</version>
         <dependencies>
           <dependency>
             <groupId>org.apache.groovy</groupId>
