@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.lib;
 
-import static org.apache.syncope.client.lib.SyncopeClient.MAPPER;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.io.InputStream;
