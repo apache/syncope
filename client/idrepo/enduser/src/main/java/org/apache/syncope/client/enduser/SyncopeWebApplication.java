@@ -35,8 +35,7 @@ import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.enduser.pages.MustChangePassword;
 import org.apache.syncope.client.enduser.pages.SelfConfirmPasswordReset;
 import org.apache.syncope.client.enduser.panels.Sidebar;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
-import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
@@ -246,9 +245,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return new SyncopeEnduserSession(request);
     }
 
-    public SyncopeClient newAnonymousClient() {
-        return newClientFactory().create(
-                new AnonymousAuthenticationHandler(props.getAnonymousUser(), props.getAnonymousKey()));
+    public SyncopeAnonymousClient newAnonymousClient() {
+        return newClientFactory().createAnonymous(props.getAnonymousUser(), props.getAnonymousKey());
     }
 
     public SyncopeClientFactoryBean newClientFactory() {
@@ -276,10 +274,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     public String getAnonymousUser() {
         return props.getAnonymousUser();
-    }
-
-    public String getAnonymousKey() {
-        return props.getAnonymousKey();
     }
 
     public boolean isCaptchaEnabled() {

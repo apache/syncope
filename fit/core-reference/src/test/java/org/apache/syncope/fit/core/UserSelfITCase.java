@@ -71,7 +71,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void selfRegistrationAllowed() {
-        assertTrue(ADMIN_CLIENT.platform().isSelfRegAllowed());
+        assertTrue(ANONYMOUS_CLIENT.platform().isSelfRegAllowed());
     }
 
     @Test

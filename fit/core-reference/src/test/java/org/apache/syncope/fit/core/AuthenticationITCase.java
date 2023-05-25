@@ -109,7 +109,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 3. as admin
         self = ADMIN_CLIENT.self();
-        assertEquals(ADMIN_CLIENT.platform().getEntitlements().size(), self.getLeft().size());
+        assertEquals(ANONYMOUS_CLIENT.platform().getEntitlements().size(), self.getLeft().size());
         assertFalse(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
         assertEquals(List.of(), self.getMiddle());
         assertEquals(ADMIN_UNAME, self.getRight().getUsername());
@@ -420,7 +420,7 @@ public class AuthenticationITCase extends AbstractITCase {
         String anyTypeKey = "FOLDER " + getUUIDString();
 
         // 1. no entitlement exists (yet) for the any type to be created
-        assertFalse(ADMIN_CLIENT.platform().getEntitlements().stream().
+        assertFalse(ANONYMOUS_CLIENT.platform().getEntitlements().stream().
                 anyMatch(entitlement -> entitlement.contains(anyTypeKey)));
 
         // 2. create plain schema, any type class and any type
@@ -441,7 +441,7 @@ public class AuthenticationITCase extends AbstractITCase {
         ANY_TYPE_SERVICE.create(anyTypeTO);
 
         // 2. now entitlement exists for the any type just created
-        assertTrue(ADMIN_CLIENT.platform().getEntitlements().stream().
+        assertTrue(ANONYMOUS_CLIENT.platform().getEntitlements().stream().
                 anyMatch(entitlement -> entitlement.contains(anyTypeKey)));
 
         // 3. attempt to create an instance of the type above: fail because no entitlement was assigned

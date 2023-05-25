@@ -56,7 +56,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
+import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -289,7 +289,7 @@ public abstract class AbstractITCase {
 
     protected static SyncopeClient ADMIN_CLIENT;
 
-    protected static SyncopeClient ANONYMOUS_CLIENT;
+    protected static SyncopeAnonymousClient ANONYMOUS_CLIENT;
 
     protected static SyncopeService SYNCOPE_SERVICE;
 
@@ -413,7 +413,7 @@ public abstract class AbstractITCase {
         assertNotNull(JWS_KEY);
         assertNotNull(JWT_ISSUER);
 
-        ANONYMOUS_CLIENT = CLIENT_FACTORY.create(new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
+        ANONYMOUS_CLIENT = CLIENT_FACTORY.createAnonymous(ANONYMOUS_UNAME, ANONYMOUS_KEY);
 
         GOOGLE_MFA_AUTH_TOKEN_SERVICE = ANONYMOUS_CLIENT.getService(GoogleMfaAuthTokenService.class);
         GOOGLE_MFA_AUTH_ACCOUNT_SERVICE = ANONYMOUS_CLIENT.getService(GoogleMfaAuthAccountService.class);

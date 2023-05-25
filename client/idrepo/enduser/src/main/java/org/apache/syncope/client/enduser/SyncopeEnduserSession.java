@@ -36,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.BaseSession;
@@ -87,7 +88,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     private final SyncopeClientFactoryBean clientFactory;
 
-    private final SyncopeClient anonymousClient;
+    private final SyncopeAnonymousClient anonymousClient;
 
     private final PlatformInfo platformInfo;
 
@@ -296,7 +297,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     }
 
     @Override
-    public SyncopeClient getAnonymousClient() {
+    public SyncopeAnonymousClient getAnonymousClient() {
         return anonymousClient;
     }
 

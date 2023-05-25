@@ -283,4 +283,21 @@ public class SyncopeClientFactoryBean {
                 useCompression,
                 tlsClientParameters);
     }
+
+    /**
+     * Builds client instance with the given anonymous credentials.
+     *
+     * @param username username
+     * @param password password
+     * @return client instance with the given credentials
+     */
+    public SyncopeAnonymousClient createAnonymous(final String username, final String password) {
+        return new SyncopeAnonymousClient(
+                getContentType().getMediaType(),
+                getRestClientFactoryBean(),
+                getExceptionMapper(),
+                new AnonymousAuthenticationHandler(username, password),
+                useCompression,
+                tlsClientParameters);
+    }
 }
