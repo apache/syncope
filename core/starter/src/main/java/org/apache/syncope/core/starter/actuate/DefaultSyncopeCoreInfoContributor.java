@@ -64,7 +64,6 @@ import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContributor, InfoContributor {
@@ -330,7 +329,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
         }
     }
 
-    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     @Override
     public void contribute(final Info.Builder builder) {

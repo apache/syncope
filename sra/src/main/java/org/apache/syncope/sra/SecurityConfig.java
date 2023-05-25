@@ -94,6 +94,7 @@ public class SecurityConfig {
                 and().build();
     }
 
+    @ConditionalOnMissingBean
     @Bean
     @Order(1)
     public SecurityWebFilterChain actuatorSecurityFilterChain(final ServerHttpSecurity http) {
@@ -105,8 +106,9 @@ public class SecurityConfig {
                 and().build();
     }
 
+    @ConditionalOnMissingBean
     @Bean
-    public ReactiveUserDetailsService userDetailsService(final SRAProperties props) {
+    public ReactiveUserDetailsService actuatorUserDetailsService(final SRAProperties props) {
         UserDetails user = User.builder().
                 username(props.getAnonymousUser()).
                 password("{noop}" + props.getAnonymousKey()).
