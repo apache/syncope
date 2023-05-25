@@ -94,7 +94,7 @@ public class ResourceITCase extends AbstractITCase {
 
     @Test
     public void getPropagationActionsClasses() {
-        Set<String> actions = ADMIN_CLIENT.platform().
+        Set<String> actions = ANONYMOUS_CLIENT.platform().
                 getJavaImplInfo(IdMImplementationType.PROPAGATION_ACTIONS).get().getClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());

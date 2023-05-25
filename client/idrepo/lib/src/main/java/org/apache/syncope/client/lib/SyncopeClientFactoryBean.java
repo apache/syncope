@@ -235,15 +235,6 @@ public class SyncopeClientFactoryBean {
     }
 
     /**
-     * Builds client instance with no authentication, for user self-registration and password reset.
-     *
-     * @return client instance with no authentication
-     */
-    public SyncopeClient create() {
-        return create(new NoAuthenticationHandler());
-    }
-
-    /**
      * Builds client instance with the given credentials.
      * Such credentials will be used only to obtain a valid JWT in the
      * {@link jakarta.ws.rs.core.HttpHeaders#AUTHORIZATION} header;
@@ -280,6 +271,23 @@ public class SyncopeClientFactoryBean {
                 getRestClientFactoryBean(),
                 getExceptionMapper(),
                 handler,
+                useCompression,
+                tlsClientParameters);
+    }
+
+    /**
+     * Builds client instance with the given anonymous credentials.
+     *
+     * @param username username
+     * @param password password
+     * @return client instance with the given credentials
+     */
+    public SyncopeAnonymousClient createAnonymous(final String username, final String password) {
+        return new SyncopeAnonymousClient(
+                getContentType().getMediaType(),
+                getRestClientFactoryBean(),
+                getExceptionMapper(),
+                new AnonymousAuthenticationHandler(username, password),
                 useCompression,
                 tlsClientParameters);
     }

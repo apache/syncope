@@ -43,6 +43,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.commons.RealmsUtils;
+import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.lib.batch.BatchRequest;
@@ -96,7 +97,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     protected final SyncopeClientFactoryBean clientFactory;
 
-    protected final SyncopeClient anonymousClient;
+    protected final SyncopeAnonymousClient anonymousClient;
 
     protected final Pair<String, String> gitAndBuildInfo;
 
@@ -382,7 +383,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     @Override
-    public SyncopeClient getAnonymousClient() {
+    public SyncopeAnonymousClient getAnonymousClient() {
         return anonymousClient;
     }
 

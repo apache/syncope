@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser;
 
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -37,8 +38,9 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 @Configuration(proxyBeanMethods = false)
 public class SecurityConfig {
 
+    @ConditionalOnMissingBean
     @Bean
-    public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
+    public SecurityFilterChain actuatorFilterChain(final HttpSecurity http) throws Exception {
         EndpointRequest.EndpointRequestMatcher actuatorEndpoints = EndpointRequest.toAnyEndpoint();
         http.authorizeHttpRequests(customizer -> customizer.
                 requestMatchers(new NegatedRequestMatcher(actuatorEndpoints)).permitAll().
@@ -50,8 +52,9 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @ConditionalOnMissingBean
     @Bean
-    public UserDetailsService userDetailsService(final EnduserProperties props) {
+    public UserDetailsService actuatorUserDetailsService(final EnduserProperties props) {
         UserDetails user = User.withUsername(props.getAnonymousUser()).
                 password("{noop}" + props.getAnonymousKey()).
                 roles(IdRepoEntitlement.ANONYMOUS).

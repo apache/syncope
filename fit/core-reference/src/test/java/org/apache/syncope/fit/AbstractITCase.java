@@ -56,7 +56,7 @@ import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
+import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -289,7 +289,7 @@ public abstract class AbstractITCase {
 
     protected static SyncopeClient ADMIN_CLIENT;
 
-    protected static SyncopeClient ANONYMOUS_CLIENT;
+    protected static SyncopeAnonymousClient ANONYMOUS_CLIENT;
 
     protected static SyncopeService SYNCOPE_SERVICE;
 
@@ -394,7 +394,7 @@ public abstract class AbstractITCase {
     protected static boolean IS_ELASTICSEARCH_ENABLED = false;
 
     @BeforeAll
-    public static void securitySetup() {
+    public static void anonymousSetup() throws IOException {
         try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/core.properties")) {
             Properties props = new Properties();
             props.load(propStream);
@@ -413,13 +413,27 @@ public abstract class AbstractITCase {
         assertNotNull(JWS_KEY);
         assertNotNull(JWT_ISSUER);
 
-        ANONYMOUS_CLIENT = CLIENT_FACTORY.create(new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
+        ANONYMOUS_CLIENT = CLIENT_FACTORY.createAnonymous(ANONYMOUS_UNAME, ANONYMOUS_KEY);
 
         GOOGLE_MFA_AUTH_TOKEN_SERVICE = ANONYMOUS_CLIENT.getService(GoogleMfaAuthTokenService.class);
         GOOGLE_MFA_AUTH_ACCOUNT_SERVICE = ANONYMOUS_CLIENT.getService(GoogleMfaAuthAccountService.class);
         U2F_REGISTRATION_SERVICE = ANONYMOUS_CLIENT.getService(U2FRegistrationService.class);
         WEBAUTHN_REGISTRATION_SERVICE = ANONYMOUS_CLIENT.getService(WebAuthnRegistrationService.class);
         IMPERSONATION_SERVICE = ANONYMOUS_CLIENT.getService(ImpersonationService.class);
+
+        JsonNode beans = JSON_MAPPER.readTree(
+                (InputStream) WebClient.create(
+                        StringUtils.substringBeforeLast(ADDRESS, "/") + "/actuator/beans",
+                        ANONYMOUS_UNAME,
+                        ANONYMOUS_KEY,
+                        null).
+                        accept(MediaType.APPLICATION_JSON).get().getEntity());
+
+        JsonNode uwfAdapter = beans.findValues("uwfAdapter").get(0);
+        IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
+
+        JsonNode anySearchDAO = beans.findValues("anySearchDAO").get(0);
+        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
     }
 
     @BeforeAll
@@ -478,19 +492,6 @@ public abstract class AbstractITCase {
         AUTH_PROFILE_SERVICE = ADMIN_CLIENT.getService(AuthProfileService.class);
         OIDC_JWKS_SERVICE = ADMIN_CLIENT.getService(OIDCJWKSService.class);
         WA_CONFIG_SERVICE = ADMIN_CLIENT.getService(WAConfigService.class);
-    }
-
-    @BeforeAll
-    public static void actuatorInfoSetup() throws IOException {
-        JsonNode beans = JSON_MAPPER.readTree(
-                (InputStream) WebClient.create(StringUtils.substringBeforeLast(ADDRESS, "/") + "/actuator/beans").
-                        accept(MediaType.APPLICATION_JSON).get().getEntity());
-
-        JsonNode uwfAdapter = beans.findValues("uwfAdapter").get(0);
-        IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
-
-        JsonNode anySearchDAO = beans.findValues("anySearchDAO").get(0);
-        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
     }
 
     protected static String getUUIDString() {

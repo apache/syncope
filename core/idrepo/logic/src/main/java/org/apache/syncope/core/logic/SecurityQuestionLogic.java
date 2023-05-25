@@ -104,7 +104,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         return deleted;
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public SecurityQuestionTO readByUser(final String username) {
         if (username == null) {
             throw new NotFoundException("Null username");

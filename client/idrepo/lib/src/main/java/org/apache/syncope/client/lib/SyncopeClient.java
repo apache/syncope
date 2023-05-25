@@ -19,22 +19,16 @@
 package org.apache.syncope.client.lib;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.Client;
@@ -47,9 +41,6 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.info.NumbersInfo;
-import org.apache.syncope.common.lib.info.PlatformInfo;
-import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.ConnObjectTOFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
@@ -91,7 +82,7 @@ public class SyncopeClient {
             final MediaType mediaType,
             final JAXRSClientFactoryBean restClientFactory,
             final RestClientExceptionMapper exceptionMapper,
-            final AuthenticationHandler handler,
+            final AuthenticationHandler authHandler,
             final boolean useCompression,
             final TLSClientParameters tlsClientParameters) {
 
@@ -101,9 +92,10 @@ public class SyncopeClient {
             this.restClientFactory.setHeaders(new HashMap<>());
         }
         this.exceptionMapper = exceptionMapper;
-        this.tlsClientParameters = tlsClientParameters;
-        init(handler);
         this.useCompression = useCompression;
+        this.tlsClientParameters = tlsClientParameters;
+
+        init(authHandler);
     }
 
     /**
@@ -118,27 +110,27 @@ public class SyncopeClient {
      * </ul>
      * More can be supported by subclasses.
      *
-     * @param handler authentication handler
+     * @param authHandler authentication handler
      */
-    protected void init(final AuthenticationHandler handler) {
+    protected void init(final AuthenticationHandler authHandler) {
         cleanup();
 
-        if (handler instanceof AnonymousAuthenticationHandler) {
-            restClientFactory.setUsername(((AnonymousAuthenticationHandler) handler).getUsername());
-            restClientFactory.setPassword(((AnonymousAuthenticationHandler) handler).getPassword());
-        } else if (handler instanceof BasicAuthenticationHandler) {
-            restClientFactory.setUsername(((BasicAuthenticationHandler) handler).getUsername());
-            restClientFactory.setPassword(((BasicAuthenticationHandler) handler).getPassword());
+        if (authHandler instanceof AnonymousAuthenticationHandler) {
+            restClientFactory.setUsername(((AnonymousAuthenticationHandler) authHandler).getUsername());
+            restClientFactory.setPassword(((AnonymousAuthenticationHandler) authHandler).getPassword());
+        } else if (authHandler instanceof BasicAuthenticationHandler) {
+            restClientFactory.setUsername(((BasicAuthenticationHandler) authHandler).getUsername());
+            restClientFactory.setPassword(((BasicAuthenticationHandler) authHandler).getPassword());
 
             String jwt = getService(AccessTokenService.class).login().getHeaderString(RESTHeaders.TOKEN);
             restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt));
 
             restClientFactory.setUsername(null);
             restClientFactory.setPassword(null);
-        } else if (handler instanceof JWTAuthenticationHandler) {
+        } else if (authHandler instanceof JWTAuthenticationHandler) {
             restClientFactory.getHeaders().put(
                     HttpHeaders.AUTHORIZATION,
-                    List.of("Bearer " + ((JWTAuthenticationHandler) handler).getJwt()));
+                    List.of("Bearer " + ((JWTAuthenticationHandler) authHandler).getJwt()));
         }
     }
 
@@ -147,55 +139,6 @@ public class SyncopeClient {
         restClientFactory.getHeaders().remove(RESTHeaders.DELEGATED_BY);
         restClientFactory.setUsername(null);
         restClientFactory.setPassword(null);
-    }
-
-    protected JsonNode info() throws IOException {
-        WebClient webClient = WebClient.create(
-                StringUtils.removeEnd(restClientFactory.getAddress().replace("/rest", "/actuator/info"), "/")).
-                accept(MediaType.APPLICATION_JSON_TYPE).
-                header(RESTHeaders.DOMAIN, getDomain());
-
-        Optional.ofNullable(getJWT()).ifPresentOrElse(
-                jwt -> webClient.header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt),
-                () -> webClient.header(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(
-                        (restClientFactory.getUsername() + ":" + restClientFactory.getPassword()).getBytes())));
-
-        return MAPPER.readTree((InputStream) webClient.get().getEntity());
-    }
-
-    public Pair<String, String> gitAndBuildInfo() {
-        try {
-            JsonNode info = info();
-            return Pair.of(
-                    info.has("git") ? info.get("git").get("commit").get("id").asText() : StringUtils.EMPTY,
-                    info.get("build").get("version").asText());
-        } catch (IOException e) {
-            throw new RuntimeException("While getting build and git Info", e);
-        }
-    }
-
-    public PlatformInfo platform() {
-        try {
-            return MAPPER.treeToValue(info().get("platform"), PlatformInfo.class);
-        } catch (IOException e) {
-            throw new RuntimeException("While getting Platform Info", e);
-        }
-    }
-
-    public SystemInfo system() {
-        try {
-            return MAPPER.treeToValue(info().get("system"), SystemInfo.class);
-        } catch (IOException e) {
-            throw new RuntimeException("While getting System Info", e);
-        }
-    }
-
-    public NumbersInfo numbers() {
-        try {
-            return MAPPER.treeToValue(info().get("numbers"), NumbersInfo.class);
-        } catch (IOException e) {
-            throw new RuntimeException("While getting Numbers Info", e);
-        }
     }
 
     /**
