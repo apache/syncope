@@ -75,9 +75,9 @@ public abstract class AbstractUIITCase {
     protected static boolean IS_FLOWABLE_ENABLED = false;
 
     protected static boolean IS_ELASTICSEARCH_ENABLED = false;
-            
+
     @BeforeAll
-    public static void securitySetup() {
+    public static void anonymousSetup() throws IOException {
         try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/core.properties")) {
             Properties props = new Properties();
             props.load(propStream);
@@ -90,12 +90,13 @@ public abstract class AbstractUIITCase {
 
         assertNotNull(ANONYMOUS_UNAME);
         assertNotNull(ANONYMOUS_KEY);
-    }
 
-    @BeforeAll
-    public static void actuatorInfoSetup() throws IOException {
         JsonNode beans = JSON_MAPPER.readTree(
-                (InputStream) WebClient.create(StringUtils.substringBeforeLast(ADDRESS, "/") + "/actuator/beans").
+                (InputStream) WebClient.create(
+                        StringUtils.substringBeforeLast(ADDRESS, "/") + "/actuator/beans",
+                        ANONYMOUS_UNAME,
+                        ANONYMOUS_KEY,
+                        null).
                         accept(MediaType.APPLICATION_JSON).get().getEntity());
 
         JsonNode uwfAdapter = beans.findValues("uwfAdapter").get(0);

@@ -217,8 +217,6 @@ public abstract class BaseLogin extends WebPage {
 
     protected abstract void sendError(String error);
 
-    protected abstract String getAnonymousUser();
-
     protected abstract void authenticate(
             String username,
             String password,

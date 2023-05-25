@@ -53,12 +53,12 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
         this.domainWatcher = domainWatcher;
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public List<Domain> list() {
         return domainDAO.findAll().stream().map(DomainEntity::get).collect(Collectors.toList());
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public Domain read(final String key) {
         DomainEntity domain = domainDAO.find(key);
         if (domain == null) {
@@ -68,7 +68,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
         return domain.get();
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public Domain create(final Domain domain) {
         if (Objects.equals(domain.getKey(), SyncopeConstants.MASTER_DOMAIN)) {
             throw new KeymasterException("Cannot create domain " + SyncopeConstants.MASTER_DOMAIN);
@@ -88,7 +88,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
         return domainEntity.get();
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void changeAdminPassword(final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
         DomainEntity domain = domainDAO.find(key);
         if (domain == null) {
@@ -102,7 +102,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
         domainDAO.save(domain);
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void adjustPoolSize(final String key, final int poolMaxActive, final int poolMinIdle) {
         DomainEntity domain = domainDAO.find(key);
         if (domain == null) {
@@ -116,7 +116,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
         domainDAO.save(domain);
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void delete(final String key) {
         domainDAO.delete(key);
 

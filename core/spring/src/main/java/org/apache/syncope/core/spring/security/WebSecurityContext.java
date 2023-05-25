@@ -20,6 +20,7 @@ package org.apache.syncope.core.spring.security;
 
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
@@ -33,10 +34,8 @@ import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AnonymousAuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -44,12 +43,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
@@ -59,8 +56,6 @@ import org.springframework.security.web.firewall.HttpFirewall;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration(proxyBeanMethods = false)
 public class WebSecurityContext {
-
-    private static final String ANONYMOUS_BEAN_KEY = "doesNotMatter";
 
     public WebSecurityContext() {
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
@@ -84,7 +79,8 @@ public class WebSecurityContext {
             final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
             final JWTAuthenticationProvider jwtAuthenticationProvider,
             final SecurityProperties securityProperties,
-            final ApplicationContext ctx) throws Exception {
+            final AuthDataAccessor authDataAccessor,
+            final DefaultCredentialChecker defaultCredentialChecker) throws Exception {
 
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManagerBuilder.class).
                 authenticationProvider(usernamePasswordAuthenticationProvider).
@@ -94,15 +90,6 @@ public class WebSecurityContext {
         SyncopeAuthenticationDetailsSource authenticationDetailsSource =
                 new SyncopeAuthenticationDetailsSource();
 
-        AnonymousAuthenticationProvider anonymousAuthenticationProvider =
-                new AnonymousAuthenticationProvider(ANONYMOUS_BEAN_KEY);
-        AnonymousAuthenticationFilter anonymousAuthenticationFilter =
-                new AnonymousAuthenticationFilter(
-                        ANONYMOUS_BEAN_KEY,
-                        securityProperties.getAnonymousUser(),
-                        AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
-        anonymousAuthenticationFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
-
         SyncopeBasicAuthenticationEntryPoint basicAuthenticationEntryPoint =
                 new SyncopeBasicAuthenticationEntryPoint();
         basicAuthenticationEntryPoint.setRealmName("Apache Syncope authentication");
@@ -111,19 +98,17 @@ public class WebSecurityContext {
                 authenticationManager,
                 basicAuthenticationEntryPoint,
                 authenticationDetailsSource,
-                ctx.getBean(AuthDataAccessor.class),
-                ctx.getBean(DefaultCredentialChecker.class));
+                authDataAccessor,
+                defaultCredentialChecker);
 
         MustChangePasswordFilter mustChangePasswordFilter = new MustChangePasswordFilter();
 
         http.authenticationManager(authenticationManager).
                 authorizeRequests().
+                antMatchers("/actuator/**").hasRole(IdRepoEntitlement.ANONYMOUS).
                 antMatchers("/**").permitAll().and().
                 sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().
                 securityContext().securityContextRepository(new NullSecurityContextRepository()).and().
-                anonymous().
-                authenticationProvider(anonymousAuthenticationProvider).
-                authenticationFilter(anonymousAuthenticationFilter).and().
                 httpBasic().authenticationEntryPoint(basicAuthenticationEntryPoint).
                 authenticationDetailsSource(authenticationDetailsSource).and().
                 exceptionHandling().accessDeniedHandler(accessDeniedHandler()).and().

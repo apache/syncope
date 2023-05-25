@@ -23,8 +23,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -42,9 +40,7 @@ public class OIDCJWKSITCase extends AbstractITCase {
     public static void setup() {
         assumeTrue(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
 
-        SyncopeClient anonymous = CLIENT_FACTORY.create(
-                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
-        WA_OIDC_JWKS_SERVICE = anonymous.getService(OIDCJWKSService.class);
+        WA_OIDC_JWKS_SERVICE = ANONYMOUS_CLIENT.getService(OIDCJWKSService.class);
     }
 
     @Test

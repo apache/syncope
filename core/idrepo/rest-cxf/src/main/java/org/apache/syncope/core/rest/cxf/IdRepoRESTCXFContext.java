@@ -238,12 +238,6 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public CheckDomainFilter checkDomainFilter(final DomainHolder domainHolder) {
-        return new CheckDomainFilter(domainHolder);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public AddDomainFilter addDomainFilter() {
         return new AddDomainFilter();
     }
@@ -328,7 +322,6 @@ public class IdRepoRESTCXFContext {
             final GZIPOutInterceptor gzipOutInterceptor,
             final ThreadLocalCleanupOutInterceptor threadLocalCleanupOutInterceptor,
             final OpenApiFeature openapiFeature,
-            final CheckDomainFilter checkDomainFilter,
             final RestServiceExceptionMapper restServiceExceptionMapper,
             final Bus bus,
             final ApplicationContext ctx) {
@@ -353,7 +346,6 @@ public class IdRepoRESTCXFContext {
                 yamlProvider,
                 restServiceExceptionMapper,
                 searchContextProvider,
-                checkDomainFilter,
                 addDomainFilter,
                 addETagFilter));
 

@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.io.IOException;
-import java.security.AccessControlException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,7 +45,6 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
@@ -663,25 +661,15 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void anonymous() {
-        GroupService unauthenticated = CLIENT_FACTORY.create().getService(GroupService.class);
         try {
-            unauthenticated.search(new AnyQuery.Builder().realm("/even").build());
-            fail("This should not happen");
-        } catch (AccessControlException e) {
-            assertNotNull(e);
-        }
-
-        SyncopeClient anonymous = CLIENT_FACTORY.create(
-                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
-        try {
-            anonymous.getService(GroupService.class).
+            ANONYMOUS_CLIENT.getService(GroupService.class).
                     search(new AnyQuery.Builder().realm("/even").build());
             fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 
-        assertFalse(anonymous.getService(SyncopeService.class).
+        assertFalse(ANONYMOUS_CLIENT.getService(SyncopeService.class).
                 searchAssignableGroups("/even", null, 1, 100).getResult().isEmpty());
     }
 

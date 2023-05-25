@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.fit;
 
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
-import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +32,7 @@ public final class OIDCClientDetector {
         synchronized (LOG) {
             if (ENABLED == null) {
                 try {
-                    new SyncopeClientFactoryBean().
-                            setAddress(AbstractITCase.ADDRESS).
-                            setContentType(SyncopeClientFactoryBean.ContentType.JSON).
-                            create(new AnonymousAuthenticationHandler(
-                                    AbstractITCase.ANONYMOUS_UNAME, AbstractITCase.ANONYMOUS_KEY)).
-                            getService(OIDCC4UIProviderService.class).list();
+                    AbstractITCase.ANONYMOUS_CLIENT.getService(OIDCC4UIProviderService.class).list();
                     ENABLED = true;
                 } catch (Exception e) {
                     // ignore

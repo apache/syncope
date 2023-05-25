@@ -52,14 +52,14 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
         return ns;
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     @Transactional(readOnly = true)
     public List<NetworkService> list(final NetworkService.Type serviceType) {
         return serviceDAO.findAll(serviceType).stream().
                 map(service -> toNetworkService(serviceType, service)).collect(Collectors.toList());
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     @Transactional(readOnly = true)
     public NetworkService get(final NetworkService.Type serviceType) {
         List<NetworkService> list = list(serviceType);
@@ -72,7 +72,7 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
                 : list.get(RandomUtils.nextInt(0, list.size()));
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void register(final NetworkService networkService) {
         unregister(networkService);
 
@@ -82,7 +82,7 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
         serviceDAO.save(service);
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void unregister(final NetworkService networkService) {
         serviceDAO.findAll(networkService.getType()).stream().
                 filter(service -> service.getAddress().equals(networkService.getAddress())).

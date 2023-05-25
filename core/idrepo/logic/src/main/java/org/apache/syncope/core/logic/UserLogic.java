@@ -187,7 +187,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return Pair.of(count, result);
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public ProvisioningResult<UserTO> selfCreate(final UserCR createReq, final boolean nullPriorityAsync) {
         return doCreate(createReq, true, nullPriorityAsync);
     }
@@ -378,7 +378,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return result;
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public void compliance(final ComplianceQuery query) {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RESTValidation);
@@ -429,7 +429,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         }
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional
     public void requestPasswordReset(final String username, final String securityAnswer) {
         User user = Optional.ofNullable(userDAO.findByUsername(username)).
@@ -445,7 +445,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         provisioningManager.requestPasswordReset(user.getKey(), AuthContextUtils.getUsername(), REST_CONTEXT);
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional
     public void confirmPasswordReset(final String token, final String password) {
         User user = Optional.ofNullable(userDAO.findByToken(token)).
