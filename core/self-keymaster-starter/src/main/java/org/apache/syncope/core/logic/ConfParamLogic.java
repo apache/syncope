@@ -46,7 +46,7 @@ public class ConfParamLogic extends AbstractTransactionalLogic<EntityTO> {
         this.entityFactory = entityFactory;
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     @Transactional(readOnly = true)
     public Map<String, Object> list() {
         Map<String, Object> params = new TreeMap<>();
@@ -60,7 +60,7 @@ public class ConfParamLogic extends AbstractTransactionalLogic<EntityTO> {
         return params;
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     @Transactional(readOnly = true)
     public JsonNode get(final String key) {
         ConfParam param = confParamDAO.find(key);
@@ -68,7 +68,7 @@ public class ConfParamLogic extends AbstractTransactionalLogic<EntityTO> {
         return Optional.ofNullable(param).map(ConfParam::getValue).orElse(null);
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void set(final String key, final JsonNode value) {
         ConfParam param = confParamDAO.find(key);
         if (param == null) {
@@ -84,7 +84,7 @@ public class ConfParamLogic extends AbstractTransactionalLogic<EntityTO> {
         confParamDAO.save(param);
     }
 
-    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name and not(isAnonymous())")
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void remove(final String key) {
         confParamDAO.delete(key);
     }

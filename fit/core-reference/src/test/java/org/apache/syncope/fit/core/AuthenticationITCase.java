@@ -34,7 +34,6 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -91,17 +90,8 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void readEntitlements() {
-        // 1. as not authenticated (not allowed)
-        try {
-            CLIENT_FACTORY.create().self();
-            fail("This should not happen");
-        } catch (AccessControlException e) {
-            assertNotNull(e);
-        }
-
-        // 2. as anonymous
-        Triple<Map<String, Set<String>>, List<String>, UserTO> self = CLIENT_FACTORY.create(
-                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY)).self();
+        // 1. as anonymous
+        Triple<Map<String, Set<String>>, List<String>, UserTO> self = ANONYMOUS_CLIENT.self();
         assertEquals(1, self.getLeft().size());
         assertTrue(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
         assertEquals(List.of(), self.getMiddle());

@@ -235,15 +235,6 @@ public class SyncopeClientFactoryBean {
     }
 
     /**
-     * Builds client instance with no authentication, for user self-registration and password reset.
-     *
-     * @return client instance with no authentication
-     */
-    public SyncopeClient create() {
-        return create(new NoAuthenticationHandler());
-    }
-
-    /**
      * Builds client instance with the given credentials.
      * Such credentials will be used only to obtain a valid JWT in the
      * {@link javax.ws.rs.core.HttpHeaders#AUTHORIZATION} header;

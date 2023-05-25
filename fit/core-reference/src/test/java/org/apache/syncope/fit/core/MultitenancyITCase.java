@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.security.AccessControlException;
 import java.util.List;
 import java.util.Locale;
 import javax.ws.rs.core.GenericType;
@@ -33,7 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -49,7 +49,6 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.MatchingRule;
@@ -248,13 +247,13 @@ public class MultitenancyITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1377() {
         try {
-            new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("NotExisting").create().
+            new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("NotExisting").
+                    create(ADMIN_UNAME, ADMIN_PWD).
                     getService(UserSelfService.class).
                     create(UserITCase.getUniqueSample("syncope1377@syncope.apache.org"));
             fail("This should not happen");
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.NotFound, e.getType());
-            assertTrue(e.getMessage().contains("NotExisting"));
+        } catch (AccessControlException e) {
+            assertTrue(e.getMessage().contains("Could not find domain NotExisting"));
         }
     }
 }

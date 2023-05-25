@@ -87,8 +87,7 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         // 2. self-registration as anonymous: works
-        SyncopeClient anonClient = CLIENT_FACTORY.create();
-        UserTO self = anonClient.getService(UserSelfService.class).
+        UserTO self = ANONYMOUS_CLIENT.getService(UserSelfService.class).
                 create(UserITCase.getUniqueSample("anonymous@syncope.apache.org")).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
@@ -106,8 +105,7 @@ public class UserSelfITCase extends AbstractITCase {
                 new MembershipTO.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
         userCR.getResources().add(RESOURCE_NAME_TESTDB);
 
-        SyncopeClient anonClient = CLIENT_FACTORY.create();
-        UserTO userTO = anonClient.getService(UserSelfService.class).
+        UserTO userTO = ANONYMOUS_CLIENT.getService(UserSelfService.class).
                 create(userCR).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
@@ -144,8 +142,7 @@ public class UserSelfITCase extends AbstractITCase {
         userCR.getMemberships().add(
                 new MembershipTO.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
         userCR.getResources().add(RESOURCE_NAME_TESTDB);
-        SyncopeClient anonClient = CLIENT_FACTORY.create();
-        UserTO userTO = anonClient.getService(UserSelfService.class).
+        UserTO userTO = ANONYMOUS_CLIENT.getService(UserSelfService.class).
                 create(userCR).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
@@ -329,14 +326,13 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(read);
 
         // 3. request password reset (as anonymous) providing the expected security answer
-        SyncopeClient anonClient = CLIENT_FACTORY.create();
         try {
-            anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "WRONG");
+            ANONYMOUS_CLIENT.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "WRONG");
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
         }
-        anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "Rossi");
+        ANONYMOUS_CLIENT.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "Rossi");
 
         if (IS_ELASTICSEARCH_ENABLED) {
             try {
@@ -353,13 +349,13 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 5. confirm password reset
         try {
-            anonClient.getService(UserSelfService.class).confirmPasswordReset("WRONG TOKEN", "newPassword");
+            ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset("WRONG TOKEN", "newPassword");
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
             assertTrue(e.getMessage().contains("WRONG TOKEN"));
         }
-        anonClient.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
+        ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
 
         // 6. verify that password was reset and token removed
         authClient = CLIENT_FACTORY.create(user.getUsername(), "newPassword123");
@@ -387,8 +383,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(read);
 
         // 3. request password reset (as anonymous) with no security answer
-        SyncopeClient anonClient = CLIENT_FACTORY.create();
-        anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), null);
+        ANONYMOUS_CLIENT.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), null);
 
         // 4. get token (normally sent via e-mail, now reading as admin)
         String token = USER_SERVICE.read(read.getKey()).getToken();
@@ -396,13 +391,13 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 5. confirm password reset
         try {
-            anonClient.getService(UserSelfService.class).confirmPasswordReset("WRONG TOKEN", "newPassword");
+            ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset("WRONG TOKEN", "newPassword");
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
             assertTrue(e.getMessage().contains("WRONG TOKEN"));
         }
-        anonClient.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
+        ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
 
         // 6. verify that password was reset and token removed
         authClient = CLIENT_FACTORY.create(user.getUsername(), "newPassword123");

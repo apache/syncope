@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.security.AccessControlException;
 import java.util.List;
 import java.util.Locale;
 import javax.ws.rs.core.Response;
@@ -100,14 +99,6 @@ public class VirSchemaITCase extends AbstractITCase {
 
     @Test
     public void anonymous() {
-        SchemaService unauthenticated = CLIENT_FACTORY.create().getService(SchemaService.class);
-        try {
-            unauthenticated.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build());
-            fail("This should not happen");
-        } catch (AccessControlException e) {
-            assertNotNull(e);
-        }
-
         SchemaService anonymous = ANONYMOUS_CLIENT.getService(SchemaService.class);
         assertFalse(anonymous.search(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build()).isEmpty());
     }

@@ -183,7 +183,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         }
 
         try {
-            CLIENT_FACTORY.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(AccessTokenService.class).login();
+            ANONYMOUS_CLIENT.getService(AccessTokenService.class).login();
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidRequest, e.getType());
