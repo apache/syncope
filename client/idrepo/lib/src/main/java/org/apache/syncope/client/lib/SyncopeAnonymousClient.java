@@ -52,7 +52,7 @@ public class SyncopeAnonymousClient extends SyncopeClient {
 
     protected JsonNode info() throws IOException {
         WebClient webClient = WebClient.create(
-                restClientFactory.getAddress().replace("/rest", "/actuator/info")).
+                StringUtils.removeEnd(restClientFactory.getAddress().replace("/rest", "/actuator/info"), "/")).
                 accept(MediaType.APPLICATION_JSON_TYPE).
                 header(RESTHeaders.DOMAIN, getDomain()).
                 header(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(
