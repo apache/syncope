@@ -125,7 +125,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
             Implementation jobDelegate = pushTaskTO.getJobDelegate() == null
                     ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
-                            filter(impl -> PushJobDelegate.class.getName().equals(impl.getBody())).
+                            filter(impl -> PushJobDelegate.class.getSimpleName().equals(impl.getKey())).
                             findFirst().orElse(null)
                     : implementationDAO.find(pushTaskTO.getJobDelegate());
             if (jobDelegate == null) {
@@ -164,7 +164,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
             Implementation jobDelegate = pullTaskTO.getJobDelegate() == null
                     ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
-                            filter(impl -> PullJobDelegate.class.getName().equals(impl.getBody())).
+                            filter(impl -> PullJobDelegate.class.getSimpleName().equals(impl.getKey())).
                             findFirst().orElse(null)
                     : implementationDAO.find(pullTaskTO.getJobDelegate());
             if (jobDelegate == null) {
