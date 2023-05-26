@@ -432,7 +432,7 @@ under the License.
 
     <pac4j.version>6.0.0-RC7</pac4j.version>
 
-    <cas.version>7.0.0-RC6</cas.version>
+    <cas.version>7.0.0-SNAPSHOT</cas.version>
     <cas-client.version>4.0.2</cas-client.version>
 
     <h2.version>2.1.214</h2.version>
