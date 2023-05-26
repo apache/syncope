@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
@@ -251,7 +252,7 @@ public class MultitenancyITCase extends AbstractITCase {
                     getService(UserSelfService.class).
                     create(UserITCase.getUniqueSample("syncope1377@syncope.apache.org"));
             fail("This should not happen");
-        } catch (SecurityException e) {
+        } catch (NotAuthorizedException e) {
             assertTrue(e.getMessage().contains("Could not find domain NotExisting"));
         }
     }
