@@ -72,9 +72,8 @@ public class WebSecurityContext {
             final HttpSecurity http,
             final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
             final AccessDeniedHandler accessDeniedHandler,
-            final AuthDataAccessor authDataAccessor,
-            final DefaultCredentialChecker defaultCredentialChecker,
-            final SecurityProperties securityProperties) throws Exception {
+            final AuthDataAccessor dataAccessor,
+            final DefaultCredentialChecker defaultCredentialChecker) throws Exception {
 
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManagerBuilder.class).
                 parentAuthenticationManager(null).
@@ -96,7 +95,7 @@ public class WebSecurityContext {
                 authenticationManager,
                 basicAuthenticationEntryPoint,
                 authenticationDetailsSource,
-                authDataAccessor,
+                dataAccessor,
                 defaultCredentialChecker);
         http.addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
 
@@ -104,7 +103,7 @@ public class WebSecurityContext {
         http.addFilterBefore(mustChangePasswordFilter, AuthorizationFilter.class);
 
         http.authorizeHttpRequests(customizer -> customizer.
-                requestMatchers("/actuator/**").hasRole(IdRepoEntitlement.ANONYMOUS).
+                requestMatchers("/actuator/**").hasAuthority(IdRepoEntitlement.ANONYMOUS).
                 requestMatchers("/**").permitAll());
         http.securityContext(AbstractHttpConfigurer::disable);
         http.sessionManagement(AbstractHttpConfigurer::disable);
