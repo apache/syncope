@@ -32,7 +32,9 @@ public class ConcurrencyTest {
 
     private static final int THREAD_NUMBER = 1000;
 
-    private static final SyncopeClient CLIENT = new SyncopeClientFactoryBean().setAddress("http://url").create();
+    private static final SyncopeClient CLIENT = new SyncopeClientFactoryBean().
+            setAddress("http://url").create(new AuthenticationHandler() {
+    });
 
     @Test
     public void multiThreadTest() throws InterruptedException {

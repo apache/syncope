@@ -21,6 +21,7 @@ package org.apache.syncope.sra;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
+import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.text.ParseException;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.apache.syncope.sra.security.pac4j.NoOpSessionLogoutHandler;
 import org.apache.syncope.sra.security.saml2.SAML2MetadataEndpoint;
 import org.apache.syncope.sra.security.saml2.SAML2SecurityConfigUtils;
 import org.apache.syncope.sra.security.saml2.SAML2WebSsoAuthenticationWebFilter;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
@@ -83,6 +85,10 @@ import reactor.core.publisher.Mono;
 @Configuration(proxyBeanMethods = false)
 public class SecurityConfig {
 
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
     @Bean
     @Order(0)
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "SAML2")
@@ -99,6 +105,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @ConditionalOnMissingBean
     @Bean
     @Order(1)
     public SecurityWebFilterChain actuatorSecurityFilterChain(final ServerHttpSecurity http) {
@@ -115,8 +122,9 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @ConditionalOnMissingBean
     @Bean
-    public ReactiveUserDetailsService userDetailsService(final SRAProperties props) {
+    public ReactiveUserDetailsService actuatorUserDetailsService(final SRAProperties props) {
         UserDetails user = User.builder().
                 username(props.getAnonymousUser()).
                 password("{noop}" + props.getAnonymousKey()).

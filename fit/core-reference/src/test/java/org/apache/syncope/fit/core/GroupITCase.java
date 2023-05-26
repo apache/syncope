@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5IconTypeBuilder.FontAwesome5Brand.java;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +31,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import jakarta.ws.rs.ForbiddenException;
-import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
@@ -46,7 +46,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
@@ -663,25 +662,15 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void anonymous() {
-        GroupService unauthenticated = CLIENT_FACTORY.create().getService(GroupService.class);
         try {
-            unauthenticated.search(new AnyQuery.Builder().realm("/even").build());
-            fail("This should not happen");
-        } catch (NotAuthorizedException e) {
-            assertNotNull(e);
-        }
-
-        SyncopeClient anonymous = CLIENT_FACTORY.create(
-                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
-        try {
-            anonymous.getService(GroupService.class).
+            ANONYMOUS_CLIENT.getService(GroupService.class).
                     search(new AnyQuery.Builder().realm("/even").build());
             fail("This should not happen");
         } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 
-        assertFalse(anonymous.getService(SyncopeService.class).
+        assertFalse(ANONYMOUS_CLIENT.getService(SyncopeService.class).
                 searchAssignableGroups("/even", null, 1, 100).getResult().isEmpty());
     }
 

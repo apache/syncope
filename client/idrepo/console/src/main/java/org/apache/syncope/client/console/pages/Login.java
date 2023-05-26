@@ -65,11 +65,6 @@ public class Login extends BaseLogin {
     }
 
     @Override
-    protected String getAnonymousUser() {
-        return SyncopeWebApplication.get().getAnonymousUser();
-    }
-
-    @Override
     protected void authenticate(final String username, final String password, final AjaxRequestTarget target)
             throws NotAuthorizedException {
 

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 
 public interface BaseSession {
 
@@ -55,7 +55,7 @@ public interface BaseSession {
 
     String getJWT();
 
-    SyncopeClient getAnonymousClient();
+    SyncopeAnonymousClient getAnonymousClient();
 
     <T> T getAnonymousService(Class<T> serviceClass);
 

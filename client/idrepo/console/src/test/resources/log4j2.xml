@@ -29,7 +29,7 @@ under the License.
   
   <loggers>
     
-    <asyncLogger name="org.apache.syncope.client.lib" additivity="false" level="OFF">
+    <asyncLogger name="org.apache.syncope.client.lib" additivity="false" level="ERROR">
       <appender-ref ref="console"/>
     </asyncLogger>
 

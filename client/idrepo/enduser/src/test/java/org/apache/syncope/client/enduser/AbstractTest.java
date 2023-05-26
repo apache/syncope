@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +36,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.lib.AuthenticationHandler;
+import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
@@ -199,12 +201,14 @@ public abstract class AbstractTest {
         @Override
         public SyncopeClientFactoryBean newClientFactory() {
             SyncopeClient client = mock(SyncopeClient.class);
+            SyncopeAnonymousClient anonymousClient = mock(SyncopeAnonymousClient.class);
+
             when(client.getJWT()).thenReturn("<anyJWT>");
 
             when(client.self()).thenReturn(Triple.of(new HashMap<>(), List.of(), getUserTO()));
 
-            when(client.platform()).thenReturn(new PlatformInfo());
-            when(client.numbers()).thenAnswer(ic -> {
+            when(anonymousClient.platform()).thenReturn(new PlatformInfo());
+            when(anonymousClient.numbers()).thenAnswer(ic -> {
                 NumbersInfo numbersInfo = new NumbersInfo();
 
                 numbersInfo.getConfCompleteness().put(
@@ -228,7 +232,7 @@ public abstract class AbstractTest {
 
                 return numbersInfo;
             });
-            when(client.system()).thenReturn(new SystemInfo());
+            when(anonymousClient.system()).thenReturn(new SystemInfo());
 
             SyncopeService syncopeService = getSyncopeService();
             when(client.getService(SyncopeService.class)).thenReturn(syncopeService);
@@ -243,6 +247,7 @@ public abstract class AbstractTest {
             when(clientFactory.setDomain(any())).thenReturn(clientFactory);
             when(clientFactory.create(any(AuthenticationHandler.class))).thenReturn(client);
             when(clientFactory.create(anyString(), anyString())).thenReturn(client);
+            when(clientFactory.createAnonymous(anyString(), isNull())).thenReturn(anonymousClient);
 
             return clientFactory;
         }

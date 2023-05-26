@@ -24,8 +24,6 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
@@ -42,9 +40,7 @@ public class SAML2IdPEntityITCase extends AbstractITCase {
     public static void setup() {
         assumeTrue(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.JSON);
 
-        SyncopeClient anonymous = CLIENT_FACTORY.create(
-                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
-        WA_SAML2IDP_ENTITY_SERVICE = anonymous.getService(SAML2IdPEntityService.class);
+        WA_SAML2IDP_ENTITY_SERVICE = ANONYMOUS_CLIENT.getService(SAML2IdPEntityService.class);
     }
 
     private static SAML2IdPEntityTO set() {

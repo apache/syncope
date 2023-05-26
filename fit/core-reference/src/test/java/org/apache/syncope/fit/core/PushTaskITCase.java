@@ -70,7 +70,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void getPushActionsClasses() {
-        Set<String> actions = ADMIN_CLIENT.platform().
+        Set<String> actions = ANONYMOUS_CLIENT.platform().
                 getJavaImplInfo(IdMImplementationType.PUSH_ACTIONS).get().getClasses();
         assertNotNull(actions);
     }

@@ -66,8 +66,6 @@ public class ConsoleProperties extends CommonUIProperties {
         }
     }
 
-    private String adminUser = "admin";
-
     private final Map<String, Class<? extends BasePage>> page = new HashMap<>();
 
     private String defaultAnyPanelClass = AnyPanel.class.getName();
@@ -75,16 +73,6 @@ public class ConsoleProperties extends CommonUIProperties {
     private int realmsFullTreeThreshold = 20;
 
     private final Topology topology = new Topology();
-
-    @Override
-    public String getAdminUser() {
-        return adminUser;
-    }
-
-    @Override
-    public void setAdminUser(final String adminUser) {
-        this.adminUser = adminUser;
-    }
 
     public Map<String, Class<? extends BasePage>> getPage() {
         return page;
