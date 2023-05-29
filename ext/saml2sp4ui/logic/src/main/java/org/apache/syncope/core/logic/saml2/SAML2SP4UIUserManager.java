@@ -31,7 +31,6 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -217,20 +216,22 @@ public class SAML2SP4UIUserManager {
             templateUtils.apply(userCR, idp.getUserTemplate().get());
         }
 
-        List<SAML2SP4UIIdPActions> actions = getActions(idp);
-        for (SAML2SP4UIIdPActions action : actions) {
-            userCR = action.beforeCreate(userCR, loginResponse);
-        }
-
         UserTO userTO = new UserTO();
         fill(idp.getKey(), loginResponse, userTO);
-        EntityTOUtils.toAnyCR(userTO, userCR);
+
+        Optional.ofNullable(userTO.getUsername()).ifPresent(userCR::setUsername);
+        userCR.getPlainAttrs().addAll(userTO.getPlainAttrs());
 
         if (userCR.getRealm() == null) {
             userCR.setRealm(SyncopeConstants.ROOT_REALM);
         }
         if (userCR.getUsername() == null) {
             userCR.setUsername(nameID);
+        }
+
+        List<SAML2SP4UIIdPActions> actions = getActions(idp);
+        for (SAML2SP4UIIdPActions action : actions) {
+            userCR = action.beforeCreate(userCR, loginResponse);
         }
 
         Pair<String, List<PropagationStatus>> created =

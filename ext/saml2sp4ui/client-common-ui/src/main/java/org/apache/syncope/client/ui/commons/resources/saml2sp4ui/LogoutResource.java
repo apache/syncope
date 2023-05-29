@@ -39,7 +39,7 @@ public abstract class LogoutResource extends AbstractSAML2SP4UIResource {
 
     protected abstract Class<? extends WebPage> getLogoutPageClass();
 
-    private ResourceResponse doLogout(final SAML2Response saml2Response) {
+    protected ResourceResponse doLogout(final SAML2Response saml2Response) {
         SAML2SP4UIService service = BaseSession.class.cast(Session.get()).getAnonymousService(SAML2SP4UIService.class);
         service.validateLogoutResponse(saml2Response);
 
