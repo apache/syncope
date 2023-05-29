@@ -27,18 +27,16 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SAML2SP4UIEntitlement;
-import org.apache.syncope.core.logic.init.SAML2SP4UILoader;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.provisioning.api.data.SAML2SP4UIIdPDataBinder;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
-public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML2SP4UIIdPTO> {
-
-    protected final SAML2SP4UILoader loader;
+public class SAML2SP4UIIdPLogic extends AbstractSAML2SP4UILogic {
 
     protected final SAML2ClientCache saml2ClientCache;
 
@@ -47,12 +45,13 @@ public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML2SP4UIIdP
     protected final SAML2SP4UIIdPDAO idpDAO;
 
     public SAML2SP4UIIdPLogic(
-            final SAML2SP4UILoader loader,
+            final SAML2SP4UIProperties props,
+            final ResourcePatternResolver resourceResolver,
             final SAML2ClientCache saml2ClientCache,
             final SAML2SP4UIIdPDataBinder binder,
             final SAML2SP4UIIdPDAO idpDAO) {
 
-        this.loader = loader;
+        super(props, resourceResolver);
         this.saml2ClientCache = saml2ClientCache;
         this.binder = binder;
         this.idpDAO = idpDAO;
@@ -78,7 +77,7 @@ public class SAML2SP4UIIdPLogic extends AbstractTransactionalLogic<SAML2SP4UIIdP
     @PreAuthorize("hasRole('" + SAML2SP4UIEntitlement.IDP_IMPORT + "')")
     public String importFromMetadata(final InputStream input) {
         try {
-            SAML2SP4UIIdPTO idpTO = SAML2ClientCache.importMetadata(input, loader.newSAML2Configuration());
+            SAML2SP4UIIdPTO idpTO = SAML2ClientCache.importMetadata(input, newSAML2Configuration());
             SAML2SP4UIIdP idp = binder.create(idpTO);
 
             return idp.getKey();

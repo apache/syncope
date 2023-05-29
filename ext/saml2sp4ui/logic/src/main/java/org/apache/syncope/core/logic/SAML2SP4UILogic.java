@@ -46,7 +46,6 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
-import org.apache.syncope.core.logic.init.SAML2SP4UILoader;
 import org.apache.syncope.core.logic.saml2.NoOpSessionStore;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIContext;
@@ -87,10 +86,11 @@ import org.pac4j.saml.profile.SAML2Profile;
 import org.pac4j.saml.redirect.SAML2RedirectionActionBuilder;
 import org.pac4j.saml.sso.impl.SAML2AuthnRequestBuilder;
 import org.springframework.beans.BeanUtils;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.ResourceUtils;
 
-public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
+public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
     protected static final String JWT_CLAIM_IDP_ENTITYID = "IDP_ENTITYID";
 
@@ -101,8 +101,6 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
     protected static final String JWT_CLAIM_SESSIONINDEX = "SESSIONINDEX";
 
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
-    protected final SAML2SP4UILoader loader;
 
     protected final AccessTokenDataBinder accessTokenDataBinder;
 
@@ -119,14 +117,16 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
     protected final Map<String, RequestedAuthnContextProvider> perContextRACP = new ConcurrentHashMap<>();
 
     public SAML2SP4UILogic(
-            final SAML2SP4UILoader loader,
+            final SAML2SP4UIProperties props,
+            final ResourcePatternResolver resourceResolver,
             final AccessTokenDataBinder accessTokenDataBinder,
             final SAML2ClientCache saml2ClientCache,
             final SAML2SP4UIUserManager userManager,
             final SAML2SP4UIIdPDAO idpDAO,
             final AuthDataAccessor authDataAccessor) {
 
-        this.loader = loader;
+        super(props, resourceResolver);
+
         this.accessTokenDataBinder = accessTokenDataBinder;
         this.saml2ClientCache = saml2ClientCache;
         this.userManager = userManager;
@@ -160,7 +160,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
     public void getMetadata(final String spEntityID, final String urlContext, final OutputStream os) {
         String metadata = metadataCache.get(spEntityID + urlContext);
         if (metadata == null) {
-            SAML2Configuration cfg = loader.newSAML2Configuration();
+            SAML2Configuration cfg = newSAML2Configuration();
             cfg.setServiceProviderEntityId(spEntityID);
             cfg.setCallbackUrl(getCallbackUrl(spEntityID, urlContext));
             SAML2ClientCache.getSPMetadataPath(spEntityID).ifPresent(cfg::setServiceProviderMetadataResourceFilepath);
@@ -209,7 +209,7 @@ public class SAML2SP4UILogic extends AbstractTransactionalLogic<EntityTO> {
     protected SAML2Client getSAML2Client(final SAML2SP4UIIdP idp, final String spEntityID, final String urlContext) {
         return saml2ClientCache.get(idp.getEntityID(), spEntityID).
                 orElseGet(() -> saml2ClientCache.add(
-                idp, loader.newSAML2Configuration(), spEntityID, getCallbackUrl(spEntityID, urlContext)));
+                idp, newSAML2Configuration(), spEntityID, getCallbackUrl(spEntityID, urlContext)));
     }
 
     protected SAML2Client getSAML2Client(final String idpEntityID, final String spEntityID, final String urlContext) {

@@ -50,20 +50,20 @@ public class SAML2SP4UILogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SAML2SP4UILoader saml2SP4UILoader(final ResourcePatternResolver resourceResolver,
-            final SAML2SP4UIProperties props) {
-        return new SAML2SP4UILoader(props, resourceResolver);
+    public SAML2SP4UILoader saml2SP4UILoader() {
+        return new SAML2SP4UILoader();
     }
 
     @ConditionalOnMissingBean
     @Bean
     public SAML2SP4UIIdPLogic saml2SP4UIIdPLogic(
-            final SAML2SP4UIIdPDAO idpDAO,
+            final SAML2SP4UIProperties props,
+            final ResourcePatternResolver resourceResolver,
             final SAML2ClientCache saml2ClientCache,
-            final SAML2SP4UILoader loader,
-            final SAML2SP4UIIdPDataBinder binder) {
+            final SAML2SP4UIIdPDataBinder binder,
+            final SAML2SP4UIIdPDAO idpDAO) {
 
-        return new SAML2SP4UIIdPLogic(loader, saml2ClientCache, binder, idpDAO);
+        return new SAML2SP4UIIdPLogic(props, resourceResolver, saml2ClientCache, binder, idpDAO);
     }
 
     @ConditionalOnMissingBean
@@ -92,15 +92,17 @@ public class SAML2SP4UILogicContext {
     @ConditionalOnMissingBean
     @Bean
     public SAML2SP4UILogic saml2SP4UILogic(
-            final SAML2SP4UIIdPDAO idpDAO,
-            final SAML2ClientCache saml2ClientCache,
-            final SAML2SP4UILoader loader,
+            final SAML2SP4UIProperties props,
+            final ResourcePatternResolver resourceResolver,
             final AccessTokenDataBinder accessTokenDataBinder,
+            final SAML2ClientCache saml2ClientCache,
             final SAML2SP4UIUserManager userManager,
+            final SAML2SP4UIIdPDAO idpDAO,
             final AuthDataAccessor authDataAccessor) {
 
         return new SAML2SP4UILogic(
-                loader,
+                props,
+                resourceResolver,
                 accessTokenDataBinder,
                 saml2ClientCache,
                 userManager,

@@ -23,12 +23,13 @@ import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.common.lib.types.OIDC4UIEntitlement;
 import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.springframework.core.Ordered;
 
 public class OIDCC4UILoader implements SyncopeCoreLoader {
 
     @Override
     public int getOrder() {
-        return 1000;
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 
     @Override
