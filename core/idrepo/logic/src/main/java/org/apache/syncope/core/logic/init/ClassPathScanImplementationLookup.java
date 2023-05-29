@@ -23,8 +23,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
@@ -62,6 +64,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.JWTSSOProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.Ordered;
 import org.springframework.core.type.filter.AssignableTypeFilter;
@@ -119,6 +122,11 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
             }
         });
 
+        Map<String, String> extImplTypes = ImplementationTypesHolder.getInstance().getValues().entrySet().stream().
+                filter(e -> !IdRepoImplementationType.values().containsKey(e.getKey())
+                && !IdMImplementationType.values().containsKey(e.getKey())).
+                collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
         jwtSSOProviderClasses = new HashSet<>();
         reportJobDelegateClasses = new HashMap<>();
         accountRuleClasses = new HashMap<>();
@@ -126,18 +134,18 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         pullCRClasses = new HashMap<>();
         pushCRClasses = new HashMap<>();
 
-        scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
+        for (BeanDefinition bd : scanner.findCandidateComponents(getBasePackage())) {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         Objects.requireNonNull(bd.getBeanClassName()), ClassUtils.getDefaultClassLoader());
-                boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
-
-                if (JWTSSOProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(IdRepoImplementationType.JWT_SSO_PROVIDER).add(clazz.getName());
-                    jwtSSOProviderClasses.add(clazz);
+                if (Modifier.isAbstract(clazz.getModifiers())) {
+                    continue;
                 }
 
-                if (ReportJobDelegate.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                if (JWTSSOProvider.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdRepoImplementationType.JWT_SSO_PROVIDER).add(clazz.getName());
+                    jwtSSOProviderClasses.add(clazz);
+                } else if (ReportJobDelegate.class.isAssignableFrom(clazz)) {
                     ReportConfClass annotation = clazz.getAnnotation(ReportConfClass.class);
                     if (annotation == null) {
                         LOG.warn("Found Report {} without declared configuration", clazz.getName());
@@ -145,9 +153,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                         classNames.get(IdRepoImplementationType.REPORT_DELEGATE).add(clazz.getName());
                         reportJobDelegateClasses.put(annotation.value(), (Class<? extends ReportJobDelegate>) clazz);
                     }
-                }
-
-                if (AccountRule.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (AccountRule.class.isAssignableFrom(clazz)) {
                     AccountRuleConfClass annotation = clazz.getAnnotation(AccountRuleConfClass.class);
                     if (annotation == null) {
                         LOG.warn("Found account policy rule {} without declared configuration", clazz.getName());
@@ -155,9 +161,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                         classNames.get(IdRepoImplementationType.ACCOUNT_RULE).add(clazz.getName());
                         accountRuleClasses.put(annotation.value(), (Class<? extends AccountRule>) clazz);
                     }
-                }
-
-                if (PasswordRule.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (PasswordRule.class.isAssignableFrom(clazz)) {
                     PasswordRuleConfClass annotation = clazz.getAnnotation(PasswordRuleConfClass.class);
                     if (annotation == null) {
                         LOG.warn("Found password policy rule {} without declared configuration", clazz.getName());
@@ -165,9 +169,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                         classNames.get(IdRepoImplementationType.PASSWORD_RULE).add(clazz.getName());
                         passwordRuleClasses.put(annotation.value(), (Class<? extends PasswordRule>) clazz);
                     }
-                }
-
-                if (PullCorrelationRule.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (PullCorrelationRule.class.isAssignableFrom(clazz)) {
                     PullCorrelationRuleConfClass annotation = clazz.getAnnotation(PullCorrelationRuleConfClass.class);
                     if (annotation == null) {
                         LOG.warn("Found pull correlation rule {} without declared configuration", clazz.getName());
@@ -175,9 +177,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                         classNames.get(IdMImplementationType.PULL_CORRELATION_RULE).add(clazz.getName());
                         pullCRClasses.put(annotation.value(), (Class<? extends PullCorrelationRule>) clazz);
                     }
-                }
-
-                if (PushCorrelationRule.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (PushCorrelationRule.class.isAssignableFrom(clazz)) {
                     PushCorrelationRuleConfClass annotation = clazz.getAnnotation(PushCorrelationRuleConfClass.class);
                     if (annotation == null) {
                         LOG.warn("Found push correlation rule {} without declared configuration", clazz.getName());
@@ -185,61 +185,46 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                         classNames.get(IdMImplementationType.PUSH_CORRELATION_RULE).add(clazz.getName());
                         pushCRClasses.put(annotation.value(), (Class<? extends PushCorrelationRule>) clazz);
                     }
-                }
-
-                if (ItemTransformer.class.isAssignableFrom(clazz) && !isAbstractClazz
+                } else if (ItemTransformer.class.isAssignableFrom(clazz)
                         && !clazz.equals(JEXLItemTransformerImpl.class)) {
 
                     classNames.get(IdRepoImplementationType.ITEM_TRANSFORMER).add(clazz.getName());
-                }
-
-                if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbstractClazz
+                } else if (SchedTaskJobDelegate.class.isAssignableFrom(clazz)
                         && !PullJobDelegate.class.isAssignableFrom(clazz)
                         && !PushJobDelegate.class.isAssignableFrom(clazz)
                         && !GroupMemberProvisionTaskJobDelegate.class.isAssignableFrom(clazz)) {
 
                     classNames.get(IdRepoImplementationType.TASKJOB_DELEGATE).add(bd.getBeanClassName());
-                }
-
-                if (ReconFilterBuilder.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (ReconFilterBuilder.class.isAssignableFrom(clazz)) {
                     classNames.get(IdMImplementationType.RECON_FILTER_BUILDER).add(bd.getBeanClassName());
-                }
-
-                if (LogicActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (LogicActions.class.isAssignableFrom(clazz)) {
                     classNames.get(IdRepoImplementationType.LOGIC_ACTIONS).add(bd.getBeanClassName());
-                }
-
-                if (PropagationActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (PropagationActions.class.isAssignableFrom(clazz)) {
                     classNames.get(IdMImplementationType.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
-                }
-
-                if (PullActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (PullActions.class.isAssignableFrom(clazz)) {
                     classNames.get(IdMImplementationType.PULL_ACTIONS).add(bd.getBeanClassName());
-                }
-
-                if (PushActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (PushActions.class.isAssignableFrom(clazz)) {
                     classNames.get(IdMImplementationType.PUSH_ACTIONS).add(bd.getBeanClassName());
-                }
-
-                if (PlainAttrValueValidator.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (PlainAttrValueValidator.class.isAssignableFrom(clazz)) {
                     classNames.get(IdRepoImplementationType.VALIDATOR).add(bd.getBeanClassName());
-                }
-
-                if (RecipientsProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (RecipientsProvider.class.isAssignableFrom(clazz)) {
                     classNames.get(IdRepoImplementationType.RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
-                }
-
-                if (ProvisionSorter.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (ProvisionSorter.class.isAssignableFrom(clazz)) {
                     classNames.get(IdMImplementationType.PROVISION_SORTER).add(bd.getBeanClassName());
-                }
-
-                if (Command.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                } else if (Command.class.isAssignableFrom(clazz)) {
                     classNames.get(IdRepoImplementationType.COMMAND).add(bd.getBeanClassName());
+                } else {
+                    extImplTypes.forEach((typeName, typeInterface) -> {
+                        Class<?> tic = ClassUtils.resolveClassName(typeInterface, ClassUtils.getDefaultClassLoader());
+                        if (tic.isAssignableFrom(clazz)) {
+                            classNames.get(typeName).add(bd.getBeanClassName());
+                        }
+                    });
                 }
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
             }
-        });
+        }
 
         classNames = Collections.unmodifiableMap(classNames);
         LOG.debug("Implementation classes found: {}", classNames);
