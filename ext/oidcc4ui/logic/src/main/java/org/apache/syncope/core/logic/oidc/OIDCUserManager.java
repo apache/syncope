@@ -30,7 +30,6 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -201,20 +200,22 @@ public class OIDCUserManager {
             templateUtils.apply(userCR, op.getUserTemplate().get());
         }
 
-        List<OIDCC4UIProviderActions> actions = getActions(op);
-        for (OIDCC4UIProviderActions action : actions) {
-            userCR = action.beforeCreate(userCR, responseTO);
-        }
-
         UserTO userTO = new UserTO();
         fill(op, responseTO, userTO);
-        EntityTOUtils.toAnyCR(userTO, userCR);
+
+        Optional.ofNullable(userTO.getUsername()).ifPresent(userCR::setUsername);
+        userCR.getPlainAttrs().addAll(userTO.getPlainAttrs());
 
         if (userCR.getRealm() == null) {
             userCR.setRealm(SyncopeConstants.ROOT_REALM);
         }
         if (userCR.getUsername() == null) {
             userCR.setUsername(defaultUsername);
+        }
+
+        List<OIDCC4UIProviderActions> actions = getActions(op);
+        for (OIDCC4UIProviderActions action : actions) {
+            userCR = action.beforeCreate(userCR, responseTO);
         }
 
         Pair<String, List<PropagationStatus>> created =

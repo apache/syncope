@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.resources.saml2sp4ui;
 
-import org.apache.syncope.client.console.pages.SAML2SPBeforeLogout;
+import org.apache.syncope.client.console.pages.SAML2SPLogout;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.resources.saml2sp4ui.LogoutResource;
@@ -33,6 +33,6 @@ public class ConsoleLogoutResource extends LogoutResource {
 
     @Override
     protected Class<? extends WebPage> getLogoutPageClass() {
-        return SAML2SPBeforeLogout.class;
+        return SAML2SPLogout.class;
     }
 }
