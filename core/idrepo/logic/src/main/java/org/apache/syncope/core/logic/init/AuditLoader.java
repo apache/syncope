@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic.init;
 
+import java.util.List;
 import java.util.Optional;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.Level;
@@ -30,7 +31,6 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.context.ApplicationContext;
 
 public class AuditLoader implements SyncopeCoreLoader {
 
@@ -59,11 +59,11 @@ public class AuditLoader implements SyncopeCoreLoader {
 
     protected final AuditAccessor auditAccessor;
 
-    protected final ApplicationContext ctx;
+    protected final List<AuditAppender> auditAppenders;
 
-    public AuditLoader(final AuditAccessor auditAccessor, final ApplicationContext ctx) {
+    public AuditLoader(final AuditAccessor auditAccessor, final List<AuditAppender> auditAppenders) {
         this.auditAccessor = auditAccessor;
-        this.ctx = ctx;
+        this.auditAppenders = auditAppenders;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class AuditLoader implements SyncopeCoreLoader {
         LoggerContext logCtx = (LoggerContext) LogManager.getContext(false);
 
         // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
-        ctx.getBeansOfType(AuditAppender.class).values().forEach(auditAppender -> auditAppender.getEvents().stream().
+        auditAppenders.forEach(auditAppender -> auditAppender.getEvents().stream().
                 map(event -> AuditLoggerName.getAuditEventLoggerName(domain, event.toAuditKey())).
                 forEach(domainAuditLoggerName -> {
                     LoggerConfig eventLogConf = logCtx.getConfiguration().getLoggerConfig(domainAuditLoggerName);

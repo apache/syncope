@@ -41,7 +41,6 @@ import org.apereo.cas.services.DefaultRegisteredServiceMultifactorPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.context.ConfigurableApplicationContext;
 
 public class DefaultAuthMapper implements AuthMapper {
 
@@ -54,9 +53,9 @@ public class DefaultAuthMapper implements AuthMapper {
 
     @Override
     public AuthMapperResult build(
-            final ConfigurableApplicationContext ctx,
             final String pac4jCoreName,
             final ObjectProvider<AuthenticationEventExecutionPlan> authEventExecPlan,
+            final List<MultifactorAuthenticationProvider> multifactorAuthenticationProviders,
             final AuthPolicyTO policy,
             final List<AuthModuleTO> authModules) {
 
@@ -105,7 +104,7 @@ public class DefaultAuthMapper implements AuthMapper {
                     map(am -> ((MFAAuthModuleConf) am.getConf()).getFriendlyName()).
                     collect(Collectors.toSet());
 
-            Set<String> mfaProviders = ctx.getBeansOfType(MultifactorAuthenticationProvider.class).values().stream().
+            Set<String> mfaProviders = multifactorAuthenticationProviders.stream().
                     filter(map -> fns.contains(map.getFriendlyName())).
                     map(MultifactorAuthenticationProvider::getId).
                     collect(Collectors.toSet());

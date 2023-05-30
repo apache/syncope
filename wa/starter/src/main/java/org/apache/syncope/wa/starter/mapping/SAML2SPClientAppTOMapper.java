@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
@@ -34,7 +35,6 @@ import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.util.model.TriStateBoolean;
-import org.springframework.context.ConfigurableApplicationContext;
 
 public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
 
@@ -45,7 +45,6 @@ public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
 
     @Override
     public RegisteredService map(
-            final ConfigurableApplicationContext ctx,
             final WAClientApp clientApp,
             final RegisteredServiceAuthenticationPolicy authPolicy,
             final RegisteredServiceMultifactorPolicy mfaPolicy,
@@ -54,7 +53,8 @@ public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
             final RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy,
             final RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy,
             final RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy,
-            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy) {
+            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy,
+            final CasConfigurationProperties properties) {
 
         SAML2SPClientAppTO sp = SAML2SPClientAppTO.class.cast(clientApp.getClientAppTO());
         SamlRegisteredService service = new SamlRegisteredService();

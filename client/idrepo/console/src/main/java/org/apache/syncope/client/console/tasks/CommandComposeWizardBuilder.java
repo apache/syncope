@@ -155,7 +155,7 @@ public class CommandComposeWizardBuilder extends BaseAjaxWizardBuilder<CommandWr
                     return command.getCommand().getArgs();
                 }
             };
-            add(new BeanPanel<>("bean", bean).setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", bean, pageRef).setRenderBodyOnly(true));
         }
     }
 }

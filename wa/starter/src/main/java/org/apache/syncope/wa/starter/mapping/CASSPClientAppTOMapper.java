@@ -21,6 +21,7 @@ package org.apache.syncope.wa.starter.mapping;
 import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.services.CasRegisteredService;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
@@ -31,7 +32,6 @@ import org.apereo.cas.services.RegisteredServiceProxyGrantingTicketExpirationPol
 import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
-import org.springframework.context.ConfigurableApplicationContext;
 
 public class CASSPClientAppTOMapper extends AbstractClientAppMapper {
 
@@ -42,7 +42,6 @@ public class CASSPClientAppTOMapper extends AbstractClientAppMapper {
 
     @Override
     public RegisteredService map(
-            final ConfigurableApplicationContext ctx,
             final WAClientApp clientApp,
             final RegisteredServiceAuthenticationPolicy authPolicy,
             final RegisteredServiceMultifactorPolicy mfaPolicy,
@@ -51,7 +50,8 @@ public class CASSPClientAppTOMapper extends AbstractClientAppMapper {
             final RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy,
             final RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy,
             final RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy,
-            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy) {
+            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy,
+            final CasConfigurationProperties properties) {
 
         CASSPClientAppTO cas = CASSPClientAppTO.class.cast(clientApp.getClientAppTO());
 

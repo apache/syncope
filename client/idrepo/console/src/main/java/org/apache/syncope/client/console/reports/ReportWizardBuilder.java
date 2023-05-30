@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.BeanPanel;
+import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.tasks.CrontabPanel;
@@ -47,6 +48,8 @@ import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.PropertyAccessorFactory;
 
 public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
 
@@ -56,7 +59,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
 
     private final MIMETypesLoader mimeTypesLoader;
 
-    private final Model<ReportConf> conf = new Model<>();
+    private final Model<ReportConfWrapper> conf = new Model<>();
 
     private CrontabPanel crontabPanel;
 
@@ -76,7 +79,11 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
                 ImplementationTO implementation = ImplementationRestClient.read(
                         IdRepoImplementationType.REPORT_DELEGATE, modelObject.getJobDelegate());
                 if (implementation.getEngine() == ImplementationEngine.JAVA) {
-                    implementation.setBody(MAPPER.writeValueAsString(conf.getObject()));
+                    BeanWrapper confWrapper = PropertyAccessorFactory.forBeanPropertyAccess(conf.getObject().getConf());
+                    conf.getObject().getSCondWrapper().forEach((fieldName, pair) -> confWrapper.setPropertyValue(
+                            fieldName, SearchUtils.buildFIQL(pair.getRight(), pair.getLeft())));
+
+                    implementation.setBody(MAPPER.writeValueAsString(conf.getObject().getConf()));
                     ImplementationRestClient.update(implementation);
                 }
             } catch (Exception e) {
@@ -95,21 +102,24 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
         return modelObject;
     }
 
+    protected void setConf(final String jobDelegate) {
+        try {
+            ImplementationTO implementation = ImplementationRestClient.read(
+                    IdRepoImplementationType.REPORT_DELEGATE, jobDelegate);
+            if (implementation.getEngine() == ImplementationEngine.JAVA) {
+                conf.setObject(new ReportConfWrapper());
+                conf.getObject().setConf(MAPPER.readValue(implementation.getBody(), ReportConf.class));
+            } else {
+                conf.setObject(null);
+            }
+        } catch (Exception e) {
+            LOG.error("Could not read or parse {}", jobDelegate, e);
+        }
+    }
+
     @Override
     protected WizardModel buildModelSteps(final ReportTO modelObject, final WizardModel wizardModel) {
-        if (modelObject.getJobDelegate() != null) {
-            try {
-                ImplementationTO implementation = ImplementationRestClient.read(
-                        IdRepoImplementationType.REPORT_DELEGATE, modelObject.getJobDelegate());
-                if (implementation.getEngine() == ImplementationEngine.JAVA) {
-                    conf.setObject(MAPPER.readValue(implementation.getBody(), ReportConf.class));
-                } else {
-                    conf.setObject(null);
-                }
-            } catch (Exception e) {
-                LOG.error("Could not read or parse {}", modelObject.getJobDelegate(), e);
-            }
-        }
+        Optional.ofNullable(modelObject.getJobDelegate()).ifPresent(this::setConf);
 
         wizardModel.add(new Profile(modelObject));
         wizardModel.add(new Configuration());
@@ -164,17 +174,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    try {
-                        ImplementationTO implementation = ImplementationRestClient.read(
-                                IdRepoImplementationType.REPORT_DELEGATE, jobDelegate.getModelObject());
-                        if (implementation.getEngine() == ImplementationEngine.JAVA) {
-                            conf.setObject(MAPPER.readValue(implementation.getBody(), ReportConf.class));
-                        } else {
-                            conf.setObject(null);
-                        }
-                    } catch (Exception e) {
-                        LOG.error("Could not read or parse {}", jobDelegate.getModelObject(), e);
-                    }
+                    setConf(jobDelegate.getModelObject());
                 }
             });
         }
@@ -185,7 +185,9 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
         private static final long serialVersionUID = -785981096328637758L;
 
         public Configuration() {
-            add(new BeanPanel<>("bean", conf).setRenderBodyOnly(true));
+            add(new BeanPanel<>(
+                    "bean", new PropertyModel<>(conf.getObject(), "conf"), conf.getObject().getSCondWrapper(), pageRef).
+                    setRenderBodyOnly(true));
         }
 
         @Override

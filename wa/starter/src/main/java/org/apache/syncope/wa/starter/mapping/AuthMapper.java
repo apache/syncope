@@ -23,17 +23,17 @@ import org.apache.syncope.common.lib.policy.AuthPolicyConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
+import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.context.ConfigurableApplicationContext;
 
 public interface AuthMapper {
 
     boolean supports(AuthPolicyConf conf);
 
     AuthMapperResult build(
-            ConfigurableApplicationContext ctx,
             String pac4jCoreName,
             ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan,
+            List<MultifactorAuthenticationProvider> multifactorAuthenticationProviders,
             AuthPolicyTO policy,
             List<AuthModuleTO> authModules);
 }
