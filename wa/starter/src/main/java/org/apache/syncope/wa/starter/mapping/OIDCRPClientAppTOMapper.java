@@ -50,7 +50,6 @@ import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
-import org.springframework.context.ConfigurableApplicationContext;
 
 public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
 
@@ -63,7 +62,6 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
 
     @Override
     public RegisteredService map(
-            final ConfigurableApplicationContext ctx,
             final WAClientApp clientApp,
             final RegisteredServiceAuthenticationPolicy authPolicy,
             final RegisteredServiceMultifactorPolicy mfaPolicy,
@@ -72,7 +70,8 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             final RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy,
             final RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy,
             final RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy,
-            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy) {
+            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy,
+            final CasConfigurationProperties properties) {
 
         OIDCRPClientAppTO rp = OIDCRPClientAppTO.class.cast(clientApp.getClientAppTO());
         OidcRegisteredService service = new OidcRegisteredService();
@@ -152,7 +151,6 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
         if (!customClaims.isEmpty()) {
-            CasConfigurationProperties properties = ctx.getBean(CasConfigurationProperties.class);
             List<String> supportedClaims = properties.getAuthn().getOidc().getDiscovery().getClaims();
             if (!supportedClaims.containsAll(customClaims)) {
                 properties.getAuthn().getOidc().getDiscovery().setClaims(

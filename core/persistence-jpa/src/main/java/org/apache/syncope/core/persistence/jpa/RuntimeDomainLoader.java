@@ -28,7 +28,6 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.factory.ListableBeanFactory;
 
 public class RuntimeDomainLoader implements DomainWatcher {
 
@@ -38,16 +37,12 @@ public class RuntimeDomainLoader implements DomainWatcher {
 
     protected final DomainRegistry domainRegistry;
 
-    protected final ListableBeanFactory beanFactory;
-
     public RuntimeDomainLoader(
             final DomainHolder domainHolder,
-            final DomainRegistry domainRegistry,
-            final ListableBeanFactory beanFactory) {
+            final DomainRegistry domainRegistry) {
 
         this.domainHolder = domainHolder;
         this.domainRegistry = domainRegistry;
-        this.beanFactory = beanFactory;
     }
 
     @Override
@@ -78,8 +73,8 @@ public class RuntimeDomainLoader implements DomainWatcher {
         if (domainHolder.getDomains().containsKey(domain)) {
             LOG.info("Domain {} unregistration", domain);
 
-            beanFactory.getBeansOfType(SyncopeCoreLoader.class).values().stream().
-                    sorted(Comparator.comparing(SyncopeCoreLoader::getOrder).reversed()).
+            ApplicationContextProvider.getApplicationContext().getBeansOfType(SyncopeCoreLoader.class).values().
+                    stream().sorted(Comparator.comparing(SyncopeCoreLoader::getOrder).reversed()).
                     forEachOrdered(loader -> {
                         String loaderName = AopUtils.getTargetClass(loader).getName();
 

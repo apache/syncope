@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console;
 
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
+import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.console.actuate.SyncopeConsoleInfoContributor;
 import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
@@ -27,6 +28,7 @@ import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActi
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
 import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
+import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
@@ -42,7 +44,6 @@ import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConf
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication(proxyBeanMethods = false, exclude = {
@@ -79,7 +80,7 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
             final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
             final ImplementationInfoProvider implementationInfoProvider,
             final AccessPolicyConfProvider accessPolicyConfProvider,
-            final ApplicationContext ctx) {
+            final List<PolicyTabProvider> policyTabProviders) {
 
         return new SyncopeWebApplication(
                 props,
@@ -92,7 +93,7 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
                 virSchemaDetailsPanelProvider,
                 implementationInfoProvider,
                 accessPolicyConfProvider,
-                ctx);
+                policyTabProviders);
     }
 
     @ConditionalOnMissingBean

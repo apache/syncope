@@ -81,7 +81,6 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -219,11 +218,12 @@ public abstract class AbstractTest {
                 final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
                 final ImplementationInfoProvider implementationInfoProvider,
                 final AccessPolicyConfProvider accessPolicyConfProvider,
-                final ApplicationContext ctx) {
+                final List<PolicyTabProvider> policyTabProviders) {
 
             super(props, lookup, serviceOps, resourceProvider, anyDirectoryPanelAdditionalActionsProvider,
                     anyDirectoryPanelAdditionalActionLinksProvider, anyWizardBuilderAdditionalSteps, statusProvider,
-                    virSchemaDetailsPanelProvider, implementationInfoProvider, accessPolicyConfProvider, ctx);
+                    virSchemaDetailsPanelProvider, implementationInfoProvider, accessPolicyConfProvider,
+                    policyTabProviders);
         }
 
         public interface SyncopeServiceClient extends SyncopeService, Client {

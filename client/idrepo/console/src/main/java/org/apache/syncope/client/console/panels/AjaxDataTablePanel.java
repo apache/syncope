@@ -169,7 +169,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
         super(id);
 
         batchModal = new BaseModal<>("batchModal");
-        batchModal.size(Modal.Size.Default);
+        batchModal.size(Modal.Size.Extra_large);
         add(batchModal);
 
         batchModal.setWindowClosedCallback(target -> {

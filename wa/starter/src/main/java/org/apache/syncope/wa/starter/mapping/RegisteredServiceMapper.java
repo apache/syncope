@@ -24,6 +24,8 @@ import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
+import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
+import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
@@ -38,17 +40,16 @@ import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPo
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.context.ConfigurableApplicationContext;
 
 public class RegisteredServiceMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegisteredServiceMapper.class);
 
-    protected final ConfigurableApplicationContext ctx;
-
     protected final String pac4jCoreName;
 
     protected final ObjectProvider<AuthenticationEventExecutionPlan> authEventExecPlan;
+
+    protected final List<MultifactorAuthenticationProvider> multifactorAuthenticationProviders;
 
     protected final List<AuthMapper> authMappers;
 
@@ -60,24 +61,28 @@ public class RegisteredServiceMapper {
 
     protected final List<ClientAppMapper> clientAppMappers;
 
+    protected final CasConfigurationProperties properties;
+
     public RegisteredServiceMapper(
-            final ConfigurableApplicationContext ctx,
             final String pac4jCoreName,
             final ObjectProvider<AuthenticationEventExecutionPlan> authEventExecPlan,
+            final List<MultifactorAuthenticationProvider> multifactorAuthenticationProviders,
             final List<AuthMapper> authMappers,
             final List<AccessMapper> accessMappers,
             final List<AttrReleaseMapper> attrReleaseMappers,
             final List<TicketExpirationMapper> ticketExpirationMappers,
-            final List<ClientAppMapper> clientAppMappers) {
+            final List<ClientAppMapper> clientAppMappers,
+            final CasConfigurationProperties properties) {
 
-        this.ctx = ctx;
         this.pac4jCoreName = pac4jCoreName;
         this.authEventExecPlan = authEventExecPlan;
+        this.multifactorAuthenticationProviders = multifactorAuthenticationProviders;
         this.authMappers = authMappers;
         this.accessMappers = accessMappers;
         this.attrReleaseMappers = attrReleaseMappers;
         this.ticketExpirationMappers = ticketExpirationMappers;
         this.clientAppMappers = clientAppMappers;
+        this.properties = properties;
     }
 
     public RegisteredService toRegisteredService(final WAClientApp clientApp) {
@@ -98,7 +103,8 @@ public class RegisteredServiceMapper {
                     filter(m -> m.supports(clientApp.getAuthPolicy().getConf())).
                     findFirst();
             AuthMapperResult result = authMapper.map(mapper -> mapper.build(
-                    ctx, pac4jCoreName, authEventExecPlan, clientApp.getAuthPolicy(), clientApp.getAuthModules())).
+                    pac4jCoreName, authEventExecPlan, multifactorAuthenticationProviders, clientApp.getAuthPolicy(),
+                    clientApp.getAuthModules())).
                     orElse(AuthMapperResult.EMPTY);
             authPolicy = result.getAuthPolicy();
             mfaPolicy = result.getMfaPolicy();
@@ -154,7 +160,6 @@ public class RegisteredServiceMapper {
         }
 
         return clientAppMapper.map(
-                ctx,
                 clientApp,
                 authPolicy,
                 mfaPolicy,
@@ -163,6 +168,7 @@ public class RegisteredServiceMapper {
                 tgtExpirationPolicy,
                 stExpirationPolicy,
                 tgtProxyExpirationPolicy,
-                stProxyExpirationPolicy);
+                stProxyExpirationPolicy,
+                properties);
     }
 }

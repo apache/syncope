@@ -59,12 +59,12 @@ public class WARestClient {
 
     private Optional<NetworkService> getCore() {
         try {
-            ApplicationContext context = ApplicationContextProvider.getApplicationContext();
-            if (context == null) {
+            ApplicationContext ctx = ApplicationContextProvider.getApplicationContext();
+            if (ctx == null) {
                 return Optional.empty();
             }
 
-            Collection<ServiceOps> serviceOpsList = context.getBeansOfType(ServiceOps.class).values();
+            Collection<ServiceOps> serviceOpsList = ctx.getBeansOfType(ServiceOps.class).values();
             if (serviceOpsList.isEmpty()) {
                 return Optional.empty();
             }

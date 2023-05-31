@@ -66,7 +66,7 @@ public abstract class AuthProfileWizardBuilder<T extends BaseBean> extends BaseA
         Step(final T modelObject) {
             model.setObject(modelObject);
             model.setInitialModelObject(modelObject);
-            add(new BeanPanel<>("bean", model).setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", model, pageRef).setRenderBodyOnly(true));
         }
     }
 }

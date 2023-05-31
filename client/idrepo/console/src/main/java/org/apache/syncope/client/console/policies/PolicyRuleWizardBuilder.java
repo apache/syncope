@@ -183,7 +183,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
                     return rule.getConf();
                 }
             };
-            add(new BeanPanel<>("bean", bean).setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", bean, pageRef).setRenderBodyOnly(true));
         }
     }
 }
