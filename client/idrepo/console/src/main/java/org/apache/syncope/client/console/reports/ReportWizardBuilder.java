@@ -45,6 +45,7 @@ import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -121,8 +122,9 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
     protected WizardModel buildModelSteps(final ReportTO modelObject, final WizardModel wizardModel) {
         Optional.ofNullable(modelObject.getJobDelegate()).ifPresent(this::setConf);
 
-        wizardModel.add(new Profile(modelObject));
-        wizardModel.add(new Configuration());
+        Configuration configuration = new Configuration();
+        wizardModel.add(new Profile(modelObject, configuration));
+        wizardModel.add(configuration);
         wizardModel.add(new Schedule(modelObject));
         return wizardModel;
     }
@@ -134,7 +136,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
         private final IModel<List<String>> reportJobDelegates = SyncopeWebApplication.get().
                 getImplementationInfoProvider().getReportJobDelegates();
 
-        public Profile(final ReportTO modelObject) {
+        public Profile(final ReportTO modelObject, final Configuration configuration) {
             AjaxTextFieldPanel name = new AjaxTextFieldPanel(
                     Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME,
                     new PropertyModel<>(modelObject, Constants.NAME_FIELD_NAME), false);
@@ -175,6 +177,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
                     setConf(jobDelegate.getModelObject());
+                    configuration.update();
                 }
             });
         }
@@ -185,9 +188,20 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
         private static final long serialVersionUID = -785981096328637758L;
 
         public Configuration() {
-            add(new BeanPanel<>(
-                    "bean", new PropertyModel<>(conf.getObject(), "conf"), conf.getObject().getSCondWrapper(), pageRef).
-                    setRenderBodyOnly(true));
+            update();
+        }
+
+        protected void update() {
+            if (conf.getObject() == null) {
+                addOrReplace(new Label("bean", Model.of()));
+            } else {
+                addOrReplace(new BeanPanel<>(
+                        "bean",
+                        new PropertyModel<>(conf.getObject(), "conf"),
+                        conf.getObject().getSCondWrapper(),
+                        pageRef).
+                        setRenderBodyOnly(true));
+            }
         }
 
         @Override
