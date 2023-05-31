@@ -27,7 +27,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SearchType;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.DisMaxQuery;
@@ -122,12 +121,12 @@ public class ElasticsearchAnySearchDAOTest {
         // 2. test
         Set<String> adminRealms = Set.of(SyncopeConstants.ROOT_REALM);
         Triple<Optional<Query>, Set<String>, Set<String>> filter =
-                searchDAO.getAdminRealmsFilter(realmDAO.getRoot(), true, adminRealms, AnyTypeKind.USER);
+                searchDAO.getAdminRealmsFilter(root, true, adminRealms, AnyTypeKind.USER);
 
         assertThat(
                 new Query.Builder().disMax(QueryBuilders.disMax().queries(
                         new Query.Builder().term(QueryBuilders.term().field("realm").value(
-                                FieldValue.of("rootKey")).build()).build()).build()).
+                                "rootKey").build()).build()).build()).
                         build()).
                 usingRecursiveComparison().isEqualTo(filter.getLeft().get());
         assertEquals(Set.of(), filter.getMiddle());
@@ -196,10 +195,10 @@ public class ElasticsearchAnySearchDAOTest {
             assertThat(
                     new Query.Builder().bool(QueryBuilders.bool().
                             must(new Query.Builder().exists(QueryBuilders.exists().field("id").build()).build()).
-                            must(new Query.Builder().term(QueryBuilders.term().field("memberships").value(
-                                    FieldValue.of("groupKey")).build()).build()).
-                            build()).build()).
-                    usingRecursiveComparison().isEqualTo(request.query());
+                            must(new Query.Builder().term(QueryBuilders.term().field("memberships").value("groupKey").
+                                    build()).build()).build()).build()).
+                    usingRecursiveComparison().
+                    isEqualTo(request.query());
         }
     }
 
