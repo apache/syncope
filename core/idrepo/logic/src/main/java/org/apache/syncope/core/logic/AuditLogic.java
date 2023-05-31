@@ -59,7 +59,6 @@ import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -85,7 +84,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     protected final AuditManager auditManager;
 
-    protected final ApplicationContext ctx;
+    protected final List<AuditAppender> auditAppenders;
 
     public AuditLogic(
             final AuditConfDAO auditConfDAO,
@@ -93,14 +92,14 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             final EntityFactory entityFactory,
             final AuditDataBinder binder,
             final AuditManager auditManager,
-            final ApplicationContext ctx) {
+            final List<AuditAppender> auditAppenders) {
 
         this.auditConfDAO = auditConfDAO;
         this.resourceDAO = resourceDAO;
         this.entityFactory = entityFactory;
         this.binder = binder;
         this.auditManager = auditManager;
-        this.ctx = ctx;
+        this.auditAppenders = auditAppenders;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "')")
@@ -146,7 +145,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
         LoggerConfig logConf = logCtx.getConfiguration().getLoggerConfig(auditLoggerName);
 
         // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
-        ctx.getBeansOfType(AuditAppender.class).values().stream().
+        auditAppenders.stream().
                 filter(appender -> appender.getEvents().stream().
                 anyMatch(event -> key.equalsIgnoreCase(event.toAuditKey()))).
                 forEach(auditAppender -> AuditLoader.addAppenderToLoggerContext(logCtx, auditAppender, logConf));

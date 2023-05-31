@@ -72,7 +72,6 @@ import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.ClassUtils;
 
@@ -106,7 +105,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     protected final AccessPolicyConfProvider accessPolicyConfProvider;
 
-    protected final ApplicationContext ctx;
+    protected final List<PolicyTabProvider> policyTabProviders;
 
     public SyncopeWebApplication(
             final ConsoleProperties props,
@@ -120,7 +119,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
             final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
             final ImplementationInfoProvider implementationInfoProvider,
             final AccessPolicyConfProvider accessPolicyConfProvider,
-            final ApplicationContext ctx) {
+            final List<PolicyTabProvider> policyTabProviders) {
 
         this.props = props;
         this.lookup = lookup;
@@ -133,7 +132,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         this.virSchemaDetailsPanelProvider = virSchemaDetailsPanelProvider;
         this.implementationInfoProvider = implementationInfoProvider;
         this.accessPolicyConfProvider = accessPolicyConfProvider;
-        this.ctx = ctx;
+        this.policyTabProviders = policyTabProviders;
     }
 
     @Override
@@ -344,7 +343,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     }
 
     public Collection<PolicyTabProvider> getPolicyTabProviders() {
-        return ctx.getBeansOfType(PolicyTabProvider.class).values();
+        return policyTabProviders;
     }
 
     public List<UserFormFinalizer> getFormFinalizers(final AjaxWizard.Mode mode) {

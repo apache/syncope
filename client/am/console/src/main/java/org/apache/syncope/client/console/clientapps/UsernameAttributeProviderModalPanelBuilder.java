@@ -99,11 +99,7 @@ public class UsernameAttributeProviderModalPanelBuilder<T extends ClientAppTO> e
 
             PropertyModel<UsernameAttributeProviderConf> beanPanelModel =
                     new PropertyModel<>(clientAppTO, "usernameAttributeProviderConf");
-            BeanPanel<UsernameAttributeProviderConf> bean = new BeanPanel<>(
-                    "bean",
-                    beanPanelModel,
-                    Constants.NAME_FIELD_NAME,
-                    "reportlet");
+            BeanPanel<UsernameAttributeProviderConf> bean = new BeanPanel<>("bean", beanPanelModel, pageRef);
             add(bean.setRenderBodyOnly(false));
 
             conf.add(new AjaxEventBehavior(Constants.ON_CHANGE) {

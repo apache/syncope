@@ -70,6 +70,7 @@ import org.apache.syncope.wa.starter.webauthn.WAWebAuthnCredentialRepository;
 import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
+import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
@@ -196,25 +197,27 @@ public class WAContext {
     @ConditionalOnMissingBean
     @Bean
     public RegisteredServiceMapper registeredServiceMapper(
-            final ConfigurableApplicationContext ctx,
             final CasConfigurationProperties casProperties,
             final ObjectProvider<AuthenticationEventExecutionPlan> authenticationEventExecutionPlan,
+            final List<MultifactorAuthenticationProvider> multifactorAuthenticationProviders,
             final List<AuthMapper> authMappers,
             final List<AccessMapper> accessMappers,
             final List<AttrReleaseMapper> attrReleaseMappers,
             final List<TicketExpirationMapper> ticketExpirationMappers,
-            final List<ClientAppMapper> clientAppMappers) {
+            final List<ClientAppMapper> clientAppMappers,
+            final CasConfigurationProperties properties) {
 
         return new RegisteredServiceMapper(
-                ctx,
                 Optional.ofNullable(casProperties.getAuthn().getPac4j().getCore().getName()).
                         orElse(DelegatedClientAuthenticationHandler.class.getSimpleName()),
                 authenticationEventExecutionPlan,
+                multifactorAuthenticationProviders,
                 authMappers,
                 accessMappers,
                 attrReleaseMappers,
                 ticketExpirationMappers,
-                clientAppMappers);
+                clientAppMappers,
+                properties);
     }
 
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)

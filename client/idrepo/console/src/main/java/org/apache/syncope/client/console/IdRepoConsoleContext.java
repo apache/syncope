@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console;
 
-import java.util.HashSet;
+import java.util.List;
 import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
@@ -44,7 +44,6 @@ import org.apache.syncope.client.console.init.ClassPathScanImplementationContrib
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -54,10 +53,11 @@ public class IdRepoConsoleContext {
     @ConditionalOnMissingBean
     @Bean
     public ClassPathScanImplementationLookup classPathScanImplementationLookup(
-            final ApplicationContext ctx, final ConsoleProperties props) {
+            final ConsoleProperties props,
+            final List<ClassPathScanImplementationContributor> classPathScanImplementationContributors) {
 
-        ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup(
-                new HashSet<>(ctx.getBeansOfType(ClassPathScanImplementationContributor.class).values()), props);
+        ClassPathScanImplementationLookup lookup =
+                new ClassPathScanImplementationLookup(classPathScanImplementationContributors, props);
         lookup.load();
         return lookup;
     }

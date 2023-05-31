@@ -89,7 +89,7 @@ public class TicketExpirationPolicyModalPanel extends AbstractModalPanel<TicketE
         });
         add(enable);
 
-        add(new BeanPanel<>("bean." + field, beanPanelModel).setRenderBodyOnly(true));
+        add(new BeanPanel<>("bean." + field, beanPanelModel, pageRef).setRenderBodyOnly(true));
     }
 
     @Override
