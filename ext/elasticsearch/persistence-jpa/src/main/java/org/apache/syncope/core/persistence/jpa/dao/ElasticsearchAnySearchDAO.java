@@ -158,9 +158,12 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                         return noRealm;
                     });
 
-                    realmDAO.findDescendants(realm.getFullPath(), null, -1, -1).forEach(descendant -> queries.add(
+                    realmDAO.findDescendants(
+                            realm.getFullPath(), null, -1, -1).stream().
+                            filter(r -> r.getFullPath().startsWith(base.getFullPath())).
+                            forEach(descendant -> queries.add(
                             new Query.Builder().term(QueryBuilders.term().
-                                    field("realm").value(FieldValue.of(descendant.getKey())).build()).
+                                    field("realm").value(descendant.getKey()).build()).
                                     build()));
                 } else {
                     DynRealm dynRealm = dynRealmDAO.find(realmPath);
@@ -169,15 +172,15 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                     } else {
                         dynRealmKeys.add(dynRealm.getKey());
                         queries.add(new Query.Builder().term(QueryBuilders.term().
-                                field("dynRealm").value(FieldValue.of(dynRealm.getKey())).build()).
+                                field("dynRealm").value(dynRealm.getKey()).build()).
                                 build());
                     }
                 }
             });
         } else {
-            if (adminRealms.stream().anyMatch(r -> base.getFullPath().startsWith(r))) {
+            if (adminRealms.stream().anyMatch(r -> r.startsWith(base.getFullPath()))) {
                 queries.add(new Query.Builder().term(QueryBuilders.term().
-                        field("realm").value(FieldValue.of(base.getKey())).build()).
+                        field("realm").value(base.getKey()).build()).
                         build());
             }
         }
@@ -205,7 +208,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 query = new Query.Builder().bool(
                         QueryBuilders.bool().
                                 must(new Query.Builder().term(QueryBuilders.term().
-                                        field("realm").value(FieldValue.of(base.getKey())).build()).
+                                        field("realm").value(base.getKey()).build()).
                                         build()).
                                 must(query).build()).
                         build();
@@ -460,13 +463,13 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected Query getQuery(final AnyTypeCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("anyType").value(FieldValue.of(cond.getAnyTypeKey())).build()).
+                field("anyType").value(cond.getAnyTypeKey()).build()).
                 build();
     }
 
     protected Query getQuery(final RelationshipTypeCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("relationshipTypes").value(FieldValue.of(cond.getRelationshipTypeKey())).build()).
+                field("relationshipTypes").value(cond.getRelationshipTypeKey()).build()).
                 build();
     }
 
@@ -474,7 +477,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         String rightAnyObjectKey = check(cond);
 
         return new Query.Builder().term(QueryBuilders.term().
-                field("relationships").value(FieldValue.of(rightAnyObjectKey)).build()).
+                field("relationships").value(rightAnyObjectKey).build()).
                 build();
     }
 
@@ -483,7 +486,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
         List<Query> membershipQueries = groupKeys.stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
-                field("memberships").value(FieldValue.of(key)).build()).
+                field("memberships").value(key).build()).
                 build()).collect(Collectors.toList());
         if (membershipQueries.size() == 1) {
             return membershipQueries.get(0);
@@ -494,19 +497,19 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected Query getQuery(final RoleCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("roles").value(FieldValue.of(cond.getRole())).build()).
+                field("roles").value(cond.getRole()).build()).
                 build();
     }
 
     protected Query getQuery(final PrivilegeCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("privileges").value(FieldValue.of(cond.getPrivilege())).build()).
+                field("privileges").value(cond.getPrivilege()).build()).
                 build();
     }
 
     protected Query getQuery(final DynRealmCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("dynRealms").value(FieldValue.of(cond.getDynRealm())).build()).
+                field("dynRealms").value(cond.getDynRealm()).build()).
                 build();
     }
 
@@ -514,19 +517,19 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         String memberKey = check(cond);
 
         return new Query.Builder().term(QueryBuilders.term().
-                field("members").value(FieldValue.of(memberKey)).build()).
+                field("members").value(memberKey).build()).
                 build();
     }
 
     protected Query getQuery(final AuxClassCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("auxClasses").value(FieldValue.of(cond.getAuxClass())).build()).
+                field("auxClasses").value(cond.getAuxClass()).build()).
                 build();
     }
 
     protected Query getQuery(final ResourceCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("resources").value(FieldValue.of(cond.getResource())).build()).
+                field("resources").value(cond.getResource()).build()).
                 build();
     }
 
@@ -577,7 +580,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
             case IEQ:
                 query = new Query.Builder().match(QueryBuilders.match().
-                        field(schema.getKey()).query(FieldValue.of(cond.getExpression().toLowerCase())).build()).
+                        field(schema.getKey()).query(cond.getExpression().toLowerCase()).build()).
                         build();
                 break;
 

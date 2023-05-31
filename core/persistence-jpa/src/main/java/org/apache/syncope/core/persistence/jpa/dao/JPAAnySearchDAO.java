@@ -138,8 +138,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                                 return noRealm;
                             });
 
-                            realmKeys.addAll(realmDAO.findDescendants(realm.getFullPath(), null, -1, -1).stream().
-                                    map(Realm::getKey).collect(Collectors.toSet()));
+                            realmKeys.addAll(
+                                    realmDAO.findDescendants(realm.getFullPath(), null, -1, -1).stream().
+                                            filter(r -> r.getFullPath().startsWith(base.getFullPath())).
+                                            map(Realm::getKey).collect(Collectors.toSet()));
                         } else {
                             DynRealm dynRealm = dynRealmDAO.find(realmPath);
                             if (dynRealm == null) {
@@ -153,7 +155,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 realmKeys.clear();
             }
         } else {
-            if (adminRealms.stream().anyMatch(r -> base.getFullPath().startsWith(r))) {
+            if (adminRealms.stream().anyMatch(r -> r.startsWith(base.getFullPath()))) {
                 realmKeys.add(base.getKey());
             }
         }
