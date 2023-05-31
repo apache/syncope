@@ -135,6 +135,56 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         this.policyTabProviders = policyTabProviders;
     }
 
+    protected SyncopeUIRequestCycleListener buildSyncopeUIRequestCycleListener() {
+        return new SyncopeUIRequestCycleListener() {
+
+            @Override
+            protected boolean isSignedIn() {
+                return SyncopeConsoleSession.get().isSignedIn();
+            }
+
+            @Override
+            protected void invalidateSession() {
+                SyncopeConsoleSession.get().invalidate();
+            }
+
+            @Override
+            protected IRequestablePage getErrorPage(final PageParameters errorParameters) {
+                return new Login(errorParameters);
+            }
+        };
+    }
+
+    protected void initSecurity() {
+        if (props.isxForward()) {
+            XForwardedRequestWrapperFactory.Config config = new XForwardedRequestWrapperFactory.Config();
+            config.setProtocolHeader(props.getxForwardProtocolHeader());
+            config.setHttpServerPort(props.getxForwardHttpPort());
+            config.setHttpsServerPort(props.getxForwardHttpsPort());
+
+            XForwardedRequestWrapperFactory factory = new XForwardedRequestWrapperFactory();
+            factory.setConfig(config);
+            getFilterFactoryManager().add(factory);
+        }
+
+        if (props.isCsrf()) {
+            getRequestCycleListeners().add(new WebSocketAwareResourceIsolationRequestCycleListener());
+        }
+
+        getCspSettings().blocking().unsafeInline();
+
+        getRequestCycleListeners().add(new IRequestCycleListener() {
+
+            @Override
+            public void onEndRequest(final RequestCycle cycle) {
+                if (cycle.getResponse() instanceof WebResponse && !(cycle.getResponse() instanceof WebSocketResponse)) {
+                    props.getSecurityHeaders().
+                            forEach((name, value) -> ((WebResponse) cycle.getResponse()).setHeader(name, value));
+                }
+            }
+        });
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -160,50 +210,9 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
 
-        getRequestCycleListeners().add(new SyncopeUIRequestCycleListener() {
+        getRequestCycleListeners().add(buildSyncopeUIRequestCycleListener());
 
-            @Override
-            protected boolean isSignedIn() {
-                return SyncopeConsoleSession.get().isSignedIn();
-            }
-
-            @Override
-            protected void invalidateSession() {
-                SyncopeConsoleSession.get().invalidate();
-            }
-
-            @Override
-            protected IRequestablePage getErrorPage(final PageParameters errorParameters) {
-                return new Login(errorParameters);
-            }
-        });
-
-        if (props.isxForward()) {
-            XForwardedRequestWrapperFactory.Config config = new XForwardedRequestWrapperFactory.Config();
-            config.setProtocolHeader(props.getxForwardProtocolHeader());
-            config.setHttpServerPort(props.getxForwardHttpPort());
-            config.setHttpsServerPort(props.getxForwardHttpsPort());
-
-            XForwardedRequestWrapperFactory factory = new XForwardedRequestWrapperFactory();
-            factory.setConfig(config);
-            getFilterFactoryManager().add(factory);
-        }
-
-        if (props.isCsrf()) {
-            getRequestCycleListeners().add(new WebSocketAwareResourceIsolationRequestCycleListener());
-        }
-
-        getRequestCycleListeners().add(new IRequestCycleListener() {
-
-            @Override
-            public void onEndRequest(final RequestCycle cycle) {
-                if (cycle.getResponse() instanceof WebResponse && !(cycle.getResponse() instanceof WebSocketResponse)) {
-                    props.getSecurityHeaders().
-                            forEach((name, value) -> ((WebResponse) cycle.getResponse()).setHeader(name, value));
-                }
-            }
-        });
-        getCspSettings().blocking().unsafeInline();
+        initSecurity();
 
         mountPage("/login", getSignInPageClass());
 
