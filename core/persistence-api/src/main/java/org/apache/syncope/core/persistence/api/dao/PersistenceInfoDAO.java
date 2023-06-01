@@ -16,13 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.starter.actuate;
+package org.apache.syncope.core.persistence.api.dao;
 
-import org.apache.syncope.common.lib.info.SystemInfo;
-import org.springframework.context.PayloadApplicationEvent;
+import java.util.Map;
 
-@FunctionalInterface
-public interface SyncopeCoreInfoContributor {
+public interface PersistenceInfoDAO {
 
-    void addLoadInstant(PayloadApplicationEvent<SystemInfo.LoadInstant> event);
+    Map<String, Object> info();
 }

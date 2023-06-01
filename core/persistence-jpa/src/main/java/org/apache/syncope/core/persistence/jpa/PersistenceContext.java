@@ -54,6 +54,7 @@ import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
+import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -111,6 +112,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAMailTemplateDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPANotificationDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCJWKSDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCRPClientAppDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAPersistenceInfoDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainSchemaDAO;
@@ -305,6 +307,12 @@ public class PersistenceContext {
     @Bean
     public EntityCacheDAO entityCacheDAO() {
         return new JPAEntityCacheDAO();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PersistenceInfoDAO persistenceInfoDAO() {
+        return new JPAPersistenceInfoDAO();
     }
 
     @ConditionalOnMissingBean
