@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
@@ -168,6 +169,8 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
 
     protected final Map<String, ThreadPoolTaskExecutor> taskExecutors;
 
+    protected final PersistenceInfoDAO persistenceInfoDAO;
+
     public DefaultSyncopeCoreInfoContributor(
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
@@ -184,7 +187,8 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             final ConfParamOps confParamOps,
             final ConnIdBundleManager bundleManager,
             final ImplementationLookup implLookup,
-            final Map<String, ThreadPoolTaskExecutor> taskExecutors) {
+            final Map<String, ThreadPoolTaskExecutor> taskExecutors,
+            final PersistenceInfoDAO persistenceInfoDAO) {
 
         this.anyTypeDAO = anyTypeDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
@@ -202,6 +206,7 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
         this.bundleManager = bundleManager;
         this.implLookup = implLookup;
         this.taskExecutors = taskExecutors;
+        this.persistenceInfoDAO = persistenceInfoDAO;
     }
 
     protected boolean isSelfRegAllowed() {
@@ -334,6 +339,8 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
     public void contribute(final Info.Builder builder) {
         buildPlatform();
         builder.withDetail("platform", PLATFORM_INFO);
+
+        builder.withDetail("persistence", persistenceInfoDAO.info());
 
         builder.withDetail("numbers", buildNumbers());
 

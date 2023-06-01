@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
@@ -132,7 +133,8 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
             final ConfParamOps confParamOps,
             final ConnIdBundleManager bundleManager,
             final ImplementationLookup implLookup,
-            final ApplicationContext ctx) {
+            final ApplicationContext ctx,
+            final PersistenceInfoDAO persistenceInfoDAO) {
 
         return new DefaultSyncopeCoreInfoContributor(
                 anyTypeDAO,
@@ -150,7 +152,8 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
                 confParamOps,
                 bundleManager,
                 implLookup,
-                ctx.getBeansOfType(ThreadPoolTaskExecutor.class));
+                ctx.getBeansOfType(ThreadPoolTaskExecutor.class),
+                persistenceInfoDAO);
     }
 
     @ConditionalOnMissingBean
