@@ -41,10 +41,14 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Roles extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
+
+    @SpringBean
+    protected RoleRestClient roleRestClient;
 
     protected final List<String> allRoles;
 
@@ -91,7 +95,7 @@ public class Roles extends WizardStep implements ICondition {
     protected List<String> getManagedRoles() {
         return SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
                 isActionAuthorized(this, RENDER)
-                ? RoleRestClient.list().stream().map(RoleTO::getKey).sorted().collect(Collectors.toList())
+                ? roleRestClient.list().stream().map(RoleTO::getKey).sorted().collect(Collectors.toList())
                 : List.of();
     }
 
@@ -101,23 +105,23 @@ public class Roles extends WizardStep implements ICondition {
                 setAllowOrder(true).
                 build("roles",
                         new PropertyModel<>(modelObject.getInnerObject(), "roles"),
-                    new AjaxPalettePanel.Builder.Query<>() {
+                        new AjaxPalettePanel.Builder.Query<>() {
 
-                        private static final long serialVersionUID = 3900199363626636719L;
+                    private static final long serialVersionUID = 3900199363626636719L;
 
-                        @Override
-                        public List<String> execute(final String filter) {
-                            if (StringUtils.isEmpty(filter) || "*".equals(filter)) {
-                                return allRoles.size() > Constants.MAX_ROLE_LIST_SIZE
+                    @Override
+                    public List<String> execute(final String filter) {
+                        if (StringUtils.isEmpty(filter) || "*".equals(filter)) {
+                            return allRoles.size() > Constants.MAX_ROLE_LIST_SIZE
                                     ? allRoles.subList(0, Constants.MAX_ROLE_LIST_SIZE)
                                     : allRoles;
 
-                            }
-                            return allRoles.stream().
+                        }
+                        return allRoles.stream().
                                 filter(role -> StringUtils.containsIgnoreCase(role, filter)).
                                 collect(Collectors.toList());
-                        }
-                    }).
+                    }
+                }).
                 hideLabel().
                 setOutputMarkupId(true);
     }

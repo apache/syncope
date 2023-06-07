@@ -31,7 +31,9 @@ import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.ConnectorDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -56,13 +58,20 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ConnectorDirectoryPanel extends
         DirectoryPanel<Serializable, Serializable, ConnectorDataProvider, ConnectorRestClient> {
 
     private static final long serialVersionUID = 2041468935602350821L;
 
-    private String keyword;
+    @SpringBean
+    protected AuditRestClient auditRestClient;
+
+    @SpringBean
+    protected ResourceRestClient resourceRestClient;
+
+    protected String keyword;
 
     protected ConnectorDirectoryPanel(final String id, final ConnectorDirectoryPanel.Builder builder) {
         super(id, builder);
@@ -76,8 +85,6 @@ public class ConnectorDirectoryPanel extends
         setShowResultPanel(false);
         modal.size(Modal.Size.Large);
         initResultTable();
-
-        restClient = builder.restClient;
     }
 
     @Override
@@ -96,7 +103,7 @@ public class ConnectorDirectoryPanel extends
 
     @Override
     protected ConnectorDataProvider dataProvider() {
-        dataProvider = new ConnectorDataProvider(rows, pageRef, keyword);
+        dataProvider = new ConnectorDataProvider(restClient, rows, pageRef, keyword);
         return dataProvider;
     }
 
@@ -141,7 +148,8 @@ public class ConnectorDirectoryPanel extends
                 final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
                 modal.setFormModel(model.getObject());
 
-                target.add(modal.setContent(new ResourceWizardBuilder(modelObject, pageRef).
+                target.add(modal.setContent(new ResourceWizardBuilder(
+                        modelObject, resourceRestClient, restClient, pageRef).
                         build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("resource.new"),
@@ -159,17 +167,17 @@ public class ConnectorDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ConnInstanceTO connInstance = ConnectorRestClient.read(((ConnInstanceTO) model.getObject()).getKey());
+                ConnInstanceTO connInstance = restClient.read(((ConnInstanceTO) model.getObject()).getKey());
 
                 final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(connInstance);
                 modal.setFormModel(model);
 
-                target.add(modal.setContent(new ConnectorWizardBuilder(connInstance, pageRef).
+                target.add(modal.setContent(new ConnectorWizardBuilder(connInstance, restClient, pageRef).
                         build(BaseModal.CONTENT_ID,
                                 SyncopeConsoleSession.get().
                                         owns(IdMEntitlement.CONNECTOR_UPDATE, connInstance.getAdminRealm())
-                                        ? AjaxWizard.Mode.EDIT
-                                        : AjaxWizard.Mode.READONLY)));
+                                ? AjaxWizard.Mode.EDIT
+                                : AjaxWizard.Mode.READONLY)));
 
                 modal.header(
                         new Model<>(MessageFormat.format(getString("connector.edit"), connInstance.getDisplayName())));
@@ -185,41 +193,41 @@ public class ConnectorDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-              ConnInstanceTO modelObject = ConnectorRestClient.read(((ConnInstanceTO) model.getObject()).getKey());
-            
-              target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
-                      AuditElements.EventCategoryType.LOGIC,
-                      "ConnectorLogic",
-                      modelObject,
-                      IdMEntitlement.CONNECTOR_UPDATE) {
-            
-                  private static final long serialVersionUID = -3225348282675513648L;
+                ConnInstanceTO modelObject = restClient.read(((ConnInstanceTO) model.getObject()).getKey());
 
-                  @Override
-                  protected void restore(final String json, final AjaxRequestTarget target) {
-                      try {
-                          ConnInstanceTO updated = MAPPER.readValue(json, ConnInstanceTO.class);
-                          ConnectorRestClient.update(updated);
+                target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
+                        AuditElements.EventCategoryType.LOGIC,
+                        "ConnectorLogic",
+                        modelObject,
+                        IdMEntitlement.CONNECTOR_UPDATE,
+                        auditRestClient) {
 
-                          SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                      } catch (Exception e) {
-                          LOG.error("While restoring connector {}",
-                                  ((ConnInstanceTO) model.getObject()).getKey(), e);
-                          SyncopeConsoleSession.get().onException(e);
-                      }
-                      ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                  }
-              }));
+                    private static final long serialVersionUID = -3225348282675513648L;
 
-              altDefaultModal.header(
-                      new Model<>(MessageFormat.format(getString("connector.menu.history"),
-                              ((ConnInstanceTO) model.getObject()).getDisplayName())));
+                    @Override
+                    protected void restore(final String json, final AjaxRequestTarget target) {
+                        try {
+                            ConnInstanceTO updated = MAPPER.readValue(json, ConnInstanceTO.class);
+                            restClient.update(updated);
 
-              altDefaultModal.show(true);
+                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                        } catch (Exception e) {
+                            LOG.error("While restoring connector {}", ((ConnInstanceTO) model.getObject()).getKey(), e);
+                            SyncopeConsoleSession.get().onException(e);
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                }));
+
+                altDefaultModal.header(
+                        new Model<>(MessageFormat.format(getString("connector.menu.history"),
+                                ((ConnInstanceTO) model.getObject()).getDisplayName())));
+
+                altDefaultModal.show(true);
             }
 
-            }, ActionLink.ActionType.VIEW_AUDIT_HISTORY,
-            String.format("%s,%s", IdMEntitlement.CONNECTOR_READ, IdRepoEntitlement.AUDIT_LIST));
+        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY,
+                String.format("%s,%s", IdMEntitlement.CONNECTOR_READ, IdRepoEntitlement.AUDIT_LIST));
 
         panel.add(new ActionLink<>() {
 
@@ -228,9 +236,10 @@ public class ConnectorDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
-                    ConnectorRestClient.delete(((ConnInstanceTO) model.getObject()).getKey());
+                    restClient.delete(((ConnInstanceTO) model.getObject()).getKey());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');",
                             ((ConnInstanceTO) model.getObject()).getKey()));
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", ((ConnInstanceTO) model.getObject()).getKey(), e);
@@ -270,8 +279,8 @@ public class ConnectorDirectoryPanel extends
 
         private static final long serialVersionUID = 6128427903964630093L;
 
-        public Builder(final PageReference pageRef) {
-            super(new ConnectorRestClient(), pageRef);
+        public Builder(final ConnectorRestClient restClient, final PageReference pageRef) {
+            super(restClient, pageRef);
             setShowResultPage(false);
         }
 

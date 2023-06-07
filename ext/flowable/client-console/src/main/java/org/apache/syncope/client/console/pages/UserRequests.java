@@ -25,16 +25,21 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.UserRequestDirectoryPanel;
 import org.apache.syncope.client.console.panels.UserRequestFormDirectoryPanel;
 import org.apache.syncope.client.console.panels.UserRequestsPanel;
+import org.apache.syncope.client.console.rest.UserRequestRestClient;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class UserRequests extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271271L;
+
+    @SpringBean
+    protected UserRequestRestClient userRequestRestClient;
 
     public UserRequests(final PageParameters parameters) {
         super(parameters);
@@ -48,7 +53,7 @@ public class UserRequests extends BasePage {
         body.add(content);
     }
 
-    private List<ITab> buildTabList() {
+    protected List<ITab> buildTabList() {
         List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new ResourceModel("userRequestForms")) {
@@ -57,7 +62,8 @@ public class UserRequests extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new UserRequestsPanel(panelId, new UserRequestFormDirectoryPanel("inner", getPageReference()));
+                return new UserRequestsPanel(panelId, new UserRequestFormDirectoryPanel(
+                        "inner", userRequestRestClient, getPageReference()));
             }
         });
 
@@ -67,7 +73,8 @@ public class UserRequests extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new UserRequestsPanel(panelId, new UserRequestDirectoryPanel("inner", getPageReference()));
+                return new UserRequestsPanel(panelId, new UserRequestDirectoryPanel(
+                        "inner", userRequestRestClient, getPageReference()));
             }
         });
 

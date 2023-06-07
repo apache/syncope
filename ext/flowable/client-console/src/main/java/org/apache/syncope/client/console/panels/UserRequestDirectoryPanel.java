@@ -62,8 +62,12 @@ public class UserRequestDirectoryPanel
 
     private String keyword;
 
-    public UserRequestDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef, true);
+    public UserRequestDirectoryPanel(
+            final String id,
+            final UserRequestRestClient restClient,
+            final PageReference pageRef) {
+
+        super(id, restClient, pageRef, true);
         setFooterVisibility(false);
 
         initResultTable();
@@ -80,7 +84,7 @@ public class UserRequestDirectoryPanel
                     UserRequestService service = batch.getService(UserRequestService.class);
                     items.forEach(item -> service.cancelRequest(item.getExecutionId(), null));
 
-                    Map<String, String> results = UserRequestRestClient.batch(batch);
+                    Map<String, String> results = restClient.batch(batch);
 
                     resultTable.batchModal.header(new ResourceModel("batch"));
                     resultTable.batchModal.changeCloseButtonLabel(getString("cancel", null, "Cancel"), target);
@@ -131,7 +135,7 @@ public class UserRequestDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final UserRequest ignore) {
                 try {
-                    UserRequestRestClient.cancelRequest(model.getObject().getExecutionId(), null);
+                    restClient.cancelRequest(model.getObject().getExecutionId(), null);
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     UserRequestDirectoryPanel.this.getTogglePanel().close(target);
@@ -186,13 +190,13 @@ public class UserRequestDirectoryPanel
         @Override
         public Iterator<UserRequest> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return UserRequestRestClient.listRequests(
+            return restClient.listRequests(
                     keyword, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return UserRequestRestClient.countRequests(keyword);
+            return restClient.countRequests(keyword);
         }
 
         @Override

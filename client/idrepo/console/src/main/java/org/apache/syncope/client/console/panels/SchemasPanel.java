@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.KeywordSearchEvent;
+import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -35,12 +36,16 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class SchemasPanel extends Panel {
 
     private static final long serialVersionUID = -1140213992451232279L;
 
-    private final PageReference pageRef;
+    @SpringBean
+    protected SchemaRestClient schemaRestClient;
+
+    protected final PageReference pageRef;
 
     public SchemasPanel(final String id, final PageReference pageRef) {
         super(id);
@@ -76,7 +81,7 @@ public class SchemasPanel extends Panel {
         add(accordion);
     }
 
-    private List<ITab> buildTabList() {
+    protected List<ITab> buildTabList() {
         List<ITab> tabs = new ArrayList<>();
 
         for (final SchemaType schemaType : SchemaType.values()) {
@@ -86,7 +91,7 @@ public class SchemasPanel extends Panel {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new SchemaTypePanel(panelId, schemaType, pageRef);
+                    return new SchemaTypePanel(panelId, schemaRestClient, schemaType, pageRef);
                 }
             });
         }

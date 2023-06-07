@@ -57,6 +57,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ResourceStatusDirectoryPanel
         extends DirectoryPanel<StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?>>
@@ -64,11 +65,20 @@ public class ResourceStatusDirectoryPanel
 
     private static final long serialVersionUID = -9148734710505211261L;
 
-    private final MultilevelPanel multiLevelPanelRef;
+    @SpringBean
+    protected UserRestClient userRestClient;
 
-    private String type;
+    @SpringBean
+    protected GroupRestClient groupRestClient;
 
-    private final ResourceTO resource;
+    @SpringBean
+    protected AnyObjectRestClient anyObjectRestClient;
+
+    protected final MultilevelPanel multiLevelPanelRef;
+
+    protected String type;
+
+    protected final ResourceTO resource;
 
     public ResourceStatusDirectoryPanel(
             final MultilevelPanel multiLevelPanelRef,
@@ -76,7 +86,7 @@ public class ResourceStatusDirectoryPanel
             final String type,
             final ResourceTO resource) {
 
-        super(MultilevelPanel.FIRST_LEVEL_ID, pageRef);
+        super(MultilevelPanel.FIRST_LEVEL_ID, null, pageRef);
         this.multiLevelPanelRef = multiLevelPanelRef;
         this.type = type;
         this.resource = resource;
@@ -184,15 +194,15 @@ public class ResourceStatusDirectoryPanel
         if (StringUtils.isNotBlank(type)) {
             switch (type) {
                 case "USER":
-                    this.restClient = new UserRestClient();
+                    restClient = userRestClient;
                     break;
 
                 case "GROUP":
-                    this.restClient = new GroupRestClient();
+                    restClient = groupRestClient;
                     break;
 
                 default:
-                    this.restClient = new AnyObjectRestClient();
+                    restClient = anyObjectRestClient;
             }
         }
 
@@ -241,17 +251,17 @@ public class ResourceStatusDirectoryPanel
                 switch (type) {
                     case "USER":
                         bld = SyncopeClient.getUserSearchConditionBuilder();
-                        restClient = new UserRestClient();
+                        restClient = userRestClient;
                         break;
 
                     case "GROUP":
                         bld = SyncopeClient.getGroupSearchConditionBuilder();
-                        restClient = new GroupRestClient();
+                        restClient = groupRestClient;
                         break;
 
                     default:
                         bld = SyncopeClient.getAnyObjectSearchConditionBuilder(type);
-                        restClient = new AnyObjectRestClient();
+                        restClient = anyObjectRestClient;
                 }
                 fiql = bld.isNotNull(Constants.KEY_FIELD_NAME).query();
             }

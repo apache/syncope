@@ -31,10 +31,10 @@ import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Ac
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.ComponentTag;
@@ -52,9 +52,9 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
     private static final long serialVersionUID = -5387344116983102292L;
 
-    public <T extends AnyTO> DerAttrs(
+    public DerAttrs(
             final String id,
-            final AnyWrapper<T> modelObject,
+            final AnyWrapper<UserTO> modelObject,
             final List<String> anyTypeClasses,
             final Map<String, CustomizationOption> whichDerAttrs) {
 
@@ -95,7 +95,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
     @Override
     protected List<Attr> getAttrsFromTO() {
-        return anyTO.getDerAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
+        return userTO.getDerAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
@@ -107,7 +107,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
     protected void setAttrs() {
         List<Attr> derAttrs = new ArrayList<>();
 
-        Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
+        Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(userTO.getDerAttrs());
 
         schemas.values().forEach(schema -> {
             Attr attrTO = new Attr();
@@ -119,13 +119,13 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
             derAttrs.add(attrTO);
         });
 
-        anyTO.getDerAttrs().clear();
-        anyTO.getDerAttrs().addAll(derAttrs);
+        userTO.getDerAttrs().clear();
+        userTO.getDerAttrs().addAll(derAttrs);
     }
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).
+        Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(userTO).getMembership(membershipTO.getGroupKey()).
                 map(gr -> EntityTOUtils.buildAttrMap(gr.getDerAttrs())).
                 orElseGet(() -> new HashMap<>());
 

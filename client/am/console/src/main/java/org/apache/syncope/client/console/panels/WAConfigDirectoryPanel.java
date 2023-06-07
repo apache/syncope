@@ -40,8 +40,8 @@ public class WAConfigDirectoryPanel extends AttrListDirectoryPanel {
 
     private static final long serialVersionUID = 1538796157345L;
 
-    public WAConfigDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef, true);
+    public WAConfigDirectoryPanel(final String id, final WAConfigRestClient restClient, final PageReference pageRef) {
+        super(id, restClient, pageRef, true);
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<Attr>(new Attr(), pageRef) {
 
@@ -90,7 +90,7 @@ public class WAConfigDirectoryPanel extends AttrListDirectoryPanel {
             @Override
             public void onClick(final AjaxRequestTarget target, final Attr ignore) {
                 try {
-                    WAConfigRestClient.delete(model.getObject().getSchema());
+                    ((WAConfigRestClient) restClient).delete(model.getObject().getSchema());
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
@@ -105,7 +105,7 @@ public class WAConfigDirectoryPanel extends AttrListDirectoryPanel {
         return panel;
     }
 
-    protected static final class WAConfigProvider extends AttrListProvider {
+    protected final class WAConfigProvider extends AttrListProvider {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -115,7 +115,7 @@ public class WAConfigDirectoryPanel extends AttrListDirectoryPanel {
 
         @Override
         protected List<Attr> list() {
-            return WAConfigRestClient.list();
+            return ((WAConfigRestClient) restClient).list();
         }
     }
 }

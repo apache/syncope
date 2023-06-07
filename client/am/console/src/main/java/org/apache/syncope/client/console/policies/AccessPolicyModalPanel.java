@@ -31,12 +31,16 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class AccessPolicyModalPanel extends AbstractModalPanel<AccessPolicyTO> {
 
     private static final long serialVersionUID = -6446551344059681908L;
 
-    private final IModel<AccessPolicyTO> model;
+    @SpringBean
+    protected PolicyRestClient policyRestClient;
+
+    protected final IModel<AccessPolicyTO> model;
 
     public AccessPolicyModalPanel(
             final BaseModal<AccessPolicyTO> modal,
@@ -52,7 +56,7 @@ public class AccessPolicyModalPanel extends AbstractModalPanel<AccessPolicyTO> {
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
         try {
-            PolicyRestClient.update(PolicyType.ACCESS, model.getObject());
+            policyRestClient.update(PolicyType.ACCESS, model.getObject());
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);

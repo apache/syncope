@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.layout.LinkedAccountForm;
 import org.apache.syncope.client.console.layout.LinkedAccountFormLayoutInfo;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.ModalEvent;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
@@ -46,19 +47,27 @@ public class LinkedAccountWizardBuilder extends BaseAjaxWizardBuilder<LinkedAcco
 
     private static final long serialVersionUID = -9142332740863374891L;
 
-    private final UserRestClient userRestClient = new UserRestClient();
-
-    private final IModel<UserTO> model;
+    protected final IModel<UserTO> model;
 
     protected LinkedAccountFormLayoutInfo formLayoutInfo;
+
+    protected final UserRestClient userRestClient;
+
+    protected final AnyTypeRestClient anyTypeRestClient;
 
     public LinkedAccountWizardBuilder(
             final IModel<UserTO> model,
             final LinkedAccountFormLayoutInfo formLayoutInfo,
+            final UserRestClient userRestClient,
+            final AnyTypeRestClient anyTypeRestClient,
             final PageReference pageRef) {
+
         super(new LinkedAccountTO(), pageRef);
+
         this.model = model;
         this.formLayoutInfo = formLayoutInfo;
+        this.userRestClient = userRestClient;
+        this.anyTypeRestClient = anyTypeRestClient;
     }
 
     @Override
@@ -76,7 +85,10 @@ public class LinkedAccountWizardBuilder extends BaseAjaxWizardBuilder<LinkedAcco
 
         if (formLayoutInfo.isPlainAttrs()) {
             wizardModel.add(new LinkedAccountPlainAttrsPanel(
-                    new EntityWrapper<>(modelObject), model.getObject(), formLayoutInfo.getWhichPlainAttrs()));
+                    new EntityWrapper<>(modelObject),
+                    model.getObject(),
+                    anyTypeRestClient.read(model.getObject().getType()).getClasses(),
+                    formLayoutInfo.getWhichPlainAttrs()));
         }
 
         if (formLayoutInfo.isPrivileges()) {

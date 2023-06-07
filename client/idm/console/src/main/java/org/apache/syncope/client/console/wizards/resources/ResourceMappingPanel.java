@@ -41,6 +41,7 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,14 +52,23 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ResourceMappingPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ResourceMappingPanel.class);
+
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
 
     /**
      * External resource provisioning configuration instance to be updated.
      */
-    private final ResourceProvision provision;
+    protected final ResourceProvision provision;
 
-    private final LoadableDetachableModel<List<String>> extAttrNames;
+    protected final LoadableDetachableModel<List<String>> extAttrNames;
 
     /**
      * Attribute Mapping Panel.
@@ -81,7 +91,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
         super(id,
                 itemTransformers,
                 jexlTransformers,
-            new ListModel<>(provision.getItems()),
+                new ListModel<>(provision.getItems()),
                 resourceTO.getConnector() != null,
                 MappingPurpose.BOTH);
 
@@ -95,11 +105,11 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
 
             @Override
             protected List<String> load() {
-                return ConnectorRestClient.getExtAttrNames(
-                    adminRealm,
-                    provision.getObjectClass(),
-                    resourceTO.getConnector(),
-                    resourceTO.getConfOverride());
+                return connectorRestClient.getExtAttrNames(
+                        adminRealm,
+                        provision.getObjectClass(),
+                        resourceTO.getConnector(),
+                        resourceTO.getConfOverride());
             }
         };
     }
@@ -133,7 +143,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
         } else {
             AnyTypeTO anyType = null;
             try {
-                anyType = AnyTypeRestClient.read(provision.getAnyType());
+                anyType = anyTypeRestClient.read(provision.getAnyType());
             } catch (Exception e) {
                 LOG.error("Could not read AnyType {}", provision.getAnyType(), e);
             }
@@ -141,14 +151,14 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
             List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
             if (anyType != null) {
                 try {
-                    anyTypeClassTOs.addAll(AnyTypeClassRestClient.list(anyType.getClasses()));
+                    anyTypeClassTOs.addAll(anyTypeClassRestClient.list(anyType.getClasses()));
                 } catch (Exception e) {
                     LOG.error("Could not read AnyType classes for {}", anyType.getClasses(), e);
                 }
             }
             provision.getAuxClasses().forEach(auxClass -> {
                 try {
-                    anyTypeClassTOs.add(AnyTypeClassRestClient.read(auxClass));
+                    anyTypeClassTOs.add(anyTypeClassRestClient.read(auxClass));
                 } catch (Exception e) {
                     LOG.error("Could not read AnyTypeClass for {}", auxClass, e);
                 }

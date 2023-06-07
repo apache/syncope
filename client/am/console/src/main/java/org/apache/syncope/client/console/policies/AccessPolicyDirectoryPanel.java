@@ -42,13 +42,13 @@ public class AccessPolicyDirectoryPanel extends PolicyDirectoryPanel<AccessPolic
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    public AccessPolicyDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, PolicyType.ACCESS, pageRef);
+    public AccessPolicyDirectoryPanel(final String id, final PolicyRestClient restClient, final PageReference pageRef) {
+        super(id, restClient, PolicyType.ACCESS, pageRef);
 
         AccessPolicyTO defaultItem = new AccessPolicyTO();
 
         this.addNewItemPanelBuilder(
-                new PolicyModalPanelBuilder<>(PolicyType.ACCESS, defaultItem, modal, pageRef), true);
+                new PolicyModalPanelBuilder<>(PolicyType.ACCESS, defaultItem, modal, restClient, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.POLICY_CREATE);
 
         initResultTable();
@@ -81,7 +81,7 @@ public class AccessPolicyDirectoryPanel extends PolicyDirectoryPanel<AccessPolic
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AccessPolicyTO ignore) {
-                model.setObject(PolicyRestClient.read(type, model.getObject().getKey()));
+                model.setObject(restClient.read(type, model.getObject().getKey()));
                 if (model.getObject().getConf() == null) {
                     model.getObject().setConf(new DefaultAccessPolicyConf());
                 }

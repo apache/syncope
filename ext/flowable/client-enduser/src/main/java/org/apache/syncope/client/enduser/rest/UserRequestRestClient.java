@@ -35,7 +35,7 @@ public class UserRequestRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4785231164900813921L;
 
-    public static int countRequests() {
+    public int countRequests() {
         return getService(UserRequestService.class).
                 listRequests(new UserRequestQuery.Builder()
                         .user(SyncopeEnduserSession.get().getSelfTO().getUsername())
@@ -44,7 +44,7 @@ public class UserRequestRestClient extends BaseRestClient {
                         .build()).getTotalCount();
     }
 
-    public static List<UserRequest> listRequests(
+    public List<UserRequest> listRequests(
             final int page,
             final int size,
             final String username,
@@ -57,40 +57,40 @@ public class UserRequestRestClient extends BaseRestClient {
                 page(page).size(size).orderBy(toOrderBy(sort)).build()).getResult();
     }
 
-    public static void cancelRequest(final String executionId, final String reason) {
+    public void cancelRequest(final String executionId, final String reason) {
         getService(UserRequestService.class).cancelRequest(executionId, reason);
     }
 
-    public static int countForms() {
+    public int countForms() {
         return getService(UserRequestService.class).
                 listForms(new UserRequestQuery.Builder().page(1).size(0).build()).
                 getTotalCount();
     }
 
-    public static List<UserRequestForm> listForms(final int page, final int size, final SortParam<String> sort) {
+    public List<UserRequestForm> listForms(final int page, final int size, final SortParam<String> sort) {
         return getService(UserRequestService.class).
                 listForms(new UserRequestQuery.Builder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
                 getResult();
     }
 
-    public static Optional<UserRequestForm> getForm(final String username, final String taskId) {
+    public Optional<UserRequestForm> getForm(final String username, final String taskId) {
         return Optional.ofNullable(getService(UserRequestService.class).getForm(StringUtils.isBlank(username)
                 ? SyncopeEnduserSession.get().getSelfTO().getUsername()
                 : username,
                 taskId));
     }
 
-    public static ProvisioningResult<UserTO> submitForm(final UserRequestForm form) {
+    public ProvisioningResult<UserTO> submitForm(final UserRequestForm form) {
         return getService(UserRequestService.class).submitForm(form).readEntity(
-            new GenericType<>() {
-            });
+                new GenericType<>() {
+        });
     }
 
-    public static void startRequest(final String bpmnProcess, final String user) {
+    public void startRequest(final String bpmnProcess, final String user) {
         getService(UserRequestService.class).startRequest(bpmnProcess, user, null);
     }
 
-    public static UserRequestForm claimForm(final String taskKey) {
+    public UserRequestForm claimForm(final String taskKey) {
         return getService(UserRequestService.class).claimForm(taskKey);
     }
 }

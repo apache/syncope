@@ -26,12 +26,16 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQuestionTO> {
 
     private static final long serialVersionUID = 4024126489500665435L;
 
-    private final SecurityQuestionTO securityQuestionTO;
+    @SpringBean
+    protected SecurityQuestionRestClient securityQuestionRestClient;
+
+    protected final SecurityQuestionTO securityQuestionTO;
 
     public SecurityQuestionsModalPanel(
             final BaseModal<SecurityQuestionTO> modal,
@@ -52,9 +56,9 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
     public void onSubmit(final AjaxRequestTarget target) {
         try {
             if (securityQuestionTO.getKey() == null) {
-                SecurityQuestionRestClient.create(securityQuestionTO);
+                securityQuestionRestClient.create(securityQuestionTO);
             } else {
-                SecurityQuestionRestClient.update(securityQuestionTO);
+                securityQuestionRestClient.update(securityQuestionTO);
             }
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));

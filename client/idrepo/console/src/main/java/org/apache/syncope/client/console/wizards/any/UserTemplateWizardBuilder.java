@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
@@ -35,15 +36,16 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
 
     private static final long serialVersionUID = 6716803168859873877L;
 
-    private final TemplatableTO templatable;
+    protected final TemplatableTO templatable;
 
     public UserTemplateWizardBuilder(
             final UserTO template,
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
+            final UserRestClient userRestClient,
             final PageReference pageRef) {
 
-        super(anyTypeClasses, formLayoutInfo, pageRef);
+        super(anyTypeClasses, formLayoutInfo, userRestClient, pageRef);
         templatable = null;
 
         if (template == null) {
@@ -57,9 +59,10 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
             final TemplatableTO templatable,
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
+            final UserRestClient userRestClient,
             final PageReference pageRef) {
 
-        super(anyTypeClasses, formLayoutInfo, pageRef);
+        super(anyTypeClasses, formLayoutInfo, userRestClient, pageRef);
         this.templatable = templatable;
 
         if (templatable.getTemplates().containsKey(AnyTypeKind.USER.name())) {

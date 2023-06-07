@@ -26,27 +26,27 @@ public class AuthProfileRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -7379778542101161274L;
 
-    public static int count() {
+    public int count() {
         return getService(AuthProfileService.class).list(1, 1).getTotalCount();
     }
 
-    public static List<AuthProfileTO> list(final int page, final int size) {
+    public List<AuthProfileTO> list(final int page, final int size) {
         return getService(AuthProfileService.class).list(page, size).getResult();
     }
 
-    public static AuthProfileTO read(final String key) {
+    public AuthProfileTO read(final String key) {
         return getService(AuthProfileService.class).read(key);
     }
 
-    public static void create(final AuthProfileTO authProfile) {
+    public void create(final AuthProfileTO authProfile) {
         getService(AuthProfileService.class).create(authProfile);
     }
 
-    public static void update(final AuthProfileTO authProfile) {
+    public void update(final AuthProfileTO authProfile) {
         getService(AuthProfileService.class).update(authProfile);
     }
 
-    public static void delete(final String key) {
+    public void delete(final String key) {
         getService(AuthProfileService.class).delete(key);
     }
 }

@@ -32,7 +32,9 @@ import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SAML2IdPsDirectoryPanel.SAML2IdPsProvider;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.SAML2IdPsRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -67,21 +69,30 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         SAML2SP4UIIdPTO, SAML2SP4UIIdPTO, SAML2IdPsProvider, SAML2IdPsRestClient> {
 
     private static final long serialVersionUID = 4792356089584116041L;
 
-    private static final String PREF_SAML2_IDPS_PAGINATOR_ROWS = "saml2.idps.paginator.rows";
+    protected static final String PREF_SAML2_IDPS_PAGINATOR_ROWS = "saml2.idps.paginator.rows";
 
-    private final BaseModal<String> metadataModal = new BaseModal<>("outer");
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
-    private final BaseModal<Serializable> templateModal;
+    @SpringBean
+    protected UserRestClient userRestClient;
 
-    public SAML2IdPsDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<SAML2SP4UIIdPTO, SAML2SP4UIIdPTO, SAML2IdPsRestClient>(
-                new SAML2IdPsRestClient(), pageRef) {
+    @SpringBean
+    protected ImplementationRestClient implementationRestClient;
+
+    protected final BaseModal<String> metadataModal = new BaseModal<>("outer");
+
+    protected final BaseModal<Serializable> templateModal;
+
+    public SAML2IdPsDirectoryPanel(final String id, final SAML2IdPsRestClient restClient, final PageReference pageRef) {
+        super(id, new Builder<SAML2SP4UIIdPTO, SAML2SP4UIIdPTO, SAML2IdPsRestClient>(restClient, pageRef) {
 
             private static final long serialVersionUID = 8517982765290075155L;
 
@@ -90,7 +101,9 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                 throw new UnsupportedOperationException();
             }
         }.disableCheckBoxes());
-        this.addNewItemPanelBuilder(new SAML2IdPWizardBuilder(this, new SAML2SP4UIIdPTO(), pageRef), false);
+
+        addNewItemPanelBuilder(new SAML2IdPWizardBuilder(
+                this, new SAML2SP4UIIdPTO(), implementationRestClient, restClient, pageRef), false);
 
         modal.addSubmitButton();
         modal.size(Modal.Size.Large);
@@ -191,7 +204,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final SAML2SP4UIIdPTO ignore) {
-                SAML2SP4UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
+                SAML2SP4UIIdPTO object = restClient.read(model.getObject().getKey());
                 metadataModal.header(Model.of(object.getName() + " - Metadata"));
                 metadataModal.setContent(new XMLEditorPanel(
                         metadataModal,
@@ -208,7 +221,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final SAML2SP4UIIdPTO ignore) {
-                SAML2SP4UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
+                SAML2SP4UIIdPTO object = restClient.read(model.getObject().getKey());
                 send(SAML2IdPsDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(object, target));
             }
@@ -219,12 +232,13 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final SAML2SP4UIIdPTO ignore) {
-                final SAML2SP4UIIdPTO object = SAML2IdPsRestClient.read(model.getObject().getKey());
+                final SAML2SP4UIIdPTO object = restClient.read(model.getObject().getKey());
 
                 UserTemplateWizardBuilder builder = new UserTemplateWizardBuilder(
                         object.getUserTemplate(),
-                        AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
+                        anyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
                         new UserFormLayoutInfo(),
+                        userRestClient,
                         pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770634L;
@@ -232,7 +246,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                     @Override
                     protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
                         object.setUserTemplate(modelObject.getInnerObject());
-                        SAML2IdPsRestClient.update(object);
+                        restClient.update(object);
 
                         return modelObject;
                     }
@@ -252,7 +266,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final SAML2SP4UIIdPTO ignore) {
                 try {
-                    SAML2IdPsRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -288,7 +302,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         }
     }
 
-    protected static final class SAML2IdPsProvider extends DirectoryDataProvider<SAML2SP4UIIdPTO> {
+    protected final class SAML2IdPsProvider extends DirectoryDataProvider<SAML2SP4UIIdPTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -303,14 +317,14 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<SAML2SP4UIIdPTO> iterator(final long first, final long count) {
-            List<SAML2SP4UIIdPTO> list = SAML2IdPsRestClient.list();
+            List<SAML2SP4UIIdPTO> list = restClient.list();
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SAML2IdPsRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override

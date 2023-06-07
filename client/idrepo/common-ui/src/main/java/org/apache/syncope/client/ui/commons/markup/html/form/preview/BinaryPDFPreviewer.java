@@ -55,8 +55,8 @@ public class BinaryPDFPreviewer extends BinaryPreviewer {
 
     private transient BufferedImage firstPage;
 
-    public BinaryPDFPreviewer(final String id, final String mimeType) {
-        super(id, mimeType);
+    public BinaryPDFPreviewer(final String mimeType) {
+        super(mimeType);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class BinaryPDFPreviewer extends BinaryPreviewer {
         firstPage = null;
 
         try (InputStream bais = new ByteArrayInputStream(uploadedBytes);
-                PDDocument document = Loader.loadPDF(bais, MemoryUsageSetting.setupTempFileOnly())) {
+             PDDocument document = Loader.loadPDF(bais, MemoryUsageSetting.setupTempFileOnly())) {
 
             document.setResourceCache(new DefaultResourceCache() {
 

@@ -48,6 +48,7 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,11 +56,14 @@ public class LinkedAccountDetailsPanel extends WizardStep {
 
     private static final long serialVersionUID = 1221037007528732347L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(LinkedAccountDetailsPanel.class);
+    @SpringBean
+    protected ResourceRestClient resourceRestClient;
 
-    private static final int SEARCH_SIZE = 20;
+    protected static final Logger LOG = LoggerFactory.getLogger(LinkedAccountDetailsPanel.class);
 
-    private List<String> connObjectKeyFieldValues;
+    protected static final int SEARCH_SIZE = 20;
+
+    protected List<String> connObjectKeyFieldValues;
 
     public LinkedAccountDetailsPanel(final LinkedAccountTO linkedAccountTO) {
         super();
@@ -71,7 +75,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
                 new PropertyModel<>(linkedAccountTO, "resource"),
                 false);
 
-        dropdownResourceField.setChoices(ResourceRestClient.list().stream().
+        dropdownResourceField.setChoices(resourceRestClient.list().stream().
                 filter(resource -> resource.getProvision(AnyTypeKind.USER.name()).
                 flatMap(provision -> Optional.ofNullable(provision.getMapping())).
                 filter(mapping -> !mapping.getItems().isEmpty()).isPresent()).
@@ -156,7 +160,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
 
         AtomicReference<String> resourceRemoteKey = new AtomicReference<>(ConnIdSpecialName.NAME);
         try {
-            ResourceRestClient.read(resource).getProvision(AnyTypeKind.USER.name()).
+            resourceRestClient.read(resource).getProvision(AnyTypeKind.USER.name()).
                     flatMap(provision -> Optional.ofNullable(provision.getMapping())).
                     flatMap(mapping -> mapping.getConnObjectKeyItem()).
                     ifPresent(connObjectKeyItem -> resourceRemoteKey.set(connObjectKeyItem.getExtAttrName()));
@@ -169,7 +173,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
             builder.fiql(SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                     is(resourceRemoteKey.get()).equalTo(searchTerm + "*").query()).build();
         }
-        Pair<String, List<ConnObject>> items = ResourceRestClient.searchConnObjects(
+        Pair<String, List<ConnObject>> items = resourceRestClient.searchConnObjects(
                 resource,
                 AnyTypeKind.USER.name(),
                 builder,

@@ -21,6 +21,8 @@ package org.apache.syncope.client.console.pages;
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.ResourceDirectoryPanel;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -33,10 +35,17 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Resources extends Panel {
 
     private static final long serialVersionUID = 7240865652350993779L;
+
+    @SpringBean
+    protected ResourceRestClient resourceRestClient;
+
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
 
     public Resources(final String id, final PageReference pageRef) {
         super(id);
@@ -66,8 +75,9 @@ public class Resources extends Panel {
         form.add(search);
         form.setDefaultButton(search);
 
-        WizardMgtPanel<Serializable> resourceDirectoryPanel = new ResourceDirectoryPanel.Builder(pageRef).
-                addNewItemPanelBuilder(new ResourceWizardBuilder(new ResourceTO(), pageRef), true).
+        WizardMgtPanel<Serializable> resourceDirectoryPanel = new ResourceDirectoryPanel.Builder(
+                resourceRestClient, pageRef).addNewItemPanelBuilder(new ResourceWizardBuilder(
+                new ResourceTO(), resourceRestClient, connectorRestClient, pageRef), true).
                 build("resourceDirectoryPanel");
         add(resourceDirectoryPanel.setOutputMarkupId(true));
     }

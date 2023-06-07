@@ -43,6 +43,10 @@ import org.apache.syncope.client.console.panels.OIDC;
 import org.apache.syncope.client.console.panels.SAML2;
 import org.apache.syncope.client.console.panels.WAConfigDirectoryPanel;
 import org.apache.syncope.client.console.panels.WAPushModalPanel;
+import org.apache.syncope.client.console.rest.AttrRepoRestClient;
+import org.apache.syncope.client.console.rest.AuthModuleRestClient;
+import org.apache.syncope.client.console.rest.AuthProfileRestClient;
+import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.console.rest.WASessionRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -66,10 +70,22 @@ public class WA extends BasePage {
 
     protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    protected final BaseModal<Serializable> modal;
+    @SpringBean
+    protected WAConfigRestClient waConfigRestClient;
+
+    @SpringBean
+    protected AuthProfileRestClient authProfileRestClient;
+
+    @SpringBean
+    protected AuthModuleRestClient authModuleRestClient;
+
+    @SpringBean
+    protected AttrRepoRestClient attrRepoRestClient;
 
     @SpringBean
     protected ServiceOps serviceOps;
+
+    protected final BaseModal<Serializable> modal;
 
     protected String waPrefix = "";
 
@@ -154,7 +170,7 @@ public class WA extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new AuthModuleDirectoryPanel(panelId, getPageReference());
+                    return new AuthModuleDirectoryPanel(panelId, authModuleRestClient, getPageReference());
                 }
             });
         }
@@ -166,7 +182,7 @@ public class WA extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new AttrRepoDirectoryPanel(panelId, getPageReference());
+                    return new AttrRepoDirectoryPanel(panelId, attrRepoRestClient, getPageReference());
                 }
             });
         }
@@ -210,7 +226,7 @@ public class WA extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new WAConfigDirectoryPanel(panelId, getPageReference());
+                    return new WAConfigDirectoryPanel(panelId, waConfigRestClient, getPageReference());
                 }
             });
         }
@@ -222,7 +238,7 @@ public class WA extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new AuthProfileDirectoryPanel(panelId, getPageReference());
+                    return new AuthProfileDirectoryPanel(panelId, authProfileRestClient, getPageReference());
                 }
             });
         }

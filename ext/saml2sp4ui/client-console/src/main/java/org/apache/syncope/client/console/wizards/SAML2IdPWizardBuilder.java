@@ -62,35 +62,46 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2SP4UIIdPTO> {
 
     private static final long serialVersionUID = 5952696913893950460L;
 
-    private final SAML2IdPsDirectoryPanel directoryPanel;
+    protected final SAML2IdPsDirectoryPanel directoryPanel;
 
-    private final IModel<List<String>> idpActions = new LoadableDetachableModel<>() {
+    protected final ImplementationRestClient implementationRestClient;
+
+    protected final SAML2IdPsRestClient saml2IdPsRestClient;
+
+    protected final IModel<List<String>> idpActions = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
-            return ImplementationRestClient.list(SAML2SP4UIImplementationType.IDP_ACTIONS).stream().
-                map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+            return implementationRestClient.list(SAML2SP4UIImplementationType.IDP_ACTIONS).stream().
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
-    private final IModel<List<String>> requestedAuthnContextProviders = new LoadableDetachableModel<>() {
+    protected final IModel<List<String>> requestedAuthnContextProviders = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 4659376149825914247L;
 
         @Override
         protected List<String> load() {
-            return ImplementationRestClient.list(SAML2SP4UIImplementationType.REQUESTED_AUTHN_CONTEXT_PROVIDER).
-                stream().map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+            return implementationRestClient.list(SAML2SP4UIImplementationType.REQUESTED_AUTHN_CONTEXT_PROVIDER).
+                    stream().map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
     public SAML2IdPWizardBuilder(
-            final SAML2IdPsDirectoryPanel directoryPanel, final SAML2SP4UIIdPTO idpTO, final PageReference pageRef) {
+            final SAML2IdPsDirectoryPanel directoryPanel,
+            final SAML2SP4UIIdPTO idpTO,
+            final ImplementationRestClient implementationRestClient,
+            final SAML2IdPsRestClient saml2IdPsRestClient,
+            final PageReference pageRef) {
 
         super(idpTO, pageRef);
+
         this.directoryPanel = directoryPanel;
+        this.implementationRestClient = implementationRestClient;
+        this.saml2IdPsRestClient = saml2IdPsRestClient;
     }
 
     @Override
@@ -214,7 +225,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2SP4UIIdPTO> {
                     new StringResourceModel("connObjectKeyValidation", directoryPanel).getString());
         }
 
-        SAML2IdPsRestClient.update(modelObject);
+        saml2IdPsRestClient.update(modelObject);
         return modelObject;
     }
 }

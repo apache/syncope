@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import org.apache.syncope.client.console.rest.AccessTokenRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -25,15 +26,19 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class DashboardAccessTokensPanel extends Panel {
 
     private static final long serialVersionUID = -5540744119461583586L;
 
+    @SpringBean
+    protected AccessTokenRestClient restClient;
+
     public DashboardAccessTokensPanel(final String id, final PageReference pageRef) {
         super(id);
 
-        WizardMgtPanel<AccessTokenTO> accessTokens = new AccessTokenDirectoryPanel.Builder(pageRef).
+        WizardMgtPanel<AccessTokenTO> accessTokens = new AccessTokenDirectoryPanel.Builder(restClient, pageRef).
                 disableCheckBoxes().build("accessTokens");
         MetaDataRoleAuthorizationStrategy.authorize(
                 accessTokens, Component.RENDER, IdRepoEntitlement.ACCESS_TOKEN_LIST);

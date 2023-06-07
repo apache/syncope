@@ -21,7 +21,6 @@ package org.apache.syncope.client.console;
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.client.console.actuate.SyncopeConsoleInfoContributor;
 import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
@@ -32,11 +31,13 @@ import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
 import org.apache.syncope.client.ui.commons.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
+import org.apache.wicket.request.resource.IResource;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
@@ -80,7 +81,9 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
             final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
             final ImplementationInfoProvider implementationInfoProvider,
             final AccessPolicyConfProvider accessPolicyConfProvider,
-            final List<PolicyTabProvider> policyTabProviders) {
+            final List<PolicyTabProvider> policyTabProviders,
+            final List<UserFormFinalizer> userFormFinalizers,
+            final List<IResource> resources) {
 
         return new SyncopeWebApplication(
                 props,
@@ -93,7 +96,9 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
                 virSchemaDetailsPanelProvider,
                 implementationInfoProvider,
                 accessPolicyConfProvider,
-                policyTabProviders);
+                policyTabProviders,
+                userFormFinalizers,
+                resources);
     }
 
     @ConditionalOnMissingBean
@@ -106,12 +111,6 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
                 props.getAnonymousUser(),
                 props.getAnonymousKey(),
                 props.isUseGZIPCompression());
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public SyncopeConsoleInfoContributor syncopeConsoleInfoContributor() {
-        return new SyncopeConsoleInfoContributor();
     }
 
     @Bean

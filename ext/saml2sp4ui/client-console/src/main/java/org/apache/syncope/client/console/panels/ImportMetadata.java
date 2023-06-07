@@ -34,11 +34,15 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ImportMetadata extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = 6959177759869415782L;
 
+    @SpringBean
+    protected SAML2IdPsRestClient saml2IdPsRestClient;
+    
     public ImportMetadata(final String id, final WebMarkupContainer container, final PageReference pageRef) {
         super(id, pageRef);
 
@@ -65,7 +69,7 @@ public class ImportMetadata extends TogglePanel<Serializable> {
                 FileUpload uploaded = fileUpload.getFileUpload();
                 if (uploaded != null) {
                     try {
-                        SAML2IdPsRestClient.importIdPs(uploaded.getInputStream());
+                        saml2IdPsRestClient.importIdPs(uploaded.getInputStream());
 
                         SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         toggle(target, false);

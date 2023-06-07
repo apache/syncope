@@ -39,6 +39,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,9 +49,12 @@ public class OIDC extends Panel {
 
     private static final Logger LOG = LoggerFactory.getLogger(OIDC.class);
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    private final BaseModal<String> viewModal = new BaseModal<>("viewModal") {
+    @SpringBean
+    protected OIDCJWKSRestClient oidcJWKSRestClient;
+
+    protected final BaseModal<String> viewModal = new BaseModal<>("viewModal") {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -61,11 +65,11 @@ public class OIDC extends Panel {
         }
     };
 
-    private final AjaxLink<Void> view;
+    protected final AjaxLink<Void> view;
 
-    private final AjaxLink<Void> generate;
+    protected final AjaxLink<Void> generate;
 
-    private final AjaxLink<Void> delete;
+    protected final AjaxLink<Void> delete;
 
     public OIDC(final String id, final String waPrefix, final PageReference pageRef) {
         super(id);
@@ -78,7 +82,7 @@ public class OIDC extends Panel {
         WebMarkupContainer container = new WebMarkupContainer("container");
         add(container.setOutputMarkupId(true));
 
-        AtomicReference<OIDCJWKSTO> oidcjwksto = OIDCJWKSRestClient.get();
+        AtomicReference<OIDCJWKSTO> oidcjwksto = oidcJWKSRestClient.get();
 
         view = new AjaxLink<>("view") {
 
@@ -120,7 +124,7 @@ public class OIDC extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    oidcjwksto.set(OIDCJWKSRestClient.generate());
+                    oidcjwksto.set(oidcJWKSRestClient.generate());
                     generate.setEnabled(false);
                     view.setEnabled(true);
 
@@ -153,7 +157,7 @@ public class OIDC extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    OIDCJWKSRestClient.delete();
+                    oidcJWKSRestClient.delete();
                     oidcjwksto.set(null);
                     generate.setEnabled(true);
                     view.setEnabled(false);

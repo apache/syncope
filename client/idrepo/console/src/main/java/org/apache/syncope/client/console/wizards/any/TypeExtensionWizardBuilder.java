@@ -42,17 +42,23 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
 
     private static final long serialVersionUID = -7185214439144835423L;
 
-    private final GroupTO groupTO;
+    protected final GroupTO groupTO;
 
-    private final String anyTypeLabel;
+    protected final String anyTypeLabel;
 
-    private final String auxClassesLabel;
+    protected final String auxClassesLabel;
+
+    protected final AnyTypeRestClient anyTypeRestClient;
+
+    protected final AnyTypeClassRestClient anyTypeClassRestClient;
 
     public TypeExtensionWizardBuilder(
             final GroupTO groupTO,
             final TypeExtensionTO defaultItem,
             final String anyTypeLabel,
             final String auxClassesLabel,
+            final AnyTypeRestClient anyTypeRestClient,
+            final AnyTypeClassRestClient anyTypeClassRestClient,
             final PageReference pageRef) {
 
         super(defaultItem, pageRef);
@@ -60,6 +66,8 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
         this.groupTO = groupTO;
         this.anyTypeLabel = anyTypeLabel;
         this.auxClassesLabel = auxClassesLabel;
+        this.anyTypeRestClient = anyTypeRestClient;
+        this.anyTypeClassRestClient = anyTypeClassRestClient;
     }
 
     @Override
@@ -89,7 +97,7 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
             add(new Label("anyType.label", anyTypeLabel));
 
             if (typeExtensionTO.getAnyType() == null) {
-                List<String> anyTypes = AnyTypeRestClient.list();
+                List<String> anyTypes = anyTypeRestClient.list();
                 anyTypes.remove(AnyTypeKind.GROUP.name());
                 anyTypes.removeAll(anyTypes.stream().
                         filter(anyType -> groupTO.getTypeExtension(anyType).isPresent()).collect(Collectors.toList()));
@@ -108,7 +116,7 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
 
             add(new Label("auxClasses.label", auxClassesLabel));
 
-            List<String> anyTypeClasses = AnyTypeClassRestClient.list().stream().
+            List<String> anyTypeClasses = anyTypeClassRestClient.list().stream().
                     map(AnyTypeClassTO::getKey).collect(Collectors.toList());
             AjaxPalettePanel<String> auxClassesPalette = new AjaxPalettePanel.Builder<String>().build(
                     "auxClasses.palette",

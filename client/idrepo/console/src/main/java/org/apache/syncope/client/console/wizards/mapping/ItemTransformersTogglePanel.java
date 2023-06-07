@@ -38,12 +38,16 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    private Item item;
+    @SpringBean
+    protected ImplementationRestClient implementationRestClient;
+
+    protected Item item;
 
     public ItemTransformersTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
         super(Constants.OUTER, "itemTransformersTogglePanel", pageRef);
@@ -56,15 +60,15 @@ public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
             protected List<String> load() {
                 // [!] this is required to disable changed with close button
                 return item == null
-                    ? List.of()
-                    : item.getTransformers();
+                        ? List.of()
+                        : item.getTransformers();
             }
         };
 
         Form<?> form = new Form<>("form");
         addInnerObject(form);
 
-        List<String> choices = ImplementationRestClient.list(IdRepoImplementationType.ITEM_TRANSFORMER).stream().
+        List<String> choices = implementationRestClient.list(IdRepoImplementationType.ITEM_TRANSFORMER).stream().
                 map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
 
         form.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).setRenderer(new IChoiceRenderer<>() {

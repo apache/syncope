@@ -41,22 +41,6 @@ public abstract class BaseRestClient implements RestClient {
 
     protected static final Logger LOG = LoggerFactory.getLogger(BaseRestClient.class);
 
-    public static SyncopeService getSyncopeService() {
-        return getService(SyncopeService.class);
-    }
-
-    protected static <T> T getService(final Class<T> serviceClass) {
-        return SyncopeConsoleSession.get().getService(serviceClass);
-    }
-
-    protected static <T> T getService(final String etag, final Class<T> serviceClass) {
-        return SyncopeConsoleSession.get().getService(etag, serviceClass);
-    }
-
-    protected static <T> void resetClient(final Class<T> serviceClass) {
-        SyncopeConsoleSession.get().resetClient(serviceClass);
-    }
-
     public static String toOrderBy(final SortParam<String> sort) {
         OrderByClauseBuilder builder = SyncopeClient.getOrderByClauseBuilder();
 
@@ -74,7 +58,23 @@ public abstract class BaseRestClient implements RestClient {
         return builder.build();
     }
 
-    protected static <E extends JAXRSService, T> T getObject(
+    public SyncopeService getSyncopeService() {
+        return getService(SyncopeService.class);
+    }
+
+    protected <T> T getService(final Class<T> serviceClass) {
+        return SyncopeConsoleSession.get().getService(serviceClass);
+    }
+
+    protected <T> T getService(final String etag, final Class<T> serviceClass) {
+        return SyncopeConsoleSession.get().getService(etag, serviceClass);
+    }
+
+    protected <T> void resetClient(final Class<T> serviceClass) {
+        SyncopeConsoleSession.get().resetClient(serviceClass);
+    }
+
+    protected <E extends JAXRSService, T> T getObject(
             final E service, final URI location, final Class<T> resultClass) {
 
         WebClient webClient = WebClient.fromClient(WebClient.client(service));
@@ -85,7 +85,7 @@ public abstract class BaseRestClient implements RestClient {
                 get(resultClass);
     }
 
-    protected static String getStatus(final int httpStatus) {
+    protected String getStatus(final int httpStatus) {
         ExecStatus execStatus = ExecStatus.fromHttpStatus(httpStatus);
         return Optional.ofNullable(execStatus).map(Enum::name).orElse(Constants.UNKNOWN);
     }

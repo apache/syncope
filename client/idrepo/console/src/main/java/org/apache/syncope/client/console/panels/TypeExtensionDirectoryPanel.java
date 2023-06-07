@@ -28,6 +28,8 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.TypeExtensionDirectoryPanel.TypeExtensionDataProvider;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -51,6 +53,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class TypeExtensionDirectoryPanel
         extends DirectoryPanel<TypeExtensionTO, TypeExtensionTO, TypeExtensionDataProvider, BaseRestClient>
@@ -58,16 +61,25 @@ public class TypeExtensionDirectoryPanel
 
     private static final long serialVersionUID = -4117015319209624858L;
 
-    private final BaseModal<Serializable> baseModal;
+    @SpringBean
+    protected GroupRestClient groupRestClient;
 
-    private final GroupTO groupTO;
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
+
+    protected final BaseModal<Serializable> baseModal;
+
+    protected final GroupTO groupTO;
 
     protected TypeExtensionDirectoryPanel(
             final BaseModal<Serializable> baseModal,
             final GroupTO groupTO,
             final PageReference pageRef) {
 
-        super(BaseModal.CONTENT_ID, pageRef, false);
+        super(BaseModal.CONTENT_ID, null, pageRef, false);
 
         this.baseModal = baseModal;
         this.groupTO = groupTO;
@@ -77,6 +89,8 @@ public class TypeExtensionDirectoryPanel
                 new TypeExtensionTO(),
                 new StringResourceModel("anyType", this).getObject(),
                 new StringResourceModel("auxClasses", this).getObject(),
+                anyTypeRestClient,
+                anyTypeClassRestClient,
                 pageRef);
         this.addNewItemPanelBuilder(builder, true);
 
@@ -91,7 +105,7 @@ public class TypeExtensionDirectoryPanel
         req.getTypeExtensions().addAll(groupTO.getTypeExtensions());
 
         try {
-            new GroupRestClient().update(groupTO.getETagValue(), req);
+            groupRestClient.update(groupTO.getETagValue(), req);
 
             this.baseModal.show(false);
             this.baseModal.close(target);
@@ -144,7 +158,7 @@ public class TypeExtensionDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final TypeExtensionTO ignore) {
                 send(TypeExtensionDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(typeExtension, target));
+                        new AjaxWizard.EditItemActionEvent<>(typeExtension, target));
             }
         }, ActionLink.ActionType.EDIT, StringUtils.EMPTY);
         panel.add(new ActionLink<>() {

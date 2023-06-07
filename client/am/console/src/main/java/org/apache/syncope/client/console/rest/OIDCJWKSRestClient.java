@@ -27,7 +27,7 @@ public class OIDCJWKSRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    public static AtomicReference<OIDCJWKSTO> get() {
+    public AtomicReference<OIDCJWKSTO> get() {
         AtomicReference<OIDCJWKSTO> result = new AtomicReference<>();
         try {
             result.set(getService(OIDCJWKSService.class).get());
@@ -37,12 +37,12 @@ public class OIDCJWKSRestClient extends BaseRestClient {
         return result;
     }
 
-    public static OIDCJWKSTO generate() {
+    public OIDCJWKSTO generate() {
         Response response = getService(OIDCJWKSService.class).generate("syncope", "RSA", 2048);
         return response.readEntity(OIDCJWKSTO.class);
     }
 
-    public static void delete() {
+    public void delete() {
         getService(OIDCJWKSService.class).delete();
     }
 }

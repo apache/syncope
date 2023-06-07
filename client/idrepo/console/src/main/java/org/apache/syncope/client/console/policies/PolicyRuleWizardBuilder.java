@@ -49,18 +49,24 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    private final String policy;
+    protected final String policy;
 
-    private final PolicyType type;
+    protected final PolicyType type;
 
-    private final String implementationType;
+    protected final String implementationType;
+
+    protected final PolicyRestClient policyRestClient;
+
+    protected final ImplementationRestClient implementationRestClient;
 
     public PolicyRuleWizardBuilder(
             final String policy,
             final PolicyType type,
             final PolicyRuleWrapper policyWrapper,
+            final PolicyRestClient policyRestClient,
+            final ImplementationRestClient implementationRestClient,
             final PageReference pageRef) {
 
         super(policyWrapper, pageRef);
@@ -70,11 +76,13 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
         this.implementationType = type == PolicyType.ACCOUNT
                 ? IdRepoImplementationType.ACCOUNT_RULE
                 : IdRepoImplementationType.PASSWORD_RULE;
+        this.policyRestClient = policyRestClient;
+        this.implementationRestClient = implementationRestClient;
     }
 
     @Override
     protected Serializable onApplyInternal(final PolicyRuleWrapper modelObject) {
-        PolicyTO policyTO = PolicyRestClient.read(type, policy);
+        PolicyTO policyTO = policyRestClient.read(type, policy);
 
         ComposablePolicy composable;
         if (policyTO instanceof ComposablePolicy) {
@@ -84,11 +92,11 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
         }
 
         if (modelObject.getImplementationEngine() == ImplementationEngine.JAVA) {
-            ImplementationTO rule = ImplementationRestClient.read(implementationType,
-                    modelObject.getImplementationKey());
+            ImplementationTO rule = implementationRestClient.
+                    read(implementationType, modelObject.getImplementationKey());
             try {
                 rule.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
-                ImplementationRestClient.update(rule);
+                implementationRestClient.update(rule);
             } catch (Exception e) {
                 throw new WicketRuntimeException(e);
             }
@@ -98,7 +106,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
             composable.getRules().add(modelObject.getImplementationKey());
         }
 
-        PolicyRestClient.update(type, policyTO);
+        policyRestClient.update(type, policyTO);
         return modelObject;
     }
 
@@ -124,12 +132,12 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
             List<String> choices;
             switch (type) {
                 case ACCOUNT:
-                    choices = ImplementationRestClient.list(IdRepoImplementationType.ACCOUNT_RULE).stream().
+                    choices = implementationRestClient.list(IdRepoImplementationType.ACCOUNT_RULE).stream().
                             map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
                     break;
 
                 case PASSWORD:
-                    choices = ImplementationRestClient.list(IdRepoImplementationType.PASSWORD_RULE).stream().
+                    choices = implementationRestClient.list(IdRepoImplementationType.PASSWORD_RULE).stream().
                             map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
                     break;
 
@@ -147,7 +155,7 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
 
                 @Override
                 protected void onEvent(final AjaxRequestTarget target) {
-                    ImplementationTO impl = ImplementationRestClient.read(implementationType, conf.getModelObject());
+                    ImplementationTO impl = implementationRestClient.read(implementationType, conf.getModelObject());
                     rule.setImplementationEngine(impl.getEngine());
                     if (impl.getEngine() == ImplementationEngine.JAVA) {
                         try {

@@ -33,9 +33,9 @@ import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Ac
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -52,9 +52,9 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    public <T extends AnyTO> VirAttrs(
+    public VirAttrs(
             final String id,
-            final AnyWrapper<T> modelObject,
+            final AnyWrapper<UserTO> modelObject,
             final List<String> anyTypeClasses,
             final Map<String, CustomizationOption> whichVirAttrs) {
 
@@ -94,7 +94,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
     @Override
     protected List<Attr> getAttrsFromTO() {
-        return anyTO.getVirAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
+        return userTO.getVirAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
@@ -106,7 +106,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
     protected void setAttrs() {
         List<Attr> virAttrs = new ArrayList<>();
 
-        Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(anyTO.getVirAttrs());
+        Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(userTO.getVirAttrs());
 
         virAttrs.addAll(schemas.values().stream().map(schema -> {
             Attr attrTO = new Attr();
@@ -119,13 +119,13 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
             return attrTO;
         }).collect(Collectors.toList()));
 
-        anyTO.getVirAttrs().clear();
-        anyTO.getVirAttrs().addAll(virAttrs);
+        userTO.getVirAttrs().clear();
+        userTO.getVirAttrs().addAll(virAttrs);
     }
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).
+        Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(userTO).getMembership(membershipTO.getGroupKey()).
                 map(gr -> EntityTOUtils.buildAttrMap(gr.getVirAttrs())).
                 orElseGet(() -> new HashMap<>());
 

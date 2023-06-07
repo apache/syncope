@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class UserSearchPanel extends AnyObjectSearchPanel {
 
@@ -49,6 +50,12 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
             return new UserSearchPanel(id, this);
         }
     }
+
+    @SpringBean
+    protected RoleRestClient roleRestClient;
+
+    @SpringBean
+    protected ApplicationRestClient applicationRestClient;
 
     protected UserSearchPanel(final String id, final Builder builder) {
         super(id, AnyTypeKind.USER, builder);
@@ -74,7 +81,7 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
 
             @Override
             protected List<String> load() {
-                return RoleRestClient.list().stream().map(RoleTO::getKey).collect(Collectors.toList());
+                return roleRestClient.list().stream().map(RoleTO::getKey).collect(Collectors.toList());
             }
         };
 
@@ -84,7 +91,7 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
 
             @Override
             protected List<String> load() {
-                return ApplicationRestClient.list().stream().
+                return applicationRestClient.list().stream().
                         flatMap(application -> application.getPrivileges().stream()).
                         map(PrivilegeTO::getKey).collect(Collectors.toList());
             }

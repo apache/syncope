@@ -37,20 +37,34 @@ public class AnyTypeClassDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 3321861543207340469L;
 
-    private final AnyTypeClassTO anyTypeClassTO;
+    protected static final List<String> LAYOUT_PARAMETERS = List.of(Constants.ENDUSER_ANYLAYOUT);
 
-    private final List<String> availablePlainSchemas = SchemaRestClient.getSchemaNames(SchemaType.PLAIN);
+    protected final AnyTypeClassTO anyTypeClassTO;
 
-    private final List<String> availableDerSchemas = SchemaRestClient.getSchemaNames(SchemaType.DERIVED);
+    protected final List<String> availablePlainSchemas;
 
-    private final List<String> availableVirSchemas = SchemaRestClient.getSchemaNames(SchemaType.VIRTUAL);
+    protected final List<String> availableDerSchemas;
 
-    private static final List<String> LAYOUT_PARAMETERS = List.of(Constants.ENDUSER_ANYLAYOUT);
+    protected final List<String> availableVirSchemas;
 
-    public AnyTypeClassDetailsPanel(final String id, final AnyTypeClassTO anyTypeClassTO) {
+    protected final AnyTypeClassRestClient anyTypeClassRestClient;
+
+    public AnyTypeClassDetailsPanel(
+            final String id,
+            final AnyTypeClassTO anyTypeClassTO,
+            final SchemaRestClient schemaRestClient,
+            final AnyTypeClassRestClient anyTypeClassRestClient) {
+
         super(id);
 
         this.anyTypeClassTO = anyTypeClassTO;
+
+        availablePlainSchemas = schemaRestClient.getSchemaNames(SchemaType.PLAIN);
+        availableDerSchemas = schemaRestClient.getSchemaNames(SchemaType.DERIVED);
+        availableVirSchemas = schemaRestClient.getSchemaNames(SchemaType.VIRTUAL);
+
+        this.anyTypeClassRestClient = anyTypeClassRestClient;
+
         buildAvailableSchemas(anyTypeClassTO.getKey());
 
         Form<AnyTypeClassTO> antTypeClassForm = new Form<>("form");
@@ -101,8 +115,8 @@ public class AnyTypeClassDetailsPanel extends Panel {
         container.add(virSchema);
     }
 
-    private void buildAvailableSchemas(final String key) {
-        AnyTypeClassRestClient.list().stream().
+    protected void buildAvailableSchemas(final String key) {
+        anyTypeClassRestClient.list().stream().
                 filter(item -> key == null || !item.getKey().equals(key)).
                 forEach(item -> {
                     availablePlainSchemas.removeAll(item.getPlainSchemas());

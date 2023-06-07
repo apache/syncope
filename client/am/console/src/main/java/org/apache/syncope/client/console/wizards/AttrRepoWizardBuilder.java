@@ -50,9 +50,15 @@ public class AttrRepoWizardBuilder extends BaseAjaxWizardBuilder<AttrRepoTO> {
 
     protected final LoadableDetachableModel<List<String>> attrRepoConfs;
 
-    protected Model<Class<? extends AttrRepoConf>> attrRepoConfClass = Model.of();
+    protected final AttrRepoRestClient attrRepoRestClient;
 
-    public AttrRepoWizardBuilder(final AttrRepoTO defaultItem, final PageReference pageRef) {
+    protected final Model<Class<? extends AttrRepoConf>> attrRepoConfClass = Model.of();
+
+    public AttrRepoWizardBuilder(
+            final AttrRepoTO defaultItem,
+            final AttrRepoRestClient attrRepoRestClient,
+            final PageReference pageRef) {
+
         super(defaultItem, pageRef);
 
         attrRepoConfs = new LoadableDetachableModel<>() {
@@ -65,14 +71,15 @@ public class AttrRepoWizardBuilder extends BaseAjaxWizardBuilder<AttrRepoTO> {
                         map(Class::getName).sorted().collect(Collectors.toList());
             }
         };
+        this.attrRepoRestClient = attrRepoRestClient;
     }
 
     @Override
     protected Serializable onApplyInternal(final AttrRepoTO modelObject) {
         if (mode == AjaxWizard.Mode.CREATE) {
-            AttrRepoRestClient.create(modelObject);
+            attrRepoRestClient.create(modelObject);
         } else {
-            AttrRepoRestClient.update(modelObject);
+            attrRepoRestClient.update(modelObject);
         }
         return modelObject;
     }

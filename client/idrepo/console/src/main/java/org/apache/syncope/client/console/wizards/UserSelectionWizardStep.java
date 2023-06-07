@@ -26,6 +26,7 @@ import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.panels.search.UserSelectionDirectoryPanel;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -37,16 +38,26 @@ import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class UserSelectionWizardStep extends WizardStep {
 
     private static final long serialVersionUID = 36221031226727L;
 
-    private final IModel<String> model;
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
-    private final UserSearchPanel userSearchPanel;
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
 
-    private final UserSelectionDirectoryPanel userDirectoryPanel;
+    @SpringBean
+    protected UserRestClient userRestClient;
+
+    protected final IModel<String> model;
+
+    protected final UserSearchPanel userSearchPanel;
+
+    protected final UserSelectionDirectoryPanel userDirectoryPanel;
 
     public UserSelectionWizardStep(
             final IModel<String> title, final IModel<String> model, final PageReference pageRef) {
@@ -62,9 +73,9 @@ public class UserSelectionWizardStep extends WizardStep {
                 build("usersearch"));
         add(userSearchPanel);
 
-        AnyTypeTO anyTypeTO = AnyTypeRestClient.read(AnyTypeKind.USER.name());
+        AnyTypeTO anyTypeTO = anyTypeRestClient.read(AnyTypeKind.USER.name());
         userDirectoryPanel = UserSelectionDirectoryPanel.class.cast(new UserSelectionDirectoryPanel.Builder(
-                AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                anyTypeClassRestClient.list(anyTypeTO.getClasses()), userRestClient, anyTypeTO.getKey(), pageRef).
                 build("searchResult"));
         add(userDirectoryPanel);
     }

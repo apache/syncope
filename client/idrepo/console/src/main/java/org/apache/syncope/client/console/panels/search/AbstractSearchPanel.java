@@ -28,6 +28,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
+import org.apache.syncope.client.console.rest.FIQLQueryRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -47,6 +48,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +57,15 @@ public abstract class AbstractSearchPanel extends Panel {
     private static final long serialVersionUID = 5922413053568696414L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSearchPanel.class);
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
+
+    @SpringBean
+    protected FIQLQueryRestClient fiqlQueryRestClient;
+
+    @SpringBean
+    protected GroupRestClient groupRestClient;
 
     protected IModel<Map<String, PlainSchemaTO>> dnames;
 
@@ -79,8 +90,6 @@ public abstract class AbstractSearchPanel extends Panel {
     protected final AnyTypeKind typeKind;
 
     protected final String type;
-
-    protected final GroupRestClient groupRestClient = new GroupRestClient();
 
     public abstract static class Builder<T extends AbstractSearchPanel> implements Serializable {
 
@@ -183,7 +192,8 @@ public abstract class AbstractSearchPanel extends Panel {
             }
         }.build("search", "search", searchClausePanel).hideLabel().setOutputMarkupId(true));
 
-        FIQLQueries fiqlQueries = new FIQLQueries("fiqlQueries", this, getFIQLQueryTarget(), builder.pageRef);
+        FIQLQueries fiqlQueries = new FIQLQueries(
+                "fiqlQueries", fiqlQueryRestClient, this, getFIQLQueryTarget(), builder.pageRef);
         add(fiqlQueries);
 
         SaveFIQLQuery saveFIQLQuery = new SaveFIQLQuery("saveFIQLQuery", getFIQLQueryTarget(), builder.pageRef);
@@ -253,7 +263,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return AnyTypeClassRestClient.list().stream().
+                return anyTypeClassRestClient.list().stream().
                         filter(c -> c.getInUseByTypes().isEmpty()).
                         map(AnyTypeClassTO::getKey).
                         collect(Collectors.toList());

@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.clientapps;
 
 import java.util.List;
+import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -31,10 +32,10 @@ import org.apache.wicket.model.StringResourceModel;
 
 public class SAML2SPDirectoryPanel extends ClientAppDirectoryPanel<SAML2SPClientAppTO> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 7724172966123776889L;
 
-    public SAML2SPDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, ClientAppType.SAML2SP, pageRef);
+    public SAML2SPDirectoryPanel(final String id, final ClientAppRestClient restClient, final PageReference pageRef) {
+        super(id, restClient, ClientAppType.SAML2SP, pageRef);
 
         SAML2SPClientAppTO defaultItem = new SAML2SPClientAppTO();
 

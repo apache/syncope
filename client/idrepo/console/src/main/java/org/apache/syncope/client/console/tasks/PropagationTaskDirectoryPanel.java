@@ -57,12 +57,13 @@ public abstract class PropagationTaskDirectoryPanel
     private final String resource;
 
     protected PropagationTaskDirectoryPanel(
+            final TaskRestClient restClient,
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final String resource,
             final PageReference pageRef) {
 
-        super(baseModal, multiLevelPanelRef, pageRef, false);
+        super(restClient, baseModal, multiLevelPanelRef, pageRef, false);
         this.resource = resource;
         initResultTable();
     }
@@ -151,6 +152,7 @@ public abstract class PropagationTaskDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
                 try {
                     restClient.startExecution(taskTO.getKey(), null);
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -168,7 +170,8 @@ public abstract class PropagationTaskDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
                 try {
-                    TaskRestClient.delete(TaskType.PROPAGATION, taskTO.getKey());
+                    restClient.delete(TaskType.PROPAGATION, taskTO.getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     PropagationTaskDirectoryPanel.this.getTogglePanel().close(target);
@@ -211,13 +214,13 @@ public abstract class PropagationTaskDirectoryPanel
 
         @Override
         public long size() {
-            return TaskRestClient.count(resource, TaskType.PROPAGATION);
+            return restClient.count(resource, TaskType.PROPAGATION);
         }
 
         @Override
         public Iterator<PropagationTaskTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return TaskRestClient.listPropagationTasks(
+            return restClient.listPropagationTasks(
                     resource, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }

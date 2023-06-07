@@ -33,6 +33,10 @@ public class BpmnProcessGETResource extends AbstractBpmnProcessResource {
 
     private static final long serialVersionUID = 4637304868056148970L;
 
+    public BpmnProcessGETResource(final BpmnProcessRestClient bpmnProcessRestClient) {
+        super(bpmnProcessRestClient);
+    }
+
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
         final BpmnProcess toGet = getBpmnProcess(attributes);
@@ -47,7 +51,7 @@ public class BpmnProcessGETResource extends AbstractBpmnProcessResource {
             public void writeData(final Attributes attributes) throws IOException {
                 writeStream(
                         attributes,
-                        BpmnProcessRestClient.getDefinition(MediaType.APPLICATION_JSON_TYPE, toGet.getKey()));
+                        bpmnProcessRestClient.getDefinition(MediaType.APPLICATION_JSON_TYPE, toGet.getKey()));
             }
         });
 

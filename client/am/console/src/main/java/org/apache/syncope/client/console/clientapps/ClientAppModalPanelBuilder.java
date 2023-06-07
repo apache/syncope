@@ -73,59 +73,69 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.UrlValidator;
 
 public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractModalPanelBuilder<T> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private final IModel<Map<String, String>> accessPolicies = new LoadableDetachableModel<>() {
+    @SpringBean
+    protected PolicyRestClient policyRestClient;
+
+    @SpringBean
+    protected ClientAppRestClient clientAppRestClient;
+
+    @SpringBean
+    protected RealmRestClient realmRestClient;
+
+    protected final IModel<Map<String, String>> accessPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.list(PolicyType.ACCESS).stream().
+            return policyRestClient.list(PolicyType.ACCESS).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
-    private final IModel<Map<String, String>> attrReleasePolicies = new LoadableDetachableModel<>() {
+    protected final IModel<Map<String, String>> attrReleasePolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.list(PolicyType.ATTR_RELEASE).stream().
+            return policyRestClient.list(PolicyType.ATTR_RELEASE).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
-    private final IModel<Map<String, String>> authPolicies = new LoadableDetachableModel<>() {
+    protected final IModel<Map<String, String>> authPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.list(PolicyType.AUTH).stream().
+            return policyRestClient.list(PolicyType.AUTH).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
-    private final IModel<Map<String, String>> ticketExpirationPolicies = new LoadableDetachableModel<>() {
+    protected final IModel<Map<String, String>> ticketExpirationPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.list(PolicyType.TICKET_EXPIRATION).stream().
+            return policyRestClient.list(PolicyType.TICKET_EXPIRATION).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
-    private final BaseModal<T> modal;
+    protected final BaseModal<T> modal;
 
-    private final ClientAppType type;
+    protected final ClientAppType type;
 
     public ClientAppModalPanelBuilder(
             final ClientAppType type, final T defaultItem, final BaseModal<T> modal, final PageReference pageRef) {
@@ -154,7 +164,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
             List<Component> fields = new ArrayList<>();
 
-            boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
+            boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree(realmRestClient);
             AutoCompleteSettings settings = new AutoCompleteSettings();
             settings.setShowCompleteListOnFocusGain(fullRealmsTree);
             settings.setShowListOnEmptyInput(fullRealmsTree);
@@ -165,7 +175,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
                 @Override
                 protected Iterator<String> getChoices(final String input) {
-                    return RealmRestClient.search(fullRealmsTree
+                    return realmRestClient.search(fullRealmsTree
                             ? RealmsUtils.buildRootQuery()
                             : RealmsUtils.buildKeywordQuery(input)).getResult().stream().
                             map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
@@ -179,7 +189,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
             fields.add(name.setRequired(true));
 
             if (clientAppTO.getClientAppId() == null) {
-                Stream.of(ClientAppType.values()).map(ClientAppRestClient::list).flatMap(List::stream).
+                Stream.of(ClientAppType.values()).map(clientAppRestClient::list).flatMap(List::stream).
                         max(Comparator.comparing(ClientAppTO::getClientAppId)).
                         ifPresent(app -> clientAppTO.setClientAppId(app.getClientAppId() + 1));
             }
@@ -419,9 +429,9 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         public void onSubmit(final AjaxRequestTarget target) {
             try {
                 if (clientAppTO.getKey() == null) {
-                    ClientAppRestClient.create(type, clientAppTO);
+                    clientAppRestClient.create(type, clientAppTO);
                 } else {
-                    ClientAppRestClient.update(type, clientAppTO);
+                    clientAppRestClient.update(type, clientAppTO);
                 }
                 SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 Profile.this.modal.close(target);

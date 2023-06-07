@@ -25,9 +25,11 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.client.ui.commons.DateOps;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -43,31 +45,31 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
 
     private static final long serialVersionUID = 1644689667998953604L;
 
-    public static ReportTO read(final String reportKey) {
+    public ReportTO read(final String reportKey) {
         return getService(ReportService.class).read(reportKey);
     }
 
-    public static List<ReportTO> list() {
+    public List<ReportTO> list() {
         return getService(ReportService.class).list();
     }
 
-    public static JobTO getJob(final String key) {
+    public JobTO getJob(final String key) {
         return getService(ReportService.class).getJob(key);
     }
 
-    public static List<JobTO> listJobs() {
+    public List<JobTO> listJobs() {
         return getService(ReportService.class).listJobs();
     }
 
-    public static void actionJob(final String refKey, final JobAction jobAction) {
+    public void actionJob(final String refKey, final JobAction jobAction) {
         getService(ReportService.class).actionJob(refKey, jobAction);
     }
 
-    public static void create(final ReportTO reportTO) {
+    public void create(final ReportTO reportTO) {
         getService(ReportService.class).create(reportTO);
     }
 
-    public static void update(final ReportTO reportTO) {
+    public void update(final ReportTO reportTO) {
         getService(ReportService.class).update(reportTO);
     }
 
@@ -76,7 +78,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
      *
      * @param reportKey report to delete
      */
-    public static void delete(final String reportKey) {
+    public void delete(final String reportKey) {
         getService(ReportService.class).delete(reportKey);
     }
 
@@ -96,8 +98,13 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
         return getService(ReportService.class).listRecentExecutions(max);
     }
 
-    public static Response exportExecutionResult(final String executionKey) {
-        return getService(ReportService.class).exportExecutionResult(executionKey);
+    public Optional<Response> exportExecutionResult(final String executionKey) {
+        try {
+            return Optional.of(getService(ReportService.class).exportExecutionResult(executionKey));
+        } catch (SyncopeClientException e) {
+            LOG.error("While exporting execution {}", executionKey, e);
+            return Optional.empty();
+        }
     }
 
     @Override

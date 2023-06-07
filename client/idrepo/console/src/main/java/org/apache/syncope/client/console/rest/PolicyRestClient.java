@@ -32,9 +32,9 @@ public class PolicyRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    private static final Comparator<PolicyTO> COMPARATOR = Comparator.comparing(PolicyTO::getName);
+    protected static final Comparator<PolicyTO> COMPARATOR = Comparator.comparing(PolicyTO::getName);
 
-    public static <T extends PolicyTO> T read(final PolicyType type, final String key) {
+    public <T extends PolicyTO> T read(final PolicyType type, final String key) {
         T policy = null;
         try {
             policy = getService(PolicyService.class).read(type, key);
@@ -45,7 +45,7 @@ public class PolicyRestClient extends BaseRestClient {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends PolicyTO> List<T> list(final PolicyType type) {
+    public <T extends PolicyTO> List<T> list(final PolicyType type) {
         try {
             return getService(PolicyService.class).<T>list(type).stream().
                     sorted(COMPARATOR).
@@ -56,15 +56,15 @@ public class PolicyRestClient extends BaseRestClient {
         }
     }
 
-    public static <T extends PolicyTO> void create(final PolicyType type, final T policy) {
+    public <T extends PolicyTO> void create(final PolicyType type, final T policy) {
         getService(PolicyService.class).create(type, policy);
     }
 
-    public static <T extends PolicyTO> void update(final PolicyType type, final T policy) {
+    public <T extends PolicyTO> void update(final PolicyType type, final T policy) {
         getService(PolicyService.class).update(type, policy);
     }
 
-    public static void delete(final PolicyType type, final String key) {
+    public void delete(final PolicyType type, final String key) {
         getService(PolicyService.class).delete(type, key);
     }
 }

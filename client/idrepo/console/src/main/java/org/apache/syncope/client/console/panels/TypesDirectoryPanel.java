@@ -30,8 +30,13 @@ public abstract class TypesDirectoryPanel<
 
     private static final long serialVersionUID = 7890071604330629259L;
 
-    public TypesDirectoryPanel(final String id, final boolean withWizard, final PageReference pageRef) {
-        super(id, pageRef);
+    public TypesDirectoryPanel(
+            final String id,
+            final E restClient,
+            final boolean withWizard,
+            final PageReference pageRef) {
+
+        super(id, restClient, pageRef);
 
         if (!withWizard) {
             setFooterVisibility(true);

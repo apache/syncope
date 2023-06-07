@@ -23,10 +23,14 @@ import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ReportStartAtTogglePanel extends StartAtTogglePanel {
 
     private static final long serialVersionUID = -3195479265440591519L;
+
+    @SpringBean
+    protected ReportRestClient reportRestClient;
 
     public ReportStartAtTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
         super(container, pageRef);
@@ -34,7 +38,6 @@ public class ReportStartAtTogglePanel extends StartAtTogglePanel {
 
     @Override
     protected ExecutionRestClient getRestClient() {
-        return new ReportRestClient();
+        return reportRestClient;
     }
-
 }

@@ -45,9 +45,9 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
 
     private static final long serialVersionUID = 16051907544728L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(LoggerConfRestClient.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(LoggerConfRestClient.class);
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private final List<NetworkService> instances;
 
@@ -60,7 +60,7 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
                 collect(Collectors.toList());
     }
 
-    private String getActuatorEndpoint(final NetworkService instance) {
+    protected String getActuatorEndpoint(final NetworkService instance) {
         String address = instance.getAddress();
         if (address.contains("/rest")) {
             address = address.replace("/rest", "");
@@ -68,7 +68,7 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
         return address + "actuator/loggers";
     }
 
-    private WebClient webClient(final NetworkService instance) {
+    protected WebClient webClient(final NetworkService instance) {
         return WebClient.create(
                 getActuatorEndpoint(instance),
                 SyncopeWebApplication.get().getAnonymousUser(),

@@ -36,6 +36,7 @@ import org.apache.syncope.client.console.panels.RoleDirectoryPanel.RoleDataProvi
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -67,10 +68,20 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, RoleDataProvider, RoleRestClient> {
 
     private static final long serialVersionUID = -1100228004207271270L;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
+
+    @SpringBean
+    protected UserRestClient userRestClient;
 
     protected final BaseModal<String> utilityModal = new BaseModal<>(Constants.OUTER);
 
@@ -135,9 +146,8 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
             @Override
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                 send(RoleDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(
-                        new RoleWrapper(RoleRestClient.read(model.getObject().getKey())),
-                        target));
+                        new AjaxWizard.EditItemActionEvent<>(
+                                new RoleWrapper(restClient.read(model.getObject().getKey())), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.ROLE_READ);
 
@@ -150,7 +160,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                 RoleTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(RoleDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.NewItemActionEvent<>(new RoleWrapper(clone), target));
+                        new AjaxWizard.NewItemActionEvent<>(new RoleWrapper(clone), target));
             }
         }, ActionLink.ActionType.CLONE, IdRepoEntitlement.ROLE_CREATE);
 
@@ -160,40 +170,44 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
             @Override
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                AnyTypeTO userType = AnyTypeRestClient.read(AnyTypeKind.USER.name());
+                AnyTypeTO userType = anyTypeRestClient.read(AnyTypeKind.USER.name());
 
-                AnyLayout layout = AnyLayoutUtils.fetch(AnyTypeRestClient.list());
-                ModalPanel anyPanel = AnyLayoutUtils.newAnyPanel(
-                    layout.getAnyPanelClass(),
-                    BaseModal.CONTENT_ID, userType, null, layout, false,
-                    (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
-                        String query = SyncopeClient.getUserSearchConditionBuilder().and(
-                            SyncopeClient.getUserSearchConditionBuilder().inRoles(model.getObject().getKey()),
-                            SyncopeClient.getUserSearchConditionBuilder().
-                                is(Constants.KEY_FIELD_NAME).notNullValue()).
-                            query();
+                AnyLayout layout = AnyLayoutUtils.fetch(restClient, anyTypeRestClient.list());
 
-                        Panel panel = new UserDirectoryPanel.Builder(
-                            AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-                            setRealm(SyncopeConstants.ROOT_REALM).
-                            setFiltered(true).
-                            setFiql(query).
-                            disableCheckBoxes().
-                            addNewItemPanelBuilder(AnyLayoutUtils.newLayoutInfo(
-                                new UserTO(),
-                                anyTypeTO.getClasses(),
-                                anyLayout.getUser(),
-                                pageRef), false).
-                            setWizardInModal(false).build(id);
+                ModalPanel anyPanel = new AnyPanel.Builder<>(
+                        layout.getAnyPanelClass(), BaseModal.CONTENT_ID, userType, null, layout, false, pageRef).
+                        build((id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
 
-                        MetaDataRoleAuthorizationStrategy.authorize(
-                            panel,
-                            WebPage.RENDER,
-                            IdRepoEntitlement.USER_SEARCH);
+                            String query = SyncopeClient.getUserSearchConditionBuilder().and(
+                                    SyncopeClient.getUserSearchConditionBuilder().inRoles(model.getObject().getKey()),
+                                    SyncopeClient.getUserSearchConditionBuilder().
+                                            is(Constants.KEY_FIELD_NAME).notNullValue()).
+                                    query();
 
-                        return panel;
-                    },
-                    pageRef);
+                            Panel panel = new UserDirectoryPanel.Builder(
+                                    anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                                    userRestClient,
+                                    anyTypeTO.getKey(),
+                                    pageRef).
+                                    setRealm(SyncopeConstants.ROOT_REALM).
+                                    setFiltered(true).
+                                    setFiql(query).
+                                    disableCheckBoxes().
+                                    addNewItemPanelBuilder(AnyLayoutUtils.newLayoutInfo(
+                                            new UserTO(),
+                                            anyTypeTO.getClasses(),
+                                            anyLayout.getUser(),
+                                            userRestClient,
+                                            pageRef), false).
+                                    setWizardInModal(false).build(id);
+
+                            MetaDataRoleAuthorizationStrategy.authorize(
+                                    panel,
+                                    WebPage.RENDER,
+                                    IdRepoEntitlement.USER_SEARCH);
+
+                            return panel;
+                        });
 
                 membersModal.header(new StringResourceModel("role.members", RoleDirectoryPanel.this, model));
                 membersModal.setContent(anyPanel);
@@ -209,20 +223,21 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
             @Override
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                 AnyLayoutWrapper wrapper = new AnyLayoutWrapper(
-                    model.getObject().getKey(),
-                    AnyLayoutUtils.defaultIfEmpty(
-                        RoleRestClient.readAnyLayout(model.getObject().getKey()), AnyTypeRestClient.list()));
+                        model.getObject().getKey(),
+                        AnyLayoutUtils.defaultIfEmpty(
+                                restClient.readAnyLayout(model.getObject().getKey()), anyTypeRestClient.list()));
 
                 utilityModal.header(new ResourceModel("console.layout.info", "JSON Content"));
                 utilityModal.setContent(new JsonEditorPanel(
-                    utilityModal, new PropertyModel<>(wrapper, "content"), false, pageRef) {
+                        utilityModal, new PropertyModel<>(wrapper, "content"), false, pageRef) {
 
                     private static final long serialVersionUID = -8927036362466990179L;
 
                     @Override
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
-                            RoleRestClient.setAnyLayout(wrapper.getKey(), wrapper.getContent());
+                            restClient.setAnyLayout(wrapper.getKey(), wrapper.getContent());
+
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             modal.show(false);
                             modal.close(target);
@@ -244,7 +259,8 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
             @Override
             public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
                 try {
-                    RoleRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -263,22 +279,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
         return List.of(ActionLink.ActionType.DELETE);
     }
 
-    public abstract static class Builder
-            extends DirectoryPanel.Builder<RoleTO, RoleWrapper, RoleRestClient> {
-
-        private static final long serialVersionUID = 5088962796986706805L;
-
-        public Builder(final PageReference pageRef) {
-            super(new RoleRestClient(), pageRef);
-        }
-
-        @Override
-        protected WizardMgtPanel<RoleWrapper> newInstance(final String id, final boolean wizardInModal) {
-            return new RoleDirectoryPanel(id, this);
-        }
-    }
-
-    protected static class RoleDataProvider extends DirectoryDataProvider<RoleTO> {
+    protected class RoleDataProvider extends DirectoryDataProvider<RoleTO> {
 
         private static final long serialVersionUID = 6267494272884913376L;
 
@@ -291,19 +292,34 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
         @Override
         public Iterator<RoleTO> iterator(final long first, final long count) {
-            List<RoleTO> result = RoleRestClient.list();
+            List<RoleTO> result = restClient.list();
             result.sort(comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return RoleRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override
         public IModel<RoleTO> model(final RoleTO object) {
             return new CompoundPropertyModel<>(object);
+        }
+    }
+
+    public abstract static class Builder
+            extends DirectoryPanel.Builder<RoleTO, RoleWrapper, RoleRestClient> {
+
+        private static final long serialVersionUID = 5088962796986706805L;
+
+        public Builder(final RoleRestClient restClient, final PageReference pageRef) {
+            super(restClient, pageRef);
+        }
+
+        @Override
+        protected WizardMgtPanel<RoleWrapper> newInstance(final String id, final boolean wizardInModal) {
+            return new RoleDirectoryPanel(id, this);
         }
     }
 }

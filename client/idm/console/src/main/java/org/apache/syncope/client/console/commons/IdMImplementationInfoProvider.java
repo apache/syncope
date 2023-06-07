@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
@@ -33,6 +34,13 @@ import org.apache.wicket.model.LoadableDetachableModel;
 public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvider {
 
     private static final long serialVersionUID = -5385695412826366167L;
+
+    public IdMImplementationInfoProvider(
+            final ClassPathScanImplementationLookup lookup,
+            final ImplementationRestClient implementationRestClient) {
+
+        super(lookup, implementationRestClient);
+    }
 
     @Override
     public ViewMode getViewMode(final ImplementationTO implementation) {
@@ -136,8 +144,8 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return ImplementationRestClient.list(IdMImplementationType.RECON_FILTER_BUILDER).stream().
-                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+                return implementationRestClient.list(IdMImplementationType.RECON_FILTER_BUILDER).stream().
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }
@@ -150,8 +158,8 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return ImplementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
-                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+                return implementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }
@@ -164,8 +172,8 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
-                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+                return implementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }

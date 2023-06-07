@@ -36,6 +36,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,10 @@ public class UserRequestDetails extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(UserRequestDetails.class);
 
-    private static final String USER_REQUEST_ERROR = "user_request_error";
+    protected static final String USER_REQUEST_ERROR = "user_request_error";
+
+    @SpringBean
+    protected UserRequestRestClient userRequestRestClient;
 
     public UserRequestDetails(
             final String id,
@@ -56,7 +60,7 @@ public class UserRequestDetails extends Panel {
         super(id);
 
         UserRequestForm formTO = userRequest.getHasForm()
-                ? UserRequestRestClient.getForm(
+                ? userRequestRestClient.getForm(
                         SyncopeEnduserSession.get().getSelfTO().getUsername(),
                         userRequest.getTaskId()).orElse(null)
                 : null;
@@ -85,8 +89,8 @@ public class UserRequestDetails extends Panel {
                 @Override
                 protected void onSubmit(final AjaxRequestTarget target) {
                     try {
-                        UserRequestRestClient.claimForm(formTO.getTaskId());
-                        ProvisioningResult<UserTO> result = UserRequestRestClient.submitForm(formTO);
+                        userRequestRestClient.claimForm(formTO.getTaskId());
+                        ProvisioningResult<UserTO> result = userRequestRestClient.submitForm(formTO);
 
                         if (result.getPropagationStatuses().stream().
                                 anyMatch(p -> ExecStatus.FAILURE == p.getStatus()
@@ -116,7 +120,7 @@ public class UserRequestDetails extends Panel {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                UserRequestRestClient.cancelRequest(userRequest.getExecutionId(), null);
+                userRequestRestClient.cancelRequest(userRequest.getExecutionId(), null);
                 target.add(container);
             }
         });

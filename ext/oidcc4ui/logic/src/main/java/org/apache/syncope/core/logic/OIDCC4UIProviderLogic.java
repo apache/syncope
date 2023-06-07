@@ -40,18 +40,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIProviderTO> {
 
-    protected final OIDCClientCache oidcClientCache;
+    protected final OIDCClientCache oidcClientCacheLogin;
+
+    protected final OIDCClientCache oidcClientCacheLogout;
 
     protected final OIDCC4UIProviderDAO opDAO;
 
     protected final OIDCC4UIProviderDataBinder binder;
 
     public OIDCC4UIProviderLogic(
-            final OIDCClientCache oidcClientCache,
+            final OIDCClientCache oidcClientCacheLogin,
+            final OIDCClientCache oidcClientCacheLogout,
             final OIDCC4UIProviderDAO opDAO,
             final OIDCC4UIProviderDataBinder binder) {
 
-        this.oidcClientCache = oidcClientCache;
+        this.oidcClientCacheLogin = oidcClientCacheLogin;
+        this.oidcClientCacheLogout = oidcClientCacheLogout;
         this.opDAO = opDAO;
         this.binder = binder;
     }
@@ -113,7 +117,8 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
         }
 
         binder.update(op, opTO);
-        oidcClientCache.removeAll(op.getName());
+        oidcClientCacheLogin.removeAll(op.getName());
+        oidcClientCacheLogout.removeAll(op.getName());
     }
 
     @PreAuthorize("hasRole('" + OIDC4UIEntitlement.OP_DELETE + "')")
@@ -122,7 +127,8 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
                 orElseThrow(() -> new NotFoundException("OIDC Provider '" + key + '\''));
 
         opDAO.delete(key);
-        oidcClientCache.removeAll(op.getName());
+        oidcClientCacheLogin.removeAll(op.getName());
+        oidcClientCacheLogout.removeAll(op.getName());
     }
 
     @Override

@@ -30,11 +30,11 @@ public class UserSelfRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1575748964398293968L;
 
-    public static void mustChangePassword(final String password) {
+    public void mustChangePassword(final String password) {
         getService(UserSelfService.class).mustChangePassword(new PasswordPatch.Builder().value(password).build());
     }
 
-    public static void requestPasswordReset(final String username, final String securityAnswer) {
+    public void requestPasswordReset(final String username, final String securityAnswer) {
         getService(UserSelfService.class).requestPasswordReset(username, securityAnswer);
     }
 

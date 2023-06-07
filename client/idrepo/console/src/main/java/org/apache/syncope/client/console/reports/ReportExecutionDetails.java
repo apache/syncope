@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.reports;
 
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
@@ -25,6 +27,7 @@ import org.apache.syncope.client.console.tasks.ExecutionsDirectoryPanel;
 import org.apache.syncope.client.console.wicket.ajax.form.AjaxDownloadBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -32,6 +35,7 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Modal window with report executions.
@@ -40,16 +44,19 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
     private static final long serialVersionUID = -4110576026663173545L;
 
+    @SpringBean
+    protected ReportRestClient reportRestClient;
+
     public ReportExecutionDetails(final ReportTO reportTO, final PageReference pageRef) {
         super();
 
         MultilevelPanel mlp = new MultilevelPanel("executions");
         add(mlp);
 
-        mlp.setFirstLevel(new ReportExecutionDirectoryPanel(mlp, reportTO.getKey(), new ReportRestClient(), pageRef));
+        mlp.setFirstLevel(new ReportExecutionDirectoryPanel(mlp, reportTO.getKey(), reportRestClient, pageRef));
     }
 
-    private static class ReportExecutionDirectoryPanel extends ExecutionsDirectoryPanel {
+    protected static class ReportExecutionDirectoryPanel extends ExecutionsDirectoryPanel {
 
         private static final long serialVersionUID = 5691719817252887541L;
 
@@ -84,9 +91,15 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                    downloadBehavior.setResponse(new ResponseHolder(ReportRestClient.exportExecutionResult(
-                            model.getObject().getKey())));
-                    downloadBehavior.initiate(target);
+                    ((ReportRestClient) restClient).exportExecutionResult(model.getObject().getKey()).ifPresentOrElse(
+                            response -> {
+                                downloadBehavior.setResponse(new ResponseHolder(response));
+                                downloadBehavior.initiate(target);
+                            },
+                            () -> {
+                                SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
+                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                            });
                 }
             }, ActionLink.ActionType.EXPORT, IdRepoEntitlement.REPORT_READ);
         }

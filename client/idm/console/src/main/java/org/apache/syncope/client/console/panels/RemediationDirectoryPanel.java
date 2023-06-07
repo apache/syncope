@@ -37,6 +37,7 @@ import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.RemediationRestClient;
+import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
@@ -81,19 +82,37 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class RemediationDirectoryPanel
         extends DirectoryPanel<RemediationTO, RemediationTO, RemediationProvider, RemediationRestClient> {
 
     private static final long serialVersionUID = 8525204188127106587L;
 
-    public RemediationDirectoryPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, true);
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected RoleRestClient roleRestClient;
+
+    @SpringBean
+    protected UserRestClient userRestClient;
+
+    @SpringBean
+    protected GroupRestClient groupRestClient;
+
+    @SpringBean
+    protected AnyObjectRestClient anyObjectRestClient;
+
+    public RemediationDirectoryPanel(
+            final String id,
+            final RemediationRestClient restClient,
+            final PageReference pageRef) {
+
+        super(id, restClient, pageRef, true);
         disableCheckBoxes();
         setFooterVisibility(false);
         modal.size(Modal.Size.Large);
-
-        restClient = new RemediationRestClient();
 
         initResultTable();
 
@@ -153,7 +172,8 @@ public class RemediationDirectoryPanel
                 @Override
                 public void onClick(final AjaxRequestTarget target, final RemediationTO ignore) {
                     try {
-                        RemediationRestClient.remedy(model.getObject().getKey(), model.getObject().getKeyPayload());
+                        restClient.remedy(model.getObject().getKey(), model.getObject().getKeyPayload());
+
                         SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         target.add(container);
                     } catch (SyncopeClientException e) {
@@ -198,21 +218,21 @@ public class RemediationDirectoryPanel
                                 EntityTOUtils.toAnyTO(remediationTO.getAnyCRPayload(), newUserTO);
                                 previousUserTO = null;
                             } else {
-                                previousUserTO = new UserRestClient().
-                                    read(remediationTO.getAnyURPayload().getKey());
+                                previousUserTO = userRestClient.read(remediationTO.getAnyURPayload().getKey());
                                 newUserTO = AnyOperations.patch(
-                                    previousUserTO, (UserUR) remediationTO.getAnyURPayload());
+                                        previousUserTO, (UserUR) remediationTO.getAnyURPayload());
                             }
 
                             AjaxWizard.EditItemActionEvent<UserTO> userEvent =
-                                new AjaxWizard.EditItemActionEvent<>(newUserTO, target);
+                                    new AjaxWizard.EditItemActionEvent<>(newUserTO, target);
                             userEvent.forceModalPanel(new RemediationUserWizardBuilder(
-                                model.getObject(),
-                                previousUserTO,
-                                newUserTO,
-                                AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
-                                AnyLayoutUtils.fetch(List.of(remediationTO.getAnyType())).getUser(),
-                                pageRef
+                                    model.getObject(),
+                                    previousUserTO,
+                                    newUserTO,
+                                    anyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
+                                    AnyLayoutUtils.fetch(roleRestClient, List.of(remediationTO.getAnyType())).getUser(),
+                                    userRestClient,
+                                    pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, userEvent);
                             break;
@@ -225,21 +245,21 @@ public class RemediationDirectoryPanel
                                 EntityTOUtils.toAnyTO(remediationTO.getAnyCRPayload(), newGroupTO);
                                 previousGroupTO = null;
                             } else {
-                                previousGroupTO = new GroupRestClient().
-                                    read(remediationTO.getAnyURPayload().getKey());
+                                previousGroupTO = groupRestClient.read(remediationTO.getAnyURPayload().getKey());
                                 newGroupTO = AnyOperations.patch(
-                                    previousGroupTO, (GroupUR) remediationTO.getAnyURPayload());
+                                        previousGroupTO, (GroupUR) remediationTO.getAnyURPayload());
                             }
 
                             AjaxWizard.EditItemActionEvent<GroupTO> groupEvent =
-                                new AjaxWizard.EditItemActionEvent<>(newGroupTO, target);
+                                    new AjaxWizard.EditItemActionEvent<>(newGroupTO, target);
                             groupEvent.forceModalPanel(new RemediationGroupWizardBuilder(
-                                model.getObject(),
-                                previousGroupTO,
-                                newGroupTO,
-                                AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
-                                AnyLayoutUtils.fetch(List.of(remediationTO.getAnyType())).getGroup(),
-                                pageRef
+                                    model.getObject(),
+                                    previousGroupTO,
+                                    newGroupTO,
+                                    anyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
+                                    AnyLayoutUtils.fetch(
+                                            roleRestClient, List.of(remediationTO.getAnyType())).getGroup(),
+                                    pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, groupEvent);
                             break;
@@ -252,22 +272,22 @@ public class RemediationDirectoryPanel
                                 EntityTOUtils.toAnyTO(remediationTO.getAnyCRPayload(), newAnyObjectTO);
                                 previousAnyObjectTO = null;
                             } else {
-                                previousAnyObjectTO = new AnyObjectRestClient().
-                                    read(remediationTO.getAnyURPayload().getKey());
+                                previousAnyObjectTO = anyObjectRestClient.
+                                        read(remediationTO.getAnyURPayload().getKey());
                                 newAnyObjectTO = AnyOperations.patch(
-                                    previousAnyObjectTO, (AnyObjectUR) remediationTO.getAnyURPayload());
+                                        previousAnyObjectTO, (AnyObjectUR) remediationTO.getAnyURPayload());
                             }
 
                             AjaxWizard.EditItemActionEvent<AnyObjectTO> anyObjectEvent =
-                                new AjaxWizard.EditItemActionEvent<>(newAnyObjectTO, target);
+                                    new AjaxWizard.EditItemActionEvent<>(newAnyObjectTO, target);
                             anyObjectEvent.forceModalPanel(new RemediationAnyObjectWizardBuilder(
-                                model.getObject(),
-                                previousAnyObjectTO,
-                                newAnyObjectTO,
-                                AnyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
-                                AnyLayoutUtils.fetch(List.of(remediationTO.getAnyType())).getAnyObjects().
-                                    get(remediationTO.getAnyType()),
-                                pageRef
+                                    model.getObject(),
+                                    previousAnyObjectTO,
+                                    newAnyObjectTO,
+                                    anyTypeRestClient.read(remediationTO.getAnyType()).getClasses(),
+                                    AnyLayoutUtils.fetch(roleRestClient, List.of(remediationTO.getAnyType())).
+                                            getAnyObjects().get(remediationTO.getAnyType()),
+                                    pageRef
                             ).build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT));
                             send(RemediationDirectoryPanel.this, Broadcast.EXACT, anyObjectEvent);
                     }
@@ -282,7 +302,8 @@ public class RemediationDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final RemediationTO ignore) {
                 try {
-                    RemediationRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -311,7 +332,7 @@ public class RemediationDirectoryPanel
         return List.of();
     }
 
-    public static class RemediationProvider extends DirectoryDataProvider<RemediationTO> {
+    public class RemediationProvider extends DirectoryDataProvider<RemediationTO> {
 
         private static final long serialVersionUID = -2311716167583335852L;
 
@@ -324,13 +345,13 @@ public class RemediationDirectoryPanel
         @Override
         public Iterator<RemediationTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return RemediationRestClient.getRemediations((page < 0 ? 0 : page) + 1,
-                paginatorRows, getSort()).iterator();
+            return restClient.getRemediations((page < 0 ? 0 : page) + 1,
+                    paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return RemediationRestClient.countRemediations();
+            return restClient.countRemediations();
         }
 
         @Override
@@ -347,7 +368,7 @@ public class RemediationDirectoryPanel
         }
     }
 
-    private static class RemediationUserWizardBuilder extends UserWizardBuilder {
+    private class RemediationUserWizardBuilder extends UserWizardBuilder {
 
         private static final long serialVersionUID = 6840699724316612700L;
 
@@ -361,9 +382,10 @@ public class RemediationDirectoryPanel
                 final UserTO userTO,
                 final List<String> anyTypeClasses,
                 final UserFormLayoutInfo formLayoutInfo,
+                final UserRestClient userRestClient,
                 final PageReference pageRef) {
 
-            super(previousUserTO, userTO, anyTypeClasses, formLayoutInfo, pageRef);
+            super(previousUserTO, userTO, anyTypeClasses, formLayoutInfo, userRestClient, pageRef);
             this.previousUserTO = previousUserTO;
             this.remediationTO = remediationTO;
         }
@@ -378,7 +400,7 @@ public class RemediationDirectoryPanel
                 UserCR req = new UserCR();
                 EntityTOUtils.toAnyCR(inner, req);
 
-                result = RemediationRestClient.remedy(remediationTO.getKey(), req);
+                result = restClient.remedy(remediationTO.getKey(), req);
             } else {
                 UserUR req = AnyOperations.diff(inner, previousUserTO, false);
 
@@ -394,7 +416,7 @@ public class RemediationDirectoryPanel
                     result = new ProvisioningResult<>();
                     result.setEntity(inner);
                 } else {
-                    result = RemediationRestClient.remedy(remediationTO.getKey(), req);
+                    result = restClient.remedy(remediationTO.getKey(), req);
                 }
             }
 
@@ -402,7 +424,7 @@ public class RemediationDirectoryPanel
         }
     }
 
-    private static class RemediationGroupWizardBuilder extends GroupWizardBuilder {
+    private class RemediationGroupWizardBuilder extends GroupWizardBuilder {
 
         private static final long serialVersionUID = -5233791906979150786L;
 
@@ -433,7 +455,7 @@ public class RemediationDirectoryPanel
                 GroupCR req = new GroupCR();
                 EntityTOUtils.toAnyCR(inner, req);
 
-                result = RemediationRestClient.remedy(remediationTO.getKey(), req);
+                result = restClient.remedy(remediationTO.getKey(), req);
             } else {
                 GroupUR req = AnyOperations.diff(inner, previousGroupTO, false);
 
@@ -442,7 +464,7 @@ public class RemediationDirectoryPanel
                     result = new ProvisioningResult<>();
                     result.setEntity(inner);
                 } else {
-                    result = RemediationRestClient.remedy(remediationTO.getKey(), req);
+                    result = restClient.remedy(remediationTO.getKey(), req);
                 }
             }
 
@@ -450,7 +472,7 @@ public class RemediationDirectoryPanel
         }
     }
 
-    private static class RemediationAnyObjectWizardBuilder extends AnyObjectWizardBuilder {
+    private class RemediationAnyObjectWizardBuilder extends AnyObjectWizardBuilder {
 
         private static final long serialVersionUID = 6993139499479015083L;
 
@@ -481,7 +503,7 @@ public class RemediationDirectoryPanel
                 AnyObjectCR req = new AnyObjectCR();
                 EntityTOUtils.toAnyCR(inner, req);
 
-                result = RemediationRestClient.remedy(remediationTO.getKey(), req);
+                result = restClient.remedy(remediationTO.getKey(), req);
             } else {
                 AnyObjectUR req = AnyOperations.diff(inner, previousAnyObjectTO, false);
 
@@ -490,7 +512,7 @@ public class RemediationDirectoryPanel
                     result = new ProvisioningResult<>();
                     result.setEntity(inner);
                 } else {
-                    result = RemediationRestClient.remedy(remediationTO.getKey(), req);
+                    result = restClient.remedy(remediationTO.getKey(), req);
                 }
             }
 

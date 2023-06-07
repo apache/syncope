@@ -55,9 +55,12 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
 
     private static final long serialVersionUID = 3323019773236588850L;
 
-    public SecurityQuestionsPanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionRestClient>(
-                new SecurityQuestionRestClient(), pageRef) {
+    public SecurityQuestionsPanel(
+            final String id,
+            final SecurityQuestionRestClient restClient,
+            final PageReference pageRef) {
+
+        super(id, new Builder<SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionRestClient>(restClient, pageRef) {
 
             private static final long serialVersionUID = 8769126634538601689L;
 
@@ -131,7 +134,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
                 send(SecurityQuestionsPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.SECURITY_QUESTION_UPDATE);
         panel.add(new ActionLink<>() {
@@ -141,7 +144,8 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
                 try {
-                    SecurityQuestionRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
@@ -155,7 +159,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
         return panel;
     }
 
-    protected static final class SecurityQuestionsProvider extends DirectoryDataProvider<SecurityQuestionTO> {
+    protected final class SecurityQuestionsProvider extends DirectoryDataProvider<SecurityQuestionTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -168,14 +172,14 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
 
         @Override
         public Iterator<SecurityQuestionTO> iterator(final long first, final long count) {
-            final List<SecurityQuestionTO> list = SecurityQuestionRestClient.list();
+            List<SecurityQuestionTO> list = restClient.list();
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SecurityQuestionRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override

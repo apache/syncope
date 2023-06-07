@@ -61,13 +61,14 @@ public abstract class NotificationTaskDirectoryPanel
     private final String entityKey;
 
     protected NotificationTaskDirectoryPanel(
+            final TaskRestClient restClient,
             final String notification,
             final AnyTypeKind anyTypeKind,
             final String entityKey,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef) {
 
-        super(null, multiLevelPanelRef, pageRef, false);
+        super(restClient, null, multiLevelPanelRef, pageRef, false);
         this.notification = notification;
         this.anyTypeKind = anyTypeKind;
         this.entityKey = entityKey;
@@ -160,8 +161,9 @@ public abstract class NotificationTaskDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
                 try {
-                    TaskRestClient.delete(TaskType.NOTIFICATION, taskTO.getKey());
+                    restClient.delete(TaskType.NOTIFICATION, taskTO.getKey());
                     updateResultTable(target);
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -193,7 +195,7 @@ public abstract class NotificationTaskDirectoryPanel
         return IdRepoConstants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS;
     }
 
-    protected static class NotificationTasksProvider extends TaskDataProvider<NotificationTaskTO> {
+    protected class NotificationTasksProvider extends TaskDataProvider<NotificationTaskTO> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
@@ -217,13 +219,13 @@ public abstract class NotificationTaskDirectoryPanel
 
         @Override
         public long size() {
-            return TaskRestClient.count(anyTypeKind, entityKey, notification);
+            return restClient.count(anyTypeKind, entityKey, notification);
         }
 
         @Override
         public Iterator<NotificationTaskTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return TaskRestClient.listNotificationTasks(
+            return restClient.listNotificationTasks(
                     notification, anyTypeKind, entityKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }

@@ -16,24 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.enduser.actuate;
+package org.apache.syncope.client.enduser.pages;
 
-import org.apache.syncope.client.enduser.EnduserProperties;
-import org.springframework.boot.actuate.info.Info;
-import org.springframework.boot.actuate.info.InfoContributor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-public class SyncopeEnduserInfoContributor implements InfoContributor {
+public abstract class BaseExtPage extends BasePage {
 
-    protected final EnduserProperties enduserProperties;
+    private static final long serialVersionUID = 4627828052717627159L;
 
-    public SyncopeEnduserInfoContributor(final EnduserProperties enduserProperties) {
-        this.enduserProperties = enduserProperties;
+    public BaseExtPage() {
+        super();
     }
 
-    @PreAuthorize("isAuthenticated()")
-    @Override
-    public void contribute(final Info.Builder builder) {
-        builder.withDetail("enduserProperties", enduserProperties);
+    public BaseExtPage(final PageParameters parameters, final String name) {
+        super(parameters, name);
     }
 }

@@ -23,6 +23,7 @@ import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Task executions.
@@ -33,13 +34,16 @@ public class TaskExecutionDetails<T extends TaskTO> extends MultilevelPanel.Seco
 
     private static final long serialVersionUID = -4110576026663173545L;
 
+    @SpringBean
+    protected TaskRestClient taskRestClient;
+
     public TaskExecutionDetails(final T taskTO, final PageReference pageRef) {
         super();
 
         MultilevelPanel mlp = new MultilevelPanel("executions");
         add(mlp);
 
-        mlp.setFirstLevel(new ExecutionsDirectoryPanel(mlp, taskTO.getKey(), new TaskRestClient(), pageRef) {
+        mlp.setFirstLevel(new ExecutionsDirectoryPanel(mlp, taskTO.getKey(), taskRestClient, pageRef) {
 
             private static final long serialVersionUID = 5691719817252887541L;
 

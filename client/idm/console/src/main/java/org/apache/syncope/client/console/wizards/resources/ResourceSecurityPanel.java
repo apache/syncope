@@ -35,62 +35,66 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ResourceSecurityPanel extends WizardStep {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private final IModel<Map<String, String>> passwordPolicies = new LoadableDetachableModel<>() {
+    @SpringBean
+    protected PolicyRestClient policyRestClient;
+
+    protected final IModel<Map<String, String>> passwordPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.list(PolicyType.PASSWORD).stream().
+            return policyRestClient.list(PolicyType.PASSWORD).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
-    private final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<>() {
+    protected final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.list(PolicyType.ACCOUNT).stream().
+            return policyRestClient.list(PolicyType.ACCOUNT).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
-    private final IModel<Map<String, String>> propagationPolicies = new LoadableDetachableModel<>() {
+    protected final IModel<Map<String, String>> propagationPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.list(PolicyType.PROPAGATION).stream().
+            return policyRestClient.list(PolicyType.PROPAGATION).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
-    private final IModel<Map<String, String>> pullPolicies = new LoadableDetachableModel<>() {
+    protected final IModel<Map<String, String>> pullPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.list(PolicyType.PULL).stream().
+            return policyRestClient.list(PolicyType.PULL).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
 
-    private final IModel<Map<String, String>> pushPolicies = new LoadableDetachableModel<>() {
+    protected final IModel<Map<String, String>> pushPolicies = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 9089911876466472133L;
 
         @Override
         protected Map<String, String> load() {
-            return PolicyRestClient.list(PolicyType.PUSH).stream().
+            return policyRestClient.list(PolicyType.PUSH).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName));
         }
     };

@@ -36,6 +36,10 @@ public class BpmnProcessPUTResource extends AbstractBpmnProcessResource {
 
     private static final long serialVersionUID = 2964542005207297944L;
 
+    public BpmnProcessPUTResource(final BpmnProcessRestClient bpmnProcessRestClient) {
+        super(bpmnProcessRestClient);
+    }
+
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
         String definition = null;
@@ -62,7 +66,7 @@ public class BpmnProcessPUTResource extends AbstractBpmnProcessResource {
         }
 
         try {
-            BpmnProcessRestClient.setDefinition(MediaType.APPLICATION_JSON_TYPE, toSet.getKey(), definition);
+            bpmnProcessRestClient.setDefinition(MediaType.APPLICATION_JSON_TYPE, toSet.getKey(), definition);
             return new ResourceResponse().setStatusCode(Response.Status.NO_CONTENT.getStatusCode());
         } catch (Exception e) {
             LOG.error("While updating BPMN process", e);

@@ -26,23 +26,23 @@ public class AttrRepoRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -7379778542101161274L;
 
-    public static List<AttrRepoTO> list() {
+    public  List<AttrRepoTO> list() {
         return getService(AttrRepoService.class).list();
     }
 
-    public static void create(final AttrRepoTO attrRepoTO) {
+    public  void create(final AttrRepoTO attrRepoTO) {
         getService(AttrRepoService.class).create(attrRepoTO);
     }
 
-    public static AttrRepoTO read(final String key) {
+    public  AttrRepoTO read(final String key) {
         return getService(AttrRepoService.class).read(key);
     }
 
-    public static void update(final AttrRepoTO attrRepoTO) {
+    public  void update(final AttrRepoTO attrRepoTO) {
         getService(AttrRepoService.class).update(attrRepoTO);
     }
 
-    public static void delete(final String key) {
+    public  void delete(final String key) {
         getService(AttrRepoService.class).delete(key);
     }
 }

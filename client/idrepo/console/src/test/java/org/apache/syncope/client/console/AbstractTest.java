@@ -41,26 +41,16 @@ import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActi
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
 import org.apache.syncope.client.console.commons.AnyWizardBuilderAdditionalSteps;
 import org.apache.syncope.client.console.commons.ExternalResourceProvider;
-import org.apache.syncope.client.console.commons.IdRepoAccessPolicyConfProvider;
-import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionLinksProvider;
-import org.apache.syncope.client.console.commons.IdRepoAnyDirectoryPanelAdditionalActionsProvider;
-import org.apache.syncope.client.console.commons.IdRepoAnyWizardBuilderAdditionalSteps;
-import org.apache.syncope.client.console.commons.IdRepoExternalResourceProvider;
-import org.apache.syncope.client.console.commons.IdRepoImplementationInfoProvider;
-import org.apache.syncope.client.console.commons.IdRepoPolicyTabProvider;
-import org.apache.syncope.client.console.commons.IdRepoStatusProvider;
-import org.apache.syncope.client.console.commons.IdRepoVirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
-import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
 import org.apache.syncope.client.lib.AuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -78,16 +68,17 @@ import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.FIQLQueryService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
+import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 public abstract class AbstractTest {
 
-    @ImportAutoConfiguration
+    @Import(IdRepoConsoleContext.class)
     @Configuration(proxyBeanMethods = false)
     public static class SyncopeConsoleWebApplicationTestConfig {
 
@@ -140,67 +131,10 @@ public abstract class AbstractTest {
 
         @Bean
         public ClassPathScanImplementationLookup classPathScanImplementationLookup() {
-            ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup(Set.of(),
-                    consoleProperties());
+            ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup(
+                    Set.of(), consoleProperties());
             lookup.load();
             return lookup;
-        }
-
-        @Bean
-        public MIMETypesLoader mimeTypesLoader() {
-            MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
-            mimeTypesLoader.load();
-            return mimeTypesLoader;
-        }
-
-        @Bean
-        public PreviewUtils previewUtils() {
-            return new PreviewUtils();
-        }
-
-        @Bean
-        public ExternalResourceProvider resourceProvider() {
-            return new IdRepoExternalResourceProvider();
-        }
-
-        @Bean
-        public AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider() {
-            return new IdRepoAnyDirectoryPanelAdditionalActionsProvider();
-        }
-
-        @Bean
-        public AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAditionalActionLinksProvider() {
-            return new IdRepoAnyDirectoryPanelAdditionalActionLinksProvider();
-        }
-
-        @Bean
-        public AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps() {
-            return new IdRepoAnyWizardBuilderAdditionalSteps();
-        }
-
-        @Bean
-        public StatusProvider statusProvider() {
-            return new IdRepoStatusProvider();
-        }
-
-        @Bean
-        public VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider() {
-            return new IdRepoVirSchemaDetailsPanelProvider();
-        }
-
-        @Bean
-        public ImplementationInfoProvider implementationInfoProvider() {
-            return new IdRepoImplementationInfoProvider();
-        }
-
-        @Bean
-        public PolicyTabProvider policyTabProvider() {
-            return new IdRepoPolicyTabProvider();
-        }
-
-        @Bean
-        public AccessPolicyConfProvider accessPolicyConfProvider() {
-            return new IdRepoAccessPolicyConfProvider();
         }
     }
 
@@ -218,12 +152,14 @@ public abstract class AbstractTest {
                 final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
                 final ImplementationInfoProvider implementationInfoProvider,
                 final AccessPolicyConfProvider accessPolicyConfProvider,
-                final List<PolicyTabProvider> policyTabProviders) {
+                final List<PolicyTabProvider> policyTabProviders,
+                final List<UserFormFinalizer> userFormFinalizers,
+                final List<IResource> resources) {
 
             super(props, lookup, serviceOps, resourceProvider, anyDirectoryPanelAdditionalActionsProvider,
                     anyDirectoryPanelAdditionalActionLinksProvider, anyWizardBuilderAdditionalSteps, statusProvider,
                     virSchemaDetailsPanelProvider, implementationInfoProvider, accessPolicyConfProvider,
-                    policyTabProviders);
+                    policyTabProviders, userFormFinalizers, resources);
         }
 
         public interface SyncopeServiceClient extends SyncopeService, Client {

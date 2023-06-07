@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalDirectoryPanel;
+import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -58,20 +59,29 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
         extends DirectoryPanel<T, T, DirectoryDataProvider<T>, ClientAppRestClient> {
 
     private static final long serialVersionUID = 4100100988730985059L;
 
-    private final ClientAppType type;
+    @SpringBean
+    protected AuditRestClient auditRestClient;
+
+    protected final ClientAppType type;
 
     protected final BaseModal<T> propertiesModal;
 
     protected final BaseModal<Serializable> historyModal;
 
-    public ClientAppDirectoryPanel(final String id, final ClientAppType type, final PageReference pageRef) {
-        super(id, pageRef, true);
+    public ClientAppDirectoryPanel(
+            final String id,
+            final ClientAppRestClient restClient,
+            final ClientAppType type,
+            final PageReference pageRef) {
+
+        super(id, restClient, pageRef, true);
         this.type = type;
 
         modal.addSubmitButton();
@@ -135,7 +145,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
             public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
                 send(ClientAppDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                ClientAppRestClient.read(type, model.getObject().getKey()), target));
+                                restClient.read(type, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.CLIENTAPP_UPDATE);
 
@@ -145,7 +155,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
-                model.setObject(ClientAppRestClient.read(type, model.getObject().getKey()));
+                model.setObject(restClient.read(type, model.getObject().getKey()));
                 modal.setContent(new UsernameAttributeProviderModalPanelBuilder<>(
                         type, model.getObject(), modal, pageRef).build(actualId, 1, AjaxWizard.Mode.EDIT));
                 modal.header(new Model<>(getString("usernameAttributeProviderConf.title", model)));
@@ -160,10 +170,11 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
-                model.setObject(ClientAppRestClient.read(type, model.getObject().getKey()));
+                model.setObject(restClient.read(type, model.getObject().getKey()));
                 target.add(propertiesModal.setContent(new ModalDirectoryPanel<>(
                         propertiesModal,
-                        new ClientAppPropertiesDirectoryPanel<>("panel", propertiesModal, type, model, pageRef),
+                        new ClientAppPropertiesDirectoryPanel<>(
+                                "panel", restClient, propertiesModal, type, model, pageRef),
                         pageRef)));
                 propertiesModal.header(new Model<>(getString("properties.title", model)));
                 propertiesModal.show(true);
@@ -176,13 +187,14 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
-                model.setObject(ClientAppRestClient.read(type, model.getObject().getKey()));
+                model.setObject(restClient.read(type, model.getObject().getKey()));
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
                         AuditElements.EventCategoryType.LOGIC,
                         "ClientAppLogic",
                         model.getObject(),
-                        AMEntitlement.CLIENTAPP_UPDATE) {
+                        AMEntitlement.CLIENTAPP_UPDATE,
+                        auditRestClient) {
 
                     private static final long serialVersionUID = -3712506022627033811L;
 
@@ -190,7 +202,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
                     protected void restore(final String json, final AjaxRequestTarget target) {
                         try {
                             ClientAppTO updated = MAPPER.readValue(json, ClientAppTO.class);
-                            ClientAppRestClient.update(type, updated);
+                            restClient.update(type, updated);
 
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
@@ -230,7 +242,8 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
             public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
                 T clientAppTO = model.getObject();
                 try {
-                    ClientAppRestClient.delete(type, clientAppTO.getKey());
+                    restClient.delete(type, clientAppTO.getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -274,14 +287,14 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
-            List<T> list = ClientAppRestClient.list(type);
+            List<T> list = restClient.list(type);
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return ClientAppRestClient.list(type).size();
+            return restClient.list(type).size();
         }
 
         @Override

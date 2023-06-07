@@ -26,23 +26,23 @@ public class FIQLQueryRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3161863874876938094L;
 
-    public static void delete(final String key) {
+    public void delete(final String key) {
         getService(FIQLQueryService.class).delete(key);
     }
 
-    public static FIQLQueryTO read(final String key) {
+    public FIQLQueryTO read(final String key) {
         return getService(FIQLQueryService.class).read(key);
     }
 
-    public static void update(final FIQLQueryTO roleTO) {
+    public void update(final FIQLQueryTO roleTO) {
         getService(FIQLQueryService.class).update(roleTO);
     }
 
-    public static void create(final FIQLQueryTO roleTO) {
+    public void create(final FIQLQueryTO roleTO) {
         getService(FIQLQueryService.class).create(roleTO);
     }
 
-    public static List<FIQLQueryTO> list(final String target) {
+    public List<FIQLQueryTO> list(final String target) {
         return getService(FIQLQueryService.class).list(target);
     }
 }

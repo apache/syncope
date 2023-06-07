@@ -38,12 +38,16 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    private GroupTO groupTO;
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    protected GroupTO groupTO;
 
     protected final Form<?> form;
 
@@ -55,8 +59,8 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
 
         @Override
         protected List<String> load() {
-            return AnyTypeRestClient.list().stream().
-                filter(anyType -> !AnyTypeKind.GROUP.name().equals(anyType)).collect(Collectors.toList());
+            return anyTypeRestClient.list().stream().
+                    filter(anyType -> !AnyTypeKind.GROUP.name().equals(anyType)).collect(Collectors.toList());
         }
     };
 

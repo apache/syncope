@@ -37,9 +37,15 @@ public class IdRepoRealmPolicyProvider implements RealmPolicyProvider {
 
     private static final long serialVersionUID = 2933826125264961282L;
 
+    protected final PolicyRestClient policyRestClient;
+
+    public IdRepoRealmPolicyProvider(final PolicyRestClient policyRestClient) {
+        this.policyRestClient = policyRestClient;
+    }
+
     @Override
     public void add(final RealmTO realmTO, final RepeatingView view) {
-        Map<String, String> accountPolicies = PolicyRestClient.list(PolicyType.ACCOUNT).stream().
+        Map<String, String> accountPolicies = policyRestClient.list(PolicyType.ACCOUNT).stream().
                 collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         AjaxDropDownChoicePanel<String> accountPolicy = new AjaxDropDownChoicePanel<>(
                 view.newChildId(),
@@ -51,7 +57,7 @@ public class IdRepoRealmPolicyProvider implements RealmPolicyProvider {
         ((AbstractSingleSelectChoice<?>) accountPolicy.getField()).setNullValid(true);
         view.add(accountPolicy);
 
-        Map<String, String> passwordPolicies = PolicyRestClient.list(PolicyType.PASSWORD).stream().
+        Map<String, String> passwordPolicies = policyRestClient.list(PolicyType.PASSWORD).stream().
                 collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         AjaxDropDownChoicePanel<String> passwordPolicy = new AjaxDropDownChoicePanel<>(
                 view.newChildId(),

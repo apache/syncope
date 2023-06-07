@@ -26,6 +26,7 @@ import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
@@ -59,11 +60,11 @@ import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.core.io.ResourceLoader;
 
 public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
@@ -84,18 +85,22 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     protected final ServiceOps serviceOps;
 
+    protected final List<IResource> resources;
+
     protected UserFormLayoutInfo customFormLayout;
 
     public SyncopeWebApplication(
             final ResourceLoader resourceLoader,
             final EnduserProperties props,
             final ClassPathScanImplementationLookup lookup,
-            final ServiceOps serviceOps) {
+            final ServiceOps serviceOps,
+            final List<IResource> resources) {
 
         this.resourceLoader = resourceLoader;
         this.props = props;
         this.lookup = lookup;
         this.serviceOps = serviceOps;
+        this.resources = resources;
     }
 
     protected SyncopeUIRequestCycleListener buildSyncopeUIRequestCycleListener() {
@@ -177,23 +182,23 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         // Confirm password reset page
         mountPage("/confirmpasswordreset", SelfConfirmPasswordReset.class);
 
-        for (Class<? extends AbstractResource> resource : lookup.getResources()) {
-            Resource annotation = resource.getAnnotation(Resource.class);
-            try {
-                AbstractResource instance = resource.getDeclaredConstructor().newInstance();
+        for (IResource resource : resources) {
+            Class<?> resourceClass = AopUtils.getTargetClass(resource);
+            Resource annotation = resourceClass.getAnnotation(Resource.class);
+            if (annotation == null) {
+                LOG.error("No @Resource annotation found, ignoring {}", resourceClass.getName());
+            } else {
+                LOG.debug("Mounting {} under {}", resourceClass.getName(), annotation.path());
 
-                LOG.debug("Mounting {} under {}", resource.getName(), annotation.path());
                 mountResource(annotation.path(), new ResourceReference(annotation.key()) {
 
                     private static final long serialVersionUID = -128426276529456602L;
 
                     @Override
                     public IResource getResource() {
-                        return instance;
+                        return resource;
                     }
                 });
-            } catch (Exception e) {
-                LOG.error("Could not instantiate {}", resource.getName(), e);
             }
         }
 

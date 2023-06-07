@@ -128,7 +128,8 @@ public class AccessTokenDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final AccessTokenTO ignore) {
                 try {
-                    AccessTokenRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -147,22 +148,7 @@ public class AccessTokenDirectoryPanel
         return List.of();
     }
 
-    public static class Builder
-            extends DirectoryPanel.Builder<AccessTokenTO, AccessTokenTO, AccessTokenRestClient> {
-
-        private static final long serialVersionUID = 5088962796986706805L;
-
-        public Builder(final PageReference pageRef) {
-            super(new AccessTokenRestClient(), pageRef);
-        }
-
-        @Override
-        protected WizardMgtPanel<AccessTokenTO> newInstance(final String id, final boolean wizardInModal) {
-            return new AccessTokenDirectoryPanel(id, this);
-        }
-    }
-
-    protected static class AccessTokenDataProvider extends DirectoryDataProvider<AccessTokenTO> {
+    protected class AccessTokenDataProvider extends DirectoryDataProvider<AccessTokenTO> {
 
         private static final long serialVersionUID = 6267494272884913376L;
 
@@ -175,19 +161,32 @@ public class AccessTokenDirectoryPanel
         @Override
         public Iterator<AccessTokenTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return AccessTokenRestClient.list(
-                    (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
-                    iterator();
+            return restClient.list((page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return AccessTokenRestClient.count();
+            return restClient.count();
         }
 
         @Override
         public IModel<AccessTokenTO> model(final AccessTokenTO object) {
             return new CompoundPropertyModel<>(object);
+        }
+    }
+
+    public static class Builder
+            extends DirectoryPanel.Builder<AccessTokenTO, AccessTokenTO, AccessTokenRestClient> {
+
+        private static final long serialVersionUID = 5088962796986706805L;
+
+        public Builder(final AccessTokenRestClient restClient, final PageReference pageRef) {
+            super(restClient, pageRef);
+        }
+
+        @Override
+        protected WizardMgtPanel<AccessTokenTO> newInstance(final String id, final boolean wizardInModal) {
+            return new AccessTokenDirectoryPanel(id, this);
         }
     }
 }

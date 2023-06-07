@@ -25,6 +25,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.CommandsPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.tasks.MacroTaskDirectoryPanel;
 import org.apache.syncope.client.console.tasks.SchedTaskDirectoryPanel;
 import org.apache.syncope.client.console.tasks.TaskExecutionDetails;
@@ -39,10 +40,14 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Engagements extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271271L;
+
+    @SpringBean
+    protected TaskRestClient taskRestClient;
 
     public Engagements(final PageParameters parameters) {
         super(parameters);
@@ -66,7 +71,7 @@ public class Engagements extends BasePage {
             @Override
             public Panel getPanel(final String panelId) {
                 MultilevelPanel mlp = new MultilevelPanel(panelId);
-                mlp.setFirstLevel(new SchedTaskDirectoryPanel<>(MultilevelPanel.FIRST_LEVEL_ID,
+                mlp.setFirstLevel(new SchedTaskDirectoryPanel<>(MultilevelPanel.FIRST_LEVEL_ID, taskRestClient,
                         null, null, TaskType.SCHEDULED, new SchedTaskTO(), getPageReference(), true) {
 
                     private static final long serialVersionUID = -2195387360323687302L;
@@ -101,7 +106,7 @@ public class Engagements extends BasePage {
             @Override
             public Panel getPanel(final String panelId) {
                 MultilevelPanel mlp = new MultilevelPanel(panelId);
-                mlp.setFirstLevel(new MacroTaskDirectoryPanel(mlp, getPageReference()));
+                mlp.setFirstLevel(new MacroTaskDirectoryPanel(taskRestClient, mlp, getPageReference()));
                 return mlp;
             }
         });

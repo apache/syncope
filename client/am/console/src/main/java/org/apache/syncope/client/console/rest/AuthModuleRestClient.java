@@ -26,23 +26,23 @@ public class AuthModuleRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -7379778542101161274L;
 
-    public static List<AuthModuleTO> list() {
+    public List<AuthModuleTO> list() {
         return getService(AuthModuleService.class).list();
     }
 
-    public static void create(final AuthModuleTO authModuleTO) {
+    public void create(final AuthModuleTO authModuleTO) {
         getService(AuthModuleService.class).create(authModuleTO);
     }
 
-    public static AuthModuleTO read(final String key) {
+    public AuthModuleTO read(final String key) {
         return getService(AuthModuleService.class).read(key);
     }
 
-    public static void update(final AuthModuleTO authModuleTO) {
+    public void update(final AuthModuleTO authModuleTO) {
         getService(AuthModuleService.class).update(authModuleTO);
     }
 
-    public static void delete(final String key) {
+    public void delete(final String key) {
         getService(AuthModuleService.class).delete(key);
     }
 }

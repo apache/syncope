@@ -26,23 +26,23 @@ public class ApplicationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -381814125643246243L;
 
-    public static void delete(final String key) {
+    public void delete(final String key) {
         getService(ApplicationService.class).delete(key);
     }
 
-    public static ApplicationTO read(final String key) {
+    public ApplicationTO read(final String key) {
         return getService(ApplicationService.class).read(key);
     }
 
-    public static void update(final ApplicationTO applicationTO) {
+    public void update(final ApplicationTO applicationTO) {
         getService(ApplicationService.class).update(applicationTO);
     }
 
-    public static void create(final ApplicationTO applicationTO) {
+    public void create(final ApplicationTO applicationTO) {
         getService(ApplicationService.class).create(applicationTO);
     }
 
-    public static List<ApplicationTO> list() {
+    public List<ApplicationTO> list() {
         return getService(ApplicationService.class).list();
     }
 }

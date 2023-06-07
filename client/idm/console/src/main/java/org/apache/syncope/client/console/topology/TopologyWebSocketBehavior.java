@@ -47,15 +47,15 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     private static final long serialVersionUID = -1653665542635275551L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(TopologyWebSocketBehavior.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(TopologyWebSocketBehavior.class);
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    private static final String CONNECTOR_TEST_TIMEOUT_PARAMETER = "connector.test.timeout";
+    protected static final String CONNECTOR_TEST_TIMEOUT_PARAMETER = "connector.test.timeout";
 
-    private static final String RESOURCE_TEST_TIMEOUT_PARAMETER = "resource.test.timeout";
+    protected static final String RESOURCE_TEST_TIMEOUT_PARAMETER = "resource.test.timeout";
 
-    private static void timeoutHandlingConnectionChecker(
+    protected static void timeoutHandlingConnectionChecker(
             final Checker checker,
             final Integer timeout,
             final Map<String, String> responses,
@@ -88,28 +88,34 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
     }
 
     @SpringBean
-    private ServiceOps serviceOps;
+    protected ServiceOps serviceOps;
 
     @SpringBean
-    private ConfParamOps confParamOps;
+    protected ConfParamOps confParamOps;
 
-    private final Map<String, String> connectors = Collections.synchronizedMap(new HashMap<>());
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
 
-    private final Set<String> runningConnCheck = Collections.synchronizedSet(new HashSet<>());
+    @SpringBean
+    protected ResourceRestClient resourceRestClient;
 
-    private final Map<String, String> resources = Collections.synchronizedMap(new HashMap<>());
+    protected final Map<String, String> connectors = Collections.synchronizedMap(new HashMap<>());
 
-    private final Set<String> runningResCheck = Collections.synchronizedSet(new HashSet<>());
+    protected final Set<String> runningConnCheck = Collections.synchronizedSet(new HashSet<>());
 
-    private String coreAddress;
+    protected final Map<String, String> resources = Collections.synchronizedMap(new HashMap<>());
 
-    private String domain;
+    protected final Set<String> runningResCheck = Collections.synchronizedSet(new HashSet<>());
 
-    private String jwt;
+    protected String coreAddress;
 
-    private Integer connectorTestTimeout = null;
+    protected String domain;
 
-    private Integer resourceTestTimeout = null;
+    protected String jwt;
+
+    protected Integer connectorTestTimeout = null;
+
+    protected Integer resourceTestTimeout = null;
 
     public TopologyWebSocketBehavior() {
         coreAddress = serviceOps.get(NetworkService.Type.CORE).getAddress();
@@ -220,7 +226,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         public String call() throws Exception {
             try {
                 return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                        ConnectorRestClient.check(coreAddress, domain, jwt, key)
+                        connectorRestClient.check(coreAddress, domain, jwt, key)
                         ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
             } catch (Exception e) {
                 LOG.warn("Error checking connection for {}", key, e);
@@ -240,7 +246,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         public String call() throws Exception {
             try {
                 return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                        ResourceRestClient.check(coreAddress, domain, jwt, key)
+                        resourceRestClient.check(coreAddress, domain, jwt, key)
                         ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
             } catch (Exception e) {
                 LOG.warn("Error checking connection for {}", key, e);

@@ -32,6 +32,7 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -42,9 +43,15 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 @Configuration(proxyBeanMethods = false)
 public class SAML2SP4UILogicContext {
 
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = "saml2ClientCacheLogin")
     @Bean
-    public SAML2ClientCache saml2ClientCache() {
+    public SAML2ClientCache saml2ClientCacheLogin() {
+        return new SAML2ClientCache();
+    }
+
+    @ConditionalOnMissingBean(name = "saml2ClientCacheLogout")
+    @Bean
+    public SAML2ClientCache saml2ClientCacheLogout() {
         return new SAML2ClientCache();
     }
 
@@ -59,11 +66,20 @@ public class SAML2SP4UILogicContext {
     public SAML2SP4UIIdPLogic saml2SP4UIIdPLogic(
             final SAML2SP4UIProperties props,
             final ResourcePatternResolver resourceResolver,
-            final SAML2ClientCache saml2ClientCache,
+            @Qualifier("saml2ClientCacheLogin")
+            final SAML2ClientCache saml2ClientCacheLogin,
+            @Qualifier("saml2ClientCacheLogout")
+            final SAML2ClientCache saml2ClientCacheLogout,
             final SAML2SP4UIIdPDataBinder binder,
             final SAML2SP4UIIdPDAO idpDAO) {
 
-        return new SAML2SP4UIIdPLogic(props, resourceResolver, saml2ClientCache, binder, idpDAO);
+        return new SAML2SP4UIIdPLogic(
+                props,
+                resourceResolver,
+                saml2ClientCacheLogin,
+                saml2ClientCacheLogout,
+                binder,
+                idpDAO);
     }
 
     @ConditionalOnMissingBean
@@ -95,7 +111,10 @@ public class SAML2SP4UILogicContext {
             final SAML2SP4UIProperties props,
             final ResourcePatternResolver resourceResolver,
             final AccessTokenDataBinder accessTokenDataBinder,
-            final SAML2ClientCache saml2ClientCache,
+            @Qualifier("saml2ClientCacheLogin")
+            final SAML2ClientCache saml2ClientCacheLogin,
+            @Qualifier("saml2ClientCacheLogout")
+            final SAML2ClientCache saml2ClientCacheLogout,
             final SAML2SP4UIUserManager userManager,
             final SAML2SP4UIIdPDAO idpDAO,
             final AuthDataAccessor authDataAccessor) {
@@ -104,7 +123,8 @@ public class SAML2SP4UILogicContext {
                 props,
                 resourceResolver,
                 accessTokenDataBinder,
-                saml2ClientCache,
+                saml2ClientCacheLogin,
+                saml2ClientCacheLogout,
                 userManager,
                 idpDAO,
                 authDataAccessor);

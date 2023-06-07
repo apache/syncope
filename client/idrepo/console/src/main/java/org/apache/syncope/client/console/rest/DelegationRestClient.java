@@ -26,23 +26,23 @@ public class DelegationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -381814125643246243L;
 
-    public static void delete(final String key) {
+    public void delete(final String key) {
         getService(DelegationService.class).delete(key);
     }
 
-    public static DelegationTO read(final String key) {
+    public DelegationTO read(final String key) {
         return getService(DelegationService.class).read(key);
     }
 
-    public static void update(final DelegationTO applicationTO) {
+    public void update(final DelegationTO applicationTO) {
         getService(DelegationService.class).update(applicationTO);
     }
 
-    public static void create(final DelegationTO applicationTO) {
+    public void create(final DelegationTO applicationTO) {
         getService(DelegationService.class).create(applicationTO);
     }
 
-    public static List<DelegationTO> list() {
+    public List<DelegationTO> list() {
         return getService(DelegationService.class).list();
     }
 }

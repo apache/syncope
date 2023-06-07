@@ -40,7 +40,7 @@ public class PullTasks extends AbstractTasks {
         MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new PullTaskDirectoryPanel(baseModal, mlp, resource, pageRef) {
+        mlp.setFirstLevel(new PullTaskDirectoryPanel(taskRestClient, baseModal, mlp, resource, pageRef) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 

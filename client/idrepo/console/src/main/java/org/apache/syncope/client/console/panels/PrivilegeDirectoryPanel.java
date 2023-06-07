@@ -62,18 +62,19 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
     private final BaseModal<PrivilegeTO> baseModal;
 
     protected PrivilegeDirectoryPanel(
-            final BaseModal<PrivilegeTO> baseModal, final ApplicationTO application, final PageReference pageRef) {
+            final BaseModal<PrivilegeTO> baseModal,
+            final ApplicationRestClient restClient,
+            final ApplicationTO application,
+            final PageReference pageRef) {
 
-        super(BaseModal.CONTENT_ID, pageRef, false);
+        super(BaseModal.CONTENT_ID, restClient, pageRef, false);
         this.baseModal = baseModal;
         this.application = application;
-
-        restClient = new ApplicationRestClient();
 
         disableCheckBoxes();
         enableUtilityButton();
 
-        this.addNewItemPanelBuilder(new PrivilegeWizardBuilder(application, new PrivilegeTO(), pageRef), true);
+        addNewItemPanelBuilder(new PrivilegeWizardBuilder(application, new PrivilegeTO(), restClient, pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.APPLICATION_UPDATE);
         initResultTable();
@@ -103,7 +104,7 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final PrivilegeTO ignore) {
                 PrivilegeDirectoryPanel.this.getTogglePanel().close(target);
                 send(PrivilegeDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.APPLICATION_UPDATE);
 
@@ -115,7 +116,8 @@ public class PrivilegeDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final PrivilegeTO ignore) {
                 try {
                     application.getPrivileges().remove(model.getObject());
-                    ApplicationRestClient.update(application);
+                    restClient.update(application);
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
                 } catch (SyncopeClientException e) {

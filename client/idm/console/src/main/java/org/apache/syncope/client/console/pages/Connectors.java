@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.pages;
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.ConnectorDirectoryPanel;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.resources.ConnectorWizardBuilder;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -33,10 +34,14 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Connectors extends Panel {
 
     private static final long serialVersionUID = 305521359617401936L;
+
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
 
     public Connectors(final String id, final PageReference pageRef) {
         super(id);
@@ -66,9 +71,11 @@ public class Connectors extends Panel {
         form.add(search);
         form.setDefaultButton(search);
 
-        WizardMgtPanel<Serializable> connectorDirectoryPanel = new ConnectorDirectoryPanel.Builder(pageRef).
-                addNewItemPanelBuilder(new ConnectorWizardBuilder(new ConnInstanceTO(), pageRef), true).
-                build("connectorDirectoryPanel");
+        WizardMgtPanel<Serializable> connectorDirectoryPanel =
+                new ConnectorDirectoryPanel.Builder(connectorRestClient, pageRef).
+                        addNewItemPanelBuilder(new ConnectorWizardBuilder(
+                                new ConnInstanceTO(), connectorRestClient, pageRef), true).
+                        build("connectorDirectoryPanel");
         add(connectorDirectoryPanel.setOutputMarkupId(true));
     }
 }
