@@ -33,52 +33,11 @@ public class AnyTypeRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2211371717449597247L;
 
+    private static final Comparator<AnyTypeTO> COMPARATOR = new AnyTypeComparator();
+
     public static final Comparator<String> KEY_COMPARATOR = new AnyTypeKeyComparator();
 
-    public static AnyTypeTO read(final String key) {
-        AnyTypeTO type = null;
-
-        try {
-            type = getService(AnyTypeService.class).read(key);
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading all any types", e);
-        }
-
-        return type;
-    }
-
-    public static List<AnyTypeTO> listAnyTypes() {
-        List<AnyTypeTO> types = List.of();
-
-        try {
-            types = getService(AnyTypeService.class).list();
-            types.sort(new AnyTypeComparator());
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading all any types", e);
-        }
-
-        return types;
-    }
-
-    public static List<String> list() {
-        List<String> types = SyncopeConsoleSession.get().getAnonymousClient().platform().getAnyTypes();
-        types.sort(new AnyTypeKeyComparator());
-        return types;
-    }
-
-    public static void create(final AnyTypeTO anyTypeTO) {
-        getService(AnyTypeService.class).create(anyTypeTO);
-    }
-
-    public static void update(final AnyTypeTO anyTypeTO) {
-        getService(AnyTypeService.class).update(anyTypeTO);
-    }
-
-    public static void delete(final String key) {
-        getService(AnyTypeService.class).delete(key);
-    }
-
-    private static class AnyTypeComparator implements Comparator<AnyTypeTO>, Serializable {
+    protected static class AnyTypeComparator implements Comparator<AnyTypeTO>, Serializable {
 
         private static final long serialVersionUID = -8227715253094467138L;
 
@@ -100,7 +59,7 @@ public class AnyTypeRestClient extends BaseRestClient {
         }
     }
 
-    private static class AnyTypeKeyComparator implements Comparator<String>, Serializable {
+    protected static class AnyTypeKeyComparator implements Comparator<String>, Serializable {
 
         private static final long serialVersionUID = -7778622183107320760L;
 
@@ -126,5 +85,48 @@ public class AnyTypeRestClient extends BaseRestClient {
             }
             return ObjectUtils.compare(o1, o2);
         }
+    }
+
+    public AnyTypeTO read(final String key) {
+        AnyTypeTO type = null;
+
+        try {
+            type = getService(AnyTypeService.class).read(key);
+        } catch (SyncopeClientException e) {
+            LOG.error("While reading all any types", e);
+        }
+
+        return type;
+    }
+
+    public List<AnyTypeTO> listAnyTypes() {
+        List<AnyTypeTO> types = List.of();
+
+        try {
+            types = getService(AnyTypeService.class).list();
+            types.sort(COMPARATOR);
+        } catch (SyncopeClientException e) {
+            LOG.error("While reading all any types", e);
+        }
+
+        return types;
+    }
+
+    public List<String> list() {
+        List<String> types = SyncopeConsoleSession.get().getAnonymousClient().platform().getAnyTypes();
+        types.sort(KEY_COMPARATOR);
+        return types;
+    }
+
+    public void create(final AnyTypeTO anyTypeTO) {
+        getService(AnyTypeService.class).create(anyTypeTO);
+    }
+
+    public void update(final AnyTypeTO anyTypeTO) {
+        getService(AnyTypeService.class).update(anyTypeTO);
+    }
+
+    public void delete(final String key) {
+        getService(AnyTypeService.class).delete(key);
     }
 }

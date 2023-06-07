@@ -36,6 +36,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,16 @@ public class ProvisionAuxClassesPanel extends Panel {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProvisionAuxClassesPanel.class);
 
-    private final Provision provision;
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
+
+    @SpringBean
+    protected SchemaRestClient schemaRestClient;
+
+    protected final Provision provision;
 
     public ProvisionAuxClassesPanel(final String id, final Provision provision) {
         super(id);
@@ -69,12 +79,12 @@ public class ProvisionAuxClassesPanel extends Panel {
             choices = new ArrayList<>();
 
             try {
-                anyType = AnyTypeRestClient.read(provision.getAnyType());
+                anyType = anyTypeRestClient.read(provision.getAnyType());
             } catch (Exception e) {
                 LOG.error("Could not read AnyType {}", provision.getAnyType(), e);
             }
             if (anyType != null) {
-                for (AnyTypeClassTO aux : AnyTypeClassRestClient.list()) {
+                for (AnyTypeClassTO aux : anyTypeClassRestClient.list()) {
                     if (!anyType.getClasses().contains(aux.getKey())) {
                         choices.add(aux.getKey());
                     }
@@ -96,11 +106,11 @@ public class ProvisionAuxClassesPanel extends Panel {
         addOrReplace(uidOnCreate);
     }
 
-    private static List<String> getSchemas(final AnyTypeTO anyType, final List<String> anyTypeClasses) {
+    protected List<String> getSchemas(final AnyTypeTO anyType, final List<String> anyTypeClasses) {
         List<String> classes = new ArrayList<>(anyType.getClasses());
         classes.addAll(anyTypeClasses);
 
-        return SchemaRestClient.<PlainSchemaTO>getSchemas(
+        return schemaRestClient.<PlainSchemaTO>getSchemas(
                 SchemaType.PLAIN, null, classes.toArray(String[]::new)).
                 stream().map(PlainSchemaTO::getKey).collect(Collectors.toList());
     }

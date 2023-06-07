@@ -41,13 +41,12 @@ public class BinaryTextPreviewer extends BinaryPreviewer {
 
     private String previewerId;
 
-    public BinaryTextPreviewer(final String id, final String mimeType) {
-        super(id, mimeType);
+    public BinaryTextPreviewer(final String mimeType) {
+        super(mimeType);
     }
 
     @Override
     public Component preview(final byte[] uploadedBytes) {
-
         Fragment fragment = new Fragment("preview", "noPreviewFragment", this);
         if (uploadedBytes.length > 0) {
             try {

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +32,10 @@ import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -61,8 +65,10 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.ClassUtils;
 
 public class AnyPanel extends Panel implements ModalPanel {
 
@@ -73,7 +79,7 @@ public class AnyPanel extends Panel implements ModalPanel {
     protected static final String DIRECTORY_PANEL_ID = "searchResult";
 
     @FunctionalInterface
-    public interface DirectoryPanelSupplier {
+    public interface DirectoryPanelSupplier extends Serializable {
 
         Panel supply(
                 String id,
@@ -83,7 +89,76 @@ public class AnyPanel extends Panel implements ModalPanel {
                 PageReference pageRef);
     }
 
-    protected static final DirectoryPanelSupplier DEFAULT_DIRECTORYPANEL_SUPPLIER =
+    public static class Builder<AP extends AnyPanel> {
+
+        private final AP instance;
+
+        public Builder(
+                final String panelClass,
+                final String id,
+                final AnyTypeTO anyTypeTO,
+                final RealmTO realmTO,
+                final AnyLayout anyLayout,
+                final boolean enableSearch,
+                final PageReference pageRef) {
+
+            try {
+                @SuppressWarnings("unchecked")
+                Class<AP> clazz = (Class<AP>) ClassUtils.forName(panelClass, ClassUtils.getDefaultClassLoader());
+                instance = clazz.getDeclaredConstructor(
+                        String.class,
+                        AnyTypeTO.class,
+                        RealmTO.class,
+                        AnyLayout.class,
+                        boolean.class,
+                        PageReference.class).
+                        newInstance(id, anyTypeTO, realmTO, anyLayout, enableSearch, pageRef);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Could not instantiate " + panelClass, e);
+            }
+        }
+
+        public AP build() {
+            return build(instance.defaultDirectoryPanelSupplier);
+        }
+
+        public AP build(final DirectoryPanelSupplier directoryPanelSupplier) {
+            instance.directoryPanel =
+                    instance.createDirectoryPanel(
+                            instance.anyTypeTO,
+                            instance.realmTO,
+                            instance.anyLayout,
+                            directoryPanelSupplier);
+            instance.add(instance.directoryPanel);
+            return instance;
+        }
+    }
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
+
+    @SpringBean
+    protected UserRestClient userRestClient;
+
+    @SpringBean
+    protected GroupRestClient groupRestClient;
+
+    @SpringBean
+    protected AnyObjectRestClient anyObjectRestClient;
+
+    protected final AnyTypeTO anyTypeTO;
+
+    protected final RealmTO realmTO;
+
+    protected final AnyLayout anyLayout;
+
+    protected final PageReference pageRef;
+
+    protected AbstractSearchPanel searchPanel;
+
+    protected Panel directoryPanel;
+
+    protected final DirectoryPanelSupplier defaultDirectoryPanelSupplier =
             (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
 
                 Panel panel;
@@ -107,15 +182,16 @@ public class AnyPanel extends Panel implements ModalPanel {
                                 : SyncopeClient.getUserSearchConditionBuilder().
                                         inDynRealms(dynRealm).query();
 
-                        UserTO userTO = new UserTO();
-                        userTO.setRealm(RealmsUtils.getFullPath(realmTO.getFullPath()));
+                        UserTO user = new UserTO();
+                        user.setRealm(RealmsUtils.getFullPath(realmTO.getFullPath()));
                         panel = new UserDirectoryPanel.Builder(
-                                AnyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                                anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                                userRestClient,
                                 anyTypeTO.getKey(),
                                 pageRef).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
                                 setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
                                 AnyLayoutUtils.newLayoutInfo(
-                                        userTO, anyTypeTO.getClasses(), anyLayout.getUser(), pageRef)).
+                                        user, anyTypeTO.getClasses(), anyLayout.getUser(), userRestClient, pageRef)).
                                 build(id);
                         MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER,
                                 IdRepoEntitlement.USER_SEARCH);
@@ -127,15 +203,16 @@ public class AnyPanel extends Panel implements ModalPanel {
                                         is(Constants.KEY_FIELD_NAME).notNullValue().query()
                                 : SyncopeClient.getGroupSearchConditionBuilder().inDynRealms(dynRealm).query();
 
-                        GroupTO groupTO = new GroupTO();
-                        groupTO.setRealm(RealmsUtils.getFullPath(realmTO.getFullPath()));
+                        GroupTO group = new GroupTO();
+                        group.setRealm(RealmsUtils.getFullPath(realmTO.getFullPath()));
                         panel = new GroupDirectoryPanel.Builder(
-                                AnyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                                anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                                groupRestClient,
                                 anyTypeTO.getKey(),
                                 pageRef).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
                                 setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
                                 AnyLayoutUtils.newLayoutInfo(
-                                        groupTO, anyTypeTO.getClasses(), anyLayout.getGroup(), pageRef)).
+                                        group, anyTypeTO.getClasses(), anyLayout.getGroup(), groupRestClient, pageRef)).
                                 build(id);
                         // list of group is available to all authenticated users
                         break;
@@ -147,16 +224,18 @@ public class AnyPanel extends Panel implements ModalPanel {
                                 : SyncopeClient.getAnyObjectSearchConditionBuilder(anyTypeTO.getKey()).
                                         inDynRealms(dynRealm).query();
 
-                        AnyObjectTO anyObjectTO = new AnyObjectTO();
-                        anyObjectTO.setRealm(RealmsUtils.getFullPath(realmTO.getFullPath()));
-                        anyObjectTO.setType(anyTypeTO.getKey());
+                        AnyObjectTO anyObject = new AnyObjectTO();
+                        anyObject.setRealm(RealmsUtils.getFullPath(realmTO.getFullPath()));
+                        anyObject.setType(anyTypeTO.getKey());
                         panel = new AnyObjectDirectoryPanel.Builder(
-                                AnyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                                anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                                anyObjectRestClient,
                                 anyTypeTO.getKey(),
                                 pageRef).setRealm(realm).setDynRealm(dynRealm).setFiltered(true).
                                 setFiql(fiql).setWizardInModal(true).addNewItemPanelBuilder(
-                                AnyLayoutUtils.newLayoutInfo(anyObjectTO, anyTypeTO.getClasses(),
-                                        anyLayout.getAnyObjects().get(anyTypeTO.getKey()), pageRef)).
+                                AnyLayoutUtils.newLayoutInfo(anyObject, anyTypeTO.getClasses(),
+                                        anyLayout.getAnyObjects().get(anyTypeTO.getKey()),
+                                        anyObjectRestClient, pageRef)).
                                 build(id);
                         MetaDataRoleAuthorizationStrategy.authorize(
                                 panel, WebPage.RENDER, AnyEntitlement.SEARCH.getFor(anyTypeTO.getKey()));
@@ -168,40 +247,20 @@ public class AnyPanel extends Panel implements ModalPanel {
                 return panel;
             };
 
-    protected final AnyTypeTO anyTypeTO;
-
-    protected final RealmTO realmTO;
-
-    protected final PageReference pageRef;
-
-    protected AbstractSearchPanel searchPanel;
-
-    protected final Panel directoryPanel;
-
-    public AnyPanel(
+    protected AnyPanel(
             final String id,
             final AnyTypeTO anyTypeTO,
             final RealmTO realmTO,
             final AnyLayout anyLayout,
             final boolean enableSearch,
-            final PageReference pageRef) {
-
-        this(id, anyTypeTO, realmTO, anyLayout, enableSearch, DEFAULT_DIRECTORYPANEL_SUPPLIER, pageRef);
-    }
-
-    public AnyPanel(
-            final String id,
-            final AnyTypeTO anyTypeTO,
-            final RealmTO realmTO,
-            final AnyLayout anyLayout,
-            final boolean enableSearch,
-            final DirectoryPanelSupplier directoryPanelSupplier,
             final PageReference pageRef) {
 
         super(id);
         this.anyTypeTO = anyTypeTO;
         this.realmTO = realmTO;
+        this.anyLayout = anyLayout;
         this.pageRef = pageRef;
+
         // ------------------------
         // Accordion
         // ------------------------
@@ -236,9 +295,6 @@ public class AnyPanel extends Panel implements ModalPanel {
         };
         accordion.setOutputMarkupId(true);
         add(accordion.setEnabled(enableSearch).setVisible(enableSearch));
-
-        directoryPanel = createDirectoryPanel(anyTypeTO, realmTO, anyLayout, directoryPanelSupplier);
-        add(directoryPanel);
         // ------------------------
     }
 

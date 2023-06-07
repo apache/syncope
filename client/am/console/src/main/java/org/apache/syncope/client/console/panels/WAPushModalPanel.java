@@ -34,14 +34,18 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class WAPushModalPanel extends AbstractModalPanel<Serializable> {
 
     private static final long serialVersionUID = -8589310598889871801L;
 
-    private final Model<WAConfigService.PushSubject> subjectModel = new Model<>(WAConfigService.PushSubject.conf);
+    @SpringBean
+    protected WAConfigRestClient waConfigRestClient;
 
-    private final ListModel<String> servicesModel = new ListModel<>();
+    protected final Model<WAConfigService.PushSubject> subjectModel = new Model<>(WAConfigService.PushSubject.conf);
+
+    protected final ListModel<String> servicesModel = new ListModel<>();
 
     public WAPushModalPanel(
             final BaseModal<Serializable> modal,
@@ -68,7 +72,7 @@ public class WAPushModalPanel extends AbstractModalPanel<Serializable> {
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
         try {
-            WAConfigRestClient.push(subjectModel.getObject(), servicesModel.getObject());
+            waConfigRestClient.push(subjectModel.getObject(), servicesModel.getObject());
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);

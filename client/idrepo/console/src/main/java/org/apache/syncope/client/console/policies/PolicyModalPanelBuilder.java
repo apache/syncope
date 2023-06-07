@@ -61,13 +61,13 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private static class BackOffParamsModel<N extends Number> implements IModel<N> {
+    protected static class BackOffParamsModel<N extends Number> implements IModel<N> {
 
         private static final long serialVersionUID = 28839546672164L;
 
-        private final PropertyModel<String> backOffParamsModel;
+        protected final PropertyModel<String> backOffParamsModel;
 
-        private final int index;
+        protected final int index;
 
         BackOffParamsModel(final PropertyModel<String> backOffParamsModel, final int index) {
             this.backOffParamsModel = backOffParamsModel;
@@ -97,16 +97,24 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
         }
     }
 
-    private final BaseModal<T> modal;
+    protected final BaseModal<T> modal;
 
-    private final PolicyType type;
+    protected final PolicyType type;
+
+    protected final PolicyRestClient policyRestClient;
 
     public PolicyModalPanelBuilder(
-            final PolicyType type, final T policyTO, final BaseModal<T> modal, final PageReference pageRef) {
+            final PolicyType type,
+            final T policyTO,
+            final BaseModal<T> modal,
+            final PolicyRestClient policyRestClient,
+            final PageReference pageRef) {
 
         super(policyTO, pageRef);
+
         this.type = type;
         this.modal = modal;
+        this.policyRestClient = policyRestClient;
     }
 
     @Override
@@ -362,9 +370,9 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
         public void onSubmit(final AjaxRequestTarget target) {
             try {
                 if (policyTO.getKey() == null) {
-                    PolicyRestClient.create(type, policyTO);
+                    policyRestClient.create(type, policyTO);
                 } else {
-                    PolicyRestClient.update(type, policyTO);
+                    policyRestClient.update(type, policyTO);
                 }
                 SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 Profile.this.modal.close(target);

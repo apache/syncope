@@ -47,21 +47,28 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 @ExtPage(label = "User Requests", icon = "fa fa-briefcase", listEntitlement = "")
-public class Flowable extends BasePage {
+public class Flowable extends BaseExtPage {
 
     private static final long serialVersionUID = -8781434495150074529L;
 
-    private static final String USER_REQUESTS = "page.userRequests";
+    protected static final String USER_REQUESTS = "page.userRequests";
 
-    private final int rowsPerPage = 5;
+    protected static final int ROWS_PER_PAGE = 5;
 
-    private final Model<String> bpmnProcessModel = new Model<>();
+    @SpringBean
+    protected UserRequestRestClient userRequestRestClient;
 
-    private final WebMarkupContainer container;
+    @SpringBean
+    protected BpmnProcessRestClient bpmnProcessRestClient;
 
-    private final DataView<UserRequest> urDataView;
+    protected final Model<String> bpmnProcessModel = new Model<>();
+
+    protected final WebMarkupContainer container;
+
+    protected final DataView<UserRequest> urDataView;
 
     public Flowable(final PageParameters parameters) {
         super(parameters, USER_REQUESTS);
@@ -70,7 +77,7 @@ public class Flowable extends BasePage {
         container.setOutputMarkupId(true);
 
         // list of accordions containing request form (if any) and delete button
-        urDataView = new DataView<>("userRequests", new URDataProvider(rowsPerPage, "bpmnProcess")) {
+        urDataView = new DataView<>("userRequests", new URDataProvider(ROWS_PER_PAGE, "bpmnProcess")) {
 
             private static final long serialVersionUID = -5002600396458362774L;
 
@@ -91,7 +98,7 @@ public class Flowable extends BasePage {
             }
         };
 
-        urDataView.setItemsPerPage(rowsPerPage);
+        urDataView.setItemsPerPage(ROWS_PER_PAGE);
         urDataView.setOutputMarkupId(true);
         container.add(urDataView);
         container.add(new AjaxPagingNavigator("navigator", urDataView));
@@ -104,7 +111,7 @@ public class Flowable extends BasePage {
             public void onClick(final AjaxRequestTarget target) {
                 if (StringUtils.isNotBlank(bpmnProcessModel.getObject())) {
                     try {
-                        UserRequestRestClient.startRequest(bpmnProcessModel.getObject(), null);
+                        userRequestRestClient.startRequest(bpmnProcessModel.getObject(), null);
                     } catch (Exception e) {
                         LOG.error("Unable to start bpmnProcess [{}]", bpmnProcessModel.getObject(), e);
                         SyncopeEnduserSession.get()
@@ -135,7 +142,7 @@ public class Flowable extends BasePage {
                 target.add(container);
             }
         });
-        bpmnProcesses.setChoices(BpmnProcessRestClient.getDefinitions().stream()
+        bpmnProcesses.setChoices(bpmnProcessRestClient.getDefinitions().stream()
                 .filter(definition -> !definition.isUserWorkflow())
                 .map(BpmnProcess::getKey).collect(Collectors.toList()));
         container.add(bpmnProcesses);
@@ -143,7 +150,7 @@ public class Flowable extends BasePage {
         contentWrapper.add(container);
     }
 
-    public static class URDataProvider implements IDataProvider<UserRequest> {
+    protected class URDataProvider implements IDataProvider<UserRequest> {
 
         private static final long serialVersionUID = 1169386589403139714L;
 
@@ -159,7 +166,7 @@ public class Flowable extends BasePage {
         @Override
         public Iterator<UserRequest> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return UserRequestRestClient.listRequests((page < 0 ? 0 : page) + 1,
+            return userRequestRestClient.listRequests((page < 0 ? 0 : page) + 1,
                     paginatorRows,
                     SyncopeEnduserSession.get().getSelfTO().getUsername(),
                     new SortParam<>(sortParam, true)).iterator();
@@ -167,7 +174,7 @@ public class Flowable extends BasePage {
 
         @Override
         public long size() {
-            return UserRequestRestClient.countRequests();
+            return userRequestRestClient.countRequests();
         }
 
         @Override

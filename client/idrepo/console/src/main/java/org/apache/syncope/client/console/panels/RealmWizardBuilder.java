@@ -32,24 +32,22 @@ public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 
+    protected final RealmRestClient realmRestClient;
+
     protected String parentPath;
 
-    /**
-     * Construct.
-     *
-     * @param pageRef Caller page reference.
-     */
-    public RealmWizardBuilder(final PageReference pageRef) {
+    public RealmWizardBuilder(final RealmRestClient realmRestClient, final PageReference pageRef) {
         super(new RealmTO(), pageRef);
+        this.realmRestClient = realmRestClient;
     }
 
     @Override
     protected Serializable onApplyInternal(final RealmTO modelObject) {
         ProvisioningResult<RealmTO> result;
         if (modelObject.getKey() == null) {
-            result = RealmRestClient.create(this.parentPath, modelObject);
+            result = realmRestClient.create(this.parentPath, modelObject);
         } else {
-            result = RealmRestClient.update(modelObject);
+            result = realmRestClient.update(modelObject);
         }
         return result;
     }

@@ -73,7 +73,7 @@ public class AMSessionDirectoryPanel
             final String deleteEntitlement,
             final PageReference pageRef) {
 
-        super(id, pageRef);
+        super(id, restClient, pageRef);
 
         this.listEntitlement = listEntitlement;
         this.deleteEntitlement = deleteEntitlement;

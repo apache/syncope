@@ -64,10 +64,23 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Ownership extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 855618618337931784L;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
+
+    @SpringBean
+    private UserRestClient userRestClient;
+
+    @SpringBean
+    private GroupRestClient groupRestClient;
 
     private final Pattern owner = Pattern.compile("\\[\\(\\d+\\)\\] .*");
 
@@ -77,15 +90,11 @@ public class Ownership extends WizardStep implements ICondition {
 
     private final GroupSearchPanel groupSearchPanel;
 
-    private final GroupRestClient groupRestClient = new GroupRestClient();
-
     private final Fragment groupSearchFragment;
 
     private final GroupSelectionDirectoryPanel groupDirectoryPanel;
 
     private final UserSearchPanel userSearchPanel;
-
-    private final UserRestClient userRestClient = new UserRestClient();
 
     private final Fragment userSearchFragment;
 
@@ -170,9 +179,10 @@ public class Ownership extends WizardStep implements ICondition {
                 build("groupsearch");
         groupSearchFragment.add(groupSearchPanel.setRenderBodyOnly(true));
 
-        AnyTypeTO anyTypeTO = AnyTypeRestClient.read(AnyTypeKind.GROUP.name());
+        AnyTypeTO anyTypeTO = anyTypeRestClient.read(AnyTypeKind.GROUP.name());
         groupDirectoryPanel = GroupSelectionDirectoryPanel.class.cast(new GroupSelectionDirectoryPanel.Builder(
-                AnyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                anyTypeClassRestClient.list(anyTypeTO.getClasses()),
+                groupRestClient,
                 anyTypeTO.getKey(),
                 pageRef).build("searchResult"));
         groupSearchFragment.add(groupDirectoryPanel);
@@ -183,9 +193,9 @@ public class Ownership extends WizardStep implements ICondition {
                 build("usersearch"));
         userSearchFragment.add(userSearchPanel.setRenderBodyOnly(true));
 
-        anyTypeTO = AnyTypeRestClient.read(AnyTypeKind.USER.name());
+        anyTypeTO = anyTypeRestClient.read(AnyTypeKind.USER.name());
         userDirectoryPanel = UserSelectionDirectoryPanel.class.cast(new UserSelectionDirectoryPanel.Builder(
-                AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                anyTypeClassRestClient.list(anyTypeTO.getClasses()), userRestClient, anyTypeTO.getKey(), pageRef).
                 build("searchResult"));
         userSearchFragment.add(userDirectoryPanel);
 

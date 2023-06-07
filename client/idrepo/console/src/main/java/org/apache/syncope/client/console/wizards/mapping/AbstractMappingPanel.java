@@ -24,7 +24,6 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig
 import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.widgets.ItemTransformerWidget;
@@ -52,11 +51,6 @@ import org.apache.wicket.model.ResourceModel;
 public abstract class AbstractMappingPanel extends Panel {
 
     private static final long serialVersionUID = -8295587900937040104L;
-
-    /**
-     * Any type class rest client.
-     */
-    protected final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     protected final Label connObjectKeyLabel;
 
@@ -191,10 +185,10 @@ public abstract class AbstractMappingPanel extends Panel {
                 // Internal attribute
                 // -------------------------------
                 AjaxTextFieldPanel intAttrName = new AjaxTextFieldPanel(
-                    "intAttrName",
-                    "intAttrName",
-                    new PropertyModel<>(itemTO, "intAttrName"),
-                    false);
+                        "intAttrName",
+                        "intAttrName",
+                        new PropertyModel<>(itemTO, "intAttrName"),
+                        false);
                 intAttrName.setChoices(List.of());
                 intAttrName.setRequired(true).hideLabel();
                 item.add(intAttrName);
@@ -204,9 +198,9 @@ public abstract class AbstractMappingPanel extends Panel {
                 // External attribute
                 // -------------------------------
                 AjaxTextFieldPanel extAttrName = new AjaxTextFieldPanel(
-                    "extAttrName",
-                    "extAttrName",
-                    new PropertyModel<>(itemTO, "extAttrName"));
+                        "extAttrName",
+                        "extAttrName",
+                        new PropertyModel<>(itemTO, "extAttrName"));
                 extAttrName.setChoices(getExtAttrNames().getObject());
 
                 boolean required = !itemTO.isPassword();
@@ -222,7 +216,7 @@ public abstract class AbstractMappingPanel extends Panel {
                     item.add(new Label("jexlTransformers").setVisible(false));
                 } else {
                     item.add(new JEXLTransformerWidget(
-                        "jexlTransformers", itemTO, jexlTransformers).setRenderBodyOnly(true));
+                            "jexlTransformers", itemTO, jexlTransformers).setRenderBodyOnly(true));
                 }
                 // -------------------------------
 
@@ -234,7 +228,7 @@ public abstract class AbstractMappingPanel extends Panel {
 
                 } else {
                     item.add(new ItemTransformerWidget(
-                        "itemTransformers", itemTO, itemTransformers).setRenderBodyOnly(true));
+                            "itemTransformers", itemTO, itemTransformers).setRenderBodyOnly(true));
                 }
                 // -------------------------------
 
@@ -242,9 +236,9 @@ public abstract class AbstractMappingPanel extends Panel {
                 // Mandatory
                 // -------------------------------
                 AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel(
-                    "mandatoryCondition",
-                    "mandatoryCondition",
-                    new PropertyModel<>(itemTO, "mandatoryCondition"));
+                        "mandatoryCondition",
+                        "mandatoryCondition",
+                        new PropertyModel<>(itemTO, "mandatoryCondition"));
                 mandatory.hideLabel();
                 mandatory.setChoices(List.of("true", "false"));
                 mandatory.setEnabled(!itemTO.isConnObjectKey());
@@ -255,9 +249,9 @@ public abstract class AbstractMappingPanel extends Panel {
                 // Connector object key
                 // -------------------------------
                 AjaxCheckBoxPanel connObjectKey = new AjaxCheckBoxPanel(
-                    "connObjectKey",
-                    "connObjectKey",
-                    new PropertyModel<>(itemTO, "connObjectKey"), false);
+                        "connObjectKey",
+                        "connObjectKey",
+                        new PropertyModel<>(itemTO, "connObjectKey"), false);
                 connObjectKey.hideLabel();
                 item.add(connObjectKey);
                 // -------------------------------
@@ -266,9 +260,9 @@ public abstract class AbstractMappingPanel extends Panel {
                 // Password
                 // -------------------------------
                 AjaxCheckBoxPanel password = new AjaxCheckBoxPanel(
-                    "password",
-                    "password",
-                    new PropertyModel<>(itemTO, "password"), false);
+                        "password",
+                        "password",
+                        new PropertyModel<>(itemTO, "password"), false);
                 item.add(password.hideLabel());
                 // -------------------------------
 
@@ -279,7 +273,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 purpose.setOutputMarkupId(true);
 
                 MappingPurposePanel purposeActions = new MappingPurposePanel(
-                    "purposeActions", new PropertyModel<>(itemTO, "purpose"), purpose);
+                        "purposeActions", new PropertyModel<>(itemTO, "purpose"), purpose);
                 purpose.add(purposeActions.setRenderBodyOnly(true));
                 item.add(purpose);
                 // -------------------------------
@@ -339,7 +333,7 @@ public abstract class AbstractMappingPanel extends Panel {
                     protected void onUpdate(final AjaxRequestTarget target) {
                         extAttrName.setEnabled(!password.getModelObject());
                         extAttrName.setModelObject(password.getModelObject()
-                            ? ConnIdSpecialName.PASSWORD : extAttrName.getModelObject());
+                                ? ConnIdSpecialName.PASSWORD : extAttrName.getModelObject());
                         extAttrName.setRequired(!password.getModelObject());
                         target.add(extAttrName);
 

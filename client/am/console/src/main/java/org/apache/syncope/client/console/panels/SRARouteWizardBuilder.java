@@ -45,16 +45,23 @@ public class SRARouteWizardBuilder extends BaseAjaxWizardBuilder<SRARouteTO> {
 
     private static final long serialVersionUID = 2060352959114706419L;
 
-    public SRARouteWizardBuilder(final SRARouteTO route, final PageReference pageRef) {
+    protected final SRARouteRestClient sraRouteRestClient;
+
+    public SRARouteWizardBuilder(
+            final SRARouteTO route,
+            final SRARouteRestClient sraRouteRestClient,
+            final PageReference pageRef) {
+
         super(route, pageRef);
+        this.sraRouteRestClient = sraRouteRestClient;
     }
 
     @Override
     protected Serializable onApplyInternal(final SRARouteTO modelObject) {
         if (modelObject.getKey() == null) {
-            SRARouteRestClient.create(modelObject);
+            sraRouteRestClient.create(modelObject);
         } else {
-            SRARouteRestClient.update(modelObject);
+            sraRouteRestClient.update(modelObject);
         }
         return modelObject;
     }

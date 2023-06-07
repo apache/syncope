@@ -43,14 +43,21 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
 
     private static final long serialVersionUID = -3773196441177699452L;
 
-    private final DynRealmWrapper dynRealmWrapper;
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
-    private final boolean create;
+    @SpringBean
+    protected DynRealmRestClient dynRealmRestClient;
+
+    protected final DynRealmWrapper dynRealmWrapper;
+
+    protected final boolean create;
 
     public DynRealmModalPanel(
             final DynRealmWrapper dynRealmWrapper,
@@ -77,7 +84,7 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
 
             @Override
             protected List<AnyTypeTO> load() {
-                return AnyTypeRestClient.listAnyTypes();
+                return anyTypeRestClient.listAnyTypes();
             }
         };
 
@@ -130,9 +137,9 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
         try {
             dynRealmWrapper.fillDynamicConditions();
             if (create) {
-                DynRealmRestClient.create(dynRealmWrapper.getInnerObject());
+                dynRealmRestClient.create(dynRealmWrapper.getInnerObject());
             } else {
-                DynRealmRestClient.update(dynRealmWrapper.getInnerObject());
+                dynRealmRestClient.update(dynRealmWrapper.getInnerObject());
             }
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);

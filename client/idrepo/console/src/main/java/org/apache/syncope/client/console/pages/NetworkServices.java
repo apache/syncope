@@ -24,16 +24,21 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.NetworkServiceDirectoryPanel;
+import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class NetworkServices extends BasePage {
 
     private static final long serialVersionUID = -4562707092152823781L;
+
+    @SpringBean
+    protected SyncopeRestClient syncopeRestClient;
 
     public NetworkServices(final PageParameters parameters) {
         super(parameters);
@@ -47,7 +52,7 @@ public class NetworkServices extends BasePage {
         body.add(content);
     }
 
-    private List<ITab> buildTabList() {
+    protected List<ITab> buildTabList() {
         return Stream.of(NetworkService.Type.values()).
                 sorted().
                 map(type -> new AbstractTab(Model.of(type.name())) {
@@ -56,7 +61,7 @@ public class NetworkServices extends BasePage {
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new NetworkServiceDirectoryPanel(panelId, type, getPageReference());
+                return new NetworkServiceDirectoryPanel(panelId, type, syncopeRestClient, getPageReference());
             }
         }).collect(Collectors.toList());
     }

@@ -42,13 +42,17 @@ import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 @ExtWidget(priority = 10)
 public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
-    private final List<UserRequestForm> lastForms = new ArrayList<>();
+    @SpringBean
+    protected UserRequestRestClient userRequestRestClient;
+
+    protected final List<UserRequestForm> lastForms = new ArrayList<>();
 
     public UserRequestFormsWidget(final String id, final PageReference pageRef) {
         super(id, pageRef);
@@ -87,7 +91,7 @@ public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
     @Override
     protected int getLatestAlertsSize() {
         return SyncopeConsoleSession.get().owns(FlowableEntitlement.USER_REQUEST_FORM_LIST)
-                ? UserRequestRestClient.countForms(null)
+                ? userRequestRestClient.countForms(null)
                 : 0;
     }
 
@@ -101,8 +105,8 @@ public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
             public List<UserRequestForm> getObject() {
                 List<UserRequestForm> updatedForms;
                 if (SyncopeConsoleSession.get().owns(FlowableEntitlement.USER_REQUEST_FORM_LIST)) {
-                    updatedForms = UserRequestRestClient.listForms(
-                        null, 1, MAX_SIZE, new SortParam<>("createTime", true));
+                    updatedForms = userRequestRestClient.listForms(
+                            null, 1, MAX_SIZE, new SortParam<>("createTime", true));
                 } else {
                     updatedForms = Collections.emptyList();
                 }

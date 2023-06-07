@@ -58,18 +58,27 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
 
     protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    private final MIMETypesLoader mimeTypesLoader;
+    protected final ImplementationRestClient implementationRestClient;
 
-    private final Model<ReportConfWrapper> conf = new Model<>();
+    protected final ReportRestClient reportRestClient;
 
-    private CrontabPanel crontabPanel;
+    protected final MIMETypesLoader mimeTypesLoader;
+
+    protected final Model<ReportConfWrapper> conf = new Model<>();
+
+    protected CrontabPanel crontabPanel;
 
     public ReportWizardBuilder(
             final ReportTO reportTO,
+            final ImplementationRestClient implementationRestClient,
+            final ReportRestClient reportRestClient,
             final MIMETypesLoader mimeTypesLoader,
             final PageReference pageRef) {
 
         super(reportTO, pageRef);
+
+        this.implementationRestClient = implementationRestClient;
+        this.reportRestClient = reportRestClient;
         this.mimeTypesLoader = mimeTypesLoader;
     }
 
@@ -77,7 +86,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
     protected Serializable onApplyInternal(final ReportTO modelObject) {
         if (conf.getObject() != null) {
             try {
-                ImplementationTO implementation = ImplementationRestClient.read(
+                ImplementationTO implementation = implementationRestClient.read(
                         IdRepoImplementationType.REPORT_DELEGATE, modelObject.getJobDelegate());
                 if (implementation.getEngine() == ImplementationEngine.JAVA) {
                     BeanWrapper confWrapper = PropertyAccessorFactory.forBeanPropertyAccess(conf.getObject().getConf());
@@ -85,7 +94,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
                             fieldName, SearchUtils.buildFIQL(pair.getRight(), pair.getLeft())));
 
                     implementation.setBody(MAPPER.writeValueAsString(conf.getObject().getConf()));
-                    ImplementationRestClient.update(implementation);
+                    implementationRestClient.update(implementation);
                 }
             } catch (Exception e) {
                 throw new WicketRuntimeException(e);
@@ -95,9 +104,9 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
         modelObject.setCronExpression(crontabPanel.getCronExpression());
 
         if (modelObject.getKey() == null) {
-            ReportRestClient.create(modelObject);
+            reportRestClient.create(modelObject);
         } else {
-            ReportRestClient.update(modelObject);
+            reportRestClient.update(modelObject);
         }
 
         return modelObject;
@@ -105,7 +114,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
 
     protected void setConf(final String jobDelegate) {
         try {
-            ImplementationTO implementation = ImplementationRestClient.read(
+            ImplementationTO implementation = implementationRestClient.read(
                     IdRepoImplementationType.REPORT_DELEGATE, jobDelegate);
             if (implementation.getEngine() == ImplementationEngine.JAVA) {
                 conf.setObject(new ReportConfWrapper());

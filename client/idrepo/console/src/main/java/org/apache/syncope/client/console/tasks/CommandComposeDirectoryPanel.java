@@ -27,6 +27,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.CommandRestClient;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -54,6 +55,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class CommandComposeDirectoryPanel extends DirectoryPanel<
         CommandWrapper, CommandWrapper, DirectoryDataProvider<CommandWrapper>, CommandRestClient>
@@ -61,14 +63,26 @@ public class CommandComposeDirectoryPanel extends DirectoryPanel<
 
     private static final long serialVersionUID = 8899580817658145305L;
 
-    private final BaseModal<MacroTaskTO> baseModal;
+    @SpringBean
+    protected ImplementationRestClient implementationRestClient;
 
-    private final String task;
+    @SpringBean
+    protected TaskRestClient taskRestClient;
+
+    @SpringBean
+    protected CommandRestClient commandRestClient;
+
+    protected final BaseModal<MacroTaskTO> baseModal;
+
+    protected final String task;
 
     public CommandComposeDirectoryPanel(
-            final BaseModal<MacroTaskTO> baseModal, final String task, final PageReference pageRef) {
+            final CommandRestClient restClient,
+            final BaseModal<MacroTaskTO> baseModal,
+            final String task,
+            final PageReference pageRef) {
 
-        super(BaseModal.CONTENT_ID, pageRef, false);
+        super(BaseModal.CONTENT_ID, restClient, pageRef, false);
 
         disableCheckBoxes();
 
@@ -77,7 +91,13 @@ public class CommandComposeDirectoryPanel extends DirectoryPanel<
 
         enableUtilityButton();
 
-        addNewItemPanelBuilder(new CommandComposeWizardBuilder(task, new CommandWrapper(true), pageRef), true);
+        addNewItemPanelBuilder(new CommandComposeWizardBuilder(
+                task,
+                new CommandWrapper(true),
+                implementationRestClient,
+                taskRestClient,
+                commandRestClient,
+                pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.TASK_UPDATE);
         initResultTable();
@@ -141,9 +161,9 @@ public class CommandComposeDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final CommandWrapper ignore) {
                 try {
-                    MacroTaskTO actual = TaskRestClient.readTask(TaskType.MACRO, task);
+                    MacroTaskTO actual = taskRestClient.readTask(TaskType.MACRO, task);
                     actual.getCommands().remove(model.getObject().getCommand());
-                    TaskRestClient.update(TaskType.MACRO, actual);
+                    taskRestClient.update(TaskType.MACRO, actual);
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
@@ -211,7 +231,7 @@ public class CommandComposeDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<CommandWrapper> iterator(final long first, final long count) {
-            MacroTaskTO actual = TaskRestClient.readTask(TaskType.MACRO, task);
+            MacroTaskTO actual = taskRestClient.readTask(TaskType.MACRO, task);
 
             List<CommandTO> commands = actual.getCommands();
 
@@ -222,7 +242,7 @@ public class CommandComposeDirectoryPanel extends DirectoryPanel<
 
         @Override
         public long size() {
-            MacroTaskTO actual = TaskRestClient.readTask(TaskType.MACRO, task);
+            MacroTaskTO actual = taskRestClient.readTask(TaskType.MACRO, task);
             return actual.getCommands().size();
         }
 

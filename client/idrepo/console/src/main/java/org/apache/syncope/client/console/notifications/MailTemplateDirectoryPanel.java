@@ -64,8 +64,12 @@ public class MailTemplateDirectoryPanel
 
     protected final BaseModal<String> utilityModal = new BaseModal<>(Constants.OUTER);
 
-    public MailTemplateDirectoryPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, true);
+    public MailTemplateDirectoryPanel(
+            final String id,
+            final NotificationRestClient restClient,
+            final PageReference pageRef) {
+
+        super(id, restClient, pageRef, true);
         disableCheckBoxes();
 
         modal.size(Modal.Size.Small);
@@ -81,7 +85,6 @@ public class MailTemplateDirectoryPanel
         utilityModal.size(Modal.Size.Large);
         utilityModal.addSubmitButton();
 
-        restClient = new NotificationRestClient();
         addNewItemPanelBuilder(new AbstractModalPanelBuilder<MailTemplateTO>(new MailTemplateTO(), pageRef) {
 
             private static final long serialVersionUID = 1995192603527154740L;
@@ -90,7 +93,7 @@ public class MailTemplateDirectoryPanel
             public WizardModalPanel<MailTemplateTO> build(
                     final String id, final int index, final AjaxWizard.Mode mode) {
 
-                return new TemplateModal<>(modal, restClient, new MailTemplateTO(), pageReference);
+                return new TemplateModal(modal, restClient, new MailTemplateTO(), pageRef);
             }
         }, true);
 
@@ -119,9 +122,9 @@ public class MailTemplateDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
                 TemplateContent<MailTemplateFormat> content = new TemplateContent<>(model.getObject().getKey(),
-                    MailTemplateFormat.HTML);
+                        MailTemplateFormat.HTML);
                 content.setContent(
-                    restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.HTML));
+                        restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.HTML));
 
                 utilityModal.header(new ResourceModel("mail.template.html", "HTML Content"));
                 utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
@@ -137,9 +140,9 @@ public class MailTemplateDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
                 TemplateContent<MailTemplateFormat> content = new TemplateContent<>(model.getObject().getKey(),
-                    MailTemplateFormat.TEXT);
+                        MailTemplateFormat.TEXT);
                 content.setContent(
-                    restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.TEXT));
+                        restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.TEXT));
 
                 utilityModal.header(new ResourceModel("mail.template.text", "TEXT Content"));
                 utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));

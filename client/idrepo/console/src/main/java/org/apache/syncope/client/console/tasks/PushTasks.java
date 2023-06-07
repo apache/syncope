@@ -40,7 +40,7 @@ public class PushTasks extends AbstractTasks {
         MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new PushTaskDirectoryPanel(baseModal, mlp, resource, pageRef) {
+        mlp.setFirstLevel(new PushTaskDirectoryPanel(taskRestClient, baseModal, mlp, resource, pageRef) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
@@ -48,7 +48,7 @@ public class PushTasks extends AbstractTasks {
             protected void viewTaskExecs(final PushTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
                         new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
-                        new TaskExecutionDetails<>(taskTO, pageRef), 
+                        new TaskExecutionDetails<>(taskTO, pageRef),
                         target);
             }
         });

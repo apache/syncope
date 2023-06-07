@@ -27,11 +27,17 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 @UserFormFinalize(mode = AjaxWizard.Mode.EDIT_APPROVAL)
 public class UserRequestFormFinalizer implements UserFormFinalizer {
 
+    protected final UserRequestRestClient userRequestRestClient;
+
+    public UserRequestFormFinalizer(final UserRequestRestClient userRequestRestClient) {
+        this.userRequestRestClient = userRequestRestClient;
+    }
+
     @Override
     public void afterUpdate(final String userKey) {
-        UserRequestRestClient.getForm(userKey).ifPresent(form -> {
+        userRequestRestClient.getForm(userKey).ifPresent(form -> {
             try {
-                UserRequestRestClient.claimForm(form.getTaskId());
+                userRequestRestClient.claimForm(form.getTaskId());
             } catch (SyncopeClientException e) {
                 SyncopeConsoleSession.get().onException(e);
             }

@@ -33,15 +33,19 @@ import org.apache.syncope.common.lib.scim.types.SCIMEntitlement;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 @ExtPage(label = "SCIM 2.0", icon = "fa fa-cloud", listEntitlement = SCIMEntitlement.SCIM_CONF_GET, priority = 500)
 public class SCIMConfPage extends BaseExtPage {
 
     private static final long serialVersionUID = -8156063343062111770L;
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    private final WebMarkupContainer content;
+    @SpringBean
+    protected SCIMConfRestClient scimConfRestClient;
+
+    protected final WebMarkupContainer content;
 
     public SCIMConfPage(final PageParameters parameters) {
         super(parameters);
@@ -54,13 +58,14 @@ public class SCIMConfPage extends BaseExtPage {
         content.setOutputMarkupId(true);
         body.add(content);
 
-        updateSCIMGeneralConfContent(SCIMConfRestClient.get());
+        updateSCIMGeneralConfContent(scimConfRestClient.get());
     }
 
-    private WebMarkupContainer updateSCIMGeneralConfContent(final SCIMConf scimConf) {
+    protected WebMarkupContainer updateSCIMGeneralConfContent(final SCIMConf scimConf) {
         if (scimConf == null) {
             return content;
         }
+
         content.addOrReplace(new SCIMConfPanel("body", scimConf, SCIMConfPage.this.getPageReference()) {
 
             private static final long serialVersionUID = 8221398624379357183L;
@@ -69,9 +74,9 @@ public class SCIMConfPage extends BaseExtPage {
             protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
                 modal.setWindowClosedCallback(target -> {
                     if (modal.getContent() instanceof ResultPanel) {
-                        Serializable result = (Serializable) ResultPanel.class.cast(modal.getContent()).getResult();
+                        Serializable result = ResultPanel.class.cast(modal.getContent()).getResult();
                         try {
-                            SCIMConfRestClient.set(MAPPER.readValue(result.toString(), SCIMConf.class));
+                            scimConfRestClient.set(MAPPER.readValue(result.toString(), SCIMConf.class));
 
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             modal.show(false);

@@ -38,7 +38,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class SAML2SP4UIIdPLogic extends AbstractSAML2SP4UILogic {
 
-    protected final SAML2ClientCache saml2ClientCache;
+    protected final SAML2ClientCache saml2ClientCacheLogin;
+
+    protected final SAML2ClientCache saml2ClientCacheLogout;
 
     protected final SAML2SP4UIIdPDataBinder binder;
 
@@ -47,12 +49,14 @@ public class SAML2SP4UIIdPLogic extends AbstractSAML2SP4UILogic {
     public SAML2SP4UIIdPLogic(
             final SAML2SP4UIProperties props,
             final ResourcePatternResolver resourceResolver,
-            final SAML2ClientCache saml2ClientCache,
+            final SAML2ClientCache saml2ClientCacheLogin,
+            final SAML2ClientCache saml2ClientCacheLogout,
             final SAML2SP4UIIdPDataBinder binder,
             final SAML2SP4UIIdPDAO idpDAO) {
 
         super(props, resourceResolver);
-        this.saml2ClientCache = saml2ClientCache;
+        this.saml2ClientCacheLogin = saml2ClientCacheLogin;
+        this.saml2ClientCacheLogout = saml2ClientCacheLogout;
         this.binder = binder;
         this.idpDAO = idpDAO;
     }
@@ -99,7 +103,8 @@ public class SAML2SP4UIIdPLogic extends AbstractSAML2SP4UILogic {
         }
 
         idp = binder.update(idp, saml2IdpTO);
-        saml2ClientCache.removeAll(idp.getEntityID());
+        saml2ClientCacheLogin.removeAll(idp.getEntityID());
+        saml2ClientCacheLogout.removeAll(idp.getEntityID());
     }
 
     @PreAuthorize("hasRole('" + SAML2SP4UIEntitlement.IDP_DELETE + "')")
@@ -110,7 +115,8 @@ public class SAML2SP4UIIdPLogic extends AbstractSAML2SP4UILogic {
         }
 
         idpDAO.delete(key);
-        saml2ClientCache.removeAll(idp.getEntityID());
+        saml2ClientCacheLogin.removeAll(idp.getEntityID());
+        saml2ClientCacheLogout.removeAll(idp.getEntityID());
     }
 
     @Override

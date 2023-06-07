@@ -37,16 +37,23 @@ import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private static final long serialVersionUID = 5979623248182851337L;
 
-    private final Map<String, String> anyTypes = new HashMap<>();
+    @SpringBean
+    protected ResourceRestClient resourceRestClient;
 
-    private final AjaxDropDownChoicePanel<String> anyType;
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
 
-    private ResourceTO selectedResource;
+    protected final Map<String, String> anyTypes = new HashMap<>();
+
+    protected final AjaxDropDownChoicePanel<String> anyType;
+
+    protected ResourceTO selectedResource;
 
     public VirSchemaDetails(final String id, final VirSchemaTO schemaTO) {
         super(id, schemaTO);
@@ -58,7 +65,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<>(
                 "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource"), false).
                 setNullValid(false);
-        resource.setChoices(ResourceRestClient.list().stream().map(ResourceTO::getKey).collect(Collectors.toList()));
+        resource.setChoices(resourceRestClient.list().stream().map(ResourceTO::getKey).collect(Collectors.toList()));
         resource.setOutputMarkupId(true);
         resource.addRequiredLabel();
         if (resource.getModelObject() != null) {
@@ -122,10 +129,10 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         });
     }
 
-    private String getAdminRealm(final String connectorKey) {
+    protected String getAdminRealm(final String connectorKey) {
         String adminRealm = null;
         try {
-            adminRealm = ConnectorRestClient.read(connectorKey).getAdminRealm();
+            adminRealm = connectorRestClient.read(connectorKey).getAdminRealm();
         } catch (Exception e) {
             LOG.error("Could not read Admin Realm for External Resource {}", selectedResource.getKey());
         }
@@ -133,10 +140,10 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         return adminRealm;
     }
 
-    private void populateAnyTypes(final String resourceKey) {
+    protected void populateAnyTypes(final String resourceKey) {
         anyTypes.clear();
         if (resourceKey != null) {
-            ResourceTO resource = ResourceRestClient.read(resourceKey);
+            ResourceTO resource = resourceRestClient.read(resourceKey);
             String adminRealm = getAdminRealm(resource.getConnector());
 
             if (SyncopeConsoleSession.get().owns(IdMEntitlement.RESOURCE_READ, adminRealm)) {
@@ -147,8 +154,8 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         }
     }
 
-    private List<String> getExtAttrNames() {
-        return ConnectorRestClient.getExtAttrNames(
+    protected List<String> getExtAttrNames() {
+        return connectorRestClient.getExtAttrNames(
                 SyncopeConstants.ROOT_REALM,
                 anyTypes.get(anyType.getModelObject()),
                 selectedResource.getConnector(),

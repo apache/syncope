@@ -76,6 +76,8 @@ public class RealmChoicePanel extends Panel {
 
     protected static final String SEARCH_REALMS = "searchRealms";
 
+    protected final RealmRestClient realmRestClient;
+
     protected final PageReference pageRef;
 
     protected final LoadableDetachableModel<List<Pair<String, RealmTO>>> realmTree;
@@ -98,12 +100,18 @@ public class RealmChoicePanel extends Panel {
 
     protected final ListView<String> breadcrumb;
 
-    public RealmChoicePanel(final String id, final String base, final PageReference pageRef) {
+    public RealmChoicePanel(
+            final String id,
+            final String base,
+            final RealmRestClient realmRestClient,
+            final PageReference pageRef) {
+
         super(id);
+        this.realmRestClient = realmRestClient;
         this.pageRef = pageRef;
 
         tree = new HashMap<>();
-        fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
+        fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree(realmRestClient);
 
         realmTree = new LoadableDetachableModel<>() {
 
@@ -133,7 +141,7 @@ public class RealmChoicePanel extends Panel {
 
             @Override
             protected List<DynRealmTO> load() {
-                List<DynRealmTO> dynRealms = RealmRestClient.listDynRealms();
+                List<DynRealmTO> dynRealms = realmRestClient.listDynRealms();
                 dynRealms.sort((left, right) -> {
                     if (left == null) {
                         return -1;
@@ -152,7 +160,7 @@ public class RealmChoicePanel extends Panel {
         RealmTO realm = SyncopeConsoleSession.get().getRootRealm(base).map(rootRealm -> {
             String rootRealmName = StringUtils.substringAfterLast(rootRealm, "/");
 
-            List<RealmTO> realmTOs = RealmRestClient.search(
+            List<RealmTO> realmTOs = realmRestClient.search(
                     RealmsUtils.buildKeywordQuery(SyncopeConstants.ROOT_REALM.equals(rootRealm)
                             ? SyncopeConstants.ROOT_REALM : rootRealmName)).getResult();
 
@@ -189,7 +197,7 @@ public class RealmChoicePanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        RealmRestClient.search(
+                        realmRestClient.search(
                                 new RealmQuery.Builder().base(item.getModelObject()).build()).getResult().stream().
                                 findFirst().ifPresent(t -> chooseRealm(t, target));
                     }
@@ -434,7 +442,7 @@ public class RealmChoicePanel extends Panel {
     }
 
     protected Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap() {
-        List<RealmTO> realmsToList = RealmRestClient.search(fullRealmsTree
+        List<RealmTO> realmsToList = realmRestClient.search(fullRealmsTree
                 ? RealmsUtils.buildRootQuery()
                 : RealmsUtils.buildKeywordQuery(searchQuery)).getResult();
 

@@ -59,7 +59,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
     private final BaseModal<Domain> utilityModal = new BaseModal<>(Constants.OUTER);
 
     public DomainDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef);
+        super(id, null, pageRef);
         disableCheckBoxes();
 
         modal.size(Modal.Size.Large);

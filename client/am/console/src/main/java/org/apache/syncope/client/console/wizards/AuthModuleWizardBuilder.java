@@ -63,18 +63,25 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
         }
     };
 
-    protected Model<Class<? extends AuthModuleConf>> authModuleConfClass = Model.of();
+    protected final AuthModuleRestClient authModuleRestClient;
 
-    public AuthModuleWizardBuilder(final AuthModuleTO defaultItem, final PageReference pageRef) {
+    protected final Model<Class<? extends AuthModuleConf>> authModuleConfClass = Model.of();
+
+    public AuthModuleWizardBuilder(
+            final AuthModuleTO defaultItem,
+            final AuthModuleRestClient authModuleRestClient,
+            final PageReference pageRef) {
+
         super(defaultItem, pageRef);
+        this.authModuleRestClient = authModuleRestClient;
     }
 
     @Override
     protected Serializable onApplyInternal(final AuthModuleTO modelObject) {
         if (mode == AjaxWizard.Mode.CREATE) {
-            AuthModuleRestClient.create(modelObject);
+            authModuleRestClient.create(modelObject);
         } else {
-            AuthModuleRestClient.update(modelObject);
+            authModuleRestClient.update(modelObject);
         }
         return modelObject;
     }

@@ -26,8 +26,8 @@ public class DefaultPreviewer extends BinaryPreviewer {
 
     private static final long serialVersionUID = 3338812359368457349L;
 
-    public DefaultPreviewer(final String id, final String mimeType) {
-        super(id, mimeType);
+    public DefaultPreviewer(final String mimeType) {
+        super(mimeType);
     }
 
     @Override

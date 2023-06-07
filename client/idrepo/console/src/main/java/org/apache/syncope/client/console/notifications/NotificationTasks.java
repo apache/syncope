@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.notifications;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.tasks.NotificationMailBodyDetails;
 import org.apache.syncope.client.console.tasks.NotificationTaskDirectoryPanel;
 import org.apache.syncope.client.console.tasks.TaskExecutionDetails;
@@ -33,10 +34,14 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class NotificationTasks extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = 1066124171682570083L;
+
+    @SpringBean
+    protected TaskRestClient taskRestClient;
 
     public NotificationTasks(
             final AnyTypeKind anyTypeKind,
@@ -56,14 +61,14 @@ public class NotificationTasks extends Panel implements ModalPanel {
             final String notification,
             final AnyTypeKind anyTypeKind,
             final String entityKey,
-            final PageReference pageReference) {
+            final PageReference pageRef) {
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
         mlp.setFirstLevel(
-                new NotificationTaskDirectoryPanel(notification, anyTypeKind, entityKey, mlp, pageReference) {
+                new NotificationTaskDirectoryPanel(taskRestClient, notification, anyTypeKind, entityKey, mlp, pageRef) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
@@ -71,7 +76,7 @@ public class NotificationTasks extends Panel implements ModalPanel {
             protected void viewTaskExecs(final NotificationTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
                         new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
-                        new TaskExecutionDetails<>(taskTO, pageReference), target);
+                        new TaskExecutionDetails<>(taskTO, pageRef), target);
             }
 
             @Override

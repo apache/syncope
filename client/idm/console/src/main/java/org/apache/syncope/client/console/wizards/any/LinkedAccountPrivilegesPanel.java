@@ -28,27 +28,31 @@ import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class LinkedAccountPrivilegesPanel extends WizardStep {
 
     private static final long serialVersionUID = 3388483585148725922L;
 
+    @SpringBean
+    protected ApplicationRestClient applicationRestClient;
+
     public LinkedAccountPrivilegesPanel(final LinkedAccountTO linkedAccountTO) {
         super();
         setOutputMarkupId(true);
 
-        final LoadableDetachableModel<List<String>> availablePrivilges = new LoadableDetachableModel<>() {
+        LoadableDetachableModel<List<String>> availablePrivilges = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                return ApplicationRestClient.list().stream().
-                    flatMap(app -> app.getPrivileges().stream()).
-                    map(PrivilegeTO::getKey).
-                    distinct().
-                    sorted().
-                    collect(Collectors.toList());
+                return applicationRestClient.list().stream().
+                        flatMap(app -> app.getPrivileges().stream()).
+                        map(PrivilegeTO::getKey).
+                        distinct().
+                        sorted().
+                        collect(Collectors.toList());
             }
         };
         AjaxPalettePanel<String> privilegesPanel = new AjaxPalettePanel.Builder<String>().

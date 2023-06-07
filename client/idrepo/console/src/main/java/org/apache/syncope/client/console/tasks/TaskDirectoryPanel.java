@@ -51,29 +51,30 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
     protected final MultilevelPanel multiLevelPanelRef;
 
     protected TaskDirectoryPanel(
+            final TaskRestClient restClient,
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef,
             final boolean wizardInModal) {
 
-        this(MultilevelPanel.FIRST_LEVEL_ID, baseModal, multiLevelPanelRef, pageRef, wizardInModal);
+        this(MultilevelPanel.FIRST_LEVEL_ID, restClient, baseModal, multiLevelPanelRef, pageRef, wizardInModal);
     }
 
-    protected TaskDirectoryPanel(final String id, final PageReference pageRef) {
-        this(id, null, null, pageRef, false);
+    protected TaskDirectoryPanel(final String id, final TaskRestClient restClient, final PageReference pageRef) {
+        this(id, restClient, null, null, pageRef, false);
     }
 
     protected TaskDirectoryPanel(
             final String id,
+            final TaskRestClient restClient,
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef,
             final boolean wizardInModal) {
 
-        super(id, pageRef, wizardInModal);
+        super(id, restClient, pageRef, wizardInModal);
         this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
-        restClient = new TaskRestClient();
         setShowResultPanel(false);
     }
 
@@ -84,22 +85,22 @@ public abstract class TaskDirectoryPanel<T extends TaskTO>
 
     protected abstract void viewTaskExecs(T taskTO, AjaxRequestTarget target);
 
-    protected abstract static class TasksProvider<T extends TaskTO> extends DirectoryDataProvider<T> {
+    protected abstract class TasksProvider<T extends TaskTO> extends DirectoryDataProvider<T> {
 
         private static final long serialVersionUID = -20112718133295756L;
 
-        private final TaskType id;
+        private final TaskType type;
 
-        public TasksProvider(final int paginatorRows, final TaskType id) {
+        public TasksProvider(final int paginatorRows, final TaskType type) {
             super(paginatorRows);
 
             setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
-            this.id = id;
+            this.type = type;
         }
 
         @Override
         public long size() {
-            return TaskRestClient.count(id);
+            return restClient.count(type);
         }
 
         @Override

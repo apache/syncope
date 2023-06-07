@@ -36,7 +36,9 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ExecMessageModal;
 import org.apache.syncope.client.console.reports.ReportWizardBuilder;
 import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
+import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.tasks.SchedTaskWizardBuilder;
@@ -89,11 +91,29 @@ public class JobWidget extends BaseWidget {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
-    private static final int ROWS = 5;
+    protected static final int ROWS = 5;
 
-    private final ActionLinksTogglePanel<JobTO> actionTogglePanel;
+    @SpringBean
+    protected NotificationRestClient notificationRestClient;
 
-    private final BaseModal<Serializable> modal = new BaseModal<>("modal") {
+    @SpringBean
+    protected ReportRestClient reportRestClient;
+
+    @SpringBean
+    protected TaskRestClient taskRestClient;
+
+    @SpringBean
+    protected RealmRestClient realmRestClient;
+
+    @SpringBean
+    protected ImplementationRestClient implementationRestClient;
+
+    @SpringBean
+    protected MIMETypesLoader mimeTypesLoader;
+
+    protected final ActionLinksTogglePanel<JobTO> actionTogglePanel;
+
+    protected final BaseModal<Serializable> modal = new BaseModal<>("modal") {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -104,7 +124,7 @@ public class JobWidget extends BaseWidget {
         }
     };
 
-    private final BaseModal<Serializable> detailModal = new BaseModal<>("detailModal") {
+    protected final BaseModal<Serializable> detailModal = new BaseModal<>("detailModal") {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -115,7 +135,7 @@ public class JobWidget extends BaseWidget {
         }
     };
 
-    private final BaseModal<ReportTO> reportModal = new BaseModal<>("reportModal") {
+    protected final BaseModal<ReportTO> reportModal = new BaseModal<>("reportModal") {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -126,22 +146,15 @@ public class JobWidget extends BaseWidget {
         }
     };
 
-    private final TaskRestClient taskRestClient = new TaskRestClient();
+    protected final WebMarkupContainer container;
 
-    private final ReportRestClient reportRestClient = new ReportRestClient();
+    protected final List<JobTO> available;
 
-    private final WebMarkupContainer container;
+    protected AvailableJobsPanel availableJobsPanel;
 
-    private final List<JobTO> available;
+    protected final List<ExecTO> recent;
 
-    private AvailableJobsPanel availableJobsPanel;
-
-    private final List<ExecTO> recent;
-
-    @SpringBean
-    private MIMETypesLoader mimeTypesLoader;
-
-    private RecentExecPanel recentExecPanel;
+    protected RecentExecPanel recentExecPanel;
 
     public JobWidget(final String id, final PageReference pageRef) {
         super(id);
@@ -196,26 +209,26 @@ public class JobWidget extends BaseWidget {
         add(actionTogglePanel);
     }
 
-    private static List<JobTO> getUpdatedAvailable() {
+    protected List<JobTO> getUpdatedAvailable() {
         List<JobTO> updatedAvailable = new ArrayList<>();
 
         if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.NOTIFICATION_LIST)) {
-            JobTO notificationJob = NotificationRestClient.getJob();
+            JobTO notificationJob = notificationRestClient.getJob();
             if (notificationJob != null) {
                 updatedAvailable.add(notificationJob);
             }
         }
         if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.TASK_LIST)) {
-            updatedAvailable.addAll(TaskRestClient.listJobs());
+            updatedAvailable.addAll(taskRestClient.listJobs());
         }
         if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.REPORT_LIST)) {
-            updatedAvailable.addAll(ReportRestClient.listJobs());
+            updatedAvailable.addAll(reportRestClient.listJobs());
         }
 
         return updatedAvailable;
     }
 
-    private List<ExecTO> getUpdatedRecent() {
+    protected List<ExecTO> getUpdatedRecent() {
         List<ExecTO> updatedRecent = new ArrayList<>();
 
         if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.TASK_LIST)) {
@@ -228,7 +241,7 @@ public class JobWidget extends BaseWidget {
         return updatedRecent;
     }
 
-    private List<ITab> buildTabList(final PageReference pageRef) {
+    protected List<ITab> buildTabList(final PageReference pageRef) {
         List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new ResourceModel("available")) {
@@ -268,7 +281,7 @@ public class JobWidget extends BaseWidget {
         }
     }
 
-    private class AvailableJobsPanel extends DirectoryPanel<JobTO, JobTO, AvailableJobsProvider, BaseRestClient> {
+    protected class AvailableJobsPanel extends DirectoryPanel<JobTO, JobTO, AvailableJobsProvider, BaseRestClient> {
 
         private static final long serialVersionUID = -8214546246301342868L;
 
@@ -386,9 +399,14 @@ public class JobWidget extends BaseWidget {
                             break;
 
                         case REPORT:
-                            ReportTO reportTO = ReportRestClient.read(jobTO.getRefKey());
+                            ReportTO reportTO = reportRestClient.read(jobTO.getRefKey());
 
-                            ReportWizardBuilder rwb = new ReportWizardBuilder(reportTO, mimeTypesLoader, pageRef);
+                            ReportWizardBuilder rwb = new ReportWizardBuilder(
+                                    reportTO,
+                                    implementationRestClient,
+                                    reportRestClient,
+                                    mimeTypesLoader,
+                                    pageRef);
                             rwb.setEventSink(AvailableJobsPanel.this);
 
                             target.add(jobModal.setContent(rwb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
@@ -404,16 +422,17 @@ public class JobWidget extends BaseWidget {
                         case TASK:
                             ProvisioningTaskTO schedTaskTO;
                             try {
-                                schedTaskTO = TaskRestClient.readTask(TaskType.PULL, jobTO.getRefKey());
+                                schedTaskTO = taskRestClient.readTask(TaskType.PULL, jobTO.getRefKey());
                             } catch (Exception e) {
                                 LOG.debug("Failed to read {} as {}, attempting {}",
                                         jobTO.getRefKey(), TaskType.PULL, TaskType.PUSH, e);
-                                schedTaskTO = TaskRestClient.readTask(TaskType.PUSH, jobTO.getRefKey());
+                                schedTaskTO = taskRestClient.readTask(TaskType.PUSH, jobTO.getRefKey());
                             }
 
                             SchedTaskWizardBuilder<ProvisioningTaskTO> swb =
                                     new SchedTaskWizardBuilder<>(schedTaskTO instanceof PullTaskTO
-                                            ? TaskType.PULL : TaskType.PUSH, schedTaskTO, pageRef);
+                                            ? TaskType.PULL : TaskType.PUSH, schedTaskTO,
+                                            realmRestClient, taskRestClient, pageRef);
                             swb.setEventSink(AvailableJobsPanel.this);
 
                             target.add(jobModal.setContent(swb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
@@ -451,11 +470,11 @@ public class JobWidget extends BaseWidget {
                                     break;
 
                                 case REPORT:
-                                    ReportRestClient.actionJob(jobTO.getRefKey(), JobAction.DELETE);
+                                    reportRestClient.actionJob(jobTO.getRefKey(), JobAction.DELETE);
                                     break;
 
                                 case TASK:
-                                    TaskRestClient.actionJob(jobTO.getRefKey(), JobAction.DELETE);
+                                    taskRestClient.actionJob(jobTO.getRefKey(), JobAction.DELETE);
                                     break;
 
                                 default:

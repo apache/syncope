@@ -111,20 +111,30 @@ public abstract class DirectoryPanel<
      * Use the available builder for powerful configuration options.
      *
      * @param id panel id.
+     * @param restClient REST client
      * @param pageRef page reference.
      */
-    public DirectoryPanel(final String id, final PageReference pageRef) {
-        this(id, pageRef, true);
-    }
-
-    public DirectoryPanel(final String id, final PageReference pageRef, final boolean wizardInModal) {
-        this(id, pageRef, true, wizardInModal);
+    public DirectoryPanel(final String id, final E restClient, final PageReference pageRef) {
+        this(id, restClient, pageRef, true);
     }
 
     public DirectoryPanel(
-            final String id, final PageReference pageRef, final boolean showPaginator, final boolean wizardInModal) {
+            final String id,
+            final E restClient,
+            final PageReference pageRef,
+            final boolean wizardInModal) {
 
-        this(id, new Builder<T, W, E>(null, pageRef) {
+        this(id, restClient, pageRef, true, wizardInModal);
+    }
+
+    public DirectoryPanel(
+            final String id,
+            final E restClient,
+            final PageReference pageRef,
+            final boolean showPaginator,
+            final boolean wizardInModal) {
+
+        this(id, new Builder<T, W, E>(restClient, pageRef) {
 
             private static final long serialVersionUID = -8424727765826509309L;
 

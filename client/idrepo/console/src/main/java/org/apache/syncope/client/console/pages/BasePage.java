@@ -70,12 +70,16 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class BasePage extends BaseWebPage {
 
     private static final long serialVersionUID = 1571997737305598502L;
 
     protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
+
+    @SpringBean
+    protected SyncopeRestClient syncopeRestClient;
 
     public BasePage() {
         this(null);
@@ -122,7 +126,7 @@ public class BasePage extends BaseWebPage {
             public void onClick() {
                 try {
                     HttpResourceStream stream = new HttpResourceStream(
-                            new ResponseHolder(SyncopeRestClient.exportInternalStorageContent()));
+                            new ResponseHolder(syncopeRestClient.exportInternalStorageContent()));
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
                     rsrh.setFileName(stream.getFilename() == null

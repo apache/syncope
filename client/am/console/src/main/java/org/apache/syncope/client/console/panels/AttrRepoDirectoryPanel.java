@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AttrRepoDirectoryPanel.AttrRepoProvider;
 import org.apache.syncope.client.console.rest.AttrRepoRestClient;
+import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -59,20 +60,24 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class AttrRepoDirectoryPanel
         extends DirectoryPanel<AttrRepoTO, AttrRepoTO, AttrRepoProvider, AttrRepoRestClient> {
 
     private static final long serialVersionUID = 1005345990563741296L;
 
+    @SpringBean
+    protected AuditRestClient auditRestClient;
+
     protected final BaseModal<Serializable> historyModal;
 
-    public AttrRepoDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef);
+    public AttrRepoDirectoryPanel(final String id, final AttrRepoRestClient restClient, final PageReference pageRef) {
+        super(id, restClient, pageRef);
 
         disableCheckBoxes();
 
-        this.addNewItemPanelBuilder(new AttrRepoWizardBuilder(new AttrRepoTO(), pageRef), true);
+        this.addNewItemPanelBuilder(new AttrRepoWizardBuilder(new AttrRepoTO(), restClient, pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, AMEntitlement.ATTR_REPO_CREATE);
 
@@ -139,7 +144,7 @@ public class AttrRepoDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final AttrRepoTO ignore) {
                 send(AttrRepoDirectoryPanel.this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<>(
-                        AttrRepoRestClient.read(model.getObject().getKey()), target));
+                        restClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.ATTR_REPO_UPDATE);
 
@@ -149,13 +154,14 @@ public class AttrRepoDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AttrRepoTO ignore) {
-                model.setObject(AttrRepoRestClient.read(model.getObject().getKey()));
+                model.setObject(restClient.read(model.getObject().getKey()));
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
                         AuditElements.EventCategoryType.LOGIC,
                         "AttrRepoLogic",
                         model.getObject(),
-                        AMEntitlement.ATTR_REPO_UPDATE) {
+                        AMEntitlement.ATTR_REPO_UPDATE,
+                        auditRestClient) {
 
                     private static final long serialVersionUID = -3712506022627033822L;
 
@@ -163,7 +169,7 @@ public class AttrRepoDirectoryPanel
                     protected void restore(final String json, final AjaxRequestTarget target) {
                         try {
                             AttrRepoTO updated = MAPPER.readValue(json, AttrRepoTO.class);
-                            AttrRepoRestClient.update(updated);
+                            restClient.update(updated);
 
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
@@ -188,7 +194,7 @@ public class AttrRepoDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final AttrRepoTO ignore) {
                 try {
-                    AttrRepoRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
@@ -203,7 +209,7 @@ public class AttrRepoDirectoryPanel
         return panel;
     }
 
-    protected static final class AttrRepoProvider extends DirectoryDataProvider<AttrRepoTO> {
+    protected final class AttrRepoProvider extends DirectoryDataProvider<AttrRepoTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -217,14 +223,14 @@ public class AttrRepoDirectoryPanel
 
         @Override
         public Iterator<AttrRepoTO> iterator(final long first, final long count) {
-            List<AttrRepoTO> result = AttrRepoRestClient.list();
+            List<AttrRepoTO> result = restClient.list();
             result.sort(comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return AttrRepoRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override

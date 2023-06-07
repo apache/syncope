@@ -45,16 +45,18 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class UserSelfFormPanel extends UserFormPanel {
 
     private static final long serialVersionUID = 6763365006334514387L;
 
-    private final UserSelfRestClient userSelfRestClient = new UserSelfRestClient();
+    @SpringBean
+    protected UserSelfRestClient userSelfRestClient;
 
-    private TextField<String> securityQuestion;
+    protected TextField<String> securityQuestion;
 
-    private String usernameText;
+    protected String usernameText;
 
     public UserSelfFormPanel(
             final String id,
@@ -91,7 +93,7 @@ public class UserSelfFormPanel extends UserFormPanel {
                         ? UserWrapper.class.cast(form.getModelObject()).isStorePasswordInSyncope()
                         : StringUtils.isNotBlank(userTO.getPassword()));
                 // perform request and pass propagation statuses to SelfResult page
-                ProvisioningResult<UserTO> provisioningResult = ProvisioningUtils.createUser(req);
+                ProvisioningResult<UserTO> provisioningResult = userSelfRestClient.create(req);
                 setResponsePage(new SelfResult(provisioningResult,
                         ProvisioningUtils.managePageParams(UserSelfFormPanel.this, "profile.change",
                                 !SyncopeWebApplication.get().isReportPropagationErrors()

@@ -117,8 +117,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                 send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                new AnyWrapper<>(new AnyObjectRestClient().read(model.getObject().getKey())),
-                                target));
+                                new AnyWrapper<>(restClient.read(model.getObject().getKey())), target));
             }
         }, ActionType.EDIT,
                 String.format("%s,%s", AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
@@ -173,7 +172,8 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                         AuditElements.EventCategoryType.LOGIC,
                         "AnyObjectLogic",
                         model.getObject(),
-                        AnyEntitlement.UPDATE.getFor(type)) {
+                        AnyEntitlement.UPDATE.getFor(type),
+                        auditRestClient) {
 
                     private static final long serialVersionUID = -7440902560249531201L;
 
@@ -253,8 +253,13 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
 
         private static final long serialVersionUID = -6828423611982275641L;
 
-        public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
-            super(anyTypeClassTOs, new AnyObjectRestClient(), type, pageRef);
+        public Builder(
+                final List<AnyTypeClassTO> anyTypeClassTOs,
+                final AnyObjectRestClient restClient,
+                final String type,
+                final PageReference pageRef) {
+
+            super(anyTypeClassTOs, restClient, type, pageRef);
             setShowResultPage(true);
         }
 

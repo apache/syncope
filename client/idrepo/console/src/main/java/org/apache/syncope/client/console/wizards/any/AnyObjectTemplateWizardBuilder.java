@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -34,15 +35,18 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
 
     private static final long serialVersionUID = 6716803168859873877L;
 
-    private final TemplatableTO templatable;
+    protected final TemplatableTO templatable;
 
     public AnyObjectTemplateWizardBuilder(
             final TemplatableTO templatable,
             final String anyType,
             final List<String> anyTypeClasses,
             final AnyObjectFormLayoutInfo formLayoutInfo,
+            final AnyObjectRestClient anyObjectRestClient,
             final PageReference pageRef) {
-        super(null, anyTypeClasses, formLayoutInfo, pageRef);
+
+        super(null, anyTypeClasses, formLayoutInfo, anyObjectRestClient, pageRef);
+
         this.templatable = templatable;
 
         if (templatable.getTemplates().containsKey(anyType)) {

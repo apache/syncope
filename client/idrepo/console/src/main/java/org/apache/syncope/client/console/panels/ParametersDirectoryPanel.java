@@ -60,10 +60,10 @@ public class ParametersDirectoryPanel
     private static final long serialVersionUID = 2765863608539154422L;
 
     @SpringBean
-    private ConfParamOps confParamOps;
+    protected ConfParamOps confParamOps;
 
-    public ParametersDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<>(new SyncopeRestClient(), pageRef) {
+    public ParametersDirectoryPanel(final String id, final SyncopeRestClient restClient, final PageReference pageRef) {
+        super(id, new Builder<>(restClient, pageRef) {
 
             private static final long serialVersionUID = 8769126634538601689L;
 
@@ -118,13 +118,13 @@ public class ParametersDirectoryPanel
 
             @Override
             public void populateItem(
-                final Item<ICellPopulator<ConfParam>> item,
-                final String componentId,
-                final IModel<ConfParam> rowModel) {
+                    final Item<ICellPopulator<ConfParam>> item,
+                    final String componentId,
+                    final IModel<ConfParam> rowModel) {
 
                 if (rowModel.getObject().getValues().toString().length() > 96) {
                     item.add(new Label(componentId, getString("tooLong")).
-                        add(new AttributeModifier("style", "font-style:italic")));
+                            add(new AttributeModifier("style", "font-style:italic")));
                 } else {
                     super.populateItem(item, componentId, rowModel);
                 }
@@ -146,7 +146,7 @@ public class ParametersDirectoryPanel
                 target.add(modal);
                 modal.header(new StringResourceModel("any.edit"));
                 modal.setContent(new ParametersModalPanel(
-                    modal, model.getObject(), confParamOps, AjaxWizard.Mode.EDIT, pageRef));
+                        modal, model.getObject(), confParamOps, AjaxWizard.Mode.EDIT, pageRef));
                 modal.show(true);
             }
         }, ActionLink.ActionType.EDIT, null);

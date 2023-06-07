@@ -24,6 +24,7 @@ import org.apache.syncope.client.console.policies.AccessPolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.AttrReleasePolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.AuthPolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.TicketExpirationPolicyDirectoryPanel;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
@@ -33,6 +34,12 @@ import org.apache.wicket.model.ResourceModel;
 public class AMPolicyTabProvider implements PolicyTabProvider {
 
     private static final long serialVersionUID = 2822554006571803418L;
+
+    protected final PolicyRestClient policyRestClient;
+
+    public AMPolicyTabProvider(final PolicyRestClient policyRestClient) {
+        this.policyRestClient = policyRestClient;
+    }
 
     @Override
     public List<ITab> buildTabList(final PageReference pageRef) {
@@ -44,7 +51,7 @@ public class AMPolicyTabProvider implements PolicyTabProvider {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new AccessPolicyDirectoryPanel(panelId, pageRef);
+                return new AccessPolicyDirectoryPanel(panelId, policyRestClient, pageRef);
             }
         });
 
@@ -54,7 +61,7 @@ public class AMPolicyTabProvider implements PolicyTabProvider {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new AttrReleasePolicyDirectoryPanel(panelId, pageRef);
+                return new AttrReleasePolicyDirectoryPanel(panelId, policyRestClient, pageRef);
             }
         });
 
@@ -64,7 +71,7 @@ public class AMPolicyTabProvider implements PolicyTabProvider {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new AuthPolicyDirectoryPanel(panelId, pageRef);
+                return new AuthPolicyDirectoryPanel(panelId, policyRestClient, pageRef);
             }
         });
 
@@ -74,7 +81,7 @@ public class AMPolicyTabProvider implements PolicyTabProvider {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new TicketExpirationPolicyDirectoryPanel(panelId, pageRef);
+                return new TicketExpirationPolicyDirectoryPanel(panelId, policyRestClient, pageRef);
             }
         });
 

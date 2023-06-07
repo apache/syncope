@@ -50,8 +50,13 @@ public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPan
 
         private static final long serialVersionUID = -8774023867045850683L;
 
-        public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
-            super(anyTypeClassTOs, new GroupRestClient(), type, pageRef);
+        public Builder(
+                final List<AnyTypeClassTO> anyTypeClassTOs,
+                final GroupRestClient restClient,
+                final String type,
+                final PageReference pageRef) {
+
+            super(anyTypeClassTOs, restClient, type, pageRef);
         }
 
         @Override

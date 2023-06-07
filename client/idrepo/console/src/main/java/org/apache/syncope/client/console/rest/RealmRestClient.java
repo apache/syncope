@@ -36,31 +36,31 @@ public class RealmRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -8549081557283519638L;
 
-    public static PagedResult<RealmTO> search(final RealmQuery query) {
+    public PagedResult<RealmTO> search(final RealmQuery query) {
         return getService(RealmService.class).search(query);
     }
 
-    public static List<DynRealmTO> listDynRealms() {
+    public List<DynRealmTO> listDynRealms() {
         return getService(DynRealmService.class).list();
     }
 
-    public static DynRealmTO readDynRealm(final String key) {
+    public DynRealmTO readDynRealm(final String key) {
         return getService(DynRealmService.class).read(key);
     }
 
-    public static ProvisioningResult<RealmTO> create(final String parentPath, final RealmTO realmTO) {
+    public ProvisioningResult<RealmTO> create(final String parentPath, final RealmTO realmTO) {
         final Response response = getService(RealmService.class).create(parentPath, realmTO);
         return response.readEntity(new GenericType<>() {
         });
     }
 
-    public static ProvisioningResult<RealmTO> update(final RealmTO realmTO) {
+    public ProvisioningResult<RealmTO> update(final RealmTO realmTO) {
         final Response response = getService(RealmService.class).update(realmTO);
         return response.readEntity(new GenericType<>() {
         });
     }
 
-    public static void delete(final String fullPath) {
+    public void delete(final String fullPath) {
         getService(RealmService.class).delete(fullPath);
     }
 }

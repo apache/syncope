@@ -65,6 +65,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class AnyStatusDirectoryPanel
         extends DirectoryPanel<StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?>>
@@ -72,13 +73,28 @@ public class AnyStatusDirectoryPanel
 
     private static final long serialVersionUID = -9148734710505211261L;
 
-    private final MultilevelPanel multiLevelPanelRef;
+    @SpringBean
+    protected ResourceRestClient resourceRestClient;
 
-    private final AnyTO anyTO;
+    @SpringBean
+    protected ReconStatusUtils reconStatusUtils;
 
-    private final AnyTypeKind anyTypeKind;
+    @SpringBean
+    protected UserRestClient userRestClient;
 
-    private final boolean statusOnly;
+    @SpringBean
+    protected GroupRestClient groupRestClient;
+
+    @SpringBean
+    protected AnyObjectRestClient anyObjectRestClient;
+
+    protected final MultilevelPanel multiLevelPanelRef;
+
+    protected final AnyTO anyTO;
+
+    protected final AnyTypeKind anyTypeKind;
+
+    protected final boolean statusOnly;
 
     private final List<String> resources;
 
@@ -89,24 +105,24 @@ public class AnyStatusDirectoryPanel
             final String itemKeyFieldName,
             final boolean statusOnly) {
 
-        super(MultilevelPanel.FIRST_LEVEL_ID, pageRef);
+        super(MultilevelPanel.FIRST_LEVEL_ID, null, pageRef);
         this.multiLevelPanelRef = multiLevelPanelRef;
         this.statusOnly = statusOnly;
         this.anyTO = anyTO;
         this.itemKeyFieldName = itemKeyFieldName;
 
         if (anyTO instanceof UserTO) {
-            this.restClient = new UserRestClient();
+            this.restClient = userRestClient;
             anyTypeKind = AnyTypeKind.USER;
         } else if (anyTO instanceof GroupTO) {
-            this.restClient = new GroupRestClient();
+            this.restClient = groupRestClient;
             anyTypeKind = AnyTypeKind.GROUP;
         } else {
-            this.restClient = new AnyObjectRestClient();
+            this.restClient = anyObjectRestClient;
             anyTypeKind = AnyTypeKind.ANY_OBJECT;
         }
 
-        resources = ResourceRestClient.list().stream().
+        resources = resourceRestClient.list().stream().
                 filter(resource -> resource.getProvision(anyTO.getType()).isPresent()).
                 map(ResourceTO::getKey).collect(Collectors.toList());
 
@@ -313,7 +329,7 @@ public class AnyStatusDirectoryPanel
             List<StatusBean> statusBeans = actual.getResources().stream().map(resource -> {
                 List<Pair<String, ReconStatus>> statuses = List.of();
                 if (statusOnly) {
-                    statuses = ReconStatusUtils.getReconStatuses(anyTO.getType(), anyTO.getKey(), List.of(resource));
+                    statuses = reconStatusUtils.getReconStatuses(anyTO.getType(), anyTO.getKey(), List.of(resource));
                 }
 
                 return StatusUtils.getStatusBean(actual,

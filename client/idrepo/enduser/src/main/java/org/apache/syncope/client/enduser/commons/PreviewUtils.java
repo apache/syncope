@@ -18,37 +18,42 @@
  */
 package org.apache.syncope.client.enduser.commons;
 
+import java.io.Serializable;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.DefaultPreviewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ClassUtils;
 
-public class PreviewUtils {
+public class PreviewUtils implements Serializable {
+
+    private static final long serialVersionUID = 2765845550328631887L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(PreviewUtils.class);
 
-    @Autowired
-    private ClassPathScanImplementationLookup lookup;
+    protected final ClassPathScanImplementationLookup lookup;
+
+    public PreviewUtils(final ClassPathScanImplementationLookup lookup) {
+        this.lookup = lookup;
+    }
 
     public BinaryPreviewer getPreviewer(final String mimeType) {
         if (StringUtils.isBlank(mimeType)) {
-            return new DefaultPreviewer("previewer", mimeType);
+            return new DefaultPreviewer(mimeType);
         }
 
-        Class<? extends BinaryPreviewer> previewer = lookup.getPreviewerClass(mimeType);
-        try {
-            return previewer == null
-                    ? new DefaultPreviewer("previewer", mimeType)
-                    : ClassUtils.getConstructorIfAvailable(previewer, String.class, String.class).
-                            newInstance(new Object[] { "previewer", mimeType });
-        } catch (Exception e) {
-            LOG.error("While getting BinaryPreviewer for {}", mimeType, e);
+        return Optional.ofNullable(lookup.getPreviewerClass(mimeType)).map(clazz -> {
+            try {
+                return ClassUtils.getConstructorIfAvailable(clazz, String.class).
+                        newInstance(new Object[] { mimeType });
+            } catch (Exception e) {
+                LOG.error("While getting BinaryPreviewer for {}", mimeType, e);
 
-            return new DefaultPreviewer("previewer", mimeType);
-        }
+                return new DefaultPreviewer(mimeType);
+            }
+        }).orElseGet(() -> new DefaultPreviewer(mimeType));
     }
 }

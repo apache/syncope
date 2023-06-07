@@ -30,16 +30,20 @@ import org.apache.syncope.ext.client.common.ui.panels.UserRequestFormPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class UserRequestFormModal extends Panel implements SubmitableModalPanel, WizardModalPanel<UserRequestForm> {
 
     private static final long serialVersionUID = -8847854414429745216L;
 
-    private final BaseModal<?> modal;
+    @SpringBean
+    protected UserRequestRestClient userRequestRestClient;
 
-    private final UserRequestForm formTO;
+    protected final BaseModal<?> modal;
 
-    private final PageReference pageRef;
+    protected final UserRequestForm formTO;
+
+    protected final PageReference pageRef;
 
     public UserRequestFormModal(final BaseModal<?> modal, final PageReference pageRef, final UserRequestForm formTO) {
         super(BaseModal.CONTENT_ID);
@@ -62,7 +66,7 @@ public class UserRequestFormModal extends Panel implements SubmitableModalPanel,
 
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
-        UserRequestRestClient.submitForm(formTO);
+        userRequestRestClient.submitForm(formTO);
         this.modal.show(false);
         this.modal.close(target);
         SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));

@@ -18,13 +18,8 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
-import static de.agilecoders.wicket.jquery.JQuery.$;
-
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.BootstrapFileInputField;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.FileInputConfig;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.FileinputJsReference;
-import de.agilecoders.wicket.jquery.JQuery;
-import de.agilecoders.wicket.jquery.function.IFunction;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -50,8 +45,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -70,31 +63,31 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
     private static final long serialVersionUID = 6264462604183088931L;
 
     @SpringBean
-    private PreviewUtils previewUtils;
+    protected PreviewUtils previewUtils;
 
-    private final String mimeType;
+    protected final String mimeType;
 
-    private final WebMarkupContainer container;
+    protected final WebMarkupContainer container;
 
-    private final AjaxLink<Void> downloadLink;
+    protected final AjaxLink<Void> downloadLink;
 
-    private final Form<?> uploadForm;
+    protected final Form<?> uploadForm;
 
-    private final Fragment emptyFragment;
+    protected final Fragment emptyFragment;
 
-    private final BootstrapFileInputField fileUpload;
+    protected final BootstrapFileInputField fileUpload;
 
-    private final BinaryFieldDownload fileDownload;
+    protected final BinaryFieldDownload fileDownload;
 
-    private final BinaryPreviewer previewer;
+    protected final BinaryPreviewer previewer;
 
-    private final IndicatingAjaxLink<Void> resetLink;
+    protected final IndicatingAjaxLink<Void> resetLink;
 
-    private final Bytes maxUploadSize;
+    protected final Bytes maxUploadSize;
 
-    private final IModel<String> model;
+    protected final IModel<String> model;
 
-    private final String fileKey;
+    protected final String fileKey;
 
     public BinaryFieldPanel(
             final String id,
@@ -115,30 +108,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         uploadForm.setMultiPart(true);
         add(uploadForm);
 
-        container = new WebMarkupContainer("previewContainer") {
-
-            private static final long serialVersionUID = 2628490926588791229L;
-
-            @Override
-            public void renderHead(final IHeaderResponse response) {
-                if (previewer == null) {
-                    FileinputJsReference.INSTANCE.renderHead(response);
-                    JQuery fileinputJS = $(fileUpload).chain(new IFunction() {
-
-                        private static final long serialVersionUID = -2285418135375523652L;
-
-                        @Override
-                        public String build() {
-                            return "fileinput({"
-                                    + "'showRemove':false, "
-                                    + "'showUpload':false, "
-                                    + "'previewFileType':'any'})";
-                        }
-                    });
-                    response.render(OnDomReadyHeaderItem.forScript(fileinputJS.get()));
-                }
-            }
-        };
+        container = new WebMarkupContainer("previewContainer");
         container.setOutputMarkupId(true);
 
         emptyFragment = new Fragment("panelPreview", "emptyFragment", container);
@@ -207,14 +177,10 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
                         field.setModelObject(uploadedEncoded);
                         target.add(field);
 
-                        if (previewer == null) {
-                            container.addOrReplace(emptyFragment);
-                        } else {
-                            Component panelPreview = previewer.preview(uploadedBytes);
-                            changePreviewer(panelPreview);
-                            fileUpload.setModelObject(null);
-                            uploadForm.addOrReplace(fileUpload);
-                        }
+                        Component panelPreview = previewer.preview(uploadedBytes);
+                        changePreviewer(panelPreview);
+                        fileUpload.setModelObject(null);
+                        uploadForm.addOrReplace(fileUpload);
 
                         setVisibleFileButtons(StringUtils.isNotBlank(uploadedEncoded));
                         downloadLink.setEnabled(StringUtils.isNotBlank(uploadedEncoded));
@@ -249,14 +215,14 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         uploadForm.add(resetLink);
     }
 
-    private Response buildResponse() {
+    protected Response buildResponse() {
         return Response.ok(new ByteArrayInputStream(Base64.getMimeDecoder().decode(getModelObject()))).
                 type(StringUtils.isBlank(mimeType) ? MediaType.APPLICATION_OCTET_STREAM : mimeType).
                 header(HttpHeaders.LOCATION, StringUtils.EMPTY).
                 build();
     }
 
-    private void changePreviewer(final Component panelPreview) {
+    protected void changePreviewer(final Component panelPreview) {
         Fragment fragment = new Fragment("panelPreview", "previewFragment", container);
         fragment.add(panelPreview);
         container.addOrReplace(fragment);

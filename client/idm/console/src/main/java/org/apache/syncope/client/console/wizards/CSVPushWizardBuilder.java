@@ -51,19 +51,28 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
 
     private static final long serialVersionUID = -8890710681835661962L;
 
-    private final AnyQuery query;
+    protected final AnyQuery query;
 
-    private final AjaxDownloadBehavior downloadBehavior;
+    protected final AjaxDownloadBehavior downloadBehavior;
+
+    protected final ReconciliationRestClient reconciliationRestClient;
+
+    protected final ImplementationRestClient implementationRestClient;
 
     public CSVPushWizardBuilder(
             final CSVPushSpec defaultItem,
             final AnyQuery query,
             final AjaxDownloadBehavior downloadBehavior,
+            final ReconciliationRestClient reconciliationRestClient,
+            final ImplementationRestClient implementationRestClient,
             final PageReference pageRef) {
 
         super(defaultItem, pageRef);
+
         this.query = query;
         this.downloadBehavior = downloadBehavior;
+        this.reconciliationRestClient = reconciliationRestClient;
+        this.implementationRestClient = implementationRestClient;
     }
 
     @Override
@@ -76,7 +85,7 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
     protected Serializable onApplyInternal(final CSVPushSpec modelObject) {
         return RequestCycle.get().find(AjaxRequestTarget.class).map(target -> {
             try {
-                downloadBehavior.setResponse(new ResponseHolder(ReconciliationRestClient.push(query, modelObject)));
+                downloadBehavior.setResponse(new ResponseHolder(reconciliationRestClient.push(query, modelObject)));
                 downloadBehavior.initiate(target);
 
                 return Constants.OPERATION_SUCCEEDED;
@@ -103,7 +112,7 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
         }
     }
 
-    public static class PushTask extends WizardStep {
+    public class PushTask extends WizardStep {
 
         private static final long serialVersionUID = -2747583614435078452L;
 
@@ -113,7 +122,7 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
 
             @Override
             protected List<String> load() {
-                return ImplementationRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
+                return implementationRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
                         map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
@@ -124,7 +133,7 @@ public class CSVPushWizardBuilder extends BaseAjaxWizardBuilder<CSVPushSpec> {
 
             @Override
             protected List<String> load() {
-                return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
+                return implementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
                         map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };

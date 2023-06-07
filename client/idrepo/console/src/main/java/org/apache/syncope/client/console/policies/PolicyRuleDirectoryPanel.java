@@ -63,6 +63,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Policy rules page.
@@ -75,6 +76,9 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
     private static final long serialVersionUID = 4984337552918213290L;
 
+    @SpringBean
+    protected ImplementationRestClient implementationRestClient;
+
     private final BaseModal<T> baseModal;
 
     private final PolicyType type;
@@ -84,8 +88,13 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
     private final String policy;
 
     protected PolicyRuleDirectoryPanel(
-            final BaseModal<T> baseModal, final String policy, final PolicyType type, final PageReference pageRef) {
-        super(BaseModal.CONTENT_ID, pageRef, false);
+            final BaseModal<T> baseModal,
+            final String policy,
+            final PolicyType type,
+            final PolicyRestClient restClient,
+            final PageReference pageRef) {
+
+        super(BaseModal.CONTENT_ID, restClient, pageRef, false);
 
         disableCheckBoxes();
 
@@ -95,12 +104,11 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
                 ? IdRepoImplementationType.ACCOUNT_RULE
                 : IdRepoImplementationType.PASSWORD_RULE;
         this.policy = policy;
-        this.restClient = new PolicyRestClient();
 
         enableUtilityButton();
 
-        this.addNewItemPanelBuilder(
-                new PolicyRuleWizardBuilder(policy, type, new PolicyRuleWrapper(true), pageRef), true);
+        this.addNewItemPanelBuilder(new PolicyRuleWizardBuilder(
+                policy, type, new PolicyRuleWrapper(true), restClient, implementationRestClient, pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.POLICY_UPDATE);
         initResultTable();
@@ -164,10 +172,10 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
             public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
                 RuleConf rule = model.getObject().getConf();
                 try {
-                    T actual = PolicyRestClient.read(type, policy);
+                    T actual = restClient.read(type, policy);
                     if (actual instanceof ComposablePolicy) {
                         ((ComposablePolicy) actual).getRules().remove(model.getObject().getImplementationKey());
-                        PolicyRestClient.update(type, actual);
+                        restClient.update(type, actual);
 
                         SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         customActionOnFinishCallback(target);
@@ -234,7 +242,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
         @SuppressWarnings("unchecked")
         private List<PolicyRuleWrapper> getPolicyRuleWrappers(final ComposablePolicy policy) {
             return policy.getRules().stream().map(rule -> {
-                ImplementationTO implementation = ImplementationRestClient.read(implementationType, rule);
+                ImplementationTO implementation = implementationRestClient.read(implementationType, rule);
 
                 PolicyRuleWrapper wrapper = new PolicyRuleWrapper(false).
                         setImplementationKey(implementation.getKey()).
@@ -254,7 +262,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
         @Override
         public Iterator<PolicyRuleWrapper> iterator(final long first, final long count) {
-            T actual = PolicyRestClient.read(type, policy);
+            T actual = restClient.read(type, policy);
 
             List<PolicyRuleWrapper> rules = actual instanceof ComposablePolicy
                     ? getPolicyRuleWrappers((ComposablePolicy) actual)
@@ -266,7 +274,7 @@ public class PolicyRuleDirectoryPanel<T extends PolicyTO> extends DirectoryPanel
 
         @Override
         public long size() {
-            T actual = PolicyRestClient.read(type, policy);
+            T actual = restClient.read(type, policy);
             return actual instanceof ComposablePolicy
                     ? getPolicyRuleWrappers((ComposablePolicy) actual).size()
                     : 0;

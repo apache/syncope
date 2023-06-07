@@ -47,19 +47,25 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 1221037007528732347L;
 
-    private final MergeLinkedAccountsWizardModel wizardModel;
+    @SpringBean
+    protected ResourceRestClient resourceRestClient;
 
-    public MergeLinkedAccountsResourcesPanel(final MergeLinkedAccountsWizardModel wizardModel,
-            final PageReference pageReference) {
+    protected final MergeLinkedAccountsWizardModel wizardModel;
+
+    public MergeLinkedAccountsResourcesPanel(
+            final MergeLinkedAccountsWizardModel wizardModel,
+            final PageReference pageRef) {
+
         super();
         setOutputMarkupId(true);
         this.wizardModel = wizardModel;
-        add(new ResourceSelectionDirectoryPanel("resources", pageReference));
+        add(new ResourceSelectionDirectoryPanel("resources", resourceRestClient, pageRef));
     }
 
     @Override
@@ -82,8 +88,12 @@ public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICo
 
         private static final long serialVersionUID = 6005711052393825472L;
 
-        ResourceSelectionDirectoryPanel(final String id, final PageReference pageRef) {
-            super(id, pageRef, true);
+        ResourceSelectionDirectoryPanel(
+                final String id,
+                final ResourceRestClient restClient,
+                final PageReference pageRef) {
+
+            super(id, restClient, pageRef, true);
 
             modal.size(Modal.Size.Large);
             setOutputMarkupId(true);
@@ -118,20 +128,20 @@ public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICo
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ResourceTO resource) {
                     MergeLinkedAccountsWizardModel model = MergeLinkedAccountsResourcesPanel.this.wizardModel;
-                    String connObjectKeyValue = ResourceRestClient.getConnObjectKeyValue(
-                        resource.getKey(),
-                        model.getMergingUser().getType(),
-                        model.getMergingUser().getKey());
+                    String connObjectKeyValue = restClient.getConnObjectKeyValue(
+                            resource.getKey(),
+                            model.getMergingUser().getType(),
+                            model.getMergingUser().getKey());
                     if (connObjectKeyValue != null) {
                         model.setResource(resource);
                         String tableId = MergeLinkedAccountsResourcesPanel.this.
-                            get("resources:container:content:searchContainer:resultTable"
-                                + ":tablePanel:groupForm:checkgroup:dataTable").
-                            getMarkupId();
+                                get("resources:container:content:searchContainer:resultTable"
+                                        + ":tablePanel:groupForm:checkgroup:dataTable").
+                                getMarkupId();
                         String js = "$('#" + tableId + "').removeClass('active');";
                         js += "$('#" + tableId + " tbody tr td div').filter(function() "
-                            + "{return $(this).text() === \"" + resource.getKey() + "\";})"
-                            + ".parent().parent().addClass('active');";
+                                + "{return $(this).text() === \"" + resource.getKey() + "\";})"
+                                + ".parent().parent().addClass('active');";
                         target.prependJavaScript(js);
 
                     } else {
@@ -162,14 +172,14 @@ public class MergeLinkedAccountsResourcesPanel extends WizardStep implements ICo
 
             @Override
             public Iterator<ResourceTO> iterator(final long first, final long count) {
-                List<ResourceTO> list = ResourceRestClient.list();
+                List<ResourceTO> list = restClient.list();
                 list.sort(comparator);
                 return list.subList((int) first, (int) first + (int) count).iterator();
             }
 
             @Override
             public long size() {
-                return ResourceRestClient.list().size();
+                return restClient.list().size();
             }
 
             @Override

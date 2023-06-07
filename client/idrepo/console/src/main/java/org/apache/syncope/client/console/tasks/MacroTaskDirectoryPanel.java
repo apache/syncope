@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.CommandRestClient;
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -35,13 +37,21 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class MacroTaskDirectoryPanel extends SchedTaskDirectoryPanel<MacroTaskTO> {
 
     private static final long serialVersionUID = -6247673131495530094L;
 
-    public MacroTaskDirectoryPanel(final MultilevelPanel mlp, final PageReference pageRef) {
-        super(MultilevelPanel.FIRST_LEVEL_ID, null, mlp, TaskType.MACRO, new MacroTaskTO(), pageRef, true);
+    @SpringBean
+    protected CommandRestClient commandRestClient;
+
+    public MacroTaskDirectoryPanel(
+            final TaskRestClient restClient,
+            final MultilevelPanel mlp,
+            final PageReference pageRef) {
+
+        super(MultilevelPanel.FIRST_LEVEL_ID, restClient, null, mlp, TaskType.MACRO, new MacroTaskTO(), pageRef, true);
     }
 
     @Override
@@ -76,8 +86,8 @@ public class MacroTaskDirectoryPanel extends SchedTaskDirectoryPanel<MacroTaskTO
 
             @Override
             public void onClick(final AjaxRequestTarget target, final MacroTaskTO ignore) {
-                target.add(modal.setContent(
-                        new CommandComposeDirectoryPanel(modal, model.getObject().getKey(), pageRef)));
+                target.add(modal.setContent(new CommandComposeDirectoryPanel(
+                        commandRestClient, modal, model.getObject().getKey(), pageRef)));
 
                 modal.header(new StringResourceModel(
                         "command.conf", MacroTaskDirectoryPanel.this, Model.of(model.getObject())));

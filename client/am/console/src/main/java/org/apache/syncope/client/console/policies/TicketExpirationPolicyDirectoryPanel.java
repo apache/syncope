@@ -35,13 +35,17 @@ public class TicketExpirationPolicyDirectoryPanel extends PolicyDirectoryPanel<T
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    public TicketExpirationPolicyDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, PolicyType.TICKET_EXPIRATION, pageRef);
+    public TicketExpirationPolicyDirectoryPanel(
+            final String id,
+            final PolicyRestClient restClient,
+            final PageReference pageRef) {
+
+        super(id, restClient, PolicyType.TICKET_EXPIRATION, pageRef);
 
         TicketExpirationPolicyTO defaultItem = new TicketExpirationPolicyTO();
 
-        this.addNewItemPanelBuilder(
-                new PolicyModalPanelBuilder<>(PolicyType.TICKET_EXPIRATION, defaultItem, modal, pageRef), true);
+        this.addNewItemPanelBuilder(new PolicyModalPanelBuilder<>(
+                PolicyType.TICKET_EXPIRATION, defaultItem, modal, restClient, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.POLICY_CREATE);
 
         initResultTable();
@@ -58,7 +62,7 @@ public class TicketExpirationPolicyDirectoryPanel extends PolicyDirectoryPanel<T
 
             @Override
             public void onClick(final AjaxRequestTarget target, final TicketExpirationPolicyTO ignore) {
-                model.setObject(PolicyRestClient.read(type, model.getObject().getKey()));
+                model.setObject(restClient.read(type, model.getObject().getKey()));
                 if (model.getObject().getConf() == null) {
                     model.getObject().setConf(new DefaultTicketExpirationPolicyConf());
                 }

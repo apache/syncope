@@ -20,13 +20,19 @@ package org.apache.syncope.client.enduser;
 
 import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.enduser.rest.AnyTypeRestClient;
+import org.apache.syncope.client.enduser.rest.GroupRestClient;
+import org.apache.syncope.client.enduser.rest.SchemaRestClient;
+import org.apache.syncope.client.enduser.rest.SecurityQuestionRestClient;
+import org.apache.syncope.client.enduser.rest.SyncopeRestClient;
+import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
-public class EnduserContext {
+public class IdRepoEnduserContext {
 
     @ConditionalOnMissingBean
     @Bean
@@ -46,7 +52,43 @@ public class EnduserContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public PreviewUtils previewUtils() {
-        return new PreviewUtils();
+    public PreviewUtils previewUtils(final ClassPathScanImplementationLookup lookup) {
+        return new PreviewUtils(lookup);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AnyTypeRestClient anyTypeRestClient() {
+        return new AnyTypeRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public GroupRestClient groupRestClient() {
+        return new GroupRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SchemaRestClient schemaRestClient() {
+        return new SchemaRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SecurityQuestionRestClient securityQuestionRestClient() {
+        return new SecurityQuestionRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SyncopeRestClient syncopeRestClient() {
+        return new SyncopeRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public UserSelfRestClient userSelfRestClient() {
+        return new UserSelfRestClient();
     }
 }

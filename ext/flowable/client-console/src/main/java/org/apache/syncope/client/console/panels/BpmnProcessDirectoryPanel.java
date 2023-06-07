@@ -173,8 +173,8 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final BpmnProcess ignore) {
                 final IModel<String> wfDefinition = new Model<>();
                 try {
-                    wfDefinition.setObject(IOUtils.toString(BpmnProcessRestClient.getDefinition(
-                        MediaType.APPLICATION_XML_TYPE, model.getObject().getKey())));
+                    wfDefinition.setObject(IOUtils.toString(restClient.getDefinition(
+                            MediaType.APPLICATION_XML_TYPE, model.getObject().getKey())));
                 } catch (IOException e) {
                     LOG.error("Could not get workflow definition", e);
                 }
@@ -188,8 +188,8 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
                     public void onSubmit(final AjaxRequestTarget target) {
                         if (StringUtils.isNotBlank(wfDefinition.getObject())) {
                             try {
-                                BpmnProcessRestClient.setDefinition(MediaType.APPLICATION_XML_TYPE,
-                                    model.getObject().getKey(), wfDefinition.getObject());
+                                restClient.setDefinition(MediaType.APPLICATION_XML_TYPE,
+                                        model.getObject().getKey(), wfDefinition.getObject());
                                 SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
 
                                 target.add(container);
@@ -215,7 +215,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final BpmnProcess ignore) {
                 modal.header(Model.of(model.getObject().getKey()));
                 modal.setContent(new ImageModalPanel<>(
-                    modal, BpmnProcessRestClient.getDiagram(model.getObject().getKey()), pageRef));
+                        modal, restClient.getDiagram(model.getObject().getKey()), pageRef));
                 modal.show(target);
                 target.add(modal);
             }
@@ -257,7 +257,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final BpmnProcess ignore) {
                 try {
-                    BpmnProcessRestClient.deleteDefinition(model.getObject().getKey());
+                    restClient.deleteDefinition(model.getObject().getKey());
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -276,22 +276,7 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
         return List.of();
     }
 
-    public abstract static class Builder
-            extends DirectoryPanel.Builder<BpmnProcess, BpmnProcess, BpmnProcessRestClient> {
-
-        private static final long serialVersionUID = 5088962796986706805L;
-
-        public Builder(final PageReference pageRef) {
-            super(new BpmnProcessRestClient(), pageRef);
-        }
-
-        @Override
-        protected WizardMgtPanel<BpmnProcess> newInstance(final String id, final boolean wizardInModal) {
-            return new BpmnProcessDirectoryPanel(id, this);
-        }
-    }
-
-    protected static class BpmProcessDataProvider extends DirectoryDataProvider<BpmnProcess> {
+    protected class BpmProcessDataProvider extends DirectoryDataProvider<BpmnProcess> {
 
         private static final long serialVersionUID = 1764153405387687592L;
 
@@ -305,19 +290,34 @@ public class BpmnProcessDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<BpmnProcess> iterator(final long first, final long count) {
-            List<BpmnProcess> result = BpmnProcessRestClient.getDefinitions();
+            List<BpmnProcess> result = restClient.getDefinitions();
             result.sort(comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return BpmnProcessRestClient.getDefinitions().size();
+            return restClient.getDefinitions().size();
         }
 
         @Override
         public IModel<BpmnProcess> model(final BpmnProcess object) {
             return new CompoundPropertyModel<>(object);
+        }
+    }
+
+    public abstract static class Builder
+            extends DirectoryPanel.Builder<BpmnProcess, BpmnProcess, BpmnProcessRestClient> {
+
+        private static final long serialVersionUID = 5088962796986706805L;
+
+        public Builder(final BpmnProcessRestClient restClient, final PageReference pageRef) {
+            super(restClient, pageRef);
+        }
+
+        @Override
+        protected WizardMgtPanel<BpmnProcess> newInstance(final String id, final boolean wizardInModal) {
+            return new BpmnProcessDirectoryPanel(id, this);
         }
     }
 }

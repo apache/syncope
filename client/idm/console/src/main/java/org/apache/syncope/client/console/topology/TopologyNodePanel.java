@@ -30,14 +30,18 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = -8775095410207013913L;
 
-    private final Label label;
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
 
-    private final TopologyNode node;
+    protected final Label label;
+
+    protected final TopologyNode node;
 
     protected enum Status {
         ACTIVE,
@@ -105,7 +109,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
             String key = updateEvent.getKey();
 
             if (node.getKind() == Kind.CONNECTOR && key.equalsIgnoreCase(node.getKey())) {
-                ConnInstanceTO conn = ConnectorRestClient.read(key);
+                ConnInstanceTO conn = connectorRestClient.read(key);
 
                 // [SYNCOPE-1233]
                 String displayName = StringUtils.isBlank(conn.getDisplayName())

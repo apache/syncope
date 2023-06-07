@@ -22,6 +22,8 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.rest.SAML2IdPEntityRestClient;
+import org.apache.syncope.client.console.rest.SAML2SPEntityRestClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.wicket.PageReference;
@@ -29,10 +31,17 @@ import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class SAML2 extends Panel {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 7093557205333650002L;
+
+    @SpringBean
+    protected SAML2IdPEntityRestClient saml2IdPEntityRestClient;
+
+    @SpringBean
+    protected SAML2SPEntityRestClient saml2SPEntityRestClient;
 
     public SAML2(final String id, final String waPrefix, final PageReference pageRef) {
         super(id);
@@ -40,7 +49,7 @@ public class SAML2 extends Panel {
         add(new AjaxBootstrapTabbedPanel<>("saml2", buildTabList(waPrefix, pageRef)));
     }
 
-    private List<ITab> buildTabList(final String waPrefix, final PageReference pageRef) {
+    protected List<ITab> buildTabList(final String waPrefix, final PageReference pageRef) {
         List<ITab> tabs = new ArrayList<>();
 
         if (SyncopeConsoleSession.get().owns(AMEntitlement.SAML2_IDP_ENTITY_LIST, SyncopeConstants.ROOT_REALM)) {
@@ -50,7 +59,7 @@ public class SAML2 extends Panel {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new SAML2IdPEntityDirectoryPanel(panelId, waPrefix, pageRef);
+                    return new SAML2IdPEntityDirectoryPanel(panelId, saml2IdPEntityRestClient, waPrefix, pageRef);
                 }
             });
         }
@@ -62,7 +71,7 @@ public class SAML2 extends Panel {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new SAML2SPEntityDirectoryPanel(panelId, waPrefix, pageRef);
+                    return new SAML2SPEntityDirectoryPanel(panelId, saml2SPEntityRestClient, waPrefix, pageRef);
                 }
             });
         }

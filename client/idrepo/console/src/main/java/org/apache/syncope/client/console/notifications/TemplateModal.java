@@ -21,29 +21,30 @@ package org.apache.syncope.client.console.notifications;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
-import org.apache.syncope.client.console.rest.TemplateRestClient;
+import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.PropertyModel;
 
-public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> {
+public class TemplateModal extends AbstractModalPanel<MailTemplateTO> {
 
     private static final long serialVersionUID = 2053048734388383021L;
 
-    private final T templateTO;
+    private final MailTemplateTO templateTO;
 
-    private final TemplateRestClient<T, F> restClient;
+    private final NotificationRestClient restClient;
 
     public TemplateModal(
-            final BaseModal<T> modal,
-            final TemplateRestClient<T, F> restClient,
-            final T templateTO,
+            final BaseModal<MailTemplateTO> modal,
+            final NotificationRestClient restClient,
+            final MailTemplateTO templateTO,
             final PageReference pageRef) {
+
         super(modal, pageRef);
         this.restClient = restClient;
         this.templateTO = templateTO;
@@ -57,7 +58,7 @@ public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> 
     }
 
     @Override
-    public T getItem() {
+    public MailTemplateTO getItem() {
         return this.templateTO;
     }
 

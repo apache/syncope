@@ -55,23 +55,32 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
 
     private static final long serialVersionUID = -9142332740863374891L;
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    private final UserDirectoryPanel parentPanel;
+    protected final UserDirectoryPanel parentPanel;
 
-    private final BaseModal<?> modal;
+    protected final BaseModal<?> modal;
 
-    private MergeLinkedAccountsWizardModel model;
+    protected MergeLinkedAccountsWizardModel model;
+
+    protected final ResourceRestClient resourceRestClient;
+
+    protected final UserRestClient userRestClient;
 
     public MergeLinkedAccountsWizardBuilder(
             final IModel<UserTO> model,
-            final PageReference pageRef,
             final UserDirectoryPanel parentPanel,
-            final BaseModal<?> modal) {
+            final BaseModal<?> modal,
+            final ResourceRestClient resourceRestClient,
+            final UserRestClient userRestClient,
+            final PageReference pageRef) {
 
         super(model.getObject(), pageRef);
+
         this.parentPanel = parentPanel;
         this.modal = modal;
+        this.resourceRestClient = resourceRestClient;
+        this.userRestClient = userRestClient;
     }
 
     @Override
@@ -132,8 +141,8 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
 
         // Move merging user's resources into the target/base user as a linked account
         mergingUserTO.getResources().forEach(resource -> {
-            String connObjectKeyValue = ResourceRestClient.getConnObjectKeyValue(resource,
-                    mergingUserTO.getType(), mergingUserTO.getKey());
+            String connObjectKeyValue = resourceRestClient.getConnObjectKeyValue(
+                    resource, mergingUserTO.getType(), mergingUserTO.getKey());
             LinkedAccountTO linkedAccount = new LinkedAccountTO.Builder(resource, connObjectKeyValue).build();
             linkedAccount.getPlainAttrs().addAll(mergingUserTO.getPlainAttrs());
             linkedAccount.getPrivileges().addAll(mergingUserTO.getPrivileges());
@@ -145,7 +154,7 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
         });
 
         // Move merging user into target/base user as a linked account
-        String connObjectKeyValue = ResourceRestClient.getConnObjectKeyValue(
+        String connObjectKeyValue = resourceRestClient.getConnObjectKeyValue(
                 model.getResource().getKey(),
                 mergingUserTO.getType(), mergingUserTO.getKey());
         LinkedAccountTO linkedAccount = new LinkedAccountTO.Builder(model.getResource().getKey(), connObjectKeyValue).
@@ -182,7 +191,7 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
         updateUser.setContent(updateUserPayload);
         batchRequest.getItems().add(updateUser);
 
-        Map<String, String> batchResponse = UserRestClient.batch(batchRequest);
+        Map<String, String> batchResponse = userRestClient.batch(batchRequest);
         batchResponse.forEach((key, value) -> {
             if (!value.equalsIgnoreCase("success")) {
                 throw new IllegalArgumentException("Unable to report a success operation status for " + key);

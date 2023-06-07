@@ -43,17 +43,23 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class MergeLinkedAccountsReviewPanel extends WizardStep {
 
     private static final long serialVersionUID = 1221037007528732347L;
 
-    public MergeLinkedAccountsReviewPanel(final MergeLinkedAccountsWizardModel wizardModel,
-            final PageReference pageReference) {
+    @SpringBean
+    protected ResourceRestClient resourceRestClient;
+
+    public MergeLinkedAccountsReviewPanel(
+            final MergeLinkedAccountsWizardModel wizardModel,
+            final PageReference pageRef) {
+
         super();
         setOutputMarkupId(true);
         setTitleModel(new StringResourceModel("mergeLinkedAccounts.reviewAccounts.title"));
-        add(new LinkedAccountsReviewDirectoryPanel("linkedAccounts", pageReference, wizardModel));
+        add(new LinkedAccountsReviewDirectoryPanel("linkedAccounts", resourceRestClient, pageRef, wizardModel));
     }
 
     protected static class LinkedAccountsReviewDirectoryPanel extends
@@ -67,10 +73,11 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep {
 
         LinkedAccountsReviewDirectoryPanel(
                 final String id,
+                final ResourceRestClient restClient,
                 final PageReference pageRef,
                 final MergeLinkedAccountsWizardModel wizardModel) {
 
-            super(id, pageRef, true);
+            super(id, restClient, pageRef, true);
             this.wizardModel = wizardModel;
             modal.size(Modal.Size.Large);
             setOutputMarkupId(true);
@@ -107,7 +114,7 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep {
             return List.of();
         }
 
-        private List<LinkedAccountTO> previewAccounts() {
+        protected List<LinkedAccountTO> previewAccounts() {
             UserTO mergingUser = wizardModel.getMergingUser();
 
             // Move linked accounts into the target/base user as linked accounts
@@ -125,13 +132,13 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep {
 
             // Move merging user's resources into the target/base user as a linked account
             accounts.addAll(mergingUser.getResources().stream().map(resource -> {
-                String connObjectKeyValue = ResourceRestClient.getConnObjectKeyValue(resource,
+                String connObjectKeyValue = restClient.getConnObjectKeyValue(resource,
                         mergingUser.getType(), mergingUser.getKey());
                 return new LinkedAccountTO.Builder(resource, connObjectKeyValue).build();
             }).collect(Collectors.toList()));
 
             // Move merging user into target/base user as a linked account
-            String connObjectKeyValue = ResourceRestClient.getConnObjectKeyValue(
+            String connObjectKeyValue = restClient.getConnObjectKeyValue(
                     wizardModel.getResource().getKey(),
                     mergingUser.getType(), mergingUser.getKey());
             LinkedAccountTO linkedAccount =

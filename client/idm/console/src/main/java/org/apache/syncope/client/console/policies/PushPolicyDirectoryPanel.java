@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.policies;
 
 import java.util.List;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
@@ -40,13 +41,11 @@ public class PushPolicyDirectoryPanel extends PolicyDirectoryPanel<PushPolicyTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    public PushPolicyDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, PolicyType.PUSH, pageRef);
-
-        PushPolicyTO defaultItem = new PushPolicyTO();
+    public PushPolicyDirectoryPanel(final String id, final PolicyRestClient restClient, final PageReference pageRef) {
+        super(id, restClient, PolicyType.PUSH, pageRef);
 
         this.addNewItemPanelBuilder(
-                new PolicyModalPanelBuilder<>(PolicyType.PUSH, defaultItem, modal, pageRef), true);
+                new PolicyModalPanelBuilder<>(PolicyType.PUSH, new PushPolicyTO(), modal, restClient, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.POLICY_CREATE);
 
         initResultTable();
@@ -67,13 +66,13 @@ public class PushPolicyDirectoryPanel extends PolicyDirectoryPanel<PushPolicyTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final PushPolicyTO ignore) {
                 target.add(policySpecModal.setContent(
-                    new ProvisioningPolicyModalPanel(model.getObject(), policySpecModal, pageRef)));
+                        new ProvisioningPolicyModalPanel(model.getObject(), policySpecModal, pageRef)));
 
                 policySpecModal.header(new StringResourceModel(
-                    "policy.rules", PushPolicyDirectoryPanel.this, Model.of(model.getObject())));
+                        "policy.rules", PushPolicyDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
-                    policySpecModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
+                        policySpecModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
 
                 policySpecModal.show(true);
             }

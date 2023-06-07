@@ -93,13 +93,24 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
         }
     }
 
-    private final Model<byte[]> csv = new Model<>();
+    protected final Model<byte[]> csv = new Model<>();
 
-    private final Bytes maxUploadSize;
+    protected final ReconciliationRestClient reconciliationRestClient;
 
-    public CSVPullWizardBuilder(final CSVPullSpec defaultItem, final PageReference pageRef) {
+    protected final ImplementationRestClient implementationRestClient;
+
+    protected final Bytes maxUploadSize;
+
+    public CSVPullWizardBuilder(
+            final CSVPullSpec defaultItem,
+            final ReconciliationRestClient reconciliationRestClient,
+            final ImplementationRestClient implementationRestClient,
+            final PageReference pageRef) {
+
         super(defaultItem, pageRef);
 
+        this.reconciliationRestClient = reconciliationRestClient;
+        this.implementationRestClient = implementationRestClient;
         this.maxUploadSize = Bytes.megabytes(SyncopeWebApplication.get().getMaxUploadFileSizeMB());
     }
 
@@ -111,7 +122,7 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
 
     @Override
     protected ArrayList<ProvisioningReport> onApplyInternal(final CSVPullSpec modelObject) {
-        return ReconciliationRestClient.pull(modelObject, new ByteArrayInputStream(csv.getObject()));
+        return reconciliationRestClient.pull(modelObject, new ByteArrayInputStream(csv.getObject()));
     }
 
     @Override
@@ -235,8 +246,8 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
 
             @Override
             protected List<String> load() {
-                return ImplementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
-                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+                return implementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 
@@ -246,8 +257,8 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
 
             @Override
             protected List<String> load() {
-                return ImplementationRestClient.list(IdMImplementationType.PULL_CORRELATION_RULE).stream().
-                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+                return implementationRestClient.list(IdMImplementationType.PULL_CORRELATION_RULE).stream().
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 

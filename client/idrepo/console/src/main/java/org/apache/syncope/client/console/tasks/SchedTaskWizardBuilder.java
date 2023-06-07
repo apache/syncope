@@ -65,18 +65,30 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    private final TaskType type;
+    protected final TaskType type;
 
-    private PushTaskWrapper wrapper;
+    protected final RealmRestClient realmRestClient;
 
-    private CrontabPanel crontabPanel;
+    protected final TaskRestClient taskRestClient;
 
-    private final boolean fullRealmsTree;
+    protected PushTaskWrapper wrapper;
 
-    public SchedTaskWizardBuilder(final TaskType type, final T taskTO, final PageReference pageRef) {
+    protected CrontabPanel crontabPanel;
+
+    protected final boolean fullRealmsTree;
+
+    public SchedTaskWizardBuilder(
+            final TaskType type,
+            final T taskTO,
+            final RealmRestClient realmRestClient,
+            final TaskRestClient taskRestClient,
+            final PageReference pageRef) {
+
         super(taskTO, pageRef);
         this.type = type;
-        this.fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
+        this.realmRestClient = realmRestClient;
+        this.taskRestClient = taskRestClient;
+        this.fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree(realmRestClient);
     }
 
     @Override
@@ -87,9 +99,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
         modelObject.setCronExpression(crontabPanel.getCronExpression());
         if (modelObject.getKey() == null) {
-            TaskRestClient.create(type, modelObject);
+            taskRestClient.create(type, modelObject);
         } else {
-            TaskRestClient.update(type, modelObject);
+            taskRestClient.update(type, modelObject);
         }
         return modelObject;
     }
@@ -106,7 +118,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
     }
 
     protected List<String> searchRealms(final String realmQuery) {
-        return RealmRestClient.search(fullRealmsTree
+        return realmRestClient.search(fullRealmsTree
                 ? RealmsUtils.buildRootQuery()
                 : RealmsUtils.buildKeywordQuery(realmQuery)).
                 getResult().stream().map(RealmTO::getFullPath).collect(Collectors.toList());

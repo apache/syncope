@@ -34,6 +34,7 @@ import org.apache.syncope.client.console.panels.search.AnyObjectSelectionDirecto
 import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
@@ -77,10 +78,23 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Relationships extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 855618618337931784L;
+
+    @SpringBean
+    protected RelationshipTypeRestClient relationshipTypeRestClient;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
+
+    @SpringBean
+    protected AnyObjectRestClient anyObjectRestClient;
 
     protected final AnyTO anyTO;
 
@@ -225,7 +239,7 @@ public class Relationships extends WizardStep implements ICondition {
     @Override
     public boolean evaluate() {
         // [SYNCOPE-1171] - skip current step when the are no relationships types in Syncope
-        return !RelationshipTypeRestClient.list().isEmpty();
+        return !relationshipTypeRestClient.list().isEmpty();
     }
 
     public class Specification extends Panel {
@@ -252,14 +266,14 @@ public class Relationships extends WizardStep implements ICondition {
             super("specification");
             rel = new RelationshipTO();
 
-            List<String> availableRels = RelationshipTypeRestClient.list().stream().
+            List<String> availableRels = relationshipTypeRestClient.list().stream().
                     map(RelationshipTypeTO::getKey).collect(Collectors.toList());
 
             type = new AjaxDropDownChoicePanel<>("type", "type", new PropertyModel<>(rel, "type"));
             type.setChoices(availableRels);
             add(type.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true).setRenderBodyOnly(true));
 
-            List<AnyTypeTO> availableTypes = AnyTypeRestClient.listAnyTypes().stream().
+            List<AnyTypeTO> availableTypes = anyTypeRestClient.listAnyTypes().stream().
                     filter(anyType -> anyType.getKind() != AnyTypeKind.GROUP
                     && anyType.getKind() != AnyTypeKind.USER).collect(Collectors.toList());
 
@@ -358,7 +372,8 @@ public class Relationships extends WizardStep implements ICondition {
             fragment.addOrReplace(anyObjectSearchPanel.setRenderBodyOnly(true));
 
             anyObjectDirectoryPanel = new AnyObjectSelectionDirectoryPanel.Builder(
-                    AnyTypeClassRestClient.list(anyType.getClasses()),
+                    anyTypeClassRestClient.list(anyType.getClasses()),
+                    anyObjectRestClient,
                     anyType.getKey(),
                     pageRef).
                     setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).

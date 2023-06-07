@@ -42,6 +42,31 @@ import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationContributor;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.rest.AccessTokenRestClient;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.ApplicationRestClient;
+import org.apache.syncope.client.console.rest.AuditRestClient;
+import org.apache.syncope.client.console.rest.CommandRestClient;
+import org.apache.syncope.client.console.rest.DelegationRestClient;
+import org.apache.syncope.client.console.rest.DynRealmRestClient;
+import org.apache.syncope.client.console.rest.FIQLQueryRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
+import org.apache.syncope.client.console.rest.LoggerConf;
+import org.apache.syncope.client.console.rest.NotificationRestClient;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
+import org.apache.syncope.client.console.rest.RealmRestClient;
+import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
+import org.apache.syncope.client.console.rest.ReportRestClient;
+import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
+import org.apache.syncope.client.console.rest.SyncopeRestClient;
+import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -72,8 +97,8 @@ public class IdRepoConsoleContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public PreviewUtils previewUtils() {
-        return new PreviewUtils();
+    public PreviewUtils previewUtils(final ClassPathScanImplementationLookup lookup) {
+        return new PreviewUtils(lookup);
     }
 
     @ConditionalOnMissingBean
@@ -114,24 +139,177 @@ public class IdRepoConsoleContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ImplementationInfoProvider implementationInfoProvider() {
-        return new IdRepoImplementationInfoProvider();
+    public ImplementationInfoProvider implementationInfoProvider(
+            final ClassPathScanImplementationLookup lookup,
+            final ImplementationRestClient implementationRestClient) {
+
+        return new IdRepoImplementationInfoProvider(lookup, implementationRestClient);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public RealmPolicyProvider realmPolicyProvider() {
-        return new IdRepoRealmPolicyProvider();
+    public RealmPolicyProvider realmPolicyProvider(final PolicyRestClient policyRestClient) {
+        return new IdRepoRealmPolicyProvider(policyRestClient);
     }
 
     @Bean
-    public PolicyTabProvider idRepoPolicyTabProvider() {
-        return new IdRepoPolicyTabProvider();
+    public PolicyTabProvider idRepoPolicyTabProvider(final PolicyRestClient policyRestClient) {
+        return new IdRepoPolicyTabProvider(policyRestClient);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public AccessPolicyConfProvider accessPolicyConfProvider() {
         return new IdRepoAccessPolicyConfProvider();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AccessTokenRestClient accessTokenRestClient() {
+        return new AccessTokenRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AnyObjectRestClient anyObjectRestClient() {
+        return new AnyObjectRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AnyTypeClassRestClient anyTypeClassRestClient() {
+        return new AnyTypeClassRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AnyTypeRestClient anyTypeRestClient() {
+        return new AnyTypeRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ApplicationRestClient applicationRestClient() {
+        return new ApplicationRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AuditRestClient auditRestClient() {
+        return new AuditRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public CommandRestClient commandRestClient() {
+        return new CommandRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public DelegationRestClient delegationRestClient() {
+        return new DelegationRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public DynRealmRestClient dynRealmRestClient() {
+        return new DynRealmRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public FIQLQueryRestClient fiqlQueryRestClient() {
+        return new FIQLQueryRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public GroupRestClient groupRestClient() {
+        return new GroupRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ImplementationRestClient implementationRestClient() {
+        return new ImplementationRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public LoggerConf loggerConf() {
+        return new LoggerConf();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public NotificationRestClient notificationRestClient() {
+        return new NotificationRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PolicyRestClient policyRestClient() {
+        return new PolicyRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RealmRestClient realmRestClient() {
+        return new RealmRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RelationshipTypeRestClient relationshipTypeRestClient() {
+        return new RelationshipTypeRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ReportRestClient reportRestClient() {
+        return new ReportRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RoleRestClient roleRestClient() {
+        return new RoleRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SchemaRestClient schemaRestClient() {
+        return new SchemaRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SecurityQuestionRestClient securityQuestionRestClient() {
+        return new SecurityQuestionRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SyncopeRestClient syncopeRestClient() {
+        return new SyncopeRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public TaskRestClient taskRestClient() {
+        return new TaskRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public UserRestClient userRestClient() {
+        return new UserRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public UserSelfRestClient userSelfRestClient() {
+        return new UserSelfRestClient();
     }
 }

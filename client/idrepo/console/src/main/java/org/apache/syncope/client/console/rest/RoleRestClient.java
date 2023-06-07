@@ -35,27 +35,27 @@ public class RoleRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3161863874876938094L;
 
-    public static void delete(final String key) {
+    public void delete(final String key) {
         getService(RoleService.class).delete(key);
     }
 
-    public static RoleTO read(final String key) {
+    public RoleTO read(final String key) {
         return getService(RoleService.class).read(key);
     }
 
-    public static void update(final RoleTO roleTO) {
+    public void update(final RoleTO roleTO) {
         getService(RoleService.class).update(roleTO);
     }
 
-    public static void create(final RoleTO roleTO) {
+    public void create(final RoleTO roleTO) {
         getService(RoleService.class).create(roleTO);
     }
 
-    public static List<RoleTO> list() {
+    public List<RoleTO> list() {
         return getService(RoleService.class).list();
     }
 
-    public static String readAnyLayout(final String roleKey) {
+    public String readAnyLayout(final String roleKey) {
         try {
             return IOUtils.toString(InputStream.class.cast(
                     getService(RoleService.class).getAnyLayout(roleKey).getEntity()),
@@ -66,16 +66,16 @@ public class RoleRestClient extends BaseRestClient {
         }
     }
 
-    public static void setAnyLayout(final String roleKey, final String content) {
+    public void setAnyLayout(final String roleKey, final String content) {
         getService(RoleService.class).setAnyLayout(
                 roleKey, IOUtils.toInputStream(content, StandardCharsets.UTF_8));
     }
 
-    public static void removeAnyLayout(final String roleKey) {
+    public void removeAnyLayout(final String roleKey) {
         getService(RoleService.class).removeAnyLayout(roleKey);
     }
 
-    public static List<String> getAllAvailableEntitlements() {
+    public List<String> getAllAvailableEntitlements() {
         return SyncopeConsoleSession.get().getAnonymousClient().platform().getEntitlements().
                 stream().sorted().collect(Collectors.toList());
     }

@@ -37,18 +37,25 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class AuthPolicyModalPanel extends AbstractModalPanel<AuthPolicyTO> {
 
     private static final long serialVersionUID = -7210166323800567306L;
 
-    private final IModel<List<String>> allAuthModules = new LoadableDetachableModel<>() {
+    @SpringBean
+    protected PolicyRestClient policyRestClient;
+
+    @SpringBean
+    protected AuthModuleRestClient authModuleRestClient;
+
+    protected final IModel<List<String>> allAuthModules = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected List<String> load() {
-            return AuthModuleRestClient.list().stream().map(AuthModuleTO::getKey).sorted().collect(Collectors.toList());
+            return authModuleRestClient.list().stream().map(AuthModuleTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
@@ -77,7 +84,7 @@ public class AuthPolicyModalPanel extends AbstractModalPanel<AuthPolicyTO> {
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
         try {
-            PolicyRestClient.update(PolicyType.AUTH, model.getObject());
+            policyRestClient.update(PolicyType.AUTH, model.getObject());
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);

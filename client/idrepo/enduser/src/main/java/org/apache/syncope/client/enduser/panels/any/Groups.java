@@ -41,6 +41,7 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.danekja.java.util.function.serializable.SerializableFunction;
 
 public class Groups extends Panel {
@@ -48,6 +49,9 @@ public class Groups extends Panel {
     private static final long serialVersionUID = 552437609667518888L;
 
     protected static final int MAX_GROUP_LIST_CARDINALITY = 30;
+
+    @SpringBean
+    protected GroupRestClient groupRestClient;
 
     protected final EnduserGroupsModel groupsModel;
 
@@ -148,7 +152,7 @@ public class Groups extends Panel {
                 public List<MembershipTO> execute(final String filter) {
                     return (StringUtils.isEmpty(filter) || "*".equals(filter)
                             ? groupsModel.getObject()
-                            : GroupRestClient.searchAssignableGroups(
+                            : groupRestClient.searchAssignableGroups(
                                     anyTO.getRealm(),
                                     filter,
                                     1, MAX_GROUP_LIST_CARDINALITY)).stream()
@@ -181,7 +185,7 @@ public class Groups extends Panel {
          */
         @Override
         protected void reloadObject() {
-            groups = GroupRestClient.searchAssignableGroups(
+            groups = groupRestClient.searchAssignableGroups(
                     realm,
                     null,
                     1,

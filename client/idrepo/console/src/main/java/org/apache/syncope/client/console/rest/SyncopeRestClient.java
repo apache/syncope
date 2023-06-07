@@ -27,11 +27,11 @@ public class SyncopeRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -9013241672773442286L;
 
-    public static Response exportInternalStorageContent() {
+    public Response exportInternalStorageContent() {
         return getService(SyncopeService.class).exportInternalStorageContent();
     }
 
-    public static List<GroupTO> searchAssignableGroups(
+    public List<GroupTO> searchAssignableGroups(
             final String realm,
             final String term,
             final int page,

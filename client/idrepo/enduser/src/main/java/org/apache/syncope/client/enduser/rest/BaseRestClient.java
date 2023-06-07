@@ -36,27 +36,27 @@ import org.slf4j.LoggerFactory;
 
 public abstract class BaseRestClient implements RestClient {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(BaseRestClient.class);
-
     private static final long serialVersionUID = 1523999867826481989L;
 
-    public static SyncopeService getSyncopeService() {
+    protected static final Logger LOG = LoggerFactory.getLogger(BaseRestClient.class);
+
+    public SyncopeService getSyncopeService() {
         return getService(SyncopeService.class);
     }
 
-    protected static <T> T getService(final Class<T> serviceClass) {
+    protected <T> T getService(final Class<T> serviceClass) {
         return SyncopeEnduserSession.get().getService(serviceClass);
     }
 
-    protected static <T> T getService(final String etag, final Class<T> serviceClass) {
+    protected <T> T getService(final String etag, final Class<T> serviceClass) {
         return SyncopeEnduserSession.get().getService(etag, serviceClass);
     }
 
-    protected static <T> void resetClient(final Class<T> serviceClass) {
+    protected <T> void resetClient(final Class<T> serviceClass) {
         SyncopeEnduserSession.get().resetClient(serviceClass);
     }
 
-    public static String toOrderBy(final SortParam<String> sort) {
+    public String toOrderBy(final SortParam<String> sort) {
         OrderByClauseBuilder builder = SyncopeClient.getOrderByClauseBuilder();
 
         String property = sort.getProperty();
@@ -73,7 +73,7 @@ public abstract class BaseRestClient implements RestClient {
         return builder.build();
     }
 
-    protected static <E extends JAXRSService, T> T getObject(
+    protected <E extends JAXRSService, T> T getObject(
             final E service, final URI location, final Class<T> resultClass) {
 
         WebClient webClient = WebClient.fromClient(WebClient.client(service));
@@ -84,7 +84,7 @@ public abstract class BaseRestClient implements RestClient {
                 get(resultClass);
     }
 
-    protected static String getStatus(final int httpStatus) {
+    protected String getStatus(final int httpStatus) {
         ExecStatus execStatus = ExecStatus.fromHttpStatus(httpStatus);
         return execStatus == null
                 ? Constants.UNKNOWN

@@ -41,16 +41,18 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    protected final GroupRestClient groupRestClient = new GroupRestClient();
+    protected GroupRestClient groupRestClient;
 
     public GroupWizardBuilder(
             final GroupTO groupTO,
             final List<String> anyTypeClasses,
             final GroupFormLayoutInfo formLayoutInfo,
+            final GroupRestClient groupRestClient,
             final PageReference pageRef) {
 
         super(Optional.ofNullable(groupTO).map(GroupWrapper::new).
                 orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
+        this.groupRestClient = groupRestClient;
     }
 
     /**
@@ -96,7 +98,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
         if (updated.getKey() == null) {
             GroupCR req = new GroupCR();
             EntityTOUtils.toAnyCR(updated, req);
-            result = GroupRestClient.create(req);
+            result = groupRestClient.create(req);
         } else {
             GroupTO original = getOriginalItem().getInnerObject();
             fixPlainAndVirAttrs(updated, original);

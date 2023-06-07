@@ -40,13 +40,17 @@ public class AttrReleasePolicyDirectoryPanel extends PolicyDirectoryPanel<AttrRe
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    public AttrReleasePolicyDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, PolicyType.ATTR_RELEASE, pageRef);
+    public AttrReleasePolicyDirectoryPanel(
+            final String id,
+            final PolicyRestClient restClient,
+            final PageReference pageRef) {
+
+        super(id, restClient, PolicyType.ATTR_RELEASE, pageRef);
 
         AttrReleasePolicyTO defaultItem = new AttrReleasePolicyTO();
 
         this.addNewItemPanelBuilder(
-                new PolicyModalPanelBuilder<>(PolicyType.ATTR_RELEASE, defaultItem, modal, pageRef), true);
+                new PolicyModalPanelBuilder<>(PolicyType.ATTR_RELEASE, defaultItem, modal, restClient, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.POLICY_CREATE);
 
         initResultTable();
@@ -69,7 +73,7 @@ public class AttrReleasePolicyDirectoryPanel extends PolicyDirectoryPanel<AttrRe
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AttrReleasePolicyTO ignore) {
-                model.setObject(PolicyRestClient.read(type, model.getObject().getKey()));
+                model.setObject(restClient.read(type, model.getObject().getKey()));
                 if (model.getObject().getConf() == null) {
                     model.getObject().setConf(new DefaultAttrReleasePolicyConf());
                 }

@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.commons.LinkedAccountPlainAttrProperty;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -61,22 +60,23 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
 
     private static final long serialVersionUID = -6664931684253730934L;
 
-    private final LinkedAccountTO linkedAccountTO;
+    protected final LinkedAccountTO linkedAccountTO;
 
-    private final UserTO userTO;
+    protected final UserTO userTO;
 
-    private final Set<Attr> fixedAttrs = new HashSet<>();
+    protected final Set<Attr> fixedAttrs = new HashSet<>();
 
-    private final List<LinkedAccountPlainAttrProperty> accountPlainAttrProperties = new ArrayList<>();
+    protected final List<LinkedAccountPlainAttrProperty> accountPlainAttrProperties = new ArrayList<>();
 
     public <T extends AnyTO> LinkedAccountPlainAttrsPanel(
             final EntityWrapper<LinkedAccountTO> modelObject,
             final UserTO userTO,
+            final List<String> anyTypeClasses,
             final List<String> whichPlainAttrs) throws IllegalArgumentException {
 
         super(userTO,
                 AjaxWizard.Mode.EDIT,
-                AnyTypeRestClient.read(userTO.getType()).getClasses(),
+                anyTypeClasses,
                 whichPlainAttrs);
 
         this.linkedAccountTO = modelObject.getInnerObject();

@@ -28,16 +28,17 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<ResourceTO> {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private final boolean createFlag;
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
 
-    public ResourceConnConfPanel(final ResourceTO resourceTO, final boolean createFlag) {
+    public ResourceConnConfPanel(final ResourceTO resourceTO) {
         super(resourceTO);
-        this.createFlag = createFlag;
 
         model = new LoadableDetachableModel<>() {
 
@@ -89,7 +90,7 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
         List<ConnConfProperty> props = new ArrayList<>();
 
         if (resourceTO.getConnector() != null) {
-            ConnectorRestClient.read(resourceTO.getConnector()).getConf().stream().
+            connectorRestClient.read(resourceTO.getConnector()).getConf().stream().
                     filter(ConnConfProperty::isOverridable).
                     forEachOrdered(props::add);
         }

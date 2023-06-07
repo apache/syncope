@@ -55,8 +55,8 @@ public class SRARouteDirectoryPanel
 
     private static final long serialVersionUID = -2334397933375604015L;
 
-    public SRARouteDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef);
+    public SRARouteDirectoryPanel(final String id, final SRARouteRestClient restClient, final PageReference pageRef) {
+        super(id, restClient, pageRef);
         disableCheckBoxes();
 
         modal.size(Modal.Size.Large);
@@ -67,7 +67,7 @@ public class SRARouteDirectoryPanel
             modal.show(false);
         });
 
-        addNewItemPanelBuilder(new SRARouteWizardBuilder(new SRARouteTO(), pageRef), true);
+        addNewItemPanelBuilder(new SRARouteWizardBuilder(new SRARouteTO(), restClient, pageRef), true);
         initResultTable();
     }
 
@@ -100,8 +100,8 @@ public class SRARouteDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final SRARouteTO ignore) {
                 send(SRARouteDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(
-                        SRARouteRestClient.read(model.getObject().getKey()), target));
+                        new AjaxWizard.EditItemActionEvent<>(
+                                restClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.SRA_ROUTE_UPDATE);
 
@@ -114,7 +114,7 @@ public class SRARouteDirectoryPanel
                 SRARouteTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(SRARouteDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(clone, target));
+                        new AjaxWizard.EditItemActionEvent<>(clone, target));
             }
         }, ActionLink.ActionType.CLONE, AMEntitlement.SRA_ROUTE_CREATE);
 
@@ -126,7 +126,8 @@ public class SRARouteDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final SRARouteTO ignore) {
                 SRARouteTO route = model.getObject();
                 try {
-                    SRARouteRestClient.delete(route.getKey());
+                    restClient.delete(route.getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -155,7 +156,7 @@ public class SRARouteDirectoryPanel
         return AMConstants.PREF_GATEWAYROUTE_PAGINATOR_ROWS;
     }
 
-    protected static final class SRARouteProvider extends DirectoryDataProvider<SRARouteTO> {
+    protected final class SRARouteProvider extends DirectoryDataProvider<SRARouteTO> {
 
         private static final long serialVersionUID = 5282134321828253058L;
 
@@ -169,14 +170,14 @@ public class SRARouteDirectoryPanel
 
         @Override
         public Iterator<? extends SRARouteTO> iterator(final long first, final long count) {
-            List<SRARouteTO> list = SRARouteRestClient.list();
+            List<SRARouteTO> list = restClient.list();
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SRARouteRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override

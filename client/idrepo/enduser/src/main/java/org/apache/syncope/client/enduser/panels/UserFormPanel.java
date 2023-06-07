@@ -38,18 +38,21 @@ import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEventSink;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class UserFormPanel extends AnyFormPanel implements UserForm {
 
     private static final long serialVersionUID = 6763365006334514387L;
 
-    private final UserSelfRestClient userSelfRestClient = new UserSelfRestClient();
+    @SpringBean
+    protected UserSelfRestClient userSelfRestClient;
 
     public UserFormPanel(
             final String id,
@@ -57,6 +60,7 @@ public class UserFormPanel extends AnyFormPanel implements UserForm {
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageReference) {
+
         super(id, new UserWrapper(userTO), anyTypeClasses, formLayoutInfo, pageReference);
 
         UserWrapper modelObj = newModelObject();
@@ -70,12 +74,12 @@ public class UserFormPanel extends AnyFormPanel implements UserForm {
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageReference) {
+
         super(id, new UserWrapper(previousUserTO, userTO), anyTypeClasses, formLayoutInfo, pageReference);
 
         UserWrapper modelObj = newModelObject();
         setFormModel(modelObj);
         buildLayout(modelObj);
-
     }
 
     @Override
@@ -103,15 +107,15 @@ public class UserFormPanel extends AnyFormPanel implements UserForm {
 
                 fixPlainAndVirAttrs(userTO, getOriginalItem().getInnerObject());
                 // update and set page paramters according to provisioning result
-                ProvisioningResult<UserTO> provisioningResult =
-                        ProvisioningUtils.updateUser(
-                                AnyOperations.diff(userTO, getOriginalItem().getInnerObject(), false),
-                                getOriginalItem().getInnerObject().getETagValue());
+                UserUR updateReq = AnyOperations.diff(userTO, getOriginalItem().getInnerObject(), false);
+                ProvisioningResult<UserTO> provisioningResult = updateReq.isEmpty()
+                        ? new ProvisioningResult<>()
+                        : userSelfRestClient.update(getOriginalItem().getInnerObject().getETagValue(), updateReq);
                 setResponsePage(new SelfResult(provisioningResult,
                         ProvisioningUtils.managePageParams(UserFormPanel.this, "profile.change",
                                 !SyncopeWebApplication.get().isReportPropagationErrors()
-                                        || provisioningResult.getPropagationStatuses().stream()
-                                                .allMatch(ps -> ExecStatus.SUCCESS == ps.getStatus()))));
+                                || provisioningResult.getPropagationStatuses().stream()
+                                        .allMatch(ps -> ExecStatus.SUCCESS == ps.getStatus()))));
             } catch (SyncopeClientException e) {
                 LOG.error("While changing password for {}",
                         SyncopeEnduserSession.get().getSelfTO().getUsername(), e);

@@ -39,10 +39,14 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class DynamicMemberships extends WizardStep {
 
     private static final long serialVersionUID = 855618618337931784L;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
     public DynamicMemberships(final GroupWrapper groupWrapper, final PageReference pageRef) {
         super();
@@ -53,9 +57,9 @@ public class DynamicMemberships extends WizardStep {
 
             @Override
             protected List<AnyTypeTO> load() {
-                return AnyTypeRestClient.listAnyTypes().stream().
-                    filter(type -> AnyTypeKind.USER != type.getKind() && AnyTypeKind.GROUP != type.getKind()).
-                    collect(Collectors.toList());
+                return anyTypeRestClient.listAnyTypes().stream().
+                        filter(type -> AnyTypeKind.USER != type.getKind() && AnyTypeKind.GROUP != type.getKind()).
+                        collect(Collectors.toList());
             }
         };
 
@@ -86,19 +90,19 @@ public class DynamicMemberships extends WizardStep {
             protected void populateItem(final ListItem<AnyTypeTO> item) {
                 final String key = item.getModelObject().getKey();
                 item.add(new Accordion("aDynMembershipCond", List.of(
-                    new AbstractTab(new StringResourceModel(
-                        "aDynMembershipCond", this, new Model<>(item.getModelObject()))) {
+                        new AbstractTab(new StringResourceModel(
+                                "aDynMembershipCond", this, new Model<>(item.getModelObject()))) {
 
-                        private static final long serialVersionUID = 1037272333056449378L;
+                    private static final long serialVersionUID = 1037272333056449378L;
 
-                        @Override
-                        public Panel getPanel(final String panelId) {
-                            return new AnyObjectSearchPanel.Builder(
+                    @Override
+                    public Panel getPanel(final String panelId) {
+                        return new AnyObjectSearchPanel.Builder(
                                 key, new MapOfListModel<>(groupWrapper, "aDynClauses", key), pageRef).
                                 required(false).build(panelId);
-                        }
-                    }), Model.of(StringUtils.isBlank(groupWrapper.getADynMembershipConds().get(key)) ? -1 : 0)).
-                    setOutputMarkupId(true));
+                    }
+                }), Model.of(StringUtils.isBlank(groupWrapper.getADynMembershipConds().get(key)) ? -1 : 0)).
+                        setOutputMarkupId(true));
             }
         });
         // ------------------------

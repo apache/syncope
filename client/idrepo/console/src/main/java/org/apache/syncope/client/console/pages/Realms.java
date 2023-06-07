@@ -50,6 +50,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Realms extends BasePage {
 
@@ -58,6 +59,12 @@ public class Realms extends BasePage {
     public static final String SELECTED_INDEX = "selectedIndex";
 
     public static final String INITIAL_REALM = "initialRealm";
+
+    @SpringBean
+    protected RealmRestClient realmRestClient;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
     protected final TemplatesTogglePanel templates;
 
@@ -81,7 +88,7 @@ public class Realms extends BasePage {
                     final TemplatableTO targetObject, final String type, final AnyTO anyTO) {
 
                 targetObject.getTemplates().put(type, anyTO);
-                RealmRestClient.update(RealmTO.class.cast(targetObject));
+                realmRestClient.update(RealmTO.class.cast(targetObject));
                 return targetObject;
             }
         };
@@ -131,7 +138,7 @@ public class Realms extends BasePage {
     }
 
     protected RealmChoicePanel buildRealmChoicePanel(final String initialRealm, final PageReference pageRef) {
-        RealmChoicePanel panel = new RealmChoicePanel("realmChoicePanel", initialRealm, pageRef);
+        RealmChoicePanel panel = new RealmChoicePanel("realmChoicePanel", initialRealm, realmRestClient, pageRef);
         panel.setOutputMarkupId(true);
         return panel;
     }
@@ -173,7 +180,7 @@ public class Realms extends BasePage {
 
     protected WebMarkupContainer updateRealmContent(final RealmTO realmTO, final int selectedIndex) {
         if (realmTO != null) {
-            content.addOrReplace(new Content(realmTO, AnyTypeRestClient.listAnyTypes(), selectedIndex));
+            content.addOrReplace(new Content(realmTO, anyTypeRestClient.listAnyTypes(), selectedIndex));
         }
         return content;
     }
@@ -241,7 +248,7 @@ public class Realms extends BasePage {
                 if (realmTO.getKey() == null) {
                     throw new Exception("Root realm cannot be deleted");
                 }
-                RealmRestClient.delete(realmTO.getFullPath());
+                realmRestClient.delete(realmTO.getFullPath());
                 RealmTO parent = realmChoicePanel.moveToParentRealm(realmTO.getKey());
                 target.add(realmChoicePanel.reloadRealmTree(target));
 

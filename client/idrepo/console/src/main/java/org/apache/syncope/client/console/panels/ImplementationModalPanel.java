@@ -43,19 +43,23 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.io.IOUtils;
 
 public class ImplementationModalPanel extends AbstractModalPanel<ImplementationTO> {
 
     private static final long serialVersionUID = 5283548960927517342L;
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    private final ImplementationTO implementation;
+    @SpringBean
+    protected ImplementationRestClient implementationRestClient;
 
-    private final ViewMode viewMode;
+    protected final ImplementationTO implementation;
 
-    private boolean create = false;
+    protected final ViewMode viewMode;
+
+    protected boolean create = false;
 
     public ImplementationModalPanel(
             final BaseModal<ImplementationTO> modal,
@@ -184,9 +188,9 @@ public class ImplementationModalPanel extends AbstractModalPanel<ImplementationT
     public void onSubmit(final AjaxRequestTarget target) {
         try {
             if (create) {
-                ImplementationRestClient.create(implementation);
+                implementationRestClient.create(implementation);
             } else {
-                ImplementationRestClient.update(implementation);
+                implementationRestClient.update(implementation);
             }
 
             modal.close(target);

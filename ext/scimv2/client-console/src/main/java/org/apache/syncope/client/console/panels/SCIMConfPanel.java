@@ -34,6 +34,7 @@ import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,12 +44,16 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SCIMConfPanel.class);
 
-    private final SCIMConf scimConfTO;
+    @SpringBean
+    protected SCIMConfRestClient scimConfRestClient;
+
+    protected final SCIMConf scimConfTO;
 
     public SCIMConfPanel(
             final String id,
             final SCIMConf scimConfTO,
             final PageReference pageRef) {
+
         super(id, true);
 
         this.scimConfTO = scimConfTO;
@@ -67,7 +72,7 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                SCIMConfRestClient.set(SCIMConfPanel.this.scimConfTO);
+                scimConfRestClient.set(SCIMConfPanel.this.scimConfTO);
             }
         };
         addInnerObject(saveButton);
@@ -78,7 +83,7 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
         setWindowClosedReloadCallback(modal);
     }
 
-    private List<ITab> buildTabList() {
+    protected List<ITab> buildTabList() {
         List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new ITabComponent(new Model<>(getString("tab1"))) {
@@ -148,10 +153,7 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected Panel customResultBody(final String panelId, final SCIMConf item, final Serializable result) {
-
         return null;
     }
-
 }

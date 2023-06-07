@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.tasks;
 
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -35,12 +36,13 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
     private static final long serialVersionUID = 4984337552918213290L;
 
     protected PullTaskDirectoryPanel(
+            final TaskRestClient restClient,
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final String resource,
             final PageReference pageRef) {
 
-        super(baseModal, multiLevelPanelRef, TaskType.PULL, new PullTaskTO(), resource, pageRef);
+        super(restClient, baseModal, multiLevelPanelRef, TaskType.PULL, new PullTaskTO(), resource, pageRef);
     }
 
     @Override

@@ -63,10 +63,9 @@ public abstract class ExecutionsDirectoryPanel
             final ExecutionRestClient executionRestClient,
             final PageReference pageRef) {
 
-        super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, false);
+        super(MultilevelPanel.FIRST_LEVEL_ID, executionRestClient, pageRef, false);
 
         this.multiLevelPanelRef = multiLevelPanelRef;
-        restClient = executionRestClient;
         setOutputMarkupId(true);
         this.key = key;
         initResultTable();

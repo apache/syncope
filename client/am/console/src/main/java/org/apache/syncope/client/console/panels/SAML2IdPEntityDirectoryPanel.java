@@ -54,12 +54,17 @@ import org.apache.wicket.model.StringResourceModel;
 public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
         SAML2IdPEntityTO, SAML2IdPEntityTO, SAML2IdPEntityProvider, SAML2IdPEntityRestClient> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -6535332920023200166L;
 
     private final String metadataURL;
 
-    public SAML2IdPEntityDirectoryPanel(final String id, final String waPrefix, final PageReference pageRef) {
-        super(id, pageRef);
+    public SAML2IdPEntityDirectoryPanel(
+            final String id,
+            final SAML2IdPEntityRestClient restClient,
+            final String waPrefix,
+            final PageReference pageRef) {
+
+        super(id, restClient, pageRef);
         this.metadataURL = waPrefix + "/idp/metadata";
 
         disableCheckBoxes();
@@ -72,7 +77,7 @@ public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
             modal.show(false);
         });
 
-        addNewItemPanelBuilder(new SAML2IdPEntityWizardBuilder(new SAML2IdPEntityTO(), pageRef), false);
+        addNewItemPanelBuilder(new SAML2IdPEntityWizardBuilder(new SAML2IdPEntityTO(), restClient, pageRef), false);
 
         initResultTable();
     }
@@ -130,7 +135,7 @@ public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final SAML2IdPEntityTO ignore) {
                 send(SAML2IdPEntityDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                SAML2IdPEntityRestClient.get(model.getObject().getKey()), target));
+                                restClient.get(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.SAML2_IDP_ENTITY_SET);
 
@@ -152,7 +157,7 @@ public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
         return AMConstants.PREF_SAML2_IDP_ENTITY_PAGINATOR_ROWS;
     }
 
-    protected static final class SAML2IdPEntityProvider extends DirectoryDataProvider<SAML2IdPEntityTO> {
+    protected final class SAML2IdPEntityProvider extends DirectoryDataProvider<SAML2IdPEntityTO> {
 
         private static final long serialVersionUID = 5282134321828253058L;
 
@@ -166,14 +171,14 @@ public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<? extends SAML2IdPEntityTO> iterator(final long first, final long count) {
-            List<SAML2IdPEntityTO> list = SAML2IdPEntityRestClient.list();
+            List<SAML2IdPEntityTO> list = restClient.list();
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SAML2IdPEntityRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override

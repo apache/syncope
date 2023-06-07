@@ -60,8 +60,8 @@ public class CommandDirectoryPanel
 
     private String keyword;
 
-    public CommandDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef);
+    public CommandDirectoryPanel(final String id, final CommandRestClient restClient, final PageReference pageRef) {
+        super(id, restClient, pageRef);
         disableCheckBoxes();
 
         modal.size(Modal.Size.Large);
@@ -71,7 +71,7 @@ public class CommandDirectoryPanel
             modal.show(false);
         });
 
-        addNewItemPanelBuilder(new CommandWizardBuilder(new CommandTO(), pageRef), false);
+        addNewItemPanelBuilder(new CommandWizardBuilder(new CommandTO(), restClient, pageRef), false);
 
         setShowResultPanel(true);
 
@@ -172,14 +172,12 @@ public class CommandDirectoryPanel
         @Override
         public Iterator<CommandTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return CommandRestClient.search(
-                    (page < 0 ? 0 : page) + 1, paginatorRows, keyword).
-                    iterator();
+            return restClient.search((page < 0 ? 0 : page) + 1, paginatorRows, keyword).iterator();
         }
 
         @Override
         public long size() {
-            return CommandRestClient.count(keyword);
+            return restClient.count(keyword);
         }
 
         @Override

@@ -76,6 +76,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class SearchClausePanel extends FieldPanel<SearchClause> {
 
@@ -133,44 +134,48 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         }
     }
 
-    private final boolean required;
+    @SpringBean
+    protected RelationshipTypeRestClient relationshipTypeRestClient;
 
-    private final IModel<List<SearchClause.Type>> types;
+    @SpringBean
+    protected GroupRestClient groupRestClient;
 
-    private final Customizer customizer;
+    protected final boolean required;
 
-    private final IModel<Map<String, PlainSchemaTO>> anames;
+    protected final IModel<List<SearchClause.Type>> types;
 
-    private final IModel<Map<String, PlainSchemaTO>> dnames;
+    protected final Customizer customizer;
 
-    private final Pair<IModel<List<String>>, IModel<Integer>> groupInfo;
+    protected final IModel<Map<String, PlainSchemaTO>> anames;
 
-    private final IModel<List<String>> roleNames;
+    protected final IModel<Map<String, PlainSchemaTO>> dnames;
 
-    private final IModel<List<String>> privilegeNames;
+    protected final Pair<IModel<List<String>>, IModel<Integer>> groupInfo;
 
-    private final IModel<List<String>> auxClassNames;
+    protected final IModel<List<String>> roleNames;
 
-    private final IModel<List<String>> resourceNames;
+    protected final IModel<List<String>> privilegeNames;
 
-    private IModel<SearchClause> clause;
+    protected final IModel<List<String>> auxClassNames;
 
-    private final LoadableDetachableModel<List<Comparator>> comparators;
+    protected final IModel<List<String>> resourceNames;
 
-    private final LoadableDetachableModel<List<String>> properties;
+    protected IModel<SearchClause> clause;
 
-    private final Fragment operatorFragment;
+    protected final LoadableDetachableModel<List<Comparator>> comparators;
 
-    private final Fragment searchButtonFragment;
+    protected final LoadableDetachableModel<List<String>> properties;
 
-    private final AjaxLink<Void> searchButton;
+    protected final Fragment operatorFragment;
 
-    private IEventSink resultContainer;
+    protected final Fragment searchButtonFragment;
+
+    protected final AjaxLink<Void> searchButton;
+
+    protected IEventSink resultContainer;
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private FieldPanel value;
-
-    private final GroupRestClient groupRestClient = new GroupRestClient();
 
     public SearchClausePanel(
             final String id,
@@ -308,7 +313,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 sorted().collect(Collectors.toList());
 
                     case RELATIONSHIP:
-                        return RelationshipTypeRestClient.list().stream().
+                        return relationshipTypeRestClient.list().stream().
                                 map(RelationshipTypeTO::getKey).collect(Collectors.toList());
 
                     case CUSTOM:

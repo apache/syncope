@@ -31,11 +31,11 @@ public class SAML2IdPsRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -5084300184764037527L;
 
-    public static List<SAML2SP4UIIdPTO> list() {
+    public List<SAML2SP4UIIdPTO> list() {
         return getService(SAML2SP4UIIdPService.class).list();
     }
 
-    public static void importIdPs(final InputStream input) {
+    public void importIdPs(final InputStream input) {
         SAML2SP4UIIdPService service = getService(SAML2SP4UIIdPService.class);
         Client client = WebClient.client(service);
         client.type(MediaType.APPLICATION_XML);
@@ -45,15 +45,15 @@ public class SAML2IdPsRestClient extends BaseRestClient {
         SyncopeConsoleSession.get().resetClient(SAML2SP4UIIdPService.class);
     }
 
-    public static SAML2SP4UIIdPTO read(final String key) {
+    public SAML2SP4UIIdPTO read(final String key) {
         return getService(SAML2SP4UIIdPService.class).read(key);
     }
 
-    public static void update(final SAML2SP4UIIdPTO idp) {
+    public void update(final SAML2SP4UIIdPTO idp) {
         getService(SAML2SP4UIIdPService.class).update(idp);
     }
 
-    public static void delete(final String key) {
+    public void delete(final String key) {
         getService(SAML2SP4UIIdPService.class).delete(key);
     }
 }

@@ -35,8 +35,8 @@ public class BinaryCertPreviewer extends BinaryPreviewer {
 
     private static final long serialVersionUID = -5843835939538055110L;
 
-    public BinaryCertPreviewer(final String id, final String mimeType) {
-        super(id, mimeType);
+    public BinaryCertPreviewer(final String mimeType) {
+        super(mimeType);
     }
 
     @Override

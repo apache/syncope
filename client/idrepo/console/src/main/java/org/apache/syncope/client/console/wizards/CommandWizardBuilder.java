@@ -31,13 +31,20 @@ public class CommandWizardBuilder extends BaseAjaxWizardBuilder<CommandTO> {
 
     private static final long serialVersionUID = 5288806466136582164L;
 
-    public CommandWizardBuilder(final CommandTO defaultItem, final PageReference pageRef) {
+    protected final CommandRestClient commandRestClient;
+
+    public CommandWizardBuilder(
+            final CommandTO defaultItem,
+            final CommandRestClient commandRestClient,
+            final PageReference pageRef) {
+
         super(defaultItem, pageRef);
+        this.commandRestClient = commandRestClient;
     }
 
     @Override
     protected Serializable onApplyInternal(final CommandTO modelObject) {
-        return CommandRestClient.run(modelObject).getOutput();
+        return commandRestClient.run(modelObject).getOutput();
     }
 
     @Override

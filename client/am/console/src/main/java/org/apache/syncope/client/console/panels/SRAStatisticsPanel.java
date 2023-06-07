@@ -40,38 +40,46 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class SRAStatisticsPanel extends Panel {
 
     private static final long serialVersionUID = 23816535591360L;
 
-    private static final List<Buttons.Type> TYPES = List.of(
+    protected static final List<Buttons.Type> TYPES = List.of(
             Buttons.Type.Info, Buttons.Type.Success, Buttons.Type.Warning, Buttons.Type.Danger, Buttons.Type.Dark);
 
-    private final NumberWidget count;
+    @SpringBean
+    protected SRARouteRestClient sraRouteRestClient;
 
-    private final NumberWidget totalTime;
+    @SpringBean
+    protected SRAStatisticsRestClient sraStatisticsRestClient;
 
-    private final NumberWidget max;
+    protected final NumberWidget count;
 
-    private final List<Pair<String, String>> selected = new ArrayList<>();
+    protected final NumberWidget totalTime;
 
-    private final LoadableDetachableModel<Map<String, String>> routes =
-        new LoadableDetachableModel<>() {
+    protected final NumberWidget max;
 
-            @Override
-            protected Map<String, String> load() {
-                return SRARouteRestClient.list().stream().
+    protected final List<Pair<String, String>> selected = new ArrayList<>();
+
+    protected final LoadableDetachableModel<Map<String, String>> routes = new LoadableDetachableModel<>() {
+
+        private static final long serialVersionUID = 9089911876466472133L;
+
+        @Override
+        protected Map<String, String> load() {
+            return sraRouteRestClient.list().stream().
                     collect(Collectors.toMap(SRARouteTO::getKey, SRARouteTO::getName));
-            }
-        };
+        }
+    };
 
-    private int current;
+    protected int current;
 
     public SRAStatisticsPanel(final String id, final List<NetworkService> instances) {
         super(id);
 
-        SRAStatistics stats = SRAStatisticsRestClient.get(instances, selected);
+        SRAStatistics stats = sraStatisticsRestClient.get(instances, selected);
 
         count = new NumberWidget("count", "bg-green", stats.getMeasurement("COUNT").orElse(0F),
                 "count", "fas fa-pen-nib");
@@ -87,27 +95,33 @@ public class SRAStatisticsPanel extends Panel {
 
         ListView<SRAStatistics.Tag> availableTags = new ListView<>("availableTags", stats.getAvailableTags()) {
 
+            private static final long serialVersionUID = -9112553137618363167L;
+
             @Override
             protected void populateItem(final ListItem<SRAStatistics.Tag> tag) {
                 String btnCss = next().cssClassName();
                 tag.add(new Label("label", tag.getModelObject().getTag()));
                 tag.add(new ListView<>("tag", tag.getModelObject().getValues()) {
 
+                    private static final long serialVersionUID = -9112553137618363167L;
+
                     @Override
                     protected void populateItem(final ListItem<String> value) {
                         AjaxLink<String> valueLink = new AjaxLink<>("valueLink") {
 
+                            private static final long serialVersionUID = 6250423506463465679L;
+
                             @Override
                             public void onClick(final AjaxRequestTarget target) {
                                 Pair<String, String> selection =
-                                    Pair.of(tag.getModelObject().getTag(), value.getModelObject());
+                                        Pair.of(tag.getModelObject().getTag(), value.getModelObject());
                                 if (selected.contains(selection)) {
                                     selected.remove(selection);
                                 } else {
                                     selected.add(selection);
                                 }
 
-                                SRAStatistics refresh = SRAStatisticsRestClient.get(instances, selected);
+                                SRAStatistics refresh = sraStatisticsRestClient.get(instances, selected);
 
                                 count.refresh(refresh.getMeasurement("COUNT").orElse(0F));
                                 totalTime.refresh(refresh.getMeasurement("TOTAL_TIME").orElse(0F));
@@ -126,8 +140,8 @@ public class SRAStatisticsPanel extends Panel {
                         };
 
                         IModel<String> valueLabel = routes.getObject().containsKey(value.getModelObject())
-                            ? Model.of(routes.getObject().get(value.getModelObject()))
-                            : value.getModel();
+                                ? Model.of(routes.getObject().get(value.getModelObject()))
+                                : value.getModel();
                         valueLink.add(new Label("valueLabel", valueLabel));
                         value.add(valueLink);
                     }
@@ -137,7 +151,7 @@ public class SRAStatisticsPanel extends Panel {
         add(availableTags);
     }
 
-    private Buttons.Type next() {
+    protected Buttons.Type next() {
         if (current < TYPES.size()) {
             Buttons.Type type = TYPES.get(current);
             current++;

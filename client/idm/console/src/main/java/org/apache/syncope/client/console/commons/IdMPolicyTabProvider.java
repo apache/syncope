@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.syncope.client.console.policies.PropagationPolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.PullPolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.PushPolicyDirectoryPanel;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
@@ -32,6 +33,12 @@ import org.apache.wicket.model.ResourceModel;
 public class IdMPolicyTabProvider implements PolicyTabProvider {
 
     private static final long serialVersionUID = 2822554006571803418L;
+
+    protected final PolicyRestClient policyRestClient;
+
+    public IdMPolicyTabProvider(final PolicyRestClient policyRestClient) {
+        this.policyRestClient = policyRestClient;
+    }
 
     @Override
     public List<ITab> buildTabList(final PageReference pageRef) {
@@ -43,7 +50,7 @@ public class IdMPolicyTabProvider implements PolicyTabProvider {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new PropagationPolicyDirectoryPanel(panelId, pageRef);
+                return new PropagationPolicyDirectoryPanel(panelId, policyRestClient, pageRef);
             }
         });
 
@@ -53,7 +60,7 @@ public class IdMPolicyTabProvider implements PolicyTabProvider {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new PullPolicyDirectoryPanel(panelId, pageRef);
+                return new PullPolicyDirectoryPanel(panelId, policyRestClient, pageRef);
             }
         });
 
@@ -63,7 +70,7 @@ public class IdMPolicyTabProvider implements PolicyTabProvider {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new PushPolicyDirectoryPanel(panelId, pageRef);
+                return new PushPolicyDirectoryPanel(panelId, policyRestClient, pageRef);
             }
         });
 

@@ -60,14 +60,28 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 
-    /**
-     * Construct.
-     *
-     * @param roleTO role
-     * @param pageRef Caller page reference.
-     */
-    public RoleWizardBuilder(final RoleTO roleTO, final PageReference pageRef) {
+    protected final RoleRestClient roleRestClient;
+
+    protected final RealmRestClient realmRestClient;
+
+    protected final DynRealmRestClient dynRealmRestClient;
+
+    protected final ApplicationRestClient applicationRestClient;
+
+    public RoleWizardBuilder(
+            final RoleTO roleTO,
+            final RoleRestClient roleRestClient,
+            final RealmRestClient realmRestClient,
+            final DynRealmRestClient dynRealmRestClient,
+            final ApplicationRestClient applicationRestClient,
+            final PageReference pageRef) {
+
         super(new RoleWrapper(roleTO), pageRef);
+
+        this.roleRestClient = roleRestClient;
+        this.realmRestClient = realmRestClient;
+        this.dynRealmRestClient = dynRealmRestClient;
+        this.applicationRestClient = applicationRestClient;
     }
 
     /**
@@ -89,9 +103,9 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         modelObject.fillDynamicConditions();
         if (getOriginalItem() == null || getOriginalItem().getInnerObject() == null
                 || StringUtils.isBlank(getOriginalItem().getInnerObject().getKey())) {
-            RoleRestClient.create(modelObject.getInnerObject());
+            roleRestClient.create(modelObject.getInnerObject());
         } else {
-            RoleRestClient.update(modelObject.getInnerObject());
+            roleRestClient.update(modelObject.getInnerObject());
         }
         return null;
     }
@@ -136,7 +150,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         }
     }
 
-    protected static class Entitlements extends WizardStep {
+    protected class Entitlements extends WizardStep {
 
         private static final long serialVersionUID = 5514523040031722256L;
 
@@ -157,12 +171,12 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
                     modelObject.getEntitlements().clear();
                     modelObject.getEntitlements().addAll(object);
                 }
-            }, new ListModel<>(RoleRestClient.getAllAvailableEntitlements())).
+            }, new ListModel<>(roleRestClient.getAllAvailableEntitlements())).
                     hideLabel().setOutputMarkupId(true));
         }
     }
 
-    protected static class Realms extends WizardStep {
+    protected class Realms extends WizardStep {
 
         private static final long serialVersionUID = 5514523040031722257L;
 
@@ -170,7 +184,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         public Realms(final RoleTO modelObject) {
             setTitleModel(new ResourceModel("realms"));
 
-            boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
+            boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree(realmRestClient);
             AutoCompleteSettings settings = new AutoCompleteSettings();
             settings.setShowCompleteListOnFocusGain(fullRealmsTree);
             settings.setShowListOnEmptyInput(fullRealmsTree);
@@ -181,7 +195,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
 
                 @Override
                 protected Iterator<String> getChoices(final String input) {
-                    return RealmRestClient.search(fullRealmsTree
+                    return realmRestClient.search(fullRealmsTree
                             ? RealmsUtils.buildRootQuery()
                             : RealmsUtils.buildKeywordQuery(input)).getResult().stream().
                             map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
@@ -195,7 +209,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         }
     }
 
-    protected static class DynRealms extends WizardStep {
+    protected class DynRealms extends WizardStep {
 
         private static final long serialVersionUID = 6846234574424462255L;
 
@@ -203,13 +217,13 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
             setTitleModel(new ResourceModel("dynRealms"));
             add(new AjaxPalettePanel.Builder<>().build("dynRealms",
                     new PropertyModel<>(modelObject, "dynRealms"),
-                    new ListModel<>(DynRealmRestClient.list().stream().
+                    new ListModel<>(dynRealmRestClient.list().stream().
                             map(DynRealmTO::getKey).collect(Collectors.toList()))).
                     hideLabel().setOutputMarkupId(true));
         }
     }
 
-    protected static class Privileges extends WizardStep {
+    protected class Privileges extends WizardStep {
 
         private static final long serialVersionUID = 6896014330702958579L;
 
@@ -217,7 +231,7 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
             setTitleModel(new ResourceModel("privileges"));
             add(new AjaxPalettePanel.Builder<>().build("privileges",
                     new PropertyModel<>(modelObject, "privileges"),
-                    new ListModel<>(ApplicationRestClient.list().stream().
+                    new ListModel<>(applicationRestClient.list().stream().
                             flatMap(application -> application.getPrivileges().stream()).
                             map(PrivilegeTO::getKey).collect(Collectors.toList()))).
                     hideLabel().setOutputMarkupId(true));

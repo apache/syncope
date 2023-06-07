@@ -19,14 +19,15 @@
 package org.apache.syncope.client.enduser;
 
 import com.giffing.wicket.spring.boot.starter.web.config.WicketWebInitializerAutoConfig.WebSocketWicketWebInitializerAutoConfiguration;
+import java.util.List;
 import java.util.Map;
-import org.apache.syncope.client.enduser.actuate.SyncopeEnduserInfoContributor;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.ui.commons.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
+import org.apache.wicket.request.resource.IResource;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
@@ -63,9 +64,10 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
             final ResourceLoader resourceLoader,
             final EnduserProperties props,
             final ClassPathScanImplementationLookup lookup,
-            final ServiceOps serviceOps) {
+            final ServiceOps serviceOps,
+            final List<IResource> resources) {
 
-        return new SyncopeWebApplication(resourceLoader, props, lookup, serviceOps);
+        return new SyncopeWebApplication(resourceLoader, props, lookup, serviceOps, resources);
     }
 
     @ConditionalOnMissingBean
@@ -78,12 +80,6 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
                 props.getAnonymousUser(),
                 props.getAnonymousKey(),
                 props.isUseGZIPCompression());
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public SyncopeEnduserInfoContributor syncopeEnduserInfoContributor(final EnduserProperties enduserProperties) {
-        return new SyncopeEnduserInfoContributor(enduserProperties);
     }
 
     @Bean
