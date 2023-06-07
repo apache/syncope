@@ -41,22 +41,35 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class MergeLinkedAccountsSearchPanel extends WizardStep {
 
     private static final long serialVersionUID = 1221037007528732347L;
 
-    private final WebMarkupContainer ownerContainer;
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
-    private final UserSearchPanel userSearchPanel;
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
 
-    private final UserSelectionDirectoryPanel userDirectoryPanel;
+    @SpringBean
+    protected UserRestClient userRestClient;
 
-    private final Fragment userSearchFragment;
+    protected final WebMarkupContainer ownerContainer;
 
-    private final MergeLinkedAccountsWizardModel wizardModel;
+    protected final UserSearchPanel userSearchPanel;
 
-    public MergeLinkedAccountsSearchPanel(final MergeLinkedAccountsWizardModel model, final PageReference pageRef) {
+    protected final UserSelectionDirectoryPanel userDirectoryPanel;
+
+    protected final Fragment userSearchFragment;
+
+    protected final MergeLinkedAccountsWizardModel wizardModel;
+
+    public MergeLinkedAccountsSearchPanel(
+            final MergeLinkedAccountsWizardModel model,
+            final PageReference pageRef) {
+
         super();
         setOutputMarkupId(true);
 
@@ -73,9 +86,9 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
                 build("usersearch"));
         userSearchFragment.add(userSearchPanel);
 
-        AnyTypeTO anyTypeTO = AnyTypeRestClient.read(AnyTypeKind.USER.name());
+        AnyTypeTO anyTypeTO = anyTypeRestClient.read(AnyTypeKind.USER.name());
         userDirectoryPanel = UserSelectionDirectoryPanel.class.cast(new UserSelectionDirectoryPanel.Builder(
-                AnyTypeClassRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                anyTypeClassRestClient.list(anyTypeTO.getClasses()), userRestClient, anyTypeTO.getKey(), pageRef).
                 build("searchResult"));
 
         userSearchFragment.add(userDirectoryPanel);
@@ -95,7 +108,7 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
                     (AnySelectionDirectoryPanel.ItemSelection) event.getPayload();
 
             AnyTO sel = payload.getSelection();
-            wizardModel.setMergingUser(new UserRestClient().read(sel.getKey()));
+            wizardModel.setMergingUser(userRestClient.read(sel.getKey()));
 
             String tableId = ((Component) event.getSource()).
                     get("container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable").

@@ -25,11 +25,11 @@ public class SCIMConfRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -8572714521320571470L;
 
-    public static SCIMConf get() {
+    public SCIMConf get() {
         return getService(SCIMConfService.class).get();
     }
 
-    public static void set(final SCIMConf conf) {
+    public void set(final SCIMConf conf) {
         getService(SCIMConfService.class).set(conf);
     }
 }

@@ -28,26 +28,30 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class WAConfigModalPanel extends AbstractModalPanel<Attr> {
 
     private static final long serialVersionUID = 1690738212977L;
 
-    private static ConfParam toConfParam(final Attr attr) {
+    protected static ConfParam toConfParam(final Attr attr) {
         ConfParam param = new ConfParam();
         param.setSchema(attr.getSchema());
         param.getValues().addAll(attr.getValues());
         return param;
     }
 
-    private static Attr toAttr(final ConfParam confParam) {
+    protected static Attr toAttr(final ConfParam confParam) {
         Attr attr = new Attr.Builder(confParam.getSchema()).build();
         attr.getValues().addAll(
                 confParam.getValues().stream().map(Serializable::toString).collect(Collectors.toList()));
         return attr;
     }
 
-    private final ParametersWizardPanel.ParametersForm form;
+    @SpringBean
+    protected WAConfigRestClient waConfigRestClient;
+
+    protected final ParametersWizardPanel.ParametersForm form;
 
     public WAConfigModalPanel(
             final BaseModal<Attr> modal,
@@ -78,7 +82,7 @@ public class WAConfigModalPanel extends AbstractModalPanel<Attr> {
             protected Serializable onApplyInternal(final ParametersWizardPanel.ParametersForm modelObject) {
                 modelObject.getParam().setMultivalue(modelObject.getSchema().isMultivalue());
                 try {
-                    WAConfigRestClient.set(toAttr(modelObject.getParam()));
+                    waConfigRestClient.set(toAttr(modelObject.getParam()));
                 } catch (Exception e) {
                     LOG.error("While setting {}", modelObject.getParam(), e);
                     throw e;

@@ -33,12 +33,18 @@ abstract class AbstractBpmnProcessResource extends AbstractResource {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractBpmnProcessResource.class);
 
+    protected final BpmnProcessRestClient bpmnProcessRestClient;
+
+    protected AbstractBpmnProcessResource(final BpmnProcessRestClient bpmnProcessRestClient) {
+        this.bpmnProcessRestClient = bpmnProcessRestClient;
+    }
+
     protected BpmnProcess getBpmnProcess(final Attributes attributes) {
         StringValue modelId = attributes.getRequest().getQueryParameters().getParameterValue(Constants.MODEL_ID_PARAM);
 
         BpmnProcess bpmnProcess = modelId == null || modelId.isNull()
                 ? null
-                : BpmnProcessRestClient.getDefinitions().stream().
+                : bpmnProcessRestClient.getDefinitions().stream().
                         filter(object -> modelId.toString().equals(object.getModelId())).findAny().orElse(null);
         if (bpmnProcess == null) {
             throw new NotFoundException("BPMN process with modelId " + modelId);

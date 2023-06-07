@@ -59,39 +59,47 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
 
     private static final long serialVersionUID = -3310772400714122768L;
 
-    private final OIDCProvidersDirectoryPanel directoryPanel;
+    protected final OIDCProvidersDirectoryPanel directoryPanel;
 
-    private final IModel<List<String>> opActions = new LoadableDetachableModel<>() {
+    protected final ImplementationRestClient implementationRestClient;
+
+    protected final OIDCProviderRestClient oidcProviderRestClient;
+
+    protected final IModel<List<String>> opActions = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
-            return ImplementationRestClient.list(OIDCClientImplementationType.OP_ACTIONS).stream().
-                map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+            return implementationRestClient.list(OIDCClientImplementationType.OP_ACTIONS).stream().
+                    map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
     public OIDCProviderWizardBuilder(
             final OIDCProvidersDirectoryPanel directoryPanel,
             final OIDCC4UIProviderTO defaultItem,
+            final ImplementationRestClient implementationRestClient,
+            final OIDCProviderRestClient oidcProviderRestClient,
             final PageReference pageRef) {
 
         super(defaultItem, pageRef);
         this.directoryPanel = directoryPanel;
+        this.implementationRestClient = implementationRestClient;
+        this.oidcProviderRestClient = oidcProviderRestClient;
     }
 
     @Override
     protected Serializable onApplyInternal(final OIDCC4UIProviderTO modelObject) {
         if (modelObject.getKey() == null) {
             if (modelObject.getHasDiscovery()) {
-                OIDCProviderRestClient.createFromDiscovery(modelObject);
+                oidcProviderRestClient.createFromDiscovery(modelObject);
             } else {
-                OIDCProviderRestClient.create(modelObject);
+                oidcProviderRestClient.create(modelObject);
             }
 
         } else {
-            OIDCProviderRestClient.update(modelObject);
+            oidcProviderRestClient.update(modelObject);
         }
         return modelObject;
     }

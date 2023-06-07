@@ -39,6 +39,7 @@ import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,16 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
 
     private static final long serialVersionUID = 6645135178773151224L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobActionPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(JobActionPanel.class);
+
+    @SpringBean
+    protected NotificationRestClient notificationRestClient;
+
+    @SpringBean
+    protected ReportRestClient reportRestClient;
+
+    @SpringBean
+    protected TaskRestClient taskRestClient;
 
     public JobActionPanel(
             final String id,
@@ -74,15 +84,15 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
                     try {
                         switch (jobTO.getType()) {
                             case NOTIFICATION:
-                                NotificationRestClient.actionJob(JobAction.STOP);
+                                notificationRestClient.actionJob(JobAction.STOP);
                                 break;
 
                             case REPORT:
-                                ReportRestClient.actionJob(jobTO.getRefKey(), JobAction.STOP);
+                                reportRestClient.actionJob(jobTO.getRefKey(), JobAction.STOP);
                                 break;
 
                             case TASK:
-                                TaskRestClient.actionJob(jobTO.getRefKey(), JobAction.STOP);
+                                taskRestClient.actionJob(jobTO.getRefKey(), JobAction.STOP);
                                 break;
 
                             default:
@@ -107,15 +117,15 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
                     try {
                         switch (jobTO.getType()) {
                             case NOTIFICATION:
-                                NotificationRestClient.actionJob(JobAction.START);
+                                notificationRestClient.actionJob(JobAction.START);
                                 break;
 
                             case REPORT:
-                                ReportRestClient.actionJob(jobTO.getRefKey(), JobAction.START);
+                                reportRestClient.actionJob(jobTO.getRefKey(), JobAction.START);
                                 break;
 
                             case TASK:
-                                TaskRestClient.actionJob(jobTO.getRefKey(), JobAction.START);
+                                taskRestClient.actionJob(jobTO.getRefKey(), JobAction.START);
                                 break;
 
                             default:

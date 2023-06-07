@@ -35,13 +35,13 @@ public class AuthPolicyDirectoryPanel extends PolicyDirectoryPanel<AuthPolicyTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    public AuthPolicyDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, PolicyType.AUTH, pageRef);
+    public AuthPolicyDirectoryPanel(final String id, final PolicyRestClient restClient, final PageReference pageRef) {
+        super(id, restClient, PolicyType.AUTH, pageRef);
 
         AuthPolicyTO defaultItem = new AuthPolicyTO();
 
         this.addNewItemPanelBuilder(
-                new PolicyModalPanelBuilder<>(PolicyType.AUTH, defaultItem, modal, pageRef), true);
+                new PolicyModalPanelBuilder<>(PolicyType.AUTH, defaultItem, modal, restClient, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.POLICY_CREATE);
 
         initResultTable();
@@ -56,7 +56,7 @@ public class AuthPolicyDirectoryPanel extends PolicyDirectoryPanel<AuthPolicyTO>
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AuthPolicyTO ignore) {
-                model.setObject(PolicyRestClient.read(type, model.getObject().getKey()));
+                model.setObject(restClient.read(type, model.getObject().getKey()));
                 if (model.getObject().getConf() == null) {
                     model.getObject().setConf(new DefaultAuthPolicyConf());
                 }

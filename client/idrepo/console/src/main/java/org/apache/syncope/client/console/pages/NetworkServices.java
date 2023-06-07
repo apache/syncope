@@ -47,7 +47,7 @@ public class NetworkServices extends BasePage {
         body.add(content);
     }
 
-    private List<ITab> buildTabList() {
+    protected List<ITab> buildTabList() {
         return Stream.of(NetworkService.Type.values()).
                 sorted().
                 map(type -> new AbstractTab(Model.of(type.name())) {
@@ -56,7 +56,7 @@ public class NetworkServices extends BasePage {
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new NetworkServiceDirectoryPanel(panelId, type, getPageReference());
+                return new NetworkServiceDirectoryPanel(panelId, type, syncopeRestClient, getPageReference());
             }
         }).collect(Collectors.toList());
     }

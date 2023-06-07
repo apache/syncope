@@ -32,16 +32,19 @@ import java.util.Properties;
 import java.util.Set;
 import org.apache.syncope.client.console.AMConsoleContext;
 import org.apache.syncope.client.console.ConsoleProperties;
+import org.apache.syncope.client.console.FlowableConsoleContext;
 import org.apache.syncope.client.console.IdMConsoleContext;
+import org.apache.syncope.client.console.IdRepoConsoleContext;
+import org.apache.syncope.client.console.OIDCC4UIConsoleContext;
+import org.apache.syncope.client.console.SAML2SP4UIConsoleContext;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.IdRepoPolicyTabProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
-import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.pages.Login;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -58,7 +61,13 @@ import org.springframework.test.context.support.TestPropertySourceUtils;
 
 public abstract class AbstractConsoleITCase extends AbstractUIITCase {
 
-    @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
+    @ImportAutoConfiguration(classes = {
+        SelfKeymasterClientContext.class,
+        ZookeeperKeymasterClientContext.class,
+        IdRepoConsoleContext.class,
+        FlowableConsoleContext.class,
+        SAML2SP4UIConsoleContext.class,
+        OIDCC4UIConsoleContext.class })
     @Configuration(proxyBeanMethods = false)
     public static class SyncopeConsoleWebApplicationTestConfig {
 
@@ -104,20 +113,8 @@ public abstract class AbstractConsoleITCase extends AbstractUIITCase {
         }
 
         @Bean
-        public MIMETypesLoader mimeTypesLoader() {
-            MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
-            mimeTypesLoader.load();
-            return mimeTypesLoader;
-        }
-
-        @Bean
-        public PreviewUtils previewUtils() {
-            return new PreviewUtils();
-        }
-
-        @Bean
-        public PolicyTabProvider idRepoPolicyTabProvider() {
-            return new IdRepoPolicyTabProvider();
+        public PolicyTabProvider idRepoPolicyTabProvider(final PolicyRestClient policyRestClient) {
+            return new IdRepoPolicyTabProvider(policyRestClient);
         }
 
         @Bean

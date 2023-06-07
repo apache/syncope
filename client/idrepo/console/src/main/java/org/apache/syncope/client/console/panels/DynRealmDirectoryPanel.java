@@ -133,7 +133,8 @@ public class DynRealmDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final DynRealmTO ignore) {
                 try {
-                    DynRealmRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -152,22 +153,7 @@ public class DynRealmDirectoryPanel extends
         return List.of();
     }
 
-    public abstract static class Builder
-            extends DirectoryPanel.Builder<DynRealmTO, DynRealmWrapper, DynRealmRestClient> {
-
-        private static final long serialVersionUID = 5530948153889495221L;
-
-        public Builder(final PageReference pageRef) {
-            super(new DynRealmRestClient(), pageRef);
-        }
-
-        @Override
-        protected WizardMgtPanel<DynRealmWrapper> newInstance(final String id, final boolean wizardInModal) {
-            return new DynRealmDirectoryPanel(id, this);
-        }
-    }
-
-    protected static class DynRealmDataProvider extends DirectoryDataProvider<DynRealmTO> {
+    protected class DynRealmDataProvider extends DirectoryDataProvider<DynRealmTO> {
 
         private static final long serialVersionUID = 3124431855954382273L;
 
@@ -180,19 +166,34 @@ public class DynRealmDirectoryPanel extends
 
         @Override
         public Iterator<DynRealmTO> iterator(final long first, final long count) {
-            List<DynRealmTO> result = DynRealmRestClient.list();
+            List<DynRealmTO> result = restClient.list();
             result.sort(comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return DynRealmRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override
         public IModel<DynRealmTO> model(final DynRealmTO object) {
             return new CompoundPropertyModel<>(object);
+        }
+    }
+
+    public abstract static class Builder
+            extends DirectoryPanel.Builder<DynRealmTO, DynRealmWrapper, DynRealmRestClient> {
+
+        private static final long serialVersionUID = 5530948153889495221L;
+
+        public Builder(final DynRealmRestClient restClient, final PageReference pageRef) {
+            super(restClient, pageRef);
+        }
+
+        @Override
+        protected WizardMgtPanel<DynRealmWrapper> newInstance(final String id, final boolean wizardInModal) {
+            return new DynRealmDirectoryPanel(id, this);
         }
     }
 }

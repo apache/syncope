@@ -28,23 +28,23 @@ public class CommandRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3582864276979370967L;
 
-    public static int count(final String keyword) {
+    public int count(final String keyword) {
         return getService(CommandService.class).
                 search(new CommandQuery.Builder().page(1).size(0).keyword(keyword).build()).
                 getTotalCount();
     }
 
-    public static List<CommandTO> search(final int page, final int size, final String keyword) {
+    public List<CommandTO> search(final int page, final int size, final String keyword) {
         return getService(CommandService.class).
                 search(new CommandQuery.Builder().page(page).size(size).keyword(keyword).build()).
                 getResult();
     }
 
-    public static CommandTO read(final String key) {
+    public CommandTO read(final String key) {
         return getService(CommandService.class).read(key);
     }
 
-    public static CommandOutput run(final CommandTO command) {
+    public CommandOutput run(final CommandTO command) {
         return getService(CommandService.class).run(command);
     }
 }

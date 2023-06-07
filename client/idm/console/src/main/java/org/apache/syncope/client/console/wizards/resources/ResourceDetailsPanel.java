@@ -45,31 +45,38 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ResourceDetailsPanel extends WizardStep {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private AjaxDropDownChoicePanel<String> connector;
+    @SpringBean
+    protected ImplementationRestClient implementationRestClient;
 
-    private final IModel<List<String>> propagationActions = new LoadableDetachableModel<>() {
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
+
+    protected AjaxDropDownChoicePanel<String> connector;
+
+    protected final IModel<List<String>> propagationActions = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
-            return ImplementationRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
+            return implementationRestClient.list(IdMImplementationType.PROPAGATION_ACTIONS).stream().
                     map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
-    private final IModel<List<String>> provisionSorters = new LoadableDetachableModel<>() {
+    protected final IModel<List<String>> provisionSorters = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 4659376149825914247L;
 
         @Override
         protected List<String> load() {
-            return ImplementationRestClient.list(IdMImplementationType.PROVISION_SORTER).stream().
+            return implementationRestClient.list(IdMImplementationType.PROVISION_SORTER).stream().
                     map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
@@ -152,7 +159,7 @@ public class ResourceDetailsPanel extends WizardStep {
                     "connector",
                     new ResourceModel("connector", "connector").getObject(),
                     new PropertyModel<>(resourceTO, "connector"), false);
-            Map<String, String> connectorsMap = ConnectorRestClient.getAllConnectors().stream().
+            Map<String, String> connectorsMap = connectorRestClient.getAllConnectors().stream().
                     collect(Collectors.toMap(ConnInstanceTO::getKey, ConnInstanceTO::getDisplayName));
             connector.setChoices(connectorsMap.keySet().stream().sorted().collect(Collectors.toList()));
             connector.setChoiceRenderer(new IChoiceRenderer<>() {

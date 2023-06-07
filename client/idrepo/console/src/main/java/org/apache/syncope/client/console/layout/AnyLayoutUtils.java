@@ -27,17 +27,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.panels.AnyPanel;
+import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
-import org.springframework.util.ClassUtils;
 
 public final class AnyLayoutUtils {
 
@@ -71,7 +72,7 @@ public final class AnyLayoutUtils {
         return anyLayout;
     }
 
-    public static AnyLayout fetch(final List<String> anyTypes) {
+    public static AnyLayout fetch(final RoleRestClient roleRestClient, final List<String> anyTypes) {
         List<String> ownedRoles = Stream.concat(
                 SyncopeConsoleSession.get().getSelfTO().getRoles().stream(),
                 SyncopeConsoleSession.get().getSelfTO().getDynRoles().stream()).
@@ -79,7 +80,7 @@ public final class AnyLayoutUtils {
         try {
             AnyLayout anyLayout = null;
             for (int i = 0; i < ownedRoles.size() && anyLayout == null; i++) {
-                String anyLayoutJSON = RoleRestClient.readAnyLayout(ownedRoles.get(i));
+                String anyLayoutJSON = roleRestClient.readAnyLayout(ownedRoles.get(i));
                 if (StringUtils.isNotBlank(anyLayoutJSON)) {
                     anyLayout = MAPPER.readValue(anyLayoutJSON, AnyLayout.class);
                 }
@@ -126,80 +127,41 @@ public final class AnyLayoutUtils {
             final A anyTO,
             final List<String> anyTypeClasses,
             final FL anyFormLayout,
+            final AbstractAnyRestClient<?> anyRestClient,
             final PageReference pageRef) {
 
         try {
             if (anyTO instanceof UserTO) {
                 return anyFormLayout.getFormClass().getConstructor(
                         anyTO.getClass(), // previous
-                        anyTO.getClass(), // actual
+                        anyTO.getClass(), // current
                         List.class,
                         anyFormLayout.getClass(),
+                        UserRestClient.class,
                         pageRef.getClass()).
-                        newInstance(null, anyTO, anyTypeClasses, anyFormLayout, pageRef);
-            } else {
-                return anyFormLayout.getFormClass().getConstructor(
-                        anyTO.getClass(), // actual
-                        List.class,
-                        anyFormLayout.getClass(),
-                        pageRef.getClass()).
-                        newInstance(anyTO, anyTypeClasses, anyFormLayout, pageRef);
+                        newInstance(null, anyTO, anyTypeClasses, anyFormLayout, anyRestClient, pageRef);
             }
+
+            if (anyTO instanceof GroupTO) {
+                return anyFormLayout.getFormClass().getConstructor(
+                        anyTO.getClass(), // current
+                        List.class,
+                        anyFormLayout.getClass(),
+                        GroupRestClient.class,
+                        pageRef.getClass()).
+                        newInstance(anyTO, anyTypeClasses, anyFormLayout, anyRestClient, pageRef);
+            }
+
+            return anyFormLayout.getFormClass().getConstructor(
+                    anyTO.getClass(), // current
+                    List.class,
+                    anyFormLayout.getClass(),
+                    AnyObjectRestClient.class,
+                    pageRef.getClass()).
+                    newInstance(anyTO, anyTypeClasses, anyFormLayout, anyRestClient, pageRef);
         } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
                 | IllegalArgumentException | InvocationTargetException e) {
             throw new IllegalArgumentException("Could not instantiate " + anyFormLayout.getFormClass().getName(), e);
-        }
-    }
-
-    public static <AP extends AnyPanel> AP newAnyPanel(
-            final String panelClass,
-            final String id,
-            final AnyTypeTO anyTypeTO,
-            final RealmTO realmTO,
-            final AnyLayout anyLayout,
-            final boolean enableSearch,
-            final PageReference pageRef) {
-
-        try {
-            @SuppressWarnings("unchecked")
-            Class<AP> clazz = (Class<AP>) ClassUtils.forName(panelClass, ClassUtils.getDefaultClassLoader());
-            return clazz.getConstructor(
-                    String.class,
-                    AnyTypeTO.class,
-                    RealmTO.class,
-                    AnyLayout.class,
-                    boolean.class,
-                    PageReference.class).
-                    newInstance(id, anyTypeTO, realmTO, anyLayout, enableSearch, pageRef);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Could not instantiate " + panelClass, e);
-        }
-    }
-
-    public static <AP extends AnyPanel> AP newAnyPanel(
-            final String panelClass,
-            final String id,
-            final AnyTypeTO anyTypeTO,
-            final RealmTO realmTO,
-            final AnyLayout anyLayout,
-            final boolean enableSearch,
-            final AnyPanel.DirectoryPanelSupplier directoryPanelSupplier,
-            final PageReference pageRef) {
-
-        try {
-            @SuppressWarnings("unchecked")
-            Class<AP> clazz = (Class<AP>) ClassUtils.forName(panelClass, ClassUtils.getDefaultClassLoader());
-            return clazz.getConstructor(
-                    String.class,
-                    AnyTypeTO.class,
-                    RealmTO.class,
-                    AnyLayout.class,
-                    boolean.class,
-                    AnyPanel.DirectoryPanelSupplier.class,
-                    PageReference.class).
-                    newInstance(id, anyTypeTO, realmTO, anyLayout, enableSearch, directoryPanelSupplier, pageRef);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Could not instantiate " + panelClass, e);
         }
     }
 

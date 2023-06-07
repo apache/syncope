@@ -41,13 +41,17 @@ import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 @ExtWidget(priority = 0)
 public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
 
     private static final long serialVersionUID = 1817429725840355068L;
 
-    private final List<RemediationTO> lastRemediations = new ArrayList<>();
+    @SpringBean
+    protected RemediationRestClient remediationRestClient;
+
+    protected final List<RemediationTO> lastRemediations = new ArrayList<>();
 
     public RemediationsWidget(final String id, final PageReference pageRef) {
         super(id, pageRef);
@@ -87,7 +91,7 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
     protected int getLatestAlertsSize() {
         return SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_LIST)
                 && SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_READ)
-                ? RemediationRestClient.countRemediations()
+                ? remediationRestClient.countRemediations()
                 : 0;
     }
 
@@ -101,10 +105,10 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
             public List<RemediationTO> getObject() {
                 List<RemediationTO> updatedRemediations;
                 if (SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_LIST)
-                    && SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_READ)) {
+                        && SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_READ)) {
 
-                    updatedRemediations = RemediationRestClient.getRemediations(1,
-                        MAX_SIZE, new SortParam<>("instant", true));
+                    updatedRemediations = remediationRestClient.getRemediations(
+                            1, MAX_SIZE, new SortParam<>("instant", true));
                 } else {
                     updatedRemediations = List.of();
                 }

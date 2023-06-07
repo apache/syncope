@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.AnyDataProvider;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
@@ -64,12 +65,19 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.util.ReflectionUtils;
 
 public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRestClient<A>>
         extends DirectoryPanel<A, AnyWrapper<A>, AnyDataProvider<A>, E> {
 
     private static final long serialVersionUID = -1100228004207271270L;
+
+    @SpringBean
+    protected SchemaRestClient schemaRestClient;
+
+    @SpringBean
+    protected AuditRestClient auditRestClient;
 
     protected final List<PlainSchemaTO> plainSchemas;
 
@@ -126,7 +134,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 flatMap(anyTypeClassTO -> anyTypeClassTO.getPlainSchemas().stream()).
                 map(schema -> {
                     try {
-                        return SchemaRestClient.<PlainSchemaTO>read(SchemaType.PLAIN, schema);
+                        return schemaRestClient.<PlainSchemaTO>read(SchemaType.PLAIN, schema);
                     } catch (SyncopeClientException e) {
                         LOG.warn("Could not read plain schema {}, ignoring", e);
                         return null;
@@ -139,7 +147,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                 flatMap(anyTypeClassTO -> anyTypeClassTO.getDerSchemas().stream()).
                 map(schema -> {
                     try {
-                        return SchemaRestClient.<DerSchemaTO>read(SchemaType.DERIVED, schema);
+                        return schemaRestClient.<DerSchemaTO>read(SchemaType.DERIVED, schema);
                     } catch (SyncopeClientException e) {
                         LOG.warn("Could not read derived schema {}, ignoring", e);
                         return null;

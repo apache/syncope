@@ -27,8 +27,6 @@ public class Parameters extends BasePage {
 
     private static final long serialVersionUID = 4116733316105009166L;
 
-    private final ParametersDirectoryPanel parametersPanel;
-
     public Parameters(final PageParameters parameters) {
         super(parameters);
 
@@ -38,9 +36,9 @@ public class Parameters extends BasePage {
         content.setOutputMarkupId(true);
         body.add(content);
 
-        parametersPanel = new ParametersDirectoryPanel("parametersPanel", getPageReference());
+        ParametersDirectoryPanel parametersPanel =
+                new ParametersDirectoryPanel("parametersPanel", syncopeRestClient, getPageReference());
         parametersPanel.setOutputMarkupId(true);
-
-        content.add(parametersPanel);
+        content.add(parametersPanel.setOutputMarkupId(true));
     }
 }

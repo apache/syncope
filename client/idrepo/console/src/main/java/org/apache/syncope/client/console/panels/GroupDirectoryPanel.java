@@ -32,9 +32,12 @@ import org.apache.syncope.client.console.layout.AnyLayout;
 import org.apache.syncope.client.console.layout.AnyLayoutUtils;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -53,6 +56,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -73,12 +77,31 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestClient> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    private final BaseModal<Serializable> typeExtensionsModal = new BaseModal<>(Constants.OUTER);
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
+
+    @SpringBean
+    protected RoleRestClient roleRestClient;
+
+    @SpringBean
+    protected UserRestClient userRestClient;
+
+    @SpringBean
+    protected GroupRestClient groupRestClient;
+
+    @SpringBean
+    protected AnyObjectRestClient anyObjectRestClient;
+
+    protected final BaseModal<Serializable> typeExtensionsModal = new BaseModal<>(Constants.OUTER);
 
     protected final BaseModal<Serializable> membersModal = new BaseModal<>(Constants.OUTER);
 
@@ -103,11 +126,14 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             protected Serializable onApplyInternal(
                     final GroupTO groupTO, final String type, final AjaxRequestTarget target) {
 
-                AnyLayout layout = AnyLayoutUtils.fetch(AnyTypeRestClient.list());
-                ModalPanel anyPanel = AnyLayoutUtils.newAnyPanel(
-                        layout.getAnyPanelClass(),
-                        BaseModal.CONTENT_ID, AnyTypeRestClient.read(type), null, layout, false,
-                        (id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
+                AnyTypeTO anyType = anyTypeRestClient.read(type);
+
+                AnyLayout layout = AnyLayoutUtils.fetch(roleRestClient, anyTypeRestClient.list());
+
+                ModalPanel anyPanel = new AnyPanel.Builder<>(
+                        layout.getAnyPanelClass(), BaseModal.CONTENT_ID, anyType, null, layout, false, pageRef).
+                        build((id, anyTypeTO, realmTO, anyLayout, pr) -> {
+
                             final Panel panel;
                             if (AnyTypeKind.USER.name().equals(type)) {
                                 String query = SyncopeClient.getUserSearchConditionBuilder().and(
@@ -116,8 +142,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                                 is(Constants.KEY_FIELD_NAME).notNullValue()).query();
 
                                 panel = new UserDirectoryPanel.Builder(
-                                        AnyTypeClassRestClient.list(
-                                                anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                                        anyTypeClassRestClient.list(
+                                                anyTypeTO.getClasses()), userRestClient, anyTypeTO.getKey(), pr).
                                         setRealm(realm).
                                         setFiltered(true).
                                         setFiql(query).
@@ -127,7 +153,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                                         new UserTO(),
                                                         anyTypeTO.getClasses(),
                                                         anyLayout.getUser(),
-                                                        pageRef), false).
+                                                        userRestClient,
+                                                        pr), false).
                                         setWizardInModal(false).build(id);
 
                                 MetaDataRoleAuthorizationStrategy.authorize(
@@ -139,8 +166,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                                 is(Constants.KEY_FIELD_NAME).notNullValue()).query();
 
                                 panel = new AnyObjectDirectoryPanel.Builder(
-                                        AnyTypeClassRestClient.list(
-                                                anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                                        anyTypeClassRestClient.list(
+                                                anyTypeTO.getClasses()), anyObjectRestClient, anyTypeTO.getKey(), pr).
                                         setRealm(realm).
                                         setFiltered(true).
                                         setFiql(query).
@@ -149,7 +176,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                                 new AnyObjectTO(),
                                                 anyTypeTO.getClasses(),
                                                 layout.getAnyObjects().get(type),
-                                                pageRef), false).
+                                                anyObjectRestClient,
+                                                pr), false).
                                         setWizardInModal(false).build(id);
 
                                 MetaDataRoleAuthorizationStrategy.authorize(
@@ -157,8 +185,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                             }
 
                             return panel;
-                        },
-                        pageRef);
+                        });
 
                 membersModal.header(new StringResourceModel(
                         "group.members",
@@ -265,7 +292,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 try {
-                    GroupRestClient.provisionMembers(model.getObject().getKey(), ProvisionAction.PROVISION);
+                    groupRestClient.provisionMembers(model.getObject().getKey(), ProvisionAction.PROVISION);
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -288,7 +315,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 try {
-                    GroupRestClient.provisionMembers(model.getObject().getKey(), ProvisionAction.DEPROVISION);
+                    groupRestClient.provisionMembers(model.getObject().getKey(), ProvisionAction.DEPROVISION);
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -349,7 +376,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                         AuditElements.EventCategoryType.LOGIC,
                         "GroupLogic",
                         model.getObject(),
-                        IdRepoEntitlement.GROUP_UPDATE) {
+                        IdRepoEntitlement.GROUP_UPDATE,
+                        auditRestClient) {
 
                     private static final long serialVersionUID = -5819724478921691835L;
 
@@ -430,8 +458,13 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
         private static final long serialVersionUID = 3844281520756293159L;
 
-        public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
-            super(anyTypeClassTOs, new GroupRestClient(), type, pageRef);
+        public Builder(
+                final List<AnyTypeClassTO> anyTypeClassTOs,
+                final GroupRestClient groupRestClient,
+                final String type,
+                final PageReference pageRef) {
+
+            super(anyTypeClassTOs, groupRestClient, type, pageRef);
             setShowResultPage(true);
         }
 

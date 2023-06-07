@@ -45,13 +45,16 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ResourceDataProvider.class);
 
-    private final PageReference pageRef;
+    protected final ResourceRestClient resourceRestClient;
+
+    protected final PageReference pageRef;
 
     protected int currentPage;
 
-    private final String keyword;
+    protected final String keyword;
 
     public ResourceDataProvider(
+            final ResourceRestClient resourceRestClient,
             final int paginatorRows,
             final PageReference pageRef,
             final String keyword) {
@@ -59,6 +62,7 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
         super(paginatorRows);
 
         setSort("keySortParam", SortOrder.ASCENDING);
+        this.resourceRestClient = resourceRestClient;
         this.pageRef = pageRef;
         this.keyword = keyword;
     }
@@ -73,9 +77,9 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
                 currentPage = 0;
             }
             if (StringUtils.isBlank(keyword)) {
-                result = ResourceRestClient.list();
+                result = resourceRestClient.list();
             } else {
-                result = ResourceRestClient.list().stream().
+                result = resourceRestClient.list().stream().
                         filter(resource -> resource.getKey().toLowerCase().contains(keyword)).
                         collect(Collectors.toList());
             }
@@ -124,9 +128,9 @@ public class ResourceDataProvider extends DirectoryDataProvider<Serializable> {
 
         try {
             if (StringUtils.isBlank(keyword)) {
-                result = ResourceRestClient.list().size();
+                result = resourceRestClient.list().size();
             } else {
-                result = ResourceRestClient.list().stream().filter(resource
+                result = resourceRestClient.list().stream().filter(resource
                         -> resource.getKey().toLowerCase().contains(keyword)).count();
             }
         } catch (Exception e) {

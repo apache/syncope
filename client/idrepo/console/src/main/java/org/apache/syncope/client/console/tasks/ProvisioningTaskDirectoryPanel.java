@@ -51,6 +51,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
     private final String resource;
 
     protected ProvisioningTaskDirectoryPanel(
+            final TaskRestClient restClient,
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final TaskType taskType,
@@ -58,7 +59,15 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
             final String resource,
             final PageReference pageRef) {
 
-        super(MultilevelPanel.FIRST_LEVEL_ID, baseModal, multiLevelPanelRef, taskType, newTaskTO, pageRef, false);
+        super(
+                MultilevelPanel.FIRST_LEVEL_ID,
+                restClient,
+                baseModal,
+                multiLevelPanelRef,
+                taskType,
+                newTaskTO,
+                pageRef,
+                false);
         this.resource = resource;
 
         this.schedTaskTO.setResource(resource);
@@ -123,13 +132,13 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
 
         @Override
         public long size() {
-            return TaskRestClient.count(resource, taskType);
+            return restClient.count(resource, taskType);
         }
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return TaskRestClient.<T>list(
+            return restClient.<T>list(
                     resource, taskType, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }

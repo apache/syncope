@@ -33,16 +33,15 @@ import org.apache.syncope.client.enduser.rest.SyncopeRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.wicket.WicketRuntimeException;
-import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
@@ -50,11 +49,17 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
     protected static final String FORM_SUFFIX = "form_";
 
+    @SpringBean
+    protected SchemaRestClient schemaRestClient;
+
+    @SpringBean
+    protected SyncopeRestClient syncopeRestClient;
+
     protected final Comparator<Attr> attrComparator = new AttrComparator();
 
-    protected final AnyTO anyTO;
+    protected final UserTO userTO;
 
-    private final Map<String, CustomizationOption> whichAttrs;
+    protected final Map<String, CustomizationOption> whichAttrs;
 
     protected final Map<String, S> schemas = new LinkedHashMap<>();
 
@@ -68,9 +73,10 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
     public AbstractAttrs(
             final String id,
-            final AnyWrapper<?> modelObject,
+            final AnyWrapper<UserTO> modelObject,
             final List<String> anyTypeClasses,
             final Map<String, CustomizationOption> whichAttrs) {
+
         super(id);
         this.anyTypeClasses = anyTypeClasses;
         this.attrs = new ListModel<>(List.of());
@@ -78,44 +84,40 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
         this.setOutputMarkupId(true);
 
-        this.anyTO = modelObject.getInnerObject();
+        this.userTO = modelObject.getInnerObject();
         this.whichAttrs = whichAttrs;
 
         evaluate();
     }
 
-    private List<Attr> loadAttrs() {
+    protected List<Attr> loadAttrs() {
         List<String> classes = new ArrayList<>(anyTypeClasses);
         // just add keys
-        classes.addAll(anyTO.getAuxClasses());
+        classes.addAll(userTO.getAuxClasses());
         setSchemas(classes);
         setAttrs();
         return AbstractAttrs.this.getAttrsFromTO();
     }
 
     @SuppressWarnings({ "unchecked" })
-    private List<MembershipTO> loadMembershipAttrs() {
+    protected List<MembershipTO> loadMembershipAttrs() {
         List<MembershipTO> memberships = new ArrayList<>();
-        try {
-            membershipSchemas.clear();
 
-            for (MembershipTO membership : (List<MembershipTO>) PropertyResolver.getPropertyField(
-                    "memberships", anyTO).get(anyTO)) {
-                setSchemas(Pair.of(
-                        membership.getGroupKey(), membership.getGroupName()),
-                        getMembershipAuxClasses(membership));
-                setAttrs(membership);
+        membershipSchemas.clear();
 
-                if (AbstractAttrs.this instanceof PlainAttrs && !membership.getPlainAttrs().isEmpty()) {
-                    memberships.add(membership);
-                } else if (AbstractAttrs.this instanceof DerAttrs && !membership.getDerAttrs().isEmpty()) {
-                    memberships.add(membership);
-                } else if (AbstractAttrs.this instanceof VirAttrs && !membership.getVirAttrs().isEmpty()) {
-                    memberships.add(membership);
-                }
+        for (MembershipTO membership : userTO.getMemberships()) {
+            setSchemas(Pair.of(
+                    membership.getGroupKey(), membership.getGroupName()),
+                    getMembershipAuxClasses(membership));
+            setAttrs(membership);
+
+            if (AbstractAttrs.this instanceof PlainAttrs && !membership.getPlainAttrs().isEmpty()) {
+                memberships.add(membership);
+            } else if (AbstractAttrs.this instanceof DerAttrs && !membership.getDerAttrs().isEmpty()) {
+                memberships.add(membership);
+            } else if (AbstractAttrs.this instanceof VirAttrs && !membership.getVirAttrs().isEmpty()) {
+                memberships.add(membership);
             }
-        } catch (WicketRuntimeException | IllegalArgumentException | IllegalAccessException ex) {
-            // ignore
         }
 
         return memberships;
@@ -150,7 +152,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
     protected abstract SchemaType getSchemaType();
 
-    private void setSchemas(final Pair<String, String> membership, final List<String> anyTypeClasses) {
+    protected void setSchemas(final Pair<String, String> membership, final List<String> anyTypeClasses) {
         final Map<String, S> mscs;
 
         if (membershipSchemas.containsKey(membership.getKey())) {
@@ -162,16 +164,16 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
         setSchemas(anyTypeClasses, membership.getValue(), mscs);
     }
 
-    private void setSchemas(final List<String> anyTypeClasses) {
+    protected void setSchemas(final List<String> anyTypeClasses) {
         setSchemas(anyTypeClasses, null, schemas);
     }
 
-    private void setSchemas(final List<String> anyTypeClasses, final String groupName, final Map<String, S> scs) {
+    protected void setSchemas(final List<String> anyTypeClasses, final String groupName, final Map<String, S> scs) {
         final List<S> allSchemas;
         if (anyTypeClasses.isEmpty()) {
             allSchemas = new ArrayList<>();
         } else {
-            allSchemas = SchemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(String[]::new));
+            allSchemas = schemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(String[]::new));
         }
 
         scs.clear();
@@ -199,9 +201,9 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
     protected abstract List<Attr> getAttrsFromTO(MembershipTO membershipTO);
 
-    protected static List<String> getMembershipAuxClasses(final MembershipTO membershipTO) {
+    protected List<String> getMembershipAuxClasses(final MembershipTO membershipTO) {
         try {
-            return SyncopeRestClient.searchUserTypeExtensions(membershipTO.getGroupName());
+            return syncopeRestClient.searchUserTypeExtensions(membershipTO.getGroupName());
         } catch (Exception e) {
             return List.of();
         }
@@ -219,7 +221,17 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
         return !attrs.getObject().isEmpty() || !membershipTOs.getObject().isEmpty();
     }
 
-    private class AttrComparator implements Comparator<Attr>, Serializable {
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        super.onEvent(event);
+        if (event.getPayload() instanceof AjaxPalettePanel.UpdateActionEvent) {
+            evaluate();
+            AjaxPalettePanel.UpdateActionEvent updateEvent = (AjaxPalettePanel.UpdateActionEvent) event.getPayload();
+            updateEvent.getTarget().add(this);
+        }
+    }
+
+    protected class AttrComparator implements Comparator<Attr>, Serializable {
 
         private static final long serialVersionUID = -5105030477767941060L;
 
@@ -247,17 +259,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
         }
     }
 
-    @Override
-    public void onEvent(final IEvent<?> event) {
-        super.onEvent(event);
-        if (event.getPayload() instanceof AjaxPalettePanel.UpdateActionEvent) {
-            evaluate();
-            AjaxPalettePanel.UpdateActionEvent updateEvent = (AjaxPalettePanel.UpdateActionEvent) event.getPayload();
-            updateEvent.getTarget().add(this);
-        }
-    }
-
-    public static class Schemas extends Panel {
+    protected static class Schemas extends Panel {
 
         private static final long serialVersionUID = -2447602429647965090L;
 

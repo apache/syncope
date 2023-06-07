@@ -37,19 +37,23 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Audit extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271271L;
 
-    private final LoadableDetachableModel<List<EventCategory>> eventCategories =
+    @SpringBean
+    protected AuditRestClient auditRestClient;
+
+    protected final LoadableDetachableModel<List<EventCategory>> eventCategories =
             new LoadableDetachableModel<List<EventCategory>>() {
 
         private static final long serialVersionUID = 4659376149825914247L;
 
         @Override
         protected List<EventCategory> load() {
-            return AuditRestClient.listEvents();
+            return auditRestClient.listEvents();
         }
     };
 
@@ -58,7 +62,7 @@ public class Audit extends BasePage {
 
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
-        List<String> events = AuditRestClient.list().stream().
+        List<String> events = auditRestClient.list().stream().
                 filter(audit -> eventCategories.getObject().stream().
                 anyMatch(c -> audit.getType() == c.getType()
                 && Objects.equals(audit.getCategory(), c.getCategory())
@@ -113,7 +117,7 @@ public class Audit extends BasePage {
                                 ? null : eventCategory.getKey().getEvents().iterator().next(),
                                 eventCategory.getValue());
 
-                        AuditRestClient.disableAudit(auditLoggerName);
+                        auditRestClient.disableAudit(auditLoggerName);
                     });
 
                     eventSelectionChanged.getToBeAdded().forEach(toBeAdded -> {
@@ -128,7 +132,7 @@ public class Audit extends BasePage {
                                 ? null : eventCategory.getKey().getEvents().iterator().next(),
                                 eventCategory.getValue());
 
-                        AuditRestClient.enableAudit(auditLoggerName);
+                        auditRestClient.enableAudit(auditLoggerName);
                     });
                 }
             }

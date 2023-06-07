@@ -55,13 +55,15 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class DelegationDirectoryPanel extends
         DirectoryPanel<DelegationTO, DelegationTO, DelegationDataProvider, DelegationRestClient> {
 
     private static final long serialVersionUID = 28300423726398L;
 
-    private final UserRestClient userRestClient = new UserRestClient();
+    @SpringBean
+    protected UserRestClient userRestClient;
 
     protected DelegationDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
@@ -167,7 +169,8 @@ public class DelegationDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final DelegationTO ignore) {
                 try {
-                    DelegationRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
@@ -181,22 +184,7 @@ public class DelegationDirectoryPanel extends
         return panel;
     }
 
-    public abstract static class Builder
-            extends DirectoryPanel.Builder<DelegationTO, DelegationTO, DelegationRestClient> {
-
-        private static final long serialVersionUID = 5530948153889495221L;
-
-        public Builder(final PageReference pageRef) {
-            super(new DelegationRestClient(), pageRef);
-        }
-
-        @Override
-        protected WizardMgtPanel<DelegationTO> newInstance(final String id, final boolean wizardInModal) {
-            return new DelegationDirectoryPanel(id, this);
-        }
-    }
-
-    protected static class DelegationDataProvider extends DirectoryDataProvider<DelegationTO> {
+    protected class DelegationDataProvider extends DirectoryDataProvider<DelegationTO> {
 
         private static final long serialVersionUID = 28297380054779L;
 
@@ -209,19 +197,34 @@ public class DelegationDirectoryPanel extends
 
         @Override
         public Iterator<DelegationTO> iterator(final long first, final long count) {
-            List<DelegationTO> result = DelegationRestClient.list();
+            List<DelegationTO> result = restClient.list();
             Collections.sort(result, comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return DelegationRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override
         public IModel<DelegationTO> model(final DelegationTO object) {
             return new CompoundPropertyModel<>(object);
+        }
+    }
+
+    public abstract static class Builder
+            extends DirectoryPanel.Builder<DelegationTO, DelegationTO, DelegationRestClient> {
+
+        private static final long serialVersionUID = 5530948153889495221L;
+
+        public Builder(final DelegationRestClient restClient, final PageReference pageRef) {
+            super(restClient, pageRef);
+        }
+
+        @Override
+        protected WizardMgtPanel<DelegationTO> newInstance(final String id, final boolean wizardInModal) {
+            return new DelegationDirectoryPanel(id, this);
         }
     }
 }

@@ -141,8 +141,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 send(UserDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                new UserWrapper(new UserRestClient().read(model.getObject().getKey())),
-                                target));
+                                new UserWrapper(restClient.read(model.getObject().getKey())), target));
             }
         }, ActionType.EDIT,
                 String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.USER_UPDATE)).
@@ -271,7 +270,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             null,
                             null,
                             model.getObject(),
-                            IdRepoEntitlement.USER_UPDATE) {
+                            IdRepoEntitlement.USER_UPDATE,
+                            auditRestClient) {
 
                         private static final long serialVersionUID = 959378158400669867L;
 
@@ -365,8 +365,13 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
         private static final long serialVersionUID = -6603152478702381900L;
 
-        public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
-            super(anyTypeClassTOs, new UserRestClient(), type, pageRef);
+        public Builder(
+                final List<AnyTypeClassTO> anyTypeClassTOs,
+                final UserRestClient restClient,
+                final String type,
+                final PageReference pageRef) {
+
+            super(anyTypeClassTOs, restClient, type, pageRef);
             setShowResultPage(true);
         }
 

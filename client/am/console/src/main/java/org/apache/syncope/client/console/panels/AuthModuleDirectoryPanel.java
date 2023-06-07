@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AuthModuleDirectoryPanel.AuthModuleProvider;
+import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.AuthModuleRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -59,20 +60,28 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class AuthModuleDirectoryPanel
         extends DirectoryPanel<AuthModuleTO, AuthModuleTO, AuthModuleProvider, AuthModuleRestClient> {
 
     private static final long serialVersionUID = 1005345990563741296L;
 
+    @SpringBean
+    protected AuditRestClient auditRestClient;
+
     protected final BaseModal<Serializable> historyModal;
 
-    public AuthModuleDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef);
+    public AuthModuleDirectoryPanel(
+            final String id,
+            final AuthModuleRestClient restClient,
+            final PageReference pageRef) {
+
+        super(id, restClient, pageRef);
 
         disableCheckBoxes();
 
-        this.addNewItemPanelBuilder(new AuthModuleWizardBuilder(new AuthModuleTO(), pageRef), true);
+        addNewItemPanelBuilder(new AuthModuleWizardBuilder(new AuthModuleTO(), restClient, pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, AMEntitlement.AUTH_MODULE_CREATE);
 
@@ -139,7 +148,7 @@ public class AuthModuleDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final AuthModuleTO ignore) {
                 send(AuthModuleDirectoryPanel.this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<>(
-                        AuthModuleRestClient.read(model.getObject().getKey()), target));
+                        restClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.AUTH_MODULE_UPDATE);
 
@@ -149,13 +158,14 @@ public class AuthModuleDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AuthModuleTO ignore) {
-                model.setObject(AuthModuleRestClient.read(model.getObject().getKey()));
+                model.setObject(restClient.read(model.getObject().getKey()));
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
                         AuditElements.EventCategoryType.LOGIC,
                         "AuthModuleLogic",
                         model.getObject(),
-                        AMEntitlement.AUTH_MODULE_UPDATE) {
+                        AMEntitlement.AUTH_MODULE_UPDATE,
+                        auditRestClient) {
 
                     private static final long serialVersionUID = -3712506022627033822L;
 
@@ -163,11 +173,11 @@ public class AuthModuleDirectoryPanel
                     protected void restore(final String json, final AjaxRequestTarget target) {
                         try {
                             AuthModuleTO updated = MAPPER.readValue(json, AuthModuleTO.class);
-                            AuthModuleRestClient.update(updated);
+                            restClient.update(updated);
 
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
-                            LOG.error("While restoring AuthModule {}", ((AuthModuleTO) model.getObject()).getKey(), e);
+                            LOG.error("While restoring AuthModule {}", model.getObject().getKey(), e);
                             SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -188,7 +198,7 @@ public class AuthModuleDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final AuthModuleTO ignore) {
                 try {
-                    AuthModuleRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
@@ -203,7 +213,7 @@ public class AuthModuleDirectoryPanel
         return panel;
     }
 
-    protected static final class AuthModuleProvider extends DirectoryDataProvider<AuthModuleTO> {
+    protected final class AuthModuleProvider extends DirectoryDataProvider<AuthModuleTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -217,14 +227,14 @@ public class AuthModuleDirectoryPanel
 
         @Override
         public Iterator<AuthModuleTO> iterator(final long first, final long count) {
-            List<AuthModuleTO> result = AuthModuleRestClient.list();
+            List<AuthModuleTO> result = restClient.list();
             result.sort(comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return AuthModuleRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override

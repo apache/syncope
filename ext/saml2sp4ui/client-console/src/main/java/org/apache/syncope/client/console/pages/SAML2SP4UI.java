@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.SAML2IdPsDirectoryPanel;
 import org.apache.syncope.client.console.panels.SAML2SPPanel;
+import org.apache.syncope.client.console.rest.SAML2IdPsRestClient;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.common.lib.types.SAML2SP4UIEntitlement;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -32,12 +33,16 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 @ExtPage(label = "SAML 2.0 SP4UI", icon = "fas fa-sign-in-alt",
         listEntitlement = SAML2SP4UIEntitlement.IDP_READ, priority = 400)
 public class SAML2SP4UI extends BaseExtPage {
 
     private static final long serialVersionUID = -4837201407211278956L;
+
+    @SpringBean
+    protected SAML2IdPsRestClient saml2IdPsRestClient;
 
     public SAML2SP4UI(final PageParameters parameters) {
         super(parameters);
@@ -50,7 +55,7 @@ public class SAML2SP4UI extends BaseExtPage {
         body.add(content);
     }
 
-    private List<ITab> buildTabList() {
+    protected List<ITab> buildTabList() {
 
         final List<ITab> tabs = new ArrayList<>(2);
 
@@ -60,7 +65,7 @@ public class SAML2SP4UI extends BaseExtPage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new SAML2IdPsDirectoryPanel(panelId, getPageReference());
+                return new SAML2IdPsDirectoryPanel(panelId, saml2IdPsRestClient, getPageReference());
             }
         });
 

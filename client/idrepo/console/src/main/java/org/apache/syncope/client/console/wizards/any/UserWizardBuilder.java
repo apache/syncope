@@ -42,14 +42,16 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
 
     private static final long serialVersionUID = 6716803168859873877L;
 
-    protected final UserRestClient userRestClient = new UserRestClient();
+    protected final UserRestClient userRestClient;
 
     public UserWizardBuilder(
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
+            final UserRestClient userRestClient,
             final PageReference pageRef) {
 
         super(new UserWrapper(null), anyTypeClasses, formLayoutInfo, pageRef);
+        this.userRestClient = userRestClient;
     }
 
     public UserWizardBuilder(
@@ -57,9 +59,11 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
             final UserTO userTO,
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
+            final UserRestClient userRestClient,
             final PageReference pageRef) {
 
         super(new UserWrapper(previousUserTO, userTO), anyTypeClasses, formLayoutInfo, pageRef);
+        this.userRestClient = userRestClient;
     }
 
     @Override
@@ -74,7 +78,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
                     ? UserWrapper.class.cast(modelObject).isStorePasswordInSyncope()
                     : StringUtils.isNotBlank(inner.getPassword()));
 
-            result = UserRestClient.create(req);
+            result = userRestClient.create(req);
         } else {
             fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
             UserUR userUR = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);

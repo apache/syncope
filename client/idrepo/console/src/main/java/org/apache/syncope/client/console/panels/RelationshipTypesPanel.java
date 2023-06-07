@@ -57,9 +57,12 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
 
     private static final long serialVersionUID = -3731778000138547357L;
 
-    public RelationshipTypesPanel(final String id, final PageReference pageRef) {
-        super(id, false, pageRef);
-        this.restClient = new RelationshipTypeRestClient();
+    public RelationshipTypesPanel(
+            final String id,
+            final RelationshipTypeRestClient restClient,
+            final PageReference pageRef) {
+
+        super(id, restClient, false, pageRef);
         disableCheckBoxes();
 
         this.addNewItemPanelBuilder(
@@ -80,9 +83,9 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-                                RelationshipTypeRestClient.create(modelObject);
+                                restClient.create(modelObject);
                             } else {
-                                RelationshipTypeRestClient.update(modelObject);
+                                restClient.update(modelObject);
                             }
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             RelationshipTypesPanel.this.updateResultTable(target);
@@ -135,7 +138,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
                             new ResourceModel(field.getName()), field.getName(), field.getName()));
                 } else {
                     columns.add(new PropertyColumn<>(
-                        new ResourceModel(field.getName()), field.getName(), field.getName()) {
+                            new ResourceModel(field.getName()), field.getName(), field.getName()) {
 
                         private static final long serialVersionUID = -6902459669035442212L;
 
@@ -144,8 +147,8 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
                             String css = super.getCssClass();
                             if (Constants.KEY_FIELD_NAME.equals(fieldName)) {
                                 css = StringUtils.isBlank(css)
-                                    ? "col-xs-1"
-                                    : css + " col-xs-1";
+                                        ? "col-xs-1"
+                                        : css + " col-xs-1";
                             }
                             return css;
                         }
@@ -168,7 +171,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
                 send(RelationshipTypesPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.RELATIONSHIPTYPE_UPDATE);
         panel.add(new ActionLink<>() {
@@ -178,7 +181,8 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
                 try {
-                    RelationshipTypeRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
@@ -192,27 +196,27 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
         return panel;
     }
 
-    protected static final class RelationshipTypeProvider extends DirectoryDataProvider<RelationshipTypeTO> {
+    protected final class RelationshipTypeProvider extends DirectoryDataProvider<RelationshipTypeTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
-        private final SortableDataProviderComparator<RelationshipTypeTO> comparator;
+        protected final SortableDataProviderComparator<RelationshipTypeTO> comparator;
 
-        private RelationshipTypeProvider(final int paginatorRows) {
+        protected RelationshipTypeProvider(final int paginatorRows) {
             super(paginatorRows);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<RelationshipTypeTO> iterator(final long first, final long count) {
-            final List<RelationshipTypeTO> list = RelationshipTypeRestClient.list();
+            final List<RelationshipTypeTO> list = restClient.list();
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return RelationshipTypeRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override

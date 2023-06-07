@@ -16,37 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.client.enduser.commons;
 
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.pages.Dashboard;
-import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.common.lib.request.UserCR;
-import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public final class ProvisioningUtils {
 
-    public static final UserSelfRestClient USER_SELF_REST_CLIENT = new UserSelfRestClient();
-
-    private ProvisioningUtils() {
-    }
-
-    public static ProvisioningResult<UserTO> createUser(final UserCR userCR) {
-        return userCR == null ? new ProvisioningResult<>() : USER_SELF_REST_CLIENT.create(userCR);
-    }
-
-    public static ProvisioningResult<UserTO> updateUser(final UserUR userUR, final String etag) {
-        return userUR.isEmpty() ? new ProvisioningResult<>() : USER_SELF_REST_CLIENT.update(etag, userUR);
-    }
-
-    public static PageParameters managePageParams(final Component component, final String section,
+    public static PageParameters managePageParams(
+            final Component component,
+            final String section,
             final boolean isSuccess) {
+
         PageParameters parameters = new PageParameters();
         parameters.add(EnduserConstants.STATUS,
                 isSuccess
@@ -63,5 +47,9 @@ public final class ProvisioningUtils {
         parameters.add(EnduserConstants.LANDING_PAGE,
                 SyncopeWebApplication.get().getPageClass("profile", Dashboard.class).getName());
         return parameters;
+    }
+
+    private ProvisioningUtils() {
+        // private constructor for static utility class
     }
 }

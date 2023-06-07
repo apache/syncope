@@ -52,7 +52,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         return UserService.class;
     }
 
-    public static ProvisioningResult<UserTO> create(final UserCR createReq) {
+    public ProvisioningResult<UserTO> create(final UserCR createReq) {
         Response response = getService(UserService.class).create(createReq);
         return response.readEntity(new GenericType<>() {
         });

@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.policies;
 
 import java.util.List;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -33,13 +34,17 @@ public class PropagationPolicyDirectoryPanel extends PolicyDirectoryPanel<Propag
 
     private static final long serialVersionUID = 25188602686577L;
 
-    public PropagationPolicyDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, PolicyType.PROPAGATION, pageRef);
+    public PropagationPolicyDirectoryPanel(
+            final String id,
+            final PolicyRestClient restClient,
+            final PageReference pageRef) {
+
+        super(id, restClient, PolicyType.PROPAGATION, pageRef);
 
         PropagationPolicyTO defaultItem = new PropagationPolicyTO();
 
         this.addNewItemPanelBuilder(
-                new PolicyModalPanelBuilder<>(PolicyType.PROPAGATION, defaultItem, modal, pageRef), true);
+                new PolicyModalPanelBuilder<>(PolicyType.PROPAGATION, defaultItem, modal, restClient, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.POLICY_CREATE);
 
         initResultTable();

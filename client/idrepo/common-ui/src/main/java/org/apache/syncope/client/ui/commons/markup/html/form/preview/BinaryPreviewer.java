@@ -32,8 +32,8 @@ public abstract class BinaryPreviewer extends Panel {
 
     protected final String mimeType;
 
-    public BinaryPreviewer(final String id, final String mimeType) {
-        super(id);
+    public BinaryPreviewer(final String mimeType) {
+        super("previewer");
         this.mimeType = mimeType;
     }
 

@@ -26,27 +26,27 @@ public class SRARouteRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -7379778542101161274L;
 
-    public static List<SRARouteTO> list() {
+    public List<SRARouteTO> list() {
         return getService(SRARouteService.class).list();
     }
 
-    public static SRARouteTO read(final String key) {
+    public SRARouteTO read(final String key) {
         return getService(SRARouteService.class).read(key);
     }
 
-    public static void create(final SRARouteTO route) {
+    public void create(final SRARouteTO route) {
         getService(SRARouteService.class).create(route);
     }
 
-    public static void update(final SRARouteTO route) {
+    public void update(final SRARouteTO route) {
         getService(SRARouteService.class).update(route);
     }
 
-    public static void delete(final String key) {
+    public void delete(final String key) {
         getService(SRARouteService.class).delete(key);
     }
 
-    public static void push() {
+    public void push() {
         getService(SRARouteService.class).pushToSRA();
     }
 }

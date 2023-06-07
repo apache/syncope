@@ -49,6 +49,9 @@ public class SRA extends BasePage {
     private static final long serialVersionUID = 9200112197134882164L;
 
     @SpringBean
+    private SRARouteRestClient sraRouteRestClient;
+
+    @SpringBean
     private ServiceOps serviceOps;
 
     public SRA(final PageParameters parameters) {
@@ -61,10 +64,12 @@ public class SRA extends BasePage {
 
         AjaxLink<?> push = new AjaxLink<>("push") {
 
+            private static final long serialVersionUID = -817438685948164787L;
+
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    SRARouteRestClient.push();
+                    sraRouteRestClient.push();
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While pushing to SRA", e);
@@ -94,7 +99,7 @@ public class SRA extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new SRARouteDirectoryPanel(panelId, getPageReference());
+                return new SRARouteDirectoryPanel(panelId, sraRouteRestClient, getPageReference());
             }
         });
 

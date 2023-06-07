@@ -32,18 +32,24 @@ import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class ReconStatusUtils implements Serializable {
+public class ReconStatusUtils implements Serializable {
 
     private static final long serialVersionUID = -5411720003057109354L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ReconStatusUtils.class);
 
-    public static Optional<ReconStatus> getReconStatus(
+    protected final ReconciliationRestClient reconciliationRestClient;
+
+    public ReconStatusUtils(final ReconciliationRestClient reconciliationRestClient) {
+        this.reconciliationRestClient = reconciliationRestClient;
+    }
+
+    public Optional<ReconStatus> getReconStatus(
             final String anyTypeKey, final String connObjectKeyValue, final String resource) {
 
         ReconStatus result = null;
         try {
-            result = ReconciliationRestClient.status(new ReconQuery.Builder(anyTypeKey, resource).
+            result = reconciliationRestClient.status(new ReconQuery.Builder(anyTypeKey, resource).
                     fiql(ConnIdSpecialName.UID + "==" + connObjectKeyValue).build());
         } catch (Exception e) {
             LOG.warn("Unexpected error for {} {} on {}", anyTypeKey, connObjectKeyValue, resource, e);
@@ -51,21 +57,17 @@ public final class ReconStatusUtils implements Serializable {
         return Optional.ofNullable(result);
     }
 
-    public static List<Pair<String, ReconStatus>> getReconStatuses(
+    public List<Pair<String, ReconStatus>> getReconStatuses(
             final String anyTypeKey, final String anyKey, final Collection<String> resources) {
 
         return resources.stream().map(resource -> {
             try {
-                return Pair.of(resource, ReconciliationRestClient.status(
+                return Pair.of(resource, reconciliationRestClient.status(
                         new ReconQuery.Builder(anyTypeKey, resource).anyKey(anyKey).build()));
             } catch (Exception e) {
                 LOG.warn("Unexpected error for {} {} on {}", anyTypeKey, anyKey, resource, e);
                 return null;
             }
         }).filter(Objects::nonNull).collect(Collectors.toList());
-    }
-
-    private ReconStatusUtils() {
-        // private constructor for static utility class
     }
 }

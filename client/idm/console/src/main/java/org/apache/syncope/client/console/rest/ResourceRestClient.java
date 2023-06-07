@@ -44,7 +44,7 @@ public class ResourceRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6898907679835668987L;
 
-    public static boolean check(final String coreAddress, final String domain, final String jwt, final String key)
+    public boolean check(final String coreAddress, final String domain, final String jwt, final String key)
             throws IOException {
 
         WebClient client = WebClient.create(coreAddress).path("resources").
@@ -61,7 +61,7 @@ public class ResourceRestClient extends BaseRestClient {
         return false;
     }
 
-    public static Pair<Boolean, String> check(final ResourceTO resourceTO) {
+    public Pair<Boolean, String> check(final ResourceTO resourceTO) {
         boolean check = false;
         String errorMessage = null;
         try {
@@ -75,11 +75,11 @@ public class ResourceRestClient extends BaseRestClient {
         return Pair.of(check, errorMessage);
     }
 
-    public static ConnObject readConnObject(final String resource, final String anyTypeKey, final String anyKey) {
+    public ConnObject readConnObject(final String resource, final String anyTypeKey, final String anyKey) {
         return getService(ResourceService.class).readConnObject(resource, anyTypeKey, anyKey);
     }
 
-    public static String getConnObjectKeyValue(final String resource, final String anyTypeKey, final String anyKey) {
+    public String getConnObjectKeyValue(final String resource, final String anyTypeKey, final String anyKey) {
         try {
             Response response = getService(ResourceService.class).getConnObjectKeyValue(resource, anyTypeKey, anyKey);
             if (response.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
@@ -93,7 +93,7 @@ public class ResourceRestClient extends BaseRestClient {
         return null;
     }
 
-    public static Pair<String, List<ConnObject>> searchConnObjects(
+    public Pair<String, List<ConnObject>> searchConnObjects(
             final String resource,
             final String anyTypeKey,
             final ConnObjectTOQuery.Builder queryBuilder,
@@ -117,11 +117,11 @@ public class ResourceRestClient extends BaseRestClient {
         return Pair.of(nextPageResultCookie, result);
     }
 
-    public static ResourceTO read(final String name) {
+    public ResourceTO read(final String name) {
         return getService(ResourceService.class).read(name);
     }
 
-    public static List<ResourceTO> list() {
+    public List<ResourceTO> list() {
         List<ResourceTO> resources = List.of();
         try {
             resources = getService(ResourceService.class).list();
@@ -133,25 +133,25 @@ public class ResourceRestClient extends BaseRestClient {
         return resources;
     }
 
-    public static ResourceTO create(final ResourceTO resourceTO) {
+    public ResourceTO create(final ResourceTO resourceTO) {
         ResourceService service = getService(ResourceService.class);
         Response response = service.create(resourceTO);
         return getObject(service, response.getLocation(), ResourceTO.class);
     }
 
-    public static void update(final ResourceTO resourceTO) {
+    public void update(final ResourceTO resourceTO) {
         getService(ResourceService.class).update(resourceTO);
     }
 
-    public static void delete(final String name) {
+    public void delete(final String name) {
         getService(ResourceService.class).delete(name);
     }
 
-    public static void setLatestSyncToken(final String key, final String anyType) {
+    public void setLatestSyncToken(final String key, final String anyType) {
         getService(ResourceService.class).setLatestSyncToken(key, anyType);
     }
 
-    public static void removeSyncToken(final String key, final String anyType) {
+    public void removeSyncToken(final String key, final String anyType) {
         getService(ResourceService.class).removeSyncToken(key, anyType);
     }
 }

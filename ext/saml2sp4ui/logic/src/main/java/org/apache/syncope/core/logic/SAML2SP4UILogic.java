@@ -104,7 +104,9 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
     protected final AccessTokenDataBinder accessTokenDataBinder;
 
-    protected final SAML2ClientCache saml2ClientCache;
+    protected final SAML2ClientCache saml2ClientCacheLogin;
+
+    protected final SAML2ClientCache saml2ClientCacheLogout;
 
     protected final SAML2SP4UIUserManager userManager;
 
@@ -120,7 +122,8 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             final SAML2SP4UIProperties props,
             final ResourcePatternResolver resourceResolver,
             final AccessTokenDataBinder accessTokenDataBinder,
-            final SAML2ClientCache saml2ClientCache,
+            final SAML2ClientCache saml2ClientCacheLogin,
+            final SAML2ClientCache saml2ClientCacheLogout,
             final SAML2SP4UIUserManager userManager,
             final SAML2SP4UIIdPDAO idpDAO,
             final AuthDataAccessor authDataAccessor) {
@@ -128,7 +131,8 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
         super(props, resourceResolver);
 
         this.accessTokenDataBinder = accessTokenDataBinder;
-        this.saml2ClientCache = saml2ClientCache;
+        this.saml2ClientCacheLogin = saml2ClientCacheLogin;
+        this.saml2ClientCacheLogout = saml2ClientCacheLogout;
         this.userManager = userManager;
         this.idpDAO = idpDAO;
         this.authDataAccessor = authDataAccessor;
@@ -206,19 +210,27 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
         }
     }
 
-    protected SAML2Client getSAML2Client(final SAML2SP4UIIdP idp, final String spEntityID, final String urlContext) {
+    protected SAML2Client getSAML2Client(
+            final SAML2ClientCache saml2ClientCache,
+            final SAML2SP4UIIdP idp,
+            final String spEntityID,
+            final String urlContext) {
+
         return saml2ClientCache.get(idp.getEntityID(), spEntityID).
                 orElseGet(() -> saml2ClientCache.add(
                 idp, newSAML2Configuration(), spEntityID, getCallbackUrl(spEntityID, urlContext)));
     }
 
-    protected SAML2Client getSAML2Client(final String idpEntityID, final String spEntityID, final String urlContext) {
-        SAML2SP4UIIdP idp = idpDAO.findByEntityID(idpEntityID);
-        if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + idpEntityID + '\'');
-        }
+    protected SAML2Client getSAML2Client(
+            final SAML2ClientCache saml2ClientCache,
+            final String idpEntityID,
+            final String spEntityID,
+            final String urlContext) {
 
-        return getSAML2Client(idp, spEntityID, urlContext);
+        SAML2SP4UIIdP idp = Optional.ofNullable(idpDAO.findByEntityID(idpEntityID)).
+                orElseThrow(() -> new NotFoundException("SAML 2.0 IdP '" + idpEntityID + '\''));
+
+        return getSAML2Client(saml2ClientCache, idp, spEntityID, urlContext);
     }
 
     protected static SAML2Request buildRequest(final String idpEntityID, final RedirectionAction action) {
@@ -267,7 +279,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
         }
 
         // 1. look for configured client
-        SAML2Client saml2Client = getSAML2Client(idp, spEntityID, urlContext);
+        SAML2Client saml2Client = getSAML2Client(saml2ClientCacheLogin, idp, spEntityID, urlContext);
 
         getRequestedAuthnContextProvider(idp).ifPresent(requestedAuthnContextProvider -> {
             RequestedAuthnContext requestedAuthnContext = requestedAuthnContextProvider.get();
@@ -313,7 +325,11 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
         }
 
         // 1. look for configured client
-        SAML2Client saml2Client = getSAML2Client(idp, saml2Response.getSpEntityID(), saml2Response.getUrlContext());
+        SAML2Client saml2Client = getSAML2Client(
+                saml2ClientCacheLogin,
+                idp,
+                saml2Response.getSpEntityID(),
+                saml2Response.getUrlContext());
 
         // 2. validate the provided SAML response
         SAML2Credentials credentials;
@@ -459,7 +475,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
         if (idpEntityID == null) {
             throw new NotFoundException("No SAML 2.0 IdP information found in the access token");
         }
-        SAML2Client saml2Client = getSAML2Client(idpEntityID, spEntityID, urlContext);
+        SAML2Client saml2Client = getSAML2Client(saml2ClientCacheLogout, idpEntityID, spEntityID, urlContext);
         if (saml2Client.getLogoutActionBuilder() instanceof NoLogoutActionBuilder) {
             throw new IllegalArgumentException("No SingleLogoutService available for "
                     + saml2Client.getIdentityProviderResolvedEntityId());
@@ -497,7 +513,10 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             return;
         }
         SAML2Client saml2Client = getSAML2Client(
-                saml2Response.getIdpEntityID(), saml2Response.getSpEntityID(), saml2Response.getUrlContext());
+                saml2ClientCacheLogout,
+                saml2Response.getIdpEntityID(),
+                saml2Response.getSpEntityID(),
+                saml2Response.getUrlContext());
 
         SAML2SP4UIIdP idp = idpDAO.findByEntityID(saml2Client.getIdentityProviderResolvedEntityId());
         if (idp == null) {

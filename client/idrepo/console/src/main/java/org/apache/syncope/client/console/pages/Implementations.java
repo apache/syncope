@@ -24,16 +24,21 @@ import java.util.stream.Collectors;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.ImplementationDirectoryPanel;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Implementations extends BasePage {
 
     private static final long serialVersionUID = -4562707092152823781L;
+
+    @SpringBean
+    protected ImplementationRestClient implementationRestClient;
 
     public Implementations(final PageParameters parameters) {
         super(parameters);
@@ -47,7 +52,7 @@ public class Implementations extends BasePage {
         body.add(content);
     }
 
-    private List<ITab> buildTabList() {
+    protected List<ITab> buildTabList() {
         return SyncopeConsoleSession.get().getPlatformInfo().getImplementationTypes().stream().
                 filter(type -> !IdRepoImplementationType.JWT_SSO_PROVIDER.equals(type)
                 && !IdRepoImplementationType.AUDIT_APPENDER.equals(type)).
@@ -58,7 +63,7 @@ public class Implementations extends BasePage {
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new ImplementationDirectoryPanel(panelId, type, getPageReference());
+                return new ImplementationDirectoryPanel(panelId, type, implementationRestClient, getPageReference());
             }
         }).collect(Collectors.toList());
     }

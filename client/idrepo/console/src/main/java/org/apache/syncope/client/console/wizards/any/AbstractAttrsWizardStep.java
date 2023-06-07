@@ -69,10 +69,17 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 8931397230194043674L;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
+
+    @SpringBean
+    protected SchemaRestClient schemaRestClient;
 
     protected final Comparator<Attr> attrComparator = new AttrComparator();
 
@@ -80,13 +87,13 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
     protected AnyTO previousObject;
 
-    private final List<String> whichAttrs;
+    protected final List<String> whichAttrs;
 
     protected final Map<String, S> schemas = new LinkedHashMap<>();
 
     protected final IModel<List<Attr>> attrs;
 
-    private final List<String> anyTypeClasses;
+    protected final List<String> anyTypeClasses;
 
     protected String fileKey = "";
 
@@ -111,7 +118,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
     protected List<Attr> loadAttrs() {
         List<String> classes = new ArrayList<>(anyTypeClasses);
-        classes.addAll(AnyTypeClassRestClient.list(anyTO.getAuxClasses()).stream().
+        classes.addAll(anyTypeClassRestClient.list(anyTO.getAuxClasses()).stream().
                 map(AnyTypeClassTO::getKey).collect(Collectors.toList()));
         setSchemas(classes);
         setAttrs();
@@ -131,7 +138,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
     protected void setSchemas(final List<String> anyTypeClasses, final Map<String, S> scs) {
         List<S> allSchemas = anyTypeClasses.isEmpty()
                 ? List.of()
-                : SchemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(String[]::new));
+                : schemaRestClient.getSchemas(getSchemaType(), null, anyTypeClasses.toArray(String[]::new));
 
         scs.clear();
 
@@ -425,7 +432,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             if (previousObject == null) {
                 return;
             }
-            
+
             Optional<Attr> prevAttr = previousObject.getPlainAttr(attr.getSchema());
             if (prevAttr.map(a -> !ListUtils.isEqualList(
                     a.getValues().stream().filter(StringUtils::isNotBlank).collect(Collectors.toList()),

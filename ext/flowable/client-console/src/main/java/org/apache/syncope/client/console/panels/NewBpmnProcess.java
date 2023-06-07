@@ -33,10 +33,14 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class NewBpmnProcess extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -4886361549305302161L;
+
+    @SpringBean
+    protected BpmnProcessRestClient bpmnProcessRestClient;
 
     public NewBpmnProcess(final String id, final WebMarkupContainer container, final PageReference pageRef) {
         super(id, pageRef);
@@ -55,7 +59,7 @@ public class NewBpmnProcess extends TogglePanel<Serializable> {
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
                 try {
-                    BpmnProcessRestClient.setDefinition(MediaType.APPLICATION_XML_TYPE, key.getModelObject(),
+                    bpmnProcessRestClient.setDefinition(MediaType.APPLICATION_XML_TYPE, key.getModelObject(),
                             IOUtils.toString(
                                     NewBpmnProcess.class.getResourceAsStream("empty.bpmn20.xml"),
                                     StandardCharsets.UTF_8).replaceAll("%KEY%", key.getModelObject()));

@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.KeywordSearchEvent;
+import org.apache.syncope.client.console.rest.CommandRestClient;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -29,10 +30,14 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class CommandsPanel extends Panel {
 
     private static final long serialVersionUID = -4716856239434102405L;
+
+    @SpringBean
+    protected CommandRestClient commandRestClient;
 
     public CommandsPanel(final String id, final PageReference pageRef) {
         super(id);
@@ -61,6 +66,6 @@ public class CommandsPanel extends Panel {
         form.add(search);
         form.setDefaultButton(search);
 
-        add(new CommandDirectoryPanel("commands", pageRef).setOutputMarkupId(true));
+        add(new CommandDirectoryPanel("commands", commandRestClient, pageRef).setOutputMarkupId(true));
     }
 }

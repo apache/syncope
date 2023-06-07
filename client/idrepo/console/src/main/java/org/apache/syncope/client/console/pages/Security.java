@@ -28,6 +28,13 @@ import org.apache.syncope.client.console.panels.DelegationDirectoryPanel;
 import org.apache.syncope.client.console.panels.DynRealmDirectoryPanel;
 import org.apache.syncope.client.console.panels.RoleDirectoryPanel;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel;
+import org.apache.syncope.client.console.rest.ApplicationRestClient;
+import org.apache.syncope.client.console.rest.DelegationRestClient;
+import org.apache.syncope.client.console.rest.DynRealmRestClient;
+import org.apache.syncope.client.console.rest.RealmRestClient;
+import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.DelegationWizardBuilder;
 import org.apache.syncope.client.console.wizards.role.RoleWizardBuilder;
 import org.apache.syncope.common.lib.to.DelegationTO;
@@ -39,10 +46,32 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Security extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271271L;
+
+    @SpringBean
+    protected RoleRestClient roleRestClient;
+
+    @SpringBean
+    protected RealmRestClient realmRestClient;
+
+    @SpringBean
+    protected DelegationRestClient delegationRestClient;
+
+    @SpringBean
+    protected DynRealmRestClient dynRealmRestClient;
+
+    @SpringBean
+    protected ApplicationRestClient applicationRestClient;
+
+    @SpringBean
+    protected SecurityQuestionRestClient securityQuestionRestClient;
+
+    @SpringBean
+    protected UserRestClient userRestClient;
 
     public Security(final PageParameters parameters) {
         super(parameters);
@@ -55,7 +84,7 @@ public class Security extends BasePage {
         body.add(content);
     }
 
-    private List<ITab> buildTabList() {
+    protected List<ITab> buildTabList() {
         List<ITab> tabs = new ArrayList<>();
 
         if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.ROLE_LIST)) {
@@ -65,12 +94,17 @@ public class Security extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new RoleDirectoryPanel.Builder(getPageReference()) {
+                    return new RoleDirectoryPanel.Builder(roleRestClient, getPageReference()) {
 
                         private static final long serialVersionUID = -5960765294082359003L;
 
-                    }.addNewItemPanelBuilder(
-                            new RoleWizardBuilder(new RoleTO(), getPageReference()), true).build(panelId);
+                    }.addNewItemPanelBuilder(new RoleWizardBuilder(
+                            new RoleTO(),
+                            roleRestClient,
+                            realmRestClient,
+                            dynRealmRestClient,
+                            applicationRestClient,
+                            getPageReference()), true).build(panelId);
                 }
             });
         }
@@ -81,12 +115,16 @@ public class Security extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new DelegationDirectoryPanel.Builder(getPageReference()) {
+                return new DelegationDirectoryPanel.Builder(delegationRestClient, getPageReference()) {
 
                     private static final long serialVersionUID = 30231721305047L;
 
-                }.addNewItemPanelBuilder(
-                        new DelegationWizardBuilder(new DelegationTO(), getPageReference()), true).build(panelId);
+                }.addNewItemPanelBuilder(new DelegationWizardBuilder(
+                        new DelegationTO(),
+                        userRestClient,
+                        delegationRestClient,
+                        getPageReference()),
+                        true).build(panelId);
             }
         });
 
@@ -96,7 +134,7 @@ public class Security extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new DynRealmDirectoryPanel.Builder(getPageReference()) {
+                return new DynRealmDirectoryPanel.Builder(dynRealmRestClient, getPageReference()) {
 
                     private static final long serialVersionUID = -5960765294082359003L;
 
@@ -111,7 +149,7 @@ public class Security extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new ApplicationDirectoryPanel.Builder(getPageReference()) {
+                    return new ApplicationDirectoryPanel.Builder(applicationRestClient, getPageReference()) {
 
                         private static final long serialVersionUID = -5960765294082359003L;
 
@@ -126,7 +164,7 @@ public class Security extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new SecurityQuestionsPanel(panelId, getPageReference());
+                return new SecurityQuestionsPanel(panelId, securityQuestionRestClient, getPageReference());
             }
         });
 

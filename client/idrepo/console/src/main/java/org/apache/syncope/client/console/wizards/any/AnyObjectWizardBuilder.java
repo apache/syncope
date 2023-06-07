@@ -38,16 +38,18 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
 
     private static final long serialVersionUID = -2480279868319546243L;
 
-    protected final AnyObjectRestClient anyObjectRestClient = new AnyObjectRestClient();
+    protected AnyObjectRestClient anyObjectRestClient;
 
     public AnyObjectWizardBuilder(
             final AnyObjectTO anyObjectTO,
             final List<String> anyTypeClasses,
             final AnyObjectFormLayoutInfo formLayoutInfo,
+            final AnyObjectRestClient anyObjectRestClient,
             final PageReference pageRef) {
 
         super(Optional.ofNullable(anyObjectTO).map(AnyObjectWrapper::new).
                 orElse(null), anyTypeClasses, formLayoutInfo, pageRef);
+        this.anyObjectRestClient = anyObjectRestClient;
     }
 
     /**
@@ -78,7 +80,7 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
             AnyObjectCR req = new AnyObjectCR();
             EntityTOUtils.toAnyCR(inner, req);
 
-            result = AnyObjectRestClient.create(req);
+            result = anyObjectRestClient.create(req);
         } else {
             fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
             AnyObjectUR req = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);

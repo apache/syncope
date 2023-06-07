@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class GroupSearchPanel extends AbstractSearchPanel {
 
@@ -52,6 +53,12 @@ public class GroupSearchPanel extends AbstractSearchPanel {
             return new GroupSearchPanel(id, this);
         }
     }
+
+    @SpringBean
+    protected SchemaRestClient schemaRestClient;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
     protected GroupSearchPanel(final String id, final GroupSearchPanel.Builder builder) {
         super(id, AnyTypeKind.GROUP, builder);
@@ -102,8 +109,8 @@ public class GroupSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
-                return SchemaRestClient.<PlainSchemaTO>getSchemas(
-                        SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(String[]::new)).
+                return schemaRestClient.<PlainSchemaTO>getSchemas(
+                        SchemaType.PLAIN, null, anyTypeRestClient.read(type).getClasses().toArray(String[]::new)).
                         stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
             }
         };

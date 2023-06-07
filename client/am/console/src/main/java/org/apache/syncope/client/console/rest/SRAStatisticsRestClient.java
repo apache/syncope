@@ -37,11 +37,11 @@ public final class SRAStatisticsRestClient {
     private static final List<?> JAX_RS_PROVIDERS =
             List.of(new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build()));
 
-    private static String getActuatorEndpoint(final List<NetworkService> instances) {
+    protected String getActuatorEndpoint(final List<NetworkService> instances) {
         return instances.get(0).getAddress() + "actuator/metrics/spring.cloud.gateway.requests";
     }
 
-    public static SRAStatistics get(final List<NetworkService> instances, final List<Pair<String, String>> selected) {
+    public SRAStatistics get(final List<NetworkService> instances, final List<Pair<String, String>> selected) {
         try {
             WebClient client = WebClient.create(
                     getActuatorEndpoint(instances),
@@ -67,9 +67,5 @@ public final class SRAStatisticsRestClient {
         }
 
         return new SRAStatistics();
-    }
-
-    private SRAStatisticsRestClient() {
-        // private constructor for static utility class
     }
 }

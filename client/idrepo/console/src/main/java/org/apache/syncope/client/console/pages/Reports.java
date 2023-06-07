@@ -22,16 +22,21 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.reports.ReportDirectoryPanel;
 import org.apache.syncope.client.console.reports.ReportExecutionDetails;
+import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Reports extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271271L;
+
+    @SpringBean
+    protected ReportRestClient reportRestClient;
 
     public Reports(final PageParameters parameters) {
         super(parameters);
@@ -44,7 +49,7 @@ public class Reports extends BasePage {
         body.add(content);
 
         MultilevelPanel reportsPanel = new MultilevelPanel("reportsPanel");
-        reportsPanel.setFirstLevel(new ReportDirectoryPanel(getPageReference()) {
+        reportsPanel.setFirstLevel(new ReportDirectoryPanel(reportRestClient, getPageReference()) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 

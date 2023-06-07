@@ -18,23 +18,31 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
+import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class AnyTypeClassModalPanel extends AbstractModalPanel<AnyTypeClassTO> {
 
     private static final long serialVersionUID = 1086997609984272599L;
 
-    private final AnyTypeClassTO anyTypeClassTO;
+    @SpringBean
+    protected SchemaRestClient schemaRestClient;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
 
     public AnyTypeClassModalPanel(
             final BaseModal<AnyTypeClassTO> modal,
             final AnyTypeClassTO anyTypeClassTO,
             final PageReference pageRef) {
+
         super(modal, pageRef);
 
-        this.anyTypeClassTO = anyTypeClassTO;
-        add(new AnyTypeClassDetailsPanel("anyTypeClassDetailsPanel", this.anyTypeClassTO));
+        add(new AnyTypeClassDetailsPanel(
+                "anyTypeClassDetailsPanel", anyTypeClassTO, schemaRestClient, anyTypeClassRestClient));
     }
 }

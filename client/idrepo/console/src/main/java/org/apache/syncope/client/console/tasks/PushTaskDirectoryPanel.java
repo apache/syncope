@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.tasks;
 
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -33,11 +34,13 @@ public abstract class PushTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
     private static final long serialVersionUID = 4984337552918213290L;
 
     protected PushTaskDirectoryPanel(
+            final TaskRestClient restClient,
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final String resource,
             final PageReference pageRef) {
-        super(baseModal, multiLevelPanelRef, TaskType.PUSH, new PushTaskTO(), resource, pageRef);
+
+        super(restClient, baseModal, multiLevelPanelRef, TaskType.PUSH, new PushTaskTO(), resource, pageRef);
     }
 
     @Override

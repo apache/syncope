@@ -35,7 +35,17 @@ import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
 import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationContributor;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.IdMClassPathScanImplementationContributor;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
+import org.apache.syncope.client.console.rest.ReconciliationRestClient;
+import org.apache.syncope.client.console.rest.RemediationRestClient;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.status.ReconStatusUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -48,18 +58,24 @@ public class IdMConsoleContext {
     }
 
     @Bean
-    public ExternalResourceProvider resourceProvider() {
-        return new IdMExternalResourceProvider();
+    public ExternalResourceProvider resourceProvider(final ResourceRestClient resourceRestClient) {
+        return new IdMExternalResourceProvider(resourceRestClient);
     }
 
     @Bean
-    public AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider() {
-        return new IdMAnyDirectoryPanelAdditionalActionsProvider();
+    public AnyDirectoryPanelAdditionalActionsProvider anyDirectoryPanelAdditionalActionsProvider(
+            final ReconciliationRestClient reconciliationRestClient,
+            final ImplementationRestClient implementationRestClient) {
+
+        return new IdMAnyDirectoryPanelAdditionalActionsProvider(reconciliationRestClient, implementationRestClient);
     }
 
     @Bean
-    public AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider() {
-        return new IdMAnyDirectoryPanelAdditionalActionLinksProvider();
+    public AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider(
+            final ResourceRestClient resourceRestClient,
+            final UserRestClient userRestClient) {
+
+        return new IdMAnyDirectoryPanelAdditionalActionLinksProvider(resourceRestClient, userRestClient);
     }
 
     @Bean
@@ -68,8 +84,8 @@ public class IdMConsoleContext {
     }
 
     @Bean
-    public StatusProvider statusProvider() {
-        return new IdMStatusProvider();
+    public StatusProvider statusProvider(final ReconStatusUtils reconStatusUtils) {
+        return new IdMStatusProvider(reconStatusUtils);
     }
 
     @Bean
@@ -78,12 +94,44 @@ public class IdMConsoleContext {
     }
 
     @Bean
-    public ImplementationInfoProvider implementationInfoProvider() {
-        return new IdMImplementationInfoProvider();
+    public ImplementationInfoProvider implementationInfoProvider(
+            final ClassPathScanImplementationLookup lookup,
+            final ImplementationRestClient implementationRestClient) {
+
+        return new IdMImplementationInfoProvider(lookup, implementationRestClient);
     }
 
     @Bean
-    public PolicyTabProvider idmPolicyTabProvider() {
-        return new IdMPolicyTabProvider();
+    public PolicyTabProvider idmPolicyTabProvider(final PolicyRestClient policyRestClient) {
+        return new IdMPolicyTabProvider(policyRestClient);
+    }
+
+    @Bean
+    public ReconStatusUtils reconStatusUtils(final ReconciliationRestClient reconciliationRestClient) {
+        return new ReconStatusUtils(reconciliationRestClient);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ConnectorRestClient connectorRestClient() {
+        return new ConnectorRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ReconciliationRestClient reconciliationRestClient() {
+        return new ReconciliationRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RemediationRestClient remediationRestClient() {
+        return new RemediationRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ResourceRestClient resourceRestClient() {
+        return new ResourceRestClient();
     }
 }

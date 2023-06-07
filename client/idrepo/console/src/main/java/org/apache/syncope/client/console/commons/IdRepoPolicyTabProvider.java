@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.policies.AccountPolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.PasswordPolicyDirectoryPanel;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
@@ -31,6 +32,12 @@ import org.apache.wicket.model.ResourceModel;
 public class IdRepoPolicyTabProvider implements PolicyTabProvider {
 
     private static final long serialVersionUID = 5017230231088263303L;
+
+    protected final PolicyRestClient policyRestClient;
+
+    public IdRepoPolicyTabProvider(final PolicyRestClient policyRestClient) {
+        this.policyRestClient = policyRestClient;
+    }
 
     @Override
     public List<ITab> buildTabList(final PageReference pageRef) {
@@ -42,7 +49,7 @@ public class IdRepoPolicyTabProvider implements PolicyTabProvider {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new AccountPolicyDirectoryPanel(panelId, pageRef);
+                return new AccountPolicyDirectoryPanel(panelId, policyRestClient, pageRef);
             }
         });
 
@@ -52,7 +59,7 @@ public class IdRepoPolicyTabProvider implements PolicyTabProvider {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new PasswordPolicyDirectoryPanel(panelId, pageRef);
+                return new PasswordPolicyDirectoryPanel(panelId, policyRestClient, pageRef);
             }
         });
 

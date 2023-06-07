@@ -38,6 +38,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
@@ -59,6 +60,12 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
             return new AnyObjectSearchPanel(id, AnyTypeKind.ANY_OBJECT, type, this);
         }
     }
+
+    @SpringBean
+    protected SchemaRestClient schemaRestClient;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
     protected AnyObjectSearchPanel(final String id, final AnyTypeKind kind, final Builder builder) {
         super(id, kind, builder);
@@ -114,8 +121,8 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
-                return SchemaRestClient.<PlainSchemaTO>getSchemas(
-                        SchemaType.PLAIN, null, AnyTypeRestClient.read(type).getClasses().toArray(String[]::new)).
+                return schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, null, anyTypeRestClient.read(type).
+                        getClasses().toArray(String[]::new)).
                         stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
             }
         };

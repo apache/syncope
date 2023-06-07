@@ -56,8 +56,8 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
 
     private static final long serialVersionUID = 3905038169553185171L;
 
-    public AnyTypesPanel(final String id, final PageReference pageRef) {
-        super(id, false, pageRef);
+    public AnyTypesPanel(final String id, final AnyTypeRestClient restClient, final PageReference pageRef) {
+        super(id, restClient, false, pageRef);
         disableCheckBoxes();
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeTO>(new AnyTypeTO(), pageRef) {
@@ -75,10 +75,10 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                     public void onSubmit(final AjaxRequestTarget target) {
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-                                AnyTypeRestClient.create(modelObject);
+                                restClient.create(modelObject);
                                 SyncopeConsoleSession.get().refreshAuth(null);
                             } else {
-                                AnyTypeRestClient.update(modelObject);
+                                restClient.update(modelObject);
                             }
 
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
@@ -131,7 +131,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                             new ResourceModel(field.getName()), field.getName(), field.getName()));
                 } else {
                     columns.add(new PropertyColumn<>(
-                        new ResourceModel(field.getName()), field.getName(), field.getName()) {
+                            new ResourceModel(field.getName()), field.getName(), field.getName()) {
 
                         private static final long serialVersionUID = -6902459669035442212L;
 
@@ -140,8 +140,8 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
                             String css = super.getCssClass();
                             if (Constants.KEY_FIELD_NAME.equals(fieldName)) {
                                 css = StringUtils.isBlank(css)
-                                    ? "col-xs-1"
-                                    : css + " col-xs-1";
+                                        ? "col-xs-1"
+                                        : css + " col-xs-1";
                             }
                             return css;
                         }
@@ -164,7 +164,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
             @Override
             public void onClick(final AjaxRequestTarget target, final AnyTypeTO ignore) {
                 send(AnyTypesPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.ANYTYPE_UPDATE);
         panel.add(new ActionLink<>() {
@@ -174,7 +174,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
             @Override
             public void onClick(final AjaxRequestTarget target, final AnyTypeTO ignore) {
                 try {
-                    AnyTypeRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().refreshAuth(null);
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
@@ -190,7 +190,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
         return panel;
     }
 
-    protected static final class AnyTypeProvider extends DirectoryDataProvider<AnyTypeTO> {
+    protected final class AnyTypeProvider extends DirectoryDataProvider<AnyTypeTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -203,14 +203,14 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.
 
         @Override
         public Iterator<AnyTypeTO> iterator(final long first, final long count) {
-            final List<AnyTypeTO> list = AnyTypeRestClient.listAnyTypes();
+            List<AnyTypeTO> list = restClient.listAnyTypes();
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return AnyTypeRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override

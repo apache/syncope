@@ -31,6 +31,8 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.ITabComponent;
 import org.apache.syncope.client.console.layout.AnyLayout;
 import org.apache.syncope.client.console.layout.AnyLayoutUtils;
+import org.apache.syncope.client.console.rest.RealmRestClient;
+import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -55,6 +57,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +66,12 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
     private static final long serialVersionUID = -1100228004207271270L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(Realm.class);
+
+    @SpringBean
+    protected RoleRestClient roleRestClient;
+
+    @SpringBean
+    protected RealmRestClient realmRestClient;
 
     protected final RealmTO realmTO;
 
@@ -99,7 +108,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
     }
 
     protected RealmWizardBuilder buildNewItemPanelBuilder(final PageReference pageRef) {
-        return new RealmWizardBuilder(pageRef);
+        return new RealmWizardBuilder(realmRestClient, pageRef);
     }
 
     public RealmTO getRealmTO() {
@@ -112,6 +121,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         tabs.add(new RealmDetailsTabPanel());
 
         AnyLayout anyLayout = AnyLayoutUtils.fetch(
+                roleRestClient,
                 anyTypes.stream().map(AnyTypeTO::getKey).collect(Collectors.toList()));
         for (AnyTypeTO anyType : anyTypes) {
             tabs.add(new ITabComponent(
@@ -122,8 +132,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
                 @Override
                 public WebMarkupContainer getPanel(final String panelId) {
-                    return AnyLayoutUtils.newAnyPanel(
-                            anyLayout.getAnyPanelClass(), panelId, anyType, realmTO, anyLayout, true, pageRef);
+                    return new AnyPanel.Builder<>(
+                            anyLayout.getAnyPanelClass(), panelId, anyType, realmTO, anyLayout, true, pageRef).build();
                 }
 
                 @Override

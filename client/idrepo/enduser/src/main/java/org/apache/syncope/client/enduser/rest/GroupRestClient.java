@@ -44,7 +44,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
         return GroupService.class;
     }
 
-    public static ProvisioningResult<GroupTO> create(final GroupCR groupTO) {
+    public ProvisioningResult<GroupTO> create(final GroupCR groupTO) {
         Response response = getService(GroupService.class).create(groupTO);
         return response.readEntity(new GenericType<>() {
         });
@@ -61,11 +61,11 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
         return result;
     }
 
-    public static List<GroupTO> searchAssignableGroups(
-        final String realm,
-        final String term,
-        final int page,
-        final int size) {
+    public List<GroupTO> searchAssignableGroups(
+            final String realm,
+            final String term,
+            final int page,
+            final int size) {
 
         return getService(SyncopeService.class).searchAssignableGroups(
                 StringUtils.isNotEmpty(realm) ? realm : SyncopeConstants.ROOT_REALM, term, page, size).getResult();
@@ -77,5 +77,4 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
                 search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(1).size(0).details(false).build()).
                 getTotalCount();
     }
-
 }

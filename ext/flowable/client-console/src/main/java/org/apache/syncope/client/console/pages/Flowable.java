@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.BpmnProcessDirectoryPanel;
+import org.apache.syncope.client.console.rest.BpmnProcessRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.common.lib.to.BpmnProcess;
@@ -27,12 +28,16 @@ import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 @ExtPage(label = "Flowable", icon = "fa fa-briefcase",
         listEntitlement = FlowableEntitlement.BPMN_PROCESS_GET, priority = 200)
 public class Flowable extends BaseExtPage {
 
     private static final long serialVersionUID = -8781434495150074529L;
+
+    @SpringBean
+    protected BpmnProcessRestClient bpmnProcessRestClient;
 
     public Flowable(final PageParameters parameters) {
         super(parameters);
@@ -43,11 +48,12 @@ public class Flowable extends BaseExtPage {
         content.setOutputMarkupId(true);
         body.add(content);
 
-        WizardMgtPanel<BpmnProcess> bpmnProcessesPanel = new BpmnProcessDirectoryPanel.Builder(getPageReference()) {
+        WizardMgtPanel<BpmnProcess> bpmnProcessesPanel =
+                new BpmnProcessDirectoryPanel.Builder(bpmnProcessRestClient, getPageReference()) {
 
-            private static final long serialVersionUID = -5960765294082359003L;
+                    private static final long serialVersionUID = -5960765294082359003L;
 
-        }.disableCheckBoxes().build("bpmnProcessesPanel");
+                }.disableCheckBoxes().build("bpmnProcessesPanel");
         bpmnProcessesPanel.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(bpmnProcessesPanel, ENABLE, FlowableEntitlement.BPMN_PROCESS_GET);
 

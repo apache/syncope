@@ -24,10 +24,14 @@ import org.apache.syncope.client.ui.commons.wizards.any.AbstractAuxClasses;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ConsoleAuxClasses extends AbstractAuxClasses {
 
     private static final long serialVersionUID = 552437609667518888L;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
 
     public <T extends AnyTO> ConsoleAuxClasses(final AnyWrapper<T> modelObject, final List<String> anyTypeClasses) {
         super(modelObject, anyTypeClasses);
@@ -35,6 +39,6 @@ public class ConsoleAuxClasses extends AbstractAuxClasses {
 
     @Override
     protected final List<AnyTypeClassTO> listAnyTypecClasses() {
-        return AnyTypeClassRestClient.list();
+        return anyTypeClassRestClient.list();
     }
 }

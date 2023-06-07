@@ -35,7 +35,7 @@ public final class WASessionRestClient extends AMSessionRestClient {
 
     private static final long serialVersionUID = 22118820292494L;
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().
+    protected static final JsonMapper MAPPER = JsonMapper.builder().
             addModule(new SimpleModule().addDeserializer(AMSession.class, new AMSessionDeserializer())).build();
 
     public WASessionRestClient(final List<NetworkService> instances) {

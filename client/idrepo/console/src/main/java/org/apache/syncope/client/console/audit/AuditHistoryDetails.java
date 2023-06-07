@@ -66,14 +66,14 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
     private static final long serialVersionUID = -7400543686272100483L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AuditHistoryDetails.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AuditHistoryDetails.class);
 
     public static final List<String> DEFAULT_EVENTS = List.of(
             "create", "update", "matchingrule_update", "unmatchingrule_assign", "unmatchingrule_provision");
 
-    private static final SortParam<String> REST_SORT = new SortParam<>("event_date", false);
+    protected static final SortParam<String> REST_SORT = new SortParam<>("event_date", false);
 
-    private static class SortingNodeFactory extends JsonNodeFactory {
+    protected static class SortingNodeFactory extends JsonNodeFactory {
 
         private static final long serialVersionUID = 1870252010670L;
 
@@ -83,7 +83,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         }
     }
 
-    private static class SortedSetJsonSerializer extends StdSerializer<Set<?>> {
+    protected static class SortedSetJsonSerializer extends StdSerializer<Set<?>> {
 
         private static final long serialVersionUID = 3849059774309L;
 
@@ -128,36 +128,38 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Class<T> cast(final Class<?> aClass) {
+    protected static <T> Class<T> cast(final Class<?> aClass) {
         return (Class<T>) aClass;
     }
 
-    private static final ObjectMapper MAPPER = JsonMapper.builder().
+    protected static final ObjectMapper MAPPER = JsonMapper.builder().
             nodeFactory(new SortingNodeFactory()).build().
             registerModule(new SimpleModule().addSerializer(new SortedSetJsonSerializer(cast(Set.class)))).
             registerModule(new JavaTimeModule());
 
-    private EntityTO currentEntity;
+    protected EntityTO currentEntity;
 
-    private AuditElements.EventCategoryType type;
+    protected AuditElements.EventCategoryType type;
 
-    private String category;
+    protected String category;
 
-    private final List<String> events;
+    protected final List<String> events;
 
-    private Class<T> reference;
+    protected Class<T> reference;
 
-    private final List<AuditEntry> auditEntries = new ArrayList<>();
+    protected final List<AuditEntry> auditEntries = new ArrayList<>();
 
-    private AuditEntry latestAuditEntry;
+    protected AuditEntry latestAuditEntry;
 
-    private AuditEntry after;
+    protected AuditEntry after;
 
-    private AjaxDropDownChoicePanel<AuditEntry> beforeVersionsPanel;
+    protected AjaxDropDownChoicePanel<AuditEntry> beforeVersionsPanel;
 
-    private AjaxDropDownChoicePanel<AuditEntry> afterVersionsPanel;
+    protected AjaxDropDownChoicePanel<AuditEntry> afterVersionsPanel;
 
-    private final AjaxLink<Void> restore;
+    protected final AjaxLink<Void> restore;
+
+    protected final AuditRestClient restClient;
 
     @SuppressWarnings("unchecked")
     public AuditHistoryDetails(
@@ -166,7 +168,8 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
             final AuditElements.EventCategoryType type,
             final String category,
             final List<String> events,
-            final String auditRestoreEntitlement) {
+            final String auditRestoreEntitlement,
+            final AuditRestClient restClient) {
 
         super(id);
 
@@ -175,6 +178,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         this.category = category;
         this.events = events;
         this.reference = (Class<T>) currentEntity.getClass();
+        this.restClient = restClient;
 
         setOutputMarkupId(true);
 
@@ -283,7 +287,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
     protected void initDiff() {
         // audit fetch size is fixed, for the moment... 
         auditEntries.clear();
-        auditEntries.addAll(AuditRestClient.search(
+        auditEntries.addAll(restClient.search(
                 currentEntity.getKey(),
                 1,
                 50,
@@ -310,7 +314,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         restore.setEnabled(!auditEntries.isEmpty());
     }
 
-    private AuditEntry buildAfterAuditEntry(final AuditEntry input) {
+    protected AuditEntry buildAfterAuditEntry(final AuditEntry input) {
         AuditEntry output = new AuditEntry();
         output.setWho(input.getWho());
         output.setDate(input.getDate());
@@ -320,7 +324,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         return output;
     }
 
-    private Model<String> toJSON(final AuditEntry auditEntry, final Class<T> reference) {
+    protected Model<String> toJSON(final AuditEntry auditEntry, final Class<T> reference) {
         try {
             if (auditEntry == null) {
                 return Model.of();

@@ -20,6 +20,7 @@ package org.apache.syncope.client.ui.commons;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,7 +30,9 @@ import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MIMETypesLoader {
+public class MIMETypesLoader implements Serializable {
+
+    private static final long serialVersionUID = -1865866358622817499L;
 
     protected static final Logger LOG = LoggerFactory.getLogger(MIMETypesLoader.class);
 

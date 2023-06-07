@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
@@ -69,6 +70,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Tasks page.
@@ -80,6 +82,12 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
+    @SpringBean
+    protected RealmRestClient realmRestClient;
+
+    @SpringBean
+    protected TaskRestClient taskRestClient;
+
     protected final TaskType taskType;
 
     protected final T schedTaskTO;
@@ -90,6 +98,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     protected SchedTaskDirectoryPanel(
             final String id,
+            final TaskRestClient restClient,
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final TaskType taskType,
@@ -97,13 +106,14 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             final PageReference pageRef,
             final boolean wizardInModal) {
 
-        super(id, baseModal, multiLevelPanelRef, pageRef, wizardInModal);
+        super(id, restClient, baseModal, multiLevelPanelRef, pageRef, wizardInModal);
         this.taskType = taskType;
         this.schedTaskTO = newTaskTO;
 
         modal.size(Modal.Size.Large);
 
-        addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(taskType, schedTaskTO, pageRef), true);
+        addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(
+                taskType, schedTaskTO, realmRestClient, taskRestClient, pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.TASK_CREATE);
 
@@ -134,7 +144,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                     final TemplatableTO targetObject, final String type, final AnyTO anyTO) {
 
                 targetObject.getTemplates().put(type, anyTO);
-                TaskRestClient.update(taskType, SchedTaskTO.class.cast(targetObject));
+                restClient.update(taskType, SchedTaskTO.class.cast(targetObject));
                 return targetObject;
             }
         };
@@ -181,7 +191,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
                 Component panel;
                 try {
-                    JobTO jobTO = TaskRestClient.getJob(rowModel.getObject().getKey());
+                    JobTO jobTO = restClient.getJob(rowModel.getObject().getKey());
                     panel = new JobActionPanel(componentId, jobTO, false, SchedTaskDirectoryPanel.this);
                     MetaDataRoleAuthorizationStrategy.authorize(
                             panel, WebPage.ENABLE,
@@ -270,7 +280,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                TaskRestClient.readTask(taskType, model.getObject().getKey()),
+                                restClient.readTask(taskType, model.getObject().getKey()),
                                 target).setTitleModel(
                                 new StringResourceModel("inner.task.edit",
                                         SchedTaskDirectoryPanel.this,
@@ -316,7 +326,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 try {
-                    TaskRestClient.delete(taskType, taskTO.getKey());
+                    restClient.delete(taskType, taskTO.getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                     SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
@@ -353,7 +364,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         return new SchedTasksProvider<>(taskType, rows);
     }
 
-    protected static class SchedTasksProvider<T extends SchedTaskTO> extends TaskDataProvider<T> {
+    protected class SchedTasksProvider<T extends SchedTaskTO> extends TaskDataProvider<T> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
@@ -364,13 +375,13 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         @Override
         public long size() {
-            return TaskRestClient.count(taskType);
+            return restClient.count(taskType);
         }
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return TaskRestClient.<T>list(
+            return restClient.<T>list(
                     taskType, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).
                     iterator();
         }

@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.ResourceDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.status.ResourceStatusModal;
@@ -62,11 +63,18 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ResourceDirectoryPanel extends
         DirectoryPanel<Serializable, Serializable, ResourceDataProvider, ResourceRestClient> {
 
     private static final long serialVersionUID = -5223129956783782225L;
+
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
+
+    @SpringBean
+    protected AuditRestClient auditRestClient;
 
     protected String keyword;
 
@@ -136,7 +144,7 @@ public class ResourceDirectoryPanel extends
 
     @Override
     protected ResourceDataProvider dataProvider() {
-        dataProvider = new ResourceDataProvider(rows, pageRef, keyword);
+        dataProvider = new ResourceDataProvider(restClient, rows, pageRef, keyword);
         return dataProvider;
     }
 
@@ -174,13 +182,14 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO resource = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
-                ConnInstanceTO connInstance = ConnectorRestClient.read(resource.getConnector());
+                ResourceTO resource = restClient.read(((ResourceTO) model.getObject()).getKey());
+                ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
 
                 IModel<ResourceTO> model = new CompoundPropertyModel<>(resource);
                 modal.setFormModel(model);
 
-                target.add(modal.setContent(new ResourceWizardBuilder(resource, pageRef).
+                target.add(modal.setContent(new ResourceWizardBuilder(
+                        resource, restClient, connectorRestClient, pageRef).
                         build(BaseModal.CONTENT_ID,
                                 SyncopeConsoleSession.get().
                                         owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())
@@ -199,8 +208,8 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO resource = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
-                ConnInstanceTO connInstance = ConnectorRestClient.read(resource.getConnector());
+                ResourceTO resource = restClient.read(((ResourceTO) model.getObject()).getKey());
+                ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
 
                 if (SyncopeConsoleSession.get().
                         owns(IdMEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())) {
@@ -229,7 +238,7 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO resource = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
+                ResourceTO resource = restClient.read(((ResourceTO) model.getObject()).getKey());
 
                 target.add(propTaskModal.setContent(new ConnObjects(resource, pageRef)));
                 propTaskModal.header(new StringResourceModel("resource.explore.list", Model.of(model.getObject())));
@@ -285,7 +294,7 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO modelObject = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
+                ResourceTO modelObject = restClient.read(((ResourceTO) model.getObject()).getKey());
                 target.add(propTaskModal.setContent(new ResourceStatusModal(pageRef, modelObject)));
                 propTaskModal.header(new Model<>(MessageFormat.format(getString("resource.reconciliation"),
                         ((ResourceTO) model.getObject()).getKey())));
@@ -299,13 +308,14 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO modelObject = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
+                ResourceTO modelObject = restClient.read(((ResourceTO) model.getObject()).getKey());
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
                         AuditElements.EventCategoryType.LOGIC,
                         "ResourceLogic",
                         modelObject,
-                        IdMEntitlement.RESOURCE_UPDATE) {
+                        IdMEntitlement.RESOURCE_UPDATE,
+                        auditRestClient) {
 
                     private static final long serialVersionUID = -3712506022627033811L;
 
@@ -313,7 +323,7 @@ public class ResourceDirectoryPanel extends
                     protected void restore(final String json, final AjaxRequestTarget target) {
                         try {
                             ResourceTO updated = MAPPER.readValue(json, ResourceTO.class);
-                            ResourceRestClient.update(updated);
+                            restClient.update(updated);
 
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
@@ -340,7 +350,7 @@ public class ResourceDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
-                    ResourceTO resource = ResourceRestClient.read(((ResourceTO) model.getObject()).getKey());
+                    ResourceTO resource = restClient.read(((ResourceTO) model.getObject()).getKey());
                     resource.setKey("Copy of " + resource.getKey());
                     // reset some resource objects keys
                     resource.getProvisions().forEach(provision -> {
@@ -349,7 +359,8 @@ public class ResourceDirectoryPanel extends
                         }
                         provision.getVirSchemas().clear();
                     });
-                    target.add(modal.setContent(new ResourceWizardBuilder(resource, pageRef).
+                    target.add(modal.setContent(new ResourceWizardBuilder(
+                            resource, restClient, connectorRestClient, pageRef).
                             build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
                     modal.header(new Model<>(MessageFormat.format(getString("resource.clone"), resource.getKey())));
@@ -369,9 +380,10 @@ public class ResourceDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
-                    ResourceRestClient.delete(((ResourceTO) model.getObject()).getKey());
+                    restClient.delete(((ResourceTO) model.getObject()).getKey());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');",
                             ((ResourceTO) model.getObject()).getKey()));
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", ((ResourceTO) model.getObject()).getKey(), e);
@@ -410,8 +422,8 @@ public class ResourceDirectoryPanel extends
 
         private static final long serialVersionUID = -1391308721262593468L;
 
-        public Builder(final PageReference pageRef) {
-            super(new ResourceRestClient(), pageRef);
+        public Builder(final ResourceRestClient restClient, final PageReference pageRef) {
+            super(restClient, pageRef);
             setShowResultPage(false);
         }
 

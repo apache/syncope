@@ -39,16 +39,18 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> {
 
     private static final long serialVersionUID = 6257389301592059194L;
 
-    private final UserRestClient userRestClient = new UserRestClient();
+    @SpringBean
+    protected UserRestClient userRestClient;
 
-    private final IModel<List<StatusBean>> statusModel;
+    protected final IModel<List<StatusBean>> statusModel;
 
-    private final UserWrapper wrapper;
+    protected final UserWrapper wrapper;
 
     public ChangePasswordModal(
             final BaseModal<AnyWrapper<UserTO>> baseModal,

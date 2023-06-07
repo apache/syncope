@@ -49,12 +49,16 @@ public class NetworkServiceDirectoryPanel extends DirectoryPanel<
     private static final long serialVersionUID = 1868839768348072635L;
 
     @SpringBean
-    private ServiceOps serviceOps;
+    protected ServiceOps serviceOps;
 
     private final NetworkService.Type type;
 
-    public NetworkServiceDirectoryPanel(final String id, final NetworkService.Type type, final PageReference pageRef) {
-        super(id, pageRef, true);
+    public NetworkServiceDirectoryPanel(
+            final String id,
+            final NetworkService.Type type,
+            final SyncopeRestClient syncopeRestClient,
+            final PageReference pageRef) {
+        super(id, syncopeRestClient, pageRef, true);
         this.type = type;
 
         NetworkService service = new NetworkService();

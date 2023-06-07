@@ -73,6 +73,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
@@ -86,9 +87,12 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(BeanPanel.class);
 
-    private final List<String> excluded;
+    @SpringBean
+    protected SchemaRestClient schemaRestClient;
 
-    private final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper;
+    protected final List<String> excluded;
+
+    protected final Map<String, Pair<AbstractFiqlSearchConditionBuilder<?, ?, ?>, List<SearchClause>>> sCondWrapper;
 
     public BeanPanel(final String id, final IModel<T> bean, final PageReference pageRef, final String... excluded) {
         this(id, bean, null, pageRef, excluded);
@@ -218,17 +222,17 @@ public class BeanPanel<T extends Serializable> extends Panel {
                             switch (type) {
                                 case PLAIN:
                                     choices.addAll(
-                                            SchemaRestClient.getSchemas(SchemaType.PLAIN, schema.anyTypeKind()));
+                                            schemaRestClient.getSchemas(SchemaType.PLAIN, schema.anyTypeKind()));
                                     break;
 
                                 case DERIVED:
                                     choices.addAll(
-                                            SchemaRestClient.getSchemas(SchemaType.DERIVED, schema.anyTypeKind()));
+                                            schemaRestClient.getSchemas(SchemaType.DERIVED, schema.anyTypeKind()));
                                     break;
 
                                 case VIRTUAL:
                                     choices.addAll(
-                                            SchemaRestClient.getSchemas(SchemaType.VIRTUAL, schema.anyTypeKind()));
+                                            schemaRestClient.getSchemas(SchemaType.VIRTUAL, schema.anyTypeKind()));
                                     break;
 
                                 default:

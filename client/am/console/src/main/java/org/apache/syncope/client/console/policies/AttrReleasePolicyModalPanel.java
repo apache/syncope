@@ -45,22 +45,29 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class AttrReleasePolicyModalPanel extends AbstractModalPanel<AttrReleasePolicyTO> {
 
     private static final long serialVersionUID = 2668291404983623500L;
 
-    private final IModel<List<String>> allAttrRepos = new LoadableDetachableModel<>() {
+    @SpringBean
+    protected PolicyRestClient policyRestClient;
+
+    @SpringBean
+    protected AttrRepoRestClient attrRepoRestClient;
+
+    protected final IModel<List<String>> allAttrRepos = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = -2012833443695917883L;
 
         @Override
         protected List<String> load() {
-            return AttrRepoRestClient.list().stream().map(AttrRepoTO::getKey).sorted().collect(Collectors.toList());
+            return attrRepoRestClient.list().stream().map(AttrRepoTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
-    private final IModel<AttrReleasePolicyTO> model;
+    protected final IModel<AttrReleasePolicyTO> model;
 
     public AttrReleasePolicyModalPanel(
             final BaseModal<AttrReleasePolicyTO> modal,
@@ -136,7 +143,7 @@ public class AttrReleasePolicyModalPanel extends AbstractModalPanel<AttrReleaseP
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
         try {
-            PolicyRestClient.update(PolicyType.ATTR_RELEASE, model.getObject());
+            policyRestClient.update(PolicyType.ATTR_RELEASE, model.getObject());
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);

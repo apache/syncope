@@ -34,10 +34,14 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class AnyTypeDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 8131650329622035501L;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
 
     public AnyTypeDetailsPanel(final String id, final AnyTypeTO anyTypeTO) {
         super(id);
@@ -74,6 +78,6 @@ public class AnyTypeDetailsPanel extends Panel {
     }
 
     protected List<String> getAvailableAnyTypeClasses() {
-        return AnyTypeClassRestClient.list().stream().map(AnyTypeClassTO::getKey).collect(Collectors.toList());
+        return anyTypeClassRestClient.list().stream().map(AnyTypeClassTO::getKey).collect(Collectors.toList());
     }
 }

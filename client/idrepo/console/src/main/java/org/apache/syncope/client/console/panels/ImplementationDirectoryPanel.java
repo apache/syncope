@@ -58,8 +58,13 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
 
     private final String type;
 
-    public ImplementationDirectoryPanel(final String id, final String type, final PageReference pageRef) {
-        super(id, pageRef, true);
+    public ImplementationDirectoryPanel(
+            final String id,
+            final String type,
+            final ImplementationRestClient restClient,
+            final PageReference pageRef) {
+
+        super(id, restClient, pageRef, true);
         this.type = type;
 
         ImplementationTO implementation = new ImplementationTO();
@@ -75,8 +80,6 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
             modal.show(false);
         });
         setFooterVisibility(true);
-
-        restClient = new ImplementationRestClient();
 
         initResultTable();
 
@@ -106,7 +109,7 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 send(ImplementationDirectoryPanel.this, Broadcast.BREADTH,
-                    new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
+                        new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
                 engineTogglePanel.setHeaderLabel(target);
                 engineTogglePanel.toggle(target, true);
             }
@@ -139,7 +142,7 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final ImplementationTO ignore) {
                 target.add(modal.setContent(
-                    new ImplementationModalPanel(modal, model.getObject(), pageRef)));
+                        new ImplementationModalPanel(modal, model.getObject(), pageRef)));
                 modal.header(new StringResourceModel("any.edit", Model.of(model.getObject())));
                 modal.show(true);
             }
@@ -152,7 +155,8 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final ImplementationTO ignore) {
                 try {
-                    ImplementationRestClient.delete(model.getObject().getType(), model.getObject().getKey());
+                    restClient.delete(model.getObject().getType(), model.getObject().getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -196,14 +200,14 @@ public class ImplementationDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<ImplementationTO> iterator(final long first, final long count) {
-            List<ImplementationTO> list = ImplementationRestClient.list(type);
+            List<ImplementationTO> list = restClient.list(type);
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return ImplementationRestClient.list(type).size();
+            return restClient.list(type).size();
         }
 
         @Override

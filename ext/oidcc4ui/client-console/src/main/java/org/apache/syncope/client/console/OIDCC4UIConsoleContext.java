@@ -1,0 +1,62 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.client.console;
+
+import org.apache.syncope.client.console.resources.oidcc4ui.ConsoleCodeConsumerResource;
+import org.apache.syncope.client.console.resources.oidcc4ui.ConsoleLogoutResource;
+import org.apache.syncope.client.console.rest.OIDCProviderRestClient;
+import org.apache.syncope.client.ui.commons.resources.oidcc4ui.BeforeLogoutResource;
+import org.apache.syncope.client.ui.commons.resources.oidcc4ui.LoginResource;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration(proxyBeanMethods = false)
+public class OIDCC4UIConsoleContext {
+
+    @ConditionalOnMissingBean
+    @Bean
+    public OIDCProviderRestClient oidcProviderRestClient() {
+        return new OIDCProviderRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public LoginResource oidcc4uiLoginResource() {
+        return new LoginResource();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ConsoleCodeConsumerResource codeConsumerResource() {
+        return new ConsoleCodeConsumerResource();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public BeforeLogoutResource beforeLogoutResource() {
+        return new BeforeLogoutResource();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public ConsoleLogoutResource oidcc4uiLogoutResource() {
+        return new ConsoleLogoutResource();
+    }
+}

@@ -29,23 +29,23 @@ public class AnyTypeClassRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2211371717449597247L;
 
-    public static void create(final AnyTypeClassTO anyTypeClass) {
+    public void create(final AnyTypeClassTO anyTypeClass) {
         getService(AnyTypeClassService.class).create(anyTypeClass);
     }
 
-    public static void update(final AnyTypeClassTO anyTypeClass) {
+    public void update(final AnyTypeClassTO anyTypeClass) {
         getService(AnyTypeClassService.class).update(anyTypeClass);
     }
 
-    public static void delete(final String key) {
+    public void delete(final String key) {
         getService(AnyTypeClassService.class).delete(key);
     }
 
-    public static AnyTypeClassTO read(final String key) {
+    public AnyTypeClassTO read(final String key) {
         return getService(AnyTypeClassService.class).read(key);
     }
 
-    public static List<AnyTypeClassTO> list() {
+    public List<AnyTypeClassTO> list() {
         List<AnyTypeClassTO> types = List.of();
 
         try {
@@ -57,7 +57,7 @@ public class AnyTypeClassRestClient extends BaseRestClient {
         return types;
     }
 
-    public static List<AnyTypeClassTO> list(final Collection<String> anyTypeClassNames) {
+    public List<AnyTypeClassTO> list(final Collection<String> anyTypeClassNames) {
         List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
         for (String anyTypeClass : anyTypeClassNames) {
             anyTypeClassTOs.add(read(anyTypeClass));

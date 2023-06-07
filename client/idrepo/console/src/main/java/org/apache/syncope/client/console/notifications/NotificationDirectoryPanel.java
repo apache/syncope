@@ -29,7 +29,11 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.notifications.NotificationDirectoryPanel.NotificationProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.AuditRestClient;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
+import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
@@ -51,16 +55,34 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class NotificationDirectoryPanel
         extends DirectoryPanel<NotificationTO, NotificationWrapper, NotificationProvider, NotificationRestClient> {
 
     private static final long serialVersionUID = -3789392431954221446L;
 
+    @SpringBean
+    protected NotificationRestClient notificationRestClient;
+
+    @SpringBean
+    protected AuditRestClient auditRestClient;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected ImplementationRestClient implementationRestClient;
+
+    @SpringBean
+    protected SchemaRestClient schemaRestClient;
+
     protected final BaseModal<String> utilityModal = new BaseModal<>(Constants.OUTER);
 
-    public NotificationDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef, true);
+    public NotificationDirectoryPanel(
+            final String id, final NotificationRestClient restClient, final PageReference pageRef) {
+
+        super(id, restClient, pageRef, true);
         disableCheckBoxes();
 
         addOuterObject(utilityModal);
@@ -70,9 +92,14 @@ public class NotificationDirectoryPanel
         modal.size(Modal.Size.Large);
         altDefaultModal.size(Modal.Size.Large);
 
-        addNewItemPanelBuilder(new NotificationWizardBuilder(new NotificationTO(), pageRef), true);
-
-        restClient = new NotificationRestClient();
+        addNewItemPanelBuilder(new NotificationWizardBuilder(
+                new NotificationTO(),
+                notificationRestClient,
+                auditRestClient,
+                anyTypeRestClient,
+                implementationRestClient,
+                schemaRestClient,
+                pageRef), true);
 
         initResultTable();
 
@@ -108,9 +135,8 @@ public class NotificationDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
                 send(NotificationDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(
-                        new NotificationWrapper(
-                            NotificationRestClient.read(model.getObject().getKey())), target));
+                        new AjaxWizard.EditItemActionEvent<>(
+                                new NotificationWrapper(restClient.read(model.getObject().getKey())), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.NOTIFICATION_UPDATE);
 
@@ -121,7 +147,7 @@ public class NotificationDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
                 target.add(utilityModal.setContent(
-                    new NotificationTasks(model.getObject().getKey(), pageRef)));
+                        new NotificationTasks(model.getObject().getKey(), pageRef)));
                 utilityModal.header(new StringResourceModel("notification.tasks", model));
                 utilityModal.show(true);
                 target.add(utilityModal);
@@ -135,7 +161,7 @@ public class NotificationDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
                 try {
-                    NotificationRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -164,11 +190,11 @@ public class NotificationDirectoryPanel
         return List.of();
     }
 
-    protected static class NotificationProvider extends DirectoryDataProvider<NotificationTO> {
+    protected class NotificationProvider extends DirectoryDataProvider<NotificationTO> {
 
         private static final long serialVersionUID = -276043813563988590L;
 
-        private final SortableDataProviderComparator<NotificationTO> comparator;
+        protected final SortableDataProviderComparator<NotificationTO> comparator;
 
         public NotificationProvider(final int paginatorRows) {
             super(paginatorRows);
@@ -179,14 +205,14 @@ public class NotificationDirectoryPanel
 
         @Override
         public Iterator<NotificationTO> iterator(final long first, final long count) {
-            List<NotificationTO> list = NotificationRestClient.list();
+            List<NotificationTO> list = restClient.list();
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return NotificationRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override
@@ -202,5 +228,4 @@ public class NotificationDirectoryPanel
             };
         }
     }
-
 }

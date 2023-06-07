@@ -29,9 +29,9 @@ public class ClientAppRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    private static final Comparator<ClientAppTO> COMPARATOR = Comparator.comparing(ClientAppTO::getName);
+    protected static final Comparator<ClientAppTO> COMPARATOR = Comparator.comparing(ClientAppTO::getName);
 
-    public static <T extends ClientAppTO> T read(final ClientAppType type, final String key) {
+    public <T extends ClientAppTO> T read(final ClientAppType type, final String key) {
         T policy = null;
         try {
             policy = getService(ClientAppService.class).read(type, key);
@@ -42,7 +42,7 @@ public class ClientAppRestClient extends BaseRestClient {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends ClientAppTO> List<T> list(final ClientAppType type) {
+    public <T extends ClientAppTO> List<T> list(final ClientAppType type) {
         try {
             return getService(ClientAppService.class).<T>list(type).stream().
                     sorted(COMPARATOR).
@@ -53,15 +53,15 @@ public class ClientAppRestClient extends BaseRestClient {
         }
     }
 
-    public static <T extends ClientAppTO> void create(final ClientAppType type, final T policy) {
+    public <T extends ClientAppTO> void create(final ClientAppType type, final T policy) {
         getService(ClientAppService.class).create(type, policy);
     }
 
-    public static <T extends ClientAppTO> void update(final ClientAppType type, final T policy) {
+    public <T extends ClientAppTO> void update(final ClientAppType type, final T policy) {
         getService(ClientAppService.class).update(type, policy);
     }
 
-    public static void delete(final ClientAppType type, final String key) {
+    public void delete(final ClientAppType type, final String key) {
         getService(ClientAppService.class).delete(type, key);
     }
 }

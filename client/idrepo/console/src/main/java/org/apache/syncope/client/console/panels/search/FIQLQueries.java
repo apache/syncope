@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
 import org.apache.syncope.client.console.panels.TogglePanel;
+import org.apache.syncope.client.console.rest.FIQLQueryRestClient;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
@@ -29,13 +30,15 @@ public class FIQLQueries extends TogglePanel<Serializable> {
 
     public FIQLQueries(
             final String id,
+            final FIQLQueryRestClient fiqlQueryRestClient,
             final AbstractSearchPanel searchPanel,
             final String target,
             final PageReference pageRef) {
 
         super(id, pageRef);
 
-        addInnerObject(new FIQLQueryDirectoryPanel("fiqlQueryDirectoryPanel", searchPanel, target, this, pageRef));
+        addInnerObject(new FIQLQueryDirectoryPanel(
+                "fiqlQueryDirectoryPanel", fiqlQueryRestClient, searchPanel, target, this, pageRef));
     }
 
     @Override

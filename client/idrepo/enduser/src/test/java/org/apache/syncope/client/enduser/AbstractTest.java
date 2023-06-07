@@ -39,7 +39,6 @@ import org.apache.syncope.client.lib.AuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -56,6 +55,7 @@ import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
+import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -125,13 +125,6 @@ public abstract class AbstractTest {
             lookup.load();
             return lookup;
         }
-
-        @Bean
-        public MIMETypesLoader mimeTypesLoader() {
-            MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
-            mimeTypesLoader.load();
-            return mimeTypesLoader;
-        }
     }
 
     public static class TestSyncopeWebApplication extends SyncopeWebApplication {
@@ -140,9 +133,10 @@ public abstract class AbstractTest {
                 final ResourceLoader resourceLoader,
                 final EnduserProperties props,
                 final ClassPathScanImplementationLookup lookup,
-                final ServiceOps serviceOps) {
+                final ServiceOps serviceOps,
+                final List<IResource> resources) {
 
-            super(resourceLoader, props, lookup, serviceOps);
+            super(resourceLoader, props, lookup, serviceOps, resources);
         }
 
         public interface SyncopeServiceClient extends SyncopeService, Client {

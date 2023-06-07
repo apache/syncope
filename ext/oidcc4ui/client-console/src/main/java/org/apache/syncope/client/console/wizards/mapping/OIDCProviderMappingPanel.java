@@ -31,10 +31,17 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class OIDCProviderMappingPanel extends AbstractMappingPanel {
 
     private static final long serialVersionUID = -4123879435574382968L;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
 
     public OIDCProviderMappingPanel(
             final String id,
@@ -92,7 +99,7 @@ public class OIDCProviderMappingPanel extends AbstractMappingPanel {
 
         List<String> choices = new ArrayList<>(ClassPathScanImplementationLookup.USER_FIELD_NAMES);
 
-        AnyTypeClassRestClient.list(AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses()).
+        anyTypeClassRestClient.list(anyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses()).
                 forEach(anyTypeClassTO -> {
                     choices.addAll(anyTypeClassTO.getPlainSchemas());
                     choices.addAll(anyTypeClassTO.getDerSchemas());

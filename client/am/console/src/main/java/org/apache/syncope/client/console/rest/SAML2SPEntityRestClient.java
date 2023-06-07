@@ -27,19 +27,19 @@ public class SAML2SPEntityRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    public static List<SAML2SPEntityTO> list() {
+    public List<SAML2SPEntityTO> list() {
         return getService(SAML2SPEntityService.class).list().stream().collect(Collectors.toList());
     }
 
-    public static SAML2SPEntityTO get(final String key) {
+    public SAML2SPEntityTO get(final String key) {
         return getService(SAML2SPEntityService.class).get(key);
     }
 
-    public static void set(final SAML2SPEntityTO entityTO) {
+    public void set(final SAML2SPEntityTO entityTO) {
         getService(SAML2SPEntityService.class).set(entityTO);
     }
 
-    public static void delete(final String key) {
+    public void delete(final String key) {
         getService(SAML2SPEntityService.class).delete(key);
     }
 }

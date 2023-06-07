@@ -68,8 +68,10 @@ public class AuthProfileDirectoryPanel
 
     private final BaseModal<AuthProfileTO> authProfileModal;
 
-    public AuthProfileDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef);
+    public AuthProfileDirectoryPanel(
+            final String id, final AuthProfileRestClient restClient, final PageReference pageRef) {
+
+        super(id, restClient, pageRef);
 
         authProfileModal = new BaseModal<>(Constants.OUTER) {
 
@@ -178,11 +180,11 @@ public class AuthProfileDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
-                model.setObject(AuthProfileRestClient.read(model.getObject().getKey()));
+                model.setObject(restClient.read(model.getObject().getKey()));
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
                         authProfileModal,
                         new AuthProfileItemDirectoryPanel<ImpersonationAccount>(
-                                "panel", authProfileModal, model.getObject(), pageRef) {
+                                "panel", restClient, authProfileModal, model.getObject(), pageRef) {
 
                     private static final long serialVersionUID = -5380664539000792237L;
 
@@ -225,11 +227,11 @@ public class AuthProfileDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
-                model.setObject(AuthProfileRestClient.read(model.getObject().getKey()));
+                model.setObject(restClient.read(model.getObject().getKey()));
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
                         authProfileModal,
                         new AuthProfileItemDirectoryPanel<GoogleMfaAuthToken>(
-                                "panel", authProfileModal, model.getObject(), pageRef) {
+                                "panel", restClient, authProfileModal, model.getObject(), pageRef) {
 
                     private static final long serialVersionUID = 7332357430197837993L;
 
@@ -274,11 +276,11 @@ public class AuthProfileDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
-                model.setObject(AuthProfileRestClient.read(model.getObject().getKey()));
+                model.setObject(restClient.read(model.getObject().getKey()));
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
                         authProfileModal,
                         new AuthProfileItemDirectoryPanel<GoogleMfaAuthAccount>(
-                                "panel", authProfileModal, model.getObject(), pageRef) {
+                                "panel", restClient, authProfileModal, model.getObject(), pageRef) {
 
                     private static final long serialVersionUID = -670769282358547044L;
 
@@ -323,11 +325,11 @@ public class AuthProfileDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
-                model.setObject(AuthProfileRestClient.read(model.getObject().getKey()));
+                model.setObject(restClient.read(model.getObject().getKey()));
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
                         authProfileModal,
                         new AuthProfileItemDirectoryPanel<U2FDevice>(
-                                "panel", authProfileModal, model.getObject(), pageRef) {
+                                "panel", restClient, authProfileModal, model.getObject(), pageRef) {
 
                     private static final long serialVersionUID = 5788448799796630011L;
 
@@ -372,11 +374,11 @@ public class AuthProfileDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
-                model.setObject(AuthProfileRestClient.read(model.getObject().getKey()));
+                model.setObject(restClient.read(model.getObject().getKey()));
                 target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
                         authProfileModal,
                         new AuthProfileItemDirectoryPanel<WebAuthnDeviceCredential>(
-                                "panel", authProfileModal, model.getObject(), pageRef) {
+                                "panel", restClient, authProfileModal, model.getObject(), pageRef) {
 
                     private static final long serialVersionUID = 6820212423488933184L;
 
@@ -422,7 +424,7 @@ public class AuthProfileDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
                 try {
-                    AuthProfileRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
@@ -437,7 +439,7 @@ public class AuthProfileDirectoryPanel
         return panel;
     }
 
-    protected static final class AuthProfileProvider extends DirectoryDataProvider<AuthProfileTO> {
+    protected final class AuthProfileProvider extends DirectoryDataProvider<AuthProfileTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -449,12 +451,12 @@ public class AuthProfileDirectoryPanel
         @Override
         public Iterator<AuthProfileTO> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return AuthProfileRestClient.list((page < 0 ? 0 : page) + 1, paginatorRows).iterator();
+            return restClient.list((page < 0 ? 0 : page) + 1, paginatorRows).iterator();
         }
 
         @Override
         public long size() {
-            return AuthProfileRestClient.count();
+            return restClient.count();
         }
 
         @Override
@@ -465,11 +467,11 @@ public class AuthProfileDirectoryPanel
 
     private class CreateAuthProfileWizardBuilder extends AuthProfileWizardBuilder<AuthProfileTO> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -2478221092672979490L;
 
         private class NewAuthProfileStep extends AuthProfileWizardBuilder<AuthProfileTO>.Step {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 6290450377240300418L;
 
             NewAuthProfileStep(final AuthProfileTO modelObject) {
                 super(modelObject);
@@ -493,7 +495,7 @@ public class AuthProfileDirectoryPanel
 
         @Override
         protected Serializable onApplyInternal(final AuthProfileTO modelObject) {
-            AuthProfileRestClient.create(modelObject);
+            restClient.create(modelObject);
             return modelObject;
         }
     }

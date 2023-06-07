@@ -36,28 +36,24 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.console.ConsoleProperties;
 import org.apache.syncope.client.console.annotations.AMPage;
 import org.apache.syncope.client.console.annotations.IdMPage;
-import org.apache.syncope.client.console.annotations.UserFormFinalize;
 import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.widgets.BaseExtWidget;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
-import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.annotations.ExtWidget;
-import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
-import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.wicket.request.resource.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
@@ -130,16 +126,14 @@ public class ClassPathScanImplementationLookup implements Serializable {
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
 
         scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(BinaryPreviewer.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(UserFormFinalizer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtWidget.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ExtAlertWidget.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseSSOLoginFormPanel.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(BinaryPreviewer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ReportConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AccountRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRuleConf.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(AbstractResource.class));
 
         contributors.forEach(contributor -> contributor.extend(scanner));
 
@@ -162,71 +156,64 @@ public class ClassPathScanImplementationLookup implements Serializable {
         idmPages = new ArrayList<>();
         amPages = new ArrayList<>();
 
-        scanner().findCandidateComponents(getBasePackage()).forEach(bd -> {
+        for (BeanDefinition bd : scanner().findCandidateComponents(getBasePackage())) {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         Objects.requireNonNull(bd.getBeanClassName()), ClassUtils.getDefaultClassLoader());
-                if (!Modifier.isAbstract(clazz.getModifiers())) {
-                    if (BaseExtPage.class.isAssignableFrom(clazz)) {
-                        if (clazz.isAnnotationPresent(ExtPage.class)) {
-                            addClass(BaseExtPage.class.getName(), clazz);
-                        } else {
-                            LOG.error("Could not find annotation {} in {}, ignoring",
-                                    ExtPage.class.getName(), clazz.getName());
-                        }
-                    } else if (BaseExtWidget.class.isAssignableFrom(clazz)) {
-                        if (clazz.isAnnotationPresent(ExtWidget.class)) {
-                            addClass(BaseExtWidget.class.getName(), clazz);
-                        } else {
-                            LOG.error("Could not find annotation {} in {}, ignoring",
-                                    ExtWidget.class.getName(), clazz.getName());
-                        }
-                    } else if (ExtAlertWidget.class.isAssignableFrom(clazz)) {
-                        if (clazz.isAnnotationPresent(ExtWidget.class)) {
-                            addClass(ExtAlertWidget.class.getName(), clazz);
-                        } else {
-                            LOG.error("Could not find annotation {} in {}, ignoring",
-                                    ExtAlertWidget.class.getName(), clazz.getName());
-                        }
-                    } else if (BasePage.class.isAssignableFrom(clazz)) {
-                        if (clazz.isAnnotationPresent(IdMPage.class)) {
-                            if (!clazz.getName().endsWith("Topology")
-                                    || (clazz.getName().equals(props.getPage().get("topology").getName()))) {
-                                idmPages.add((Class<? extends BasePage>) clazz);
-                            }
-                        } else if (clazz.isAnnotationPresent(AMPage.class)) {
-                            amPages.add((Class<? extends BasePage>) clazz);
-                        } else {
-                            idRepoPages.add((Class<? extends BasePage>) clazz);
-                        }
-                    } else if (BinaryPreviewer.class.isAssignableFrom(clazz)) {
-                        addClass(BinaryPreviewer.class.getName(), clazz);
-                    } else if (UserFormFinalizer.class.isAssignableFrom(clazz)) {
-                        addClass(UserFormFinalizer.class.getName(), clazz);
-                    } else if (BaseSSOLoginFormPanel.class.isAssignableFrom(clazz)) {
-                        addClass(BaseSSOLoginFormPanel.class.getName(), clazz);
-                    } else if (ReportConf.class.isAssignableFrom(clazz)) {
-                        addClass(ReportConf.class.getName(), clazz);
-                    } else if (AccountRuleConf.class.isAssignableFrom(clazz)) {
-                        addClass(AccountRuleConf.class.getName(), clazz);
-                    } else if (PasswordRuleConf.class.isAssignableFrom(clazz)) {
-                        addClass(PasswordRuleConf.class.getName(), clazz);
-                    } else if (AbstractResource.class.isAssignableFrom(clazz)) {
-                        if (clazz.isAnnotationPresent(Resource.class)) {
-                            addClass(AbstractResource.class.getName(), clazz);
-                        } else {
-                            LOG.error("Could not find annotation {} in {}, ignoring",
-                                    Resource.class.getName(), clazz.getName());
-                        }
+                if (Modifier.isAbstract(clazz.getModifiers())) {
+                    continue;
+                }
+
+                if (BaseExtPage.class.isAssignableFrom(clazz)) {
+                    if (clazz.isAnnotationPresent(ExtPage.class)) {
+                        addClass(BaseExtPage.class.getName(), clazz);
                     } else {
-                        contributors.forEach(contributor -> contributor.getLabel(clazz).
-                                ifPresent(label -> addClass(label, clazz)));
+                        LOG.error("Could not find annotation {} in {}, ignoring",
+                                ExtPage.class.getName(), clazz.getName());
                     }
+                } else if (BaseExtWidget.class.isAssignableFrom(clazz)) {
+                    if (clazz.isAnnotationPresent(ExtWidget.class)) {
+                        addClass(BaseExtWidget.class.getName(), clazz);
+                    } else {
+                        LOG.error("Could not find annotation {} in {}, ignoring",
+                                ExtWidget.class.getName(), clazz.getName());
+                    }
+                } else if (ExtAlertWidget.class.isAssignableFrom(clazz)) {
+                    if (clazz.isAnnotationPresent(ExtWidget.class)) {
+                        addClass(ExtAlertWidget.class.getName(), clazz);
+                    } else {
+                        LOG.error("Could not find annotation {} in {}, ignoring",
+                                ExtAlertWidget.class.getName(), clazz.getName());
+                    }
+                } else if (BasePage.class.isAssignableFrom(clazz)) {
+                    if (clazz.isAnnotationPresent(IdMPage.class)) {
+                        if (!clazz.getName().endsWith("Topology")
+                                || (clazz.getName().equals(props.getPage().get("topology").getName()))) {
+                            idmPages.add((Class<? extends BasePage>) clazz);
+                        }
+                    } else if (clazz.isAnnotationPresent(AMPage.class)) {
+                        amPages.add((Class<? extends BasePage>) clazz);
+                    } else {
+                        idRepoPages.add((Class<? extends BasePage>) clazz);
+                    }
+                } else if (BaseSSOLoginFormPanel.class.isAssignableFrom(clazz)) {
+                    addClass(BaseSSOLoginFormPanel.class.getName(), clazz);
+                } else if (BinaryPreviewer.class.isAssignableFrom(clazz)) {
+                    addClass(BinaryPreviewer.class.getName(), clazz);
+                } else if (ReportConf.class.isAssignableFrom(clazz)) {
+                    addClass(ReportConf.class.getName(), clazz);
+                } else if (AccountRuleConf.class.isAssignableFrom(clazz)) {
+                    addClass(AccountRuleConf.class.getName(), clazz);
+                } else if (PasswordRuleConf.class.isAssignableFrom(clazz)) {
+                    addClass(PasswordRuleConf.class.getName(), clazz);
+                } else {
+                    contributors.forEach(contributor -> contributor.getLabel(clazz).
+                            ifPresent(label -> addClass(label, clazz)));
                 }
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
             }
-        });
+        }
 
         idRepoPages = Collections.unmodifiableList(idRepoPages);
 
@@ -273,6 +260,13 @@ public class ClassPathScanImplementationLookup implements Serializable {
                 collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unchecked")
+    public List<Class<? extends ExtAlertWidget<?>>> getExtAlertWidgetClasses() {
+        return classes.getOrDefault(ExtAlertWidget.class.getName(), List.of()).stream().
+                map(clazz -> (Class<? extends ExtAlertWidget<?>>) clazz).
+                collect(Collectors.toList());
+    }
+
     public Class<? extends BinaryPreviewer> getPreviewerClass(final String mimeType) {
         LOG.debug("Searching for previewer class for MIME type: {}", mimeType);
 
@@ -286,21 +280,5 @@ public class ClassPathScanImplementationLookup implements Serializable {
             }
         }
         return previewer;
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Class<? extends ExtAlertWidget<?>>> getExtAlertWidgetClasses() {
-        return classes.getOrDefault(ExtAlertWidget.class.getName(), List.of()).stream().
-                map(clazz -> (Class<? extends ExtAlertWidget<?>>) clazz).
-                collect(Collectors.toList());
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Class<? extends UserFormFinalizer>> getUserFormFinalizerClasses(final AjaxWizard.Mode mode) {
-        return classes.getOrDefault(UserFormFinalizer.class.getName(), List.of()).stream().
-                filter(candidate -> candidate.isAnnotationPresent(UserFormFinalize.class)
-                && candidate.getAnnotation(UserFormFinalize.class).mode() == mode).
-                map(clazz -> (Class<? extends UserFormFinalizer>) clazz).
-                collect(Collectors.toList());
     }
 }
