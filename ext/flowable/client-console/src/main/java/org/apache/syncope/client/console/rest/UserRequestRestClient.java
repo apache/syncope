@@ -38,7 +38,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 public class UserRequestRestClient extends BaseRestClient {
 
-    private final long serialVersionUID = -4785231164900813921L;
+    private static final long serialVersionUID = -4785231164900813921L;
 
     public int countRequests(final String keyword) {
         try {

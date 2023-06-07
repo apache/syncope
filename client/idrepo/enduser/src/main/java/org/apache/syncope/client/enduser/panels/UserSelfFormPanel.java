@@ -29,7 +29,6 @@ import org.apache.syncope.client.enduser.pages.BasePage;
 import org.apache.syncope.client.enduser.pages.SelfResult;
 import org.apache.syncope.client.enduser.panels.any.Details;
 import org.apache.syncope.client.enduser.panels.any.SelfUserDetails;
-import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
@@ -45,14 +44,10 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class UserSelfFormPanel extends UserFormPanel {
 
     private static final long serialVersionUID = 6763365006334514387L;
-
-    @SpringBean
-    protected UserSelfRestClient userSelfRestClient;
 
     protected TextField<String> securityQuestion;
 
