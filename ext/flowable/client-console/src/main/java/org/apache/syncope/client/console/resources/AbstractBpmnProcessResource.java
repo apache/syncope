@@ -35,7 +35,7 @@ abstract class AbstractBpmnProcessResource extends AbstractResource {
 
     protected final BpmnProcessRestClient bpmnProcessRestClient;
 
-    public AbstractBpmnProcessResource(final BpmnProcessRestClient bpmnProcessRestClient) {
+    protected AbstractBpmnProcessResource(final BpmnProcessRestClient bpmnProcessRestClient) {
         this.bpmnProcessRestClient = bpmnProcessRestClient;
     }
 
