@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
@@ -45,9 +44,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWizardStep<S> {
 
     private static final long serialVersionUID = -5387344116983102292L;
-
-    @SpringBean
-    protected AnyTypeClassRestClient anyTypeClassRestClient;
 
     @SpringBean
     protected GroupRestClient groupRestClient;
