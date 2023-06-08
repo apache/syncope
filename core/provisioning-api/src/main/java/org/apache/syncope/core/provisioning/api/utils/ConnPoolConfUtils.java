@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.utils;
 
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
 import org.identityconnectors.common.pooling.ObjectPoolConfiguration;
@@ -27,12 +28,12 @@ public final class ConnPoolConfUtils {
     public static ConnPoolConf getConnPoolConf(final ConnPoolConfTO cpcto, final ConnPoolConf cpc) {
         ObjectPoolConfiguration opc = new ObjectPoolConfiguration();
 
-        cpc.setMaxIdle(cpcto.getMaxIdle() == null ? opc.getMaxIdle() : cpcto.getMaxIdle());
-        cpc.setMaxObjects(cpcto.getMaxObjects() == null ? opc.getMaxObjects() : cpcto.getMaxObjects());
-        cpc.setMaxWait(cpcto.getMaxWait() == null ? opc.getMaxWait() : cpcto.getMaxWait());
-        cpc.setMinEvictableIdleTimeMillis(cpcto.getMinEvictableIdleTimeMillis() == null
-                ? opc.getMinEvictableIdleTimeMillis() : cpcto.getMinEvictableIdleTimeMillis());
-        cpc.setMinIdle(cpcto.getMinIdle() == null ? opc.getMinIdle() : cpcto.getMinIdle());
+        cpc.setMaxIdle(Optional.ofNullable(cpcto.getMaxIdle()).orElse(opc.getMaxIdle()));
+        cpc.setMaxObjects(Optional.ofNullable(cpcto.getMaxObjects()).orElse(opc.getMaxObjects()));
+        cpc.setMaxWait(Optional.ofNullable(cpcto.getMaxWait()).orElse(opc.getMaxWait()));
+        cpc.setMinEvictableIdleTimeMillis(
+                Optional.ofNullable(cpcto.getMinEvictableIdleTimeMillis()).orElse(opc.getMinEvictableIdleTimeMillis()));
+        cpc.setMinIdle(Optional.ofNullable(cpcto.getMinIdle()).orElse(opc.getMinIdle()));
 
         return cpc;
     }
@@ -43,9 +44,7 @@ public final class ConnPoolConfUtils {
         return opc;
     }
 
-    public static void updateObjectPoolConfiguration(
-            final ObjectPoolConfiguration opc, final ConnPoolConf cpc) {
-
+    public static void updateObjectPoolConfiguration(final ObjectPoolConfiguration opc, final ConnPoolConf cpc) {
         if (cpc.getMaxIdle() != null) {
             opc.setMaxIdle(cpc.getMaxIdle());
         }
