@@ -52,35 +52,35 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     private static final long serialVersionUID = 6284485820911028843L;
 
-    public static JobTO getJob(final String key) {
+    public JobTO getJob(final String key) {
         return getService(TaskService.class).getJob(key);
     }
 
-    public static List<JobTO> listJobs() {
+    public List<JobTO> listJobs() {
         return getService(TaskService.class).listJobs();
     }
 
-    public static void actionJob(final String refKey, final JobAction jobAction) {
+    public void actionJob(final String refKey, final JobAction jobAction) {
         getService(TaskService.class).actionJob(refKey, jobAction);
     }
 
-    public static int count(final TaskType kind) {
+    public int count(final TaskType kind) {
         return getService(TaskService.class).search(
                 new TaskQuery.Builder(kind).page(1).size(0).build()).getTotalCount();
     }
 
-    public static int count(final String resource, final TaskType kind) {
+    public int count(final String resource, final TaskType kind) {
         return getService(TaskService.class).search(
                 new TaskQuery.Builder(kind).resource(resource).page(1).size(0).build()).getTotalCount();
     }
 
-    public static int count(final AnyTypeKind anyTypeKind, final String entityKey, final TaskType kind) {
+    public int count(final AnyTypeKind anyTypeKind, final String entityKey, final TaskType kind) {
         return getService(TaskService.class).search(
                 new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(0).build()).
                 getTotalCount();
     }
 
-    public static int count(final AnyTypeKind anyTypeKind, final String entityKey, final String notification) {
+    public int count(final AnyTypeKind anyTypeKind, final String entityKey, final String notification) {
         return getService(TaskService.class).search(
                 new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).
                         anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(0).build()).
@@ -93,7 +93,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(0).build()).getTotalCount();
     }
 
-    public static List<PropagationTaskTO> listPropagationTasks(
+    public List<PropagationTaskTO> listPropagationTasks(
             final String resource, final int page, final int size, final SortParam<String> sort) {
 
         return getService(TaskService.class).
@@ -104,7 +104,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 getResult();
     }
 
-    public static List<PropagationTaskTO> listPropagationTasks(
+    public List<PropagationTaskTO> listPropagationTasks(
             final AnyTypeKind anyTypeKind, final String entityKey,
             final int page, final int size, final SortParam<String> sort) {
 
@@ -116,7 +116,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 getResult();
     }
 
-    public static List<NotificationTaskTO> listNotificationTasks(
+    public List<NotificationTaskTO> listNotificationTasks(
             final String notification,
             final AnyTypeKind anyTypeKind,
             final String entityKey,
@@ -142,7 +142,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return list.getResult();
     }
 
-    public static <T extends TaskTO> List<T> list(
+    public <T extends TaskTO> List<T> list(
             final TaskType taskType, final int page, final int size, final SortParam<String> sort) {
 
         return getService(TaskService.class).<T>search(
@@ -154,7 +154,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 getResult();
     }
 
-    public static <T extends TaskTO> List<T> list(
+    public <T extends TaskTO> List<T> list(
             final String resource,
             final TaskType taskType,
             final int page,
@@ -180,19 +180,19 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                         orderBy(toOrderBy(sort)).build()).getResult();
     }
 
-    public static PropagationTaskTO readPropagationTask(final String taskKey) {
+    public PropagationTaskTO readPropagationTask(final String taskKey) {
         return getService(TaskService.class).read(TaskType.PROPAGATION, taskKey, false);
     }
 
-    public static NotificationTaskTO readNotificationTask(final String taskKey) {
+    public NotificationTaskTO readNotificationTask(final String taskKey) {
         return getService(TaskService.class).read(TaskType.NOTIFICATION, taskKey, false);
     }
 
-    public static <T extends TaskTO> T readTask(final TaskType type, final String taskKey) {
+    public <T extends TaskTO> T readTask(final TaskType type, final String taskKey) {
         return getService(TaskService.class).read(type, taskKey, false);
     }
 
-    public static void delete(final TaskType type, final String taskKey) {
+    public void delete(final TaskType type, final String taskKey) {
         getService(TaskService.class).delete(type, taskKey);
     }
 
@@ -201,7 +201,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         startExecution(taskKey, startAt, false);
     }
 
-    public static void startExecution(final String taskKey, final Date startAt, final boolean dryRun) {
+    public void startExecution(final String taskKey, final Date startAt, final boolean dryRun) {
         getService(TaskService.class).execute(new ExecSpecs.Builder().key(taskKey).
                 startAt(DateOps.convert(startAt)).dryRun(dryRun).build());
     }
@@ -216,11 +216,11 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return getService(TaskService.class).listRecentExecutions(max);
     }
 
-    public static void create(final TaskType type, final SchedTaskTO taskTO) {
+    public void create(final TaskType type, final SchedTaskTO taskTO) {
         getService(TaskService.class).create(type, taskTO);
     }
 
-    public static void update(final TaskType type, final SchedTaskTO taskTO) {
+    public void update(final TaskType type, final SchedTaskTO taskTO) {
         getService(TaskService.class).update(type, taskTO);
     }
 

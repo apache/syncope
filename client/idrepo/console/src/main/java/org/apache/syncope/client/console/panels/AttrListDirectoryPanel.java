@@ -44,10 +44,15 @@ import org.apache.wicket.model.ResourceModel;
 public abstract class AttrListDirectoryPanel
         extends DirectoryPanel<Attr, Attr, AttrListProvider, BaseRestClient> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -9098924321080135095L;
 
-    protected AttrListDirectoryPanel(final String id, final PageReference pageRef, final boolean wizardInModal) {
-        super(id, pageRef, wizardInModal);
+    protected AttrListDirectoryPanel(
+            final String id,
+            final BaseRestClient restClient,
+            final PageReference pageRef,
+            final boolean wizardInModal) {
+
+        super(id, restClient, pageRef, wizardInModal);
 
         itemKeyFieldName = "schema";
         disableCheckBoxes();
@@ -70,13 +75,13 @@ public abstract class AttrListDirectoryPanel
 
             @Override
             public void populateItem(
-                final Item<ICellPopulator<Attr>> item,
-                final String componentId,
-                final IModel<Attr> rowModel) {
+                    final Item<ICellPopulator<Attr>> item,
+                    final String componentId,
+                    final IModel<Attr> rowModel) {
 
                 if (rowModel.getObject().getValues().toString().length() > 96) {
                     item.add(new Label(componentId, getString("tooLong")).
-                        add(new AttributeModifier("style", "font-style:italic")));
+                            add(new AttributeModifier("style", "font-style:italic")));
                 } else {
                     super.populateItem(item, componentId, rowModel);
                 }

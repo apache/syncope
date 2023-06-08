@@ -56,15 +56,18 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
     private static final long serialVersionUID = 5378100729213456451L;
 
     @SpringBean
-    private MIMETypesLoader mimeTypesLoader;
+    protected MIMETypesLoader mimeTypesLoader;
 
-    private final MultiFieldPanel<String> enumerationValues;
+    @SpringBean
+    protected ImplementationRestClient implementationRestClient;
 
-    private final MultiFieldPanel<String> enumerationKeys;
+    protected final MultiFieldPanel<String> enumerationValues;
 
-    private final AjaxDropDownChoicePanel<String> validator;
+    protected final MultiFieldPanel<String> enumerationKeys;
 
-    private final AjaxDropDownChoicePanel<AttrSchemaType> type;
+    protected final AjaxDropDownChoicePanel<String> validator;
+
+    protected final AjaxDropDownChoicePanel<AttrSchemaType> type;
 
     public PlainSchemaDetails(final String id, final PlainSchemaTO schemaTO) {
         super(id, schemaTO);
@@ -254,7 +257,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             @Override
             protected List<String> load() {
-                return ImplementationRestClient.list(IdRepoImplementationType.VALIDATOR).stream().
+                return implementationRestClient.list(IdRepoImplementationType.VALIDATOR).stream().
                         map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };

@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
+import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
@@ -57,6 +58,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Policies page.
@@ -67,6 +69,9 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
         extends DirectoryPanel<T, T, DirectoryDataProvider<T>, PolicyRestClient> {
 
     private static final long serialVersionUID = 4984337552918213290L;
+
+    @SpringBean
+    protected AuditRestClient auditRestClient;
 
     protected final BaseModal<Serializable> historyModal;
 
@@ -85,10 +90,14 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
     protected final PolicyType type;
 
-    public PolicyDirectoryPanel(final String id, final PolicyType type, final PageReference pageRef) {
-        super(id, pageRef, true);
+    public PolicyDirectoryPanel(
+            final String id,
+            final PolicyRestClient restClient,
+            final PolicyType type,
+            final PageReference pageRef) {
+
+        super(id, restClient, pageRef, true);
         this.type = type;
-        this.restClient = new PolicyRestClient();
 
         ruleCompositionModal.size(Modal.Size.Large);
         setWindowClosedReloadCallback(ruleCompositionModal);
@@ -149,7 +158,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
             public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
                 send(PolicyDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                PolicyRestClient.read(type, model.getObject().getKey()), target));
+                                restClient.read(type, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.POLICY_UPDATE);
 
@@ -174,13 +183,14 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
             @Override
             public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
-                model.setObject(PolicyRestClient.read(type, model.getObject().getKey()));
+                model.setObject(restClient.read(type, model.getObject().getKey()));
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
                         AuditElements.EventCategoryType.LOGIC,
                         "PolicyLogic",
                         model.getObject(),
-                        IdRepoEntitlement.POLICY_UPDATE) {
+                        IdRepoEntitlement.POLICY_UPDATE,
+                        auditRestClient) {
 
                     private static final long serialVersionUID = -3712506022627033822L;
 
@@ -188,7 +198,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
                     protected void restore(final String json, final AjaxRequestTarget target) {
                         try {
                             PolicyTO updated = MAPPER.readValue(json, PolicyTO.class);
-                            PolicyRestClient.update(type, updated);
+                            restClient.update(type, updated);
 
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
@@ -215,7 +225,8 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
             public void onClick(final AjaxRequestTarget target, final PolicyTO ignore) {
                 T policyTO = model.getObject();
                 try {
-                    PolicyRestClient.delete(type, policyTO.getKey());
+                    restClient.delete(type, policyTO.getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -265,14 +276,14 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
-            List<T> list = PolicyRestClient.list(type);
+            List<T> list = restClient.list(type);
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return PolicyRestClient.list(type).size();
+            return restClient.list(type).size();
         }
 
         @Override

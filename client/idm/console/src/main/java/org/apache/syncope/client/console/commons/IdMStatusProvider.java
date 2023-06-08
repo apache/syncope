@@ -37,11 +37,17 @@ public class IdMStatusProvider implements StatusProvider {
 
     private static final long serialVersionUID = 1875374599950896631L;
 
+    protected final ReconStatusUtils reconStatusUtils;
+
+    public IdMStatusProvider(final ReconStatusUtils reconStatusUtils) {
+        this.reconStatusUtils = reconStatusUtils;
+    }
+
     @Override
     public Optional<Pair<ConnObject, ConnObject>> get(
             final String anyTypeKey, final String connObjectKeyValue, final String resource) {
 
-        return ReconStatusUtils.getReconStatus(anyTypeKey, connObjectKeyValue, resource).
+        return reconStatusUtils.getReconStatus(anyTypeKey, connObjectKeyValue, resource).
                 map(status -> Pair.of(status.getOnSyncope(), status.getOnResource()));
     }
 
@@ -49,7 +55,7 @@ public class IdMStatusProvider implements StatusProvider {
     public List<Triple<ConnObject, ConnObjectWrapper, String>> get(
             final AnyTO any, final Collection<String> resources) {
 
-        return ReconStatusUtils.getReconStatuses(
+        return reconStatusUtils.getReconStatuses(
                 any.getType(), any.getKey(), any.getResources()).stream().
                 map(status -> Triple.<ConnObject, ConnObjectWrapper, String>of(
                 status.getRight().getOnSyncope(),

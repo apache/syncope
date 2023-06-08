@@ -76,16 +76,32 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
     private static final long serialVersionUID = -1975312550059578553L;
 
-    private final NotificationRestClient restClient = new NotificationRestClient();
+    protected final NotificationRestClient notificationRestClient;
 
-    /**
-     * Construct.
-     *
-     * @param notificationTO notification.
-     * @param pageRef Caller page reference.
-     */
-    public NotificationWizardBuilder(final NotificationTO notificationTO, final PageReference pageRef) {
+    protected final AuditRestClient auditRestClient;
+
+    protected final AnyTypeRestClient anyTypeRestClient;
+
+    protected final ImplementationRestClient implementationRestClient;
+
+    protected final SchemaRestClient schemaRestClient;
+
+    public NotificationWizardBuilder(
+            final NotificationTO notificationTO,
+            final NotificationRestClient notificationRestClient,
+            final AuditRestClient auditRestClient,
+            final AnyTypeRestClient anyTypeRestClient,
+            final ImplementationRestClient implementationRestClient,
+            final SchemaRestClient schemaRestClient,
+            final PageReference pageRef) {
+
         super(new NotificationWrapper(notificationTO), pageRef);
+
+        this.notificationRestClient = notificationRestClient;
+        this.auditRestClient = auditRestClient;
+        this.anyTypeRestClient = anyTypeRestClient;
+        this.implementationRestClient = implementationRestClient;
+        this.schemaRestClient = schemaRestClient;
     }
 
     @Override
@@ -95,9 +111,9 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
         final boolean createFlag = modelObject.getInnerObject().getKey() == null;
         if (createFlag) {
-            NotificationRestClient.create(modelObject.getInnerObject());
+            notificationRestClient.create(modelObject.getInnerObject());
         } else {
-            NotificationRestClient.update(modelObject.getInnerObject());
+            notificationRestClient.update(modelObject.getInnerObject());
         }
 
         return null;
@@ -134,7 +150,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
             AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<>(
                     "template", getString("template"),
                     new PropertyModel<>(notificationTO, "template"));
-            template.setChoices(restClient.listTemplates().stream().
+            template.setChoices(notificationRestClient.listTemplates().stream().
                     map(MailTemplateTO::getKey).collect(Collectors.toList()));
 
             template.addRequiredLabel();
@@ -157,7 +173,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
     }
 
-    public static class Events extends WizardStep {
+    public class Events extends WizardStep {
 
         private static final long serialVersionUID = -7709805590497687958L;
 
@@ -166,7 +182,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
             add(new EventCategoryPanel(
                     "eventSelection",
-                    AuditRestClient.listEvents(),
+                    auditRestClient.listEvents(),
                     new PropertyModel<>(modelObject.getInnerObject(), "events")) {
 
                 private static final long serialVersionUID = 6429053774964787735L;
@@ -208,7 +224,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
                         }
 
                     });
-            type.setChoices(AnyTypeRestClient.list());
+            type.setChoices(anyTypeRestClient.list());
             type.addRequiredLabel();
             add(type);
 
@@ -332,7 +348,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
             @Override
             protected List<String> load() {
-                return ImplementationRestClient.list(IdRepoImplementationType.RECIPIENTS_PROVIDER).stream().
+                return implementationRestClient.list(IdRepoImplementationType.RECIPIENTS_PROVIDER).stream().
                         map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
@@ -382,10 +398,10 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         }
     }
 
-    private static List<String> getSchemas() {
+    protected List<String> getSchemas() {
         AnyTypeTO type = null;
         try {
-            type = AnyTypeRestClient.read(AnyTypeKind.USER.name());
+            type = anyTypeRestClient.read(AnyTypeKind.USER.name());
         } catch (SyncopeClientException e) {
             LOG.error("While reading all any types", e);
         }
@@ -396,11 +412,11 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         List<String> result = new ArrayList<>();
         result.add(Constants.USERNAME_FIELD_NAME);
 
-        result.addAll(SchemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, null, anyTypeClasses).
+        result.addAll(schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, null, anyTypeClasses).
                 stream().map(PlainSchemaTO::getKey).collect(Collectors.toList()));
-        result.addAll(SchemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, null, anyTypeClasses).
+        result.addAll(schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, null, anyTypeClasses).
                 stream().map(DerSchemaTO::getKey).collect(Collectors.toList()));
-        result.addAll(SchemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, null, anyTypeClasses).
+        result.addAll(schemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, null, anyTypeClasses).
                 stream().map(VirSchemaTO::getKey).collect(Collectors.toList()));
 
         Collections.sort(result);

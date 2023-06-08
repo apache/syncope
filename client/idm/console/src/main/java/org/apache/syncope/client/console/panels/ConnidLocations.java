@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -50,11 +51,15 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ConnidLocations extends
         DirectoryPanel<Serializable, Serializable, ConnidLocations.ConnidLocationsDataProvider, RestClient> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1328140415494501001L;
+
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
 
     public ConnidLocations(final String id, final Builder builder) {
         super(id, builder);
@@ -112,7 +117,7 @@ public class ConnidLocations extends
                 final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(modelObject);
                 modal.setFormModel(model);
 
-                target.add(modal.setContent(new ConnectorWizardBuilder(modelObject, pageRef).
+                target.add(modal.setContent(new ConnectorWizardBuilder(modelObject, connectorRestClient, pageRef).
                         build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("connector.new"), ignore)));
@@ -127,21 +132,6 @@ public class ConnidLocations extends
     @Override
     protected Collection<ActionLink.ActionType> getBatches() {
         return Collections.emptyList();
-    }
-
-    public abstract static class Builder
-            extends DirectoryPanel.Builder<Serializable, Serializable, RestClient> {
-
-        private static final long serialVersionUID = 4448348557808690524L;
-
-        public Builder(final PageReference pageRef) {
-            super(null, pageRef);
-        }
-
-        @Override
-        protected WizardMgtPanel<Serializable> newInstance(final String id, final boolean wizardInModal) {
-            return new ConnidLocations(id, this);
-        }
     }
 
     protected static class ConnidLocationsDataProvider extends DirectoryDataProvider<Serializable> {
@@ -166,6 +156,21 @@ public class ConnidLocations extends
         @Override
         public IModel<Serializable> model(final Serializable object) {
             return new CompoundPropertyModel<>(object);
+        }
+    }
+
+    public abstract static class Builder
+            extends DirectoryPanel.Builder<Serializable, Serializable, RestClient> {
+
+        private static final long serialVersionUID = 4448348557808690524L;
+
+        public Builder(final PageReference pageRef) {
+            super(null, pageRef);
+        }
+
+        @Override
+        protected WizardMgtPanel<Serializable> newInstance(final String id, final boolean wizardInModal) {
+            return new ConnidLocations(id, this);
         }
     }
 }

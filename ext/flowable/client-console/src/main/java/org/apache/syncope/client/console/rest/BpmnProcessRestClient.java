@@ -35,11 +35,11 @@ public class BpmnProcessRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 5049285686167071017L;
 
-    public static List<BpmnProcess> getDefinitions() {
+    public List<BpmnProcess> getDefinitions() {
         return getService(BpmnProcessService.class).list();
     }
 
-    private static BpmnProcessService getService(final MediaType mediaType) {
+    private BpmnProcessService getService(final MediaType mediaType) {
         BpmnProcessService service = getService(BpmnProcessService.class);
 
         MetadataMap<String, String> headers = new MetadataMap<>();
@@ -50,19 +50,19 @@ public class BpmnProcessRestClient extends BaseRestClient {
         return service;
     }
 
-    public static InputStream getDefinition(final MediaType mediaType, final String key) {
+    public InputStream getDefinition(final MediaType mediaType, final String key) {
         Response response = getService(mediaType).get(key);
         SyncopeConsoleSession.get().resetClient(BpmnProcessService.class);
 
         return (InputStream) response.getEntity();
     }
 
-    public static void setDefinition(final MediaType mediaType, final String key, final String definition) {
+    public void setDefinition(final MediaType mediaType, final String key, final String definition) {
         getService(mediaType).set(key, definition);
         SyncopeConsoleSession.get().resetClient(BpmnProcessService.class);
     }
 
-    public static byte[] getDiagram(final String key) {
+    public byte[] getDiagram(final String key) {
         BpmnProcessService service = getService(BpmnProcessService.class);
         WebClient.client(service).accept(RESTHeaders.MEDIATYPE_IMAGE_PNG);
         Response response = service.exportDiagram(key);
@@ -77,7 +77,7 @@ public class BpmnProcessRestClient extends BaseRestClient {
         return diagram;
     }
 
-    public static void deleteDefinition(final String key) {
+    public void deleteDefinition(final String key) {
         getService(BpmnProcessService.class).delete(key);
     }
 }

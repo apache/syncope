@@ -56,6 +56,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,24 +66,33 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ReconTaskPanel.class);
 
-    private final IModel<List<String>> pullActions = new LoadableDetachableModel<>() {
+    @SpringBean
+    protected ImplementationRestClient implementationRestClient;
+
+    @SpringBean
+    protected RealmRestClient realmRestClient;
+
+    @SpringBean
+    protected ReconciliationRestClient reconciliationRestClient;
+
+    protected final IModel<List<String>> pullActions = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
-            return ImplementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
+            return implementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
                     map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
 
-    private final IModel<List<String>> pushActions = new LoadableDetachableModel<>() {
+    protected final IModel<List<String>> pushActions = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
-            return ImplementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
+            return implementationRestClient.list(IdMImplementationType.PUSH_ACTIONS).stream().
                     map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
@@ -116,7 +126,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
             form.add(new Label("realm", ""));
             form.add(new Label("remediation", ""));
         } else {
-            boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
+            boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree(realmRestClient);
             AutoCompleteSettings settings = new AutoCompleteSettings();
             settings.setShowCompleteListOnFocusGain(fullRealmsTree);
             settings.setShowListOnEmptyInput(fullRealmsTree);
@@ -129,7 +139,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
                 @Override
                 protected Iterator<String> getChoices(final String input) {
                     return (RealmsUtils.checkInput(input)
-                            ? (RealmRestClient.search(fullRealmsTree
+                            ? (realmRestClient.search(fullRealmsTree
                                     ? RealmsUtils.buildRootQuery()
                                     : RealmsUtils.buildKeywordQuery(input)).getResult())
                             : List.<RealmTO>of()).stream().
@@ -201,9 +211,9 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
                 ReconQuery reconQuery = new ReconQuery.Builder(anyType, resource).anyKey(anyKey).fiql(fiql).build();
                 try {
                     if (taskTO instanceof PushTaskTO) {
-                        ReconciliationRestClient.push(reconQuery, (PushTaskTO) form.getModelObject());
+                        reconciliationRestClient.push(reconQuery, (PushTaskTO) form.getModelObject());
                     } else {
-                        ReconciliationRestClient.pull(reconQuery, (PullTaskTO) form.getModelObject());
+                        reconciliationRestClient.pull(reconQuery, (PullTaskTO) form.getModelObject());
                     }
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));

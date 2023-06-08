@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.clientapps;
 
 import java.util.List;
+import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.ClientAppType;
@@ -32,8 +33,8 @@ public class CASSPDirectoryPanel extends ClientAppDirectoryPanel<CASSPClientAppT
 
     private static final long serialVersionUID = 1099982287259118170L;
 
-    public CASSPDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, ClientAppType.CASSP, pageRef);
+    public CASSPDirectoryPanel(final String id, final ClientAppRestClient restClient, final PageReference pageRef) {
+        super(id, restClient, ClientAppType.CASSP, pageRef);
 
         CASSPClientAppTO defaultItem = new CASSPClientAppTO();
 

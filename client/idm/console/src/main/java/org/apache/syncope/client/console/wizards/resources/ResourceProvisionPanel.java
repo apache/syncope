@@ -29,6 +29,7 @@ import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -49,22 +50,32 @@ import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    private final ResourceTO resourceTO;
+    @SpringBean
+    protected ResourceRestClient resourceRestClient;
 
-    private final List<ResourceProvision> provisions;
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
 
-    private final ObjectTypeTogglePanel objectTypeTogglePanel;
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
-    private final WizardMgtPanel<ResourceProvision> list;
+    protected final ResourceTO resourceTO;
 
-    private final ProvisionWizardBuilder wizard;
+    protected final List<ResourceProvision> provisions;
 
-    private final AjaxLink<ResourceProvision> addAjaxLink;
+    protected final ObjectTypeTogglePanel objectTypeTogglePanel;
+
+    protected final WizardMgtPanel<ResourceProvision> list;
+
+    protected final ProvisionWizardBuilder wizard;
+
+    protected final AjaxLink<ResourceProvision> addAjaxLink;
 
     protected ActionLinksTogglePanel<ResourceProvision> actionTogglePanel;
 
@@ -82,7 +93,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         actionTogglePanel = new ActionLinksTogglePanel<>("toggle", pageRef);
         add(actionTogglePanel);
 
-        wizard = new ProvisionWizardBuilder(resourceTO, adminRealm, pageRef);
+        wizard = new ProvisionWizardBuilder(resourceTO, adminRealm, connectorRestClient, pageRef);
 
         ListViewPanel.Builder<ResourceProvision> builder = new ListViewPanel.Builder<>(
                 ResourceProvision.class, pageRef) {
@@ -168,7 +179,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
                         try {
-                            ResourceRestClient.setLatestSyncToken(resourceTO.getKey(), provision.getAnyType());
+                            resourceRestClient.setLatestSyncToken(resourceTO.getKey(), provision.getAnyType());
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While setting latest sync token for {}/{}",
@@ -185,7 +196,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
                         try {
-                            ResourceRestClient.removeSyncToken(resourceTO.getKey(), provision.getAnyType());
+                            resourceRestClient.removeSyncToken(resourceTO.getKey(), provision.getAnyType());
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While removing sync token for {}/{}",
@@ -283,7 +294,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         }
                     });
 
-            ResourceRestClient.update(resourceTO);
+            resourceRestClient.update(resourceTO);
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
@@ -304,7 +315,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
             @Override
             protected List<String> load() {
-                List<String> anyTypes = AnyTypeRestClient.list().stream().
+                List<String> anyTypes = anyTypeRestClient.list().stream().
                         filter(anyType -> resourceTO.getProvision(anyType).isEmpty()).
                         collect(Collectors.toList());
                 if (resourceTO.getOrgUnit() == null) {

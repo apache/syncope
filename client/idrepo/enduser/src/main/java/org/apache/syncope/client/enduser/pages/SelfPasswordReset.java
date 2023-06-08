@@ -22,12 +22,12 @@ import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.enduser.commons.EnduserConstants;
 import org.apache.syncope.client.enduser.panels.captcha.CaptchaPanel;
+import org.apache.syncope.client.enduser.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.CardPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
-import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -43,20 +43,27 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class SelfPasswordReset extends BasePage {
 
     private static final long serialVersionUID = 164651008547631054L;
 
-    private static final String SELF_PWD_RESET = "page.selfPwdReset";
+    protected static final String SELF_PWD_RESET = "page.selfPwdReset";
 
-    private String usernameValue;
+    @SpringBean
+    protected UserSelfRestClient userSelfRestClient;
 
-    private String securityAnswerValue;
+    @SpringBean
+    protected SecurityQuestionRestClient securityQuestionRestClient;
 
-    private final CaptchaPanel<Void> captcha;
+    protected String usernameValue;
 
-    private final SelfPwdResetPanel pwdResetPanel;
+    protected String securityAnswerValue;
+
+    protected final CaptchaPanel<Void> captcha;
+
+    protected final SelfPwdResetPanel pwdResetPanel;
 
     public SelfPasswordReset(final PageParameters parameters) {
         super(parameters, SELF_PWD_RESET);
@@ -96,7 +103,7 @@ public class SelfPasswordReset extends BasePage {
                 } else {
                     PageParameters parameters = new PageParameters();
                     try {
-                        UserSelfRestClient.requestPasswordReset(usernameValue, securityAnswerValue);
+                        userSelfRestClient.requestPasswordReset(usernameValue, securityAnswerValue);
                         parameters.add(EnduserConstants.STATUS, Constants.OPERATION_SUCCEEDED);
                         parameters.add(Constants.NOTIFICATION_TITLE_PARAM, getString("self.pwd.reset.success"));
                         parameters.add(Constants.NOTIFICATION_MSG_PARAM, getString("self.pwd.reset.success.msg"));
@@ -217,8 +224,7 @@ public class SelfPasswordReset extends BasePage {
 
         protected void loadSecurityQuestion(final PageReference pageRef, final AjaxRequestTarget target) {
             try {
-                SecurityQuestionTO securityQuestionTO = SyncopeEnduserSession.get().getService(
-                        SecurityQuestionService.class).readByUser(usernameValue);
+                SecurityQuestionTO securityQuestionTO = securityQuestionRestClient.readByUser(usernameValue);
                 // set security question field model
                 securityQuestion.setModel(Model.of(securityQuestionTO.getContent()));
                 target.add(securityQuestion);

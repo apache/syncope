@@ -24,16 +24,21 @@ import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.notifications.MailTemplateDirectoryPanel;
 import org.apache.syncope.client.console.notifications.NotificationDirectoryPanel;
+import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Notifications extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271271L;
+
+    @SpringBean
+    protected NotificationRestClient notificationRestClient;
 
     public Notifications(final PageParameters parameters) {
         super(parameters);
@@ -56,7 +61,7 @@ public class Notifications extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new NotificationDirectoryPanel(panelId, getPageReference());
+                return new NotificationDirectoryPanel(panelId, notificationRestClient, getPageReference());
             }
         });
 
@@ -66,7 +71,7 @@ public class Notifications extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new MailTemplateDirectoryPanel(panelId, getPageReference());
+                return new MailTemplateDirectoryPanel(panelId, notificationRestClient, getPageReference());
             }
         });
         return tabs;

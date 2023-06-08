@@ -30,23 +30,22 @@ public class BinaryImagePreviewer extends BinaryPreviewer {
 
     private static final long serialVersionUID = 3338812359368457349L;
 
-    private static final int IMG_SIZE = 300;
+    protected static final int IMG_SIZE = 300;
 
-    public BinaryImagePreviewer(final String id, final String mimeType) {
-        super(id, mimeType);
+    public BinaryImagePreviewer(final String mimeType) {
+        super(mimeType);
     }
 
     @Override
     public Component preview(final byte[] uploadedBytes) {
-        return this.addOrReplace(
-                new NonCachingImage("previewImage", new ThumbnailImageResource(new DynamicImageResource() {
+        return addOrReplace(new NonCachingImage("previewImage", new ThumbnailImageResource(new DynamicImageResource() {
 
-                    private static final long serialVersionUID = 923201517955737928L;
+            private static final long serialVersionUID = 923201517955737928L;
 
-                    @Override
-                    protected byte[] getImageData(final IResource.Attributes attributes) {
-                        return uploadedBytes;
-                    }
-                }, IMG_SIZE)));
+            @Override
+            protected byte[] getImageData(final IResource.Attributes attributes) {
+                return uploadedBytes;
+            }
+        }, IMG_SIZE)));
     }
 }

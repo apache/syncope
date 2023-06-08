@@ -54,16 +54,21 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Groups extends AbstractGroups {
 
     private static final long serialVersionUID = 552437609667518888L;
 
+    @SpringBean
+    protected GroupRestClient groupRestClient;
+
+    @SpringBean
+    protected SyncopeRestClient syncopeRestClient;
+
     protected final List<DynRealmTO> allDynRealms = new ArrayList<>();
 
     protected final boolean templateMode;
-
-    protected final GroupRestClient groupRestClient = new GroupRestClient();
 
     protected final ConsoleGroupsModel groupsModel;
 
@@ -88,7 +93,7 @@ public class Groups extends AbstractGroups {
     }
 
     protected List<GroupTO> searchAssignable(final String realm, final String term) {
-        return SyncopeRestClient.searchAssignableGroups(realm, term, 1, Constants.MAX_GROUP_LIST_SIZE);
+        return syncopeRestClient.searchAssignableGroups(realm, term, 1, Constants.MAX_GROUP_LIST_SIZE);
     }
 
     @Override

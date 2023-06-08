@@ -39,18 +39,22 @@ import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Details<T extends AnyTO> extends WizardStep {
 
+    protected static final Logger LOG = LoggerFactory.getLogger(Details.class);
+
     private static final long serialVersionUID = -8995647450549098844L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(Details.class);
+    @SpringBean
+    protected RealmRestClient realmRestClient;
 
     protected final PageReference pageRef;
 
-    private final FieldPanel<String> realm;
+    protected final FieldPanel<String> realm;
 
     public Details(
             final AnyWrapper<T> wrapper,
@@ -69,7 +73,7 @@ public class Details<T extends AnyTO> extends WizardStep {
             AjaxTextFieldPanel.class.cast(realm).enableJexlHelp();
             fragment = new Fragment("realmsFragment", "realmsTemplateFragment", this);
         } else {
-            boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
+            boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree(realmRestClient);
             AutoCompleteSettings settings = new AutoCompleteSettings();
             settings.setShowCompleteListOnFocusGain(fullRealmsTree);
             settings.setShowListOnEmptyInput(fullRealmsTree);
@@ -84,8 +88,8 @@ public class Details<T extends AnyTO> extends WizardStep {
                     return (pageRef.getPage() instanceof Realms
                             ? getRealmsFromLinks(Realms.class.cast(pageRef.getPage()).getRealmChoicePanel().getLinks())
                             : (fullRealmsTree
-                                    ? RealmRestClient.search(RealmsUtils.buildRootQuery())
-                                    : RealmRestClient.search(RealmsUtils.buildKeywordQuery(input))).getResult()).
+                                    ? realmRestClient.search(RealmsUtils.buildRootQuery())
+                                    : realmRestClient.search(RealmsUtils.buildKeywordQuery(input))).getResult()).
                             stream().filter(realm -> authRealms.stream().anyMatch(
                             authRealm -> realm.getFullPath().startsWith(authRealm))).
                             map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();

@@ -39,7 +39,6 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.WebMarkupContainerNoVeil;
@@ -51,6 +50,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -63,6 +63,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 @IdMPage(label = "Topology", icon = "fas fa-plug", listEntitlement = IdMEntitlement.RESOURCE_LIST, priority = 0)
 public class Topology extends BasePage {
@@ -71,73 +72,79 @@ public class Topology extends BasePage {
 
     public static final String CONNECTOR_SERVER_LOCATION_PREFIX = "connid://";
 
-    private final int origX = 3100;
+    @SpringBean
+    protected ResourceRestClient resourceRestClient;
 
-    private final int origY = 2800;
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
 
-    private final BaseModal<Serializable> modal;
+    protected final int origX = 3100;
 
-    private final WebMarkupContainer newlyCreatedContainer;
+    protected final int origY = 2800;
 
-    private final ListView<TopologyNode> newlyCreated;
+    protected final BaseModal<Serializable> modal;
 
-    private final TopologyTogglePanel togglePanel;
+    protected final WebMarkupContainer newlyCreatedContainer;
 
-    private final LoadableDetachableModel<List<ResourceTO>> resModel = new LoadableDetachableModel<>() {
+    protected final ListView<TopologyNode> newlyCreated;
+
+    protected final TopologyTogglePanel togglePanel;
+
+    protected final LoadableDetachableModel<List<ResourceTO>> resModel = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157431L;
 
         @Override
         protected List<ResourceTO> load() {
-            return ResourceRestClient.list();
+            return resourceRestClient.list();
         }
     };
 
-    private final LoadableDetachableModel<Map<String, List<ConnInstanceTO>>> connModel =
-        new LoadableDetachableModel<>() {
+    protected final LoadableDetachableModel<Map<String, List<ConnInstanceTO>>> connModel =
+            new LoadableDetachableModel<>() {
 
-            private static final long serialVersionUID = 5275935387613157432L;
+        private static final long serialVersionUID = 5275935387613157432L;
 
-            @Override
-            protected Map<String, List<ConnInstanceTO>> load() {
-                final Map<String, List<ConnInstanceTO>> res = new HashMap<>();
+        @Override
+        protected Map<String, List<ConnInstanceTO>> load() {
+            final Map<String, List<ConnInstanceTO>> res = new HashMap<>();
 
-                ConnectorRestClient.getAllConnectors().forEach(conn -> {
-                    List<ConnInstanceTO> conns;
-                    if (res.containsKey(conn.getLocation())) {
-                        conns = res.get(conn.getLocation());
-                    } else {
-                        conns = new ArrayList<>();
-                        res.put(conn.getLocation(), conns);
-                    }
-                    conns.add(conn);
-                });
+            connectorRestClient.getAllConnectors().forEach(conn -> {
+                List<ConnInstanceTO> conns;
+                if (res.containsKey(conn.getLocation())) {
+                    conns = res.get(conn.getLocation());
+                } else {
+                    conns = new ArrayList<>();
+                    res.put(conn.getLocation(), conns);
+                }
+                conns.add(conn);
+            });
 
-                return res;
-            }
-        };
+            return res;
+        }
+    };
 
-    private final LoadableDetachableModel<Pair<List<URI>, List<URI>>> csModel =
-        new LoadableDetachableModel<>() {
+    protected final LoadableDetachableModel<Pair<List<URI>, List<URI>>> csModel =
+            new LoadableDetachableModel<>() {
 
-            private static final long serialVersionUID = 5275935387613157433L;
+        private static final long serialVersionUID = 5275935387613157433L;
 
-            @Override
-            protected Pair<List<URI>, List<URI>> load() {
-                final List<URI> connectorServers = new ArrayList<>();
-                final List<URI> filePaths = new ArrayList<>();
+        @Override
+        protected Pair<List<URI>, List<URI>> load() {
+            final List<URI> connectorServers = new ArrayList<>();
+            final List<URI> filePaths = new ArrayList<>();
 
-                SyncopeConsoleSession.get().getPlatformInfo().getConnIdLocations().forEach(location -> {
-                    if (location.startsWith(CONNECTOR_SERVER_LOCATION_PREFIX)) {
-                        connectorServers.add(URI.create(location));
-                    } else {
-                        filePaths.add(URI.create(location));
-                    }
-                });
+            SyncopeConsoleSession.get().getPlatformInfo().getConnIdLocations().forEach(location -> {
+                if (location.startsWith(CONNECTOR_SERVER_LOCATION_PREFIX)) {
+                    connectorServers.add(URI.create(location));
+                } else {
+                    filePaths.add(URI.create(location));
+                }
+            });
 
-                return Pair.of(connectorServers, filePaths);
-            }
-        };
+            return Pair.of(connectorServers, filePaths);
+        }
+    };
 
     protected enum SupportedOperation {
 
@@ -193,7 +200,7 @@ public class Topology extends BasePage {
         syncopeTopologyNode.setX(origX);
         syncopeTopologyNode.setY(origY);
 
-        URI uri = WebClient.client(BaseRestClient.getSyncopeService()).getBaseURI();
+        URI uri = WebClient.client(SyncopeConsoleSession.get().getService(SyncopeService.class)).getBaseURI();
         syncopeTopologyNode.setHost(uri.getHost());
         syncopeTopologyNode.setPort(uri.getPort());
 
@@ -290,65 +297,65 @@ public class Topology extends BasePage {
         // Add Connector Intances
         // -----------------------------------------
         ListView<List<ConnInstanceTO>> conns =
-            new ListView<>("conns", new ArrayList<>(connModel.getObject().values())) {
+                new ListView<>("conns", new ArrayList<>(connModel.getObject().values())) {
 
-                private static final long serialVersionUID = 697862187148836036L;
+            private static final long serialVersionUID = 697862187148836036L;
 
-                @Override
-                protected void populateItem(final ListItem<List<ConnInstanceTO>> item) {
-                    int size = item.getModelObject().size() + 1;
+            @Override
+            protected void populateItem(final ListItem<List<ConnInstanceTO>> item) {
+                int size = item.getModelObject().size() + 1;
 
-                    ListView<ConnInstanceTO> conns = new ListView<>("conns", item.getModelObject()) {
+                ListView<ConnInstanceTO> conns = new ListView<>("conns", item.getModelObject()) {
 
-                        private static final long serialVersionUID = 6978621871488360381L;
+                    private static final long serialVersionUID = 6978621871488360381L;
 
-                        @Override
-                        protected void populateItem(final ListItem<ConnInstanceTO> item) {
-                            ConnInstanceTO conn = item.getModelObject();
+                    @Override
+                    protected void populateItem(final ListItem<ConnInstanceTO> item) {
+                        ConnInstanceTO conn = item.getModelObject();
 
-                            TopologyNode topologynode = new TopologyNode(
+                        TopologyNode topologynode = new TopologyNode(
                                 conn.getKey(),
                                 StringUtils.isBlank(conn.getDisplayName()) // [SYNCOPE-1233]
-                                    ? conn.getBundleName() : conn.getDisplayName(),
+                                ? conn.getBundleName() : conn.getDisplayName(),
                                 TopologyNode.Kind.CONNECTOR);
 
-                            // Define the parent note
-                            TopologyNode parent = servers.get(conn.getLocation());
+                        // Define the parent note
+                        TopologyNode parent = servers.get(conn.getLocation());
 
-                            // Set the position
-                            int kx = size >= 6 ? 800 : (130 * size);
+                        // Set the position
+                        int kx = size >= 6 ? 800 : (130 * size);
 
-                            double hpos = conn.getLocation().
+                        double hpos = conn.getLocation().
                                 startsWith(CONNECTOR_SERVER_LOCATION_PREFIX) ? Math.PI : 0.0;
 
-                            int x = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getX).orElse(origX))
+                        int x = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getX).orElse(origX))
                                 + kx * Math.cos(hpos + Math.PI * (item.getIndex() + 1) / size));
-                            int y = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getY).orElse(origY))
+                        int y = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getY).orElse(origY))
                                 + 100 * Math.sin(hpos + Math.PI * (item.getIndex() + 1) / size));
 
-                            topologynode.setConnectionDisplayName(conn.getBundleName());
-                            topologynode.setX(x);
-                            topologynode.setY(y);
+                        topologynode.setConnectionDisplayName(conn.getBundleName());
+                        topologynode.setX(x);
+                        topologynode.setY(y);
 
-                            connectors.put(String.class.cast(topologynode.getKey()), topologynode);
-                            item.add(topologyNodePanel("conn", topologynode, conn.isErrored()));
+                        connectors.put(String.class.cast(topologynode.getKey()), topologynode);
+                        item.add(topologyNodePanel("conn", topologynode, conn.isErrored()));
 
-                            // Update connections
-                            Map<Serializable, TopologyNode> remoteConnections;
-                            if (connections.containsKey(conn.getLocation())) {
-                                remoteConnections = connections.get(conn.getLocation());
-                            } else {
-                                remoteConnections = new HashMap<>();
-                                connections.put(conn.getLocation(), remoteConnections);
-                            }
-                            remoteConnections.put(conn.getKey(), topologynode);
+                        // Update connections
+                        Map<Serializable, TopologyNode> remoteConnections;
+                        if (connections.containsKey(conn.getLocation())) {
+                            remoteConnections = connections.get(conn.getLocation());
+                        } else {
+                            remoteConnections = new HashMap<>();
+                            connections.put(conn.getLocation(), remoteConnections);
                         }
-                    };
+                        remoteConnections.put(conn.getKey(), topologynode);
+                    }
+                };
 
-                    conns.setOutputMarkupId(true);
-                    item.add(conns);
-                }
-            };
+                conns.setOutputMarkupId(true);
+                item.add(conns);
+            }
+        };
 
         conns.setOutputMarkupId(true);
         body.add(conns);
@@ -394,7 +401,7 @@ public class Topology extends BasePage {
                 String connectorKey = item.getModelObject();
 
                 ListView<TopologyNode> innerListView = new ListView<>("resources",
-                    new ArrayList<>(connections.get(connectorKey).values())) {
+                        new ArrayList<>(connections.get(connectorKey).values())) {
 
                     private static final long serialVersionUID = -3447760771863754342L;
 
@@ -412,9 +419,9 @@ public class Topology extends BasePage {
                         double hpos = (parent == null || parent.getY() < syncopeTopologyNode.getY()) ? Math.PI : 0.0;
 
                         int x = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getX).orElse(origX))
-                            + kx * Math.cos(hpos + Math.PI * (item.getIndex() + 1) / size));
+                                + kx * Math.cos(hpos + Math.PI * (item.getIndex() + 1) / size));
                         int y = (int) Math.round((Optional.ofNullable(parent).map(TopologyNode::getY).orElse(origY))
-                            + ky * Math.sin(hpos + Math.PI * (item.getIndex() + 1) / size));
+                                + ky * Math.sin(hpos + Math.PI * (item.getIndex() + 1) / size));
 
                         topologynode.setX(x);
                         topologynode.setY(y);

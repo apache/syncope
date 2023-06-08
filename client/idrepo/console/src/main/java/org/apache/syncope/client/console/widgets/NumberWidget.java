@@ -33,14 +33,18 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class NumberWidget extends BaseWidget {
 
     private static final long serialVersionUID = -816175678514035085L;
 
-    private Number number;
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
-    private final Label numberLabel;
+    protected Number number;
+
+    protected final Label numberLabel;
 
     public NumberWidget(final String id, final String bg, final Number number, final String label, final String icon) {
         super(id);
@@ -60,7 +64,7 @@ public class NumberWidget extends BaseWidget {
         boolean isAuthorized = true;
         PageParameters pageParameters = new PageParameters();
         Class<? extends BasePage> responsePage;
-        List<String> anyTypes = AnyTypeRestClient.list();
+        List<String> anyTypes = anyTypeRestClient.list();
         switch (id) {
             case "totalUsers":
                 pageParameters.add(Realms.SELECTED_INDEX, 1);

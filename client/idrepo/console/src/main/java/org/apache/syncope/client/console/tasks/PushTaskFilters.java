@@ -34,10 +34,14 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class PushTaskFilters extends WizardStep {
 
     private static final long serialVersionUID = 855618618337931784L;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
     public PushTaskFilters(final PushTaskWrapper pushTaskWrapper, final PageReference pageRef) {
         super();
@@ -48,7 +52,7 @@ public class PushTaskFilters extends WizardStep {
 
             @Override
             protected List<AnyTypeTO> load() {
-                return AnyTypeRestClient.listAnyTypes();
+                return anyTypeRestClient.listAnyTypes();
             }
         };
 

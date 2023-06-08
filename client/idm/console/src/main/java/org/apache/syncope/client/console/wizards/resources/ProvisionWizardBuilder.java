@@ -50,59 +50,14 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
 
     private static final long serialVersionUID = 3739399543837732640L;
 
-    private final ResourceTO resourceTO;
-
-    private final String adminRealm;
-
-    protected AjaxTextFieldPanel clazz;
-
-    /**
-     * The object type specification step.
-     */
-    private final class ObjectType extends WizardStep {
-
-        private static final long serialVersionUID = -1657800545799468278L;
-
-        ObjectType(final ResourceProvision resourceProvision) {
-            super(new ResourceModel("clazz.title", StringUtils.EMPTY),
-                    new ResourceModel("clazz.summary", StringUtils.EMPTY), new Model<>(resourceProvision));
-
-            WebMarkupContainer container = new WebMarkupContainer("container");
-            container.setOutputMarkupId(true);
-            add(container);
-
-            clazz = new AjaxTextFieldPanel(
-                    "clazz", "clazz", new PropertyModel<>(resourceProvision, "objectClass"));
-            clazz.setRequired(true);
-            clazz.setChoices(ConnectorRestClient.getObjectClasses(resourceTO.getConnector()));
-            container.add(clazz);
-
-            AjaxCheckBoxPanel ignoreCaseMatch = new AjaxCheckBoxPanel(
-                    "ignoreCaseMatch", "ignoreCaseMatch", new PropertyModel<>(resourceProvision, "ignoreCaseMatch"));
-            container.add(ignoreCaseMatch);
-        }
-    }
-
-    protected void setObjectClassModelObject(final String type) {
-        if (clazz != null) {
-            if (AnyTypeKind.USER.name().equals(type)) {
-                clazz.setModelObject(ConnIdSpecialName.ACCOUNT);
-            } else if (AnyTypeKind.GROUP.name().equals(type)) {
-                clazz.setModelObject(ConnIdSpecialName.GROUP);
-            } else {
-                clazz.setModelObject("");
-            }
-        }
-    }
-
     /**
      * AuxClasses definition step.
      */
-    private static final class AuxClasses extends WizardStep implements ICondition {
+    protected static final class AuxClasses extends WizardStep implements ICondition {
 
         private static final long serialVersionUID = 5315236191866427500L;
 
-        private final ResourceProvision provision;
+        protected final ResourceProvision provision;
 
         AuxClasses(final ResourceProvision resourceProvision) {
             this.provision = resourceProvision;
@@ -121,7 +76,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
     /**
      * Mapping definition step.
      */
-    private static final class Mapping extends WizardStep {
+    protected static final class Mapping extends WizardStep {
 
         private static final long serialVersionUID = 3454904947720856253L;
 
@@ -134,7 +89,7 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
     /**
      * AccountLink specification step.
      */
-    private static final class ConnObjectLink extends WizardStep {
+    protected static final class ConnObjectLink extends WizardStep {
 
         private static final long serialVersionUID = 2359955465172450478L;
 
@@ -185,16 +140,63 @@ public class ProvisionWizardBuilder extends BaseAjaxWizardBuilder<ResourceProvis
     }
 
     /**
-     * Construct.
-     *
-     * @param resourceTO external resource to be updated.
-     * @param adminRealm admin realm
-     * @param pageRef Caller page reference.
+     * The object type specification step.
      */
-    public ProvisionWizardBuilder(final ResourceTO resourceTO, final String adminRealm, final PageReference pageRef) {
+    protected final class ObjectType extends WizardStep {
+
+        private static final long serialVersionUID = -1657800545799468278L;
+
+        ObjectType(final ResourceProvision resourceProvision) {
+            super(new ResourceModel("clazz.title", StringUtils.EMPTY),
+                    new ResourceModel("clazz.summary", StringUtils.EMPTY), new Model<>(resourceProvision));
+
+            WebMarkupContainer container = new WebMarkupContainer("container");
+            container.setOutputMarkupId(true);
+            add(container);
+
+            clazz = new AjaxTextFieldPanel(
+                    "clazz", "clazz", new PropertyModel<>(resourceProvision, "objectClass"));
+            clazz.setRequired(true);
+            clazz.setChoices(connectorRestClient.getObjectClasses(resourceTO.getConnector()));
+            container.add(clazz);
+
+            AjaxCheckBoxPanel ignoreCaseMatch = new AjaxCheckBoxPanel(
+                    "ignoreCaseMatch", "ignoreCaseMatch", new PropertyModel<>(resourceProvision, "ignoreCaseMatch"));
+            container.add(ignoreCaseMatch);
+        }
+    }
+
+    protected final ResourceTO resourceTO;
+
+    protected final String adminRealm;
+
+    protected AjaxTextFieldPanel clazz;
+
+    protected final ConnectorRestClient connectorRestClient;
+
+    public ProvisionWizardBuilder(
+            final ResourceTO resourceTO,
+            final String adminRealm,
+            final ConnectorRestClient connectorRestClient,
+            final PageReference pageRef) {
+
         super(new ResourceProvision(), pageRef);
+
         this.resourceTO = resourceTO;
         this.adminRealm = adminRealm;
+        this.connectorRestClient = connectorRestClient;
+    }
+
+    protected void setObjectClassModelObject(final String type) {
+        if (clazz != null) {
+            if (AnyTypeKind.USER.name().equals(type)) {
+                clazz.setModelObject(ConnIdSpecialName.ACCOUNT);
+            } else if (AnyTypeKind.GROUP.name().equals(type)) {
+                clazz.setModelObject(ConnIdSpecialName.GROUP);
+            } else {
+                clazz.setModelObject("");
+            }
+        }
     }
 
     @Override

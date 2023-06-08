@@ -42,22 +42,23 @@ import org.apache.wicket.model.IModel;
 
 public class ClientAppPropertiesDirectoryPanel<T extends ClientAppTO> extends AttrListDirectoryPanel {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 9072805604972532678L;
 
-    private final BaseModal<T> propertiesModal;
+    protected final BaseModal<T> propertiesModal;
 
-    private final ClientAppType type;
+    protected final ClientAppType type;
 
-    private final IModel<T> model;
+    protected final IModel<T> model;
 
     public ClientAppPropertiesDirectoryPanel(
             final String id,
+            final ClientAppRestClient restClient,
             final BaseModal<T> propertiesModal,
             final ClientAppType type,
             final IModel<T> model,
             final PageReference pageRef) {
 
-        super(id, pageRef, false);
+        super(id, restClient, pageRef, false);
 
         this.propertiesModal = propertiesModal;
         this.type = type;
@@ -68,7 +69,8 @@ public class ClientAppPropertiesDirectoryPanel<T extends ClientAppTO> extends At
         enableUtilityButton();
         setFooterVisibility(false);
 
-        addNewItemPanelBuilder(new ClientAppPropertyWizardBuilder(type, model.getObject(), new Attr(), pageRef), true);
+        addNewItemPanelBuilder(new ClientAppPropertyWizardBuilder(
+                type, model.getObject(), new Attr(), restClient, pageRef), true);
 
         initResultTable();
     }
@@ -107,7 +109,7 @@ public class ClientAppPropertiesDirectoryPanel<T extends ClientAppTO> extends At
             @Override
             public void onClick(final AjaxRequestTarget target, final Attr ignore) {
                 send(ClientAppPropertiesDirectoryPanel.this, Broadcast.EXACT,
-                    new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.CLIENTAPP_UPDATE);
 
@@ -119,7 +121,8 @@ public class ClientAppPropertiesDirectoryPanel<T extends ClientAppTO> extends At
             public void onClick(final AjaxRequestTarget target, final Attr ignore) {
                 try {
                     ClientAppPropertiesDirectoryPanel.this.model.getObject().getProperties().remove(model.getObject());
-                    ClientAppRestClient.update(type, ClientAppPropertiesDirectoryPanel.this.model.getObject());
+                    ((ClientAppRestClient) restClient).update(
+                            type, ClientAppPropertiesDirectoryPanel.this.model.getObject());
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);

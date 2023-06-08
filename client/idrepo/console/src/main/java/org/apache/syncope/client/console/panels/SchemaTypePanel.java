@@ -59,7 +59,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
     private static final long serialVersionUID = 3905038169553185171L;
 
-    private static final Map<SchemaType, List<String>> COL_NAMES = Map.of(
+    protected static final Map<SchemaType, List<String>> COL_NAMES = Map.of(
             SchemaType.PLAIN,
             List.of(Constants.KEY_FIELD_NAME,
                     "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly"),
@@ -68,24 +68,27 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             SchemaType.VIRTUAL,
             List.of(Constants.KEY_FIELD_NAME, "resource", "anyType", "extAttrName", "readonly"));
 
-    private final SchemaType schemaType;
+    protected final SchemaType schemaType;
 
-    private String keyword;
+    protected String keyword;
 
-    public SchemaTypePanel(final String id, final SchemaType schemaType, final PageReference pageRef) {
-        super(id, true, pageRef);
+    public SchemaTypePanel(
+            final String id,
+            final SchemaRestClient restClient,
+            final SchemaType schemaType,
+            final PageReference pageRef) {
+
+        super(id, restClient, true, pageRef);
         this.schemaType = schemaType;
 
         disableCheckBoxes();
 
         try {
             addNewItemPanelBuilder(new SchemaTypeWizardBuilder(
-                    schemaType.getToClass().getDeclaredConstructor().newInstance(), pageRef), true);
+                    schemaType.getToClass().getDeclaredConstructor().newInstance(), restClient, pageRef), true);
         } catch (Exception e) {
             LOG.error("Error creating instance of {}", schemaType, e);
         }
-
-        this.restClient = new SchemaRestClient();
 
         initResultTable();
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.SCHEMA_CREATE);
@@ -159,7 +162,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             @Override
             public void onClick(final AjaxRequestTarget target, final SchemaTO ignore) {
                 send(SchemaTypePanel.this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<>(
-                        SchemaRestClient.read(schemaType, model.getObject().getKey()), target));
+                        restClient.read(schemaType, model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.SCHEMA_UPDATE);
         panel.add(new ActionLink<>() {
@@ -169,7 +172,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             @Override
             public void onClick(final AjaxRequestTarget target, final SchemaTO ignore) {
                 try {
-                    SchemaRestClient.delete(schemaType, model.getObject().getKey());
+                    restClient.delete(schemaType, model.getObject().getKey());
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
@@ -223,7 +226,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
         @Override
         public Iterator<SchemaTO> iterator(final long first, final long count) {
-            List<SchemaTO> schemas = SchemaRestClient.getSchemas(this.schemaType, keyword);
+            List<SchemaTO> schemas = restClient.getSchemas(this.schemaType, keyword);
             schemas.sort(comparator);
 
             return schemas.subList((int) first, (int) first + (int) count).iterator();
@@ -231,7 +234,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
         @Override
         public long size() {
-            return SchemaRestClient.getSchemas(this.schemaType, keyword).size();
+            return restClient.getSchemas(this.schemaType, keyword).size();
         }
 
         @Override

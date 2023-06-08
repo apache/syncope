@@ -40,16 +40,20 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ConnectorDetailsPanel extends WizardStep {
 
     private static final long serialVersionUID = -2435937897614232137L;
 
+    @SpringBean
+    protected RealmRestClient realmRestClient;
+
     public ConnectorDetailsPanel(final ConnInstanceTO connInstanceTO, final List<ConnIdBundle> bundles) {
         super();
         setOutputMarkupId(true);
 
-        boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree();
+        boolean fullRealmsTree = SyncopeWebApplication.get().fullRealmsTree(realmRestClient);
 
         AutoCompleteSettings settings = new AutoCompleteSettings();
         settings.setShowCompleteListOnFocusGain(fullRealmsTree);
@@ -63,7 +67,7 @@ public class ConnectorDetailsPanel extends WizardStep {
             @Override
             protected Iterator<String> getChoices(final String input) {
                 return (RealmsUtils.checkInput(input)
-                        ? (RealmRestClient.search(fullRealmsTree
+                        ? (realmRestClient.search(fullRealmsTree
                                 ? RealmsUtils.buildRootQuery()
                                 : RealmsUtils.buildKeywordQuery(input)).getResult())
                         : List.<RealmTO>of()).stream().

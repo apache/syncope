@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.policies;
 
 import java.util.List;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -41,11 +42,15 @@ public class PasswordPolicyDirectoryPanel extends PolicyDirectoryPanel<PasswordP
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    public PasswordPolicyDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, PolicyType.PASSWORD, pageRef);
+    public PasswordPolicyDirectoryPanel(
+            final String id,
+            final PolicyRestClient restClient,
+            final PageReference pageRef) {
 
-        this.addNewItemPanelBuilder(
-                new PolicyModalPanelBuilder<>(PolicyType.PASSWORD, new PasswordPolicyTO(), modal, pageRef), true);
+        super(id, restClient, PolicyType.PASSWORD, pageRef);
+
+        this.addNewItemPanelBuilder(new PolicyModalPanelBuilder<>(
+                PolicyType.PASSWORD, new PasswordPolicyTO(), modal, restClient, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, IdRepoEntitlement.POLICY_CREATE);
 
         initResultTable();
@@ -69,13 +74,13 @@ public class PasswordPolicyDirectoryPanel extends PolicyDirectoryPanel<PasswordP
             @Override
             public void onClick(final AjaxRequestTarget target, final PasswordPolicyTO ignore) {
                 target.add(ruleCompositionModal.setContent(new PolicyRuleDirectoryPanel<>(
-                    ruleCompositionModal, model.getObject().getKey(), PolicyType.PASSWORD, pageRef)));
+                        ruleCompositionModal, model.getObject().getKey(), PolicyType.PASSWORD, restClient, pageRef)));
 
                 ruleCompositionModal.header(new StringResourceModel(
-                    "policy.rules", PasswordPolicyDirectoryPanel.this, Model.of(model.getObject())));
+                        "policy.rules", PasswordPolicyDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
-                    ruleCompositionModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
+                        ruleCompositionModal.getForm(), ENABLE, IdRepoEntitlement.POLICY_UPDATE);
 
                 ruleCompositionModal.show(true);
             }

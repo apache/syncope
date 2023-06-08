@@ -26,24 +26,23 @@ public class SecurityQuestionRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3167730221361895176L;
 
-    public static List<SecurityQuestionTO> list() {
+    public List<SecurityQuestionTO> list() {
         return getService(SecurityQuestionService.class).list();
     }
 
-    public static void create(final SecurityQuestionTO securityQuestionTO) {
+    public void create(final SecurityQuestionTO securityQuestionTO) {
         getService(SecurityQuestionService.class).create(securityQuestionTO);
     }
 
-    public static void update(final SecurityQuestionTO securityQuestionTO) {
+    public void update(final SecurityQuestionTO securityQuestionTO) {
         getService(SecurityQuestionService.class).update(securityQuestionTO);
     }
 
-    public static void delete(final String securityQuestionKey) {
+    public void delete(final String securityQuestionKey) {
         getService(SecurityQuestionService.class).delete(securityQuestionKey);
     }
 
-    public static SecurityQuestionTO readByUser(final String username) {
+    public SecurityQuestionTO readByUser(final String username) {
         return getService(SecurityQuestionService.class).readByUser(username);
     }
-
 }

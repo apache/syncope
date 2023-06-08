@@ -26,27 +26,27 @@ public class OIDCProviderRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4006712447589576324L;
 
-    public static List<OIDCC4UIProviderTO> list() {
+    public List<OIDCC4UIProviderTO> list() {
         return getService(OIDCC4UIProviderService.class).list();
     }
 
-    public static void create(final OIDCC4UIProviderTO op) {
+    public void create(final OIDCC4UIProviderTO op) {
         getService(OIDCC4UIProviderService.class).create(op);
     }
 
-    public static void createFromDiscovery(final OIDCC4UIProviderTO op) {
+    public void createFromDiscovery(final OIDCC4UIProviderTO op) {
         getService(OIDCC4UIProviderService.class).createFromDiscovery(op);
     }
 
-    public static OIDCC4UIProviderTO read(final String key) {
+    public OIDCC4UIProviderTO read(final String key) {
         return getService(OIDCC4UIProviderService.class).read(key);
     }
 
-    public static void update(final OIDCC4UIProviderTO op) {
+    public void update(final OIDCC4UIProviderTO op) {
         getService(OIDCC4UIProviderService.class).update(op);
     }
 
-    public static void delete(final String key) {
+    public void delete(final String key) {
         getService(OIDCC4UIProviderService.class).delete(key);
     }
 }

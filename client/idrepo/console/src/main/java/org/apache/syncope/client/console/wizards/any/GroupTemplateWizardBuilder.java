@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -34,14 +35,17 @@ public class GroupTemplateWizardBuilder extends GroupWizardBuilder implements Te
 
     private static final long serialVersionUID = 6716803168859873877L;
 
-    private final TemplatableTO templatable;
+    protected final TemplatableTO templatable;
 
     public GroupTemplateWizardBuilder(
             final TemplatableTO templatable,
             final List<String> anyTypeClasses,
             final GroupFormLayoutInfo formLayoutInfo,
+            final GroupRestClient groupRestClient,
             final PageReference pageRef) {
-        super(null, anyTypeClasses, formLayoutInfo, pageRef);
+
+        super(null, anyTypeClasses, formLayoutInfo, groupRestClient, pageRef);
+
         this.templatable = templatable;
 
         if (templatable.getTemplates().containsKey(AnyTypeKind.GROUP.name())) {

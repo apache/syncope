@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -27,10 +28,17 @@ import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class UserRequestFormDetails extends MultilevelPanel.SecondLevel {
 
     private static final long serialVersionUID = -8847854414429745216L;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected UserRestClient userRestClient;
 
     public UserRequestFormDetails(final PageReference pageRef, final UserRequestForm formTO) {
         super(MultilevelPanel.SECOND_LEVEL_ID);
@@ -54,8 +62,9 @@ public class UserRequestFormDetails extends MultilevelPanel.SecondLevel {
         add(new UserWizardBuilder(
                 previousUserTO,
                 newUserTO,
-                AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
+                anyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
                 new UserFormLayoutInfo(),
+                userRestClient,
                 pageRef).
                 build(AjaxWizard.Mode.READONLY));
     }

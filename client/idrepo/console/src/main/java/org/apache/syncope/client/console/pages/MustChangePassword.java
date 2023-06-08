@@ -24,10 +24,14 @@ import org.apache.syncope.client.ui.commons.pages.AbstractMustChangePassword;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class MustChangePassword extends AbstractMustChangePassword {
 
     private static final long serialVersionUID = 8581970794722709800L;
+
+    @SpringBean
+    protected UserSelfRestClient userSelfRestClient;
 
     public MustChangePassword(final PageParameters parameters) {
         super(parameters);
@@ -36,7 +40,7 @@ public class MustChangePassword extends AbstractMustChangePassword {
     @Override
     protected void doSubmit(final AjaxRequestTarget target) {
         try {
-            UserSelfRestClient.changePassword(passwordField.getModelObject());
+            userSelfRestClient.changePassword(passwordField.getModelObject());
 
             SyncopeConsoleSession.get().invalidate();
 

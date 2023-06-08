@@ -38,7 +38,9 @@ public class SchemaRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2479730152700312373L;
 
-    public static <T extends SchemaTO> List<T> getSchemas(final SchemaType schemaType, final AnyTypeKind kind) {
+    public <T extends SchemaTO> List<T> getSchemas(
+            final SchemaType schemaType, final AnyTypeKind kind) {
+
         AnyTypeService client = getService(AnyTypeService.class);
 
         List<String> classes = new ArrayList<>();
@@ -53,7 +55,7 @@ public class SchemaRestClient extends BaseRestClient {
                 break;
 
             default:
-                AnyTypeRestClient.listAnyTypes().stream().filter(
+                getService(AnyTypeService.class).list().stream().filter(
                         anyType -> anyType.getKind() != AnyTypeKind.USER && anyType.getKind() != AnyTypeKind.GROUP).
                         forEach(anyType -> classes.addAll(anyType.getClasses()));
         }
@@ -61,7 +63,7 @@ public class SchemaRestClient extends BaseRestClient {
         return getSchemas(schemaType, null, classes.toArray(String[]::new));
     }
 
-    public static <T extends SchemaTO> List<T> getSchemas(
+    public <T extends SchemaTO> List<T> getSchemas(
             final SchemaType schemaType, final String keyword, final String... anyTypeClasses) {
 
         SchemaQuery.Builder builder = new SchemaQuery.Builder().type(schemaType);
@@ -81,7 +83,7 @@ public class SchemaRestClient extends BaseRestClient {
         return schemas;
     }
 
-    public static List<String> getSchemaNames(final SchemaType schemaType) {
+    public List<String> getSchemaNames(final SchemaType schemaType) {
         List<String> schemaNames = List.of();
 
         try {
@@ -94,19 +96,19 @@ public class SchemaRestClient extends BaseRestClient {
         return schemaNames;
     }
 
-    public static <T extends SchemaTO> T read(final SchemaType schemaType, final String key) {
+    public <T extends SchemaTO> T read(final SchemaType schemaType, final String key) {
         return getService(SchemaService.class).read(schemaType, key);
     }
 
-    public static void create(final SchemaType schemaType, final SchemaTO modelObject) {
+    public void create(final SchemaType schemaType, final SchemaTO modelObject) {
         getService(SchemaService.class).create(schemaType, modelObject);
     }
 
-    public static void update(final SchemaType schemaType, final SchemaTO modelObject) {
+    public void update(final SchemaType schemaType, final SchemaTO modelObject) {
         getService(SchemaService.class).update(schemaType, modelObject);
     }
 
-    public static void delete(final SchemaType schemaType, final String key) {
+    public void delete(final SchemaType schemaType, final String key) {
         getService(SchemaService.class).delete(schemaType, key);
     }
 }

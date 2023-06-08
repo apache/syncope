@@ -32,13 +32,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import org.apache.syncope.client.enduser.EnduserProperties;
+import org.apache.syncope.client.enduser.FlowableEnduserContext;
+import org.apache.syncope.client.enduser.IdRepoEnduserContext;
+import org.apache.syncope.client.enduser.OIDCC4UIEnduserContext;
+import org.apache.syncope.client.enduser.SAML2SP4UIEnduserContext;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
-import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.lib.Attr;
@@ -49,7 +51,6 @@ import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractUIITCase;
-import org.apache.syncope.fit.console.AbstractConsoleITCase;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.AfterAll;
@@ -62,7 +63,13 @@ import org.springframework.test.context.support.TestPropertySourceUtils;
 
 public abstract class AbstractEnduserITCase extends AbstractUIITCase {
 
-    @ImportAutoConfiguration(classes = { SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class })
+    @ImportAutoConfiguration(classes = {
+        SelfKeymasterClientContext.class,
+        ZookeeperKeymasterClientContext.class,
+        IdRepoEnduserContext.class,
+        FlowableEnduserContext.class,
+        SAML2SP4UIEnduserContext.class,
+        OIDCC4UIEnduserContext.class })
     @Configuration(proxyBeanMethods = false)
     public static class SyncopeEnduserWebApplicationTestConfig {
 
@@ -106,18 +113,6 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
             lookup.load();
             return lookup;
         }
-
-        @Bean
-        public MIMETypesLoader mimeTypesLoader() {
-            MIMETypesLoader mimeTypesLoader = new MIMETypesLoader();
-            mimeTypesLoader.load();
-            return mimeTypesLoader;
-        }
-
-        @Bean
-        public PreviewUtils previewUtils() {
-            return new PreviewUtils();
-        }
     }
 
     protected static SyncopeClientFactoryBean CLIENT_FACTORY;
@@ -138,7 +133,7 @@ public abstract class AbstractEnduserITCase extends AbstractUIITCase {
         ctx.register(SyncopeWebApplication.class);
 
         String springActiveProfiles = null;
-        try (InputStream propStream = AbstractConsoleITCase.class.getResourceAsStream("/test.properties")) {
+        try (InputStream propStream = AbstractEnduserITCase.class.getResourceAsStream("/test.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 

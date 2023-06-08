@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ConnObjectSearchPanel extends AbstractSearchPanel {
 
@@ -67,6 +68,9 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
             return new ConnObjectSearchPanel(id, anyType, typeName, this);
         }
     }
+
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
 
     protected ConnObjectSearchPanel(final String id, final AnyTypeKind kind, final Builder builder) {
         super(id, kind, builder);
@@ -116,8 +120,8 @@ public class ConnObjectSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
-                return ConnectorRestClient.buildObjectClassInfo(
-                        ConnectorRestClient.read(resource.getConnector()), false).stream().
+                return connectorRestClient.buildObjectClassInfo(
+                        connectorRestClient.read(resource.getConnector()), false).stream().
                         map(ConnIdObjectClass::getAttributes).
                         flatMap(List::stream).
                         collect(Collectors.toMap(

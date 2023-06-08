@@ -46,13 +46,16 @@ public class ConnectorDataProvider extends DirectoryDataProvider<Serializable> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConnectorDataProvider.class);
 
-    private final PageReference pageRef;
+    protected final ConnectorRestClient connectorRestClient;
+
+    protected final PageReference pageRef;
 
     protected int currentPage;
 
-    private final String keyword;
+    protected final String keyword;
 
     public ConnectorDataProvider(
+            final ConnectorRestClient connectorRestClient,
             final int paginatorRows,
             final PageReference pageRef,
             final String keyword) {
@@ -60,6 +63,7 @@ public class ConnectorDataProvider extends DirectoryDataProvider<Serializable> {
         super(paginatorRows);
 
         setSort("displayNameSortParam", SortOrder.ASCENDING);
+        this.connectorRestClient = connectorRestClient;
         this.pageRef = pageRef;
         this.keyword = keyword;
     }
@@ -74,9 +78,9 @@ public class ConnectorDataProvider extends DirectoryDataProvider<Serializable> {
                 currentPage = 0;
             }
             if (StringUtils.isBlank(keyword)) {
-                result = ConnectorRestClient.getAllConnectors();
+                result = connectorRestClient.getAllConnectors();
             } else {
-                result = ConnectorRestClient.getAllConnectors().stream().
+                result = connectorRestClient.getAllConnectors().stream().
                         filter(conn -> conn.getDisplayName().toLowerCase().contains(keyword)).
                         collect(Collectors.toList());
             }
@@ -125,9 +129,9 @@ public class ConnectorDataProvider extends DirectoryDataProvider<Serializable> {
 
         try {
             if (StringUtils.isBlank(keyword)) {
-                result = ConnectorRestClient.getAllConnectors().size();
+                result = connectorRestClient.getAllConnectors().size();
             } else {
-                result = ConnectorRestClient.getAllConnectors().stream().filter(conn
+                result = connectorRestClient.getAllConnectors().stream().filter(conn
                         -> conn.getDisplayName().toLowerCase().contains(keyword)).count();
             }
         } catch (Exception e) {

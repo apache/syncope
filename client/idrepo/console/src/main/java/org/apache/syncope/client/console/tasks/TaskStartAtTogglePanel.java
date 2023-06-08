@@ -28,10 +28,14 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class TaskStartAtTogglePanel extends StartAtTogglePanel {
 
     private static final long serialVersionUID = -3195479265440591519L;
+
+    @SpringBean
+    protected TaskRestClient taskRestClient;
 
     public TaskStartAtTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
         super(container, pageRef);
@@ -43,7 +47,7 @@ public class TaskStartAtTogglePanel extends StartAtTogglePanel {
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
                 try {
-                    TaskRestClient.startExecution(key, startAtDateModel.getObject(), true);
+                    taskRestClient.startExecution(key, startAtDateModel.getObject(), true);
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                     target.add(container);
@@ -63,6 +67,6 @@ public class TaskStartAtTogglePanel extends StartAtTogglePanel {
 
     @Override
     protected TaskRestClient getRestClient() {
-        return new TaskRestClient();
+        return taskRestClient;
     }
 }

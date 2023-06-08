@@ -29,6 +29,8 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
 import org.apache.syncope.client.console.panels.DisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
+import org.apache.syncope.client.console.rest.ReconciliationRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.AjaxDownloadBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wizards.CSVPullWizardBuilder;
@@ -60,6 +62,18 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
     protected AjaxLink<Void> csvPushLink;
 
     protected AjaxLink<Void> csvPullLink;
+
+    protected final ReconciliationRestClient reconciliationRestClient;
+
+    protected final ImplementationRestClient implementationRestClient;
+
+    public IdMAnyDirectoryPanelAdditionalActionsProvider(
+            final ReconciliationRestClient reconciliationRestClient,
+            final ImplementationRestClient implementationRestClient) {
+
+        this.reconciliationRestClient = reconciliationRestClient;
+        this.implementationRestClient = implementationRestClient;
+    }
 
     @Override
     public void add(
@@ -140,7 +154,8 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                 CSVPushSpec spec = csvPushSpec(type, pSchemaNames, dSchemaNames);
                 AnyQuery query = csvAnyQuery(realm, fiql, rows, panel.getDataProvider());
 
-                target.add(modal.setContent(new CSVPushWizardBuilder(spec, query, csvDownloadBehavior, pageRef).
+                target.add(modal.setContent(new CSVPushWizardBuilder(
+                        spec, query, csvDownloadBehavior, reconciliationRestClient, implementationRestClient, pageRef).
                         setEventSink(csvEventSink).
                         build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
@@ -160,9 +175,10 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
             public void onClick(final AjaxRequestTarget target) {
                 CSVPullSpec spec = csvPullSpec(type, realm);
 
-                target.add(modal.setContent(new CSVPullWizardBuilder(spec, pageRef).
-                        setEventSink(csvEventSink).
-                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+                target.add(modal.setContent(
+                        new CSVPullWizardBuilder(spec, reconciliationRestClient, implementationRestClient, pageRef).
+                                setEventSink(csvEventSink).
+                                build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
                 modal.header(new StringResourceModel("csvPull", panel, Model.of(spec)));
                 modal.show(true);

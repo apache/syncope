@@ -57,12 +57,17 @@ import org.apache.wicket.model.StringResourceModel;
 public class SAML2SPEntityDirectoryPanel extends DirectoryPanel<
         SAML2SPEntityTO, SAML2SPEntityTO, SAML2SPEntityProvider, SAML2SPEntityRestClient> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -3890622383545171017L;
 
     private final String waPrefix;
 
-    public SAML2SPEntityDirectoryPanel(final String id, final String waPrefix, final PageReference pageRef) {
-        super(id, pageRef);
+    public SAML2SPEntityDirectoryPanel(
+            final String id,
+            final SAML2SPEntityRestClient restClient,
+            final String waPrefix,
+            final PageReference pageRef) {
+
+        super(id, restClient, pageRef);
         this.waPrefix = waPrefix;
 
         disableCheckBoxes();
@@ -75,7 +80,7 @@ public class SAML2SPEntityDirectoryPanel extends DirectoryPanel<
             modal.show(false);
         });
 
-        addNewItemPanelBuilder(new SAML2SPEntityWizardBuilder(new SAML2SPEntityTO(), pageRef), true);
+        addNewItemPanelBuilder(new SAML2SPEntityWizardBuilder(new SAML2SPEntityTO(), restClient, pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, AMEntitlement.SAML2_SP_ENTITY_SET);
 
@@ -137,7 +142,7 @@ public class SAML2SPEntityDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final SAML2SPEntityTO ignore) {
                 send(SAML2SPEntityDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                SAML2SPEntityRestClient.get(model.getObject().getKey()), target));
+                                restClient.get(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.SAML2_SP_ENTITY_SET);
 
@@ -148,7 +153,7 @@ public class SAML2SPEntityDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final SAML2SPEntityTO ignore) {
                 try {
-                    SAML2SPEntityRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
@@ -178,7 +183,7 @@ public class SAML2SPEntityDirectoryPanel extends DirectoryPanel<
         return AMConstants.PREF_SAML2_SP_ENTITY_PAGINATOR_ROWS;
     }
 
-    protected static final class SAML2SPEntityProvider extends DirectoryDataProvider<SAML2SPEntityTO> {
+    protected final class SAML2SPEntityProvider extends DirectoryDataProvider<SAML2SPEntityTO> {
 
         private static final long serialVersionUID = 5282134321828253058L;
 
@@ -192,14 +197,14 @@ public class SAML2SPEntityDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<? extends SAML2SPEntityTO> iterator(final long first, final long count) {
-            List<SAML2SPEntityTO> list = SAML2SPEntityRestClient.list();
+            List<SAML2SPEntityTO> list = restClient.list();
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SAML2SPEntityRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override

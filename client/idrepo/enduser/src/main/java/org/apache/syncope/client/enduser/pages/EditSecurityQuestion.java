@@ -50,20 +50,25 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class EditSecurityQuestion extends BasePage {
 
     private static final long serialVersionUID = -537205681762708502L;
 
-    private static final String EDIT_SECURITY_QUESTION = "page.editSecurityQuestion";
+    protected static final String EDIT_SECURITY_QUESTION = "page.editSecurityQuestion";
 
-    private final UserSelfRestClient userSelfRestClient = new UserSelfRestClient();
+    @SpringBean
+    protected SecurityQuestionRestClient securityQuestionRestClient;
 
-    private final AjaxDropDownChoicePanel<String> securityQuestion;
+    @SpringBean
+    protected UserSelfRestClient userSelfRestClient;
 
-    private final FieldPanel<String> securityAnswer;
+    protected final AjaxDropDownChoicePanel<String> securityQuestion;
 
-    private final UserTO userTO;
+    protected final FieldPanel<String> securityAnswer;
+
+    protected final UserTO userTO;
 
     public EditSecurityQuestion(final PageParameters parameters) {
         super(parameters, EDIT_SECURITY_QUESTION);
@@ -83,7 +88,7 @@ public class EditSecurityQuestion extends BasePage {
         securityQuestion.setNullValid(true);
         securityQuestion.setRequired(true);
 
-        List<SecurityQuestionTO> securityQuestions = SecurityQuestionRestClient.list();
+        List<SecurityQuestionTO> securityQuestions = securityQuestionRestClient.list();
         securityQuestion.setChoices(securityQuestions.stream().
                 map(SecurityQuestionTO::getKey).collect(Collectors.toList()));
         securityQuestion.setChoiceRenderer(new IChoiceRenderer<>() {
@@ -146,18 +151,19 @@ public class EditSecurityQuestion extends BasePage {
                 } else {
                     try {
                         ProvisioningResult<UserTO> provisioningResult =
-                                ProvisioningUtils.updateUser(new UserUR.Builder(userTO.getKey())
+                                userSelfRestClient.update(
+                                        userTO.getETagValue(),
+                                        new UserUR.Builder(userTO.getKey())
                                                 .securityQuestion(new StringReplacePatchItem.Builder().
                                                         value(securityQuestion.getModelObject()).build())
                                                 .securityAnswer(new StringReplacePatchItem.Builder().
-                                                        value(securityAnswer.getModelObject()).build()).build(),
-                                        userTO.getETagValue());
+                                                        value(securityAnswer.getModelObject()).build()).build());
                         setResponsePage(new SelfResult(provisioningResult,
                                 ProvisioningUtils.managePageParams(EditSecurityQuestion.this,
                                         "securityquestion.change",
                                         !SyncopeWebApplication.get().isReportPropagationErrors()
-                                                || provisioningResult.getPropagationStatuses().stream()
-                                                        .allMatch(ps -> ExecStatus.SUCCESS == ps.getStatus()))));
+                                        || provisioningResult.getPropagationStatuses().stream()
+                                                .allMatch(ps -> ExecStatus.SUCCESS == ps.getStatus()))));
                     } catch (Exception e) {
                         LOG.error("While updating security question for {}",
                                 SyncopeEnduserSession.get().getSelfTO().getUsername(), e);

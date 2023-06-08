@@ -31,7 +31,9 @@ import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.OIDCProvidersDirectoryPanel.OIDCProvidersProvider;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.OIDCProviderRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -63,19 +65,32 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
         OIDCC4UIProviderTO, OIDCC4UIProviderTO, OIDCProvidersProvider, OIDCProviderRestClient> {
 
     private static final long serialVersionUID = -1356497878858616714L;
 
-    private static final String PREF_OIDC_PROVIDERS_PAGINATOR_ROWS = "oidc.providers.paginator.rows";
+    protected static final String PREF_OIDC_PROVIDERS_PAGINATOR_ROWS = "oidc.providers.paginator.rows";
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected UserRestClient userRestClient;
+
+    @SpringBean
+    protected ImplementationRestClient implementationRestClient;
 
     private final BaseModal<Serializable> templateModal;
 
-    public OIDCProvidersDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<OIDCC4UIProviderTO, OIDCC4UIProviderTO, OIDCProviderRestClient>(
-                new OIDCProviderRestClient(), pageRef) {
+    public OIDCProvidersDirectoryPanel(
+            final String id,
+            final OIDCProviderRestClient restClient,
+            final PageReference pageRef) {
+
+        super(id, new Builder<OIDCC4UIProviderTO, OIDCC4UIProviderTO, OIDCProviderRestClient>(restClient, pageRef) {
 
             private static final long serialVersionUID = -5542535388772406165L;
 
@@ -86,7 +101,8 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
             }
         }.disableCheckBoxes());
 
-        this.addNewItemPanelBuilder(new OIDCProviderWizardBuilder(this, new OIDCC4UIProviderTO(), pageRef), true);
+        this.addNewItemPanelBuilder(new OIDCProviderWizardBuilder(
+                this, new OIDCC4UIProviderTO(), implementationRestClient, restClient, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, OIDC4UIEntitlement.OP_CREATE);
 
         modal.size(Modal.Size.Large);
@@ -163,7 +179,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final OIDCC4UIProviderTO ignore) {
-                OIDCC4UIProviderTO object = OIDCProviderRestClient.read(model.getObject().getKey());
+                OIDCC4UIProviderTO object = restClient.read(model.getObject().getKey());
                 send(OIDCProvidersDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(object, target));
                 modal.header(Model.of(StringUtils.capitalize(("Edit " + object.getName()))));
@@ -176,12 +192,13 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void onClick(final AjaxRequestTarget target, final OIDCC4UIProviderTO ignore) {
-                final OIDCC4UIProviderTO object = OIDCProviderRestClient.read(model.getObject().getKey());
+                OIDCC4UIProviderTO object = restClient.read(model.getObject().getKey());
 
                 UserTemplateWizardBuilder builder = new UserTemplateWizardBuilder(
                         object.getUserTemplate(),
-                        AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
+                        anyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
                         new UserFormLayoutInfo(),
+                        userRestClient,
                         pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770634L;
@@ -189,7 +206,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                     @Override
                     protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
                         object.setUserTemplate(modelObject.getInnerObject());
-                        OIDCProviderRestClient.update(object);
+                        restClient.update(object);
 
                         return modelObject;
                     }
@@ -210,7 +227,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final OIDCC4UIProviderTO ignore) {
                 try {
-                    OIDCProviderRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -245,7 +262,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
         }
     }
 
-    protected static final class OIDCProvidersProvider extends DirectoryDataProvider<OIDCC4UIProviderTO> {
+    protected final class OIDCProvidersProvider extends DirectoryDataProvider<OIDCC4UIProviderTO> {
 
         private static final long serialVersionUID = -2865055116864423761L;
 
@@ -260,14 +277,14 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<OIDCC4UIProviderTO> iterator(final long first, final long count) {
-            List<OIDCC4UIProviderTO> list = OIDCProviderRestClient.list();
+            List<OIDCC4UIProviderTO> list = restClient.list();
             list.sort(comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return OIDCProviderRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override

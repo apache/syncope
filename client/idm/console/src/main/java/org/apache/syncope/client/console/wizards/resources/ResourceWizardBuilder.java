@@ -45,10 +45,22 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
 
     private static final long serialVersionUID = 1734415311027284221L;
 
-    private boolean createFlag;
+    protected final ResourceRestClient resourceRestClient;
 
-    public ResourceWizardBuilder(final ResourceTO resourceTO, final PageReference pageRef) {
+    protected final ConnectorRestClient connectorRestClient;
+
+    protected boolean createFlag;
+
+    public ResourceWizardBuilder(
+            final ResourceTO resourceTO,
+            final ResourceRestClient resourceRestClient,
+            final ConnectorRestClient connectorRestClient,
+            final PageReference pageRef) {
+
         super(resourceTO, pageRef);
+
+        this.resourceRestClient = resourceRestClient;
+        this.connectorRestClient = connectorRestClient;
     }
 
     @Override
@@ -62,13 +74,13 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
         ResourceTO resourceTO = ResourceTO.class.cast(modelObject);
         ResourceDetailsPanel resourceDetailsPanel = new ResourceDetailsPanel(resourceTO, createFlag);
 
-        ResourceConnConfPanel resourceConnConfPanel = new ResourceConnConfPanel(resourceTO, createFlag) {
+        ResourceConnConfPanel resourceConnConfPanel = new ResourceConnConfPanel(resourceTO) {
 
             private static final long serialVersionUID = -1128269449868933504L;
 
             @Override
             protected Pair<Boolean, String> check(final AjaxRequestTarget target) {
-                return ResourceRestClient.check(modelObject);
+                return resourceRestClient.check(modelObject);
             }
 
             @Override
@@ -80,58 +92,58 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
 
         if (createFlag && resourceDetailsPanel.getConnector() != null) {
             resourceDetailsPanel.getConnector().getField().add(
-                new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                    new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
-                    private static final long serialVersionUID = 4600298808455564695L;
+                private static final long serialVersionUID = 4600298808455564695L;
 
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                        resourceTO.setConnector(resourceDetailsPanel.getConnector().getModelObject());
+                @Override
+                protected void onUpdate(final AjaxRequestTarget target) {
+                    resourceTO.setConnector(resourceDetailsPanel.getConnector().getModelObject());
 
-                        LoadableDetachableModel<List<ConnConfProperty>> model =
-                                new LoadableDetachableModel<>() {
+                    LoadableDetachableModel<List<ConnConfProperty>> model =
+                            new LoadableDetachableModel<>() {
 
-                                    private static final long serialVersionUID = -2965284931860212687L;
+                        private static final long serialVersionUID = -2965284931860212687L;
 
-                                    @Override
-                                    protected List<ConnConfProperty> load() {
-                                        List<ConnConfProperty> confOverride =
-                                                resourceConnConfPanel.getConnProperties(resourceTO);
-                                        resourceTO.getConfOverride().clear();
-                                        resourceTO.getConfOverride().addAll(confOverride);
+                        @Override
+                        protected List<ConnConfProperty> load() {
+                            List<ConnConfProperty> confOverride =
+                                    resourceConnConfPanel.getConnProperties(resourceTO);
+                            resourceTO.getConfOverride().clear();
+                            resourceTO.getConfOverride().addAll(confOverride);
 
-                                        return new PropertyModel<List<ConnConfProperty>>(modelObject, "confOverride") {
+                            return new PropertyModel<List<ConnConfProperty>>(modelObject, "confOverride") {
 
-                                            private static final long serialVersionUID = -7809699384012595307L;
+                                private static final long serialVersionUID = -7809699384012595307L;
 
-                                            @Override
-                                            public List<ConnConfProperty> getObject() {
-                                                List<ConnConfProperty> res = new ArrayList<>(super.getObject());
+                                @Override
+                                public List<ConnConfProperty> getObject() {
+                                    List<ConnConfProperty> res = new ArrayList<>(super.getObject());
 
-                                                // re-order properties
-                                                Collections.sort(res, (left, right) -> {
-                                                    if (left == null) {
-                                                        return -1;
-                                                    } else {
-                                                        return left.compareTo(right);
-                                                    }
-                                                });
+                                    // re-order properties
+                                    Collections.sort(res, (left, right) -> {
+                                        if (left == null) {
+                                            return -1;
+                                        } else {
+                                            return left.compareTo(right);
+                                        }
+                                    });
 
-                                                return res;
-                                            }
-                                        }.getObject();
-                                    }
-                                };
-                        resourceConnConfPanel.setConfPropertyListView(model, true);
-                        target.add(resourceConnConfPanel.getCheck().setVisible(true).setEnabled(true));
-                    }
-                });
+                                    return res;
+                                }
+                            }.getObject();
+                        }
+                    };
+                    resourceConnConfPanel.setConfPropertyListView(model, true);
+                    target.add(resourceConnConfPanel.getCheck().setVisible(true).setEnabled(true));
+                }
+            });
         }
         wizardModel.add(resourceDetailsPanel);
         wizardModel.add(resourceConnConfPanel);
         if (resourceTO.getConnector() != null) {
             wizardModel.add(new ResourceConnCapabilitiesPanel(
-                    resourceTO, ConnectorRestClient.read(resourceTO.getConnector()).getCapabilities()));
+                    resourceTO, connectorRestClient.read(resourceTO.getConnector()).getCapabilities()));
         } else {
             wizardModel.add(new ResourceConnCapabilitiesPanel(resourceTO, Collections.emptySet()));
         }
@@ -144,9 +156,9 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
     protected ResourceTO onApplyInternal(final Serializable modelObject) {
         ResourceTO resourceTO = (ResourceTO) modelObject;
         if (createFlag) {
-            resourceTO = ResourceRestClient.create(resourceTO);
+            resourceTO = resourceRestClient.create(resourceTO);
         } else {
-            ResourceRestClient.update(resourceTO);
+            resourceRestClient.update(resourceTO);
         }
         return resourceTO;
     }

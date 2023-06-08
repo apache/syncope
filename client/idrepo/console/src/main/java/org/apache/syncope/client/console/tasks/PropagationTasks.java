@@ -42,7 +42,7 @@ public class PropagationTasks extends AbstractPropagationTasks {
         MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new PropagationTaskDirectoryPanel(baseModal, mlp, resource, pageRef) {
+        mlp.setFirstLevel(new PropagationTaskDirectoryPanel(taskRestClient, baseModal, mlp, resource, pageRef) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 

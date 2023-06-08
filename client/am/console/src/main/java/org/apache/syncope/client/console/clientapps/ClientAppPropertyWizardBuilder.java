@@ -30,19 +30,23 @@ public class ClientAppPropertyWizardBuilder extends AttrWizardBuilder {
 
     private static final long serialVersionUID = -91564005263775261L;
 
-    private final ClientAppType type;
+    protected final ClientAppType type;
 
-    private final ClientAppTO clientApp;
+    protected final ClientAppTO clientApp;
+
+    protected final ClientAppRestClient clientAppRestClient;
 
     public ClientAppPropertyWizardBuilder(
             final ClientAppType type,
             final ClientAppTO clientApp,
             final Attr attr,
+            final ClientAppRestClient clientAppRestClient,
             final PageReference pageRef) {
 
         super(attr, pageRef);
         this.type = type;
         this.clientApp = clientApp;
+        this.clientAppRestClient = clientAppRestClient;
     }
 
     @Override
@@ -50,7 +54,7 @@ public class ClientAppPropertyWizardBuilder extends AttrWizardBuilder {
         clientApp.getProperties().removeIf(p -> modelObject.getSchema().equals(p.getSchema()));
         clientApp.getProperties().add(modelObject);
 
-        ClientAppRestClient.update(type, clientApp);
+        clientAppRestClient.update(type, clientApp);
 
         return null;
     }

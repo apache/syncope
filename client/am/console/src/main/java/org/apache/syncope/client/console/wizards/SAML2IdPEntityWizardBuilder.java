@@ -30,10 +30,17 @@ import org.apache.wicket.model.PropertyModel;
 
 public class SAML2IdPEntityWizardBuilder extends SAML2EntityWizardBuilder<SAML2IdPEntityTO> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -8013493490328546125L;
 
-    public SAML2IdPEntityWizardBuilder(final SAML2IdPEntityTO defaultItem, final PageReference pageRef) {
+    protected final SAML2IdPEntityRestClient saml2IdPEntityRestClient;
+
+    public SAML2IdPEntityWizardBuilder(
+            final SAML2IdPEntityTO defaultItem,
+            final SAML2IdPEntityRestClient saml2IdPEntityRestClient,
+            final PageReference pageRef) {
+
         super(defaultItem, pageRef);
+        this.saml2IdPEntityRestClient = saml2IdPEntityRestClient;
     }
 
     @Override
@@ -58,7 +65,7 @@ public class SAML2IdPEntityWizardBuilder extends SAML2EntityWizardBuilder<SAML2I
             modelObject.setEncryptionKey(Base64.getEncoder().encodeToString(
                     modelObject.getEncryptionKey().getBytes(StandardCharsets.UTF_8)));
         }
-        SAML2IdPEntityRestClient.set(modelObject);
+        saml2IdPEntityRestClient.set(modelObject);
         return modelObject;
     }
 

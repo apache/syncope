@@ -28,14 +28,18 @@ import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
 
     private static final long serialVersionUID = 4575264480736377795L;
 
-    private final ApplicationTO application;
+    @SpringBean
+    protected ApplicationRestClient applicationRestClient;
 
-    private final boolean create;
+    protected final ApplicationTO application;
+
+    protected final boolean create;
 
     public ApplicationModalPanel(
             final ApplicationTO application,
@@ -73,9 +77,9 @@ public class ApplicationModalPanel extends AbstractModalPanel<ApplicationTO> {
     public void onSubmit(final AjaxRequestTarget target) {
         try {
             if (create) {
-                ApplicationRestClient.create(application);
+                applicationRestClient.create(application);
             } else {
-                ApplicationRestClient.update(application);
+                applicationRestClient.update(application);
             }
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);

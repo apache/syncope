@@ -16,22 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.rest;
+package org.apache.syncope.client.enduser;
 
-import java.util.List;
-import org.apache.syncope.client.ui.commons.rest.RestClient;
+import org.apache.syncope.client.enduser.rest.BpmnProcessRestClient;
+import org.apache.syncope.client.enduser.rest.UserRequestRestClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-public interface TemplateRestClient<T, F> extends RestClient {
+@Configuration(proxyBeanMethods = false)
+public class FlowableEnduserContext {
 
-    List<T> listTemplates();
+    @ConditionalOnMissingBean
+    @Bean
+    public BpmnProcessRestClient bpmnProcessRestClient() {
+        return new BpmnProcessRestClient();
+    }
 
-    void createTemplate(T templateTO);
-
-    void deleteTemplate(String key);
-
-    T readTemplate(String key);
-
-    String readTemplateFormat(String key, F format);
-
-    void updateTemplateFormat(String key, String content, F format);
+    @ConditionalOnMissingBean
+    @Bean
+    public UserRequestRestClient userRequestRestClient() {
+        return new UserRequestRestClient();
+    }
 }

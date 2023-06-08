@@ -18,12 +18,17 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public abstract class AbstractTasks extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = -4013796607157549641L;
+
+    @SpringBean
+    protected TaskRestClient taskRestClient;
 
     public AbstractTasks(final String id) {
         super(id);

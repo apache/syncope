@@ -138,12 +138,12 @@ public class ApplicationDirectoryPanel extends
 
             @Override
             public void populateItem(
-                final Item<ICellPopulator<ApplicationTO>> item,
-                final String componentId,
-                final IModel<ApplicationTO> rowModel) {
+                    final Item<ICellPopulator<ApplicationTO>> item,
+                    final String componentId,
+                    final IModel<ApplicationTO> rowModel) {
 
                 item.add(new Label(componentId, '[' + rowModel.getObject().getPrivileges().stream().
-                    map(PrivilegeTO::getKey).collect(Collectors.joining(", ")) + ']'));
+                        map(PrivilegeTO::getKey).collect(Collectors.joining(", ")) + ']'));
             }
         });
 
@@ -174,13 +174,13 @@ public class ApplicationDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final ApplicationTO ignore) {
                 target.add(privilegeModal.setContent(new PrivilegeDirectoryPanel(
-                    privilegeModal, model.getObject(), pageRef)));
+                        privilegeModal, restClient, model.getObject(), pageRef)));
 
                 privilegeModal.header(new StringResourceModel(
-                    "application.privileges", ApplicationDirectoryPanel.this, Model.of(model.getObject())));
+                        "application.privileges", ApplicationDirectoryPanel.this, Model.of(model.getObject())));
 
                 MetaDataRoleAuthorizationStrategy.authorize(
-                    privilegeModal.getForm(), ENABLE, IdRepoEntitlement.APPLICATION_UPDATE);
+                        privilegeModal.getForm(), ENABLE, IdRepoEntitlement.APPLICATION_UPDATE);
 
                 privilegeModal.show(true);
             }
@@ -193,7 +193,8 @@ public class ApplicationDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final ApplicationTO ignore) {
                 try {
-                    ApplicationRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
+
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (SyncopeClientException e) {
@@ -212,22 +213,7 @@ public class ApplicationDirectoryPanel extends
         return List.of();
     }
 
-    public abstract static class Builder
-            extends DirectoryPanel.Builder<ApplicationTO, ApplicationTO, ApplicationRestClient> {
-
-        private static final long serialVersionUID = 5530948153889495221L;
-
-        public Builder(final PageReference pageRef) {
-            super(new ApplicationRestClient(), pageRef);
-        }
-
-        @Override
-        protected WizardMgtPanel<ApplicationTO> newInstance(final String id, final boolean wizardInModal) {
-            return new ApplicationDirectoryPanel(id, this);
-        }
-    }
-
-    protected static class ApplicationDataProvider extends DirectoryDataProvider<ApplicationTO> {
+    protected class ApplicationDataProvider extends DirectoryDataProvider<ApplicationTO> {
 
         private static final long serialVersionUID = 3124431855954382273L;
 
@@ -240,19 +226,34 @@ public class ApplicationDirectoryPanel extends
 
         @Override
         public Iterator<ApplicationTO> iterator(final long first, final long count) {
-            List<ApplicationTO> result = ApplicationRestClient.list();
+            List<ApplicationTO> result = restClient.list();
             result.sort(comparator);
             return result.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return ApplicationRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override
         public IModel<ApplicationTO> model(final ApplicationTO object) {
             return new CompoundPropertyModel<>(object);
+        }
+    }
+
+    public abstract static class Builder
+            extends DirectoryPanel.Builder<ApplicationTO, ApplicationTO, ApplicationRestClient> {
+
+        private static final long serialVersionUID = 5530948153889495221L;
+
+        public Builder(final ApplicationRestClient restClient, final PageReference pageRef) {
+            super(restClient, pageRef);
+        }
+
+        @Override
+        protected WizardMgtPanel<ApplicationTO> newInstance(final String id, final boolean wizardInModal) {
+            return new ApplicationDirectoryPanel(id, this);
         }
     }
 }

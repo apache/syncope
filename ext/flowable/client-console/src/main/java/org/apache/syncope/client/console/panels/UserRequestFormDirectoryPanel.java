@@ -31,7 +31,9 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.UserRequestFormDirectoryPanel.UserRequestFormProvider;
 import org.apache.syncope.client.console.panels.UserRequestsPanel.UserRequestSearchEvent;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.rest.UserRequestRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -59,15 +61,25 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class UserRequestFormDirectoryPanel
         extends DirectoryPanel<UserRequestForm, UserRequestForm, UserRequestFormProvider, UserRequestRestClient> {
 
     private static final long serialVersionUID = -7122136682275797903L;
 
-    private static final String PREF_USER_REQUEST_FORM_PAGINATOR_ROWS = "userrequestform.paginator.rows";
+    protected static final String PREF_USER_REQUEST_FORM_PAGINATOR_ROWS = "userrequestform.paginator.rows";
 
-    private final BaseModal<UserRequestForm> manageFormModal = new BaseModal<>("outer") {
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected RoleRestClient roleRestClient;
+
+    @SpringBean
+    protected UserRestClient userRestClient;
+
+    protected final BaseModal<UserRequestForm> manageFormModal = new BaseModal<>("outer") {
 
         private static final long serialVersionUID = 389935548143327858L;
 
@@ -79,10 +91,14 @@ public class UserRequestFormDirectoryPanel
         }
     };
 
-    private String keyword;
+    protected String keyword;
 
-    public UserRequestFormDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, pageRef, true);
+    public UserRequestFormDirectoryPanel(
+            final String id,
+            final UserRequestRestClient restClient,
+            final PageReference pageRef) {
+
+        super(id, restClient, pageRef, true);
         disableCheckBoxes();
         setFooterVisibility(false);
         modal.size(Modal.Size.Large);
@@ -99,8 +115,6 @@ public class UserRequestFormDirectoryPanel
 
             manageFormModal.show(false);
         });
-
-        restClient = new UserRequestRestClient();
 
         initResultTable();
 
@@ -137,7 +151,7 @@ public class UserRequestFormDirectoryPanel
             public void updateHeader(final AjaxRequestTarget target, final Serializable object) {
                 if (object instanceof UserRequestForm) {
                     setHeader(target, StringUtils.abbreviate(
-                        ((UserRequestForm) object).getUsername(), HEADER_FIRST_ABBREVIATION));
+                            ((UserRequestForm) object).getUsername(), HEADER_FIRST_ABBREVIATION));
                 } else {
                     super.updateHeader(target, object);
                 }
@@ -156,7 +170,7 @@ public class UserRequestFormDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final UserRequestForm ignore) {
                 try {
-                    UserRequestRestClient.claimForm(model.getObject().getTaskId());
+                    restClient.claimForm(model.getObject().getTaskId());
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
                 } catch (Exception e) {
@@ -174,7 +188,7 @@ public class UserRequestFormDirectoryPanel
             @Override
             public void onClick(final AjaxRequestTarget target, final UserRequestForm ignore) {
                 try {
-                    UserRequestRestClient.unclaimForm(model.getObject().getTaskId());
+                    restClient.unclaimForm(model.getObject().getTaskId());
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     UserRequestFormDirectoryPanel.this.getTogglePanel().close(target);
                     target.add(container);
@@ -187,7 +201,7 @@ public class UserRequestFormDirectoryPanel
             @Override
             protected boolean statusCondition(final UserRequestForm modelObject) {
                 return SyncopeConsoleSession.get().getSelfTO().getUsername().
-                    equals(model.getObject().getAssignee());
+                        equals(model.getObject().getAssignee());
             }
 
         }, ActionLink.ActionType.UNCLAIM, FlowableEntitlement.USER_REQUEST_FORM_UNCLAIM);
@@ -201,7 +215,7 @@ public class UserRequestFormDirectoryPanel
                 manageFormModal.setFormModel(new CompoundPropertyModel<>(model.getObject()));
 
                 target.add(manageFormModal.setContent(new UserRequestFormModal(manageFormModal, pageRef, model.
-                    getObject()) {
+                        getObject()) {
 
                     private static final long serialVersionUID = 5546519445061007248L;
 
@@ -225,7 +239,7 @@ public class UserRequestFormDirectoryPanel
             @Override
             protected boolean statusCondition(final UserRequestForm modelObject) {
                 return SyncopeConsoleSession.get().getSelfTO().getUsername().
-                    equals(model.getObject().getAssignee());
+                        equals(model.getObject().getAssignee());
             }
 
         }, ActionLink.ActionType.MANAGE_APPROVAL, FlowableEntitlement.USER_REQUEST_FORM_SUBMIT);
@@ -259,13 +273,13 @@ public class UserRequestFormDirectoryPanel
                 }
 
                 AjaxWizard.EditItemActionEvent<UserTO> editItemActionEvent =
-                    new AjaxWizard.EditItemActionEvent<>(newUserTO, target);
-                editItemActionEvent.forceModalPanel(AnyLayoutUtils.newLayoutInfo(
-                    newUserTO,
-                    AnyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
-                    AnyLayoutUtils.fetch(List.of(AnyTypeKind.USER.name())).getUser(),
-                    pageRef).
-                    build(BaseModal.CONTENT_ID, 0, AjaxWizard.Mode.EDIT_APPROVAL));
+                        new AjaxWizard.EditItemActionEvent<>(newUserTO, target);
+                editItemActionEvent.forceModalPanel(AnyLayoutUtils.newLayoutInfo(newUserTO,
+                        anyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses(),
+                        AnyLayoutUtils.fetch(roleRestClient, List.of(AnyTypeKind.USER.name())).getUser(),
+                        userRestClient,
+                        pageRef).
+                        build(BaseModal.CONTENT_ID, 0, AjaxWizard.Mode.EDIT_APPROVAL));
 
                 send(UserRequestFormDirectoryPanel.this, Broadcast.EXACT, editItemActionEvent);
             }
@@ -273,7 +287,7 @@ public class UserRequestFormDirectoryPanel
             @Override
             protected boolean statusCondition(final UserRequestForm modelObject) {
                 return SyncopeConsoleSession.get().getSelfTO().getUsername().
-                    equals(model.getObject().getAssignee());
+                        equals(model.getObject().getAssignee());
             }
 
         }, ActionLink.ActionType.EDIT_APPROVAL, FlowableEntitlement.USER_REQUEST_FORM_SUBMIT);
@@ -321,13 +335,13 @@ public class UserRequestFormDirectoryPanel
         @Override
         public Iterator<UserRequestForm> iterator(final long first, final long count) {
             int page = ((int) first / paginatorRows);
-            return UserRequestRestClient.listForms(
+            return restClient.listForms(
                     keyword, (page < 0 ? 0 : page) + 1, paginatorRows, getSort()).iterator();
         }
 
         @Override
         public long size() {
-            return UserRequestRestClient.countForms(keyword);
+            return restClient.countForms(keyword);
         }
 
         @Override

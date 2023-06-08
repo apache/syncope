@@ -26,7 +26,7 @@ public class SyncopeRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2211371717449597247L;
 
-    public static List<String> searchUserTypeExtensions(final String groupName) {
+    public List<String> searchUserTypeExtensions(final String groupName) {
         List<String> types = List.of();
         try {
             TypeExtensionTO typeExtensionTO = getService(SyncopeService.class).readUserTypeExtension(groupName);

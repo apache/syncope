@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.clientapps;
 
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanConditionColumn;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -35,8 +36,8 @@ public class OIDCRPDirectoryPanel extends ClientAppDirectoryPanel<OIDCRPClientAp
 
     private static final long serialVersionUID = -9182884609300468766L;
 
-    public OIDCRPDirectoryPanel(final String id, final PageReference pageRef) {
-        super(id, ClientAppType.OIDCRP, pageRef);
+    public OIDCRPDirectoryPanel(final String id, final ClientAppRestClient restClient, final PageReference pageRef) {
+        super(id, restClient, ClientAppType.OIDCRP, pageRef);
 
         OIDCRPClientAppTO defaultItem = new OIDCRPClientAppTO();
 

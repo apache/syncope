@@ -32,6 +32,7 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,9 +40,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration(proxyBeanMethods = false)
 public class OIDCC4UILogicContext {
 
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(name = "oidcClientCacheLogin")
     @Bean
-    public OIDCClientCache oidcClientCache() {
+    public OIDCClientCache oidcClientCacheLogin() {
+        return new OIDCClientCache();
+    }
+
+    @ConditionalOnMissingBean(name = "oidcClientCacheLogout")
+    @Bean
+    public OIDCClientCache oidcClientCacheLogout() {
         return new OIDCClientCache();
     }
 
@@ -75,14 +82,18 @@ public class OIDCC4UILogicContext {
     @ConditionalOnMissingBean
     @Bean
     public OIDCC4UILogic oidcc4UILogic(
-            final OIDCClientCache oidcClientCache,
+            @Qualifier("oidcClientCacheLogin")
+            final OIDCClientCache oidcClientCacheLogin,
+            @Qualifier("oidcClientCacheLogout")
+            final OIDCClientCache oidcClientCacheLogout,
             final AuthDataAccessor authDataAccessor,
             final AccessTokenDataBinder accessTokenDataBinder,
             final OIDCC4UIProviderDAO opDAO,
             final OIDCUserManager userManager) {
 
         return new OIDCC4UILogic(
-                oidcClientCache,
+                oidcClientCacheLogin,
+                oidcClientCacheLogout,
                 authDataAccessor,
                 accessTokenDataBinder,
                 opDAO,
@@ -92,10 +103,13 @@ public class OIDCC4UILogicContext {
     @ConditionalOnMissingBean
     @Bean
     public OIDCC4UIProviderLogic oidcc4UIProviderLogic(
-            final OIDCClientCache oidcClientCache,
+            @Qualifier("oidcClientCacheLogin")
+            final OIDCClientCache oidcClientCacheLogin,
+            @Qualifier("oidcClientCacheLogout")
+            final OIDCClientCache oidcClientCacheLogout,
             final OIDCC4UIProviderDAO opDAO,
             final OIDCC4UIProviderDataBinder binder) {
 
-        return new OIDCC4UIProviderLogic(oidcClientCache, opDAO, binder);
+        return new OIDCC4UIProviderLogic(oidcClientCacheLogin, oidcClientCacheLogout, opDAO, binder);
     }
 }

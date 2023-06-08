@@ -34,25 +34,25 @@ public class BpmnProcessRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 5049285686167071017L;
 
-    private static BpmnProcessService getService(final MediaType mediaType) {
+    private BpmnProcessService getService(final MediaType mediaType) {
         BpmnProcessService service = getService(BpmnProcessService.class);
         Client client = WebClient.client(service);
         client.type(mediaType);
         return service;
     }
 
-    public static List<BpmnProcess> getDefinitions() {
+    public List<BpmnProcess> getDefinitions() {
         return getService(BpmnProcessService.class).list();
     }
 
-    public static InputStream getDefinition(final MediaType mediaType, final String key) {
+    public InputStream getDefinition(final MediaType mediaType, final String key) {
         Response response = getService(mediaType).get(key);
         SyncopeEnduserSession.get().resetClient(BpmnProcessService.class);
 
         return (InputStream) response.getEntity();
     }
 
-    public static byte[] getDiagram(final String key) {
+    public byte[] getDiagram(final String key) {
         BpmnProcessService service = getService(BpmnProcessService.class);
         WebClient.client(service).accept(RESTHeaders.MEDIATYPE_IMAGE_PNG);
         Response response = service.exportDiagram(key);

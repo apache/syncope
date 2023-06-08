@@ -23,9 +23,10 @@ import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.syncope.client.console.annotations.UserFormFinalize;
 import org.apache.syncope.client.console.commons.AccessPolicyConfProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionLinksProvider;
 import org.apache.syncope.client.console.commons.AnyDirectoryPanelAdditionalActionsProvider;
@@ -67,13 +68,12 @@ import org.apache.wicket.request.cycle.IRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.util.ClassUtils;
 
 public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
@@ -107,6 +107,10 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     protected final List<PolicyTabProvider> policyTabProviders;
 
+    protected final List<UserFormFinalizer> userFormFinalizers;
+
+    protected final List<IResource> resources;
+
     public SyncopeWebApplication(
             final ConsoleProperties props,
             final ClassPathScanImplementationLookup lookup,
@@ -119,7 +123,9 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
             final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
             final ImplementationInfoProvider implementationInfoProvider,
             final AccessPolicyConfProvider accessPolicyConfProvider,
-            final List<PolicyTabProvider> policyTabProviders) {
+            final List<PolicyTabProvider> policyTabProviders,
+            final List<UserFormFinalizer> userFormFinalizers,
+            final List<IResource> resources) {
 
         this.props = props;
         this.lookup = lookup;
@@ -133,6 +139,8 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         this.implementationInfoProvider = implementationInfoProvider;
         this.accessPolicyConfProvider = accessPolicyConfProvider;
         this.policyTabProviders = policyTabProviders;
+        this.userFormFinalizers = userFormFinalizers;
+        this.resources = resources;
     }
 
     protected SyncopeUIRequestCycleListener buildSyncopeUIRequestCycleListener() {
@@ -216,23 +224,23 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
         mountPage("/login", getSignInPageClass());
 
-        for (Class<? extends AbstractResource> resource : lookup.getClasses(AbstractResource.class)) {
-            Resource annotation = resource.getAnnotation(Resource.class);
-            try {
-                AbstractResource instance = resource.getDeclaredConstructor().newInstance();
+        for (IResource resource : resources) {
+            Class<?> resourceClass = AopUtils.getTargetClass(resource);
+            Resource annotation = resourceClass.getAnnotation(Resource.class);
+            if (annotation == null) {
+                LOG.error("No @Resource annotation found, ignoring {}", resourceClass.getName());
+            } else {
+                LOG.debug("Mounting {} under {}", resourceClass.getName(), annotation.path());
 
-                LOG.debug("Mounting {} under {}", resource.getName(), annotation.path());
                 mountResource(annotation.path(), new ResourceReference(annotation.key()) {
 
-                    protected static final long serialVersionUID = -128426276529456602L;
+                    private static final long serialVersionUID = -128426276529456602L;
 
                     @Override
                     public IResource getResource() {
-                        return instance;
+                        return resource;
                     }
                 });
-            } catch (Exception e) {
-                LOG.error("Could not instantiate {}", resource.getName(), e);
             }
         }
 
@@ -312,7 +320,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return props.getMaxUploadFileSizeMB();
     }
 
-    public boolean fullRealmsTree() {
+    public boolean fullRealmsTree(final RealmRestClient restClient) {
         if (props.getRealmsFullTreeThreshold() <= 0) {
             return false;
         }
@@ -320,7 +328,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         RealmQuery query = RealmsUtils.buildRootQuery();
         query.setPage(1);
         query.setSize(0);
-        return RealmRestClient.search(query).getTotalCount() < props.getRealmsFullTreeThreshold();
+        return restClient.search(query).getTotalCount() < props.getRealmsFullTreeThreshold();
     }
 
     public ExternalResourceProvider getResourceProvider() {
@@ -356,19 +364,16 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
     }
 
     public List<UserFormFinalizer> getFormFinalizers(final AjaxWizard.Mode mode) {
-        List<UserFormFinalizer> finalizers = new ArrayList<>();
-
-        lookup.getUserFormFinalizerClasses(mode).forEach(finalizer -> {
-            if (finalizer != null) {
-                try {
-                    finalizers.add(ClassUtils.getConstructorIfAvailable(finalizer).newInstance());
-                } catch (Exception e) {
-                    LOG.error("Could not instantiate {}", finalizer, e);
-                }
+        return userFormFinalizers.stream().filter(uff -> {
+            Class<?> clazz = AopUtils.getTargetClass(uff);
+            UserFormFinalize annotation = clazz.getAnnotation(UserFormFinalize.class);
+            if (annotation == null) {
+                LOG.error("No @UserFormFinalize annotation found, ignoring {}", clazz.getName());
+                return false;
             }
-        });
 
-        return finalizers;
+            return annotation.mode() == mode;
+        }).collect(Collectors.toList());
     }
 
     public AccessPolicyConfProvider getAccessPolicyConfProvider() {

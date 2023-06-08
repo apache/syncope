@@ -21,16 +21,21 @@ package org.apache.syncope.client.console.clientapps;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ClientApps extends Panel {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 5755172996408318813L;
+
+    @SpringBean
+    protected ClientAppRestClient clientAppRestClient;
 
     public ClientApps(final String id, final PageReference pageRef) {
         super(id);
@@ -38,7 +43,7 @@ public class ClientApps extends Panel {
         add(new AjaxBootstrapTabbedPanel<>("clientApps", buildTabList(pageRef)));
     }
 
-    private List<ITab> buildTabList(final PageReference pageRef) {
+    protected List<ITab> buildTabList(final PageReference pageRef) {
         List<ITab> tabs = new ArrayList<>(3);
 
         tabs.add(new AbstractTab(Model.of(ClientAppType.CASSP.name())) {
@@ -47,7 +52,7 @@ public class ClientApps extends Panel {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new CASSPDirectoryPanel(panelId, pageRef);
+                return new CASSPDirectoryPanel(panelId, clientAppRestClient, pageRef);
             }
         });
 
@@ -57,7 +62,7 @@ public class ClientApps extends Panel {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new SAML2SPDirectoryPanel(panelId, pageRef);
+                return new SAML2SPDirectoryPanel(panelId, clientAppRestClient, pageRef);
             }
         });
 
@@ -67,7 +72,7 @@ public class ClientApps extends Panel {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new OIDCRPDirectoryPanel(panelId, pageRef);
+                return new OIDCRPDirectoryPanel(panelId, clientAppRestClient, pageRef);
             }
         });
 

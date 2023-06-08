@@ -47,28 +47,43 @@ public class CommandComposeWizardBuilder extends BaseAjaxWizardBuilder<CommandWr
 
     private static final long serialVersionUID = -2300926041782845851L;
 
-    private final LoadableDetachableModel<List<ImplementationTO>> commands = new LoadableDetachableModel<>() {
+    protected final LoadableDetachableModel<List<ImplementationTO>> commands = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 4659376149825914247L;
 
         @Override
         protected List<ImplementationTO> load() {
-            return ImplementationRestClient.list(IdRepoImplementationType.COMMAND);
+            return implementationRestClient.list(IdRepoImplementationType.COMMAND);
         }
     };
 
-    private final String task;
+    protected final String task;
+
+    protected final ImplementationRestClient implementationRestClient;
+
+    protected final TaskRestClient taskRestClient;
+
+    protected final CommandRestClient commandRestClient;
 
     public CommandComposeWizardBuilder(
-            final String task, final CommandWrapper defaultItem, final PageReference pageRef) {
+            final String task,
+            final CommandWrapper defaultItem,
+            final ImplementationRestClient implementationRestClient,
+            final TaskRestClient taskRestClient,
+            final CommandRestClient commandRestClient,
+            final PageReference pageRef) {
 
         super(defaultItem, pageRef);
+
         this.task = task;
+        this.implementationRestClient = implementationRestClient;
+        this.taskRestClient = taskRestClient;
+        this.commandRestClient = commandRestClient;
     }
 
     @Override
     protected Serializable onApplyInternal(final CommandWrapper modelObject) {
-        MacroTaskTO taskTO = TaskRestClient.readTask(TaskType.MACRO, task);
+        MacroTaskTO taskTO = taskRestClient.readTask(TaskType.MACRO, task);
         if (modelObject.isNew()) {
             taskTO.getCommands().add(modelObject.getCommand());
         } else {
@@ -78,7 +93,7 @@ public class CommandComposeWizardBuilder extends BaseAjaxWizardBuilder<CommandWr
                     ifPresent(cmd -> cmd.setArgs(modelObject.getCommand().getArgs()));
         }
 
-        TaskRestClient.update(TaskType.MACRO, taskTO);
+        taskRestClient.update(TaskType.MACRO, taskTO);
         return modelObject;
     }
 
@@ -97,7 +112,7 @@ public class CommandComposeWizardBuilder extends BaseAjaxWizardBuilder<CommandWr
 
         public Profile(final CommandWrapper command) {
             this.command = command;
-            MacroTaskTO taskTO = TaskRestClient.readTask(TaskType.MACRO, task);
+            MacroTaskTO taskTO = taskRestClient.readTask(TaskType.MACRO, task);
 
             AutoCompleteSettings settings = new AutoCompleteSettings();
             settings.setShowCompleteListOnFocusGain(false);
@@ -125,7 +140,7 @@ public class CommandComposeWizardBuilder extends BaseAjaxWizardBuilder<CommandWr
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    CommandTO cmd = CommandRestClient.read(command.getCommand().getKey());
+                    CommandTO cmd = commandRestClient.read(command.getCommand().getKey());
                     command.getCommand().setArgs(cmd.getArgs());
                 }
             });

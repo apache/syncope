@@ -24,6 +24,7 @@ import org.apache.syncope.client.console.panels.AnyObjectDirectoryPanel;
 import org.apache.syncope.client.console.panels.GroupDirectoryPanel;
 import org.apache.syncope.client.console.panels.LinkedAccountModalPanel;
 import org.apache.syncope.client.console.panels.UserDirectoryPanel;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -49,6 +50,18 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
         implements AnyDirectoryPanelAdditionalActionLinksProvider {
 
     private static final long serialVersionUID = -1698293704237878993L;
+
+    protected final ResourceRestClient resourceRestClient;
+
+    protected final UserRestClient userRestClient;
+
+    public IdMAnyDirectoryPanelAdditionalActionLinksProvider(
+            final ResourceRestClient resourceRestClient,
+            final UserRestClient userRestClient) {
+
+        this.resourceRestClient = resourceRestClient;
+        this.userRestClient = userRestClient;
+    }
 
     @Override
     public List<Action<UserTO>> get(
@@ -93,7 +106,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                model.setObject(new UserRestClient().read(model.getObject().getKey()));
+                model.setObject(userRestClient.read(model.getObject().getKey()));
                 IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
                         new AnyWrapper<>(model.getObject()));
                 modal.setFormModel(formModel);
@@ -121,7 +134,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                model.setObject(new UserRestClient().read(model.getObject().getKey()));
+                model.setObject(userRestClient.read(model.getObject().getKey()));
                 modal.setFooterVisible(false);
                 target.add(modal.setContent(new LinkedAccountModalPanel(model, pageRef, false)));
 
@@ -142,9 +155,9 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
 
             @Override
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                model.setObject(new UserRestClient().read(model.getObject().getKey()));
-                MergeLinkedAccountsWizardBuilder builder =
-                        new MergeLinkedAccountsWizardBuilder(model, pageRef, parentPanel, modal);
+                model.setObject(userRestClient.read(model.getObject().getKey()));
+                MergeLinkedAccountsWizardBuilder builder = new MergeLinkedAccountsWizardBuilder(
+                        model, parentPanel, modal, resourceRestClient, userRestClient, pageRef);
                 builder.setEventSink(builder);
                 target.add(modal.setContent(builder.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
                 modal.header(new StringResourceModel("mergeLinkedAccounts.title", model));

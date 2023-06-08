@@ -27,7 +27,10 @@ import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.TogglePanel;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.any.AnyObjectTemplateWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.AnyWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.GroupTemplateWizardBuilder;
@@ -52,24 +55,37 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    private TemplatableTO targetObject;
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected UserRestClient userRestClient;
+
+    @SpringBean
+    protected GroupRestClient groupRestClient;
+
+    @SpringBean
+    protected AnyObjectRestClient anyObjectRestClient;
+
+    protected TemplatableTO targetObject;
 
     protected final Form<?> form;
 
     protected final Model<String> typeModel = new Model<>();
 
-    private final LoadableDetachableModel<List<String>> anyTypes = new LoadableDetachableModel<>() {
+    protected final LoadableDetachableModel<List<String>> anyTypes = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
-            return AnyTypeRestClient.list();
+            return anyTypeRestClient.list();
         }
     };
 
@@ -94,23 +110,22 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
                 try {
-                    final AjaxWizard.NewItemActionEvent<AnyTO> payload =
-                            new AjaxWizard.NewItemActionEvent<>(null, target);
+                    AjaxWizard.NewItemActionEvent<AnyTO> payload = new AjaxWizard.NewItemActionEvent<>(null, target);
 
                     payload.setTitleModel(new StringResourceModel("inner.template.edit", container,
                             Model.of(Pair.of(typeModel.getObject(), targetObject))).setDefaultValue(
                             "Edit template"));
 
-                    final List<String> classes = AnyTypeRestClient.read(typeModel.getObject()).getClasses();
+                    List<String> classes = anyTypeRestClient.read(typeModel.getObject()).getClasses();
 
-                    final TemplateWizardBuilder<?> builder;
-
+                    TemplateWizardBuilder<?> builder;
                     switch (typeModel.getObject()) {
                         case "USER":
                             builder = new UserTemplateWizardBuilder(
                                     targetObject,
                                     classes,
                                     new UserFormLayoutInfo(),
+                                    userRestClient,
                                     pageRef) {
 
                                 private static final long serialVersionUID = -7978723352517770634L;
@@ -122,11 +137,13 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
                                 }
                             };
                             break;
+
                         case "GROUP":
                             builder = new GroupTemplateWizardBuilder(
                                     targetObject,
                                     classes,
                                     new GroupFormLayoutInfo(),
+                                    groupRestClient,
                                     pageRef) {
 
                                 private static final long serialVersionUID = -7978723352517770634L;
@@ -138,12 +155,14 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
                                 }
                             };
                             break;
+
                         default:
                             builder = new AnyObjectTemplateWizardBuilder(
                                     targetObject,
                                     typeModel.getObject(),
                                     classes,
                                     new AnyObjectFormLayoutInfo(),
+                                    anyObjectRestClient,
                                     pageRef) {
 
                                 private static final long serialVersionUID = -7978723352517770634L;

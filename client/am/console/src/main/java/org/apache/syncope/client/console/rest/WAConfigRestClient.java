@@ -26,19 +26,19 @@ public class WAConfigRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -7379778542101161274L;
 
-    public static List<Attr> list() {
+    public List<Attr> list() {
         return getService(WAConfigService.class).list();
     }
 
-    public static void set(final Attr value) {
+    public void set(final Attr value) {
         getService(WAConfigService.class).set(value);
     }
 
-    public static void delete(final String schema) {
+    public void delete(final String schema) {
         getService(WAConfigService.class).delete(schema);
     }
 
-    public static void push(final WAConfigService.PushSubject subject, final List<String> services) {
+    public void push(final WAConfigService.PushSubject subject, final List<String> services) {
         getService(WAConfigService.class).pushToWA(subject, services);
     }
 }

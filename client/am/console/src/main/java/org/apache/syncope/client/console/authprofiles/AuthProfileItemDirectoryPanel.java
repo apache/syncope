@@ -52,19 +52,20 @@ import org.springframework.beans.PropertyAccessorFactory;
 public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
         extends DirectoryPanel<I, I, AuthProfileItemDirectoryPanel<I>.AuthProfileItemProvider, AuthProfileRestClient> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 7640851594812655896L;
 
-    private final BaseModal<AuthProfileTO> authProfileModal;
+    protected final BaseModal<AuthProfileTO> authProfileModal;
 
-    private final AuthProfileTO authProfile;
+    protected final AuthProfileTO authProfile;
 
     public AuthProfileItemDirectoryPanel(
             final String id,
+            final AuthProfileRestClient restClient,
             final BaseModal<AuthProfileTO> authProfileModal,
             final AuthProfileTO authProfile,
             final PageReference pageRef) {
 
-        super(id, pageRef, false);
+        super(id, restClient, pageRef, false);
 
         this.authProfileModal = authProfileModal;
         this.authProfile = authProfile;
@@ -132,7 +133,7 @@ public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
             public void onClick(final AjaxRequestTarget target, final I ignore) {
                 try {
                     getItems().remove(model.getObject());
-                    AuthProfileRestClient.update(authProfile);
+                    restClient.update(authProfile);
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);
@@ -212,7 +213,7 @@ public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
 
             getItems().remove(model.getInitialModelObject());
             getItems().add(modelObject);
-            AuthProfileRestClient.update(authProfile);
+            restClient.update(authProfile);
 
             return modelObject;
         }

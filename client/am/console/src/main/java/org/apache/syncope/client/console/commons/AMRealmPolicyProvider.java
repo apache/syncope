@@ -37,11 +37,15 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
 
     private static final long serialVersionUID = 1671878489700L;
 
+    public AMRealmPolicyProvider(final PolicyRestClient policyRestClient) {
+        super(policyRestClient);
+    }
+
     @Override
     public void add(final RealmTO realmTO, final RepeatingView view) {
         super.add(realmTO, view);
 
-        Map<String, String> accessPolicies = PolicyRestClient.list(PolicyType.ACCESS).stream().
+        Map<String, String> accessPolicies = policyRestClient.list(PolicyType.ACCESS).stream().
                 collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         AjaxDropDownChoicePanel<String> accessPolicy = new AjaxDropDownChoicePanel<>(
                 view.newChildId(),
@@ -53,7 +57,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
         ((AbstractSingleSelectChoice<?>) accessPolicy.getField()).setNullValid(true);
         view.add(accessPolicy);
 
-        Map<String, String> attrReleasePolicies = PolicyRestClient.list(PolicyType.ATTR_RELEASE).stream().
+        Map<String, String> attrReleasePolicies = policyRestClient.list(PolicyType.ATTR_RELEASE).stream().
                 collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         AjaxDropDownChoicePanel<String> attrReleasePolicy = new AjaxDropDownChoicePanel<>(
                 view.newChildId(),
@@ -65,7 +69,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
         ((AbstractSingleSelectChoice<?>) attrReleasePolicy.getField()).setNullValid(true);
         view.add(attrReleasePolicy);
 
-        Map<String, String> authPolicies = PolicyRestClient.list(PolicyType.AUTH).stream().
+        Map<String, String> authPolicies = policyRestClient.list(PolicyType.AUTH).stream().
                 collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         AjaxDropDownChoicePanel<String> authPolicy = new AjaxDropDownChoicePanel<>(
                 view.newChildId(),
@@ -77,7 +81,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
         ((AbstractSingleSelectChoice<?>) authPolicy.getField()).setNullValid(true);
         view.add(authPolicy);
 
-        Map<String, String> ticketExpirationPolicies = PolicyRestClient.list(PolicyType.TICKET_EXPIRATION).stream().
+        Map<String, String> ticketExpirationPolicies = policyRestClient.list(PolicyType.TICKET_EXPIRATION).stream().
                 collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         AjaxDropDownChoicePanel<String> ticketExpirationPolicy = new AjaxDropDownChoicePanel<>(
                 view.newChildId(),

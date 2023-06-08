@@ -36,7 +36,7 @@ public class AuditRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 4579786978763032240L;
 
-    public static List<AuditLoggerName> list() {
+    public List<AuditLoggerName> list() {
         return getService(AuditService.class).list().stream().
                 map(a -> {
                     try {
@@ -50,14 +50,14 @@ public class AuditRestClient extends BaseRestClient {
                 collect(Collectors.toList());
     }
 
-    public static void enableAudit(final AuditLoggerName auditLoggerName) {
+    public void enableAudit(final AuditLoggerName auditLoggerName) {
         AuditConfTO audit = new AuditConfTO();
         audit.setKey(auditLoggerName.toAuditKey());
         audit.setActive(true);
         getService(AuditService.class).set(audit);
     }
 
-    public static void disableAudit(final AuditLoggerName auditLoggerName) {
+    public void disableAudit(final AuditLoggerName auditLoggerName) {
         try {
             getService(AuditService.class).delete(auditLoggerName.toAuditKey());
         } catch (SyncopeClientException e) {
@@ -67,7 +67,7 @@ public class AuditRestClient extends BaseRestClient {
         }
     }
 
-    public static List<EventCategory> listEvents() {
+    public List<EventCategory> listEvents() {
         try {
             return getService(AuditService.class).events();
         } catch (Exception e) {
@@ -75,7 +75,7 @@ public class AuditRestClient extends BaseRestClient {
         }
     }
 
-    public static List<AuditEntry> search(
+    public List<AuditEntry> search(
             final String key,
             final int page,
             final int size,
@@ -99,7 +99,7 @@ public class AuditRestClient extends BaseRestClient {
         return getService(AuditService.class).search(query).getResult();
     }
 
-    public static int count(
+    public int count(
             final String key,
             final AuditElements.EventCategoryType type,
             final String category,

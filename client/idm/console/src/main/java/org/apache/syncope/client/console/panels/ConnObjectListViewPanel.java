@@ -72,6 +72,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +85,15 @@ public abstract class ConnObjectListViewPanel extends Panel {
     protected static final int SIZE = 10;
 
     protected static final String STATUS = "Status";
+
+    @SpringBean
+    protected ReconciliationRestClient reconciliationRestClient;
+
+    @SpringBean
+    protected ResourceRestClient resourceRestClient;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
     protected String nextPageCookie;
 
@@ -160,7 +170,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 if (StringUtils.equals(key, STATUS)) {
                     ReconStatus status;
                     try {
-                        status = ReconciliationRestClient.status(
+                        status = reconciliationRestClient.status(
                                 new ReconQuery.Builder(anyType, resource.getKey()).fiql(bean.getFiql()).build());
                     } catch (Exception e) {
                         LOG.error("While requesting for reconciliation status of {} {} with FIQL '{}'",
@@ -229,7 +239,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 @Override
                 public void onClick(final AjaxRequestTarget target, final ConnObject modelObject) {
                     try {
-                        ReconStatus status = ReconciliationRestClient.status(
+                        ReconStatus status = reconciliationRestClient.status(
                                 new ReconQuery.Builder(anyType, resource.getKey()).fiql(modelObject.getFiql()).build());
 
                         pullConnObject(
@@ -306,7 +316,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
             final String cookie,
             final String fiql) {
 
-        Pair<String, List<ConnObject>> items = ResourceRestClient.searchConnObjects(
+        Pair<String, List<ConnObject>> items = resourceRestClient.searchConnObjects(
                 resource,
                 anyType,
                 new ConnObjectTOQuery.Builder().
@@ -331,7 +341,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
         AnyTypeKind anyTypeKind =
                 StringUtils.equals(anyType, SyncopeConstants.REALM_ANYTYPE) || StringUtils.isEmpty(anyType)
                 ? AnyTypeKind.ANY_OBJECT
-                : AnyTypeRestClient.read(anyType).getKind();
+                : anyTypeRestClient.read(anyType).getKind();
 
         return new ConnObjectSearchPanel.Builder(resource, anyTypeKind, anyType,
                 new ListModel<>(clauses), pageRef).required(true).enableSearch().build(id);

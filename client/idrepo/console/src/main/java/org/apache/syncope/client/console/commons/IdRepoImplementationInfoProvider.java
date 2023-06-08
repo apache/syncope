@@ -33,14 +33,22 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class IdRepoImplementationInfoProvider implements ImplementationInfoProvider {
 
     private static final long serialVersionUID = -6620368595630782392L;
 
-    @Autowired
-    protected ClassPathScanImplementationLookup lookup;
+    protected final ClassPathScanImplementationLookup lookup;
+
+    protected final ImplementationRestClient implementationRestClient;
+
+    public IdRepoImplementationInfoProvider(
+            final ClassPathScanImplementationLookup lookup,
+            final ImplementationRestClient implementationRestClient) {
+
+        this.lookup = lookup;
+        this.implementationRestClient = implementationRestClient;
+    }
 
     @Override
     public ViewMode getViewMode(final ImplementationTO implementation) {
@@ -166,7 +174,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return ImplementationRestClient.list(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
+                return implementationRestClient.list(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                         map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
@@ -180,7 +188,7 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             @Override
             protected List<String> load() {
-                return ImplementationRestClient.list(IdRepoImplementationType.REPORT_DELEGATE).stream().
+                return implementationRestClient.list(IdRepoImplementationType.REPORT_DELEGATE).stream().
                         map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };

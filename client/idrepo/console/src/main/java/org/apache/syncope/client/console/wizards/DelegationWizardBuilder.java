@@ -46,18 +46,28 @@ public class DelegationWizardBuilder extends BaseAjaxWizardBuilder<DelegationTO>
 
     private static final long serialVersionUID = 16656970898539L;
 
-    private final UserRestClient userRestClient = new UserRestClient();
+    protected final UserRestClient userRestClient;
 
-    public DelegationWizardBuilder(final DelegationTO defaultItem, final PageReference pageRef) {
+    protected final DelegationRestClient delegationRestClient;
+
+    public DelegationWizardBuilder(
+            final DelegationTO defaultItem,
+            final UserRestClient userRestClient,
+            final DelegationRestClient delegationRestClient,
+            final PageReference pageRef) {
+
         super(defaultItem, pageRef);
+
+        this.userRestClient = userRestClient;
+        this.delegationRestClient = delegationRestClient;
     }
 
     @Override
     protected Serializable onApplyInternal(final DelegationTO modelObject) {
         if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-            DelegationRestClient.create(modelObject);
+            delegationRestClient.create(modelObject);
         } else {
-            DelegationRestClient.update(modelObject);
+            delegationRestClient.update(modelObject);
         }
         return null;
     }

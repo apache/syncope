@@ -60,12 +60,13 @@ public class FIQLQueryDirectoryPanel extends DirectoryPanel<
 
     public FIQLQueryDirectoryPanel(
             final String id,
+            final FIQLQueryRestClient restClient,
             final AbstractSearchPanel searchPanel,
             final String target,
             final FIQLQueries parent,
             final PageReference pageRef) {
 
-        super(id, pageRef, false);
+        super(id, restClient, pageRef, false);
         this.target = target;
         this.searchPanel = searchPanel;
         this.parent = parent;
@@ -112,7 +113,7 @@ public class FIQLQueryDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final FIQLQueryTO ignore) {
                 try {
-                    FIQLQueryRestClient.delete(model.getObject().getKey());
+                    restClient.delete(model.getObject().getKey());
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
@@ -146,7 +147,7 @@ public class FIQLQueryDirectoryPanel extends DirectoryPanel<
 
         private static final long serialVersionUID = 4725679400450513556L;
 
-        private final SortableDataProviderComparator<FIQLQueryTO> comparator;
+        protected final SortableDataProviderComparator<FIQLQueryTO> comparator;
 
         public FIQLQueryDataProvider(final int paginatorRows) {
             super(paginatorRows);
@@ -158,14 +159,14 @@ public class FIQLQueryDirectoryPanel extends DirectoryPanel<
 
         @Override
         public Iterator<FIQLQueryTO> iterator(final long first, final long count) {
-            List<FIQLQueryTO> list = FIQLQueryRestClient.list(target);
+            List<FIQLQueryTO> list = restClient.list(target);
             list.sort(comparator);
             return list.subList((int) first, (int) (first + count)).iterator();
         }
 
         @Override
         public long size() {
-            return FIQLQueryRestClient.list(target).size();
+            return restClient.list(target).size();
         }
 
         @Override

@@ -38,9 +38,9 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 public class UserRequestRestClient extends BaseRestClient {
 
-    private static final long serialVersionUID = -4785231164900813921L;
+    private final long serialVersionUID = -4785231164900813921L;
 
-    public static int countRequests(final String keyword) {
+    public int countRequests(final String keyword) {
         try {
             return getService(UserRequestService.class).
                     listRequests(new UserRequestQuery.Builder().user(keyword).page(1).size(0).build()).
@@ -50,7 +50,7 @@ public class UserRequestRestClient extends BaseRestClient {
         }
     }
 
-    public static List<UserRequest> listRequests(
+    public List<UserRequest> listRequests(
             final String keyword, final int page, final int size, final SortParam<String> sort) {
 
         try {
@@ -63,11 +63,11 @@ public class UserRequestRestClient extends BaseRestClient {
         }
     }
 
-    public static void cancelRequest(final String executionId, final String reason) {
+    public void cancelRequest(final String executionId, final String reason) {
         getService(UserRequestService.class).cancelRequest(executionId, reason);
     }
 
-    public static int countForms(final String keyword) {
+    public int countForms(final String keyword) {
         try {
             return getService(UserRequestService.class).
                     listForms(new UserRequestQuery.Builder().user(keyword).page(1).size(0).build()).
@@ -77,7 +77,7 @@ public class UserRequestRestClient extends BaseRestClient {
         }
     }
 
-    public static List<UserRequestForm> listForms(
+    public List<UserRequestForm> listForms(
             final String keyword, final int page, final int size, final SortParam<String> sort) {
 
         try {
@@ -90,7 +90,7 @@ public class UserRequestRestClient extends BaseRestClient {
         }
     }
 
-    public static Optional<UserRequestForm> getForm(final String userKey) {
+    public Optional<UserRequestForm> getForm(final String userKey) {
         PagedResult<UserRequestForm> forms = getService(UserRequestService.class).
                 listForms(new UserRequestQuery.Builder().user(userKey).page(1).size(1).build());
         UserRequestForm form = forms.getResult().isEmpty()
@@ -99,19 +99,19 @@ public class UserRequestRestClient extends BaseRestClient {
         return Optional.ofNullable(form);
     }
 
-    public static UserRequestForm claimForm(final String taskKey) {
+    public UserRequestForm claimForm(final String taskKey) {
         return getService(UserRequestService.class).claimForm(taskKey);
     }
 
-    public static UserRequestForm unclaimForm(final String taskKey) {
+    public UserRequestForm unclaimForm(final String taskKey) {
         return getService(UserRequestService.class).unclaimForm(taskKey);
     }
 
-    public static void submitForm(final UserRequestForm form) {
+    public void submitForm(final UserRequestForm form) {
         getService(UserRequestService.class).submitForm(form);
     }
 
-    public static Map<String, String> batch(final BatchRequest batchRequest) {
+    public Map<String, String> batch(final BatchRequest batchRequest) {
         List<BatchRequestItem> batchRequestItems = new ArrayList<>(batchRequest.getItems());
 
         Map<String, String> result = new LinkedHashMap<>();

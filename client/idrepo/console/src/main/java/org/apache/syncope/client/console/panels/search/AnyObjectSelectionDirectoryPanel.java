@@ -51,8 +51,13 @@ public final class AnyObjectSelectionDirectoryPanel
 
         private static final long serialVersionUID = 5155811461060452446L;
 
-        public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
-            super(anyTypeClassTOs, new AnyObjectRestClient(), type, pageRef);
+        public Builder(
+                final List<AnyTypeClassTO> anyTypeClassTOs,
+                final AnyObjectRestClient restClient,
+                final String type,
+                final PageReference pageRef) {
+
+            super(anyTypeClassTOs, restClient, type, pageRef);
         }
 
         @Override

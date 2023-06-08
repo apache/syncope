@@ -27,8 +27,14 @@ public class IdMExternalResourceProvider implements ExternalResourceProvider {
 
     private static final long serialVersionUID = 6335503820405008093L;
 
+    private final ResourceRestClient resourceRestClient;
+
+    public IdMExternalResourceProvider(final ResourceRestClient resourceRestClient) {
+        this.resourceRestClient = resourceRestClient;
+    }
+
     @Override
     public List<String> get() {
-        return ResourceRestClient.list().stream().map(ResourceTO::getKey).collect(Collectors.toList());
+        return resourceRestClient.list().stream().map(ResourceTO::getKey).collect(Collectors.toList());
     }
 }

@@ -35,12 +35,16 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class TicketExpirationPolicyModalPanel extends AbstractModalPanel<TicketExpirationPolicyTO> {
 
     private static final long serialVersionUID = 2668291404983623500L;
 
-    private final IModel<TicketExpirationPolicyTO> model;
+    @SpringBean
+    protected PolicyRestClient policyRestClient;
+
+    protected final IModel<TicketExpirationPolicyTO> model;
 
     public TicketExpirationPolicyModalPanel(
             final BaseModal<TicketExpirationPolicyTO> modal,
@@ -95,7 +99,7 @@ public class TicketExpirationPolicyModalPanel extends AbstractModalPanel<TicketE
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
         try {
-            PolicyRestClient.update(PolicyType.TICKET_EXPIRATION, model.getObject());
+            policyRestClient.update(PolicyType.TICKET_EXPIRATION, model.getObject());
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);

@@ -16,22 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.actuate;
+package org.apache.syncope.client.console;
 
-import org.apache.syncope.client.console.ConsoleProperties;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.info.Info;
-import org.springframework.boot.actuate.info.InfoContributor;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.apache.syncope.client.console.rest.SCIMConfRestClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-public class SyncopeConsoleInfoContributor implements InfoContributor {
+@Configuration(proxyBeanMethods = false)
+public class SCIMConsoleContext {
 
-    @Autowired
-    protected ConsoleProperties consoleProperties;
-
-    @PreAuthorize("isAuthenticated()")
-    @Override
-    public void contribute(final Info.Builder builder) {
-        builder.withDetail("consoleProperties", consoleProperties);
+    @ConditionalOnMissingBean
+    @Bean
+    public SCIMConfRestClient scimConfRestClient() {
+        return new SCIMConfRestClient();
     }
 }

@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.layout.LinkedAccountForm;
 import org.apache.syncope.client.console.layout.LinkedAccountFormLayoutInfo;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.LinkedAccountStatusPanel;
 import org.apache.syncope.client.console.status.ReconTaskPanel;
@@ -64,6 +65,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,19 +73,26 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = -4603032036433309900L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(LinkedAccountModalPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(LinkedAccountModalPanel.class);
 
-    private LinkedAccountForm wizard;
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
-    private final WizardMgtPanel<LinkedAccountTO> list;
+    @SpringBean
+    protected RoleRestClient roleRestClient;
+
+    @SpringBean
+    protected UserRestClient userRestClient;
+
+    protected LinkedAccountForm wizard;
+
+    protected final WizardMgtPanel<LinkedAccountTO> list;
 
     private final AjaxLink<LinkedAccountTO> addAjaxLink;
 
     protected ActionLinksTogglePanel<LinkedAccountTO> actionTogglePanel;
 
-    private UserRestClient userRestClient = new UserRestClient();
-
-    private final List<LinkedAccountTO> linkedAccountTOs;
+    protected final List<LinkedAccountTO> linkedAccountTOs;
 
     @SuppressWarnings("unchecked")
     public LinkedAccountModalPanel(
@@ -102,19 +111,25 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
         add(actionTogglePanel);
 
         AnyLayout anyLayout = AnyLayoutUtils.fetch(
-                AnyTypeRestClient.listAnyTypes().stream().map(AnyTypeTO::getKey).collect(Collectors.toList()));
+                roleRestClient,
+                anyTypeRestClient.listAnyTypes().stream().map(AnyTypeTO::getKey).collect(Collectors.toList()));
         LinkedAccountFormLayoutInfo linkedAccountFormLayoutInfo =
                 anyLayout.getUser() instanceof IdMUserFormLayoutInfo
                 ? IdMUserFormLayoutInfo.class.cast(anyLayout.getUser()).getLinkedAccountFormLayoutInfo()
                 : new LinkedAccountFormLayoutInfo();
 
         try {
-            wizard = linkedAccountFormLayoutInfo.getFormClass().
-                    getConstructor(model.getClass(), LinkedAccountFormLayoutInfo.class, PageReference.class).
-                    newInstance(model, linkedAccountFormLayoutInfo, pageRef);
+            wizard = linkedAccountFormLayoutInfo.getFormClass().getConstructor(
+                    IModel.class,
+                    LinkedAccountFormLayoutInfo.class,
+                    UserRestClient.class,
+                    AnyTypeRestClient.class,
+                    PageReference.class).
+                    newInstance(model, linkedAccountFormLayoutInfo, userRestClient, anyTypeRestClient, pageRef);
         } catch (Exception e) {
             LOG.error("Error instantiating form layout", e);
-            wizard = new LinkedAccountWizardBuilder(model, linkedAccountFormLayoutInfo, pageRef);
+            wizard = new LinkedAccountWizardBuilder(
+                    model, linkedAccountFormLayoutInfo, userRestClient, anyTypeRestClient, pageRef);
         }
 
         ListViewPanel.Builder<LinkedAccountTO> builder = new ListViewPanel.Builder<>(

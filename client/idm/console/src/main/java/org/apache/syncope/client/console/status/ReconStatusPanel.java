@@ -28,16 +28,20 @@ import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ReconStatusPanel extends RemoteObjectPanel {
 
     private static final long serialVersionUID = 8000309881812037770L;
 
-    private final String resource;
+    @SpringBean
+    protected ReconStatusUtils reconStatusUtils;
 
-    private final String anyTypeKey;
+    protected final String resource;
 
-    private final String anyKey;
+    protected final String anyTypeKey;
+
+    protected final String anyKey;
 
     public ReconStatusPanel(
             final String resource,
@@ -58,7 +62,7 @@ public class ReconStatusPanel extends RemoteObjectPanel {
     @Override
     protected Pair<ConnObject, ConnObject> getConnObjectTOs() {
         List<Pair<String, ReconStatus>> statuses =
-                ReconStatusUtils.getReconStatuses(anyTypeKey, anyKey, List.of(resource));
+                reconStatusUtils.getReconStatuses(anyTypeKey, anyKey, List.of(resource));
 
         return statuses.isEmpty()
                 ? null

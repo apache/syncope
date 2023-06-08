@@ -42,13 +42,17 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.util.ClassUtils;
 
 public class UsernameAttributeProviderModalPanelBuilder<T extends ClientAppTO> extends AbstractModalPanelBuilder<T> {
 
     private static final long serialVersionUID = -4106998301911573852L;
 
-    private final LoadableDetachableModel<List<String>> usernameAttributeProviderConfs =
+    @SpringBean
+    protected ClientAppRestClient clientAppRestClient;
+
+    protected final LoadableDetachableModel<List<String>> usernameAttributeProviderConfs =
             new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
@@ -60,9 +64,9 @@ public class UsernameAttributeProviderModalPanelBuilder<T extends ClientAppTO> e
         }
     };
 
-    private final BaseModal<T> modal;
+    protected final BaseModal<T> modal;
 
-    private final ClientAppType type;
+    protected final ClientAppType type;
 
     public UsernameAttributeProviderModalPanelBuilder(
             final ClientAppType type, final T defaultItem, final BaseModal<T> modal, final PageReference pageRef) {
@@ -77,11 +81,11 @@ public class UsernameAttributeProviderModalPanelBuilder<T extends ClientAppTO> e
         return new Profile(newModelObject(), modal, pageRef);
     }
 
-    private class Profile extends AbstractModalPanel<T> {
+    protected class Profile extends AbstractModalPanel<T> {
 
         private static final long serialVersionUID = 7647959917047450318L;
 
-        private final T clientAppTO;
+        protected final T clientAppTO;
 
         Profile(final T clientAppTO, final BaseModal<T> modal, final PageReference pageRef) {
             super(modal, pageRef);
@@ -131,7 +135,7 @@ public class UsernameAttributeProviderModalPanelBuilder<T extends ClientAppTO> e
         @Override
         public void onSubmit(final AjaxRequestTarget target) {
             try {
-                ClientAppRestClient.update(type, clientAppTO);
+                clientAppRestClient.update(type, clientAppTO);
 
                 SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 UsernameAttributeProviderModalPanelBuilder.Profile.this.modal.close(target);

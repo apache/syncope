@@ -31,14 +31,18 @@ import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class SaveFIQLQuery extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -1519998802447270269L;
 
-    private String fiql;
+    @SpringBean
+    protected FIQLQueryRestClient fiqlQueryRestClient;
 
-    private TextField<String> name;
+    protected String fiql;
+
+    protected TextField<String> name;
 
     public SaveFIQLQuery(final String id, final String target, final PageReference pageRef) {
         super(id, pageRef);
@@ -61,7 +65,7 @@ public class SaveFIQLQuery extends TogglePanel<Serializable> {
                     query.setTarget(target);
                     query.setFiql(fiql);
 
-                    FIQLQueryRestClient.create(query);
+                    fiqlQueryRestClient.create(query);
 
                     name.getModel().setObject(null);
                     name.setRequired(false);

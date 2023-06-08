@@ -26,24 +26,37 @@ import org.apache.syncope.client.console.panels.AnyTypeClassesPanel;
 import org.apache.syncope.client.console.panels.AnyTypesPanel;
 import org.apache.syncope.client.console.panels.RelationshipTypesPanel;
 import org.apache.syncope.client.console.panels.SchemasPanel;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Types extends BasePage {
 
     private static final long serialVersionUID = 8091922398776299403L;
 
-    private enum Type {
+    protected enum Type {
         SCHEMA,
         ANYTYPECLASS,
         ANYTYPE,
         RELATIONSHIPTYPE;
 
     }
+
+    @SpringBean
+    protected RelationshipTypeRestClient relationshipTypeRestClient;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
+
+    @SpringBean
+    protected AnyTypeClassRestClient anyTypeClassRestClient;
 
     public Types(final PageParameters parameters) {
         super(parameters);
@@ -65,7 +78,7 @@ public class Types extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new RelationshipTypesPanel(panelId, getPageReference());
+                return new RelationshipTypesPanel(panelId, relationshipTypeRestClient, getPageReference());
             }
         });
 
@@ -75,7 +88,7 @@ public class Types extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new AnyTypesPanel(panelId, getPageReference());
+                return new AnyTypesPanel(panelId, anyTypeRestClient, getPageReference());
             }
         });
 
@@ -85,7 +98,7 @@ public class Types extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new AnyTypeClassesPanel(panelId, getPageReference());
+                return new AnyTypeClassesPanel(panelId, anyTypeClassRestClient, getPageReference());
             }
         });
 

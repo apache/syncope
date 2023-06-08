@@ -40,19 +40,19 @@ public class ReconciliationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3161863874876938094L;
 
-    public static ReconStatus status(final ReconQuery reconQuery) {
+    public ReconStatus status(final ReconQuery reconQuery) {
         return getService(ReconciliationService.class).status(reconQuery);
     }
 
-    public static void push(final ReconQuery reconQuery, final PushTaskTO pushTask) {
+    public void push(final ReconQuery reconQuery, final PushTaskTO pushTask) {
         getService(ReconciliationService.class).push(reconQuery, pushTask);
     }
 
-    public static void pull(final ReconQuery reconQuery, final PullTaskTO pullTask) {
+    public void pull(final ReconQuery reconQuery, final PullTaskTO pullTask) {
         getService(ReconciliationService.class).pull(reconQuery, pullTask);
     }
 
-    public static Response push(final AnyQuery anyQuery, final CSVPushSpec spec) {
+    public Response push(final AnyQuery anyQuery, final CSVPushSpec spec) {
         ReconciliationService service = getService(ReconciliationService.class);
         Client client = WebClient.client(service);
         client.accept(RESTHeaders.TEXT_CSV);
@@ -64,7 +64,7 @@ public class ReconciliationRestClient extends BaseRestClient {
         return response;
     }
 
-    public static ArrayList<ProvisioningReport> pull(final CSVPullSpec spec, final InputStream csv) {
+    public ArrayList<ProvisioningReport> pull(final CSVPullSpec spec, final InputStream csv) {
         ReconciliationService service = getService(ReconciliationService.class);
         Client client = WebClient.client(service);
         client.type(RESTHeaders.TEXT_CSV);
