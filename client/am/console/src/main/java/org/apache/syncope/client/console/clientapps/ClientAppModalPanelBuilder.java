@@ -73,21 +73,11 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.UrlValidator;
 
 public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractModalPanelBuilder<T> {
 
     private static final long serialVersionUID = 5945391813567245081L;
-
-    @SpringBean
-    protected PolicyRestClient policyRestClient;
-
-    @SpringBean
-    protected ClientAppRestClient clientAppRestClient;
-
-    @SpringBean
-    protected RealmRestClient realmRestClient;
 
     protected final IModel<Map<String, String>> accessPolicies = new LoadableDetachableModel<>() {
 
@@ -137,12 +127,27 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
     protected final ClientAppType type;
 
+    protected final PolicyRestClient policyRestClient;
+
+    protected final ClientAppRestClient clientAppRestClient;
+
+    protected final RealmRestClient realmRestClient;
+
     public ClientAppModalPanelBuilder(
-            final ClientAppType type, final T defaultItem, final BaseModal<T> modal, final PageReference pageRef) {
+            final ClientAppType type,
+            final T defaultItem,
+            final BaseModal<T> modal,
+            final PolicyRestClient policyRestClient,
+            final ClientAppRestClient clientAppRestClient,
+            final RealmRestClient realmRestClient,
+            final PageReference pageRef) {
 
         super(defaultItem, pageRef);
         this.type = type;
         this.modal = modal;
+        this.policyRestClient = policyRestClient;
+        this.clientAppRestClient = clientAppRestClient;
+        this.realmRestClient = realmRestClient;
     }
 
     @Override

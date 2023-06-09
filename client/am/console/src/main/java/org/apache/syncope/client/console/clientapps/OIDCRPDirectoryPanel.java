@@ -41,8 +41,15 @@ public class OIDCRPDirectoryPanel extends ClientAppDirectoryPanel<OIDCRPClientAp
 
         OIDCRPClientAppTO defaultItem = new OIDCRPClientAppTO();
 
-        this.addNewItemPanelBuilder(
-                new ClientAppModalPanelBuilder<>(ClientAppType.OIDCRP, defaultItem, modal, pageRef), true);
+        addNewItemPanelBuilder(new ClientAppModalPanelBuilder<>(
+                ClientAppType.OIDCRP,
+                defaultItem,
+                modal,
+                policyRestClient,
+                clientAppRestClient,
+                realmRestClient,
+                pageRef),
+                true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, AMEntitlement.CLIENTAPP_CREATE);
 
         initResultTable();
