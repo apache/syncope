@@ -39,8 +39,15 @@ public class SAML2SPDirectoryPanel extends ClientAppDirectoryPanel<SAML2SPClient
 
         SAML2SPClientAppTO defaultItem = new SAML2SPClientAppTO();
 
-        this.addNewItemPanelBuilder(
-                new ClientAppModalPanelBuilder<>(ClientAppType.SAML2SP, defaultItem, modal, pageRef), true);
+        addNewItemPanelBuilder(new ClientAppModalPanelBuilder<>(
+                ClientAppType.SAML2SP,
+                defaultItem,
+                modal,
+                policyRestClient,
+                clientAppRestClient,
+                realmRestClient,
+                pageRef),
+                true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, AMEntitlement.CLIENTAPP_CREATE);
 
         initResultTable();

@@ -34,6 +34,8 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalDirectoryPanel;
 import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.ClientAppRestClient;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
+import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -65,6 +67,15 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
         extends DirectoryPanel<T, T, DirectoryDataProvider<T>, ClientAppRestClient> {
 
     private static final long serialVersionUID = 4100100988730985059L;
+
+    @SpringBean
+    protected PolicyRestClient policyRestClient;
+
+    @SpringBean
+    protected ClientAppRestClient clientAppRestClient;
+
+    @SpringBean
+    protected RealmRestClient realmRestClient;
 
     @SpringBean
     protected AuditRestClient auditRestClient;
@@ -157,7 +168,8 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
             public void onClick(final AjaxRequestTarget target, final ClientAppTO ignore) {
                 model.setObject(restClient.read(type, model.getObject().getKey()));
                 modal.setContent(new UsernameAttributeProviderModalPanelBuilder<>(
-                        type, model.getObject(), modal, pageRef).build(actualId, 1, AjaxWizard.Mode.EDIT));
+                        type, model.getObject(), modal, clientAppRestClient, pageRef).
+                        build(actualId, 1, AjaxWizard.Mode.EDIT));
                 modal.header(new Model<>(getString("usernameAttributeProviderConf.title", model)));
                 modal.show(true);
                 target.add(modal);

@@ -38,8 +38,15 @@ public class CASSPDirectoryPanel extends ClientAppDirectoryPanel<CASSPClientAppT
 
         CASSPClientAppTO defaultItem = new CASSPClientAppTO();
 
-        this.addNewItemPanelBuilder(
-                new ClientAppModalPanelBuilder<>(ClientAppType.CASSP, defaultItem, modal, pageRef), true);
+        addNewItemPanelBuilder(new ClientAppModalPanelBuilder<>(
+                ClientAppType.CASSP,
+                defaultItem,
+                modal,
+                policyRestClient,
+                clientAppRestClient,
+                realmRestClient,
+                pageRef),
+                true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, AMEntitlement.CLIENTAPP_CREATE);
 
         initResultTable();

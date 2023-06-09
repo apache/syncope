@@ -42,15 +42,11 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.util.ClassUtils;
 
 public class UsernameAttributeProviderModalPanelBuilder<T extends ClientAppTO> extends AbstractModalPanelBuilder<T> {
 
     private static final long serialVersionUID = -4106998301911573852L;
-
-    @SpringBean
-    protected ClientAppRestClient clientAppRestClient;
 
     protected final LoadableDetachableModel<List<String>> usernameAttributeProviderConfs =
             new LoadableDetachableModel<>() {
@@ -68,12 +64,19 @@ public class UsernameAttributeProviderModalPanelBuilder<T extends ClientAppTO> e
 
     protected final ClientAppType type;
 
+    protected final ClientAppRestClient clientAppRestClient;
+
     public UsernameAttributeProviderModalPanelBuilder(
-            final ClientAppType type, final T defaultItem, final BaseModal<T> modal, final PageReference pageRef) {
+            final ClientAppType type,
+            final T defaultItem,
+            final BaseModal<T> modal,
+            final ClientAppRestClient clientAppRestClient,
+            final PageReference pageRef) {
 
         super(defaultItem, pageRef);
         this.type = type;
         this.modal = modal;
+        this.clientAppRestClient = clientAppRestClient;
     }
 
     @Override
