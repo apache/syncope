@@ -18,45 +18,83 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
+import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ClassUtils;
 
 public final class JavaDocUtils {
 
-    public static URL[] getJavaDocURLs() {
-        URL[] result = null;
+    private static final Logger LOG = LoggerFactory.getLogger(JavaDocUtils.class);
 
-        ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
+    private static URL toURL(final String classPathEntry) {
+        try {
+            return new File(classPathEntry).toURI().toURL();
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("URL could not be created from '" + classPathEntry + "'", e);
+        }
+    }
+
+    /**
+     * Inspired by org.springframework.boot.devtools.restart.ChangeableUrls#urlsFromClassLoader
+     *
+     * @param classLoader class loader
+     * @return URLs from underlying class loader
+     */
+    private static URL[] urlsFromClassLoader(final ClassLoader classLoader) {
         if (classLoader instanceof URLClassLoader) {
-            List<URL> javaDocURLs = new ArrayList<>();
-            for (URL url : ((URLClassLoader) classLoader).getURLs()) {
-                String filename = StringUtils.substringAfterLast(url.toExternalForm(), "/");
-                if (filename.startsWith("syncope-") && filename.endsWith("-javadoc.jar")) {
-                    javaDocURLs.add(url);
-                }
-            }
-            if (!javaDocURLs.isEmpty()) {
-                result = javaDocURLs.toArray(URL[]::new);
+            return ((URLClassLoader) classLoader).getURLs();
+        }
+
+        return Stream.of(ManagementFactory.getRuntimeMXBean().getClassPath().
+                split(File.pathSeparator)).
+                map(JavaDocUtils::toURL).toArray(URL[]::new);
+    }
+
+    public static Optional<URL[]> getJavaDocURLs() {
+        URL[] urls = urlsFromClassLoader(ClassUtils.getDefaultClassLoader());
+        if (urls == null) {
+            LOG.debug("No classpath URLs found");
+            return Optional.empty();
+        }
+
+        List<URL> javaDocURLs = new ArrayList<>();
+        for (URL url : urls) {
+            LOG.debug("Processing {}", url.toExternalForm());
+
+            String filename = StringUtils.substringAfterLast(url.toExternalForm(), "/");
+            if (filename.startsWith("syncope-") && filename.endsWith("-javadoc.jar")) {
+                javaDocURLs.add(url);
             }
         }
 
-        return result;
+        LOG.debug("JavaDoc Urls found: {}", javaDocURLs);
+        return Optional.of(javaDocURLs.toArray(URL[]::new));
     }
 
-    public static String[] getJavaDocPaths(final Environment env) {
+    public static Optional<String[]> getJavaDocPaths(final Environment env) {
         String[] result = null;
 
         if (env.containsProperty("javadocPaths")) {
             result = Objects.requireNonNull(env.getProperty("javadocPaths")).split(",");
         }
 
-        return result;
+        LOG.debug("JavaDoc paths found: {}",
+                result == null ? List.of() : Arrays.stream(result).collect(Collectors.toList()));
+        return Optional.ofNullable(result);
     }
 
     private JavaDocUtils() {

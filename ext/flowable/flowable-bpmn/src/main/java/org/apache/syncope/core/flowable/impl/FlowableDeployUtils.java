@@ -63,7 +63,7 @@ public final class FlowableDeployUtils {
         XMLStreamReader xtr = null;
         try (InputStream bpmnStream = engine.getRepositoryService().
                 getResourceAsStream(procDef.getDeploymentId(), procDef.getResourceName());
-                InputStreamReader isr = new InputStreamReader(bpmnStream)) {
+             InputStreamReader isr = new InputStreamReader(bpmnStream)) {
 
             xtr = XML_INPUT_FACTORY.createXMLStreamReader(isr);
             BpmnModel bpmnModel = new BpmnXMLConverter().convertToBpmnModel(xtr);

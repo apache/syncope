@@ -38,9 +38,11 @@ public class FlowableLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public FlowableLoader flowableLoader(final DomainProcessEngine engine,
-                                         @Qualifier("userWorkflowDef")
-                                         final Resource userWorkflowDef) {
+    public FlowableLoader flowableLoader(
+            final DomainProcessEngine engine,
+            @Qualifier("userWorkflowDef")
+            final Resource userWorkflowDef) {
+
         return new FlowableLoader(userWorkflowDef, engine);
     }
 
@@ -52,12 +54,14 @@ public class FlowableLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public UserRequestLogic userRequestLogic(final UserRequestHandler userRequestHandler,
-                                             final UserDataBinder binder,
-                                             final BpmnProcessManager bpmnProcessManager,
-                                             final PropagationTaskExecutor taskExecutor,
-                                             final UserDAO userDAO,
-                                             final PropagationManager propagationManager) {
+    public UserRequestLogic userRequestLogic(
+            final UserRequestHandler userRequestHandler,
+            final UserDataBinder binder,
+            final BpmnProcessManager bpmnProcessManager,
+            final PropagationTaskExecutor taskExecutor,
+            final UserDAO userDAO,
+            final PropagationManager propagationManager) {
+
         return new UserRequestLogic(
                 bpmnProcessManager,
                 userRequestHandler,
@@ -69,11 +73,13 @@ public class FlowableLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public UserWorkflowTaskLogic userWorkflowTaskLogic(final WorkflowTaskManager wfTaskManager,
-                                                       final UserDataBinder binder,
-                                                       final UserDAO userDAO,
-                                                       final PropagationTaskExecutor taskExecutor,
-                                                       final PropagationManager propagationManager) {
+    public UserWorkflowTaskLogic userWorkflowTaskLogic(
+            final WorkflowTaskManager wfTaskManager,
+            final UserDataBinder binder,
+            final UserDAO userDAO,
+            final PropagationTaskExecutor taskExecutor,
+            final PropagationManager propagationManager) {
+
         return new UserWorkflowTaskLogic(wfTaskManager, propagationManager, taskExecutor, binder, userDAO);
     }
 }

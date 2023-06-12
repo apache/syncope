@@ -23,7 +23,6 @@ import com.fasterxml.jackson.jakarta.rs.xml.JacksonXMLProvider;
 import com.fasterxml.jackson.jakarta.rs.yaml.JacksonYAMLProvider;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.validation.Validator;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -251,21 +250,18 @@ public class IdRepoRESTCXFContext {
     @ConditionalOnMissingBean(name = { "openApiCustomizer", "syncopeOpenApiCustomizer" })
     @Bean
     public OpenApiCustomizer openApiCustomizer(final DomainHolder domainHolder, final Environment env) {
-        JavaDocProvider javaDocProvider = null;
-
-        URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
-        if (javaDocURLs == null) {
-            String[] javaDocPaths = JavaDocUtils.getJavaDocPaths(env);
-            if (javaDocPaths != null) {
-                try {
-                    javaDocProvider = new JavaDocProvider(javaDocPaths);
-                } catch (Exception e) {
-                    LOG.error("Could not set javadoc paths from {}", List.of(javaDocPaths), e);
-                }
-            }
-        } else {
-            javaDocProvider = new JavaDocProvider(javaDocURLs);
-        }
+        JavaDocProvider javaDocProvider = JavaDocUtils.getJavaDocURLs().
+                map(JavaDocProvider::new).
+                orElseGet(() -> JavaDocUtils.getJavaDocPaths(env).
+                map(javaDocPaths -> {
+                    try {
+                        return new JavaDocProvider(javaDocPaths);
+                    } catch (Exception e) {
+                        LOG.error("Could not set javadoc paths from {}", List.of(javaDocPaths), e);
+                        return null;
+                    }
+                }).
+                orElse(null));
 
         SyncopeOpenApiCustomizer openApiCustomizer = new SyncopeOpenApiCustomizer(domainHolder);
         openApiCustomizer.setDynamicBasePath(false);

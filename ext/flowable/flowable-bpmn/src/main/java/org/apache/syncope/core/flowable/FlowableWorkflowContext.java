@@ -141,6 +141,7 @@ public class FlowableWorkflowContext {
             final IdGenerator idGenerator,
             final SyncopeEntitiesVariableType syncopeEntitiesVariableType,
             final SyncopeFormHandlerHelper syncopeFormHandlerHelper) {
+
         SpringProcessEngineConfiguration conf = new SpringProcessEngineConfiguration();
         conf.setDatabaseSchemaUpdate(AbstractEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
         conf.setJpaHandleTransaction(true);
