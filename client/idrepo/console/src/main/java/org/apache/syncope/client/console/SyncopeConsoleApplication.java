@@ -40,16 +40,12 @@ import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.wicket.request.resource.IResource;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication(exclude = {
-    ErrorMvcAutoConfiguration.class,
-    HttpMessageConvertersAutoConfiguration.class }, proxyBeanMethods = false)
+@SpringBootApplication(proxyBeanMethods = false)
 @EnableConfigurationProperties(ConsoleProperties.class)
 public class SyncopeConsoleApplication extends SpringBootServletInitializer {
 
