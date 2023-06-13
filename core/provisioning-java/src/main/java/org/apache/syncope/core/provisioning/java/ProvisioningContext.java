@@ -194,7 +194,10 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @EnableAsync
-@EnableConfigurationProperties(ProvisioningProperties.class)
+@EnableConfigurationProperties({
+    SecurityProperties.class,
+    ProvisioningProperties.class
+})
 @Configuration(proxyBeanMethods = false)
 public class ProvisioningContext {
 
@@ -833,8 +836,9 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthModuleDataBinder authModuleDataBinder(final EntityFactory entityFactory) {
-        return new AuthModuleDataBinderImpl(entityFactory);
+    public AuthModuleDataBinder authModuleDataBinder(final EntityFactory entityFactory,
+                                                     final SecurityProperties securityProperties) {
+        return new AuthModuleDataBinderImpl(entityFactory, securityProperties);
     }
 
     @ConditionalOnMissingBean

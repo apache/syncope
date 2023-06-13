@@ -20,14 +20,18 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +41,32 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
 
     protected final EntityFactory entityFactory;
 
-    public AuthModuleDataBinderImpl(final EntityFactory entityFactory) {
+    private final AuthModuleConf.Cipher encodingCipher;
+    private final AuthModuleConf.Cipher decodingCipher;
+
+    public AuthModuleDataBinderImpl(final EntityFactory entityFactory,
+                                    final SecurityProperties securityProperties) {
         this.entityFactory = entityFactory;
+        this.encodingCipher = value -> {
+            try {
+                return Encryptor.getInstance(securityProperties.getSecretKey()).encode(value, CipherAlgorithm.AES);
+            } catch (final Exception e) {
+                LOG.error(e.getMessage(), e);
+            }
+            return null;
+        };
+        this.decodingCipher = value -> {
+            try {
+                return Encryptor.getInstance(securityProperties.getSecretKey()).decode(value, CipherAlgorithm.AES);
+            } catch (final Exception e) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.error(e.getMessage(), e);
+                } else {
+                    LOG.error("Unable to decode configuration value: " + e.getMessage());
+                }
+            }
+            return value;
+        };
     }
 
     protected void populateItems(final AuthModuleTO authModuleTO, final AuthModule authModule) {
@@ -98,8 +126,7 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
         authModule.setDescription(authModuleTO.getDescription());
         authModule.setState(authModuleTO.getState());
         authModule.setOrder(authModuleTO.getOrder());
-        authModule.setConf(authModuleTO.getConf());
-
+        encodeConf(authModule, authModuleTO);
         authModule.getItems().clear();
         populateItems(authModuleTO, authModule);
 
@@ -130,10 +157,39 @@ public class AuthModuleDataBinderImpl implements AuthModuleDataBinder {
         authModuleTO.setDescription(authModule.getDescription());
         authModuleTO.setState(authModule.getState());
         authModuleTO.setOrder(authModule.getOrder());
-        authModuleTO.setConf(authModule.getConf());
-
+        decodeConf(authModule, authModuleTO);
         populateItems(authModule, authModuleTO);
 
         return authModuleTO;
+    }
+
+    private void encodeConf(final AuthModule authModule,
+                            final AuthModuleTO authModuleTO) {
+        SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
+        try {
+            AuthModuleConf encodedConf = authModuleTO.getConf().cipher(encodingCipher);
+            authModule.setConf(encodedConf);
+        } catch (final Exception e) {
+            LOG.error(e.getMessage(), e);
+            scce.addException(SyncopeClientException.build(ClientExceptionType.Unknown));
+        }
+        if (scce.hasExceptions()) {
+            throw scce;
+        }
+    }
+
+    private void decodeConf(final AuthModule authModule,
+                            final AuthModuleTO authModuleTO) {
+        SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
+        try {
+            AuthModuleConf encodedConf = authModule.getConf().cipher(decodingCipher);
+            authModuleTO.setConf(encodedConf);
+        } catch (final Exception e) {
+            LOG.error(e.getMessage(), e);
+            scce.addException(SyncopeClientException.build(ClientExceptionType.Unknown));
+        }
+        if (scce.hasExceptions()) {
+            throw scce;
+        }
     }
 }

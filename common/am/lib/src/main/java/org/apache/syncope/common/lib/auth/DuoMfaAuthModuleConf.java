@@ -74,4 +74,22 @@ public class DuoMfaAuthModuleConf implements MFAAuthModuleConf {
     public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
         return mapper.map(authModule, this);
     }
+
+    @Override
+    protected DuoMfaAuthModuleConf clone() throws CloneNotSupportedException {
+        return (DuoMfaAuthModuleConf) super.clone();
+    }
+
+    @Override
+    public AuthModuleConf cipher(final Cipher encoder) {
+        try {
+            final DuoMfaAuthModuleConf conf = clone();
+            conf.setSecretKey(encoder.cipher(getSecretKey()));
+            conf.setIntegrationKey(encoder.cipher(getIntegrationKey()));
+            conf.setApplicationKey(encoder.cipher(getApplicationKey()));
+            return conf;
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 }

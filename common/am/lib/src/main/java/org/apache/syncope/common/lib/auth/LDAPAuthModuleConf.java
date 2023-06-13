@@ -247,4 +247,15 @@ public class LDAPAuthModuleConf extends AbstractLDAPConf implements AuthModuleCo
     public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
         return mapper.map(authModule, this);
     }
+
+    @Override
+    public AuthModuleConf cipher(final Cipher encoder) {
+        try {
+            final LDAPAuthModuleConf conf = (LDAPAuthModuleConf) clone();
+            conf.setBindCredential(encoder.cipher(getBindCredential()));
+            return conf;
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 }

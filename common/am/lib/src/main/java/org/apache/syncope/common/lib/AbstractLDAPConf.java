@@ -577,4 +577,9 @@ public abstract class AbstractLDAPConf implements Serializable {
     public void setBinaryAttributes(final List<String> binaryAttributes) {
         this.binaryAttributes = binaryAttributes;
     }
+
+    @Override
+    protected AbstractLDAPConf clone() throws CloneNotSupportedException {
+        return (AbstractLDAPConf) super.clone();
+    }
 }

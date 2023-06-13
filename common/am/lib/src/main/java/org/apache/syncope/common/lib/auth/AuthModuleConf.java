@@ -24,7 +24,12 @@ import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
-public interface AuthModuleConf extends BaseBean {
+public interface AuthModuleConf extends BaseBean, Cloneable {
+
+    @FunctionalInterface
+    interface Cipher {
+        String cipher(String value) throws Exception;
+    }
 
     interface Mapper {
 
@@ -56,4 +61,8 @@ public interface AuthModuleConf extends BaseBean {
     }
 
     Map<String, Object> map(AuthModuleTO authModule, Mapper mapper);
+
+    default AuthModuleConf cipher(Cipher encoder) throws Exception {
+        return this;
+    }
 }

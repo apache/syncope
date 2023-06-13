@@ -108,4 +108,20 @@ public abstract class AbstractOAuth20AuthModuleConf extends Pac4jAuthModuleConf 
     public void setUserIdAttribute(final String userIdAttribute) {
         this.userIdAttribute = userIdAttribute;
     }
+
+    @Override
+    protected AbstractOAuth20AuthModuleConf clone() throws CloneNotSupportedException {
+        return (AbstractOAuth20AuthModuleConf) super.clone();
+    }
+
+    @Override
+    public AuthModuleConf cipher(final Cipher encoder) {
+        try {
+            final AbstractOAuth20AuthModuleConf conf = clone();
+            conf.setClientSecret(encoder.cipher(getClientSecret()));
+            return conf;
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 }

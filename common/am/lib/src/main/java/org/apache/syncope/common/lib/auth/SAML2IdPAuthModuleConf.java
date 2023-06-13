@@ -390,4 +390,21 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
     public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
         return mapper.map(authModule, this);
     }
+
+    @Override
+    protected SAML2IdPAuthModuleConf clone() throws CloneNotSupportedException {
+        return (SAML2IdPAuthModuleConf) super.clone();
+    }
+
+    @Override
+    public AuthModuleConf cipher(final Cipher cipher) {
+        try {
+            final SAML2IdPAuthModuleConf conf = clone();
+            conf.setKeystorePassword(cipher.cipher(getKeystorePassword()));
+            conf.setPrivateKeyPassword(cipher.cipher(getPrivateKeyPassword()));
+            return conf;
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 }
