@@ -21,8 +21,11 @@ package org.apache.syncope.core.provisioning.api.jexl;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 /**
  * Utility functions for usage with JEXL engine.
@@ -62,5 +65,19 @@ public class SyncopeJexlFunctions {
         List<String> headless = Arrays.asList(fullPathSplitted).subList(1, fullPathSplitted.length);
         Collections.reverse(headless);
         return prefix + attr + "=" + headless.stream().collect(Collectors.joining("," + attr + "="));
+    }
+
+    /**
+     * Extracts the values of the attribute with given name from the given connector object, or empty list if not found.
+     *
+     * @param connObj connector object
+     * @param name attribute name
+     * @return the values of the attribute with given name from the given connector object, or empty list if not found
+     */
+    public List<Object> connObjAttrValues(final ConnectorObject connObj, final String name) {
+        return Optional.ofNullable(connObj).
+                flatMap(obj -> Optional.ofNullable(obj.getAttributeByName(name)).
+                map(Attribute::getValue)).
+                orElse(List.of());
     }
 }
