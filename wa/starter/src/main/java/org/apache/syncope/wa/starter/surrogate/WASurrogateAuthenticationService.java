@@ -32,22 +32,21 @@ import org.slf4j.LoggerFactory;
 
 public class WASurrogateAuthenticationService implements SurrogateAuthenticationService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WASurrogateAuthenticationService.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WASurrogateAuthenticationService.class);
 
-    private final WARestClient waRestClient;
+    protected final WARestClient waRestClient;
 
     public WASurrogateAuthenticationService(final WARestClient waRestClient) {
         this.waRestClient = waRestClient;
     }
 
     @Override
-    public boolean canImpersonate(
-            final String surrogate, final Principal principal, final Optional<Service> service) {
-
+    public boolean canImpersonate(final String surrogate, final Principal principal, final Optional<Service> service) {
         try {
             LOG.debug("Checking impersonation attempt by {} for {}", principal, surrogate);
-            return getImpersonationService().read(principal.getId()).stream().
-                    anyMatch(acct -> surrogate.equals(acct.getImpersonated()));
+
+            return waRestClient.getService(ImpersonationService.class).read(
+                    principal.getId()).stream().anyMatch(acct -> surrogate.equals(acct.getImpersonated()));
         } catch (final Exception e) {
             LOG.info("Could not authorize account {} for owner {}", surrogate, principal.getId());
         }
@@ -56,16 +55,9 @@ public class WASurrogateAuthenticationService implements SurrogateAuthentication
 
     @Override
     public Collection<String> getImpersonationAccounts(final String username) {
-        return getImpersonationService().read(username).
+        return waRestClient.getService(ImpersonationService.class).read(username).
                 stream().
                 map(ImpersonationAccount::getImpersonated).
                 collect(Collectors.toList());
-    }
-
-    private ImpersonationService getImpersonationService() {
-        if (!waRestClient.isReady()) {
-            throw new IllegalStateException("Syncope core is not yet ready");
-        }
-        return waRestClient.getSyncopeClient().getService(ImpersonationService.class);
     }
 }

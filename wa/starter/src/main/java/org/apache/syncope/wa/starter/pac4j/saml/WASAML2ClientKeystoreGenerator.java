@@ -35,15 +35,15 @@ import org.slf4j.LoggerFactory;
 
 public class WASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WASAML2ClientKeystoreGenerator.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WASAML2ClientKeystoreGenerator.class);
 
-    private final WARestClient restClient;
+    protected final WARestClient waRestClient;
 
-    private final SAML2Client saml2Client;
+    protected final SAML2Client saml2Client;
 
-    WASAML2ClientKeystoreGenerator(final WARestClient restClient, final SAML2Client saml2Client) {
+    public WASAML2ClientKeystoreGenerator(final WARestClient waRestClient, final SAML2Client saml2Client) {
         super(saml2Client.getConfiguration());
-        this.restClient = restClient;
+        this.waRestClient = waRestClient;
         this.saml2Client = saml2Client;
     }
 
@@ -65,8 +65,7 @@ public class WASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
 
             SAML2SPEntityTO entityTO;
             try {
-                entityTO = restClient.getSyncopeClient().getService(SAML2SPEntityService.class).
-                        get(saml2Client.getName());
+                entityTO = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
                 entityTO.setKeystore(encodedKeystore);
             } catch (Exception e) {
                 LOG.debug("SP Entity {} not found, creating new", saml2Client.getName(), e);
@@ -78,19 +77,18 @@ public class WASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
             }
 
             LOG.debug("Storing SP Entity {}", entityTO);
-            restClient.getSyncopeClient().getService(SAML2SPEntityService.class).set(entityTO);
+            waRestClient.getService(SAML2SPEntityService.class).set(entityTO);
         }
     }
 
     @Override
     public InputStream retrieve() throws Exception {
         try {
-            SAML2SPEntityTO spEntity =
-                    restClient.getSyncopeClient().getService(SAML2SPEntityService.class).get(saml2Client.getName());
+            SAML2SPEntityTO spEntity = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
 
             LOG.debug("Retrieved keystore {}", spEntity.getKeystore());
             return new ByteArrayInputStream(Base64.getDecoder().decode(spEntity.getKeystore()));
-        } catch (final Exception e) {
+        } catch (Exception e) {
             String message = "Unable to fetch SAML2 SP keystore for " + saml2Client.getName();
             LOG.error(message, e);
             throw new Exception(message);

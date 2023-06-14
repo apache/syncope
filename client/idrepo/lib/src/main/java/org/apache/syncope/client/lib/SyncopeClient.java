@@ -35,10 +35,6 @@ import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
-import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
-import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
@@ -74,8 +70,6 @@ public class SyncopeClient {
 
     protected final RestClientExceptionMapper exceptionMapper;
 
-    protected final boolean useCompression;
-
     protected final TLSClientParameters tlsClientParameters;
 
     public SyncopeClient(
@@ -83,7 +77,6 @@ public class SyncopeClient {
             final JAXRSClientFactoryBean restClientFactory,
             final RestClientExceptionMapper exceptionMapper,
             final AuthenticationHandler authHandler,
-            final boolean useCompression,
             final TLSClientParameters tlsClientParameters) {
 
         this.mediaType = mediaType;
@@ -92,7 +85,6 @@ public class SyncopeClient {
             this.restClientFactory.setHeaders(new HashMap<>());
         }
         this.exceptionMapper = exceptionMapper;
-        this.useCompression = useCompression;
         this.tlsClientParameters = tlsClientParameters;
 
         init(authHandler);
@@ -291,15 +283,6 @@ public class SyncopeClient {
 
             ClientConfiguration config = WebClient.getConfig(client);
             config.getRequestContext().put(HEADER_SPLIT_PROPERTY, true);
-            config.getRequestContext().put(URLConnectionHTTPConduit.HTTPURL_CONNECTION_METHOD_REFLECTION, true);
-            if (useCompression) {
-                config.getInInterceptors().add(new GZIPInInterceptor());
-                config.getOutInterceptors().add(new GZIPOutInterceptor());
-            }
-            if (tlsClientParameters != null) {
-                HTTPConduit httpConduit = (HTTPConduit) config.getConduit();
-                httpConduit.setTlsClientParameters(tlsClientParameters);
-            }
 
             return serviceInstance;
         }

@@ -42,9 +42,23 @@ public class WAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(WAU2FDeviceRepository.class);
 
-    private final WARestClient waRestClient;
+    protected static U2FDeviceRegistration parseRegistrationRecord(final String owner, final U2FDevice device) {
+        try {
+            return U2FDeviceRegistration.builder().
+                    id(device.getId()).
+                    username(owner).
+                    record(device.getRecord()).
+                    createdDate(device.getIssueDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()).
+                    build();
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+        }
+        return null;
+    }
 
-    private final OffsetDateTime expirationDate;
+    protected final WARestClient waRestClient;
+
+    protected final OffsetDateTime expirationDate;
 
     public WAU2FDeviceRepository(
             final CasConfigurationProperties casProperties,
@@ -57,23 +71,13 @@ public class WAU2FDeviceRepository extends BaseU2FDeviceRepository {
         this.expirationDate = expirationDate;
     }
 
-    private static U2FDeviceRegistration parseRegistrationRecord(final String owner, final U2FDevice device) {
-        try {
-            return U2FDeviceRegistration.builder().
-                    id(device.getId()).
-                    username(owner).
-                    record(device.getRecord()).
-                    createdDate(device.getIssueDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()).
-                    build();
-        } catch (final Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-        return null;
+    protected U2FRegistrationService service() {
+        return waRestClient.getService(U2FRegistrationService.class);
     }
 
     @Override
     public Collection<? extends U2FDeviceRegistration> getRegisteredDevices(final String owner) {
-        return getU2FService().
+        return service().
                 search(new U2FDeviceQuery.Builder().owner(owner).expirationDate(expirationDate).build()).getResult().
                 stream().
                 map(device -> parseRegistrationRecord(owner, device)).
@@ -83,7 +87,7 @@ public class WAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     @Override
     public Collection<? extends U2FDeviceRegistration> getRegisteredDevices() {
-        return getU2FService().search(new U2FDeviceQuery.Builder().expirationDate(expirationDate).build()).getResult().
+        return service().search(new U2FDeviceQuery.Builder().expirationDate(expirationDate).build()).getResult().
                 stream().
                 map(device -> parseRegistrationRecord("", device)).
                 filter(Objects::nonNull).
@@ -98,13 +102,13 @@ public class WAU2FDeviceRepository extends BaseU2FDeviceRepository {
                 record(registration.getRecord()).
                 id(registration.getId()).
                 build();
-        getU2FService().create(registration.getUsername(), record);
+        service().create(registration.getUsername(), record);
         return parseRegistrationRecord(registration.getUsername(), record);
     }
 
     @Override
     public void deleteRegisteredDevice(final U2FDeviceRegistration registration) {
-        getU2FService().delete(new U2FDeviceQuery.Builder().id(registration.getId()).build());
+        service().delete(new U2FDeviceQuery.Builder().id(registration.getId()).build());
     }
 
     @Override
@@ -124,18 +128,11 @@ public class WAU2FDeviceRepository extends BaseU2FDeviceRepository {
 
     @Override
     public void clean() {
-        getU2FService().delete(new U2FDeviceQuery.Builder().expirationDate(expirationDate).build());
+        service().delete(new U2FDeviceQuery.Builder().expirationDate(expirationDate).build());
     }
 
     @Override
     public void removeAll() {
-        getU2FService().delete(new U2FDeviceQuery.Builder().build());
-    }
-
-    private U2FRegistrationService getU2FService() {
-        if (!waRestClient.isReady()) {
-            throw new IllegalStateException("Syncope core is not yet ready");
-        }
-        return waRestClient.getSyncopeClient().getService(U2FRegistrationService.class);
+        service().delete(new U2FDeviceQuery.Builder().build());
     }
 }

@@ -22,8 +22,17 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.apache.cxf.Bus;
+import org.apache.cxf.BusFactory;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
+import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
+import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
+import org.apache.cxf.transport.http.HttpConduitConfig;
+import org.apache.cxf.transport.http.HttpConduitFeature;
+import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
+import org.apache.cxf.transports.http.configuration.ConnectionType;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
@@ -66,10 +75,25 @@ public class SelfKeymasterClientContext {
         restClientFactoryBean.setPassword(props.getPassword());
         restClientFactoryBean.setThreadSafe(true);
         restClientFactoryBean.setInheritHeaders(true);
-        restClientFactoryBean.setFeatures(List.of(new LoggingFeature()));
+        restClientFactoryBean.getFeatures().add(new LoggingFeature());
         restClientFactoryBean.setProviders(List.of(
                 new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build()),
                 new SelfKeymasterClientExceptionMapper()));
+
+        Bus bus = BusFactory.getDefaultBus();
+        bus.setProperty(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
+        bus.getInInterceptors().add(new GZIPInInterceptor());
+        bus.getOutInterceptors().add(new GZIPOutInterceptor());
+        restClientFactoryBean.setBus(bus);
+
+        HTTPClientPolicy httpClientPolicy = new HTTPClientPolicy();
+        httpClientPolicy.setConnection(ConnectionType.CLOSE);
+        HttpConduitConfig conduitConfig = new HttpConduitConfig();
+        conduitConfig.setClientPolicy(httpClientPolicy);
+        HttpConduitFeature conduitFeature = new HttpConduitFeature();
+        conduitFeature.setConduitConfig(conduitConfig);
+        restClientFactoryBean.getFeatures().add(conduitFeature);
+
         return restClientFactoryBean;
     }
 

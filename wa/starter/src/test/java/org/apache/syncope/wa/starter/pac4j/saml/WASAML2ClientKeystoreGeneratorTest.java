@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -39,8 +38,6 @@ import org.springframework.core.io.ClassPathResource;
 public class WASAML2ClientKeystoreGeneratorTest extends BaseWASAML2ClientTest {
 
     private static WARestClient getWaRestClient() throws Exception {
-        WARestClient restClient = mock(WARestClient.class);
-
         SAML2SPEntityTO keystoreTO = new SAML2SPEntityTO.Builder()
                 .key("CAS")
                 .keystore(getKeystoreAsString())
@@ -51,10 +48,9 @@ public class WASAML2ClientKeystoreGeneratorTest extends BaseWASAML2ClientTest {
         when(service.get(anyString())).thenReturn(keystoreTO);
         doNothing().when(service).set(any(SAML2SPEntityTO.class));
 
-        SyncopeClient syncopeClient = mock(SyncopeClient.class);
-        when(syncopeClient.getService(SAML2SPEntityService.class)).thenReturn(service);
-        when(restClient.getSyncopeClient()).thenReturn(syncopeClient);
-        return restClient;
+        WARestClient waRestClient = mock(WARestClient.class);
+        when(waRestClient.getService(SAML2SPEntityService.class)).thenReturn(service);
+        return waRestClient;
     }
 
     @Test

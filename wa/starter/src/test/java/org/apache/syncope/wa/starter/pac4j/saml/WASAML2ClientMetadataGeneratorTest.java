@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -42,7 +41,6 @@ import org.springframework.core.io.ClassPathResource;
 public class WASAML2ClientMetadataGeneratorTest extends BaseWASAML2ClientTest {
 
     private static WARestClient getWaRestClient() throws IOException {
-        WARestClient restClient = mock(WARestClient.class);
         SAML2SPEntityTO metadataTO = new SAML2SPEntityTO.Builder()
                 .key("Syncope")
                 .metadata(IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(),
@@ -53,10 +51,9 @@ public class WASAML2ClientMetadataGeneratorTest extends BaseWASAML2ClientTest {
         when(saml2SPMetadataService.get(anyString())).thenReturn(metadataTO);
         doNothing().when(saml2SPMetadataService).set(any(SAML2SPEntityTO.class));
 
-        SyncopeClient syncopeClient = mock(SyncopeClient.class);
-        when(syncopeClient.getService(SAML2SPEntityService.class)).thenReturn(saml2SPMetadataService);
-        when(restClient.getSyncopeClient()).thenReturn(syncopeClient);
-        return restClient;
+        WARestClient waRestClient = mock(WARestClient.class);
+        when(waRestClient.getService(SAML2SPEntityService.class)).thenReturn(saml2SPMetadataService);
+        return waRestClient;
     }
 
     @Test

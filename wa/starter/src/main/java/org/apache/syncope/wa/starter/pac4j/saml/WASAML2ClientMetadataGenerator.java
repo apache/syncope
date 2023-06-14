@@ -33,20 +33,25 @@ import org.springframework.core.io.Resource;
 
 public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WASAML2ClientMetadataGenerator.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WASAML2ClientMetadataGenerator.class);
 
-    private final WARestClient restClient;
+    protected final WARestClient waRestClient;
 
-    private final SAML2Client saml2Client;
+    protected final SAML2Client saml2Client;
 
-    WASAML2ClientMetadataGenerator(final WARestClient restClient, final SAML2Client saml2Client) {
-        this.restClient = restClient;
+    public WASAML2ClientMetadataGenerator(final WARestClient waRestClient, final SAML2Client saml2Client) {
+        this.waRestClient = waRestClient;
         this.saml2Client = saml2Client;
     }
 
     @Override
+    public boolean storeMetadata(final String metadata, final Resource resource, final boolean force) throws Exception {
+        return true;
+    }
+
+    @Override
     protected AbstractBatchMetadataResolver createMetadataResolver(final Resource metadataResource) {
-        return new WASAML2MetadataResolver(restClient, saml2Client);
+        return new WASAML2MetadataResolver(waRestClient, saml2Client);
     }
 
     @Override
@@ -56,8 +61,7 @@ public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
 
         SAML2SPEntityTO entityTO;
         try {
-            entityTO = restClient.getSyncopeClient().getService(SAML2SPEntityService.class).
-                    get(saml2Client.getName());
+            entityTO = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
             entityTO.setMetadata(encodedMetadata);
         } catch (Exception e) {
             LOG.debug("SP Entity {} not found, creating new", saml2Client.getName(), e);
@@ -69,13 +73,8 @@ public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
         }
 
         LOG.debug("Storing SP Entity {}", entityTO);
-        restClient.getSyncopeClient().getService(SAML2SPEntityService.class).set(entityTO);
+        waRestClient.getService(SAML2SPEntityService.class).set(entityTO);
 
         return super.buildMetadataResolver(metadataResource);
-    }
-
-    @Override
-    public boolean storeMetadata(final String metadata, final Resource resource, final boolean force) throws Exception {
-        return true;
     }
 }

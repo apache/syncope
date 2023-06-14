@@ -60,10 +60,7 @@ public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorS
 
     @Override
     public JsonWebKeySet store(final JsonWebKeySet jsonWebKeySet) throws Exception {
-        if (!waRestClient.isReady()) {
-            throw new IllegalStateException("Syncope core is not yet ready");
-        }
-        OIDCJWKSService service = waRestClient.getSyncopeClient().getService(OIDCJWKSService.class);
+        OIDCJWKSService service = waRestClient.getService(OIDCJWKSService.class);
         OIDCJWKSTO to = new OIDCJWKSTO();
         to.setJson(jsonWebKeySet.toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE));
         service.set(to);
@@ -77,11 +74,7 @@ public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorS
 
     @Override
     public Resource generate() {
-        if (!waRestClient.isReady()) {
-            throw new IllegalStateException("Syncope core is not yet ready");
-        }
-
-        OIDCJWKSService service = waRestClient.getSyncopeClient().getService(OIDCJWKSService.class);
+        OIDCJWKSService service = waRestClient.getService(OIDCJWKSService.class);
         OIDCJWKSTO jwksTO = null;
         try {
             jwksTO = service.get();

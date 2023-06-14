@@ -43,10 +43,9 @@ public class SyncopeAnonymousClient extends SyncopeClient {
             final JAXRSClientFactoryBean restClientFactory,
             final RestClientExceptionMapper exceptionMapper,
             final AnonymousAuthenticationHandler anonymousAuthHandler,
-            final boolean useCompression,
             final TLSClientParameters tlsClientParameters) {
 
-        super(mediaType, restClientFactory, exceptionMapper, anonymousAuthHandler, useCompression, tlsClientParameters);
+        super(mediaType, restClientFactory, exceptionMapper, anonymousAuthHandler, tlsClientParameters);
         this.anonymousAuthHandler = anonymousAuthHandler;
     }
 

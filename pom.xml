@@ -409,7 +409,7 @@ under the License.
     <connid.okta.version>3.0.0</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
 
-    <cxf.version>3.5.6</cxf.version>
+    <cxf.version>3.6.1</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
     <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
 
