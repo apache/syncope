@@ -32,6 +32,7 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -64,12 +65,18 @@ public class UserRequestITCase extends AbstractITCase {
                 IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/assignPrinterRequest.bpmn20.xml")));
         BPMN_PROCESS_SERVICE.set("verifyAddedVariables",
                 IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/verifyAddedVariables.bpmn20.xml")));
+
+        WebClient.getConfig(WebClient.client(USER_REQUEST_SERVICE)).
+                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.FALSE);
     }
 
     @BeforeEach
     public void check() {
         assumeFalse(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
         assumeTrue(IS_FLOWABLE_ENABLED);
+
+        WebClient.getConfig(WebClient.client(USER_REQUEST_SERVICE)).
+                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
     }
 
     @Test
@@ -259,8 +266,7 @@ public class UserRequestITCase extends AbstractITCase {
 
     @Test
     public void addVariablesToUserRequestAtStart() {
-        PagedResult<UserRequestForm> forms =
-                USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
+        PagedResult<UserRequestForm> forms = USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
         UserTO user = createUser(UserITCase.getUniqueSample("addVariables@tirasa.net")).getEntity();

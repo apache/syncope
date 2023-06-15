@@ -79,6 +79,7 @@ public interface UserRequestService extends JAXRSService {
     @POST
     @Path("start/{bpmnProcess}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     UserRequest startRequest(
             @NotNull @PathParam("bpmnProcess") String bpmnProcess,
             @QueryParam(JAXRSService.PARAM_USER) String user,

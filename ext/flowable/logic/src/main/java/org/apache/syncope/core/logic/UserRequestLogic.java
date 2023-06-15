@@ -112,7 +112,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
             final WorkflowTaskExecInput inputVariables) {
 
         // check if BPMN process exists
-        bpmnProcessManager.exportProcess(bpmnProcess, BpmnProcessFormat.XML, NullOutputStream.NULL_OUTPUT_STREAM);
+        bpmnProcessManager.exportProcess(bpmnProcess, BpmnProcessFormat.XML, NullOutputStream.INSTANCE);
 
         return userRequestHandler.start(bpmnProcess, user, inputVariables);
     }

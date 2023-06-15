@@ -21,7 +21,6 @@ package org.apache.syncope.common.lib.to;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import javax.ws.rs.PathParam;
 
 public class WorkflowTaskExecInput implements Serializable {
 
@@ -35,7 +34,6 @@ public class WorkflowTaskExecInput implements Serializable {
         return userKey;
     }
 
-    @PathParam("userKey")
     public void setUserKey(final String userKey) {
         this.userKey = userKey;
     }
