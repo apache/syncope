@@ -47,6 +47,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,13 +71,16 @@ public class UserRequestITCase extends AbstractITCase {
                 getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.FALSE);
     }
 
+    @AfterAll
+    public static void reset() {
+        WebClient.getConfig(WebClient.client(USER_REQUEST_SERVICE)).
+                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
+    }
+
     @BeforeEach
     public void check() {
         assumeFalse(CLIENT_FACTORY.getContentType() == SyncopeClientFactoryBean.ContentType.YAML);
         assumeTrue(IS_FLOWABLE_ENABLED);
-
-        WebClient.getConfig(WebClient.client(USER_REQUEST_SERVICE)).
-                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
     }
 
     @Test
