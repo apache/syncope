@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
@@ -63,13 +62,12 @@ public class WAEventRepository extends AbstractCasEventRepository {
 
     @Override
     public CasEvent saveInternal(final CasEvent event) {
-        SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
-        if (syncopeClient == null) {
+        if (!waRestClient.isReady()) {
             LOG.debug("Syncope client is not yet ready to store audit record");
             return null;
         }
 
-        LOG.info("Saving Cas events");
+        LOG.debug("Saving WA events");
         try {
             Map<String, String> properties = new HashMap<>();
             if (event.getGeoLocation() != null) {
@@ -97,7 +95,7 @@ public class WAEventRepository extends AbstractCasEventRepository {
                     String.valueOf(event.getId()),
                     AuditElements.Result.SUCCESS);
             auditEntry.setLogger(auditLogger);
-            syncopeClient.getService(AuditService.class).create(auditEntry);
+            waRestClient.getService(AuditService.class).create(auditEntry);
         } catch (JsonProcessingException e) {
             LOG.error("During serialization", e);
         }

@@ -41,7 +41,7 @@ public class SyncopeCoreHealthIndicator implements HealthIndicator {
         Health.Builder builder = new Health.Builder();
 
         try {
-            waRestClient.getSyncopeClient().getService(UserSelfService.class).read();
+            waRestClient.getService(UserSelfService.class).read();
             builder.status(Status.UP);
         } catch (Exception e) {
             LOG.debug("When attempting to connect to Syncope Core", e);

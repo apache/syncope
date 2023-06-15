@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.List;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -46,6 +47,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,6 +66,15 @@ public class UserRequestITCase extends AbstractITCase {
                 IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/assignPrinterRequest.bpmn20.xml")));
         BPMN_PROCESS_SERVICE.set("verifyAddedVariables",
                 IOUtils.toString(UserRequestITCase.class.getResourceAsStream("/verifyAddedVariables.bpmn20.xml")));
+
+        WebClient.getConfig(WebClient.client(USER_REQUEST_SERVICE)).
+                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.FALSE);
+    }
+
+    @AfterAll
+    public static void reset() {
+        WebClient.getConfig(WebClient.client(USER_REQUEST_SERVICE)).
+                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
     }
 
     @BeforeEach
@@ -198,21 +209,27 @@ public class UserRequestITCase extends AbstractITCase {
         SyncopeClient client = CLIENT_FACTORY.create(user.getUsername(), "password123");
 
         // start request as user
-        UserRequest req = client.getService(UserRequestService.class).startRequest("assignPrinterRequest", null, null);
+        UserRequestService service = client.getService(UserRequestService.class);
+        WebClient.getConfig(WebClient.client(service)).
+                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.FALSE);
+
+        UserRequest req = service.startRequest("assignPrinterRequest", null, null);
         assertNotNull(req);
+        WebClient.getConfig(WebClient.client(service)).
+                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
 
         // check (as admin) that a new form is available
         forms = USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms + 1, forms.getTotalCount());
 
         // get (as user) the form, claim and submit
-        PagedResult<UserRequestForm> userForms = client.getService(UserRequestService.class).
-                listForms(new UserRequestQuery.Builder().user(user.getKey()).build());
+        PagedResult<UserRequestForm> userForms = service.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, userForms.getTotalCount());
 
         UserRequestForm form = userForms.getResult().get(0);
         assertEquals("assignPrinterRequest", form.getBpmnProcess());
-        form = client.getService(UserRequestService.class).claimForm(form.getTaskId());
+        form = service.claimForm(form.getTaskId());
 
         assertFalse(form.getProperty("printer").get().getDropdownValues().isEmpty());
         form.getProperty("printer").ifPresent(printer -> printer.setValue("8559d14d-58c2-46eb-a2d4-a7d35161e8f8"));
@@ -220,15 +237,14 @@ public class UserRequestITCase extends AbstractITCase {
         assertFalse(form.getProperty("printMode").get().getEnumValues().isEmpty());
         form.getProperty("printMode").ifPresent(printMode -> printMode.setValue("color"));
 
-        client.getService(UserRequestService.class).submitForm(form);
+        service.submitForm(form);
 
-        userForms = client.getService(UserRequestService.class).listForms(
-                new UserRequestQuery.Builder().user(user.getKey()).build());
+        userForms = service.listForms(new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(0, userForms.getTotalCount());
 
         // check that user can see the ongoing request
-        PagedResult<UserRequest> requests = client.getService(UserRequestService.class).
-                listRequests(new UserRequestQuery.Builder().user(user.getKey()).build());
+        PagedResult<UserRequest> requests = service.listRequests(
+                new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, requests.getTotalCount());
         assertEquals("assignPrinterRequest", requests.getResult().get(0).getBpmnProcess());
 
@@ -247,8 +263,8 @@ public class UserRequestITCase extends AbstractITCase {
         forms = USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms, forms.getTotalCount());
 
-        assertTrue(client.getService(UserRequestService.class).
-                listRequests(new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
+        assertTrue(service.listRequests(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
 
         // check that relationship was made effective by approval
         relationships = USER_SERVICE.read(user.getKey()).getRelationships();
@@ -259,8 +275,7 @@ public class UserRequestITCase extends AbstractITCase {
 
     @Test
     public void addVariablesToUserRequestAtStart() {
-        PagedResult<UserRequestForm> forms =
-                USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
+        PagedResult<UserRequestForm> forms = USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
         int preForms = forms.getTotalCount();
 
         UserTO user = createUser(UserITCase.getUniqueSample("addVariables@tirasa.net")).getEntity();

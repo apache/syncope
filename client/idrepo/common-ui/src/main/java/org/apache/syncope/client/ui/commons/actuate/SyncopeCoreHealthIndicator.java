@@ -41,6 +41,8 @@ public class SyncopeCoreHealthIndicator implements HealthIndicator {
 
     protected final boolean useGZIPCompression;
 
+    private UserSelfService service;
+
     public SyncopeCoreHealthIndicator(
             final ServiceOps serviceOps,
             final String anonymousUser,
@@ -53,16 +55,25 @@ public class SyncopeCoreHealthIndicator implements HealthIndicator {
         this.useGZIPCompression = useGZIPCompression;
     }
 
+    protected UserSelfService service() {
+        synchronized (this) {
+            if (service == null) {
+                service = new SyncopeClientFactoryBean().
+                        setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).
+                        setUseCompression(useGZIPCompression).
+                        create(new AnonymousAuthenticationHandler(anonymousUser, anonymousKey)).
+                        getService(UserSelfService.class);
+            }
+        }
+        return service;
+    }
+
     @Override
     public Health health() {
         Health.Builder builder = new Health.Builder();
 
         try {
-            new SyncopeClientFactoryBean().
-                    setAddress(serviceOps.get(NetworkService.Type.CORE).getAddress()).
-                    setUseCompression(useGZIPCompression).
-                    create(new AnonymousAuthenticationHandler(anonymousUser, anonymousKey)).
-                    getService(UserSelfService.class).read();
+            service().read();
             builder.status(Status.UP);
         } catch (Exception e) {
             LOG.debug("When attempting to connect to Syncope Core", e);

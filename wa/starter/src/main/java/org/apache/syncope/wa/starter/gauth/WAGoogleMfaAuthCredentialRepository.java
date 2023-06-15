@@ -69,7 +69,7 @@ public class WAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthenticator
     }
 
     protected GoogleMfaAuthAccountService service() {
-        return waRestClient.getSyncopeClient().getService(GoogleMfaAuthAccountService.class);
+        return waRestClient.getService(GoogleMfaAuthAccountService.class);
     }
 
     @Override
@@ -143,8 +143,7 @@ public class WAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthenticator
                 name(otta.getName()).
                 id(otta.getId()).
                 build();
-        waRestClient.getSyncopeClient().
-                getService(GoogleMfaAuthAccountService.class).create(otta.getUsername(), account);
+        service().create(otta.getUsername(), account);
         return mapGoogleMfaAuthAccount(account);
     }
 
