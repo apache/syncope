@@ -29,6 +29,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
+import org.apache.cxf.transports.http.configuration.ConnectionType;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeXmlMapper;
 import org.apache.syncope.common.lib.jackson.SyncopeYAMLMapper;
@@ -82,6 +84,8 @@ public class SyncopeClientFactoryBean {
 
     private boolean useCompression;
 
+    private HTTPClientPolicy httpClientPolicy;
+
     private TLSClientParameters tlsClientParameters;
 
     private JAXRSClientFactoryBean restClientFactoryBean;
@@ -100,6 +104,12 @@ public class SyncopeClientFactoryBean {
 
     protected static RestClientExceptionMapper defaultExceptionMapper() {
         return new RestClientExceptionMapper();
+    }
+
+    protected static HTTPClientPolicy defaultHTTPClientPolicy() {
+        HTTPClientPolicy policy = new HTTPClientPolicy();
+        policy.setConnection(ConnectionType.CLOSE);
+        return policy;
     }
 
     protected JAXRSClientFactoryBean defaultRestClientFactoryBean() {
@@ -210,6 +220,15 @@ public class SyncopeClientFactoryBean {
         return useCompression;
     }
 
+    public SyncopeClientFactoryBean setHttpClientPolicy(final HTTPClientPolicy httpClientPolicy) {
+        this.httpClientPolicy = httpClientPolicy;
+        return this;
+    }
+
+    public HTTPClientPolicy getHttpClientPolicy() {
+        return Optional.ofNullable(httpClientPolicy).orElseGet(SyncopeClientFactoryBean::defaultHTTPClientPolicy);
+    }
+
     /**
      * Sets the client TLS configuration.
      *
@@ -272,6 +291,7 @@ public class SyncopeClientFactoryBean {
                 getExceptionMapper(),
                 handler,
                 useCompression,
+                getHttpClientPolicy(),
                 tlsClientParameters);
     }
 
@@ -289,6 +309,7 @@ public class SyncopeClientFactoryBean {
                 getExceptionMapper(),
                 new AnonymousAuthenticationHandler(username, password),
                 useCompression,
+                getHttpClientPolicy(),
                 tlsClientParameters);
     }
 }

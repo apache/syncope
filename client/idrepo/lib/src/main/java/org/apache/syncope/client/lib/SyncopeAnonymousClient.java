@@ -29,6 +29,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
@@ -44,9 +45,17 @@ public class SyncopeAnonymousClient extends SyncopeClient {
             final RestClientExceptionMapper exceptionMapper,
             final AnonymousAuthenticationHandler anonymousAuthHandler,
             final boolean useCompression,
+            final HTTPClientPolicy httpClientPolicy,
             final TLSClientParameters tlsClientParameters) {
 
-        super(mediaType, restClientFactory, exceptionMapper, anonymousAuthHandler, useCompression, tlsClientParameters);
+        super(
+                mediaType,
+                restClientFactory,
+                exceptionMapper,
+                anonymousAuthHandler,
+                useCompression,
+                httpClientPolicy,
+                tlsClientParameters);
         this.anonymousAuthHandler = anonymousAuthHandler;
     }
 

@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.util.Base64;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -43,7 +42,6 @@ public class WASAML2MetadataResolverTest extends BaseWASAML2ClientTest {
         SAML2Client client = getSAML2Client();
         String keystoreFile = File.createTempFile("keystore", "jks").getCanonicalPath();
         client.getConfiguration().setKeystoreResourceFilepath(keystoreFile);
-        WARestClient restClient = mock(WARestClient.class);
 
         SAML2SPEntityTO metadataTO = new SAML2SPEntityTO.Builder()
                 .key("Syncope")
@@ -55,11 +53,10 @@ public class WASAML2MetadataResolverTest extends BaseWASAML2ClientTest {
         when(saml2SPMetadataService.get(anyString())).thenReturn(metadataTO);
         doNothing().when(saml2SPMetadataService).set(any(SAML2SPEntityTO.class));
 
-        SyncopeClient syncopeClient = mock(SyncopeClient.class);
-        when(syncopeClient.getService(SAML2SPEntityService.class)).thenReturn(saml2SPMetadataService);
-        when(restClient.getSyncopeClient()).thenReturn(syncopeClient);
+        WARestClient waRestClient = mock(WARestClient.class);
+        when(waRestClient.getService(SAML2SPEntityService.class)).thenReturn(saml2SPMetadataService);
 
-        WASAML2MetadataResolver resolver = new WASAML2MetadataResolver(restClient, client);
+        WASAML2MetadataResolver resolver = new WASAML2MetadataResolver(waRestClient, client);
         assertNotNull(resolver.fetchMetadata());
     }
 }

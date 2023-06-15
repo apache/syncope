@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.HttpHeaders;
@@ -169,10 +170,8 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
         MediaType mediaType = MediaType.valueOf(messageContext.getHttpServletRequest().getContentType());
         String boundary = mediaType.getParameters().get(RESTHeaders.BOUNDARY_PARAMETER);
 
-        Batch batch = batchDAO.find(boundary);
-        if (batch == null) {
-            throw new NotFoundException("Batch " + boundary);
-        }
+        Batch batch = Optional.ofNullable(batchDAO.find(boundary)).
+                orElseThrow(() -> new NotFoundException("Batch " + boundary));
 
         if (batch.getResults() == null) {
             return Response.accepted().

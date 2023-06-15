@@ -151,7 +151,7 @@ public class BatchITCase extends AbstractITCase {
         assertEquals(RESTHeaders.APPLICATION_YAML, resItems.get(0).getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0));
         ProvisioningResult<UserTO> user = YAML_MAPPER.readValue(
                 resItems.get(0).getContent(), new TypeReference<>() {
-            });
+        });
         assertNotNull(user.getEntity().getKey());
 
         assertEquals(Response.Status.CREATED.getStatusCode(), resItems.get(1).getStatus());
@@ -163,7 +163,7 @@ public class BatchITCase extends AbstractITCase {
 
         ProvisioningResult<GroupTO> group = XML_MAPPER.readValue(
                 resItems.get(1).getContent(), new TypeReference<>() {
-            });
+        });
         assertNotNull(group.getEntity().getKey());
 
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), resItems.get(2).getStatus());
@@ -185,7 +185,7 @@ public class BatchITCase extends AbstractITCase {
         assertEquals(MediaType.APPLICATION_JSON, resItems.get(5).getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0));
         group = JSON_MAPPER.readValue(
                 resItems.get(5).getContent(), new TypeReference<>() {
-            });
+        });
         assertNotNull(group);
     }
 
@@ -321,18 +321,8 @@ public class BatchITCase extends AbstractITCase {
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(RESTHeaders.MULTIPART_MIXED));
 
-        for (int i = 0; i < 10 && response.getStatus() == Response.Status.ACCEPTED.getStatusCode(); i++) {
-            // wait a bit...
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-            }
-
-            // check results
-            response = batchResponse.poll();
-        }
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertTrue(response.getMediaType().toString().startsWith(RESTHeaders.MULTIPART_MIXED));
+        await().atMost(10, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).
+                until(() -> batchResponse.poll().getStatus() == Response.Status.OK.getStatusCode());
 
         check(batchResponse.getItems());
 
