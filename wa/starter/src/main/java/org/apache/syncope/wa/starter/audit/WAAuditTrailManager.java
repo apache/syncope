@@ -23,7 +23,6 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
@@ -43,8 +42,7 @@ public class WAAuditTrailManager extends AbstractAuditTrailManager {
 
     @Override
     protected void saveAuditRecord(final AuditActionContext audit) {
-        SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
-        if (syncopeClient == null) {
+        if (!waRestClient.isReady()) {
             LOG.debug("Syncope client is not yet ready to store audit record");
             return;
         }
@@ -71,7 +69,7 @@ public class WAAuditTrailManager extends AbstractAuditTrailManager {
                     audit.getActionPerformed(),
                     result);
             auditEntry.setLogger(auditLogger);
-            syncopeClient.getService(AuditService.class).create(auditEntry);
+            waRestClient.getService(AuditService.class).create(auditEntry);
         } catch (JsonProcessingException e) {
             LOG.error("During serialization", e);
         }

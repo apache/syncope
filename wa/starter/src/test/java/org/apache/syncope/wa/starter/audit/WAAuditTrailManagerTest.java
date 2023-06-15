@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Date;
 import java.util.Map;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -38,14 +37,13 @@ public class WAAuditTrailManagerTest extends AbstractTest {
     private static AuditService LOGGER_SERVICE;
 
     private static WARestClient getWaRestClient() {
-        WARestClient restClient = mock(WARestClient.class);
-        SyncopeClient syncopeClient = mock(SyncopeClient.class);
         LOGGER_SERVICE = mock(AuditService.class);
 
-        when(restClient.getSyncopeClient()).thenReturn(syncopeClient);
-        when(syncopeClient.getService(AuditService.class)).thenReturn(LOGGER_SERVICE);
+        WARestClient waRestClient = mock(WARestClient.class);
+        when(waRestClient.isReady()).thenReturn(Boolean.TRUE);
+        when(waRestClient.getService(AuditService.class)).thenReturn(LOGGER_SERVICE);
 
-        return restClient;
+        return waRestClient;
     }
 
     @Test

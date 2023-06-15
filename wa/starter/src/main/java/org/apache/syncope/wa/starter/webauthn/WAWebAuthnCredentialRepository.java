@@ -40,9 +40,9 @@ import org.slf4j.LoggerFactory;
 
 public class WAWebAuthnCredentialRepository extends BaseWebAuthnCredentialRepository {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WAWebAuthnCredentialRepository.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WAWebAuthnCredentialRepository.class);
 
-    private final WARestClient waRestClient;
+    protected final WARestClient waRestClient;
 
     public WAWebAuthnCredentialRepository(final CasConfigurationProperties properties,
             final WARestClient waRestClient) {
@@ -50,23 +50,29 @@ public class WAWebAuthnCredentialRepository extends BaseWebAuthnCredentialReposi
         this.waRestClient = waRestClient;
     }
 
+    protected WebAuthnRegistrationService service() {
+        return waRestClient.getService(WebAuthnRegistrationService.class);
+    }
+
     @Override
-    public boolean removeRegistrationByUsername(final String username,
+    public boolean removeRegistrationByUsername(
+            final String username,
             final CredentialRegistration credentialRegistration) {
+
         String id = credentialRegistration.getCredential().getCredentialId().getHex();
-        getService().delete(username, id);
+        service().delete(username, id);
         return true;
     }
 
     @Override
     public boolean removeAllRegistrations(final String username) {
-        getService().delete(username);
+        service().delete(username);
         return true;
     }
 
     @Override
     public Stream<? extends CredentialRegistration> stream() {
-        return getService().list().
+        return service().list().
                 stream().
                 map(WebAuthnAccount::getCredentials).
                 flatMap(Collection::stream).
@@ -91,13 +97,13 @@ public class WAWebAuthnCredentialRepository extends BaseWebAuthnCredentialReposi
                     })).
                     collect(Collectors.toList());
 
-            WebAuthnAccount account = getService().read(username);
+            WebAuthnAccount account = service().read(username);
             if (account != null) {
                 account.getCredentials().addAll(credentials);
-                getService().update(username, account);
+                service().update(username, account);
             } else {
                 account = new WebAuthnAccount.Builder().credentials(credentials).build();
-                getService().create(username, account);
+                service().create(username, account);
             }
         } catch (final Exception e) {
             LOG.error(e.getMessage(), e);
@@ -107,7 +113,7 @@ public class WAWebAuthnCredentialRepository extends BaseWebAuthnCredentialReposi
     @Override
     public Collection<CredentialRegistration> getRegistrationsByUsername(final String username) {
         try {
-            return getService().read(username).getCredentials().stream().
+            return service().read(username).getCredentials().stream().
                     map(Unchecked.function(record -> {
                         String json = getCipherExecutor().decode(record.getJson());
                         return WebAuthnUtils.getObjectMapper()
@@ -115,22 +121,15 @@ public class WAWebAuthnCredentialRepository extends BaseWebAuthnCredentialReposi
                                 });
                     })).
                     collect(Collectors.toList());
-        } catch (final SyncopeClientException e) {
+        } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 LOG.info("Could not locate account for {}", username);
             } else {
                 LOG.error(e.getMessage(), e);
             }
-        } catch (final Exception e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
         }
         return List.of();
-    }
-
-    private WebAuthnRegistrationService getService() {
-        if (!waRestClient.isReady()) {
-            throw new IllegalStateException("Syncope core is not yet ready");
-        }
-        return waRestClient.getSyncopeClient().getService(WebAuthnRegistrationService.class);
     }
 }

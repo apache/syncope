@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -35,9 +34,9 @@ import org.slf4j.LoggerFactory;
 
 public class WASamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WASamlIdPMetadataGenerator.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WASamlIdPMetadataGenerator.class);
 
-    private final WARestClient waRestClient;
+    protected final WARestClient waRestClient;
 
     public WASamlIdPMetadataGenerator(
             final SamlIdPMetadataGeneratorConfigurationContext samlIdPMetadataGeneratorConfigurationContext,
@@ -52,14 +51,6 @@ public class WASamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerator {
         return registeredService.
                 map(SamlRegisteredService::getName).
                 orElse(SAML2IdPEntityService.DEFAULT_OWNER);
-    }
-
-    private SyncopeClient getSyncopeClient() {
-        if (!waRestClient.isReady()) {
-            LOG.info("Syncope client is not yet ready");
-            throw new IllegalStateException("Syncope core is not yet ready to access requests");
-        }
-        return waRestClient.getSyncopeClient();
     }
 
     @Override
@@ -97,7 +88,7 @@ public class WASamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerator {
                     doc.getEncryptionCertificate().getBytes(StandardCharsets.UTF_8)));
         }
 
-        getSyncopeClient().getService(SAML2IdPEntityService.class).set(entityTO);
+        waRestClient.getService(SAML2IdPEntityService.class).set(entityTO);
 
         return doc;
     }

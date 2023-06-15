@@ -19,6 +19,9 @@
 package org.apache.syncope.wa.bootstrap;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -33,15 +36,17 @@ import org.springframework.context.ApplicationContext;
 
 public class WARestClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WARestClient.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WARestClient.class);
 
-    private final String anonymousUser;
+    protected final String anonymousUser;
 
-    private final String anonymousKey;
+    protected final String anonymousKey;
 
-    private final boolean useGZIPCompression;
+    protected final boolean useGZIPCompression;
 
-    private final String serviceDiscoveryAddress;
+    protected final String serviceDiscoveryAddress;
+
+    protected final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
 
     private SyncopeClient client;
 
@@ -57,7 +62,7 @@ public class WARestClient {
         this.serviceDiscoveryAddress = serviceDiscoveryAddress;
     }
 
-    private Optional<NetworkService> getCore() {
+    protected Optional<NetworkService> getCore() {
         try {
             ApplicationContext ctx = ApplicationContextProvider.getApplicationContext();
             if (ctx == null) {
@@ -84,7 +89,7 @@ public class WARestClient {
         return Optional.empty();
     }
 
-    public SyncopeClient getSyncopeClient() {
+    protected SyncopeClient getSyncopeClient() {
         synchronized (this) {
             if (client == null) {
                 getCore().ifPresent(core -> {
@@ -101,6 +106,23 @@ public class WARestClient {
 
             return client;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getService(final Class<T> serviceClass) {
+        if (!isReady()) {
+            throw new IllegalStateException("Syncope core is not yet ready");
+        }
+
+        T service;
+        if (services.containsKey(serviceClass)) {
+            service = (T) services.get(serviceClass);
+        } else {
+            service = getSyncopeClient().getService(serviceClass);
+            services.put(serviceClass, service);
+        }
+
+        return service;
     }
 
     public boolean isReady() {

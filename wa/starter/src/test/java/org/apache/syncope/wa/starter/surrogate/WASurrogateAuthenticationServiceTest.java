@@ -43,11 +43,10 @@ public class WASurrogateAuthenticationServiceTest extends AbstractTest {
     @Test
     public void verifyImpersonation() {
         String owner = "syncope-principal";
-        ImpersonationAccount account = new ImpersonationAccount.Builder().impersonated("impersonatee").
-                build();
+        ImpersonationAccount account = new ImpersonationAccount.Builder().
+                impersonated("impersonatee").build();
 
-        ImpersonationService impersonationService = waRestClient.getSyncopeClient().
-                getService(ImpersonationService.class);
+        ImpersonationService impersonationService = waRestClient.getService(ImpersonationService.class);
 
         impersonationService.create(owner, account);
 
