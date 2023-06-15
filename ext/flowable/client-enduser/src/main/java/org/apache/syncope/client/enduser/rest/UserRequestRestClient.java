@@ -94,6 +94,9 @@ public class UserRequestRestClient extends BaseRestClient {
                 getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.FALSE);
 
         service.startRequest(bpmnProcess, user, null);
+
+        WebClient.getConfig(WebClient.client(service)).
+                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
     }
 
     public UserRequestForm claimForm(final String taskKey) {
