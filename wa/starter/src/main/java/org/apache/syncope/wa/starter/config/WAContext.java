@@ -61,6 +61,7 @@ import org.apache.syncope.wa.starter.mapping.TimeBasedAccessMapper;
 import org.apache.syncope.wa.starter.oidc.WAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.WASamlIdPCasEventListener;
+import org.apache.syncope.wa.starter.saml.idp.WASamlIdPObjectSigner;
 import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataGenerator;
 import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataLocator;
 import org.apache.syncope.wa.starter.services.WAServiceRegistry;
@@ -89,11 +90,13 @@ import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerat
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
+import org.apereo.cas.support.saml.web.idp.profile.builders.enc.SamlIdPObjectSigner;
 import org.apereo.cas.util.DateTimeUtils;
 import org.apereo.cas.util.LdapUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
 import org.ldaptive.ConnectionFactory;
+import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.pac4j.core.client.Client;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -259,10 +262,19 @@ public class WAContext {
             final Cache<String, SamlIdPMetadataDocument> samlIdPMetadataCache,
             final WARestClient waRestClient) {
 
-        return new WASamlIdPMetadataLocator(
-                cipherExecutor,
-                samlIdPMetadataCache,
-                waRestClient);
+        return new WASamlIdPMetadataLocator(cipherExecutor, samlIdPMetadataCache, waRestClient);
+    }
+
+    @Bean
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    public SamlIdPObjectSigner samlObjectSigner(
+            final CasConfigurationProperties casProperties,
+            @Qualifier("casSamlIdPMetadataResolver")
+            final MetadataResolver casSamlIdPMetadataResolver,
+            @Qualifier("samlIdPMetadataLocator")
+            final SamlIdPMetadataLocator samlIdPMetadataLocator) {
+
+        return new WASamlIdPObjectSigner(casSamlIdPMetadataResolver, casProperties, samlIdPMetadataLocator);
     }
 
     @Bean

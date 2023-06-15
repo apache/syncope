@@ -37,6 +37,7 @@ import org.apache.syncope.sra.security.pac4j.NoOpSessionLogoutHandler;
 import org.apache.syncope.sra.security.saml2.SAML2MetadataEndpoint;
 import org.apache.syncope.sra.security.saml2.SAML2SecurityConfigUtils;
 import org.apache.syncope.sra.security.saml2.SAML2WebSsoAuthenticationWebFilter;
+import org.apache.syncope.sra.security.saml2.SRASignatureSigningParametersProvider;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.saml.client.SAML2Client;
@@ -293,7 +294,13 @@ public class SecurityConfig {
 
         cfg.setSessionLogoutHandler(new NoOpSessionLogoutHandler());
 
-        SAML2Client saml2Client = new SAML2Client(cfg);
+        SAML2Client saml2Client = new SAML2Client(cfg) {
+
+            @Override
+            protected void initSignatureSigningParametersProvider() {
+                signatureSigningParametersProvider = new SRASignatureSigningParametersProvider(configuration);
+            }
+        };
         saml2Client.setName(SRAProperties.AMType.SAML2.name());
         saml2Client.setCallbackUrl(props.getSaml2().getEntityId()
                 + SAML2WebSsoAuthenticationWebFilter.FILTER_PROCESSES_URI);
