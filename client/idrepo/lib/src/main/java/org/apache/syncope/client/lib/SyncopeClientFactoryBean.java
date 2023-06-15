@@ -26,16 +26,9 @@ import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.Bus;
-import org.apache.cxf.BusFactory;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
-import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
-import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
-import org.apache.cxf.transport.http.HttpConduitConfig;
-import org.apache.cxf.transport.http.HttpConduitFeature;
-import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.syncope.common.lib.jackson.SyncopeJsonMapper;
@@ -95,8 +88,6 @@ public class SyncopeClientFactoryBean {
 
     private TLSClientParameters tlsClientParameters;
 
-    private Bus bus;
-
     private JAXRSClientFactoryBean restClientFactoryBean;
 
     protected static JacksonJsonProvider defaultJsonProvider() {
@@ -121,10 +112,6 @@ public class SyncopeClientFactoryBean {
         return policy;
     }
 
-    protected static Bus defaultBus() {
-        return BusFactory.getDefaultBus();
-    }
-
     protected JAXRSClientFactoryBean defaultRestClientFactoryBean() {
         JAXRSClientFactoryBean defaultRestClientFactoryBean = new JAXRSClientFactoryBean();
         defaultRestClientFactoryBean.setHeaders(new HashMap<>());
@@ -141,7 +128,7 @@ public class SyncopeClientFactoryBean {
         defaultRestClientFactoryBean.setThreadSafe(true);
         defaultRestClientFactoryBean.setInheritHeaders(true);
 
-        defaultRestClientFactoryBean.getFeatures().add(new LoggingFeature());
+        defaultRestClientFactoryBean.setFeatures(List.of(new LoggingFeature()));
 
         defaultRestClientFactoryBean.setProviders(List.of(
                 new DateParamConverterProvider(),
@@ -261,14 +248,6 @@ public class SyncopeClientFactoryBean {
         return Optional.ofNullable(restClientFactoryBean).orElseGet(this::defaultRestClientFactoryBean);
     }
 
-    public void setBus(final Bus bus) {
-        this.bus = bus;
-    }
-
-    public Bus getBus() {
-        return Optional.ofNullable(bus).orElseGet(SyncopeClientFactoryBean::defaultBus);
-    }
-
     public SyncopeClientFactoryBean setRestClientFactoryBean(final JAXRSClientFactoryBean restClientFactoryBean) {
         this.restClientFactoryBean = restClientFactoryBean;
         return this;
@@ -299,26 +278,6 @@ public class SyncopeClientFactoryBean {
         return create(new JWTAuthenticationHandler(jwt));
     }
 
-    protected JAXRSClientFactoryBean buildClientFactory() {
-        Bus factoryBus = getBus();
-        factoryBus.setProperty(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
-        if (useCompression) {
-            factoryBus.getInInterceptors().add(new GZIPInInterceptor());
-            factoryBus.getOutInterceptors().add(new GZIPOutInterceptor());
-        }
-
-        HttpConduitConfig conduitConfig = new HttpConduitConfig();
-        conduitConfig.setClientPolicy(getHttpClientPolicy());
-        conduitConfig.setTlsClientParameters(tlsClientParameters);
-        HttpConduitFeature conduitFeature = new HttpConduitFeature();
-        conduitFeature.setConduitConfig(conduitConfig);
-
-        JAXRSClientFactoryBean factory = getRestClientFactoryBean();
-        factory.setBus(factoryBus);
-        factory.getFeatures().add(conduitFeature);
-        return factory;
-    }
-
     /**
      * Builds client instance with the given authentication handler.
      *
@@ -328,9 +287,11 @@ public class SyncopeClientFactoryBean {
     public SyncopeClient create(final AuthenticationHandler handler) {
         return new SyncopeClient(
                 getContentType().getMediaType(),
-                buildClientFactory(),
+                getRestClientFactoryBean(),
                 getExceptionMapper(),
                 handler,
+                useCompression,
+                getHttpClientPolicy(),
                 tlsClientParameters);
     }
 
@@ -344,9 +305,11 @@ public class SyncopeClientFactoryBean {
     public SyncopeAnonymousClient createAnonymous(final String username, final String password) {
         return new SyncopeAnonymousClient(
                 getContentType().getMediaType(),
-                buildClientFactory(),
+                getRestClientFactoryBean(),
                 getExceptionMapper(),
                 new AnonymousAuthenticationHandler(username, password),
+                useCompression,
+                getHttpClientPolicy(),
                 tlsClientParameters);
     }
 }

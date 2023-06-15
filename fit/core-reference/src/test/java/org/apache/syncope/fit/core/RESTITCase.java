@@ -177,6 +177,8 @@ public class RESTITCase extends AbstractITCase {
                 factory.getRestClientFactoryBean(),
                 factory.getExceptionMapper(),
                 new BasicAuthenticationHandler(ADMIN_UNAME, ADMIN_PWD),
+                false,
+                null,
                 null);
 
         // perform operation

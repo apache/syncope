@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.HttpHeaders;
@@ -35,6 +36,11 @@ import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
+import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
@@ -70,6 +76,10 @@ public class SyncopeClient {
 
     protected final RestClientExceptionMapper exceptionMapper;
 
+    protected final boolean useCompression;
+
+    protected final HTTPClientPolicy httpClientPolicy;
+
     protected final TLSClientParameters tlsClientParameters;
 
     public SyncopeClient(
@@ -77,6 +87,8 @@ public class SyncopeClient {
             final JAXRSClientFactoryBean restClientFactory,
             final RestClientExceptionMapper exceptionMapper,
             final AuthenticationHandler authHandler,
+            final boolean useCompression,
+            final HTTPClientPolicy httpClientPolicy,
             final TLSClientParameters tlsClientParameters) {
 
         this.mediaType = mediaType;
@@ -85,6 +97,8 @@ public class SyncopeClient {
             this.restClientFactory.setHeaders(new HashMap<>());
         }
         this.exceptionMapper = exceptionMapper;
+        this.useCompression = useCompression;
+        this.httpClientPolicy = httpClientPolicy;
         this.tlsClientParameters = tlsClientParameters;
 
         init(authHandler);
@@ -271,21 +285,31 @@ public class SyncopeClient {
      * @return service instance of the given reference class
      */
     public <T> T getService(final Class<T> serviceClass) {
+        T serviceInstance;
         synchronized (restClientFactory) {
             restClientFactory.setServiceClass(serviceClass);
-            T serviceInstance = restClientFactory.create(serviceClass);
-
-            Client client = WebClient.client(serviceInstance);
-            client.type(mediaType).accept(mediaType);
-            if (serviceInstance instanceof AnyService || serviceInstance instanceof ExecutableService) {
-                client.accept(RESTHeaders.MULTIPART_MIXED);
-            }
-
-            ClientConfiguration config = WebClient.getConfig(client);
-            config.getRequestContext().put(HEADER_SPLIT_PROPERTY, true);
-
-            return serviceInstance;
+            serviceInstance = restClientFactory.create(serviceClass);
         }
+
+        Client client = WebClient.client(serviceInstance);
+        client.type(mediaType).accept(mediaType);
+        if (serviceInstance instanceof AnyService || serviceInstance instanceof ExecutableService) {
+            client.accept(RESTHeaders.MULTIPART_MIXED);
+        }
+
+        ClientConfiguration config = WebClient.getConfig(client);
+        config.getRequestContext().put(HEADER_SPLIT_PROPERTY, true);
+        config.getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
+        if (useCompression) {
+            config.getInInterceptors().add(new GZIPInInterceptor());
+            config.getOutInterceptors().add(new GZIPOutInterceptor());
+        }
+
+        HTTPConduit httpConduit = (HTTPConduit) config.getConduit();
+        Optional.ofNullable(httpClientPolicy).ifPresent(httpConduit::setClient);
+        Optional.ofNullable(tlsClientParameters).ifPresent(httpConduit::setTlsClientParameters);
+
+        return serviceInstance;
     }
 
     public Triple<Map<String, Set<String>>, List<String>, UserTO> self() {

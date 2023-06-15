@@ -25,8 +25,14 @@ import javax.ws.rs.client.CompletionStageRxInvoker;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
+import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.ConnectionType;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
 abstract class SelfKeymasterOps {
 
@@ -34,8 +40,13 @@ abstract class SelfKeymasterOps {
 
     private final JAXRSClientFactoryBean clientFactory;
 
+    protected HTTPClientPolicy httpClientPolicy;
+
     protected SelfKeymasterOps(final JAXRSClientFactoryBean clientFactory) {
         this.clientFactory = clientFactory;
+
+        httpClientPolicy = new HTTPClientPolicy();
+        httpClientPolicy.setConnection(ConnectionType.CLOSE);
     }
 
     @SuppressWarnings("unchecked")
@@ -48,12 +59,18 @@ abstract class SelfKeymasterOps {
                 clientFactory.setServiceClass(serviceClass);
                 clientFactory.setHeaders(headers);
                 service = clientFactory.create(serviceClass);
-
-                Client client = WebClient.client(service);
-                client.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
             }
-
             services.put(serviceClass, service);
+
+            Client client = WebClient.client(service);
+            client.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
+
+            ClientConfiguration config = WebClient.getConfig(client);
+            config.getInInterceptors().add(new GZIPInInterceptor());
+            config.getOutInterceptors().add(new GZIPOutInterceptor());
+
+            HTTPConduit httpConduit = (HTTPConduit) config.getConduit();
+            httpConduit.setClient(httpClientPolicy);
         }
 
         return service;
