@@ -209,21 +209,27 @@ public class UserRequestITCase extends AbstractITCase {
         SyncopeClient client = CLIENT_FACTORY.create(user.getUsername(), "password123");
 
         // start request as user
-        UserRequest req = client.getService(UserRequestService.class).startRequest("assignPrinterRequest", null, null);
+        UserRequestService service = client.getService(UserRequestService.class);
+        WebClient.getConfig(WebClient.client(service)).
+                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.FALSE);
+
+        UserRequest req = service.startRequest("assignPrinterRequest", null, null);
         assertNotNull(req);
+        WebClient.getConfig(WebClient.client(service)).
+                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
 
         // check (as admin) that a new form is available
         forms = USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms + 1, forms.getTotalCount());
 
         // get (as user) the form, claim and submit
-        PagedResult<UserRequestForm> userForms = client.getService(UserRequestService.class).
-                listForms(new UserRequestQuery.Builder().user(user.getKey()).build());
+        PagedResult<UserRequestForm> userForms = service.listForms(
+                new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, userForms.getTotalCount());
 
         UserRequestForm form = userForms.getResult().get(0);
         assertEquals("assignPrinterRequest", form.getBpmnProcess());
-        form = client.getService(UserRequestService.class).claimForm(form.getTaskId());
+        form = service.claimForm(form.getTaskId());
 
         assertFalse(form.getProperty("printer").get().getDropdownValues().isEmpty());
         form.getProperty("printer").ifPresent(printer -> printer.setValue("8559d14d-58c2-46eb-a2d4-a7d35161e8f8"));
@@ -231,15 +237,14 @@ public class UserRequestITCase extends AbstractITCase {
         assertFalse(form.getProperty("printMode").get().getEnumValues().isEmpty());
         form.getProperty("printMode").ifPresent(printMode -> printMode.setValue("color"));
 
-        client.getService(UserRequestService.class).submitForm(form);
+        service.submitForm(form);
 
-        userForms = client.getService(UserRequestService.class).listForms(
-                new UserRequestQuery.Builder().user(user.getKey()).build());
+        userForms = service.listForms(new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(0, userForms.getTotalCount());
 
         // check that user can see the ongoing request
-        PagedResult<UserRequest> requests = client.getService(UserRequestService.class).
-                listRequests(new UserRequestQuery.Builder().user(user.getKey()).build());
+        PagedResult<UserRequest> requests = service.listRequests(
+                new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, requests.getTotalCount());
         assertEquals("assignPrinterRequest", requests.getResult().get(0).getBpmnProcess());
 
@@ -258,8 +263,8 @@ public class UserRequestITCase extends AbstractITCase {
         forms = USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms, forms.getTotalCount());
 
-        assertTrue(client.getService(UserRequestService.class).
-                listRequests(new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
+        assertTrue(service.listRequests(
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().isEmpty());
 
         // check that relationship was made effective by approval
         relationships = USER_SERVICE.read(user.getKey()).getRelationships();
