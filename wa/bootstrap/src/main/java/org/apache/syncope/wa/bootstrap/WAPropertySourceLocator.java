@@ -22,12 +22,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
+import org.apereo.cas.util.crypto.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.bootstrap.config.PropertySourceLocator;
@@ -47,14 +49,18 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
 
     protected final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper;
 
+    protected final CipherExecutor<String, String> configurationCipher;
+
     public WAPropertySourceLocator(
             final WARestClient waRestClient,
             final AuthModulePropertySourceMapper authModulePropertySourceMapper,
-            final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper) {
+            final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper,
+            final CipherExecutor<String, String> configurationCipher) {
 
         this.waRestClient = waRestClient;
         this.authModulePropertySourceMapper = authModulePropertySourceMapper;
         this.attrRepoPropertySourceMapper = attrRepoPropertySourceMapper;
+        this.configurationCipher = configurationCipher;
     }
 
     protected Map<String, Object> index(final Map<String, Object> map, final Map<String, Integer> prefixes) {
@@ -107,6 +113,8 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
                 attr.getSchema(), attr.getValues().stream().collect(Collectors.joining(","))));
 
         LOG.debug("Collected WA properties: {}", properties);
-        return new MapPropertySource(getClass().getName(), properties);
+        Map<String, Object> decodedProperties = configurationCipher.decode(properties, ArrayUtils.EMPTY_OBJECT_ARRAY);
+        LOG.debug("Decoded WA properties: {}", decodedProperties);
+        return new MapPropertySource(getClass().getName(), decodedProperties);
     }
 }
