@@ -727,7 +727,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     spec.getConflictResolutionAction(),
                     spec.getPullCorrelationRule(),
                     connector,
-                    pullTask);
+                    pullTask,
+                    AuthContextUtils.getWho());
         } catch (NotFoundException e) {
             throw e;
         } catch (Exception e) {
