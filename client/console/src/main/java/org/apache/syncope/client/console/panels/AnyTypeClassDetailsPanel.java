@@ -48,7 +48,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
 
     private final List<String> availableDerSchemas = schemaRestClient.getSchemaNames(SchemaType.DERIVED);
 
-    private final List<String> availableVirSchemas = schemaRestClient.getSchemaNames(SchemaType.DERIVED);
+    private final List<String> availableVirSchemas = schemaRestClient.getSchemaNames(SchemaType.VIRTUAL);
 
     public AnyTypeClassDetailsPanel(final String id, final AnyTypeClassTO anyTypeClassTO) {
         super(id);
