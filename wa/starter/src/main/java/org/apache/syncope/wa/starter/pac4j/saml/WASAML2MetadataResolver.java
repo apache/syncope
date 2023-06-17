@@ -30,14 +30,14 @@ import org.slf4j.LoggerFactory;
 
 public class WASAML2MetadataResolver extends AbstractReloadingMetadataResolver {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WASAML2MetadataResolver.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WASAML2MetadataResolver.class);
 
-    private final WARestClient restClient;
+    protected final WARestClient waRestClient;
 
-    private final SAML2Client saml2Client;
+    protected final SAML2Client saml2Client;
 
-    WASAML2MetadataResolver(final WARestClient restClient, final SAML2Client saml2Client) {
-        this.restClient = restClient;
+    public WASAML2MetadataResolver(final WARestClient waRestClient, final SAML2Client saml2Client) {
+        this.waRestClient = waRestClient;
         this.saml2Client = saml2Client;
     }
 
@@ -49,11 +49,10 @@ public class WASAML2MetadataResolver extends AbstractReloadingMetadataResolver {
     @Override
     protected byte[] fetchMetadata() throws ResolverException {
         try {
-            SAML2SPEntityTO metadataTO = restClient.getSyncopeClient().
-                    getService(SAML2SPEntityService.class).get(saml2Client.getName());
+            SAML2SPEntityTO metadataTO = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
             return Base64.getDecoder().decode(metadataTO.getMetadata());
-        } catch (final Exception e) {
-            final String message = "Unable to fetch SP metadata for " + saml2Client.getName();
+        } catch (Exception e) {
+            String message = "Unable to fetch SP metadata for " + saml2Client.getName();
             LOG.error(message, e);
             throw new ResolverException(message);
         }

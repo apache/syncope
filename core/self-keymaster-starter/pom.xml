@@ -128,7 +128,67 @@ under the License.
           </plugin>
         </plugins>
       </build>
+    </profile>
 
+    <profile>
+      <id>debug</id>
+
+      <properties>
+        <maven.build.cache.skipCache>true</maven.build.cache.skipCache>
+        <skipTests>true</skipTests>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean package</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <mainClass>org.apache.syncope.core.starter.SyncopeCoreApplication</mainClass>
+              <jvmArguments>
+                -Dsyncope.connid.location=file:${basedir}/../provisioning-java/target/bundles
+                -XX:HotswapAgent=fatjar
+                -Xdebug -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=n
+              </jvmArguments>
+              <profiles>
+                <profile>debug</profile>
+              </profiles>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+
+        <resources>
+          <resource>
+            <directory>${basedir}/src/test/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+              <include>*.properties</include>
+            </includes>
+          </resource>
+        </resources>        
+      </build>
     </profile>
   </profiles>  
 </project>

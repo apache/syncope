@@ -36,6 +36,6 @@ public interface SyncopeStreamPullExecutor {
             ConflictResolutionAction conflictResolutionAction,
             String pullCorrelationRule,
             Connector connector,
-            PullTaskTO pullTaskTO)
-            throws JobExecutionException;
+            PullTaskTO pullTaskTO,
+            String executor) throws JobExecutionException;
 }

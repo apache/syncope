@@ -161,7 +161,8 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             final ConflictResolutionAction conflictResolutionAction,
             final String pullCorrelationRule,
             final Connector connector,
-            final PullTaskTO pullTaskTO) throws JobExecutionException {
+            final PullTaskTO pullTaskTO,
+            final String executor) throws JobExecutionException {
 
         LOG.debug("Executing stream pull");
 
@@ -188,6 +189,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             profile.setConflictResolutionAction(conflictResolutionAction);
             profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
                     map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
+            profile.setExecutor(executor);
 
             for (PullActions action : profile.getActions()) {
                 action.beforeAll(profile);

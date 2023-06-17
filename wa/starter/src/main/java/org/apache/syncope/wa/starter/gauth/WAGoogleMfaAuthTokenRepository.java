@@ -41,7 +41,7 @@ public class WAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepository<G
     }
 
     protected GoogleMfaAuthTokenService service() {
-        return waRestClient.getSyncopeClient().getService(GoogleMfaAuthTokenService.class);
+        return waRestClient.getService(GoogleMfaAuthTokenService.class);
     }
 
     @Override

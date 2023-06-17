@@ -114,7 +114,8 @@ public class StreamPullJobDelegateTest extends AbstractTest {
                         ConflictResolutionAction.IGNORE,
                         null,
                         connector,
-                        pullTask);
+                        pullTask,
+                        "whoever");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

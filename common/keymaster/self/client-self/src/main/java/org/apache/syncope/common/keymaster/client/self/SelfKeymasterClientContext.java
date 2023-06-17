@@ -66,7 +66,7 @@ public class SelfKeymasterClientContext {
         restClientFactoryBean.setPassword(props.getPassword());
         restClientFactoryBean.setThreadSafe(true);
         restClientFactoryBean.setInheritHeaders(true);
-        restClientFactoryBean.setFeatures(List.of(new LoggingFeature()));
+        restClientFactoryBean.getFeatures().add(new LoggingFeature());
         restClientFactoryBean.setProviders(List.of(
                 new JacksonJsonProvider(JsonMapper.builder().findAndAddModules().build()),
                 new SelfKeymasterClientExceptionMapper()));

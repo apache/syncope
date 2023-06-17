@@ -27,7 +27,6 @@ import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -49,13 +48,10 @@ public class WASAML2ClientCustomizerTest extends BaseWASAML2ClientTest {
         when(service.get(anyString())).thenReturn(entityTO);
         doNothing().when(service).set(any(SAML2SPEntityTO.class));
 
-        WARestClient restClient = mock(WARestClient.class);
+        WARestClient waRestClient = mock(WARestClient.class);
+        when(waRestClient.getService(SAML2SPEntityService.class)).thenReturn(service);
 
-        SyncopeClient syncopeClient = mock(SyncopeClient.class);
-        when(syncopeClient.getService(SAML2SPEntityService.class)).thenReturn(service);
-        when(restClient.getSyncopeClient()).thenReturn(syncopeClient);
-
-        WASAML2ClientCustomizer customizer = new WASAML2ClientCustomizer(restClient);
+        WASAML2ClientCustomizer customizer = new WASAML2ClientCustomizer(waRestClient);
         SAML2Client client = getSAML2Client();
         customizer.customize(client);
         client.init();

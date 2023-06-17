@@ -22,6 +22,8 @@ import jakarta.ws.rs.core.GenericType;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserRequest;
@@ -87,7 +89,14 @@ public class UserRequestRestClient extends BaseRestClient {
     }
 
     public void startRequest(final String bpmnProcess, final String user) {
-        getService(UserRequestService.class).startRequest(bpmnProcess, user, null);
+        UserRequestService service = getService(UserRequestService.class);
+        WebClient.getConfig(WebClient.client(service)).
+                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.FALSE);
+
+        service.startRequest(bpmnProcess, user, null);
+
+        WebClient.getConfig(WebClient.client(service)).
+                getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
     }
 
     public UserRequestForm claimForm(final String taskKey) {

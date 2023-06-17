@@ -22,7 +22,6 @@ import com.github.benmanes.caffeine.cache.Cache;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -37,9 +36,9 @@ import org.slf4j.LoggerFactory;
 
 public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WASamlIdPMetadataLocator.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WASamlIdPMetadataLocator.class);
 
-    private final WARestClient waRestClient;
+    protected final WARestClient waRestClient;
 
     public WASamlIdPMetadataLocator(
             final CipherExecutor<String, String> metadataCipherExecutor,
@@ -48,6 +47,25 @@ public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
 
         super(metadataCipherExecutor, metadataCache);
         this.waRestClient = waRestClient;
+    }
+
+    protected SAML2IdPEntityTO fetchFromCore(final Optional<SamlRegisteredService> registeredService) {
+        SAML2IdPEntityService idpEntityService = waRestClient.getService(SAML2IdPEntityService.class);
+
+        SAML2IdPEntityTO result = null;
+        try {
+            result = idpEntityService.get(registeredService.
+                    map(SamlRegisteredService::getName).
+                    orElse(SAML2IdPEntityService.DEFAULT_OWNER));
+        } catch (SyncopeClientException e) {
+            if (e.getType() == ClientExceptionType.NotFound && registeredService.isPresent()) {
+                result = idpEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
+            } else {
+                throw e;
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -107,30 +125,5 @@ public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
         }
 
         return null;
-    }
-
-    private SAML2IdPEntityTO fetchFromCore(final Optional<SamlRegisteredService> registeredService) {
-        SAML2IdPEntityService idpEntityService = getSyncopeClient().getService(SAML2IdPEntityService.class);
-
-        SAML2IdPEntityTO result = null;
-        try {
-            result = idpEntityService.get(getAppliesToFor(registeredService));
-        } catch (SyncopeClientException e) {
-            if (e.getType() == ClientExceptionType.NotFound && registeredService.isPresent()) {
-                result = idpEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
-            } else {
-                throw e;
-            }
-        }
-
-        return result;
-    }
-
-    private SyncopeClient getSyncopeClient() {
-        if (!waRestClient.isReady()) {
-            LOG.info("Syncope client is not yet ready");
-            throw new IllegalStateException("Syncope core is not yet ready to access requests");
-        }
-        return waRestClient.getSyncopeClient();
     }
 }

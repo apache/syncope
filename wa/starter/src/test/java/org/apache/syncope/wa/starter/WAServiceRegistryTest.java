@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
@@ -152,12 +151,11 @@ public class WAServiceRegistryTest extends AbstractTest {
     @Test
     public void addClientApp() {
         // 1. start with no client apps defined on mocked Core
-        SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
-        assertNotNull(syncopeClient);
+        assertTrue(waRestClient.isReady());
 
         SyncopeCoreTestingServer.CLIENT_APPS.clear();
 
-        WAClientAppService service = syncopeClient.getService(WAClientAppService.class);
+        WAClientAppService service = waRestClient.getService(WAClientAppService.class);
         assertTrue(service.list().isEmpty());
 
         // 2. add one client app on mocked Core, nothing on WA yet
@@ -232,8 +230,7 @@ public class WAServiceRegistryTest extends AbstractTest {
     @Test
     public void delegatedAuthentication() {
         // 1. start with 1 client app and 1 auth module defined on mocked Core
-        SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
-        assertNotNull(syncopeClient);
+        assertTrue(waRestClient.isReady());
 
         OIDCAuthModuleConf oidcAuthModuleConf = new OIDCAuthModuleConf();
         oidcAuthModuleConf.setClientId("clientId");
@@ -244,11 +241,11 @@ public class WAServiceRegistryTest extends AbstractTest {
 
         SyncopeCoreTestingServer.AUTH_MODULES.clear();
         SyncopeCoreTestingServer.AUTH_MODULES.add(authModuleTO);
-        AuthModuleService authModuleService = syncopeClient.getService(AuthModuleService.class);
+        AuthModuleService authModuleService = waRestClient.getService(AuthModuleService.class);
         assertEquals(1, authModuleService.list().size());
 
         SyncopeCoreTestingServer.CLIENT_APPS.clear();
-        WAClientAppService waClientAppService = syncopeClient.getService(WAClientAppService.class);
+        WAClientAppService waClientAppService = waRestClient.getService(WAClientAppService.class);
         assertTrue(waClientAppService.list().isEmpty());
 
         WAClientApp waClientApp = new WAClientApp();

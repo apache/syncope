@@ -410,11 +410,11 @@ under the License.
     <connid.cmd.version>0.5</connid.cmd.version>
 
     <cxf.version>4.0.2</cxf.version>
-    <bouncycastle.version>1.73</bouncycastle.version>
+    <bouncycastle.version>1.74</bouncycastle.version>
     <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.1.0</spring-boot.version>
-    <spring-cloud-gateway.version>4.0.5</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>4.0.6</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.0-SNAPSHOT</openjpa.version>
 
@@ -1204,7 +1204,7 @@ under the License.
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
         <!-- TMP, it should be ${spring-cloud-gateway.version} -->
-        <version>4.0.2</version>
+        <version>4.0.3</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
