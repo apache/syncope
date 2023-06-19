@@ -142,7 +142,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
         scs.clear();
 
-        if (reoderSchemas()) {
+        if (!allSchemas.isEmpty() && reoderSchemas()) {
             // remove attributes not selected for display
             allSchemas.removeAll(allSchemas.stream().
                     filter(schemaTO -> !whichAttrs.contains(schemaTO.getKey())).collect(Collectors.toSet()));
