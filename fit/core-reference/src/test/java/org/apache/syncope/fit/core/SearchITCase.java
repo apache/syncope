@@ -469,6 +469,25 @@ public class SearchITCase extends AbstractITCase {
 
         assertTrue(groups.getResult().stream().anyMatch(group -> "root".equals(group.getName())));
         assertTrue(groups.getResult().stream().anyMatch(group -> "otherchild".equals(group.getName())));
+
+        AnyObjectCR anyObjectCR = new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, PRINTER, getUUIDString()).
+                membership(new MembershipTO.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3").build()).
+                build();
+        String printer = createAnyObject(anyObjectCR).getEntity().getKey();
+
+        if (IS_ELASTICSEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        groups = GROUP_SERVICE.search(new AnyQuery.Builder().realm("/").
+                fiql(SyncopeClient.getGroupSearchConditionBuilder().withMembers(printer).query()).
+                build());
+        assertEquals(1, groups.getResult().size());
+        assertEquals("29f96485-729e-4d31-88a1-6fc60e4677f3", groups.getResult().get(0).getKey());
     }
 
     @Test

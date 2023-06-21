@@ -20,17 +20,26 @@ package org.apache.syncope.core.workflow.java;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
+import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,16 +51,16 @@ public abstract class AbstractAnyObjectWorkflowAdapter
 
     protected final AnyObjectDAO anyObjectDAO;
 
-    protected final EntityFactory entityFactory;
-
     public AbstractAnyObjectWorkflowAdapter(
             final AnyObjectDataBinder dataBinder,
             final AnyObjectDAO anyObjectDAO,
-            final EntityFactory entityFactory) {
+            final GroupDAO groupDAO,
+            final EntityFactory entityFactory,
+            final ApplicationEventPublisher publisher) {
 
+        super(groupDAO, entityFactory, publisher);
         this.dataBinder = dataBinder;
         this.anyObjectDAO = anyObjectDAO;
-        this.entityFactory = entityFactory;
     }
 
     @Override
@@ -63,7 +72,15 @@ public abstract class AbstractAnyObjectWorkflowAdapter
 
     @Override
     public WorkflowResult<String> create(final AnyObjectCR anyObjectCR, final String creator, final String context) {
-        return doCreate(anyObjectCR, creator, context);
+        WorkflowResult<String> result = doCreate(anyObjectCR, creator, context);
+
+        AnyObject anyObject = anyObjectDAO.find(result.getResult());
+
+        // finally publish events for all groups affected by this operation, via membership
+        anyObject.getMemberships().stream().forEach(m -> publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, m.getRightEnd(), AuthContextUtils.getDomain())));
+
+        return result;
     }
 
     protected abstract WorkflowResult<AnyObjectUR> doUpdate(
@@ -89,6 +106,12 @@ public abstract class AbstractAnyObjectWorkflowAdapter
                 anyObject.getRealm().getFullPath(),
                 anyObjectDAO.findAllGroupKeys(anyObject));
 
+        // finally publish events for all groups affected by this operation, via membership
+        result.getResult().getMemberships().stream().map(MembershipUR::getGroup).distinct().
+                map(groupDAO::find).filter(Objects::nonNull).
+                forEach(group -> publisher.publishEvent(new AnyLifecycleEvent<>(
+                this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain())));
+
         return result;
     }
 
@@ -96,6 +119,15 @@ public abstract class AbstractAnyObjectWorkflowAdapter
 
     @Override
     public void delete(final String anyObjectKey, final String eraser, final String context) {
-        doDelete(anyObjectDAO.authFind(anyObjectKey), eraser, context);
+        AnyObject anyObject = anyObjectDAO.authFind(anyObjectKey);
+
+        Set<Group> groups = anyObject.getMemberships().stream().
+                map(AMembership::getRightEnd).collect(Collectors.toSet());
+
+        doDelete(anyObject, eraser, context);
+
+        // finally publish events for all groups affected by this operation, via membership
+        groups.forEach(group -> publisher.publishEvent(new AnyLifecycleEvent<>(
+                this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain())));
     }
 }
