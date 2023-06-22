@@ -34,14 +34,19 @@ import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.audit.AuditEntry;
+import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
+import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
+import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
@@ -63,7 +68,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
 
     public static final List<Attr> CONFIG = new ArrayList<>();
 
-    public static class StubAuthModuleService implements AuthModuleService {
+    protected static class StubAuthModuleService implements AuthModuleService {
 
         @Override
         public AuthModuleTO read(final String key) {
@@ -94,7 +99,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
     }
 
-    public static class StubAttrRepoService implements AttrRepoService {
+    protected static class StubAttrRepoService implements AttrRepoService {
 
         @Override
         public AttrRepoTO read(final String key) {
@@ -125,7 +130,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
     }
 
-    public static class StubWAClientAppService implements WAClientAppService {
+    protected static class StubWAClientAppService implements WAClientAppService {
 
         @Override
         public List<WAClientApp> list() {
@@ -146,7 +151,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
     }
 
-    public static class StubWAConfigService implements WAConfigService {
+    protected static class StubWAConfigService implements WAConfigService {
 
         @Override
         public List<Attr> list() {
@@ -176,7 +181,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
     }
 
-    public static class StubImpersonationService implements ImpersonationService {
+    protected static class StubImpersonationService implements ImpersonationService {
 
         private final Map<String, List<ImpersonationAccount>> accounts = new HashMap<>();
 
@@ -210,7 +215,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
     }
 
-    public static class StubGoogleMfaAuthTokenService implements GoogleMfaAuthTokenService {
+    protected static class StubGoogleMfaAuthTokenService implements GoogleMfaAuthTokenService {
 
         private final Map<String, GoogleMfaAuthToken> tokens = new HashMap<>();
 
@@ -273,6 +278,44 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         }
     }
 
+    protected static class StubAuditService implements AuditService {
+
+        @Override
+        public List<AuditConfTO> list() {
+            return List.of();
+        }
+
+        @Override
+        public AuditConfTO read(final String key) {
+            throw new NotFoundException();
+        }
+
+        @Override
+        public void set(final AuditConfTO auditTO) {
+            // nothing to do
+        }
+
+        @Override
+        public void delete(final String key) {
+            // nothing to do
+        }
+
+        @Override
+        public List<EventCategory> events() {
+            return List.of();
+        }
+
+        @Override
+        public PagedResult<AuditEntry> search(final AuditQuery auditQuery) {
+            return new PagedResult<>();
+        }
+
+        @Override
+        public void create(final AuditEntry auditEntry) {
+            // nothing to do
+        }
+    }
+
     @Autowired
     private ServiceOps serviceOps;
 
@@ -284,12 +327,16 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                 JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
                 sf.setAddress(ADDRESS);
                 sf.setResourceClasses(
+                        AuditService.class,
                         AuthModuleService.class,
                         AttrRepoService.class,
                         WAClientAppService.class,
                         WAConfigService.class,
                         GoogleMfaAuthTokenService.class,
                         ImpersonationService.class);
+                sf.setResourceProvider(
+                        AuditService.class,
+                        new SingletonResourceProvider(new StubAuditService(), true));
                 sf.setResourceProvider(
                         AuthModuleService.class,
                         new SingletonResourceProvider(new StubAuthModuleService(), true));
