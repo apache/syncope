@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -46,21 +47,19 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     protected final ConfParamOps confParamOps;
 
-    protected final ApplicationEventPublisher publisher;
-
     public DefaultUserWorkflowAdapter(
             final UserDataBinder dataBinder,
             final UserDAO userDAO,
             final RealmDAO realmDAO,
+            final GroupDAO groupDAO,
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
             final RuleEnforcer ruleEnforcer,
             final ConfParamOps confParamOps,
             final ApplicationEventPublisher publisher) {
 
-        super(dataBinder, userDAO, realmDAO, entityFactory, securityProperties, ruleEnforcer);
+        super(dataBinder, userDAO, realmDAO, groupDAO, entityFactory, securityProperties, ruleEnforcer, publisher);
         this.confParamOps = confParamOps;
-        this.publisher = publisher;
     }
 
     @Override

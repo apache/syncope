@@ -22,6 +22,7 @@ import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -37,16 +38,14 @@ import org.springframework.context.ApplicationEventPublisher;
  */
 public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAdapter {
 
-    protected final ApplicationEventPublisher publisher;
-
     public DefaultAnyObjectWorkflowAdapter(
             final AnyObjectDataBinder dataBinder,
             final AnyObjectDAO anyObjectDAO,
+            final GroupDAO groupDAO,
             final EntityFactory entityFactory,
             final ApplicationEventPublisher publisher) {
 
-        super(dataBinder, anyObjectDAO, entityFactory);
-        this.publisher = publisher;
+        super(dataBinder, anyObjectDAO, groupDAO, entityFactory, publisher);
     }
 
     @Override

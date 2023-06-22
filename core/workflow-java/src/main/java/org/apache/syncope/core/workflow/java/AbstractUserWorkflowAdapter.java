@@ -20,9 +20,12 @@ package org.apache.syncope.core.workflow.java;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -30,16 +33,20 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
 import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
@@ -47,8 +54,10 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,8 +72,6 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
     protected final RealmDAO realmDAO;
 
-    protected final EntityFactory entityFactory;
-
     protected final SecurityProperties securityProperties;
 
     protected final RuleEnforcer ruleEnforcer;
@@ -73,14 +80,17 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
             final UserDataBinder dataBinder,
             final UserDAO userDAO,
             final RealmDAO realmDAO,
+            final GroupDAO groupDAO,
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
-            final RuleEnforcer ruleEnforcer) {
+            final RuleEnforcer ruleEnforcer,
+            final ApplicationEventPublisher publisher) {
+
+        super(groupDAO, entityFactory, publisher);
 
         this.dataBinder = dataBinder;
         this.userDAO = userDAO;
         this.realmDAO = realmDAO;
-        this.entityFactory = entityFactory;
         this.securityProperties = securityProperties;
         this.ruleEnforcer = ruleEnforcer;
     }
@@ -236,7 +246,11 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         // enforce password and account policies
         User user = userDAO.find(result.getResult().getKey());
         enforcePolicies(user, disablePwdPolicyCheck, disablePwdPolicyCheck ? null : userCR.getPassword());
-        userDAO.save(user);
+        user = userDAO.save(user);
+
+        // finally publish events for all groups affected by this operation, via membership
+        user.getMemberships().stream().forEach(m -> publisher.publishEvent(
+                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, m.getRightEnd(), AuthContextUtils.getDomain())));
 
         return result;
     }
@@ -300,6 +314,12 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
                     user.getRealm().getFullPath(),
                     userDAO.findAllGroupKeys(user));
         }
+
+        // finally publish events for all groups affected by this operation, via membership
+        result.getResult().getLeft().getMemberships().stream().map(MembershipUR::getGroup).distinct().
+                map(groupDAO::find).filter(Objects::nonNull).
+                forEach(group -> publisher.publishEvent(new AnyLifecycleEvent<>(
+                this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain())));
 
         return result;
     }
@@ -382,6 +402,15 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
     @Override
     public void delete(final String userKey, final String eraser, final String context) {
-        doDelete(userDAO.authFind(userKey), eraser, context);
+        User user = userDAO.authFind(userKey);
+
+        Set<Group> groups = user.getMemberships().stream().
+                map(UMembership::getRightEnd).collect(Collectors.toSet());
+
+        doDelete(user, eraser, context);
+
+        // finally publish events for all groups affected by this operation, via membership
+        groups.forEach(group -> publisher.publishEvent(new AnyLifecycleEvent<>(
+                this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain())));
     }
 }

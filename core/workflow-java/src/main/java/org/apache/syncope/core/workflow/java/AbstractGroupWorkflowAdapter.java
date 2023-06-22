@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,18 +35,15 @@ public abstract class AbstractGroupWorkflowAdapter extends AbstractWorkflowAdapt
 
     protected final GroupDataBinder dataBinder;
 
-    protected final GroupDAO groupDAO;
-
-    protected final EntityFactory entityFactory;
-
     public AbstractGroupWorkflowAdapter(
             final GroupDataBinder dataBinder,
             final GroupDAO groupDAO,
-            final EntityFactory entityFactory) {
+            final EntityFactory entityFactory,
+            final ApplicationEventPublisher publisher) {
+
+        super(groupDAO, entityFactory, publisher);
 
         this.dataBinder = dataBinder;
-        this.groupDAO = groupDAO;
-        this.entityFactory = entityFactory;
     }
 
     @Override

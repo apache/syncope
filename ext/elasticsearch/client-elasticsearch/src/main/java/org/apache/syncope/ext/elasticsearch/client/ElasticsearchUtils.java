@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -137,22 +138,18 @@ public class ElasticsearchUtils {
         } else if (any instanceof Group) {
             Group group = ((Group) any);
             builder.put("name", group.getName());
-            if (group.getUserOwner() != null) {
-                builder.put("userOwner", group.getUserOwner().getKey());
-            }
-            if (group.getGroupOwner() != null) {
-                builder.put("groupOwner", group.getGroupOwner().getKey());
-            }
+            Optional.ofNullable(group.getUserOwner()).ifPresent(uo -> builder.put("userOwner", uo.getKey()));
+            Optional.ofNullable(group.getGroupOwner()).ifPresent(go -> builder.put("groupOwner", go.getKey()));
 
-            Set<String> members = new HashSet<>();
-            AuthContextUtils.callAsAdmin(domain, () -> {
-                members.addAll(groupDAO.findUMemberships(group).stream().
+            Set<String> members = AuthContextUtils.callAsAdmin(domain, () -> {
+                Set<String> m = new HashSet<>();
+                m.addAll(groupDAO.findUMemberships(group).stream().
                         map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList()));
-                members.addAll(groupDAO.findUDynMembers(group));
-                members.addAll(groupDAO.findAMemberships(group).stream().
+                m.addAll(groupDAO.findUDynMembers(group));
+                m.addAll(groupDAO.findAMemberships(group).stream().
                         map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList()));
-                members.addAll(groupDAO.findADynMembers(group));
-                return null;
+                m.addAll(groupDAO.findADynMembers(group));
+                return m;
             });
             builder.put("members", members);
 
@@ -180,8 +177,7 @@ public class ElasticsearchUtils {
             builder.put("roles", roles);
             builder.put("privileges", privileges);
 
-            Collection<String> memberships = AuthContextUtils.callAsAdmin(
-                    domain, () -> userDAO.findAllGroupKeys(user));
+            Collection<String> memberships = AuthContextUtils.callAsAdmin(domain, () -> userDAO.findAllGroupKeys(user));
             builder.put("memberships", memberships);
 
             List<String> relationships = new ArrayList<>();
@@ -200,9 +196,7 @@ public class ElasticsearchUtils {
             List<Object> values = plainAttr.getValues().stream().
                     map(PlainAttrValue::getValue).collect(Collectors.toList());
 
-            if (plainAttr.getUniqueValue() != null) {
-                values.add(plainAttr.getUniqueValue().getValue());
-            }
+            Optional.ofNullable(plainAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
             builder.put(plainAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
         }
