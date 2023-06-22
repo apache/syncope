@@ -66,7 +66,7 @@ public class SRARouteITCase extends AbstractITCase {
     public void createUpdateDelete() {
         SRARouteTO route = new SRARouteTO();
         route.setName("just for test");
-        route.setTarget(URI.create("http://httpbin.org:80"));
+        route.setTarget(URI.create("http://localhost:80"));
         route.getPredicates().add(new SRARoutePredicate.Builder().
                 factory(SRARoutePredicateFactory.METHOD).args(HttpMethod.GET).build());
         route.getFilters().add(new SRARouteFilter.Builder().
@@ -114,7 +114,7 @@ public class SRARouteITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
 
-        route.setTarget(URI.create("http://httpbin.org:80"));
+        route.setTarget(URI.create("http://localhost:80"));
         Response response = SRA_ROUTE_SERVICE.create(route);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
 

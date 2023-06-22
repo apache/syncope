@@ -65,7 +65,7 @@ public class SRARouteTest extends AbstractTest {
     public void save() {
         SRARoute route = entityFactory.newEntity(SRARoute.class);
         route.setName("just for test");
-        route.setTarget(URI.create("http://httpbin.org:80"));
+        route.setTarget(URI.create("http://localhost:80"));
         route.setType(SRARouteType.PUBLIC);
         route.setPredicates(List.of(new SRARoutePredicate.Builder().
                 factory(SRARoutePredicateFactory.METHOD).args(HttpMethod.GET).build()));

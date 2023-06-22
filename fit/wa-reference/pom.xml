@@ -158,6 +158,41 @@ under the License.
       </plugin>
 
       <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <configuration>
+          <skip>${skipTests}</skip>
+          <images>
+            <image>
+              <name>kennethreitz/httpbin</name>
+              <run>
+                <ports>
+                  <port>80:80</port>
+                </ports>
+              </run>
+            </image>
+          </images>
+        </configuration>
+        <executions>
+          <execution>
+            <id>start-httpbin</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop-httpbin</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+              <goal>remove</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.codehaus.cargo</groupId>
         <artifactId>cargo-maven3-plugin</artifactId>
         <inherited>true</inherited>
