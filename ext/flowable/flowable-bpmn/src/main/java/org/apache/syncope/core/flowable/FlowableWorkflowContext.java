@@ -40,6 +40,7 @@ import org.apache.syncope.core.flowable.task.PasswordReset;
 import org.apache.syncope.core.flowable.task.Reactivate;
 import org.apache.syncope.core.flowable.task.Suspend;
 import org.apache.syncope.core.flowable.task.Update;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -173,6 +174,7 @@ public class FlowableWorkflowContext {
             final UserDataBinder userDataBinder,
             final UserDAO userDAO,
             final RealmDAO realmDAO,
+            final GroupDAO groupDAO,
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
             final RuleEnforcer ruleEnforcer,
@@ -184,6 +186,7 @@ public class FlowableWorkflowContext {
                 userDataBinder,
                 userDAO,
                 realmDAO,
+                groupDAO,
                 entityFactory,
                 securityProperties,
                 ruleEnforcer,

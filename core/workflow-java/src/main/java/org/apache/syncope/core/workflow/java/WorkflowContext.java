@@ -46,6 +46,7 @@ public class WorkflowContext {
             final UserDataBinder userDataBinder,
             final UserDAO userDAO,
             final RealmDAO realmDAO,
+            final GroupDAO groupDAO,
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
             final RuleEnforcer ruleEnforcer,
@@ -56,6 +57,7 @@ public class WorkflowContext {
                 userDataBinder,
                 userDAO,
                 realmDAO,
+                groupDAO,
                 entityFactory,
                 securityProperties,
                 ruleEnforcer,
@@ -79,9 +81,15 @@ public class WorkflowContext {
     public AnyObjectWorkflowAdapter awfAdapter(
             final AnyObjectDataBinder anyObjectDataBinder,
             final AnyObjectDAO anyObjectDAO,
+            final GroupDAO groupDAO,
             final EntityFactory entityFactory,
             final ApplicationEventPublisher publisher) {
 
-        return new DefaultAnyObjectWorkflowAdapter(anyObjectDataBinder, anyObjectDAO, entityFactory, publisher);
+        return new DefaultAnyObjectWorkflowAdapter(
+                anyObjectDataBinder,
+                anyObjectDAO,
+                groupDAO,
+                entityFactory,
+                publisher);
     }
 }

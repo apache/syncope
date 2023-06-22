@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.flowable.api.WorkflowTaskManager;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -65,12 +66,11 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
 
     protected final UserRequestHandler userRequestHandler;
 
-    protected final ApplicationEventPublisher publisher;
-
     public FlowableUserWorkflowAdapter(
             final UserDataBinder dataBinder,
             final UserDAO userDAO,
             final RealmDAO realmDAO,
+            final GroupDAO groupDAO,
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
             final RuleEnforcer ruleEnforcer,
@@ -78,10 +78,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             final UserRequestHandler userRequestHandler,
             final ApplicationEventPublisher publisher) {
 
-        super(dataBinder, userDAO, realmDAO, entityFactory, securityProperties, ruleEnforcer);
+        super(dataBinder, userDAO, realmDAO, groupDAO, entityFactory, securityProperties, ruleEnforcer, publisher);
         this.engine = engine;
         this.userRequestHandler = userRequestHandler;
-        this.publisher = publisher;
     }
 
     @Override

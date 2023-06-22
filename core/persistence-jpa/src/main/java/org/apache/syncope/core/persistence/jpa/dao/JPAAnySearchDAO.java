@@ -913,7 +913,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         query.append("SELECT DISTINCT group_id AS any_id FROM ").
-                append(new SearchSupport(AnyTypeKind.USER).membership().name).append(" WHERE (").
+                append(new SearchSupport(AnyTypeKind.USER).membership().name).append(" WHERE ").
                 append("any_id=?").append(setParameter(parameters, memberKey)).
                 append(") ");
 
@@ -926,7 +926,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         query.append("SELECT DISTINCT group_id AS any_id FROM ").
                 append(new SearchSupport(AnyTypeKind.ANY_OBJECT).membership().name).append(" WHERE ").
                 append("any_id=?").append(setParameter(parameters, memberKey)).
-                append("))");
+                append(')');
 
         return query.toString();
     }

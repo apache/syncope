@@ -19,9 +19,28 @@
 package org.apache.syncope.core.workflow.java;
 
 import java.time.OffsetDateTime;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.springframework.context.ApplicationEventPublisher;
 
 public abstract class AbstractWorkflowAdapter {
+
+    protected final GroupDAO groupDAO;
+
+    protected final EntityFactory entityFactory;
+
+    protected final ApplicationEventPublisher publisher;
+
+    protected AbstractWorkflowAdapter(
+            final GroupDAO groupDAO,
+            final EntityFactory entityFactory,
+            final ApplicationEventPublisher publisher) {
+
+        this.groupDAO = groupDAO;
+        this.entityFactory = entityFactory;
+        this.publisher = publisher;
+    }
 
     protected void metadata(final Any<?> any, final String who, final String context) {
         OffsetDateTime now = OffsetDateTime.now();
