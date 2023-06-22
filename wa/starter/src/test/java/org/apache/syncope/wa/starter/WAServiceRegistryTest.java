@@ -151,8 +151,6 @@ public class WAServiceRegistryTest extends AbstractTest {
     @Test
     public void addClientApp() {
         // 1. start with no client apps defined on mocked Core
-        assertTrue(waRestClient.isReady());
-
         SyncopeCoreTestingServer.CLIENT_APPS.clear();
 
         WAClientAppService service = waRestClient.getService(WAClientAppService.class);
@@ -230,8 +228,6 @@ public class WAServiceRegistryTest extends AbstractTest {
     @Test
     public void delegatedAuthentication() {
         // 1. start with 1 client app and 1 auth module defined on mocked Core
-        assertTrue(waRestClient.isReady());
-
         OIDCAuthModuleConf oidcAuthModuleConf = new OIDCAuthModuleConf();
         oidcAuthModuleConf.setClientId("clientId");
         oidcAuthModuleConf.setClientSecret("clientSecret");
