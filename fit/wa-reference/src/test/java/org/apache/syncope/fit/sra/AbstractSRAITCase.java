@@ -84,7 +84,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
         SRARouteTO publicRoute = new SRARouteTO();
         publicRoute.setName("public");
-        publicRoute.setTarget(URI.create("http://httpbin.org:80"));
+        publicRoute.setTarget(URI.create("http://localhost:80"));
         publicRoute.setType(SRARouteType.PUBLIC);
         publicRoute.setCsrf(false);
         publicRoute.getPredicates().add(new SRARoutePredicate.Builder().
@@ -99,7 +99,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
         SRARouteTO protectedRoute = new SRARouteTO();
         protectedRoute.setName("protected");
-        protectedRoute.setTarget(URI.create("http://httpbin.org:80"));
+        protectedRoute.setTarget(URI.create("http://localhost:80"));
         protectedRoute.setType(SRARouteType.PROTECTED);
         protectedRoute.setCsrf(false);
         protectedRoute.getPredicates().add(new SRARoutePredicate.Builder().
@@ -114,7 +114,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
         SRARouteTO logoutRoute = new SRARouteTO();
         logoutRoute.setName("logout");
-        logoutRoute.setTarget(URI.create("http://httpbin.org:80"));
+        logoutRoute.setTarget(URI.create("http://localhost:80"));
         logoutRoute.setType(SRARouteType.PROTECTED);
         logoutRoute.setLogout(true);
         logoutRoute.getPredicates().add(new SRARoutePredicate.Builder().
@@ -128,7 +128,7 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
         SRARouteTO postLogout = new SRARouteTO();
         postLogout.setName("postLogout");
-        postLogout.setTarget(URI.create("http://httpbin.org:80"));
+        postLogout.setTarget(URI.create("http://localhost:80"));
         postLogout.setType(SRARouteType.PUBLIC);
         postLogout.getPredicates().add(new SRARoutePredicate.Builder().
                 factory(SRARoutePredicateFactory.PATH).args("/logout").build());
