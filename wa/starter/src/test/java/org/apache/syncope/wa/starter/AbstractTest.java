@@ -18,7 +18,13 @@
  */
 package org.apache.syncope.wa.starter;
 
+import static org.awaitility.Awaitility.await;
+
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -57,4 +63,11 @@ public abstract class AbstractTest {
     @LocalServerPort
     protected int port;
 
+    @Autowired
+    private WARestClient waRestClient;
+
+    @BeforeEach
+    public void waitForCore() {
+        await().atMost(50, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> waRestClient.isReady());
+    }
 }
