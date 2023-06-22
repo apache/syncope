@@ -28,6 +28,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +60,7 @@ import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.TicketExpirationMapper;
 import org.apache.syncope.wa.starter.mapping.TimeBasedAccessMapper;
 import org.apache.syncope.wa.starter.oidc.WAOIDCJWKSGeneratorService;
+import org.apache.syncope.wa.starter.pac4j.WADelegatedClientFactory;
 import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.WASamlIdPCasEventListener;
 import org.apache.syncope.wa.starter.saml.idp.WASamlIdPObjectSigner;
@@ -71,11 +73,14 @@ import org.apache.syncope.wa.starter.webauthn.WAWebAuthnCredentialRepository;
 import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
+import org.apereo.cas.authentication.CasSSLContext;
 import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FCoreMultifactorAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.pac4j.Pac4jDelegatedAuthenticationCoreProperties;
+import org.apereo.cas.configuration.support.Beans;
 import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
@@ -83,7 +88,9 @@ import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
 import org.apereo.cas.services.ServiceRegistryListener;
 import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
+import org.apereo.cas.support.pac4j.authentication.clients.DelegatedClientFactory;
 import org.apereo.cas.support.pac4j.authentication.clients.DelegatedClientFactoryCustomizer;
+import org.apereo.cas.support.pac4j.authentication.clients.RestfulDelegatedClientFactory;
 import org.apereo.cas.support.pac4j.authentication.handler.support.DelegatedClientAuthenticationHandler;
 import org.apereo.cas.support.saml.idp.SamlIdPCasEventListener;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
@@ -98,6 +105,8 @@ import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
 import org.ldaptive.ConnectionFactory;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.pac4j.core.client.Client;
+import org.pac4j.core.client.IndirectClient;
+import org.pac4j.saml.store.SAMLMessageStoreFactory;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -107,6 +116,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 @Configuration(proxyBeanMethods = false)
 public class WAContext {
@@ -194,6 +204,38 @@ public class WAContext {
     @Bean
     public ClientAppMapper saml2SPClientAppTOMapper() {
         return new SAML2SPClientAppTOMapper();
+    }
+
+    @SuppressWarnings("rawtypes")
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Bean
+    public DelegatedClientFactory pac4jDelegatedClientFactory(
+            @Qualifier(DelegatedClientFactory.BEAN_NAME_SAML2_CLIENT_MESSAGE_FACTORY)
+            final ObjectProvider<SAMLMessageStoreFactory> samlMessageStoreFactory,
+            final CasConfigurationProperties casProperties,
+            final ObjectProvider<List<DelegatedClientFactoryCustomizer>> customizerList,
+            @Qualifier(CasSSLContext.BEAN_NAME)
+            final CasSSLContext casSslContext) {
+
+        Pac4jDelegatedAuthenticationCoreProperties core = casProperties.getAuthn().getPac4j().getCore();
+        Cache<String, Collection<IndirectClient>> clientsCache = Caffeine.newBuilder().
+                maximumSize(core.getCacheSize()).
+                expireAfterAccess(Beans.newDuration(core.getCacheDuration())).
+                build();
+
+        List<DelegatedClientFactoryCustomizer> customizers = Optional.ofNullable(customizerList.getIfAvailable()).
+                map(result -> {
+                    AnnotationAwareOrderComparator.sortIfNecessary(result);
+                    return result;
+                }).orElseGet(() -> new ArrayList<>(0));
+
+        if (StringUtils.isNotBlank(casProperties.getAuthn().getPac4j().getRest().getUrl())) {
+            return new RestfulDelegatedClientFactory(
+                    customizers, casSslContext, casProperties, samlMessageStoreFactory, clientsCache);
+        }
+
+        return new WADelegatedClientFactory(
+                casProperties, customizers, casSslContext, samlMessageStoreFactory, clientsCache);
     }
 
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)

@@ -37,16 +37,13 @@ import org.springframework.context.ApplicationEventPublisher;
  */
 public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
 
-    protected final ApplicationEventPublisher publisher;
-
     public DefaultGroupWorkflowAdapter(
             final GroupDataBinder dataBinder,
             final GroupDAO groupDAO,
             final EntityFactory entityFactory,
             final ApplicationEventPublisher publisher) {
 
-        super(dataBinder, groupDAO, entityFactory);
-        this.publisher = publisher;
+        super(dataBinder, groupDAO, entityFactory, publisher);
     }
 
     @Override
