@@ -18,17 +18,23 @@
  */
 package org.apache.syncope.wa.starter.pac4j;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import java.time.Period;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.authentication.CasSSLContext;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.support.Beans;
+import org.apereo.cas.support.pac4j.authentication.clients.DefaultDelegatedClientFactory;
+import org.apereo.cas.support.pac4j.authentication.clients.DelegatedClientFactoryCustomizer;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.util.ResourceUtils;
 import org.apereo.cas.util.function.FunctionUtils;
 import org.apereo.cas.util.spring.SpringExpressionLanguageValueResolver;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.profile.converter.AttributeConverter;
 import org.pac4j.saml.client.SAML2Client;
@@ -38,17 +44,9 @@ import org.pac4j.saml.metadata.SAML2ServiceProviderRequestedAttribute;
 import org.pac4j.saml.store.EmptyStoreFactory;
 import org.pac4j.saml.store.HttpSessionStoreFactory;
 import org.pac4j.saml.store.SAMLMessageStoreFactory;
-import org.springframework.beans.factory.ObjectProvider;
-
-import java.time.Period;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import org.apereo.cas.support.pac4j.authentication.clients.DefaultDelegatedClientFactory;
-import org.apereo.cas.support.pac4j.authentication.clients.DelegatedClientFactoryCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 
 public class WADelegatedClientFactory extends DefaultDelegatedClientFactory {
 
