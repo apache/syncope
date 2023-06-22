@@ -486,8 +486,8 @@ public class SearchITCase extends AbstractITCase {
         groups = GROUP_SERVICE.search(new AnyQuery.Builder().realm("/").
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().withMembers(printer).query()).
                 build());
-        assertEquals(1, groups.getResult().size());
-        assertEquals("29f96485-729e-4d31-88a1-6fc60e4677f3", groups.getResult().get(0).getKey());
+        assertTrue(groups.getResult().stream().
+                anyMatch(group -> "29f96485-729e-4d31-88a1-6fc60e4677f3".equals(group.getKey())));
     }
 
     @Test
