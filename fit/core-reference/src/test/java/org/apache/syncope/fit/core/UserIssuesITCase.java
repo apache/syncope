@@ -101,7 +101,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ImplementationTO propagationActions = null;
         try {
             propagationActions = IMPLEMENTATION_SERVICE.read(
-                    IdMImplementationType.PULL_ACTIONS, LDAPPasswordPropagationActions.class.getSimpleName());
+                    IdMImplementationType.PROPAGATION_ACTIONS, LDAPPasswordPropagationActions.class.getSimpleName());
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 propagationActions = new ImplementationTO();
