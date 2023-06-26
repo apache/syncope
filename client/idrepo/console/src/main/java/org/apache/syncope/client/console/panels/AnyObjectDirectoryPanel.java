@@ -34,6 +34,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.console.wizards.any.AnyObjectWrapper;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
@@ -117,7 +118,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                 send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                new AnyWrapper<>(restClient.read(model.getObject().getKey())), target));
+                                new AnyObjectWrapper(restClient.read(model.getObject().getKey())), target));
             }
         }, ActionType.EDIT,
                 String.format("%s,%s", AnyEntitlement.READ.getFor(type), AnyEntitlement.UPDATE.getFor(type))).
@@ -129,7 +130,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                     model.getObject(),
                     realm,
                     altDefaultModal,
-                    getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject()))),
+                    getString("any.edit", new Model<>(new AnyObjectWrapper(model.getObject()))),
                     this,
                     pageRef).forEach(panel::add);
 
@@ -214,7 +215,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                 final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.NewItemActionEvent<>(new AnyWrapper<>(clone), target));
+                        new AjaxWizard.NewItemActionEvent<>(new AnyObjectWrapper(clone), target));
             }
 
             @Override

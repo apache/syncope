@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.io.Serializable;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
@@ -62,15 +63,10 @@ public final class ActionPanel<T extends Serializable> extends Panel {
         setOutputMarkupId(true);
         this.action = action;
 
-        final T obj;
-        if (model == null) {
-            obj = null;
-        } else {
-            obj = model.getObject();
-        }
+        T obj = Optional.ofNullable(model).map(IModel::getObject).orElse(null);
 
-        final boolean enabled;
-        final AbstractLink actionLink;
+        boolean enabled;
+        AbstractLink actionLink;
 
         if (action.getLink() == null || action.getType() == ActionType.NOT_FOUND) {
             enabled = true;
@@ -145,14 +141,14 @@ public final class ActionPanel<T extends Serializable> extends Panel {
         actionIcon = new Label("actionIcon", "");
         actionLink.add(actionIcon);
 
-        final String clazz = action.getType().name().toLowerCase() + ".class";
+        String clazz = action.getType().name().toLowerCase() + ".class";
         actionIcon.add(new AttributeModifier("class", new ResourceModel(clazz, clazz)));
 
-        final String title = action.getType().name().toLowerCase() + ".title";
-        final IModel<String> titleModel = new ResourceModel(title, title);
+        String title = action.getType().name().toLowerCase() + ".title";
+        IModel<String> titleModel = new ResourceModel(title, title);
         actionIcon.add(new AttributeModifier("title", titleModel));
 
-        final String alt = action.getType().name().toLowerCase() + ".alt";
+        String alt = action.getType().name().toLowerCase() + ".alt";
         actionIcon.add(new AttributeModifier("alt", new ResourceModel(alt, alt)));
 
         actionLabel = new Label("label", titleModel);
@@ -164,21 +160,13 @@ public final class ActionPanel<T extends Serializable> extends Panel {
         // ---------------------------
         actionLabel.setVisible(action.isVisibleLabel());
 
-        if (action.getLabel() != null) {
-            actionLabel.setDefaultModel(action.getLabel());
-        }
+        Optional.ofNullable(action.getLabel()).ifPresent(actionLabel::setDefaultModel);
 
-        if (action.getTitle() != null) {
-            actionIcon.add(new AttributeModifier("title", action.getTitle()));
-        }
+        Optional.ofNullable(action.getTitle()).ifPresent(t -> actionIcon.add(new AttributeModifier("title", t)));
 
-        if (action.getAlt() != null) {
-            actionIcon.add(new AttributeModifier("alt", action.getAlt()));
-        }
+        Optional.ofNullable(action.getAlt()).ifPresent(a -> actionIcon.add(new AttributeModifier("alt", a)));
 
-        if (action.getIcon() != null) {
-            actionIcon.add(new AttributeModifier("class", action.getIcon()));
-        }
+        Optional.ofNullable(action.getIcon()).ifPresent(i -> actionIcon.add(new AttributeModifier("class", i)));
 
         this.disableIndicator = !action.hasIndicator();
         // ---------------------------

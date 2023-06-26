@@ -21,7 +21,7 @@ package org.apache.syncope.client.ui.commons.wizards.any;
 import java.io.Serializable;
 import org.apache.syncope.common.lib.to.AnyTO;
 
-public class AnyWrapper<T extends AnyTO> implements Serializable {
+public abstract class AnyWrapper<T extends AnyTO> implements Serializable {
 
     private static final long serialVersionUID = 8058288034211558375L;
 

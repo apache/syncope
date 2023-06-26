@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.client.ui.commons.wizards.any;
 
+import java.io.Serializable;
 import org.apache.syncope.common.lib.to.EntityTO;
 
-public class EntityWrapper<T extends EntityTO> {
+public class EntityWrapper<T extends EntityTO> implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     protected final T entityTO;
 
@@ -31,5 +34,4 @@ public class EntityWrapper<T extends EntityTO> {
     public T getInnerObject() {
         return entityTO;
     }
-
 }

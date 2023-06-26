@@ -180,7 +180,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                     model.setObject(restClient.read(model.getObject().getKey()));
                     IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                            new AnyWrapper<>(model.getObject()));
+                            new UserWrapper(model.getObject()));
                     displayAttributeModal.setFormModel(formModel);
 
                     target.add(displayAttributeModal.setContent(new ChangePasswordModal(
@@ -189,7 +189,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             pageRef)));
 
                     displayAttributeModal.header(new Model<>(
-                            getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
+                            getString("any.edit", new Model<>(new UserWrapper(model.getObject())))));
 
                     displayAttributeModal.size(Modal.Size.Large);
                     displayAttributeModal.show(true);
@@ -225,7 +225,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     model,
                     realm,
                     altDefaultModal,
-                    getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject()))),
+                    getString("any.edit", new Model<>(new UserWrapper(model.getObject()))),
                     this,
                     pageRef).forEach(panel::add);
 
@@ -306,7 +306,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     }));
 
                     altDefaultModal.header(new Model<>(
-                            getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
+                            getString("auditHistory.title", new Model<>(new UserWrapper(model.getObject())))));
 
                     altDefaultModal.show(true);
                 }

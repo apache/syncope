@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,26 +25,25 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.wizards.any.EntityWrapper;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
-public class DynRealmWrapper implements Serializable {
+public class DynRealmWrapper extends EntityWrapper<DynRealmTO> {
 
     private static final long serialVersionUID = 7226128615964284614L;
-
-    private final DynRealmTO dynRealmTO;
 
     private Map<String, List<SearchClause>> dynClauses;
 
     public DynRealmWrapper(final DynRealmTO dynRealmTO) {
-        this.dynRealmTO = dynRealmTO;
+        super(dynRealmTO);
         getDynClauses();
     }
 
     public final Map<String, List<SearchClause>> getDynClauses() {
         if (this.dynClauses == null) {
-            this.dynClauses = SearchUtils.getSearchClauses(this.dynRealmTO.getDynMembershipConds());
+            this.dynClauses = SearchUtils.getSearchClauses(getInnerObject().getDynMembershipConds());
         }
         return this.dynClauses;
     }
@@ -78,12 +76,8 @@ public class DynRealmWrapper implements Serializable {
     }
 
     public DynRealmTO fillDynamicConditions() {
-        this.dynRealmTO.getDynMembershipConds().clear();
-        this.dynRealmTO.getDynMembershipConds().putAll(this.getDynMembershipConds());
-        return this.dynRealmTO;
-    }
-
-    public DynRealmTO getInnerObject() {
-        return this.dynRealmTO;
+        getInnerObject().getDynMembershipConds().clear();
+        getInnerObject().getDynMembershipConds().putAll(this.getDynMembershipConds());
+        return getInnerObject();
     }
 }

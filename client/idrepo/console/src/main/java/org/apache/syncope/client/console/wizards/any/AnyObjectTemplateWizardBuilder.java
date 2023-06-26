@@ -50,7 +50,7 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
         this.templatable = templatable;
 
         if (templatable.getTemplates().containsKey(anyType)) {
-            setItem(new AnyWrapper<>(AnyObjectTO.class.cast(templatable.getTemplates().get(anyType))));
+            setItem(new AnyObjectWrapper(AnyObjectTO.class.cast(templatable.getTemplates().get(anyType))));
         } else {
             AnyObjectTO anyObjectTO = new AnyObjectTO();
             anyObjectTO.setType(anyType);
@@ -58,7 +58,7 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
                 anyObjectTO.setRealm(
                         String.format("'%s'", RealmsUtils.getFullPath(RealmTO.class.cast(templatable).getFullPath())));
             }
-            setItem(new AnyWrapper<>(anyObjectTO));
+            setItem(new AnyObjectWrapper(anyObjectTO));
         }
     }
 

@@ -49,5 +49,4 @@ public class ConnObjectWrapper implements Serializable {
     public ConnObject getConnObjectTO() {
         return connObjectTO;
     }
-
 }

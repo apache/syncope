@@ -18,32 +18,30 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.wizards.any.EntityWrapper;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 
-public class PushTaskWrapper implements Serializable {
+public class PushTaskWrapper extends EntityWrapper<PushTaskTO> {
 
     private static final long serialVersionUID = 8058288034211558377L;
-
-    private final PushTaskTO pushTaskTO;
 
     private Map<String, List<SearchClause>> filterClauses;
 
     public PushTaskWrapper(final PushTaskTO pushTaskTO) {
-        this.pushTaskTO = pushTaskTO;
+        super(pushTaskTO);
         getFilterClauses();
     }
 
     public final Map<String, List<SearchClause>> getFilterClauses() {
         if (this.filterClauses == null) {
-            this.filterClauses = SearchUtils.getSearchClauses(this.pushTaskTO.getFilters());
+            this.filterClauses = SearchUtils.getSearchClauses(getInnerObject().getFilters());
         }
         return this.filterClauses;
     }
@@ -79,8 +77,8 @@ public class PushTaskWrapper implements Serializable {
     }
 
     public PushTaskTO fillFilterConditions() {
-        this.pushTaskTO.getFilters().clear();
-        this.pushTaskTO.getFilters().putAll(this.getFilters());
-        return this.pushTaskTO;
+        getInnerObject().getFilters().clear();
+        getInnerObject().getFilters().putAll(this.getFilters());
+        return getInnerObject();
     }
 }

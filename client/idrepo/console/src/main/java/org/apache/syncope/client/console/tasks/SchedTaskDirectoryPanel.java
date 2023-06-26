@@ -277,7 +277,6 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
             @Override
             public void onClick(final AjaxRequestTarget target, final T ignore) {
-                SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
                                 restClient.readTask(taskType, model.getObject().getKey()),

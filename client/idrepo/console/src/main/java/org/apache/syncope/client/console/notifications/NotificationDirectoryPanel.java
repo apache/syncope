@@ -54,6 +54,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -80,7 +81,9 @@ public class NotificationDirectoryPanel
     protected final BaseModal<String> utilityModal = new BaseModal<>(Constants.OUTER);
 
     public NotificationDirectoryPanel(
-            final String id, final NotificationRestClient restClient, final PageReference pageRef) {
+            final String id,
+            final NotificationRestClient restClient,
+            final PageReference pageRef) {
 
         super(id, restClient, pageRef, true);
         disableCheckBoxes();
@@ -126,9 +129,9 @@ public class NotificationDirectoryPanel
 
     @Override
     public ActionsPanel<NotificationTO> getActions(final IModel<NotificationTO> model) {
-        final ActionsPanel<NotificationTO> panel = super.getActions(model);
+        ActionsPanel<NotificationTO> actions = super.getActions(model);
 
-        panel.add(new ActionLink<>() {
+        actions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
@@ -140,21 +143,20 @@ public class NotificationDirectoryPanel
             }
         }, ActionLink.ActionType.EDIT, IdRepoEntitlement.NOTIFICATION_UPDATE);
 
-        panel.add(new ActionLink<>() {
+        actions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
-                target.add(utilityModal.setContent(
-                        new NotificationTasks(model.getObject().getKey(), pageRef)));
+                target.add(utilityModal.setContent(new NotificationTasks(model.getObject().getKey(), pageRef)));
                 utilityModal.header(new StringResourceModel("notification.tasks", model));
                 utilityModal.show(true);
                 target.add(utilityModal);
             }
         }, ActionLink.ActionType.NOTIFICATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
-        panel.add(new ActionLink<>() {
+        actions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -172,7 +174,7 @@ public class NotificationDirectoryPanel
             }
         }, ActionLink.ActionType.DELETE, IdRepoEntitlement.NOTIFICATION_DELETE, true);
 
-        return panel;
+        return actions;
     }
 
     @Override
@@ -217,15 +219,7 @@ public class NotificationDirectoryPanel
 
         @Override
         public IModel<NotificationTO> model(final NotificationTO notification) {
-            return new IModel<>() {
-
-                private static final long serialVersionUID = 774694801558497248L;
-
-                @Override
-                public NotificationTO getObject() {
-                    return notification;
-                }
-            };
+            return Model.of(notification);
         }
     }
 }

@@ -282,7 +282,11 @@ public abstract class DirectoryPanel<
     }
 
     protected void updateResultTable(final boolean create, final int rows) {
-        dataProvider = dataProvider();
+        synchronized (this) {
+            if (dataProvider == null) {
+                dataProvider = dataProvider();
+            }
+        }
 
         int currentPage = Optional.ofNullable(resultTable).
                 map(table -> (create ? (int) table.getPageCount() - 1 : (int) table.getCurrentPage())).orElse(0);

@@ -206,6 +206,10 @@ public class ResourceStatusDirectoryPanel
             }
         }
 
+        synchronized (this) {
+            dataProvider = dataProvider();
+        }
+
         super.updateResultTable(target);
     }
 

@@ -237,9 +237,9 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
     @Override
     public ActionsPanel<GroupTO> getActions(final IModel<GroupTO> model) {
-        final ActionsPanel<GroupTO> panel = super.getActions(model);
+        ActionsPanel<GroupTO> actions = super.getActions(model);
 
-        panel.add(new ActionLink<>() {
+        actions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -253,7 +253,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.GROUP_UPDATE)).
                 setRealms(realm, model.getObject().getDynRealms());
 
-        panel.add(new ActionLink<>() {
+        actions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 6242834621660352855L;
 
@@ -267,7 +267,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
         }, ActionType.TYPE_EXTENSIONS, IdRepoEntitlement.GROUP_UPDATE).
                 setRealms(realm, model.getObject().getDynRealms());
 
-        panel.add(new ActionLink<>() {
+        actions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
 
@@ -302,7 +302,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }.confirmMessage("confirmProvisionMembers");
-        panel.add(
+        actions.add(
                 provisionMembers,
                 ActionType.PROVISION_MEMBERS,
                 String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE),
@@ -325,7 +325,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         }.confirmMessage("confirmDeprovisionMembers");
-        panel.add(
+        actions.add(
                 deprovisionMembers,
                 ActionType.DEPROVISION_MEMBERS,
                 String.format("%s,%s", IdRepoEntitlement.TASK_CREATE, IdRepoEntitlement.TASK_EXECUTE),
@@ -335,11 +335,11 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 model.getObject(),
                 realm,
                 altDefaultModal,
-                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject()))),
+                getString("any.edit", new Model<>(new GroupWrapper(model.getObject()))),
                 this,
-                pageRef).forEach(panel::add);
+                pageRef).forEach(actions::add);
 
-        panel.add(new ActionLink<>() {
+        actions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -352,7 +352,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         }, ActionType.PROPAGATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
-        panel.add(new ActionLink<>() {
+        actions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -365,7 +365,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         }, ActionType.NOTIFICATION_TASKS, IdRepoEntitlement.TASK_LIST);
 
-        panel.add(new ActionLink<>() {
+        actions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -2878723352517770644L;
 
@@ -402,7 +402,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 }));
 
                 altDefaultModal.header(new Model<>(
-                        getString("auditHistory.title", new Model<>(new AnyWrapper<>(model.getObject())))));
+                        getString("auditHistory.title", new Model<>(new GroupWrapper(model.getObject())))));
 
                 altDefaultModal.show(true);
             }
@@ -410,7 +410,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 String.format("%s,%s", IdRepoEntitlement.GROUP_READ, IdRepoEntitlement.AUDIT_LIST)).
                 setRealms(realm, model.getObject().getDynRealms());
 
-        panel.add(new ActionLink<>() {
+        actions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = 6242834621660352855L;
 
@@ -428,7 +428,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         }, ActionType.CLONE, IdRepoEntitlement.GROUP_CREATE).setRealm(realm);
 
-        panel.add(new ActionLink<>() {
+        actions.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -451,7 +451,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         }, ActionType.DELETE, IdRepoEntitlement.GROUP_DELETE, true).setRealm(realm);
 
-        return panel;
+        return actions;
     }
 
     public static class Builder extends AnyDirectoryPanel.Builder<GroupTO, GroupRestClient> {

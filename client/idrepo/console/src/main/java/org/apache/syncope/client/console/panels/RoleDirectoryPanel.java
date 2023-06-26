@@ -178,11 +178,8 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                         layout.getAnyPanelClass(), BaseModal.CONTENT_ID, userType, null, layout, false, pageRef).
                         build((id, anyTypeTO, realmTO, anyLayout, pageRef) -> {
 
-                            String query = SyncopeClient.getUserSearchConditionBuilder().and(
-                                    SyncopeClient.getUserSearchConditionBuilder().inRoles(model.getObject().getKey()),
-                                    SyncopeClient.getUserSearchConditionBuilder().
-                                            is(Constants.KEY_FIELD_NAME).notNullValue()).
-                                    query();
+                            String query = SyncopeClient.getUserSearchConditionBuilder().
+                                    inRoles(model.getObject().getKey()).query();
 
                             Panel panel = new UserDirectoryPanel.Builder(
                                     anyTypeClassRestClient.list(anyTypeTO.getClasses()),
