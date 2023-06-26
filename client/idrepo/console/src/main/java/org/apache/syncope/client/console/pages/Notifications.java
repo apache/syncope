@@ -52,8 +52,8 @@ public class Notifications extends BasePage {
         body.add(content);
     }
 
-    private List<ITab> buildTabList() {
-        final List<ITab> tabs = new ArrayList<>();
+    protected List<ITab> buildTabList() {
+        List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new ResourceModel("notifications")) {
 
@@ -74,6 +74,7 @@ public class Notifications extends BasePage {
                 return new MailTemplateDirectoryPanel(panelId, notificationRestClient, getPageReference());
             }
         });
+
         return tabs;
     }
 }

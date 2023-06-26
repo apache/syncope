@@ -36,15 +36,26 @@ import org.apache.syncope.client.ui.commons.wizards.any.AnyForm;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 
 public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizardBuilder<A> {
 
     private static final long serialVersionUID = -2480279868319546243L;
+
+    @SuppressWarnings("unchecked")
+    protected static <T extends AnyTO> AnyWrapper<T> wrapper(final T anyTO) {
+        return (AnyWrapper<T>) (anyTO instanceof UserTO
+                ? new UserWrapper((UserTO) anyTO)
+                : anyTO instanceof GroupTO
+                        ? new GroupWrapper((GroupTO) anyTO)
+                        : new AnyObjectWrapper((AnyObjectTO) anyTO));
+    }
 
     protected final List<String> anyTypeClasses;
 
@@ -64,7 +75,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
             final AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo,
             final PageReference pageRef) {
 
-        super(new AnyWrapper<>(anyTO), pageRef);
+        super(wrapper(anyTO), pageRef);
         this.anyTypeClasses = anyTypeClasses;
         this.formLayoutInfo = formLayoutInfo;
     }

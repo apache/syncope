@@ -27,9 +27,10 @@ import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.panels.ToggleableTarget;
 import org.apache.syncope.client.console.policies.PolicyRuleWrapper;
 import org.apache.syncope.client.console.tasks.CommandWrapper;
+import org.apache.syncope.client.console.wizards.any.AnyObjectWrapper;
 import org.apache.syncope.client.console.wizards.any.GroupWrapper;
 import org.apache.syncope.client.ui.commons.status.StatusBean;
-import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
+import org.apache.syncope.client.ui.commons.wizards.any.EntityWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.Attr;
@@ -72,9 +73,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
 
     public void updateHeader(final AjaxRequestTarget target, final Serializable modelObject) {
         final String header;
-        if (modelObject == null) {
-            header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
-        } else if (modelObject instanceof UserTO) {
+        if (modelObject instanceof UserTO) {
             header = ((UserTO) modelObject).getUsername();
         } else if (modelObject instanceof UserWrapper) {
             header = ((UserWrapper) modelObject).getInnerObject().getUsername();
@@ -84,9 +83,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((GroupWrapper) modelObject).getInnerObject().getName();
         } else if (modelObject instanceof AnyObjectTO) {
             header = ((AnyObjectTO) modelObject).getName();
-        } else if (modelObject instanceof AnyWrapper
-                && AnyWrapper.class.cast(modelObject).getInnerObject() instanceof AnyObjectTO) {
-            header = ((AnyObjectTO) ((AnyWrapper) modelObject).getInnerObject()).getName();
+        } else if (modelObject instanceof AnyObjectWrapper) {
+            header = ((AnyObjectWrapper) modelObject).getInnerObject().getName();
         } else if (modelObject instanceof Attr) {
             header = ((Attr) modelObject).getSchema();
         } else if (modelObject instanceof ConfParam) {
@@ -118,6 +116,9 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((NamedEntityTO) modelObject).getName();
         } else if (modelObject instanceof EntityTO) {
             header = ((EntityTO) modelObject).getKey();
+        } else if (modelObject instanceof EntityWrapper) {
+            EntityTO inner = ((EntityWrapper) modelObject).getInnerObject();
+            header = inner instanceof NamedEntityTO ? ((NamedEntityTO) inner).getName() : inner.getKey();
         } else {
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }

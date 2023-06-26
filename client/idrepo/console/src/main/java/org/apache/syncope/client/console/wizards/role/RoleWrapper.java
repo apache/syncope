@@ -18,30 +18,28 @@
  */
 package org.apache.syncope.client.console.wizards.role;
 
-import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.ui.commons.wizards.any.EntityWrapper;
 import org.apache.syncope.common.lib.to.RoleTO;
 
-public class RoleWrapper implements Serializable {
+public class RoleWrapper extends EntityWrapper<RoleTO> {
 
     private static final long serialVersionUID = 8058288034211558376L;
-
-    private final RoleTO roleTO;
 
     private List<SearchClause> dynClauses;
 
     public RoleWrapper(final RoleTO roleTO) {
-        this.roleTO = roleTO;
+        super(roleTO);
         getDynClauses();
     }
 
     public final List<SearchClause> getDynClauses() {
         if (this.dynClauses == null) {
-            this.dynClauses = SearchUtils.getSearchClauses(this.roleTO.getDynMembershipCond());
+            this.dynClauses = SearchUtils.getSearchClauses(getInnerObject().getDynMembershipCond());
         }
         return this.dynClauses;
     }
@@ -53,17 +51,13 @@ public class RoleWrapper implements Serializable {
     public String getDynMembershipCond() {
         if (CollectionUtils.isEmpty(this.dynClauses)) {
             return null;
-        } else {
-            return SearchUtils.buildFIQL(this.dynClauses, SyncopeClient.getUserSearchConditionBuilder());
         }
+
+        return SearchUtils.buildFIQL(this.dynClauses, SyncopeClient.getUserSearchConditionBuilder());
     }
 
     public RoleTO fillDynamicConditions() {
-        this.roleTO.setDynMembershipCond(this.getDynMembershipCond());
-        return this.roleTO;
-    }
-
-    public RoleTO getInnerObject() {
-        return this.roleTO;
+        getInnerObject().setDynMembershipCond(this.getDynMembershipCond());
+        return getInnerObject();
     }
 }

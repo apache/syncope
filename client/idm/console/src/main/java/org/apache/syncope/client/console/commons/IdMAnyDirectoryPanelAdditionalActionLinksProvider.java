@@ -30,9 +30,12 @@ import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.Action;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wizards.any.AnyObjectWrapper;
+import org.apache.syncope.client.console.wizards.any.GroupWrapper;
 import org.apache.syncope.client.console.wizards.any.MergeLinkedAccountsWizardBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
+import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -81,7 +84,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             @Override
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                        new AnyWrapper<>(model.getObject()));
+                        new UserWrapper(model.getObject()));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
@@ -108,7 +111,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
                 model.setObject(userRestClient.read(model.getObject().getKey()));
                 IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                        new AnyWrapper<>(model.getObject()));
+                        new UserWrapper(model.getObject()));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
@@ -190,7 +193,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
                 IModel<AnyWrapper<GroupTO>> formModel = new CompoundPropertyModel<>(
-                        new AnyWrapper<>(modelObject));
+                        new GroupWrapper(modelObject));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
@@ -231,8 +234,8 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                final IModel<AnyWrapper<AnyObjectTO>> formModel = new CompoundPropertyModel<>(
-                        new AnyWrapper<>(modelObject));
+                IModel<AnyWrapper<AnyObjectTO>> formModel = new CompoundPropertyModel<>(
+                        new AnyObjectWrapper(modelObject));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(
