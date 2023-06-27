@@ -28,6 +28,46 @@ public abstract class ChartOptions implements Serializable {
 
     private static final long serialVersionUID = 2401861279216541412L;
 
+    public static class Axis implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        private Boolean display;
+
+        public Boolean getDisplay() {
+            return display;
+        }
+
+        public void setDisplay(final Boolean display) {
+            this.display = display;
+        }
+    }
+
+    public static class Scales implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        private Axis x;
+
+        private Axis y;
+
+        public Axis getX() {
+            return x;
+        }
+
+        public void setX(final Axis x) {
+            this.x = x;
+        }
+
+        public Axis getY() {
+            return y;
+        }
+
+        public void setY(final Axis y) {
+            this.y = y;
+        }
+    }
+
     /** The animation. */
     private Boolean animation;
 
@@ -42,49 +82,6 @@ public abstract class ChartOptions implements Serializable {
 
     @JsonRawValue
     private String customTooltips;
-
-    private Boolean showScale;
-
-    /** The scale override. */
-    private Boolean scaleOverride;
-
-    // ** The next three are required if scaleOverride is true **
-    /** The scale steps. */
-    private Integer scaleSteps;
-
-    /** The scale step width. */
-    private Integer scaleStepWidth;
-
-    /** The scale start value. */
-    private Integer scaleStartValue;
-
-    /** The scale line color. */
-    private String scaleLineColor;
-
-    /** The scale line width. */
-    private Integer scaleLineWidth;
-
-    /** The scale show labels. */
-    private Boolean scaleShowLabels;
-
-    /** The scale label. */
-    private String scaleLabel;
-
-    /** The scale font family. */
-    private String scaleFontFamily;
-
-    /** The scale font size. */
-    private Integer scaleFontSize;
-
-    /** The scale font style. */
-    private String scaleFontStyle;
-
-    /** The scale font color. */
-    private String scaleFontColor;
-
-    private Boolean scaleIntegersOnly;
-
-    private Boolean scaleBeginAtZero;
 
     private Boolean responsive;
 
@@ -125,6 +122,8 @@ public abstract class ChartOptions implements Serializable {
     private String tooltipTemplate;
 
     private String multiTooltipTemplate;
+
+    private Scales scales;
 
     @JsonRawValue
     private String onAnimationProgress;
@@ -207,249 +206,6 @@ public abstract class ChartOptions implements Serializable {
      */
     public void setOnAnimationComplete(final String onAnimationComplete) {
         this.onAnimationComplete = onAnimationComplete;
-    }
-
-    /**
-     * Gets the scale override.
-     *
-     * @return the scale override
-     */
-    public Boolean getScaleOverride() {
-        return scaleOverride;
-    }
-
-    /**
-     * Sets the scale override.
-     *
-     * @param scaleOverride decides if you want to override with a hard coded scale
-     */
-    public void setScaleOverride(final Boolean scaleOverride) {
-        this.scaleOverride = scaleOverride;
-    }
-
-    /**
-     * Gets the scale steps.
-     *
-     * @return the scale steps
-     */
-    public Integer getScaleSteps() {
-        return scaleSteps;
-    }
-
-    /**
-     * Sets the scale steps.
-     *
-     * @param scaleSteps the number of steps in a hard coded scale (required if scaleOverride == true, default is null).
-     */
-    public void setScaleSteps(final Integer scaleSteps) {
-        this.scaleSteps = scaleSteps;
-    }
-
-    /**
-     * Gets the scale step width.
-     *
-     * @return the scale step width
-     */
-    public Integer getScaleStepWidth() {
-        return scaleStepWidth;
-    }
-
-    /**
-     * Sets the scale step width.
-     *
-     * @param scaleStepWidth the value jump in the hard coded scale (required if scaleOverride == true, default is
-     * null).
-     */
-    public void setScaleStepWidth(final Integer scaleStepWidth) {
-        this.scaleStepWidth = scaleStepWidth;
-    }
-
-    /**
-     * Gets the scale start value.
-     *
-     * @return the scale start value
-     */
-    public Integer getScaleStartValue() {
-        return scaleStartValue;
-    }
-
-    /**
-     * Sets the scale start value.
-     *
-     * @param scaleStartValue the scale starting value (required if scaleOverride == true, default is null).
-     */
-    public void setScaleStartValue(final Integer scaleStartValue) {
-        this.scaleStartValue = scaleStartValue;
-    }
-
-    /**
-     * Gets the scale line color.
-     *
-     * @return the scale line color
-     */
-    public String getScaleLineColor() {
-        return scaleLineColor;
-    }
-
-    /**
-     * Sets the scale line color.
-     *
-     * @param scaleLineColor
-     * color of the scale line
-     */
-    public void setScaleLineColor(final String scaleLineColor) {
-        this.scaleLineColor = scaleLineColor;
-    }
-
-    /**
-     * Gets the scale line width.
-     *
-     * @return the scale line width
-     */
-    public Integer getScaleLineWidth() {
-        return scaleLineWidth;
-    }
-
-    /**
-     * Sets the scale line width.
-     *
-     * @param scaleLineWidth the pixel width of the scale line
-     */
-    public void setScaleLineWidth(final Integer scaleLineWidth) {
-        this.scaleLineWidth = scaleLineWidth;
-    }
-
-    /**
-     * Gets the scale show labels.
-     *
-     * @return the scale show labels
-     */
-    public Boolean getScaleShowLabels() {
-        return scaleShowLabels;
-    }
-
-    /**
-     * Sets the scale show labels.
-     *
-     * @param scaleShowLabels decides whether to show labels on the scale
-     */
-    public void setScaleShowLabels(final Boolean scaleShowLabels) {
-        this.scaleShowLabels = scaleShowLabels;
-    }
-
-    /**
-     * Gets the scale label.
-     *
-     * @return the scale label
-     */
-    public String getScaleLabel() {
-        return scaleLabel;
-    }
-
-    /**
-     * Sets the scale label.
-     *
-     * @param scaleLabel an interpolated js string that can access value.
-     */
-    public void setScaleLabel(final String scaleLabel) {
-        this.scaleLabel = scaleLabel;
-    }
-
-    /**
-     * Gets the scale font family.
-     *
-     * @return the scale font family
-     */
-    public String getScaleFontFamily() {
-        return scaleFontFamily;
-    }
-
-    /**
-     * Sets the scale font family.
-     *
-     * @param scaleFontFamily scale label font declaration for the scale label (default is
-     * "'Arial'").
-     */
-    public void setScaleFontFamily(final String scaleFontFamily) {
-        this.scaleFontFamily = scaleFontFamily;
-    }
-
-    /**
-     * Gets the scale font size.
-     *
-     * @return the scale font size
-     */
-    public Integer getScaleFontSize() {
-        return scaleFontSize;
-    }
-
-    /**
-     * Sets the scale font size.
-     *
-     * @param scaleFontSize the scale label font size in pixels
-     */
-    public void setScaleFontSize(final Integer scaleFontSize) {
-        this.scaleFontSize = scaleFontSize;
-    }
-
-    /**
-     * Gets the scale font style.
-     *
-     * @return the scale font style
-     */
-    public String getScaleFontStyle() {
-        return scaleFontStyle;
-    }
-
-    /**
-     * Sets the scale font style.
-     *
-     * @param scaleFontStyle the scale label font weight style (default is "normal").
-     */
-    public void setScaleFontStyle(final String scaleFontStyle) {
-        this.scaleFontStyle = scaleFontStyle;
-    }
-
-    /**
-     * Gets the scale font color.
-     *
-     * @return the scale font color
-     */
-    public String getScaleFontColor() {
-        return scaleFontColor;
-    }
-
-    /**
-     * Sets the scale font color.
-     *
-     * @param scaleFontColor the scale label font color (default is "#666").
-     */
-    public void setScaleFontColor(final String scaleFontColor) {
-        this.scaleFontColor = scaleFontColor;
-    }
-
-    public Boolean getShowScale() {
-        return showScale;
-    }
-
-    public void setShowScale(final Boolean showScale) {
-        this.showScale = showScale;
-    }
-
-    public Boolean getScaleIntegersOnly() {
-        return scaleIntegersOnly;
-    }
-
-    public void setScaleIntegersOnly(final Boolean scaleIntegersOnly) {
-        this.scaleIntegersOnly = scaleIntegersOnly;
-    }
-
-    public Boolean getScaleBeginAtZero() {
-        return scaleBeginAtZero;
-    }
-
-    public void setScaleBeginAtZero(final Boolean scaleBeginAtZero) {
-        this.scaleBeginAtZero = scaleBeginAtZero;
     }
 
     public Boolean getResponsive() {
@@ -636,5 +392,13 @@ public abstract class ChartOptions implements Serializable {
      */
     public void setResponsive(final boolean responsive) {
         this.responsive = responsive;
+    }
+
+    public Scales getScales() {
+        return scales;
+    }
+
+    public void setScales(final Scales scales) {
+        this.scales = scales;
     }
 }

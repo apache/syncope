@@ -62,7 +62,7 @@ public class ChartJSPanel extends Panel {
         return model.getObject();
     }
 
-    public String generateChart() {
+    public String generateChart(final String markupId) {
         String dataString = null;
         String optionString = null;
         try {
@@ -75,7 +75,12 @@ public class ChartJSPanel extends Panel {
             LOG.error("Unexpected error during JSON serialization", e);
         }
 
-        return "var " + container.getMarkupId() + " = WicketCharts['" + container.getMarkupId() + "']."
-                + model.getObject().getClass().getSimpleName() + '(' + dataString + ", " + optionString + ");";
+        return "WicketCharts['" + markupId + "'] = new Chart("
+                + "getChartCtx('" + markupId + "'),"
+                + "{"
+                + "type: '" + model.getObject().getClass().getSimpleName().toLowerCase() + "',"
+                + "data: " + dataString + ","
+                + "options:" + optionString
+                + "})";
     }
 }

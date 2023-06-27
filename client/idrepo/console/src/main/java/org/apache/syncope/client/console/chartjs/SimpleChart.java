@@ -18,26 +18,24 @@
  */
 package org.apache.syncope.client.console.chartjs;
 
-import java.util.List;
-
 /**
  * Provides chart data and options.
  *
  * @param <D> the generic type of chart data
  * @param <O> the generic type of chart options
  */
-public abstract class SimpleChart<D extends SimpleColorValueChartData, O extends ChartOptions> extends Chart<O> {
+public abstract class SimpleChart<D extends DoughnutAndPieChartData, O extends ChartOptions> extends Chart<O> {
 
     private static final long serialVersionUID = 4176838766615656412L;
 
     /** The data. */
-    protected List<D> data;
+    protected D data;
 
-    public List<D> getData() {
+    public D getData() {
         return data;
     }
 
-    public void setData(final List<D> data) {
+    public void setData(final D data) {
         this.data = data;
     }
 }

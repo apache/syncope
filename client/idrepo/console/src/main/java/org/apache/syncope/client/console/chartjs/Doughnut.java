@@ -19,15 +19,13 @@
 package org.apache.syncope.client.console.chartjs;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Provides a simple implementation of chart.js doughnut chart.
  *
  * @see <a href="http://www.chartjs.org/docs/#doughnutChart">chart.js docs</a>
  */
-public class Doughnut extends SimpleChart<DoughnutChartData, DoughnutChartOptions> implements Serializable {
+public class Doughnut extends SimpleChart<DoughnutAndPieChartData, DoughnutChartOptions> implements Serializable {
 
     private static final long serialVersionUID = -6898362145345731457L;
 
@@ -37,13 +35,5 @@ public class Doughnut extends SimpleChart<DoughnutChartData, DoughnutChartOption
             options = new DoughnutChartOptions();
         }
         return options;
-    }
-
-    @Override
-    public List<DoughnutChartData> getData() {
-        if (data == null) {
-            data = new ArrayList<>();
-        }
-        return data;
     }
 }

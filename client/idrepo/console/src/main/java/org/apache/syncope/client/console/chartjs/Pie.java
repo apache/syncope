@@ -19,15 +19,13 @@
 package org.apache.syncope.client.console.chartjs;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Provides a simple implementation of chart.js pie chart.
  *
  * @see <a href="http://www.chartjs.org/docs/#pieChart">chart.js docs</a>
  */
-public class Pie extends SimpleChart<PieChartData, PieChartOptions> implements Serializable {
+public class Pie extends SimpleChart<DoughnutAndPieChartData, PieChartOptions> implements Serializable {
 
     private static final long serialVersionUID = -6898362145345731457L;
 
@@ -37,13 +35,5 @@ public class Pie extends SimpleChart<PieChartData, PieChartOptions> implements S
             options = new PieChartOptions();
         }
         return options;
-    }
-
-    @Override
-    public List<PieChartData> getData() {
-        if (data == null) {
-            data = new ArrayList<>();
-        }
-        return data;
     }
 }

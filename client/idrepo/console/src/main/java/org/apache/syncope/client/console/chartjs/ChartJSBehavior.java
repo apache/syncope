@@ -39,11 +39,9 @@ public class ChartJSBehavior extends AbstractDefaultAjaxBehavior {
     public void renderHead(final Component component, final IHeaderResponse response) {
         super.renderHead(component, response);
 
-        response.render(OnDomReadyHeaderItem.forScript(
-                "WicketCharts['" + component.getMarkupId() + "']=buildChart('" + component.getMarkupId() + "');"));
-
         if (component.getParent() instanceof ChartJSPanel) {
-            response.render(OnDomReadyHeaderItem.forScript(((ChartJSPanel) component.getParent()).generateChart()));
+            response.render(OnDomReadyHeaderItem.forScript(
+                    ((ChartJSPanel) component.getParent()).generateChart(component.getMarkupId())));
         }
     }
 }

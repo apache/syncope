@@ -29,11 +29,9 @@ public abstract class BaseDataSet implements Serializable {
 
     private static final long serialVersionUID = 1581171902504828797L;
 
-    /** The fill color. */
-    private String fillColor = "rgba(220,220,220,0.5)";
+    private String backgroundColor = "rgba(220,220,220,0.5)";
 
-    /** The stroke color. */
-    private String strokeColor = "rgba(220,220,220,1)";
+    private String borderColor = "rgba(220,220,220,1)";
 
     /** The data. */
     private final List<? extends Number> data;
@@ -47,43 +45,21 @@ public abstract class BaseDataSet implements Serializable {
         this.data = data;
     }
 
-    /**
-     * Gets the fill color.
-     *
-     * @return the fill color
-     */
-    public String getFillColor() {
-        return fillColor;
+    public String getBackgroundColor() {
+        return backgroundColor;
     }
 
-    /**
-     * Sets the fill color.
-     *
-     * @param fillColor the fill color
-     * @return the abstract base data set
-     */
-    public BaseDataSet setFillColor(final String fillColor) {
-        this.fillColor = fillColor;
+    public BaseDataSet setBackgroundColor(final String backgroundColor) {
+        this.backgroundColor = backgroundColor;
         return this;
     }
 
-    /**
-     * Gets the stroke color.
-     *
-     * @return the stroke color
-     */
-    public String getStrokeColor() {
-        return strokeColor;
+    public String getBorderColor() {
+        return borderColor;
     }
 
-    /**
-     * Sets the stroke color.
-     *
-     * @param strokeColor the stroke color
-     * @return the abstract base data set
-     */
-    public BaseDataSet setStrokeColor(final String strokeColor) {
-        this.strokeColor = strokeColor;
+    public BaseDataSet setBorderColor(final String borderColor) {
+        this.borderColor = borderColor;
         return this;
     }
 

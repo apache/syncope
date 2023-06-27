@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.widgets;
 import java.util.Map;
 import org.apache.syncope.client.console.chartjs.ChartJSPanel;
 import org.apache.syncope.client.console.chartjs.Doughnut;
-import org.apache.syncope.client.console.chartjs.DoughnutChartData;
+import org.apache.syncope.client.console.chartjs.DoughnutAndPieChartData;
 import org.apache.wicket.model.Model;
 
 public class UsersByStatusWidget extends BaseWidget {
@@ -48,9 +48,18 @@ public class UsersByStatusWidget extends BaseWidget {
         doughnut.getOptions().setResponsive(true);
         doughnut.getOptions().setMaintainAspectRatio(true);
 
+        DoughnutAndPieChartData data = new DoughnutAndPieChartData();
+        doughnut.setData(data);
+
+        DoughnutAndPieChartData.DataSet dataset = new DoughnutAndPieChartData.DataSet();
+        data.getDatasets().add(dataset);
+
         int i = 0;
         for (Map.Entry<String, Integer> entry : usersByStatus.entrySet()) {
-            doughnut.getData().add(new DoughnutChartData(entry.getValue(), COLORS[i % 5], entry.getKey()));
+            dataset.getData().add(entry.getValue());
+            dataset.getBackgroundColor().add(COLORS[i % 5]);
+            data.getLabels().add(entry.getKey());
+
             i++;
         }
 

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.console.chartjs.ChartJSPanel;
+import org.apache.syncope.client.console.chartjs.ChartOptions;
 import org.apache.syncope.client.console.chartjs.Line;
 import org.apache.syncope.client.console.chartjs.LineDataSet;
 import org.apache.syncope.common.lib.info.SystemInfo;
@@ -50,8 +51,17 @@ public class LoadWidget extends BaseWidget {
         line.getOptions().setDatasetFill(false);
         line.getOptions().setResponsive(true);
         line.getOptions().setMaintainAspectRatio(true);
-        line.getOptions().setShowScale(false);
+        line.getOptions().setTension(0.4);
         line.getOptions().setMultiTooltipTemplate("<%= datasetLabel %>");
+
+        ChartOptions.Axis x = new ChartOptions.Axis();
+        x.setDisplay(false);
+        ChartOptions.Axis y = new ChartOptions.Axis();
+        y.setDisplay(false);
+        ChartOptions.Scales scales = new ChartOptions.Scales();
+        scales.setX(x);
+        scales.setY(y);
+        line.getOptions().setScales(scales);
 
         systeminfo.getLoad().forEach(instant -> {
             line.getData().getLabels().add(
@@ -65,13 +75,13 @@ public class LoadWidget extends BaseWidget {
         LineDataSet cpuDataSet = new LineDataSet(cpuValues);
         cpuDataSet.setLabel("CPU");
         cpuDataSet.setPointColor("purple");
-        cpuDataSet.setStrokeColor("purple");
+        cpuDataSet.setBorderColor("purple");
         line.getData().getDatasets().add(cpuDataSet);
 
         LineDataSet memDataSet = new LineDataSet(memValues);
         memDataSet.setLabel("MEM");
         memDataSet.setPointColor("grey");
-        memDataSet.setStrokeColor("grey");
+        memDataSet.setBorderColor("grey");
         line.getData().getDatasets().add(memDataSet);
 
         return line;
