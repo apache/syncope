@@ -101,7 +101,6 @@ public class AnyByRealmWidget extends BaseWidget {
         Collections.sort(realms);
 
         Bar bar = new Bar();
-        bar.getOptions().setScaleBeginAtZero(true);
         bar.getOptions().setBarShowStroke(true);
         bar.getOptions().setBarStrokeWidth(2);
         bar.getOptions().setBarValueSpacing(5);
@@ -125,22 +124,22 @@ public class AnyByRealmWidget extends BaseWidget {
         }
 
         BarDataSet userDataSet = new BarDataSet(userValues);
-        userDataSet.setFillColor("orange");
+        userDataSet.setBackgroundColor("orange");
         userDataSet.setLabel(getString("users"));
         bar.getData().getDatasets().add(userDataSet);
         BarDataSet groupDataSet = new BarDataSet(groupValues);
-        groupDataSet.setFillColor("red");
+        groupDataSet.setBackgroundColor("red");
         groupDataSet.setLabel(getString("groups"));
         bar.getData().getDatasets().add(groupDataSet);
         if (anyType1 != null) {
             BarDataSet any1DataSet = new BarDataSet(any1Values);
-            any1DataSet.setFillColor("green");
+            any1DataSet.setBackgroundColor("green");
             any1DataSet.setLabel(anyType1);
             bar.getData().getDatasets().add(any1DataSet);
         }
         if (anyType2 != null) {
             BarDataSet any2DataSet = new BarDataSet(any2Values);
-            any2DataSet.setFillColor("aqua");
+            any2DataSet.setBackgroundColor("aqua");
             any2DataSet.setLabel(anyType2);
             bar.getData().getDatasets().add(any2DataSet);
         }

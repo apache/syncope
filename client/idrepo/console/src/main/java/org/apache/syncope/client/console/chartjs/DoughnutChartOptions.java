@@ -45,5 +45,4 @@ public class DoughnutChartOptions extends PieChartOptions {
     public void setPercentageInnerCutout(final Integer percentageInnerCutout) {
         this.percentageInnerCutout = percentageInnerCutout;
     }
-
 }

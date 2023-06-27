@@ -102,8 +102,8 @@ under the License.
       <artifactId>jsplumb</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.webjars.bower</groupId>
-      <artifactId>chart.js</artifactId>
+      <groupId>org.webjars</groupId>
+      <artifactId>chartjs</artifactId>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>

@@ -29,8 +29,6 @@ public class LineChartOptions extends ChartOptions {
 
     private Boolean scaleShowVerticalLines = true;
 
-    private Double bezierCurveTension = 0.4;
-
     private Integer pointHitDetectionRadius = 20;
 
     private String legendTemplate = "<ul class=\"<%=name.toLowerCase()%>-legend\">"
@@ -59,6 +57,10 @@ public class LineChartOptions extends ChartOptions {
     /** The dataset fill. */
     private Boolean datasetFill;
 
+    private Boolean showLine = true;
+
+    private Double tension = 0.0;
+
     public Boolean getScaleShowHorizontalLines() {
         return scaleShowHorizontalLines;
     }
@@ -73,14 +75,6 @@ public class LineChartOptions extends ChartOptions {
 
     public void setScaleShowVerticalLines(final Boolean scaleShowVerticalLines) {
         this.scaleShowVerticalLines = scaleShowVerticalLines;
-    }
-
-    public Double getBezierCurveTension() {
-        return bezierCurveTension;
-    }
-
-    public void setBezierCurveTension(final Double bezierCurveTension) {
-        this.bezierCurveTension = bezierCurveTension;
     }
 
     public Integer getPointHitDetectionRadius() {
@@ -223,5 +217,21 @@ public class LineChartOptions extends ChartOptions {
      */
     public void setDatasetFill(final Boolean datasetFill) {
         this.datasetFill = datasetFill;
+    }
+
+    public Boolean getShowLine() {
+        return showLine;
+    }
+
+    public void setShowLine(final Boolean showLine) {
+        this.showLine = showLine;
+    }
+
+    public Double getTension() {
+        return tension;
+    }
+
+    public void setTension(final Double tension) {
+        this.tension = tension;
     }
 }

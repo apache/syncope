@@ -24,7 +24,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.chartjs.ChartJSPanel;
 import org.apache.syncope.client.console.chartjs.Doughnut;
-import org.apache.syncope.client.console.chartjs.DoughnutChartData;
+import org.apache.syncope.client.console.chartjs.DoughnutAndPieChartData;
 import org.apache.syncope.client.console.pages.Notifications;
 import org.apache.syncope.client.console.pages.Policies;
 import org.apache.syncope.client.console.pages.Security;
@@ -124,10 +124,20 @@ public class CompletenessWidget extends BaseWidget {
             }
         }
 
-        doughnut.getData().add(
-                new DoughnutChartData(done, "blue", getString("done")));
-        doughnut.getData().add(
-                new DoughnutChartData(100 - done, "red", getString("todo") + ": " + todo));
+        DoughnutAndPieChartData data = new DoughnutAndPieChartData();
+        doughnut.setData(data);
+
+        DoughnutAndPieChartData.DataSet dataset = new DoughnutAndPieChartData.DataSet();
+        data.getDatasets().add(dataset);
+
+        dataset.getData().add(done);
+        dataset.getData().add(100 - done);
+
+        dataset.getBackgroundColor().add("green");
+        dataset.getBackgroundColor().add("red");
+
+        data.getLabels().add(getString("done"));
+        data.getLabels().add(getString("todo") + ": " + todo);
 
         return Pair.of(doughnut, todo);
     }

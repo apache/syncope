@@ -18,21 +18,40 @@
  */
 package org.apache.syncope.client.console.chartjs;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Provides all information needed for {@link DoughnutChartData}.
- */
-public class DoughnutDataSet extends BaseDataSet {
+public class DoughnutAndPieChartData implements Serializable {
 
-    private static final long serialVersionUID = 3095383371272813559L;
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * Instantiates a new bar data set.
-     *
-     * @param data the values
-     */
-    public DoughnutDataSet(final List<? extends Number> data) {
-        super(data);
+    public static class DataSet implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        private final List<Number> data = new ArrayList<>();
+
+        private final List<String> backgroundColor = new ArrayList<>();
+
+        public List<Number> getData() {
+            return data;
+        }
+
+        public List<String> getBackgroundColor() {
+            return backgroundColor;
+        }
+    }
+
+    private final List<DataSet> datasets = new ArrayList<>();
+
+    private final List<String> labels = new ArrayList<>();
+
+    public List<DataSet> getDatasets() {
+        return datasets;
+    }
+
+    public List<String> getLabels() {
+        return labels;
     }
 }

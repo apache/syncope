@@ -18,13 +18,12 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:head>
-    <script type="text/javascript" src="webjars/chart.js/${chartjs.version}/Chart.min.js"></script>
+    <script type="text/javascript" src="webjars/chartjs/${chartjs.version}/dist/chart.umd.js"></script>
     <script type="text/javascript">
       var WicketCharts = {};
       // Get context with jQuery - using jQuery's .get() method.
-      function buildChart(markupId) {
-        var ctx = $('#' + markupId).get(0).getContext('2d');
-        return new Chart(ctx);
+      function getChartCtx(markupId) {
+        return $('#' + markupId).get(0);
       }
     </script>
   </wicket:head>
