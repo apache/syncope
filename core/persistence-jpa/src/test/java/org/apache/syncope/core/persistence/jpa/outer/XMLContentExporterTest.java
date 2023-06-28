@@ -24,6 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
@@ -50,10 +53,13 @@ public class XMLContentExporterTest extends AbstractTest {
     public void issueSYNCOPE1128() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-        exporter.export(SyncopeConstants.MASTER_DOMAIN, baos, null, null, null);
+        exporter.export(SyncopeConstants.MASTER_DOMAIN, 100, baos);
 
         String exported = baos.toString(Charset.defaultCharset());
         assertTrue(StringUtils.isNotBlank(exported));
+
+        Files.writeString(
+                Path.of("/tmp/caz.xml"), exported, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 
         List<String> realms = IOUtils.readLines(
                 IOUtils.toInputStream(exported, StandardCharsets.UTF_8), StandardCharsets.UTF_8.name()).stream().

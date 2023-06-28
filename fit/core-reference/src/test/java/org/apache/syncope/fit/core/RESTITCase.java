@@ -196,7 +196,7 @@ public class RESTITCase extends AbstractITCase {
 
     @Test
     public void exportInternalStorageContent() throws IOException {
-        Response response = SYNCOPE_SERVICE.exportInternalStorageContent();
+        Response response = SYNCOPE_SERVICE.exportInternalStorageContent(100);
         assertNotNull(response);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_XML));

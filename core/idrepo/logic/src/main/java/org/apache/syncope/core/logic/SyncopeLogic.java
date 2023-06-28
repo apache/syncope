@@ -47,9 +47,6 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,7 +59,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
     protected final GroupDAO groupDAO;
 
-    protected final AnySearchDAO searchDAO;
+    protected final AnySearchDAO anySearchDAO;
 
     protected final GroupDataBinder groupDataBinder;
 
@@ -70,34 +67,22 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
     protected final ContentExporter exporter;
 
-    protected final UserWorkflowAdapter uwfAdapter;
-
-    protected final GroupWorkflowAdapter gwfAdapter;
-
-    protected final AnyObjectWorkflowAdapter awfAdapter;
-
     public SyncopeLogic(
             final RealmDAO realmDAO,
             final AnyTypeDAO anyTypeDAO,
             final GroupDAO groupDAO,
-            final AnySearchDAO searchDAO,
+            final AnySearchDAO anySearchDAO,
             final GroupDataBinder groupDataBinder,
             final ConfParamOps confParamOps,
-            final ContentExporter exporter,
-            final UserWorkflowAdapter uwfAdapter,
-            final GroupWorkflowAdapter gwfAdapter,
-            final AnyObjectWorkflowAdapter awfAdapter) {
+            final ContentExporter exporter) {
 
         this.realmDAO = realmDAO;
         this.anyTypeDAO = anyTypeDAO;
         this.groupDAO = groupDAO;
-        this.searchDAO = searchDAO;
+        this.anySearchDAO = anySearchDAO;
         this.groupDataBinder = groupDataBinder;
         this.confParamOps = confParamOps;
         this.exporter = exporter;
-        this.uwfAdapter = uwfAdapter;
-        this.gwfAdapter = gwfAdapter;
-        this.awfAdapter = awfAdapter;
     }
 
     public boolean isSelfRegAllowed() {
@@ -133,12 +118,12 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
         }
         SearchCond searchCond = SearchCond.getLeaf(termCond);
 
-        int count = searchDAO.count(base, true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.GROUP);
+        int count = anySearchDAO.count(base, true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.GROUP);
 
         OrderByClause orderByClause = new OrderByClause();
         orderByClause.setField("name");
         orderByClause.setDirection(OrderByClause.Direction.ASC);
-        List<Group> matching = searchDAO.search(
+        List<Group> matching = anySearchDAO.search(
                 base,
                 true,
                 SyncopeConstants.FULL_ADMIN_REALMS,
@@ -169,14 +154,12 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.KEYMASTER + "')")
     @Transactional(readOnly = true)
-    public void exportInternalStorageContent(final OutputStream os) {
+    public void exportInternalStorageContent(final int tableThreshold, final OutputStream os) {
         try {
             exporter.export(
                     AuthContextUtils.getDomain(),
-                    os,
-                    uwfAdapter.getPrefix(),
-                    gwfAdapter.getPrefix(),
-                    awfAdapter.getPrefix());
+                    tableThreshold,
+                    os);
             LOG.debug("Internal storage content successfully exported");
         } catch (Exception e) {
             LOG.error("While exporting internal storage content", e);

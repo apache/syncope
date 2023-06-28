@@ -37,6 +37,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnCon
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
@@ -62,10 +63,12 @@ import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -118,6 +121,18 @@ public class BasePage extends BaseWebPage {
         body.add(new Label("os", systemInfo.getOs()));
         body.add(new Label("jvm", systemInfo.getJvm()));
 
+        Model<Integer> tableThresholdModel = Model.of(100);
+        body.add(new TextField<>("tableThreshold", tableThresholdModel).add(
+                new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                // nothing to do
+            }
+        }));
+
         Link<Void> dbExportLink = new Link<>("dbExportLink") {
 
             private static final long serialVersionUID = -4331619903296515985L;
@@ -125,8 +140,8 @@ public class BasePage extends BaseWebPage {
             @Override
             public void onClick() {
                 try {
-                    HttpResourceStream stream = new HttpResourceStream(
-                            new ResponseHolder(syncopeRestClient.exportInternalStorageContent()));
+                    HttpResourceStream stream = new HttpResourceStream(new ResponseHolder(
+                            syncopeRestClient.exportInternalStorageContent(tableThresholdModel.getObject())));
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
                     rsrh.setFileName(stream.getFilename() == null

@@ -106,9 +106,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -483,16 +480,13 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public SyncopeLogic syncopeLogic(
-            final ContentExporter exporter,
-            final UserWorkflowAdapter uwfAdapter,
             final RealmDAO realmDAO,
             final AnyTypeDAO anyTypeDAO,
             final GroupDAO groupDAO,
-            final ConfParamOps confParamOps,
-            final GroupDataBinder groupDataBinder,
             final AnySearchDAO anySearchDAO,
-            final GroupWorkflowAdapter gwfAdapter,
-            final AnyObjectWorkflowAdapter awfAdapter) {
+            final GroupDataBinder groupDataBinder,
+            final ConfParamOps confParamOps,
+            final ContentExporter exporter) {
 
         return new SyncopeLogic(
                 realmDAO,
@@ -501,10 +495,7 @@ public class IdRepoLogicContext {
                 anySearchDAO,
                 groupDataBinder,
                 confParamOps,
-                exporter,
-                uwfAdapter,
-                gwfAdapter,
-                awfAdapter);
+                exporter);
     }
 
     @ConditionalOnMissingBean

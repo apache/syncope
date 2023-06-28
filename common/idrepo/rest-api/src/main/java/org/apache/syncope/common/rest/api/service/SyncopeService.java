@@ -142,9 +142,10 @@ public interface SyncopeService extends JAXRSService {
     /**
      * Exports internal storage content as downloadable XML file.
      *
+     * @param tableThreshold the maximum number of rows to take for each table of internal storage
      * @return internal storage content as downloadable XML file
      */
     @GET
     @Path("internalStorage/stream")
-    Response exportInternalStorageContent();
+    Response exportInternalStorageContent(@QueryParam("tableThreshold") @DefaultValue("100") int tableThreshold);
 }
