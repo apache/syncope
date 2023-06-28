@@ -251,7 +251,11 @@ under the License.
               <span class="info-box-icon"><i class="fa fa-download"></i></span>
 
               <div class="info-box-content">
-                <span class="info-box-text"><a wicket:id="dbExportLink"><wicket:message key="download"/></a></span>
+                <span class="info-box-text">
+                  <label><wicket:message key="tableThreshold"/></label>
+                  <input type="text" class="form-control" wicket:id="tableThreshold"/>
+                  <a wicket:id="dbExportLink"><wicket:message key="download"/></a>
+                </span>
               </div>
             </div>
           </div>
