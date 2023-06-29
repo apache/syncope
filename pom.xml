@@ -422,7 +422,7 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>4.0.12</groovy.version>
+    <groovy.version>4.0.13</groovy.version>
 
     <flowable.version>6.8.0</flowable.version>
 
@@ -2065,7 +2065,7 @@ under the License.
             <link>https://docs.spring.io/spring-framework/docs/5.3.x/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/5.8.x/api/</link>
             <link>https://www.flowable.com/open-source/docs/javadocs/</link>
-            <link>http://docs.swagger.io/swagger-core/v2.2.8/apidocs/</link>
+            <link>http://docs.swagger.io/swagger-core/v2.2.12/apidocs/</link>
           </links>
         </configuration>
         <reportSets>
