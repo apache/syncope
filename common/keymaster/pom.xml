@@ -42,4 +42,16 @@ under the License.
     <module>client-zookeeper</module>
     <module>self</module>
   </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-testng</artifactId>
+            <version>0.4.30</version>
+        </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-testng</artifactId>
+        <version>0.4.30</version>
+      </dependency>
+    </dependencies>
 </project>

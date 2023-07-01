@@ -38,8 +38,20 @@ under the License.
 
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
   </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-testng</artifactId>
+            <version>0.4.30</version>
+        </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-testng</artifactId>
+        <version>0.4.30</version>
+      </dependency>
+    </dependencies>
 
-  <build>
+    <build>
     <extensions>
       <extension>
         <groupId>org.apache.maven.archetype</groupId>

@@ -17,8 +17,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -213,224 +212,19 @@ under the License.
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.parent.groupId}.ext.elasticsearch</groupId>
-            <artifactId>syncope-ext-elasticsearch-client</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.elasticsearch</groupId>
-            <artifactId>syncope-ext-elasticsearch-persistence-jpa</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.elasticsearch</groupId>
-            <artifactId>syncope-ext-elasticsearch-provisioning-java</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.flowable</groupId>
-            <artifactId>syncope-ext-flowable-client-common-ui</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.flowable</groupId>
-            <artifactId>syncope-ext-flowable-client-console</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.flowable</groupId>
-            <artifactId>syncope-ext-flowable-client-enduser</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.flowable</groupId>
-            <artifactId>syncope-ext-flowable-common-lib</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.flowable</groupId>
-            <artifactId>syncope-ext-flowable-bpmn</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.flowable</groupId>
-            <artifactId>syncope-ext-flowable-logic</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.flowable</groupId>
-            <artifactId>syncope-ext-flowable-rest-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.flowable</groupId>
-            <artifactId>syncope-ext-flowable-rest-cxf</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.oidcc4ui</groupId>
-            <artifactId>syncope-ext-oidcc4ui-client-common-ui</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.oidcc4ui</groupId>
-            <artifactId>syncope-ext-oidcc4ui-client-console</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.oidcc4ui</groupId>
-            <artifactId>syncope-ext-oidcc4ui-client-enduser</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.oidcc4ui</groupId>
-            <artifactId>syncope-ext-oidcc4ui-common-lib</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.oidcc4ui</groupId>
-            <artifactId>syncope-ext-oidcc4ui-logic</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.oidcc4ui</groupId>
-            <artifactId>syncope-ext-oidcc4ui-persistence-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.oidcc4ui</groupId>
-            <artifactId>syncope-ext-oidcc4ui-persistence-jpa</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.oidcc4ui</groupId>
-            <artifactId>syncope-ext-oidcc4ui-provisioning-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.oidcc4ui</groupId>
-            <artifactId>syncope-ext-oidcc4ui-provisioning-java</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.oidcc4ui</groupId>
-            <artifactId>syncope-ext-oidcc4ui-rest-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.oidcc4ui</groupId>
-            <artifactId>syncope-ext-oidcc4ui-rest-cxf</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.saml2sp4ui</groupId>
-            <artifactId>syncope-ext-saml2sp4ui-client-common-ui</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.saml2sp4ui</groupId>
-            <artifactId>syncope-ext-saml2sp4ui-client-console</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.saml2sp4ui</groupId>
-            <artifactId>syncope-ext-saml2sp4ui-client-enduser</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.saml2sp4ui</groupId>
-            <artifactId>syncope-ext-saml2sp4ui-common-lib</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.saml2sp4ui</groupId>
-            <artifactId>syncope-ext-saml2sp4ui-logic</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.saml2sp4ui</groupId>
-            <artifactId>syncope-ext-saml2sp4ui-persistence-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.saml2sp4ui</groupId>
-            <artifactId>syncope-ext-saml2sp4ui-persistence-jpa</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.saml2sp4ui</groupId>
-            <artifactId>syncope-ext-saml2sp4ui-provisioning-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.saml2sp4ui</groupId>
-            <artifactId>syncope-ext-saml2sp4ui-provisioning-java</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.saml2sp4ui</groupId>
-            <artifactId>syncope-ext-saml2sp4ui-rest-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.saml2sp4ui</groupId>
-            <artifactId>syncope-ext-saml2sp4ui-rest-cxf</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.scimv2</groupId>
-            <artifactId>syncope-ext-scimv2-client-console</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.scimv2</groupId>
-            <artifactId>syncope-ext-scimv2-common-lib</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.scimv2</groupId>
-            <artifactId>syncope-ext-scimv2-logic</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.scimv2</groupId>
-            <artifactId>syncope-ext-scimv2-rest-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.scimv2</groupId>
-            <artifactId>syncope-ext-scimv2-rest-cxf</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.scimv2</groupId>
-            <artifactId>syncope-ext-scimv2-scim-rest-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}.ext.scimv2</groupId>
-            <artifactId>syncope-ext-scimv2-scim-rest-cxf</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.parent.groupId}</groupId>
-            <artifactId>syncope-sra</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>syncope-standalone</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.parent.groupId}.wa</groupId>
-            <artifactId>syncope-wa-bootstrap</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-testng</artifactId>
+            <version>0.4.30</version>
         </dependency>
         <dependency>
-            <groupId>${project.parent.groupId}.wa</groupId>
-            <artifactId>syncope-wa-starter</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-testng</artifactId>
+            <version>0.4.30</version>
         </dependency>
     </dependencies>
 
@@ -439,7 +233,7 @@ under the License.
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.8</version>
+                <version>0.8.10</version>
                 <executions>
                     <execution>
                         <id>report</id>

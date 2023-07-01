@@ -17,7 +17,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -430,7 +431,7 @@ under the License.
     <commons-jexl.version>3.3</commons-jexl.version>
     <commons-text.version>1.10.0</commons-text.version>
 
-    <pac4j.version>6.0.0-RC7-SNAPSHOT</pac4j.version>
+    <pac4j.version>6.0.0-RC7</pac4j.version>
 
     <cas.version>7.0.0-RC6</cas.version>
     <cas-client.version>4.0.1</cas-client.version>
@@ -451,7 +452,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>1.0.2</chartjs.version>
 
-    <wicket.version>10.0.0-M1-SNAPSHOT</wicket.version>
+    <wicket.version>10.0.0-M1</wicket.version>
     <wicketstuff.version>10.0.0-SNAPSHOT</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-SNAPSHOT</wicket-jqueryui.version>
     <wicket-bootstrap.version>7.0.0-SNAPSHOT</wicket-bootstrap.version>
@@ -1703,7 +1704,7 @@ under the License.
 
                 if (!project.properties.containsKey('buildNumber'))
                 project.properties['buildNumber'] = ""
-                ]]></script>
+                ]]>                </script>
               </scripts>
             </configuration>
           </execution>
@@ -2133,7 +2134,7 @@ under the License.
 
     <!-- JaCoCo profile -->
     <profile>
-      <id>jacoco-coverage</id>
+      <id>JaCoCoCoverage</id>
       <activation>
         <activeByDefault>false</activeByDefault>
       </activation>
@@ -2162,13 +2163,21 @@ under the License.
     <module>common</module>
     <module>core</module>
     <module>client</module>
-    <module>sra</module>
-    <module>wa</module>
-    <module>fit</module>
-    <module>ext</module>
     <module>archetype</module>
     <module>standalone</module>
     <module>tests</module>
   </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-testng</artifactId>
+            <version>0.4.30</version>
+        </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-testng</artifactId>
+        <version>0.4.30</version>
+      </dependency>
+    </dependencies>
 
 </project>
