@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.logic.saml2.NoOpLogoutHandler;
 import org.pac4j.saml.config.SAML2Configuration;
@@ -50,7 +51,10 @@ abstract class AbstractSAML2SP4UILogic extends AbstractTransactionalLogic<Entity
                 props.getKeystoreKeypass(),
                 null);
 
-        cfg.setKeystoreType(props.getKeystoreType());
+        Optional.ofNullable(props.getKeystoreAlias()).ifPresent(cfg::setKeystoreAlias);
+
+        cfg.setKeystoreType(Optional.ofNullable(props.getKeystoreType()).orElseGet(() -> KeyStore.getDefaultType()));
+
         if (cfg.getKeystoreResource() instanceof FileUrlResource) {
             cfg.setKeystoreGenerator(new BaseSAML2KeystoreGenerator(cfg) {
 
