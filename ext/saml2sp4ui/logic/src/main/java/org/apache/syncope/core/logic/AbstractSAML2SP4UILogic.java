@@ -46,7 +46,7 @@ abstract class AbstractSAML2SP4UILogic extends AbstractTransactionalLogic<Entity
     protected SAML2Configuration newSAML2Configuration() {
         SAML2Configuration cfg = new SAML2Configuration(
                 resourceResolver.getResource(props.getKeystore()),
-                null,
+                props.getKeystoreAlias(),
                 props.getKeystoreType(),
                 props.getKeystoreStorepass(),
                 props.getKeystoreKeypass(),

@@ -31,6 +31,8 @@ public class SAML2SP4UIProperties {
 
     private String keystoreKeypass;
 
+    private String keystoreAlias;
+
     private long skew;
 
     public String getKeystore() {
@@ -63,6 +65,14 @@ public class SAML2SP4UIProperties {
 
     public void setKeystoreKeypass(final String keystoreKeypass) {
         this.keystoreKeypass = keystoreKeypass;
+    }
+
+    public String getKeystoreAlias() {
+        return keystoreAlias;
+    }
+
+    public void setKeystoreAlias(final String keystoreAlias) {
+        this.keystoreAlias = keystoreAlias;
     }
 
     public long getSkew() {
