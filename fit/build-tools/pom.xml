@@ -34,7 +34,7 @@ under the License.
   <packaging>war</packaging>
   
   <properties>
-    <jakarta.xml.version>3.0.1</jakarta.xml.version>
+    <jakarta.xml.version>4.0.0</jakarta.xml.version>
     <jaxb.version>3.0.2</jaxb.version>
 
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
