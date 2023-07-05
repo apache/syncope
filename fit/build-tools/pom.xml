@@ -35,7 +35,7 @@ under the License.
   
   <properties>
     <jakarta.xml.version>3.0.1</jakarta.xml.version>
-    <jaxb.version>3.0.2</jaxb.version>
+    <jaxb.version>4.0.3</jaxb.version>
 
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
