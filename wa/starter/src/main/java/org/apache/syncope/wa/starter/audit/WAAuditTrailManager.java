@@ -49,14 +49,14 @@ public class WAAuditTrailManager extends AbstractAuditTrailManager {
 
         LOG.info("Loading application definitions");
         try {
-            String output = MAPPER.writeValueAsString(Map.of("resource", audit.getResourceOperatedUpon(),
-                    "clientIpAddress", audit.getClientIpAddress(),
-                    "serverIpAddress", audit.getServerIpAddress()));
+            String output = MAPPER.writeValueAsString(Map.of(
+                    "resource", audit.getResourceOperatedUpon(),
+                    "clientIpAddress", audit.getClientInfo().getClientIpAddress(),
+                    "serverIpAddress", audit.getClientInfo().getServerIpAddress()));
 
             AuditEntry auditEntry = new AuditEntry();
             auditEntry.setWho(audit.getPrincipal());
-            auditEntry.setDate(
-                    audit.getWhenActionWasPerformed().toInstant().atOffset(OffsetDateTime.now().getOffset()));
+            auditEntry.setDate(audit.getWhenActionWasPerformed().atOffset(OffsetDateTime.now().getOffset()));
             auditEntry.setOutput(output);
             AuditElements.Result result = StringUtils.containsIgnoreCase(audit.getActionPerformed(), "fail")
                     ? AuditElements.Result.FAILURE

@@ -23,13 +23,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Date;
-import java.util.Map;
+import java.time.LocalDateTime;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.AbstractTest;
 import org.apereo.inspektr.audit.AuditActionContext;
+import org.apereo.inspektr.common.web.ClientInfo;
 import org.junit.jupiter.api.Test;
 
 public class WAAuditTrailManagerTest extends AbstractTest {
@@ -48,8 +48,10 @@ public class WAAuditTrailManagerTest extends AbstractTest {
 
     @Test
     public void saveAuditRecord() {
-        AuditActionContext audit = new AuditActionContext("principal", "resourceOperatedUpon", "actionPerformed",
-                "applicationCode", new Date(), "clientIpAddress", "serverIpAddress", "userAgent", Map.of());
+        AuditActionContext audit = new AuditActionContext(
+                "principal", "resourceOperatedUpon", "actionPerformed", "applicationCode",
+                LocalDateTime.now(),
+                new ClientInfo("clientIpAddress", "serverIpAddress", "userAgent", null));
         WAAuditTrailManager auditTrailManager = new WAAuditTrailManager(getWaRestClient());
         auditTrailManager.saveAuditRecord(audit);
         verify(LOGGER_SERVICE).create(any(AuditEntry.class));
