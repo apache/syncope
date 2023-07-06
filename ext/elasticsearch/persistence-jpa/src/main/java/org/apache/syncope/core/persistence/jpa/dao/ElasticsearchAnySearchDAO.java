@@ -514,11 +514,14 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected Query getQuery(final MemberCond cond) {
-        String memberKey = check(cond);
+        List<Query> queries = check(cond).stream().
+                map(key -> new Query.Builder().term(QueryBuilders.term().
+                field("members").value(key).build()).
+                build()).collect(Collectors.toList());
 
-        return new Query.Builder().term(QueryBuilders.term().
-                field("members").value(memberKey).build()).
-                build();
+        return queries.size() == 1
+                ? queries.get(0)
+                : new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build();
     }
 
     protected Query getQuery(final AuxClassCond cond) {

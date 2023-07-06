@@ -465,7 +465,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        String memberKey = check(cond);
+        Set<String> members = check(cond);
 
         StringBuilder query = new StringBuilder().append('(');
 
@@ -477,7 +477,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
         query.append("SELECT DISTINCT group_id AS any_id FROM ").
                 append(new SearchSupport(AnyTypeKind.USER).membership().name).append(" WHERE ").
-                append("any_id=?").append(setParameter(parameters, memberKey)).
+                append(members.stream().
+                        map(key -> "any_id=?" + setParameter(parameters, key)).
+                        collect(Collectors.joining(" OR "))).
                 append(") ");
 
         if (not) {
@@ -488,7 +490,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
         query.append("SELECT DISTINCT group_id AS any_id FROM ").
                 append(new SearchSupport(AnyTypeKind.ANY_OBJECT).membership().name).append(" WHERE ").
-                append("any_id=?").append(setParameter(parameters, memberKey)).
+                append(members.stream().
+                        map(key -> "any_id=?" + setParameter(parameters, key)).
+                        collect(Collectors.joining(" OR "))).
                 append(')');
 
         query.append(')');

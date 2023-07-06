@@ -285,48 +285,48 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     }
 
     protected List<String> check(final MembershipCond cond) {
-        if (SyncopeConstants.UUID_PATTERN.matcher(cond.getGroup()).matches()) {
-            return List.of(cond.getGroup());
-        }
-
-        List<String> matching = cond.getGroup().indexOf('%') == -1
+        List<String> groups = SyncopeConstants.UUID_PATTERN.matcher(cond.getGroup()).matches()
+                ? List.of(cond.getGroup())
+                : cond.getGroup().indexOf('%') == -1
                 ? Optional.ofNullable(groupDAO.findKey(cond.getGroup())).map(List::of).orElseGet(List::of)
                 : groupDAO.findKeysByNamePattern(cond.getGroup());
-        if (matching.isEmpty()) {
+
+        if (groups.isEmpty()) {
             throw new IllegalArgumentException("Could not find group(s) for " + cond.getGroup());
         }
 
-        return matching;
+        return groups;
     }
 
     protected Set<String> check(final RelationshipCond cond) {
-        Set<String> rightAnyObjectKeys = cond.getAnyObject() == null
+        Set<String> rightAnyObjects = cond.getAnyObject() == null
                 ? Set.of()
                 : SyncopeConstants.UUID_PATTERN.matcher(cond.getAnyObject()).matches()
                 ? Set.of(cond.getAnyObject())
                 : anyObjectDAO.findByName(cond.getAnyObject()).stream().
                         map(AnyObject::getKey).collect(Collectors.toSet());
 
-        if (rightAnyObjectKeys.isEmpty()) {
+        if (rightAnyObjects.isEmpty()) {
             throw new IllegalArgumentException("Could not find any object for " + cond.getAnyObject());
         }
 
-        return rightAnyObjectKeys;
+        return rightAnyObjects;
     }
 
-    protected String check(final MemberCond cond) {
-        String memberKey;
-        if (SyncopeConstants.UUID_PATTERN.matcher(cond.getMember()).matches()) {
-            memberKey = cond.getMember();
-        } else {
-            Any<?> member = userDAO.findByUsername(cond.getMember());
-            memberKey = Optional.ofNullable(member).map(Any::getKey).orElse(null);
-        }
-        if (memberKey == null) {
+    protected Set<String> check(final MemberCond cond) {
+        Set<String> members = cond.getMember() == null
+                ? Set.of()
+                : SyncopeConstants.UUID_PATTERN.matcher(cond.getMember()).matches()
+                ? Set.of(cond.getMember())
+                : Optional.ofNullable(userDAO.findKey(cond.getMember())).map(Set::of).
+                        orElseGet(() -> anyObjectDAO.findByName(cond.getMember()).stream().
+                        map(AnyObject::getKey).collect(Collectors.toSet()));
+
+        if (members.isEmpty()) {
             throw new IllegalArgumentException("Could not find user or any object for " + cond.getMember());
         }
 
-        return memberKey;
+        return members;
     }
 
     @SuppressWarnings("unchecked")
