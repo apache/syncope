@@ -713,7 +713,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        String rightAnyObjectKey = check(cond);
+        Set<String> rightAnyObjects = check(cond);
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
@@ -726,7 +726,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.relationship().name).append(" WHERE ").
-                append("right_any_id=?").append(setParameter(parameters, rightAnyObjectKey)).
+                append(rightAnyObjects.stream().
+                        map(key -> "right_any_id=?" + setParameter(parameters, key)).
+                        collect(Collectors.joining(" OR "))).
                 append(')');
 
         return query.toString();
@@ -901,7 +903,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        String memberKey = check(cond);
+        Set<String> members = check(cond);
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
@@ -914,7 +916,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         query.append("SELECT DISTINCT group_id AS any_id FROM ").
                 append(new SearchSupport(AnyTypeKind.USER).membership().name).append(" WHERE ").
-                append("any_id=?").append(setParameter(parameters, memberKey)).
+                append(members.stream().
+                        map(key -> "any_id=?" + setParameter(parameters, key)).
+                        collect(Collectors.joining(" OR "))).
                 append(") ");
 
         if (not) {
@@ -925,7 +929,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         query.append("SELECT DISTINCT group_id AS any_id FROM ").
                 append(new SearchSupport(AnyTypeKind.ANY_OBJECT).membership().name).append(" WHERE ").
-                append("any_id=?").append(setParameter(parameters, memberKey)).
+                append(members.stream().
+                        map(key -> "any_id=?" + setParameter(parameters, key)).
+                        collect(Collectors.joining(" OR "))).
                 append(')');
 
         return query.toString();

@@ -35,8 +35,6 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     int DEFAULT_PAGE_SIZE = 500;
 
-    String findKey(String name);
-
     List<A> findByKeys(List<String> keys);
 
     OffsetDateTime findLastChange(String key);

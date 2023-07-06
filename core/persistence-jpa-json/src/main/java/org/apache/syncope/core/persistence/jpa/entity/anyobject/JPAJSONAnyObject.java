@@ -27,6 +27,7 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -36,7 +37,8 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.validation.entity.JPAJSONAttributableCheck;
 
 @Entity
-@Table(name = JPAAnyObject.TABLE)
+@Table(name = JPAAnyObject.TABLE, uniqueConstraints =
+        @UniqueConstraint(columnNames = { "name", "type_id" }))
 @EntityListeners({ JPAJSONAnyObjectListener.class })
 @JPAJSONAttributableCheck
 public class JPAJSONAnyObject extends JPAAnyObject implements JSONAttributable<AnyObject>, AnyObject {

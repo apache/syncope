@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -34,7 +33,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -50,7 +49,8 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.AnyObjectCheck;
 
 @Entity
-@Table(name = JPAAnyObject.TABLE)
+@Table(name = JPAAnyObject.TABLE, uniqueConstraints =
+        @UniqueConstraint(columnNames = { "name", "type_id" }))
 @Cacheable
 @AnyObjectCheck
 public class JPAAnyObject
@@ -61,8 +61,7 @@ public class JPAAnyObject
 
     public static final String TABLE = "AnyObject";
 
-    @Column(unique = true)
-    @NotNull
+    @Size(min = 1)
     private String name;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
@@ -77,7 +76,8 @@ public class JPAAnyObject
             @JoinColumn(name = "anyObject_id"),
             inverseJoinColumns =
             @JoinColumn(name = "resource_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = { "anyObject_id", "resource_id" }))
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "anyObject_id", "resource_id" }))
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -85,7 +85,8 @@ public class JPAAnyObject
             @JoinColumn(name = "anyObject_id"),
             inverseJoinColumns =
             @JoinColumn(name = "anyTypeClass_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = { "anyObject_id", "anyTypeClass_id" }))
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "anyObject_id", "anyTypeClass_id" }))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")

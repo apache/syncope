@@ -108,7 +108,18 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Transactional(readOnly = true)
     @Override
     public String findKey(final String username) {
-        return findKey(username, JPAUser.TABLE);
+        Query query = entityManager().createNativeQuery("SELECT id FROM " + JPAUser.TABLE + " WHERE username=?");
+        query.setParameter(1, username);
+
+        String key = null;
+
+        for (Object resultKey : query.getResultList()) {
+            key = resultKey instanceof Object[]
+                    ? (String) ((Object[]) resultKey)[0]
+                    : ((String) resultKey);
+        }
+
+        return key;
     }
 
     @Transactional(readOnly = true)

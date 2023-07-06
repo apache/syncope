@@ -25,7 +25,9 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.persistence.Entity;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
@@ -60,6 +62,7 @@ import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
@@ -211,12 +214,16 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
     protected boolean matches(
             final GroupableRelatable<?, ?, ?, ?, ?> any, final RelationshipCond cond, final boolean not) {
 
-        String anyObject = cond.getAnyObject();
-        if (!SyncopeConstants.UUID_PATTERN.matcher(cond.getAnyObject()).matches()) {
-            anyObject = anyObjectDAO.findKey(anyObject);
-        }
+        Set<String> candidates = SyncopeConstants.UUID_PATTERN.matcher(cond.getAnyObject()).matches()
+                ? Optional.ofNullable(cond.getAnyObject()).map(Set::of).orElse(Set.of())
+                : anyObjectDAO.findByName(cond.getAnyObject()).stream().
+                        map(AnyObject::getKey).collect(Collectors.toSet());
 
-        boolean found = !any.getRelationships(anyObject).isEmpty();
+        boolean found = any.getRelationships().stream().
+                map(r -> r.getRightEnd().getKey()).
+                filter(candidates::contains).
+                count() > 0;
+
         return not ? !found : found;
     }
 

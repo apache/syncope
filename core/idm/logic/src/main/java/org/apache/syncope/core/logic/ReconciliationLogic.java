@@ -51,13 +51,16 @@ import org.apache.syncope.common.rest.api.beans.AbstractCSVSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -223,10 +226,17 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     protected Any<?> getAny(final Provision provision, final AnyTypeKind anyTypeKind, final String anyKey) {
-        AnyDAO<Any<?>> dao = anyUtilsFactory.getInstance(anyTypeKind).dao();
-        Any<?> any = SyncopeConstants.UUID_PATTERN.matcher(anyKey).matches()
-                ? dao.authFind(anyKey)
-                : dao.authFind(dao.findKey(anyKey));
+        AnyDAO<?> dao = anyUtilsFactory.getInstance(anyTypeKind).dao();
+
+        String actualKey = anyKey;
+        if (!SyncopeConstants.UUID_PATTERN.matcher(anyKey).matches()) {
+            actualKey = dao instanceof UserDAO
+                    ? ((UserDAO) dao).findKey(anyKey)
+                    : dao instanceof GroupDAO
+                            ? ((GroupDAO) dao).findKey(anyKey)
+                            : ((AnyObjectDAO) dao).findKey(provision.getAnyType(), anyKey);
+        }
+        Any<?> any = dao.authFind(actualKey);
         if (any == null) {
             throw new NotFoundException(provision.getAnyType() + " '" + anyKey + "'");
         }

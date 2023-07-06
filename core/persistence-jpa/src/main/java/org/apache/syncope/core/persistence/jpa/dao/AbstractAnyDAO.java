@@ -63,7 +63,6 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,22 +99,6 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             }
         }
         return anyUtils;
-    }
-
-    protected String findKey(final String name, final String table) {
-        Query query = entityManager().createNativeQuery(
-                "SELECT id FROM " + table + " WHERE " + (JPAUser.TABLE.equals(table) ? "username" : "name") + "=?");
-        query.setParameter(1, name);
-
-        String key = null;
-
-        for (Object resultKey : query.getResultList()) {
-            key = resultKey instanceof Object[]
-                    ? (String) ((Object[]) resultKey)[0]
-                    : ((String) resultKey);
-        }
-
-        return key;
     }
 
     @SuppressWarnings("unchecked")

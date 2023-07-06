@@ -49,7 +49,7 @@ public class UserRequestServiceImpl extends AbstractService implements UserReque
     @Override
     public PagedResult<UserRequest> listRequests(final UserRequestQuery query) {
         if (query.getUser() != null) {
-            query.setUser(Optional.ofNullable(getActualKey(userDAO, query.getUser())).orElse(query.getUser()));
+            query.setUser(Optional.ofNullable(findActualKey(userDAO, query.getUser())).orElse(query.getUser()));
         }
 
         Pair<Integer, List<UserRequest>> result = logic.listRequests(
@@ -63,7 +63,7 @@ public class UserRequestServiceImpl extends AbstractService implements UserReque
 
         return user == null
                 ? logic.startRequest(bpmnProcess, inputVariables)
-                : logic.startRequest(bpmnProcess, getActualKey(userDAO, user), inputVariables);
+                : logic.startRequest(bpmnProcess, findActualKey(userDAO, user), inputVariables);
     }
 
     @Override
@@ -83,13 +83,13 @@ public class UserRequestServiceImpl extends AbstractService implements UserReque
 
     @Override
     public UserRequestForm getForm(final String username, final String taskId) {
-        return logic.getForm(getActualKey(userDAO, username), taskId);
+        return logic.getForm(findActualKey(userDAO, username), taskId);
     }
 
     @Override
     public PagedResult<UserRequestForm> listForms(final UserRequestQuery query) {
         if (query.getUser() != null) {
-            query.setUser(Optional.ofNullable(getActualKey(userDAO, query.getUser())).orElse(query.getUser()));
+            query.setUser(Optional.ofNullable(findActualKey(userDAO, query.getUser())).orElse(query.getUser()));
         }
 
         Pair<Integer, List<UserRequestForm>> result = logic.listForms(

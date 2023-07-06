@@ -33,6 +33,12 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
+    String findKey(String type, String name);
+
+    AnyObject findByName(String type, String name);
+
+    List<AnyObject> findByName(String name);
+
     /**
      * Checks if the calling user is authorized to access the Any Object matching the provided key, under the given
      * realm.
@@ -53,8 +59,6 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
     Map<AnyType, Integer> countByType();
 
     Map<String, Integer> countByRealm(AnyType anyType);
-
-    AnyObject findByName(String name);
 
     AMembership findMembership(String key);
 
