@@ -661,7 +661,7 @@ public class DefaultMappingManager implements MappingManager {
                     references.add(user);
                 }
             } else if (intAttrName.getRelatedAnyObject() != null) {
-                AnyObject anyObject = anyObjectDAO.findByName(intAttrName.getRelatedAnyObject());
+                AnyObject anyObject = anyObjectDAO.find(intAttrName.getRelatedAnyObject());
                 if (anyObject == null || groupableRelatable.getRelationships(anyObject.getKey()).isEmpty()) {
                     LOG.warn("No relationship for {} in {}, ignoring",
                             intAttrName.getRelatedAnyObject(), groupableRelatable);

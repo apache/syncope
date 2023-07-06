@@ -104,14 +104,17 @@ public class CommandITCase extends AbstractITCase {
         CommandOutput output = COMMAND_SERVICE.run(command);
         assertNotNull(output);
 
+        AnyObjectTO printer = null;
         try {
-            AnyObjectTO printer = ANY_OBJECT_SERVICE.read(args.getPrinterName());
+            printer = ANY_OBJECT_SERVICE.read(PRINTER, args.getPrinterName());
             assertNotNull(printer);
             assertEquals(args.getParentRealm() + "/" + args.getRealmName(), printer.getRealm());
             assertFalse(REALM_SERVICE.search(
                     new RealmQuery.Builder().base(printer.getRealm()).build()).getResult().isEmpty());
         } finally {
-            ANY_OBJECT_SERVICE.delete(args.getPrinterName());
+            if (printer != null) {
+                ANY_OBJECT_SERVICE.delete(printer.getKey());
+            }
             REALM_SERVICE.delete(args.getParentRealm() + "/" + args.getRealmName());
         }
     }

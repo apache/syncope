@@ -119,6 +119,12 @@ public class AnyObjectITCase extends AbstractITCase {
     }
 
     @Test
+    public void readByName() {
+        AnyObjectTO anyObjectTO = ANY_OBJECT_SERVICE.read(PRINTER, "HP LJ 1300n");
+        assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", anyObjectTO.getKey());
+    }
+
+    @Test
     public void update() {
         AnyObjectCR anyObjectCR = getSample("update");
         AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();

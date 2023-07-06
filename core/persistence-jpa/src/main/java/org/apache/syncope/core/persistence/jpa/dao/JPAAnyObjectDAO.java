@@ -90,8 +90,52 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Transactional(readOnly = true)
     @Override
-    public String findKey(final String name) {
-        return findKey(name, JPAAnyObject.TABLE);
+    public AnyObject findByName(final String type, final String name) {
+        TypedQuery<AnyObject> query = entityManager().createQuery(
+                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e "
+                + "WHERE e.type.id = :type AND e.name = :name",
+                AnyObject.class);
+        query.setParameter("type", type);
+        query.setParameter("name", name);
+
+        AnyObject result = null;
+        try {
+            result = query.getSingleResult();
+        } catch (NoResultException e) {
+            LOG.debug("No any object found with name {}", name, e);
+        }
+
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<AnyObject> findByName(final String name) {
+        TypedQuery<AnyObject> query = entityManager().createQuery(
+                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e WHERE e.name = :name",
+                AnyObject.class);
+        query.setParameter("name", name);
+
+        return query.getResultList();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public String findKey(final String type, final String name) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT id FROM " + JPAAnyObject.TABLE + " WHERE type_id=? AND name=?");
+        query.setParameter(1, type);
+        query.setParameter(2, name);
+
+        String key = null;
+
+        for (Object resultKey : query.getResultList()) {
+            key = resultKey instanceof Object[]
+                    ? (String) ((Object[]) resultKey)[0]
+                    : ((String) resultKey);
+        }
+
+        return key;
     }
 
     @Transactional(readOnly = true)
@@ -163,22 +207,6 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
                 getOrDefault(AnyEntitlement.READ.getFor(anyObject.getType().getKey()), Set.of());
 
         securityChecks(authRealms, anyObject.getKey(), anyObject.getRealm().getFullPath(), findAllGroupKeys(anyObject));
-    }
-
-    @Override
-    public AnyObject findByName(final String name) {
-        TypedQuery<AnyObject> query = entityManager().createQuery(
-                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e WHERE e.name = :name", AnyObject.class);
-        query.setParameter("name", name);
-
-        AnyObject result = null;
-        try {
-            result = query.getSingleResult();
-        } catch (NoResultException e) {
-            LOG.debug("No any object found with name {}", name, e);
-        }
-
-        return result;
     }
 
     @Override

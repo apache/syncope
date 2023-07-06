@@ -52,16 +52,16 @@ public class UserFiqlSearchConditionBuilder
                 notInGroups(group, moreGroups);
     }
 
-    public UserCompleteCondition inRelationships(final String anyType, final String... moreAnyTypes) {
+    public UserCompleteCondition inRelationships(final String anyObject, final String... moreAnyObjects) {
         return newBuilderInstance().
                 is(SpecialAttr.RELATIONSHIPS.toString()).
-                inRelationships(anyType, moreAnyTypes);
+                inRelationships(anyObject, moreAnyObjects);
     }
 
-    public UserCompleteCondition notInRelationships(final String anyType, final String... moreAnyTypes) {
+    public UserCompleteCondition notInRelationships(final String anyObject, final String... moreAnyObjects) {
         return newBuilderInstance().
                 is(SpecialAttr.RELATIONSHIPS.toString()).
-                notInRelationships(anyType, moreAnyTypes);
+                notInRelationships(anyObject, moreAnyObjects);
     }
 
     public UserCompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {

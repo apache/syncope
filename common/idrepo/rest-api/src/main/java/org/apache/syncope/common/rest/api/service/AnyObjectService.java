@@ -30,9 +30,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -57,14 +59,25 @@ public interface AnyObjectService extends AnyService<AnyObjectTO> {
 
     @ApiResponses(
             @ApiResponse(responseCode = "200", description =
-                    "Any object matching the provided key; if value looks like a UUID then it is interpreted as key,"
-                    + " otherwise as a name.", headers =
+                    "Any object matching the provided key.", headers =
                     @Header(name = HttpHeaders.ETAG, schema =
                             @Schema(type = "string"),
                             description = "Opaque identifier for the latest modification made to the entity returned"
                             + " by this endpoint")))
     @Override
     AnyObjectTO read(String key);
+
+    @ApiResponses(
+            @ApiResponse(responseCode = "200", description =
+                    "Any object matching the provided type and name.", headers =
+                    @Header(name = HttpHeaders.ETAG, schema =
+                            @Schema(type = "string"),
+                            description = "Opaque identifier for the latest modification made to the entity returned"
+                            + " by this endpoint")))
+    @GET
+    @Path("byName/{type}/{name}")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    AnyObjectTO read(@NotNull @PathParam("type") String type, @NotNull @PathParam("name") String name);
 
     @Override
     PagedResult<AnyObjectTO> search(AnyQuery anyQuery);

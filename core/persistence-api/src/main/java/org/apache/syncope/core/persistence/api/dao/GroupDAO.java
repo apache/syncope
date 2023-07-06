@@ -33,6 +33,10 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface GroupDAO extends AnyDAO<Group> {
 
+    String findKey(String name);
+
+    Group findByName(String name);
+
     /**
      * Checks if the calling user is authorized to access the Group matching the provided key, under the given
      * realm.
@@ -44,8 +48,6 @@ public interface GroupDAO extends AnyDAO<Group> {
     void securityChecks(Set<String> authRealms, String key, String realm);
 
     Map<String, Integer> countByRealm();
-
-    Group findByName(String name);
 
     List<String> findKeysByNamePattern(String pattern);
 

@@ -474,25 +474,25 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected Query getQuery(final RelationshipCond cond) {
-        String rightAnyObjectKey = check(cond);
+        List<Query> queries = check(cond).stream().
+                map(key -> new Query.Builder().term(QueryBuilders.term().
+                field("relationships").value(key).build()).
+                build()).collect(Collectors.toList());
 
-        return new Query.Builder().term(QueryBuilders.term().
-                field("relationships").value(rightAnyObjectKey).build()).
-                build();
+        return queries.size() == 1
+                ? queries.get(0)
+                : new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build();
     }
 
     protected Query getQuery(final MembershipCond cond) {
-        List<String> groupKeys = check(cond);
-
-        List<Query> membershipQueries = groupKeys.stream().
+        List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
                 field("memberships").value(key).build()).
                 build()).collect(Collectors.toList());
-        if (membershipQueries.size() == 1) {
-            return membershipQueries.get(0);
-        }
 
-        return new Query.Builder().disMax(QueryBuilders.disMax().queries(membershipQueries).build()).build();
+        return queries.size() == 1
+                ? queries.get(0)
+                : new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build();
     }
 
     protected Query getQuery(final RoleCond cond) {

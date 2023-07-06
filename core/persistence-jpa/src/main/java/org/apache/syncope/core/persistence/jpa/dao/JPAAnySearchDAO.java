@@ -713,7 +713,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        String rightAnyObjectKey = check(cond);
+        Set<String> rightAnyObjectKeys = check(cond);
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
@@ -726,7 +726,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.relationship().name).append(" WHERE ").
-                append("right_any_id=?").append(setParameter(parameters, rightAnyObjectKey)).
+                append(rightAnyObjectKeys.stream().
+                        map(key -> "right_any_id=?" + setParameter(parameters, key)).
+                        collect(Collectors.joining(" OR "))).
                 append(')');
 
         return query.toString();

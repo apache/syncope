@@ -66,6 +66,16 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
     }
 
     @Override
+    public AnyObjectTO read(final String key) {
+        return logic.read(key);
+    }
+
+    @Override
+    public AnyObjectTO read(final String type, final String name) {
+        return logic.read(type, name);
+    }
+
+    @Override
     protected AnyObjectUR newUpdateReq(final String key) {
         return new AnyObjectUR.Builder(key).build();
     }

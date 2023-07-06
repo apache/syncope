@@ -35,6 +35,10 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface UserDAO extends AnyDAO<User> {
 
+    String findKey(String username);
+
+    Optional<String> findUsername(String key);
+
     /**
      * Checks if the calling user is authorized to access the User matching the provided key, under the given
      * realm.
@@ -45,8 +49,6 @@ public interface UserDAO extends AnyDAO<User> {
      * @param groups group the User is member of
      */
     void securityChecks(Set<String> authRealms, String key, String realm, Collection<String> groups);
-
-    Optional<String> findUsername(String key);
 
     Map<String, Integer> countByRealm();
 

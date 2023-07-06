@@ -299,19 +299,19 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         return matching;
     }
 
-    protected String check(final RelationshipCond cond) {
-        String rightAnyObjectKey;
-        if (SyncopeConstants.UUID_PATTERN.matcher(cond.getAnyObject()).matches()) {
-            rightAnyObjectKey = cond.getAnyObject();
-        } else {
-            AnyObject anyObject = anyObjectDAO.findByName(cond.getAnyObject());
-            rightAnyObjectKey = Optional.ofNullable(anyObject).map(AnyObject::getKey).orElse(null);
-        }
-        if (rightAnyObjectKey == null) {
+    protected Set<String> check(final RelationshipCond cond) {
+        Set<String> rightAnyObjectKeys = cond.getAnyObject() == null
+                ? Set.of()
+                : SyncopeConstants.UUID_PATTERN.matcher(cond.getAnyObject()).matches()
+                ? Set.of(cond.getAnyObject())
+                : anyObjectDAO.findByName(cond.getAnyObject()).stream().
+                        map(AnyObject::getKey).collect(Collectors.toSet());
+
+        if (rightAnyObjectKeys.isEmpty()) {
             throw new IllegalArgumentException("Could not find any object for " + cond.getAnyObject());
         }
 
-        return rightAnyObjectKey;
+        return rightAnyObjectKeys;
     }
 
     protected String check(final MemberCond cond) {
@@ -320,9 +320,6 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
             memberKey = cond.getMember();
         } else {
             Any<?> member = userDAO.findByUsername(cond.getMember());
-            if (member == null) {
-                member = anyObjectDAO.findByName(cond.getMember());
-            }
             memberKey = Optional.ofNullable(member).map(Any::getKey).orElse(null);
         }
         if (memberKey == null) {

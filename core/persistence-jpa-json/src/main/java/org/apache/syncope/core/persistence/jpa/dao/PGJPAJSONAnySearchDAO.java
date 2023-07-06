@@ -531,7 +531,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final List<Object> parameters,
             final SearchSupport svs) {
 
-        String rightAnyObjectKey = check(cond);
+        Set<String> rightAnyObjectKeys = check(cond);
 
         StringBuilder query = new StringBuilder().append('(');
 
@@ -543,7 +543,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.relationship().name).append(" WHERE ").
-                append("right_any_id=?").append(setParameter(parameters, rightAnyObjectKey)).
+                append(rightAnyObjectKeys.stream().
+                        map(key -> "right_any_id=?" + setParameter(parameters, key)).
+                        collect(Collectors.joining(" OR "))).
                 append(')');
 
         query.append(')');
