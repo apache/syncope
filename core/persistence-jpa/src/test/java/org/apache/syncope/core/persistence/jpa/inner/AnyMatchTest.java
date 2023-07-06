@@ -76,7 +76,7 @@ public class AnyMatchTest extends AbstractTest {
         assertNotNull(anyObject);
 
         RelationshipCond relationshipCond = new RelationshipCond();
-        relationshipCond.setAnyObject("Canon MF 8030cn");
+        relationshipCond.setAnyObject("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertTrue(anyMatcher.matches(anyObject, SearchCond.getLeaf(relationshipCond)));
 
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();

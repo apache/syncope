@@ -191,7 +191,7 @@ public class ReconciliationITCase extends AbstractITCase {
                 new ReconQuery.Builder(PRINTER, RESOURCE_NAME_DBSCRIPTED).fiql("ID==" + externalKey).build(), pullTask);
 
         // 4. verify reconciliation result
-        AnyObjectTO printer = ANY_OBJECT_SERVICE.read(externalName);
+        AnyObjectTO printer = ANY_OBJECT_SERVICE.read(PRINTER, externalName);
         assertNotNull(printer);
     }
 

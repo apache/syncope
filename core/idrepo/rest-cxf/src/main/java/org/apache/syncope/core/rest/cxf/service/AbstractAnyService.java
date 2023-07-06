@@ -117,7 +117,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
 
     @Override
     public TO read(final String key) {
-        return getAnyLogic().read(getActualKey(getAnyDAO(), key));
+        return getAnyLogic().read(findActualKey(getAnyDAO(), key));
     }
 
     @Override
@@ -157,7 +157,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
     }
 
     protected Response doUpdate(final UR updateReq) {
-        updateReq.setKey(getActualKey(getAnyDAO(), updateReq.getKey()));
+        updateReq.setKey(findActualKey(getAnyDAO(), updateReq.getKey()));
         OffsetDateTime etag = findLastChange(updateReq.getKey());
         checkETag(String.valueOf(etag.toInstant().toEpochMilli()));
 
@@ -192,15 +192,14 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
 
     @Override
     public Response update(final String key, final SchemaType schemaType, final Attr attrTO) {
-        String actualKey = getActualKey(getAnyDAO(), key);
+        String actualKey = findActualKey(getAnyDAO(), key);
         addUpdateOrReplaceAttr(actualKey, schemaType, attrTO, PatchOperation.ADD_REPLACE);
         return modificationResponse(read(actualKey, schemaType, attrTO.getSchema()));
     }
 
     @Override
     public void delete(final String key, final SchemaType schemaType, final String schema) {
-        addUpdateOrReplaceAttr(
-                getActualKey(getAnyDAO(), key),
+        addUpdateOrReplaceAttr(findActualKey(getAnyDAO(), key),
                 schemaType,
                 new Attr.Builder(schema).build(),
                 PatchOperation.DELETE);
@@ -208,7 +207,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
 
     @Override
     public Response delete(final String key) {
-        String actualKey = getActualKey(getAnyDAO(), key);
+        String actualKey = findActualKey(getAnyDAO(), key);
 
         OffsetDateTime etag = findLastChange(actualKey);
         checkETag(String.valueOf(etag.toInstant().toEpochMilli()));

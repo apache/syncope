@@ -22,6 +22,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +37,8 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.validation.entity.JPAJSONAttributableCheck;
 
 @Entity
-@Table(name = JPAAnyObject.TABLE)
+@Table(name = JPAAnyObject.TABLE, uniqueConstraints =
+        @UniqueConstraint(columnNames = { "name", "type_id" }))
 @EntityListeners({ JPAJSONAnyObjectListener.class })
 @JPAJSONAttributableCheck
 public class JPAJSONAnyObject extends JPAAnyObject implements JSONAttributable<AnyObject>, AnyObject {

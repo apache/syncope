@@ -132,7 +132,7 @@ public class MacroITCase extends AbstractITCase {
         ExecTO exec = TASK_SERVICE.read(TaskType.MACRO, MACRO_TASK_KEY, true).getExecutions().get(preExecs);
         assertEquals(ExecStatus.SUCCESS.name(), exec.getStatus());
 
-        AnyObjectTO printer = ANY_OBJECT_SERVICE.read(TCA.getPrinterName());
+        AnyObjectTO printer = ANY_OBJECT_SERVICE.read(PRINTER, TCA.getPrinterName());
         assertNotNull(printer);
         assertEquals(TCA.getParentRealm() + "/" + TCA.getRealmName(), printer.getRealm());
         assertFalse(REALM_SERVICE.search(

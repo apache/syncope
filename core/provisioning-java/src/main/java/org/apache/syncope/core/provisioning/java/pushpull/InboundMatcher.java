@@ -288,7 +288,7 @@ public class InboundMatcher {
                         cond.setExpression(finalConnObjectKeyValue);
                         anys.addAll(anySearchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.ANY_OBJECT));
                     } else {
-                        Optional.ofNullable(anyObjectDAO.findByName(finalConnObjectKeyValue)).ifPresent(anys::add);
+                        anys.addAll(anyObjectDAO.findByName(finalConnObjectKeyValue));
                     }
                     break;
 

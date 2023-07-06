@@ -55,6 +55,20 @@ public class AnyObjectTest extends AbstractTest {
     }
 
     @Test
+    public void findByName() {
+        AnyObject anyObject = anyObjectDAO.findByName("PRINTER", "HP LJ 1300n");
+        assertNotNull(anyObject);
+        assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", anyObject.getKey());
+
+        assertEquals(1, anyObjectDAO.findByName("HP LJ 1300n").size());
+    }
+
+    @Test
+    public void findKey() {
+        assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", anyObjectDAO.findKey("PRINTER", "HP LJ 1300n"));
+    }
+
+    @Test
     public void findAll() {
         List<AnyObject> anyObjects = anyObjectDAO.findAll(1, 100);
         assertNotNull(anyObjects);

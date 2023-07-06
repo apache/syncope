@@ -96,6 +96,13 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
     }
 
     @Transactional(readOnly = true)
+    public AnyObjectTO read(final String type, final String name) {
+        return Optional.ofNullable(anyObjectDAO.findKey(type, name)).
+                map(binder::getAnyObjectTO).
+                orElseThrow(() -> new NotFoundException("AnyObject " + type + " " + name));
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public Pair<Integer, List<AnyObjectTO>> search(
             final SearchCond searchCond,

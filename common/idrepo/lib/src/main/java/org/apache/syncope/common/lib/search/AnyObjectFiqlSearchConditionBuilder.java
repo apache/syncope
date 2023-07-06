@@ -67,16 +67,16 @@ public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchCondi
                 notInGroups(group, moreGroups);
     }
 
-    public AnyObjectCompleteCondition inRelationships(final String anyType, final String... moreAnyTypes) {
+    public AnyObjectCompleteCondition inRelationships(final String anyObject, final String... moreAnyObjects) {
         return newBuilderInstance().
                 is(SpecialAttr.RELATIONSHIPS.toString()).
-                inRelationships(anyType, moreAnyTypes);
+                inRelationships(anyObject, moreAnyObjects);
     }
 
-    public AnyObjectCompleteCondition notInRelationships(final String anyType, final String... moreAnyTypes) {
+    public AnyObjectCompleteCondition notInRelationships(final String anyObject, final String... moreAnyObjects) {
         return newBuilderInstance().
                 is(SpecialAttr.RELATIONSHIPS.toString()).
-                notInRelationships(anyType, moreAnyTypes);
+                notInRelationships(anyObject, moreAnyObjects);
     }
 
     public AnyObjectCompleteCondition inRelationshipTypes(final String type, final String... moreTypes) {

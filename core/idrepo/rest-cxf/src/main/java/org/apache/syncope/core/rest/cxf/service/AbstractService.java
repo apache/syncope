@@ -40,6 +40,8 @@ import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +61,7 @@ public abstract class AbstractService implements JAXRSService {
     @Context
     protected SearchContext searchContext;
 
-    protected String getActualKey(final AnyDAO<?> dao, final String pretendingKey) {
+    protected String findActualKey(final AnyDAO<?> dao, final String pretendingKey) {
         String actualKey = pretendingKey;
         if (uriInfo.getPathParameters(true).containsKey("key")) {
             String keyInPath = uriInfo.getPathParameters(true).get("key").get(0);
@@ -77,7 +79,11 @@ public abstract class AbstractService implements JAXRSService {
             throw sce;
         }
         if (!SyncopeConstants.UUID_PATTERN.matcher(actualKey).matches()) {
-            actualKey = dao.findKey(actualKey);
+            actualKey = dao instanceof UserDAO
+                    ? ((UserDAO) dao).findKey(actualKey)
+                    : dao instanceof GroupDAO
+                            ? ((GroupDAO) dao).findKey(actualKey)
+                            : null;
         }
         return actualKey;
     }
