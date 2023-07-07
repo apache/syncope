@@ -2,6 +2,24 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.4
+================================================================================
+
+** Bug
+    * [SYNCOPE-1755] - NullPointer exception during PULL delete operation in case of NO_MATCH
+    * [SYNCOPE-1757] - Misalignment between SyncTokenSerializer and SyncTokenDeserializer in case of token given as a clear string
+    * [SYNCOPE-1761] - As admin, searching Users, Groups or Any Objects performs full Realm tree traversal
+    * [SYNCOPE-1763] - Constant increase of open files after upgrade to CXF 3.6.0
+    * [SYNCOPE-1767] - When searching Groups with GROUP_MEMBER condition only Users are considered
+
+** Improvement
+    * [SYNCOPE-1759] - REST endpoint to evaluate account and password compliance with policies
+    * [SYNCOPE-1760] - Align Core Spring Boot actuator endpoint security with other components
+    * [SYNCOPE-1762] - Enrich actuator info with JPA provider information
+    * [SYNCOPE-1765] - allow WA to decrypt properties during the configuration bootstrap phase
+    * [SYNCOPE-1768] - Improve internal storage export feature
+    * [SYNCOPE-1769] - Allow the same name to be used across different Any Object types
+
 Release Notes - Syncope - Version 3.0.3
 ================================================================================
 
