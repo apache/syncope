@@ -248,8 +248,7 @@ public class SyncopeClient {
 
     /**
      * Returns the JWT in used by this instance, passed with the {@link HttpHeaders#AUTHORIZATION} header
-     * in all requests. It can be null (in case {@link NoAuthenticationHandler} or
-     * {@link AnonymousAuthenticationHandler} were used).
+     * in all requests. It can be null (in case {@link AnonymousAuthenticationHandler} was used).
      *
      * @return the JWT in used by this instance
      */
