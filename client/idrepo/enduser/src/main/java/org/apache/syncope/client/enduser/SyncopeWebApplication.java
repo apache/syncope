@@ -259,8 +259,10 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return new SyncopeEnduserSession(request);
     }
 
-    public SyncopeAnonymousClient newAnonymousClient() {
-        return newClientFactory().createAnonymous(props.getAnonymousUser(), props.getAnonymousKey());
+    public SyncopeAnonymousClient newAnonymousClient(final String domain) {
+        return newClientFactory().
+                setDomain(domain).
+                createAnonymous(props.getAnonymousUser(), props.getAnonymousKey());
     }
 
     public SyncopeClientFactoryBean newClientFactory() {

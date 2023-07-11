@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.starter.actuate;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
@@ -26,11 +27,13 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
@@ -38,6 +41,7 @@ import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -61,6 +65,7 @@ import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.context.PayloadApplicationEvent;
@@ -136,6 +141,9 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             SYSTEM_INFO.setStartTime(runtimeMXBean.getStartTime());
         }
     }
+
+    @Autowired
+    protected HttpServletRequest request;
 
     protected final AnyTypeDAO anyTypeDAO;
 
@@ -272,60 +280,62 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
         }
     }
 
-    protected NumbersInfo buildNumbers() {
-        NumbersInfo numbersInfo = new NumbersInfo();
+    protected NumbersInfo buildNumbers(final String domain) {
+        return AuthContextUtils.callAsAdmin(domain, () -> {
+            NumbersInfo numbersInfo = new NumbersInfo();
 
-        numbersInfo.setTotalUsers(userDAO.count());
-        numbersInfo.getUsersByRealm().putAll(userDAO.countByRealm());
-        numbersInfo.getUsersByStatus().putAll(userDAO.countByStatus());
+            numbersInfo.setTotalUsers(userDAO.count());
+            numbersInfo.getUsersByRealm().putAll(userDAO.countByRealm());
+            numbersInfo.getUsersByStatus().putAll(userDAO.countByStatus());
 
-        numbersInfo.setTotalGroups(groupDAO.count());
-        numbersInfo.getGroupsByRealm().putAll(groupDAO.countByRealm());
+            numbersInfo.setTotalGroups(groupDAO.count());
+            numbersInfo.getGroupsByRealm().putAll(groupDAO.countByRealm());
 
-        Map<AnyType, Integer> anyObjectNumbers = anyObjectDAO.countByType();
-        int i = 0;
-        for (Iterator<Map.Entry<AnyType, Integer>> itor = anyObjectNumbers.entrySet().iterator();
-                i < 2 && itor.hasNext(); i++) {
+            Map<AnyType, Integer> anyObjectNumbers = anyObjectDAO.countByType();
+            int i = 0;
+            for (Iterator<Map.Entry<AnyType, Integer>> itor = anyObjectNumbers.entrySet().iterator();
+                    i < 2 && itor.hasNext(); i++) {
 
-            Map.Entry<AnyType, Integer> entry = itor.next();
-            if (i == 0) {
-                numbersInfo.setAnyType1(entry.getKey().getKey());
-                numbersInfo.setTotalAny1(entry.getValue());
-                numbersInfo.getAny1ByRealm().putAll(anyObjectDAO.countByRealm(entry.getKey()));
-            } else {
-                numbersInfo.setAnyType2(entry.getKey().getKey());
-                numbersInfo.setTotalAny2(entry.getValue());
-                numbersInfo.getAny2ByRealm().putAll(anyObjectDAO.countByRealm(entry.getKey()));
+                Map.Entry<AnyType, Integer> entry = itor.next();
+                if (i == 0) {
+                    numbersInfo.setAnyType1(entry.getKey().getKey());
+                    numbersInfo.setTotalAny1(entry.getValue());
+                    numbersInfo.getAny1ByRealm().putAll(anyObjectDAO.countByRealm(entry.getKey()));
+                } else {
+                    numbersInfo.setAnyType2(entry.getKey().getKey());
+                    numbersInfo.setTotalAny2(entry.getValue());
+                    numbersInfo.getAny2ByRealm().putAll(anyObjectDAO.countByRealm(entry.getKey()));
+                }
             }
-        }
 
-        numbersInfo.setTotalResources(resourceDAO.count());
+            numbersInfo.setTotalResources(resourceDAO.count());
 
-        numbersInfo.setTotalRoles(roleDAO.count());
+            numbersInfo.setTotalRoles(roleDAO.count());
 
-        numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.RESOURCE.name(), numbersInfo.getTotalResources() > 0);
-        numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.ACCOUNT_POLICY.name(), !policyDAO.find(AccountPolicy.class).isEmpty());
-        numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.PASSWORD_POLICY.name(), !policyDAO.find(PasswordPolicy.class).isEmpty());
-        numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.NOTIFICATION.name(), !notificationDAO.findAll().isEmpty());
-        numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.PULL_TASK.name(), !taskDAO.findAll(TaskType.PULL).isEmpty());
-        numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.VIR_SCHEMA.name(), !virSchemaDAO.findAll().isEmpty());
-        numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.ANY_TYPE.name(), !anyObjectNumbers.isEmpty());
-        numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.SECURITY_QUESTION.name(), !securityQuestionDAO.findAll().isEmpty());
-        numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.ROLE.name(), numbersInfo.getTotalRoles() > 0);
+            numbersInfo.getConfCompleteness().put(
+                    NumbersInfo.ConfItem.RESOURCE.name(), numbersInfo.getTotalResources() > 0);
+            numbersInfo.getConfCompleteness().put(
+                    NumbersInfo.ConfItem.ACCOUNT_POLICY.name(), !policyDAO.find(AccountPolicy.class).isEmpty());
+            numbersInfo.getConfCompleteness().put(
+                    NumbersInfo.ConfItem.PASSWORD_POLICY.name(), !policyDAO.find(PasswordPolicy.class).isEmpty());
+            numbersInfo.getConfCompleteness().put(
+                    NumbersInfo.ConfItem.NOTIFICATION.name(), !notificationDAO.findAll().isEmpty());
+            numbersInfo.getConfCompleteness().put(
+                    NumbersInfo.ConfItem.PULL_TASK.name(), !taskDAO.findAll(TaskType.PULL).isEmpty());
+            numbersInfo.getConfCompleteness().put(
+                    NumbersInfo.ConfItem.VIR_SCHEMA.name(), !virSchemaDAO.findAll().isEmpty());
+            numbersInfo.getConfCompleteness().put(
+                    NumbersInfo.ConfItem.ANY_TYPE.name(), !anyObjectNumbers.isEmpty());
+            numbersInfo.getConfCompleteness().put(
+                    NumbersInfo.ConfItem.SECURITY_QUESTION.name(), !securityQuestionDAO.findAll().isEmpty());
+            numbersInfo.getConfCompleteness().put(
+                    NumbersInfo.ConfItem.ROLE.name(), numbersInfo.getTotalRoles() > 0);
 
-        taskExecutors.forEach((name, bean) -> numbersInfo.getTaskExecutorInfos().
-                put(name, getTaskExecutorInfo(bean.getThreadPoolExecutor().toString())));
+            taskExecutors.forEach((name, bean) -> numbersInfo.getTaskExecutorInfos().
+                    put(name, getTaskExecutorInfo(bean.getThreadPoolExecutor().toString())));
 
-        return numbersInfo;
+            return numbersInfo;
+        });
     }
 
     protected void buildSystem() {
@@ -342,7 +352,10 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
 
         builder.withDetail("persistence", persistenceInfoDAO.info());
 
-        builder.withDetail("numbers", buildNumbers());
+        builder.withDetail(
+                "numbers",
+                buildNumbers(Optional.ofNullable(request.getHeader(RESTHeaders.DOMAIN)).
+                        orElse(SyncopeConstants.MASTER_DOMAIN)));
 
         buildSystem();
         builder.withDetail("system", SYSTEM_INFO);

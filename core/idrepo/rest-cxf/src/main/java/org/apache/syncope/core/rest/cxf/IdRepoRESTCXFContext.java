@@ -136,7 +136,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -272,8 +271,8 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public OpenApiFeature openapiFeature(final OpenApiCustomizer openApiCustomizer, final ApplicationContext ctx) {
-        String version = ctx.getEnvironment().getProperty("version");
+    public OpenApiFeature openapiFeature(final OpenApiCustomizer openApiCustomizer, final Environment env) {
+        String version = env.getProperty("version");
         OpenApiFeature openapiFeature = new OpenApiFeature();
         openapiFeature.setUseContextBasedConfig(true);
         openapiFeature.setTitle("Apache Syncope");
@@ -319,8 +318,7 @@ public class IdRepoRESTCXFContext {
             final ThreadLocalCleanupOutInterceptor threadLocalCleanupOutInterceptor,
             final OpenApiFeature openapiFeature,
             final RestServiceExceptionMapper restServiceExceptionMapper,
-            final Bus bus,
-            final ApplicationContext ctx) {
+            final Bus bus) {
 
         SpringJAXRSServerFactoryBean restContainer = new SpringJAXRSServerFactoryBean();
         restContainer.setBus(bus);
@@ -351,7 +349,6 @@ public class IdRepoRESTCXFContext {
 
         restContainer.setFeatures(List.of(openapiFeature));
 
-        restContainer.setApplicationContext(ctx);
         return restContainer.create();
     }
 
