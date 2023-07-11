@@ -95,15 +95,11 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleSession.class);
 
+    public static SyncopeConsoleSession get() {
+        return (SyncopeConsoleSession) Session.get();
+    }
+
     protected final SyncopeClientFactoryBean clientFactory;
-
-    protected final SyncopeAnonymousClient anonymousClient;
-
-    protected final Pair<String, String> gitAndBuildInfo;
-
-    protected final PlatformInfo platformInfo;
-
-    protected final SystemInfo systemInfo;
 
     protected final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
 
@@ -112,6 +108,14 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     protected String domain;
 
     protected SyncopeClient client;
+
+    protected SyncopeAnonymousClient anonymousClient;
+
+    protected Pair<String, String> gitAndBuildInfo;
+
+    protected PlatformInfo platformInfo;
+
+    protected SystemInfo systemInfo;
 
     protected UserTO selfTO;
 
@@ -123,19 +127,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     protected Roles roles;
 
-    public static SyncopeConsoleSession get() {
-        return (SyncopeConsoleSession) Session.get();
-    }
-
     public SyncopeConsoleSession(final Request request) {
         super(request);
 
         clientFactory = SyncopeWebApplication.get().newClientFactory();
-        anonymousClient = SyncopeWebApplication.get().newAnonymousClient();
-
-        gitAndBuildInfo = anonymousClient.gitAndBuildInfo();
-        platformInfo = anonymousClient.platform();
-        systemInfo = anonymousClient.system();
 
         executor = SyncopeWebApplication.get().newThreadPoolTaskExecutor();
     }
@@ -259,6 +254,11 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     public void cleanup() {
+        anonymousClient = null;
+        gitAndBuildInfo = null;
+        platformInfo = null;
+        systemInfo = null;
+
         client = null;
         auth = null;
         delegations = null;
@@ -369,6 +369,11 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     public void refreshAuth(final String username) {
         try {
+            anonymousClient = SyncopeWebApplication.get().newAnonymousClient(getDomain());
+            gitAndBuildInfo = anonymousClient.gitAndBuildInfo();
+            platformInfo = anonymousClient.platform();
+            systemInfo = anonymousClient.system();
+
             Triple<Map<String, Set<String>>, List<String>, UserTO> self = client.self();
             auth = self.getLeft();
             delegations = self.getMiddle();
@@ -385,7 +390,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     @Override
     public SyncopeAnonymousClient getAnonymousClient() {
-        return anonymousClient;
+        return Optional.ofNullable(anonymousClient).
+                orElseGet(() -> SyncopeWebApplication.get().newAnonymousClient(getDomain()));
     }
 
     @Override

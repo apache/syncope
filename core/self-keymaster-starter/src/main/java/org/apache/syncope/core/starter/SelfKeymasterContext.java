@@ -66,7 +66,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
@@ -102,8 +101,7 @@ public class SelfKeymasterContext {
             final GZIPOutInterceptor gzipOutInterceptor,
             final JAXRSBeanValidationInInterceptor validationInInterceptor,
             final RestServiceExceptionMapper restServiceExceptionMapper,
-            final Bus bus,
-            final ApplicationContext ctx) {
+            final Bus bus) {
 
         SpringJAXRSServerFactoryBean selfKeymasterContainer = new SpringJAXRSServerFactoryBean();
         selfKeymasterContainer.setBus(bus);
@@ -120,7 +118,6 @@ public class SelfKeymasterContext {
 
         selfKeymasterContainer.setProviders(List.of(restServiceExceptionMapper, jsonProvider));
 
-        selfKeymasterContainer.setApplicationContext(ctx);
         return selfKeymasterContainer.create();
     }
 
