@@ -45,7 +45,6 @@ import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.PlatformInfo;
-import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -100,10 +99,6 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     protected SyncopeClient client;
 
     protected SyncopeAnonymousClient anonymousClient;
-
-    protected PlatformInfo platformInfo;
-
-    protected SystemInfo systemInfo;
 
     protected UserTO selfTO;
 
@@ -194,11 +189,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     }
 
     public PlatformInfo getPlatformInfo() {
-        return platformInfo;
-    }
-
-    public SystemInfo getSystemInfo() {
-        return systemInfo;
+        return getAnonymousClient().platform();
     }
 
     @Override
@@ -240,8 +231,6 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     protected void refreshAuth(final String username) {
         try {
             anonymousClient = SyncopeWebApplication.get().newAnonymousClient(getDomain());
-            platformInfo = anonymousClient.platform();
-            systemInfo = anonymousClient.system();
 
             selfTO = client.self().getRight();
         } catch (ForbiddenException e) {
@@ -267,8 +256,6 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     public void cleanup() {
         anonymousClient = null;
-        platformInfo = null;
-        systemInfo = null;
 
         client = null;
         selfTO = null;
