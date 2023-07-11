@@ -148,6 +148,7 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -243,8 +244,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DomainRegistry domainRegistry(final Environment env) {
-        return new DomainConfFactory(env);
+    public DomainRegistry domainRegistry(final ConfigurableApplicationContext ctx) {
+        return new DomainConfFactory(ctx);
     }
 
     @ConditionalOnMissingBean

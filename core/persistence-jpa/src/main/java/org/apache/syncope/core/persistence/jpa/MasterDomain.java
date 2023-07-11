@@ -42,6 +42,7 @@ import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @EnableConfigurationProperties(PersistenceProperties.class)
 @Configuration(proxyBeanMethods = false)
@@ -122,6 +123,15 @@ public class MasterDomain {
             final DomainEntityManagerFactoryBean masterEntityManagerFactory) {
 
         return new JpaTransactionManager(Objects.requireNonNull(masterEntityManagerFactory.getObject()));
+    }
+
+    @ConditionalOnMissingBean(name = "MasterTransactionTemplate")
+    @Bean(name = "MasterTransactionTemplate")
+    public TransactionTemplate transactionTemplate(
+            @Qualifier("MasterTransactionManager")
+            final PlatformTransactionManager masterTransactionManager) {
+
+        return new TransactionTemplate(masterTransactionManager);
     }
 
     @Bean(name = "MasterContentXML")

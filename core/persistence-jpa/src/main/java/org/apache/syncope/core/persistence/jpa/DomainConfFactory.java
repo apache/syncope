@@ -29,7 +29,6 @@ import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -37,44 +36,50 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.AutowireCandidateQualifier;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter;
+import org.springframework.transaction.support.TransactionTemplate;
 
 public class DomainConfFactory implements DomainRegistry {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DomainConfFactory.class);
 
-    protected static void unregisterSingleton(final String name) {
-        if (ApplicationContextProvider.getBeanFactory().containsSingleton(name)) {
-            ApplicationContextProvider.getBeanFactory().destroySingleton(name);
+    protected final ConfigurableApplicationContext ctx;
+
+    public DomainConfFactory(final ConfigurableApplicationContext ctx) {
+        this.ctx = ctx;
+    }
+
+    protected DefaultListableBeanFactory beanFactory() {
+        return (DefaultListableBeanFactory) ctx.getBeanFactory();
+    }
+
+    protected void unregisterSingleton(final String name) {
+        if (beanFactory().containsSingleton(name)) {
+            beanFactory().destroySingleton(name);
         }
     }
 
-    protected static void registerSingleton(final String name, final Object bean) {
+    protected void registerSingleton(final String name, final Object bean) {
         unregisterSingleton(name);
-        ApplicationContextProvider.getBeanFactory().registerSingleton(name, bean);
+        beanFactory().registerSingleton(name, bean);
     }
 
-    protected static void unregisterBeanDefinition(final String name) {
-        if (ApplicationContextProvider.getBeanFactory().containsBeanDefinition(name)) {
-            ApplicationContextProvider.getBeanFactory().removeBeanDefinition(name);
+    protected void unregisterBeanDefinition(final String name) {
+        if (beanFactory().containsBeanDefinition(name)) {
+            beanFactory().removeBeanDefinition(name);
         }
     }
 
-    protected static void registerBeanDefinition(final String name, final BeanDefinition beanDefinition) {
+    protected void registerBeanDefinition(final String name, final BeanDefinition beanDefinition) {
         unregisterBeanDefinition(name);
-        ApplicationContextProvider.getBeanFactory().registerBeanDefinition(name, beanDefinition);
-    }
-
-    protected final Environment env;
-
-    public DomainConfFactory(final Environment env) {
-        this.env = env;
+        beanFactory().registerBeanDefinition(name, beanDefinition);
     }
 
     @Override
@@ -96,8 +101,7 @@ public class DomainConfFactory implements DomainRegistry {
                         addPropertyValue("jndiName", "java:comp/env/jdbc/syncope" + domain.getKey() + "DataSource").
                         addPropertyValue("defaultObject", new HikariDataSource(hikariConfig)).
                         getBeanDefinition());
-        DataSource initedDataSource = ApplicationContextProvider.getBeanFactory().
-                getBean(domain.getKey() + "DataSource", DataSource.class);
+        DataSource initedDataSource = beanFactory().getBean(domain.getKey() + "DataSource", DataSource.class);
 
         // domainResourceDatabasePopulator
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
@@ -126,14 +130,14 @@ public class DomainConfFactory implements DomainRegistry {
                 addPropertyReference("dataSource", domain.getKey() + "DataSource").
                 addPropertyValue("jpaVendorAdapter", vendorAdapter).
                 addPropertyReference("commonEntityManagerFactoryConf", "commonEMFConf");
-        if (env.containsProperty("openjpaMetaDataFactory")) {
+        if (ctx.getEnvironment().containsProperty("openjpaMetaDataFactory")) {
             emf.addPropertyValue("jpaPropertyMap", Map.of(
                     "openjpa.MetaDataFactory",
-                    Objects.requireNonNull(env.getProperty("openjpaMetaDataFactory")).
+                    Objects.requireNonNull(ctx.getEnvironment().getProperty("openjpaMetaDataFactory")).
                             replace("##orm##", domain.getOrm())));
         }
         registerBeanDefinition(domain.getKey() + "EntityManagerFactory", emf.getBeanDefinition());
-        ApplicationContextProvider.getBeanFactory().getBean(domain.getKey() + "EntityManagerFactory");
+        beanFactory().getBean(domain.getKey() + "EntityManagerFactory");
 
         // domainTransactionManager
         AbstractBeanDefinition domainTransactionManager =
@@ -142,6 +146,13 @@ public class DomainConfFactory implements DomainRegistry {
                         getBeanDefinition();
         domainTransactionManager.addQualifier(new AutowireCandidateQualifier(Qualifier.class, domain.getKey()));
         registerBeanDefinition(domain.getKey() + "TransactionManager", domainTransactionManager);
+
+        // domainTransactionTemplate
+        AbstractBeanDefinition domainTransactionTemplate =
+                BeanDefinitionBuilder.rootBeanDefinition(TransactionTemplate.class).
+                        addPropertyReference("transactionManager", domain.getKey() + "TransactionManager").
+                        getBeanDefinition();
+        registerBeanDefinition(domain.getKey() + "TransactionTemplate", domainTransactionTemplate);
 
         // domainContentXML
         registerBeanDefinition(domain.getKey() + "ContentXML",
@@ -168,7 +179,7 @@ public class DomainConfFactory implements DomainRegistry {
 
         // domainEntityManagerFactory
         try {
-            EntityManagerFactory emf = ApplicationContextProvider.getBeanFactory().
+            EntityManagerFactory emf = beanFactory().
                     getBean(domain + "EntityManagerFactory", EntityManagerFactory.class);
             emf.close();
         } catch (Exception e) {

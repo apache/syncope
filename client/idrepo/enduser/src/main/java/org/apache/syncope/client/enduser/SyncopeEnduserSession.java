@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -44,7 +45,6 @@ import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.PlatformInfo;
-import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -84,36 +84,28 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         }
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeEnduserSession.class);
-
-    private final SyncopeClientFactoryBean clientFactory;
-
-    private final SyncopeAnonymousClient anonymousClient;
-
-    private final PlatformInfo platformInfo;
-
-    private final SystemInfo systemInfo;
-
-    private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
-
-    private String domain;
-
-    private SyncopeClient client;
-
-    private UserTO selfTO;
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeEnduserSession.class);
 
     public static SyncopeEnduserSession get() {
         return (SyncopeEnduserSession) Session.get();
     }
 
+    protected final SyncopeClientFactoryBean clientFactory;
+
+    protected final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
+
+    protected String domain;
+
+    protected SyncopeClient client;
+
+    protected SyncopeAnonymousClient anonymousClient;
+
+    protected UserTO selfTO;
+
     public SyncopeEnduserSession(final Request request) {
         super(request);
 
         clientFactory = SyncopeWebApplication.get().newClientFactory();
-        anonymousClient = SyncopeWebApplication.get().newAnonymousClient();
-
-        platformInfo = anonymousClient.platform();
-        systemInfo = anonymousClient.system();
     }
 
     protected String message(final SyncopeClientException sce) {
@@ -197,11 +189,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     }
 
     public PlatformInfo getPlatformInfo() {
-        return platformInfo;
-    }
-
-    public SystemInfo getSystemInfo() {
-        return systemInfo;
+        return getAnonymousClient().platform();
     }
 
     @Override
@@ -214,7 +202,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         try {
             client = clientFactory.setDomain(getDomain()).create(username, password);
 
-            afterAuthentication(username);
+            refreshAuth(username);
 
             authenticated = true;
         } catch (Exception e) {
@@ -230,7 +218,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         try {
             client = clientFactory.setDomain(getDomain()).create(jwt);
 
-            afterAuthentication(null);
+            refreshAuth(null);
 
             authenticated = true;
         } catch (Exception e) {
@@ -240,8 +228,10 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         return authenticated;
     }
 
-    private void afterAuthentication(final String username) {
+    protected void refreshAuth(final String username) {
         try {
+            anonymousClient = SyncopeWebApplication.get().newAnonymousClient(getDomain());
+
             selfTO = client.self().getRight();
         } catch (ForbiddenException e) {
             LOG.warn("Could not read self(), probably in a {} scenario", IdRepoEntitlement.MUST_CHANGE_PASSWORD, e);
@@ -265,6 +255,8 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     }
 
     public void cleanup() {
+        anonymousClient = null;
+
         client = null;
         selfTO = null;
         services.clear();
@@ -291,19 +283,20 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     public UserTO getSelfTO(final boolean reload) {
         if (reload) {
-            afterAuthentication(selfTO.getUsername());
+            refreshAuth(selfTO.getUsername());
         }
         return selfTO;
     }
 
     @Override
     public SyncopeAnonymousClient getAnonymousClient() {
-        return anonymousClient;
+        return Optional.ofNullable(anonymousClient).
+                orElseGet(() -> SyncopeWebApplication.get().newAnonymousClient(getDomain()));
     }
 
     @Override
     public <T> T getAnonymousService(final Class<T> serviceClass) {
-        return getService(serviceClass);
+        return getAnonymousClient().getService(serviceClass);
     }
 
     @SuppressWarnings("unchecked")
@@ -324,7 +317,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     @Override
     public <T> T getService(final Class<T> serviceClass) {
         T service = (client == null || !isAuthenticated())
-                ? anonymousClient.getService(serviceClass)
+                ? getAnonymousClient().getService(serviceClass)
                 : client.getService(serviceClass);
         WebClient.client(service).header(RESTHeaders.DOMAIN, getDomain());
         return service;
