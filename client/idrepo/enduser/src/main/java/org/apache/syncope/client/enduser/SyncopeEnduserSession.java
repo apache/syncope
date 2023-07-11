@@ -317,7 +317,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     @Override
     public <T> T getService(final Class<T> serviceClass) {
         T service = (client == null || !isAuthenticated())
-                ? anonymousClient.getService(serviceClass)
+                ? getAnonymousClient().getService(serviceClass)
                 : client.getService(serviceClass);
         WebClient.client(service).header(RESTHeaders.DOMAIN, getDomain());
         return service;
