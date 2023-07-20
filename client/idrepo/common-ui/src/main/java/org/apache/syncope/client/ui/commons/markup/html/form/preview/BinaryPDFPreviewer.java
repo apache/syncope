@@ -21,14 +21,11 @@ package org.apache.syncope.client.ui.commons.markup.html.form.preview;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.time.Instant;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.cos.COSObject;
-import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.DefaultResourceCache;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.graphics.PDXObject;
@@ -63,15 +60,13 @@ public class BinaryPDFPreviewer extends BinaryPreviewer {
     public Component preview(final byte[] uploadedBytes) {
         firstPage = null;
 
-        try (InputStream bais = new ByteArrayInputStream(uploadedBytes);
-             PDDocument document = Loader.loadPDF(bais, MemoryUsageSetting.setupTempFileOnly())) {
-
+        try (PDDocument document = Loader.loadPDF(uploadedBytes)) {
             document.setResourceCache(new DefaultResourceCache() {
 
                 @Override
-                public void put(final COSObject indirect, final PDXObject xobject) throws IOException {
+                public void put(final COSObject indirect, final PDXObject xobject) {
+                    // no cache
                 }
-
             });
             if (document.isEncrypted()) {
                 LOG.info("Document is encrypted, no preview is possible");
@@ -96,15 +91,15 @@ public class BinaryPDFPreviewer extends BinaryPreviewer {
         return this.addOrReplace(previewContainer);
     }
 
-    private static class ThumbnailImageResource extends DynamicImageResource implements Serializable {
+    protected static class ThumbnailImageResource extends DynamicImageResource implements Serializable {
 
         private static final long serialVersionUID = 923201517955737928L;
 
-        private final transient BufferedImage image;
+        protected final transient BufferedImage image;
 
-        private transient byte[] thumbnail;
+        protected transient byte[] thumbnail;
 
-        ThumbnailImageResource(final BufferedImage image) {
+        protected ThumbnailImageResource(final BufferedImage image) {
             this.image = image;
         }
 
@@ -117,7 +112,7 @@ public class BinaryPDFPreviewer extends BinaryPreviewer {
             return thumbnail;
         }
 
-        private BufferedImage getScaledImageInstance() {
+        protected BufferedImage getScaledImageInstance() {
             int originalWidth = image.getWidth();
             int originalHeight = image.getHeight();
 
