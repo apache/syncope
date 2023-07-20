@@ -413,7 +413,7 @@ under the License.
     <bouncycastle.version>1.75</bouncycastle.version>
     <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.1.1</spring-boot.version>
+    <spring-boot.version>3.1.2</spring-boot.version>
     <spring-cloud-gateway.version>4.0.6</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.0-SNAPSHOT</openjpa.version>
@@ -430,7 +430,7 @@ under the License.
     <commons-jexl.version>3.3</commons-jexl.version>
     <commons-text.version>1.10.0</commons-text.version>
 
-    <pac4j.version>6.0.0-RC7</pac4j.version>
+    <pac4j.version>6.0.0-RC8-SNAPSHOT</pac4j.version>
 
     <cas.version>7.0.0-SNAPSHOT</cas.version>
     <cas-client.version>4.0.2</cas-client.version>
@@ -438,7 +438,7 @@ under the License.
     <h2.version>2.2.220</h2.version>
 
     <swagger-core.version>2.2.15</swagger-core.version>
-    <swagger-ui.version>5.1.0</swagger-ui.version>
+    <swagger-ui.version>5.1.3</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
@@ -452,10 +452,10 @@ under the License.
     <chartjs.version>4.1.2</chartjs.version>
 
     <wicket.version>10.0.0-M1</wicket.version>
-    <wicketstuff.version>10.0.0-SNAPSHOT</wicketstuff.version>
-    <wicket-jqueryui.version>10.0.0-SNAPSHOT</wicket-jqueryui.version>
-    <wicket-bootstrap.version>7.0.0-SNAPSHOT</wicket-bootstrap.version>
-    <wicket-spring-boot.version>4.0.0-SNAPSHOT</wicket-spring-boot.version>
+    <wicketstuff.version>10.0.0-M1</wicketstuff.version>
+    <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
+    <wicket-bootstrap.version>7.0.0</wicket-bootstrap.version>
+    <wicket-spring-boot.version>4.0.0-M1</wicket-spring-boot.version>
 
     <antlr4.version>4.13.0</antlr4.version>
 
@@ -496,7 +496,7 @@ under the License.
     <docker.mariadb.version>11</docker.mariadb.version>
 
     <jdbc.postgresql.version>42.6.0</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.0.33</jdbc.mysql.version>
+    <jdbc.mysql.version>8.1.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.1.4</jdbc.mariadb.version>
     <jdbc.mssql.version>12.2.0.jre</jdbc.mssql.version>
     <jdbc.oracle.version>23.2.0.0</jdbc.oracle.version>
@@ -1077,7 +1077,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>3.0.0-alpha3</version>
+        <version>3.0.0-beta1</version>
       </dependency>
 
       <dependency>
