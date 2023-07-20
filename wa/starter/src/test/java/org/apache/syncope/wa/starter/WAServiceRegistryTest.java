@@ -231,6 +231,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         OIDCAuthModuleConf oidcAuthModuleConf = new OIDCAuthModuleConf();
         oidcAuthModuleConf.setClientId("clientId");
         oidcAuthModuleConf.setClientSecret("clientSecret");
+        oidcAuthModuleConf.setDiscoveryUri("https://dev-425954.oktapreview.com/.well-known/openid-configuration");
         AuthModuleTO authModuleTO = new AuthModuleTO();
         authModuleTO.setKey("keycloack");
         authModuleTO.setConf(oidcAuthModuleConf);

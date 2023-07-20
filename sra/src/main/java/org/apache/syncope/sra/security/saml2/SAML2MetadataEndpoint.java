@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.sra.security.saml2;
 
-import com.google.common.net.HttpHeaders;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.sra.SRAProperties;
 import org.opensaml.saml.common.xml.SAMLConstants;
@@ -26,6 +25,7 @@ import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.exceptions.SAMLException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
