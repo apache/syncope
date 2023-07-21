@@ -372,7 +372,8 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.glassfish.removeDefaultDatasource>false</cargo.glassfish.removeDefaultDatasource>
-                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>
+                  <cargo.jvmargs>-Djdk.util.zip.disableZip64ExtraFieldValidation=true
+                    -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</cargo.jvmargs>
                 </properties>
               </configuration>
               <skip>${skipTests}</skip>
