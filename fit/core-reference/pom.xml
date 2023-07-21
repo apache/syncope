@@ -1499,7 +1499,8 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.glassfish.removeDefaultDatasource>false</cargo.glassfish.removeDefaultDatasource>
-                  <cargo.jvmargs>-Dspring.profiles.active=embedded,payara
+                  <cargo.jvmargs>-Djdk.util.zip.disableZip64ExtraFieldValidation=true
+                    -Dspring.profiles.active=embedded,payara
                     -XX:+UseG1GC -Xmx2048m -Xms1024m
                     --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</cargo.jvmargs>
                 </properties>
