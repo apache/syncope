@@ -29,4 +29,6 @@ public interface NetworkServiceDAO extends DAO<NetworkServiceEntity> {
     NetworkServiceEntity save(NetworkServiceEntity service);
 
     void delete(NetworkServiceEntity service);
+
+    int deleteAll(NetworkService service);
 }
