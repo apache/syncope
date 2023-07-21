@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.SAML2IdPsDirectoryPanel;
 import org.apache.syncope.client.console.panels.SAML2SPPanel;
 import org.apache.syncope.client.console.rest.SAML2IdPsRestClient;
+import org.apache.syncope.client.console.rest.SAML2SPRestClient;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.common.lib.types.SAML2SP4UIEntitlement;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -44,6 +45,9 @@ public class SAML2SP4UI extends BaseExtPage {
     @SpringBean
     protected SAML2IdPsRestClient saml2IdPsRestClient;
 
+    @SpringBean
+    protected SAML2SPRestClient saml2SPRestClient;
+
     public SAML2SP4UI(final PageParameters parameters) {
         super(parameters);
 
@@ -56,8 +60,7 @@ public class SAML2SP4UI extends BaseExtPage {
     }
 
     protected List<ITab> buildTabList() {
-
-        final List<ITab> tabs = new ArrayList<>(2);
+        List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new ResourceModel("idps")) {
 
@@ -75,7 +78,7 @@ public class SAML2SP4UI extends BaseExtPage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new SAML2SPPanel(panelId);
+                return new SAML2SPPanel(panelId, saml2SPRestClient);
             }
         });
 

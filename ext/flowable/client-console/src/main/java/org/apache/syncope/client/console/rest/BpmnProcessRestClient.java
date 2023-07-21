@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.impl.MetadataMap;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.BpmnProcessService;
@@ -52,14 +51,14 @@ public class BpmnProcessRestClient extends BaseRestClient {
 
     public InputStream getDefinition(final MediaType mediaType, final String key) {
         Response response = getService(mediaType).get(key);
-        SyncopeConsoleSession.get().resetClient(BpmnProcessService.class);
+        resetClient(BpmnProcessService.class);
 
         return (InputStream) response.getEntity();
     }
 
     public void setDefinition(final MediaType mediaType, final String key, final String definition) {
         getService(mediaType).set(key, definition);
-        SyncopeConsoleSession.get().resetClient(BpmnProcessService.class);
+        resetClient(BpmnProcessService.class);
     }
 
     public byte[] getDiagram(final String key) {

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.stream.Collectors;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -59,7 +58,7 @@ public class ReconciliationRestClient extends BaseRestClient {
 
         Response response = service.push(anyQuery, spec);
 
-        SyncopeConsoleSession.get().resetClient(ReconciliationService.class);
+        resetClient(ReconciliationService.class);
 
         return response;
     }
@@ -72,7 +71,7 @@ public class ReconciliationRestClient extends BaseRestClient {
         ArrayList<ProvisioningReport> result = service.pull(spec, csv).stream().
                 collect(Collectors.toCollection(ArrayList::new));
 
-        SyncopeConsoleSession.get().resetClient(ReconciliationService.class);
+        resetClient(ReconciliationService.class);
 
         return result;
     }
