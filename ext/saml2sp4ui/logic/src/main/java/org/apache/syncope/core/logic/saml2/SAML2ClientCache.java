@@ -131,13 +131,7 @@ public class SAML2ClientCache {
         cfg.setServiceProviderEntityId(spEntityID);
         getSPMetadataPath(spEntityID).ifPresent(cfg::setServiceProviderMetadataResourceFilepath);
 
-        SAML2Client saml2Client = new SAML2Client(cfg) {
-
-            @Override
-            protected void initSignatureSigningParametersProvider() {
-                signatureSigningParametersProvider = new SAML2SP4UISignatureSigningParametersProvider(configuration);
-            }
-        };
+        SAML2Client saml2Client = new SAML2Client(cfg);
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         saml2Client.setCallbackUrl(callbackUrl);
         saml2Client.init();

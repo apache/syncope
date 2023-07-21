@@ -205,10 +205,6 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-saml-idp-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-oidc</artifactId>
       <exclusions>
         <exclusion>
