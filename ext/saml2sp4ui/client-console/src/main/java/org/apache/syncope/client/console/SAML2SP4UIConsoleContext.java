@@ -21,6 +21,7 @@ package org.apache.syncope.client.console;
 import org.apache.syncope.client.console.resources.saml2sp4ui.ConsoleAssertionConsumerResource;
 import org.apache.syncope.client.console.resources.saml2sp4ui.ConsoleLogoutResource;
 import org.apache.syncope.client.console.rest.SAML2IdPsRestClient;
+import org.apache.syncope.client.console.rest.SAML2SPRestClient;
 import org.apache.syncope.client.ui.commons.resources.saml2sp4ui.LoginResource;
 import org.apache.syncope.client.ui.commons.resources.saml2sp4ui.MetadataResource;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -34,6 +35,12 @@ public class SAML2SP4UIConsoleContext {
     @Bean
     public SAML2IdPsRestClient saml2IdPsRestClient() {
         return new SAML2IdPsRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SAML2SPRestClient saml2SPRestClient() {
+        return new SAML2SPRestClient();
     }
 
     @ConditionalOnMissingBean

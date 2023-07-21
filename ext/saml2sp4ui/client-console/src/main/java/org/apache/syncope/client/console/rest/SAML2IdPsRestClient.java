@@ -23,7 +23,6 @@ import java.util.List;
 import javax.ws.rs.core.MediaType;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 
@@ -42,7 +41,7 @@ public class SAML2IdPsRestClient extends BaseRestClient {
 
         service.importFromMetadata(input);
 
-        SyncopeConsoleSession.get().resetClient(SAML2SP4UIIdPService.class);
+        resetClient(SAML2SP4UIIdPService.class);
     }
 
     public SAML2SP4UIIdPTO read(final String key) {

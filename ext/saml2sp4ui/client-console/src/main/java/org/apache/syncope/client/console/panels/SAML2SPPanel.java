@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import javax.ws.rs.client.ClientBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.ui.commons.HttpResourceStream;
+import org.apache.syncope.client.console.rest.SAML2SPRestClient;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
-import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.request.Url;
@@ -30,6 +29,7 @@ import org.apache.wicket.request.UrlUtils;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.resource.ContentDisposition;
+import org.apache.wicket.util.resource.IResourceStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class SAML2SPPanel extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SAML2SPPanel.class);
 
-    public SAML2SPPanel(final String id) {
+    public SAML2SPPanel(final String id, final SAML2SPRestClient restClient) {
         super(id);
 
         add(new Link<Void>("downloadMetadata") {
@@ -49,16 +49,15 @@ public class SAML2SPPanel extends Panel {
             @Override
             public void onClick() {
                 try {
-                    HttpResourceStream stream = new HttpResourceStream(new ResponseHolder(ClientBuilder.newClient().
-                            target(RequestCycle.get().getUrlRenderer().renderFullUrl(Url.parse(
-                                    UrlUtils.rewriteToContextRelative(SAML2SP4UIConstants.URL_CONTEXT + "/metadata",
-                                            RequestCycle.get())))).
-                            request().get()));
+                    String spEntityID = StringUtils.substringBefore(
+                            RequestCycle.get().getUrlRenderer().renderFullUrl(
+                                    Url.parse(UrlUtils.rewriteToContextRelative(
+                                            SAML2SP4UIConstants.URL_CONTEXT, RequestCycle.get()))),
+                            SAML2SP4UIConstants.URL_CONTEXT);
+                    IResourceStream stream = restClient.getMetadata(spEntityID);
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
-                    rsrh.setFileName(stream.getFilename() == null
-                            ? SyncopeConsoleSession.get().getDomain() + "-SAML-SP-Metadata.xml"
-                            : stream.getFilename());
+                    rsrh.setFileName(SyncopeConsoleSession.get().getDomain() + "-SAML-SP-Metadata.xml");
                     rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
