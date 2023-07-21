@@ -74,19 +74,19 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void register(final NetworkService networkService) {
-        unregister(networkService);
+        if (serviceDAO.findAll(networkService.getType()).stream().
+                noneMatch(s -> s.getAddress().equals(networkService.getAddress()))) {
 
-        NetworkServiceEntity service = entityFactory.newNetworkService();
-        service.setType(networkService.getType());
-        service.setAddress(networkService.getAddress());
-        serviceDAO.save(service);
+            NetworkServiceEntity service = entityFactory.newNetworkService();
+            service.setType(networkService.getType());
+            service.setAddress(networkService.getAddress());
+            serviceDAO.save(service);
+        }
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void unregister(final NetworkService networkService) {
-        serviceDAO.findAll(networkService.getType()).stream().
-                filter(service -> service.getAddress().equals(networkService.getAddress())).
-                forEach(service -> serviceDAO.delete(service));
+        serviceDAO.deleteAll(networkService);
     }
 
     @Override

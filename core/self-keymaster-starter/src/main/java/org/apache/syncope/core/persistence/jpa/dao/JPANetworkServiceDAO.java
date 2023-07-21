@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -46,5 +47,16 @@ public class JPANetworkServiceDAO extends AbstractDAO<NetworkServiceEntity> impl
     @Override
     public void delete(final NetworkServiceEntity service) {
         entityManager().remove(service);
+    }
+
+    @Override
+    public int deleteAll(final NetworkService service) {
+        Query query = entityManager().createQuery(
+                "DELETE FROM " + JPANetworkService.class.getSimpleName()
+                + " e WHERE e.type=:serviceType AND e.address=:address");
+        query.setParameter("serviceType", service.getType());
+        query.setParameter("address", service.getAddress());
+
+        return query.executeUpdate();
     }
 }
