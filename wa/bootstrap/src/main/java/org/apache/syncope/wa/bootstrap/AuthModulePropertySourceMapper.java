@@ -24,12 +24,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.auth.AbstractOIDCAuthModuleConf;
+import org.apache.syncope.common.lib.auth.AppleOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
-import org.apache.syncope.common.lib.auth.AzureAuthModuleConf;
+import org.apache.syncope.common.lib.auth.AzureOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
+import org.apache.syncope.common.lib.auth.GoogleOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JDBCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JaasAuthModuleConf;
+import org.apache.syncope.common.lib.auth.KeycloakOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.LDAPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
@@ -55,8 +59,12 @@ import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthentica
 import org.apereo.cas.configuration.model.support.mfa.simple.CasSimpleMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oauth.Pac4jOAuth20ClientProperties;
+import org.apereo.cas.configuration.model.support.pac4j.oidc.BasePac4jOidcClientProperties;
+import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jAppleOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jAzureOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGenericOidcClientProperties;
+import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGoogleOidcClientProperties;
+import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jKeyCloakOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.saml.Pac4jSamlClientProperties;
 import org.apereo.cas.configuration.model.support.syncope.SyncopeAuthenticationProperties;
@@ -148,29 +156,6 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     }
 
     @Override
-    public Map<String, Object> map(final AuthModuleTO authModuleTO, final OIDCAuthModuleConf conf) {
-        Pac4jGenericOidcClientProperties props = new Pac4jGenericOidcClientProperties();
-        props.setId(conf.getClientId());
-        props.setSecret(conf.getClientSecret());
-        props.setClientName(Optional.ofNullable(conf.getClientName()).orElse(authModuleTO.getKey()));
-        props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
-        props.setCustomParams(conf.getCustomParams());
-        props.setDiscoveryUri(conf.getDiscoveryUri());
-        props.setMaxClockSkew(conf.getMaxClockSkew());
-        props.setPreferredJwsAlgorithm(conf.getPreferredJwsAlgorithm());
-        props.setResponseMode(conf.getResponseMode());
-        props.setResponseType(conf.getResponseType());
-        props.setScope(conf.getScope());
-        props.setPrincipalAttributeId(conf.getUserIdAttribute());
-        props.setExpireSessionWithToken(conf.isExpireSessionWithToken());
-        props.setTokenExpirationAdvance(conf.getTokenExpirationAdvance());
-        Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
-        client.setGeneric(props);
-
-        return prefix("cas.authn.pac4j.oidc[].generic.", CasCoreConfigurationUtils.asMap(props));
-    }
-
-    @Override
     public Map<String, Object> map(final AuthModuleTO authModuleTO, final OAuth20AuthModuleConf conf) {
         Pac4jOAuth20ClientProperties props = new Pac4jOAuth20ClientProperties();
         props.setId(conf.getClientId());
@@ -191,6 +176,89 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
                 collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
 
         return prefix("cas.authn.pac4j.oauth2[].", CasCoreConfigurationUtils.asMap(props));
+    }
+
+    protected void map(
+            final AuthModuleTO authModuleTO,
+            final BasePac4jOidcClientProperties props,
+            final AbstractOIDCAuthModuleConf conf) {
+
+        props.setId(conf.getClientId());
+        props.setSecret(conf.getClientSecret());
+        props.setClientName(Optional.ofNullable(conf.getClientName()).orElse(authModuleTO.getKey()));
+        props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
+        props.setCustomParams(conf.getCustomParams());
+        props.setDiscoveryUri(conf.getDiscoveryUri());
+        props.setMaxClockSkew(conf.getMaxClockSkew());
+        props.setPreferredJwsAlgorithm(conf.getPreferredJwsAlgorithm());
+        props.setResponseMode(conf.getResponseMode());
+        props.setResponseType(conf.getResponseType());
+        props.setScope(conf.getScope());
+        props.setPrincipalAttributeId(conf.getUserIdAttribute());
+        props.setExpireSessionWithToken(conf.isExpireSessionWithToken());
+        props.setTokenExpirationAdvance(conf.getTokenExpirationAdvance());
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final OIDCAuthModuleConf conf) {
+        Pac4jGenericOidcClientProperties props = new Pac4jGenericOidcClientProperties();
+        map(authModuleTO, props, conf);
+
+        Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
+        client.setGeneric(props);
+
+        return prefix("cas.authn.pac4j.oidc[].generic.", CasCoreConfigurationUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final AzureOIDCAuthModuleConf conf) {
+        Pac4jAzureOidcClientProperties props = new Pac4jAzureOidcClientProperties();
+        map(authModuleTO, props, conf);
+        props.setTenant(conf.getTenant());
+
+        Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
+        client.setAzure(props);
+
+        return prefix("cas.authn.pac4j.oidc[].azure.", CasCoreConfigurationUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final GoogleOIDCAuthModuleConf conf) {
+        Pac4jGoogleOidcClientProperties props = new Pac4jGoogleOidcClientProperties();
+        map(authModuleTO, props, conf);
+
+        Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
+        client.setGoogle(props);
+
+        return prefix("cas.authn.pac4j.oidc[].google.", CasCoreConfigurationUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final KeycloakOIDCAuthModuleConf conf) {
+        Pac4jKeyCloakOidcClientProperties props = new Pac4jKeyCloakOidcClientProperties();
+        map(authModuleTO, props, conf);
+        props.setRealm(conf.getRealm());
+        props.setBaseUri(conf.getBaseUri());
+
+        Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
+        client.setKeycloak(props);
+
+        return prefix("cas.authn.pac4j.oidc[].keycloak.", CasCoreConfigurationUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final AppleOIDCAuthModuleConf conf) {
+        Pac4jAppleOidcClientProperties props = new Pac4jAppleOidcClientProperties();
+        map(authModuleTO, props, conf);
+        props.setTimeout(conf.getTimeout());
+        props.setPrivateKey(conf.getPrivateKey());
+        props.setPrivateKeyId(conf.getPrivateKeyId());
+        props.setTeamId(conf.getTeamId());
+
+        Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
+        client.setApple(props);
+
+        return prefix("cas.authn.pac4j.oidc[].apple.", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
@@ -315,29 +383,5 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         }
 
         return prefix("cas.authn.mfa.simple.", CasCoreConfigurationUtils.asMap(props));
-    }
-
-    @Override
-    public Map<String, Object> map(final AuthModuleTO authModuleTO, final AzureAuthModuleConf conf) {
-        Pac4jAzureOidcClientProperties props = new Pac4jAzureOidcClientProperties();
-        props.setId(conf.getClientId());
-        props.setSecret(conf.getClientSecret());
-        props.setClientName(Optional.ofNullable(conf.getClientName()).orElse(authModuleTO.getKey()));
-        props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
-        props.setCustomParams(conf.getCustomParams());
-        props.setDiscoveryUri(conf.getDiscoveryUri());
-        props.setMaxClockSkew(conf.getMaxClockSkew());
-        props.setPreferredJwsAlgorithm(conf.getPreferredJwsAlgorithm());
-        props.setResponseMode(conf.getResponseMode());
-        props.setResponseType(conf.getResponseType());
-        props.setScope(conf.getScope());
-        props.setPrincipalAttributeId(conf.getUserIdAttribute());
-        props.setExpireSessionWithToken(conf.isExpireSessionWithToken());
-        props.setTokenExpirationAdvance(conf.getTokenExpirationAdvance());
-        props.setTenant(conf.getTenant());
-        Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
-        client.setAzure(props);
-
-        return prefix("cas.authn.pac4j.oidc[].azure.", CasCoreConfigurationUtils.asMap(props));
     }
 }

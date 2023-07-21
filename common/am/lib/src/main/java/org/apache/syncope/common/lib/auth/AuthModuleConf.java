@@ -36,7 +36,17 @@ public interface AuthModuleConf extends BaseBean {
 
         Map<String, Object> map(AuthModuleTO authModule, JaasAuthModuleConf conf);
 
+        Map<String, Object> map(AuthModuleTO authModule, OAuth20AuthModuleConf conf);
+
         Map<String, Object> map(AuthModuleTO authModule, OIDCAuthModuleConf conf);
+
+        Map<String, Object> map(AuthModuleTO authModule, AzureOIDCAuthModuleConf conf);
+
+        Map<String, Object> map(AuthModuleTO authModule, GoogleOIDCAuthModuleConf conf);
+
+        Map<String, Object> map(AuthModuleTO authModule, KeycloakOIDCAuthModuleConf conf);
+
+        Map<String, Object> map(AuthModuleTO authModule, AppleOIDCAuthModuleConf conf);
 
         Map<String, Object> map(AuthModuleTO authModule, SAML2IdPAuthModuleConf conf);
 
@@ -49,10 +59,6 @@ public interface AuthModuleConf extends BaseBean {
         Map<String, Object> map(AuthModuleTO authModule, U2FAuthModuleConf conf);
 
         Map<String, Object> map(AuthModuleTO authModule, SimpleMfaAuthModuleConf conf);
-
-        Map<String, Object> map(AuthModuleTO authModule, OAuth20AuthModuleConf conf);
-
-        Map<String, Object> map(AuthModuleTO authModule, AzureAuthModuleConf conf);
     }
 
     Map<String, Object> map(AuthModuleTO authModule, Mapper mapper);
