@@ -139,6 +139,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         // 2. get OpenID Connect tokens
         String idTokenHint;
         JWTClaimsSet idToken;
+        JWTClaimsSet accessToken;
         try {
             OidcCredentials credentials = new OidcCredentials();
             credentials.setCode(new AuthorizationCode(authorizationCode));
@@ -149,6 +150,8 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
             idToken = credentials.getIdToken().getJWTClaimsSet();
             idTokenHint = credentials.getIdToken().serialize();
+
+            accessToken = SignedJWT.parse(credentials.getAccessToken().getValue()).getJWTClaimsSet();
         } catch (Exception e) {
             LOG.error("While validating Token Response", e);
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
@@ -166,9 +169,10 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             Attr attrTO = new Attr();
             attrTO.setSchema(item.getExtAttrName());
 
-            String value = idToken.getClaim(item.getExtAttrName()) == null
-                    ? null
-                    : idToken.getClaim(item.getExtAttrName()).toString();
+            String value = Optional.ofNullable(idToken.getClaim(item.getExtAttrName())).
+                    or(() -> Optional.ofNullable(accessToken.getClaim(item.getExtAttrName()))).
+                    map(Object::toString).
+                    orElse(null);
             if (value != null) {
                 attrTO.getValues().add(value);
                 loginResponse.getAttrs().add(attrTO);

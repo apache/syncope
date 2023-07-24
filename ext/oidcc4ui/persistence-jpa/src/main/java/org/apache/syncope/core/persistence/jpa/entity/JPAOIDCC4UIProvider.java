@@ -40,6 +40,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -47,6 +49,7 @@ import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIUserTemplate;
 import org.apache.syncope.core.persistence.jpa.validation.entity.OIDCC4UIProviderCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.springframework.util.CollectionUtils;
 
 @Entity
 @Table(name = JPAOIDCC4UIProvider.TABLE)
@@ -84,6 +87,8 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
 
     @Column(nullable = true)
     private String endSessionEndpoint;
+
+    private String scopes;
 
     @Column(nullable = false)
     private boolean hasDiscovery;
@@ -202,6 +207,18 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
     @Override
     public void setEndSessionEndpoint(final String endSessionEndpoint) {
         this.endSessionEndpoint = endSessionEndpoint;
+    }
+
+    @Override
+    public List<String> getScopes() {
+        return Optional.ofNullable(scopes).map(s -> Stream.of(s.split(" ")).toList()).orElse(List.of());
+    }
+
+    @Override
+    public void setScopes(final List<String> scopes) {
+        this.scopes = CollectionUtils.isEmpty(scopes)
+                ? ""
+                : scopes.stream().collect(Collectors.joining(" "));
     }
 
     @Override

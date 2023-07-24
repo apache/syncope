@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
@@ -74,6 +75,7 @@ public class OIDCClientCache {
                 Optional.ofNullable(metadata.getUserInfoEndpointURI()).map(URI::toASCIIString).orElse(null));
         opTO.setEndSessionEndpoint(
                 Optional.ofNullable(metadata.getEndSessionEndpointURI()).map(URI::toASCIIString).orElse(null));
+        Optional.ofNullable(metadata.getScopes()).ifPresent(s -> opTO.getScopes().addAll(s.toStringList()));
     }
 
     protected final List<OidcClient> cache = Collections.synchronizedList(new ArrayList<>());
@@ -103,7 +105,7 @@ public class OIDCClientCache {
         cfg.setDiscoveryURI(DISCOVERY_URI.apply(op.getIssuer()));
         cfg.setPreferredJwsAlgorithm(JWSAlgorithm.HS256);
         cfg.setOpMetadataResolver(new StaticOidcOpMetadataResolver(cfg, metadata));
-        cfg.setScope("openid profile email address phone offline_access");
+        cfg.setScope(op.getScopes().stream().collect(Collectors.joining(" ")));
         cfg.setUseNonce(false);
         cfg.setSessionLogoutHandler(new NoOpSessionLogoutHandler());
 

@@ -137,9 +137,8 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void updateHeader(final AjaxRequestTarget target, final Serializable object) {
-                if (object instanceof OIDCC4UIProviderTO) {
-                    setHeader(target,
-                            StringUtils.abbreviate(((OIDCC4UIProviderTO) object).getName(), HEADER_FIRST_ABBREVIATION));
+                if (object instanceof OIDCC4UIProviderTO provider) {
+                    setHeader(target, StringUtils.abbreviate(provider.getName(), HEADER_FIRST_ABBREVIATION));
                 } else {
                     super.updateHeader(target, object);
                 }

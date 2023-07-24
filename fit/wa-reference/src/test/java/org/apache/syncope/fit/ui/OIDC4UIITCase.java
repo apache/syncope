@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
@@ -50,6 +51,7 @@ import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
+import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
@@ -92,6 +94,9 @@ public class OIDC4UIITCase extends AbstractUIITCase {
                 Set.of(OIDCResponseType.CODE, OIDCResponseType.ID_TOKEN_TOKEN, OIDCResponseType.TOKEN));
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
+        clientApp.getScopes().add(OIDCScope.OPENID);
+        clientApp.getScopes().add(OIDCScope.PROFILE);
+        clientApp.getScopes().add(OIDCScope.EMAIL);
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
         WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
@@ -133,6 +138,9 @@ public class OIDC4UIITCase extends AbstractUIITCase {
             cas.setJwksUri(cas.getIssuer() + "/jwks");
             cas.setUserinfoEndpoint(cas.getIssuer() + "/profile");
             cas.setEndSessionEndpoint(cas.getIssuer() + "/logout");
+
+            cas.getScopes().addAll(Stream.of(OIDCScope.values()).map(s -> s.name().toLowerCase()).toList());
+            cas.getScopes().add("syncope");
 
             cas.setCreateUnmatching(createUnmatching);
             cas.setSelfRegUnmatching(selfRegUnmatching);
