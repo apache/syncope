@@ -61,6 +61,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
@@ -121,6 +122,9 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         clientApp.setLogoutUri(SRA_ADDRESS + "/logout");
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
+        clientApp.getScopes().add(OIDCScope.OPENID);
+        clientApp.getScopes().add(OIDCScope.PROFILE);
+        clientApp.getScopes().add(OIDCScope.EMAIL);
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
         WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
@@ -222,16 +226,26 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         checkLogout(response);
     }
 
-    protected void checkIdToken(final JsonNode json) throws ParseException {
-        SignedJWT idToken = SignedJWT.parse(json.get("id_token").asText());
-        assertNotNull(idToken);
-        JWTClaimsSet idTokenClaimsSet = idToken.getJWTClaimsSet();
-        assertEquals("verdi", idTokenClaimsSet.getStringClaim("preferred_username"));
+    private void checkJWT(final String token, final boolean idToken) throws ParseException {
+        assertNotNull(token);
+        SignedJWT jwt = SignedJWT.parse(token);
+        assertNotNull(jwt);
+        JWTClaimsSet idTokenClaimsSet = jwt.getJWTClaimsSet();
+        assertEquals("verdi", idTokenClaimsSet.getSubject());
+        if (idToken) {
+            assertEquals("verdi", idTokenClaimsSet.getStringClaim("preferred_username"));
+        }
         assertEquals("verdi@syncope.org", idTokenClaimsSet.getStringClaim("email"));
         assertEquals("Verdi", idTokenClaimsSet.getStringClaim("family_name"));
         assertEquals("Giuseppe", idTokenClaimsSet.getStringClaim("given_name"));
         assertEquals("Giuseppe Verdi", idTokenClaimsSet.getStringClaim("name"));
-        assertEquals(Set.of("root", "child", "citizen"), Set.of(idTokenClaimsSet.getStringArrayClaim("groups")));
+        if (!idToken) {
+            assertEquals(Set.of("root", "child", "citizen"), Set.of(idTokenClaimsSet.getStringArrayClaim("groups")));
+        }
+    }
+
+    protected boolean checkIdToken() {
+        return true;
     }
 
     @Test
@@ -249,19 +263,23 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
                 param("client_secret", CLIENT_SECRET).
                 param("username", "verdi").
                 param("password", "password").
-                param("scope", "openid profile email address phone offline_access syncope");
+                param("scope", "openid profile email syncope");
         response = WebClient.create(TOKEN_URI).post(form);
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertTrue(response.getHeaderString(HttpHeaders.CONTENT_TYPE).startsWith(MediaType.APPLICATION_JSON));
 
         JsonNode json = MAPPER.readTree(response.readEntity(String.class));
 
-        // 1a. verify id_token
-        checkIdToken(json);
+        if (checkIdToken()) {
+            // 1a. take and verify id_token
+            String idToken = json.get("id_token").asText();
+            assertNotNull(idToken);
+            checkJWT(idToken, true);
+        }
 
-        // 1b. take access_token
+        // 1b. take and verify access_token
         String accessToken = json.get("access_token").asText();
-        assertNotNull(accessToken);
+        checkJWT(accessToken, false);
 
         // 2. access protected route
         client = WebClient.create(SRA_ADDRESS + "/protected/post").

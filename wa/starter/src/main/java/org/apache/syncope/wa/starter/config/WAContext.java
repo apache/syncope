@@ -204,8 +204,7 @@ public class WAContext {
             final List<AccessMapper> accessMappers,
             final List<AttrReleaseMapper> attrReleaseMappers,
             final List<TicketExpirationMapper> ticketExpirationMappers,
-            final List<ClientAppMapper> clientAppMappers,
-            final CasConfigurationProperties properties) {
+            final List<ClientAppMapper> clientAppMappers) {
 
         return new RegisteredServiceMapper(
                 Optional.ofNullable(casProperties.getAuthn().getPac4j().getCore().getName()).
@@ -216,8 +215,7 @@ public class WAContext {
                 accessMappers,
                 attrReleaseMappers,
                 ticketExpirationMappers,
-                clientAppMappers,
-                properties);
+                clientAppMappers);
     }
 
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)

@@ -19,16 +19,13 @@
 package org.apache.syncope.fit.sra;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-import java.text.ParseException;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 import org.apache.http.HttpStatus;
@@ -70,7 +67,7 @@ public class OAUTH2SRAITCase extends OIDCSRAITCase {
     }
 
     @Override
-    protected void checkIdToken(final JsonNode json) throws ParseException {
-        assertFalse(json.has("id_token"));
+    protected boolean checkIdToken() {
+        return false;
     }
 }

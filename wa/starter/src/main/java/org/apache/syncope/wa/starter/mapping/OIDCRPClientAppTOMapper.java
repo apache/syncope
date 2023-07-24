@@ -19,18 +19,15 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcEmailScopeAttributeReleasePolicy;
@@ -70,8 +67,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             final RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy,
             final RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy,
             final RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy,
-            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy,
-            final CasConfigurationProperties properties) {
+            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy) {
 
         OIDCRPClientAppTO rp = OIDCRPClientAppTO.class.cast(clientApp.getClientAppTO());
         OidcRegisteredService service = new OidcRegisteredService();
@@ -107,6 +103,10 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             }
         }
 
+        service.setScopes(rp.getScopes().stream().
+                map(s -> s.name().toLowerCase()).
+                collect(Collectors.toCollection(HashSet::new)));
+
         if (rp.getScopes().contains(OIDCScope.OPENID)) {
             chain.addPolicies(new OidcOpenIdScopeAttributeReleasePolicy());
         }
@@ -124,15 +124,15 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         }
 
         Set<String> customClaims = new HashSet<>();
-        if (attributeReleasePolicy instanceof BaseMappedAttributeReleasePolicy) {
-            customClaims.addAll(((BaseMappedAttributeReleasePolicy) attributeReleasePolicy).
+        if (attributeReleasePolicy instanceof BaseMappedAttributeReleasePolicy baseMapped) {
+            customClaims.addAll(baseMapped.
                     getAllowedAttributes().values().stream().
                     map(Objects::toString).collect(Collectors.toSet()));
-        } else if (attributeReleasePolicy instanceof ReturnAllowedAttributeReleasePolicy) {
-            customClaims.addAll(((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).
+        } else if (attributeReleasePolicy instanceof ReturnAllowedAttributeReleasePolicy returnAllowed) {
+            customClaims.addAll(returnAllowed.
                     getAllowedAttributes().stream().collect(Collectors.toSet()));
-        } else if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy) {
-            ((ChainingAttributeReleasePolicy) attributeReleasePolicy).getPolicies().stream().
+        } else if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy chaining) {
+            chaining.getPolicies().stream().
                     filter(ReturnAllowedAttributeReleasePolicy.class::isInstance).
                     findFirst().map(ReturnAllowedAttributeReleasePolicy.class::cast).
                     map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
@@ -151,15 +151,9 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
         if (!customClaims.isEmpty()) {
-            List<String> supportedClaims = properties.getAuthn().getOidc().getDiscovery().getClaims();
-            if (!supportedClaims.containsAll(customClaims)) {
-                properties.getAuthn().getOidc().getDiscovery().setClaims(
-                        Stream.concat(supportedClaims.stream(), customClaims.stream()).
-                                distinct().collect(Collectors.toList()));
-            }
-
             chain.addPolicies(new OidcCustomScopeAttributeReleasePolicy(
                     CUSTOM_SCOPE, customClaims.stream().collect(Collectors.toList())));
+            service.getScopes().add(CUSTOM_SCOPE);
         }
 
         setPolicies(service, authPolicy, mfaPolicy, accessStrategy, chain,

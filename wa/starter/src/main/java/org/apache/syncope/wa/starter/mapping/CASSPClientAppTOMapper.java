@@ -21,7 +21,6 @@ package org.apache.syncope.wa.starter.mapping;
 import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.services.CasRegisteredService;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
@@ -50,8 +49,7 @@ public class CASSPClientAppTOMapper extends AbstractClientAppMapper {
             final RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy,
             final RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy,
             final RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy,
-            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy,
-            final CasConfigurationProperties properties) {
+            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy) {
 
         CASSPClientAppTO cas = CASSPClientAppTO.class.cast(clientApp.getClientAppTO());
 
