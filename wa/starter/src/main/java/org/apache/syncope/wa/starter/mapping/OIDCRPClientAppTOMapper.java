@@ -29,9 +29,7 @@ import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
-import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcEmailScopeAttributeReleasePolicy;
-import org.apereo.cas.oidc.claims.OidcOpenIdScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcPhoneScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcProfileScopeAttributeReleasePolicy;
 import org.apereo.cas.services.BaseMappedAttributeReleasePolicy;
@@ -93,35 +91,9 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         }
         service.setLogoutUrl(rp.getLogoutUri());
 
-        ChainingAttributeReleasePolicy chain;
-        if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy chainingAttributeReleasePolicy) {
-            chain = chainingAttributeReleasePolicy;
-        } else {
-            chain = new ChainingAttributeReleasePolicy();
-            if (attributeReleasePolicy != null) {
-                chain.addPolicies(attributeReleasePolicy);
-            }
-        }
-
         service.setScopes(rp.getScopes().stream().
                 map(s -> s.name().toLowerCase()).
                 collect(Collectors.toCollection(HashSet::new)));
-
-        if (rp.getScopes().contains(OIDCScope.OPENID)) {
-            chain.addPolicies(new OidcOpenIdScopeAttributeReleasePolicy());
-        }
-        if (rp.getScopes().contains(OIDCScope.PROFILE)) {
-            chain.addPolicies(new OidcProfileScopeAttributeReleasePolicy());
-        }
-        if (rp.getScopes().contains(OIDCScope.ADDRESS)) {
-            chain.addPolicies(new OidcAddressScopeAttributeReleasePolicy());
-        }
-        if (rp.getScopes().contains(OIDCScope.EMAIL)) {
-            chain.addPolicies(new OidcEmailScopeAttributeReleasePolicy());
-        }
-        if (rp.getScopes().contains(OIDCScope.PHONE)) {
-            chain.addPolicies(new OidcPhoneScopeAttributeReleasePolicy());
-        }
 
         Set<String> customClaims = new HashSet<>();
         if (attributeReleasePolicy instanceof BaseMappedAttributeReleasePolicy baseMapped) {
@@ -138,7 +110,6 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                     map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
                     ifPresent(customClaims::addAll);
         }
-
         if (rp.getScopes().contains(OIDCScope.PROFILE)) {
             customClaims.removeAll(OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
@@ -151,13 +122,13 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         if (rp.getScopes().contains(OIDCScope.PHONE)) {
             customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
+
         if (!customClaims.isEmpty()) {
-            chain.addPolicies(new OidcCustomScopeAttributeReleasePolicy(
-                    CUSTOM_SCOPE, customClaims.stream().collect(Collectors.toList())));
             service.getScopes().add(CUSTOM_SCOPE);
         }
 
-        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, chain,
+        // never set attribute relase policy for OIDC services to avoid becoming scope-free for CAS
+        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, null,
                 tgtExpirationPolicy, stExpirationPolicy, tgtProxyExpirationPolicy, stProxyExpirationPolicy);
 
         return service;

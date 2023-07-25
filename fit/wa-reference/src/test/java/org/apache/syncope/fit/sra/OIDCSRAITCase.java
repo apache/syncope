@@ -61,6 +61,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -125,6 +126,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         clientApp.getScopes().add(OIDCScope.OPENID);
         clientApp.getScopes().add(OIDCScope.PROFILE);
         clientApp.getScopes().add(OIDCScope.EMAIL);
+        clientApp.getSupportedGrantTypes().add(OIDCGrantType.password);
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
         WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
@@ -239,9 +241,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         assertEquals("Verdi", idTokenClaimsSet.getStringClaim("family_name"));
         assertEquals("Giuseppe", idTokenClaimsSet.getStringClaim("given_name"));
         assertEquals("Giuseppe Verdi", idTokenClaimsSet.getStringClaim("name"));
-        if (!idToken) {
-            assertEquals(Set.of("root", "child", "citizen"), Set.of(idTokenClaimsSet.getStringArrayClaim("groups")));
-        }
+        assertEquals(Set.of("root", "child", "citizen"), Set.of(idTokenClaimsSet.getStringArrayClaim("groups")));
     }
 
     protected boolean checkIdToken() {
