@@ -36,6 +36,7 @@ import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.syncope.wa.bootstrap.WAProperties;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.starter.actuate.SyncopeCoreHealthIndicator;
 import org.apache.syncope.wa.starter.actuate.SyncopeWAInfoContributor;
 import org.apache.syncope.wa.starter.audit.WAAuditTrailManager;
@@ -43,12 +44,10 @@ import org.apache.syncope.wa.starter.events.WAEventRepository;
 import org.apache.syncope.wa.starter.gauth.WAGoogleMfaAuthCredentialRepository;
 import org.apache.syncope.wa.starter.gauth.WAGoogleMfaAuthTokenRepository;
 import org.apache.syncope.wa.starter.mapping.AccessMapper;
-import org.apache.syncope.wa.starter.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.AuthMapper;
 import org.apache.syncope.wa.starter.mapping.CASSPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.ClientAppMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAccessMapper;
-import org.apache.syncope.wa.starter.mapping.DefaultAttrReleaseMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultAuthMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultTicketExpirationMapper;
 import org.apache.syncope.wa.starter.mapping.HttpRequestAccessMapper;
@@ -159,19 +158,13 @@ public class WAContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrReleaseMapper defaultAttrReleaseMapper() {
-        return new DefaultAttrReleaseMapper();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public AuthMapper defaultAuthMapper() {
+    public AuthMapper authMapper() {
         return new DefaultAuthMapper();
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public TicketExpirationMapper defaultTicketExpirationMapper() {
+    public TicketExpirationMapper ticketExpirationMapper() {
         return new DefaultTicketExpirationMapper();
     }
 

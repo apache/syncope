@@ -94,9 +94,9 @@ public class OIDC4UIITCase extends AbstractUIITCase {
                 Set.of(OIDCResponseType.CODE, OIDCResponseType.ID_TOKEN_TOKEN, OIDCResponseType.TOKEN));
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
-        clientApp.getScopes().add(OIDCScope.OPENID);
-        clientApp.getScopes().add(OIDCScope.PROFILE);
-        clientApp.getScopes().add(OIDCScope.EMAIL);
+        clientApp.getScopes().add(OIDCScope.openid);
+        clientApp.getScopes().add(OIDCScope.profile);
+        clientApp.getScopes().add(OIDCScope.email);
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
         WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
@@ -139,7 +139,7 @@ public class OIDC4UIITCase extends AbstractUIITCase {
             cas.setUserinfoEndpoint(cas.getIssuer() + "/profile");
             cas.setEndSessionEndpoint(cas.getIssuer() + "/logout");
 
-            cas.getScopes().addAll(Stream.of(OIDCScope.values()).map(s -> s.name().toLowerCase()).toList());
+            cas.getScopes().addAll(Stream.of(OIDCScope.values()).map(OIDCScope::name).toList());
             cas.getScopes().add("syncope");
 
             cas.setCreateUnmatching(createUnmatching);

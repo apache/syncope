@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy;
@@ -81,15 +82,17 @@ public class RegisteredServiceMapper {
     }
 
     public RegisteredService toRegisteredService(final WAClientApp clientApp) {
-        ClientAppMapper clientAppMapper = clientAppMappers.stream().
+        return clientAppMappers.stream().
                 filter(m -> m.supports(clientApp.getClientAppTO())).
                 findFirst().
-                orElse(null);
-        if (clientAppMapper == null) {
-            LOG.warn("Unable to locate ClientAppMapper for {}", clientApp.getClientAppTO().getClass().getName());
-            return null;
-        }
+                map(clientAppMapper -> toRegisteredService(clientApp, clientAppMapper)).
+                orElseGet(() -> {
+                    LOG.warn("Unable to locate mapper for {}", clientApp.getClientAppTO().getClass().getName());
+                    return null;
+                });
+    }
 
+    public RegisteredService toRegisteredService(final WAClientApp clientApp, final ClientAppMapper clientAppMapper) {
         RegisteredServiceAuthenticationPolicy authPolicy = null;
         RegisteredServiceMultifactorPolicy mfaPolicy = null;
         RegisteredServiceDelegatedAuthenticationPolicy delegatedAuthPolicy = null;

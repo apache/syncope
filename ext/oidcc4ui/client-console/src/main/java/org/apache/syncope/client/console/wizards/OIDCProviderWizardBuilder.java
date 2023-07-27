@@ -270,7 +270,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
             });
 
             AjaxTextFieldPanel value = new AjaxTextFieldPanel("panel", "scopes", new Model<>());
-            value.setChoices(Stream.of(OIDCScope.values()).map(s -> s.name().toLowerCase()).toList());
+            value.setChoices(Stream.of(OIDCScope.values()).map(OIDCScope::name).toList());
             content.add(new MultiFieldPanel.Builder<String>(
                     new PropertyModel<>(opTO, "scopes")).build("scopes", "scopes", value));
         }

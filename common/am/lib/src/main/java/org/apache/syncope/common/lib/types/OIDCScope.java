@@ -19,10 +19,10 @@
 package org.apache.syncope.common.lib.types;
 
 public enum OIDCScope {
-    OPENID,
-    PROFILE,
-    EMAIL,
-    ADDRESS,
-    PHONE
+    openid,
+    profile,
+    email,
+    address,
+    phone
 
 }

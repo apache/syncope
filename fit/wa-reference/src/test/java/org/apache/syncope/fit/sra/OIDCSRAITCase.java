@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.sra;
 
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.oneOf;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.Consts;
@@ -123,9 +125,9 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         clientApp.setLogoutUri(SRA_ADDRESS + "/logout");
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
-        clientApp.getScopes().add(OIDCScope.OPENID);
-        clientApp.getScopes().add(OIDCScope.PROFILE);
-        clientApp.getScopes().add(OIDCScope.EMAIL);
+        clientApp.getScopes().add(OIDCScope.openid);
+        clientApp.getScopes().add(OIDCScope.profile);
+        clientApp.getScopes().add(OIDCScope.email);
         clientApp.getSupportedGrantTypes().add(OIDCGrantType.password);
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
@@ -250,6 +252,23 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
 
     @Test
     public void rest() throws IOException, ParseException {
+        await().atMost(60, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
+            boolean refreshed = false;
+            try {
+                String metadata = WebClient.create(
+                        WA_ADDRESS + "/oidc/.well-known/openid-configuration").get().readEntity(String.class);
+                if (!metadata.contains("groups")) {
+                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
+                    throw new IllegalStateException();
+                }
+
+                refreshed = true;
+            } catch (Exception e) {
+                // ignore
+            }
+            return refreshed;
+        });
+
         // 0. access public route
         WebClient client = WebClient.create(SRA_ADDRESS + "/public/post").
                 accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON);

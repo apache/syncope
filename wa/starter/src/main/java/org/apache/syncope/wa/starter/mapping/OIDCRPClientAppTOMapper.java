@@ -20,6 +20,7 @@ package org.apache.syncope.wa.starter.mapping;
 
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ClientAppTO;
@@ -83,17 +84,15 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         service.setJwtAccessToken(rp.isJwtAccessToken());
         service.setBypassApprovalPrompt(rp.isBypassApprovalPrompt());
         service.setSupportedGrantTypes(rp.getSupportedGrantTypes().stream().
-                map(OIDCGrantType::name).collect(Collectors.toCollection(HashSet::new)));
+                map(OIDCGrantType::name).collect(Collectors.toSet()));
         service.setSupportedResponseTypes(rp.getSupportedResponseTypes().stream().
-                map(OIDCResponseType::getExternalForm).collect(Collectors.toCollection(HashSet::new)));
-        if (rp.getSubjectType() != null) {
-            service.setSubjectType(rp.getSubjectType().name());
-        }
+                map(OIDCResponseType::getExternalForm).collect(Collectors.toSet()));
+        Optional.ofNullable(rp.getSubjectType()).ifPresent(st -> service.setSubjectType(st.name()));
         service.setLogoutUrl(rp.getLogoutUri());
 
         service.setScopes(rp.getScopes().stream().
-                map(s -> s.name().toLowerCase()).
-                collect(Collectors.toCollection(HashSet::new)));
+                map(OIDCScope::name).
+                collect(Collectors.toSet()));
 
         Set<String> customClaims = new HashSet<>();
         if (attributeReleasePolicy instanceof BaseMappedAttributeReleasePolicy baseMapped) {
@@ -110,16 +109,16 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                     map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
                     ifPresent(customClaims::addAll);
         }
-        if (rp.getScopes().contains(OIDCScope.PROFILE)) {
+        if (rp.getScopes().contains(OIDCScope.profile)) {
             customClaims.removeAll(OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCScope.ADDRESS)) {
+        if (rp.getScopes().contains(OIDCScope.address)) {
             customClaims.removeAll(OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCScope.EMAIL)) {
+        if (rp.getScopes().contains(OIDCScope.email)) {
             customClaims.removeAll(OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCScope.PHONE)) {
+        if (rp.getScopes().contains(OIDCScope.phone)) {
             customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
 
