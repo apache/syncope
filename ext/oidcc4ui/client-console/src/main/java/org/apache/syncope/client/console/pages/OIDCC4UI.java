@@ -25,7 +25,7 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.panels.OIDCProvidersDirectoryPanel;
 import org.apache.syncope.client.console.rest.OIDCProviderRestClient;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
-import org.apache.syncope.common.lib.types.OIDC4UIEntitlement;
+import org.apache.syncope.common.lib.types.OIDCC4UIEntitlement;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -35,7 +35,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 @ExtPage(label = "OIDC 1.0 C4UI", icon = "fab fa-openid",
-        listEntitlement = OIDC4UIEntitlement.OP_READ, priority = 300)
+        listEntitlement = OIDCC4UIEntitlement.OP_READ, priority = 300)
 public class OIDCC4UI extends BaseExtPage {
 
     private static final long serialVersionUID = -599601954212606001L;

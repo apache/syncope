@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.OIDC4UIEntitlement;
+import org.apache.syncope.common.lib.types.OIDCC4UIEntitlement;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
@@ -60,7 +60,7 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
         this.binder = binder;
     }
 
-    @PreAuthorize("hasRole('" + OIDC4UIEntitlement.OP_CREATE + "')")
+    @PreAuthorize("hasRole('" + OIDCC4UIEntitlement.OP_CREATE + "')")
     public String createFromDiscovery(final OIDCC4UIProviderTO opTO) {
         try {
             OIDCClientCache.importMetadata(opTO);
@@ -74,7 +74,7 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
         }
     }
 
-    @PreAuthorize("hasRole('" + OIDC4UIEntitlement.OP_CREATE + "')")
+    @PreAuthorize("hasRole('" + OIDCC4UIEntitlement.OP_CREATE + "')")
     public String create(final OIDCC4UIProviderTO opTO) {
         if (opTO.getConnObjectKeyItem() == null) {
             Item connObjectKeyItem = new Item();
@@ -94,7 +94,7 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
         return opDAO.findAll().stream().map(binder::getOIDCProviderTO).collect(Collectors.toList());
     }
 
-    @PreAuthorize("hasRole('" + OIDC4UIEntitlement.OP_READ + "')")
+    @PreAuthorize("hasRole('" + OIDCC4UIEntitlement.OP_READ + "')")
     @Transactional(readOnly = true)
     public OIDCC4UIProviderTO read(final String key) {
         OIDCC4UIProvider op = Optional.ofNullable(opDAO.find(key)).
@@ -103,7 +103,7 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
         return binder.getOIDCProviderTO(op);
     }
 
-    @PreAuthorize("hasRole('" + OIDC4UIEntitlement.OP_UPDATE + "')")
+    @PreAuthorize("hasRole('" + OIDCC4UIEntitlement.OP_UPDATE + "')")
     public void update(final OIDCC4UIProviderTO opTO) {
         OIDCC4UIProvider op = Optional.ofNullable(opDAO.find(opTO.getKey())).
                 orElseThrow(() -> new NotFoundException("OIDC Provider '" + opTO.getKey() + '\''));
@@ -121,7 +121,7 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
         oidcClientCacheLogout.removeAll(op.getName());
     }
 
-    @PreAuthorize("hasRole('" + OIDC4UIEntitlement.OP_DELETE + "')")
+    @PreAuthorize("hasRole('" + OIDCC4UIEntitlement.OP_DELETE + "')")
     public void delete(final String key) {
         OIDCC4UIProvider op = Optional.ofNullable(opDAO.find(key)).
                 orElseThrow(() -> new NotFoundException("OIDC Provider '" + key + '\''));

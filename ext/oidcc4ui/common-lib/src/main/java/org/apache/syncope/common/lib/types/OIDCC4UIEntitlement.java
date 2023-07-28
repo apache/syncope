@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
-public final class OIDC4UIEntitlement {
+public final class OIDCC4UIEntitlement {
 
     public static final String OP_READ = "OP_READ";
 
@@ -38,7 +38,7 @@ public final class OIDC4UIEntitlement {
 
     static {
         Set<String> values = new TreeSet<>();
-        for (Field field : OIDC4UIEntitlement.class.getDeclaredFields()) {
+        for (Field field : OIDCC4UIEntitlement.class.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers()) && String.class.equals(field.getType())) {
                 values.add(field.getName());
             }
@@ -50,7 +50,7 @@ public final class OIDC4UIEntitlement {
         return VALUES;
     }
 
-    private OIDC4UIEntitlement() {
+    private OIDCC4UIEntitlement() {
         // private constructor for static utility class
     }
 }

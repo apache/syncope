@@ -20,7 +20,6 @@ package org.apache.syncope.wa.starter.mapping;
 
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
@@ -44,6 +43,5 @@ public interface ClientAppMapper {
             RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy,
             RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy,
             RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy,
-            RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy,
-            CasConfigurationProperties properties);
+            RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy);
 }

@@ -414,7 +414,7 @@ under the License.
     <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.1.2</spring-boot.version>
-    <spring-cloud-gateway.version>4.0.6</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>4.0.7</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.0-SNAPSHOT</openjpa.version>
 
@@ -489,7 +489,7 @@ under the License.
     <tomcat.version>10.1.11</tomcat.version>
     <wildfly.version>29.0.0.Final</wildfly.version>
     <payara.version>6.2023.7</payara.version>
-    <jakarta.faces.version>4.0.2</jakarta.faces.version>
+    <jakarta.faces.version>4.0.3</jakarta.faces.version>
 
     <docker.postgresql.version>15</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
@@ -1212,7 +1212,7 @@ under the License.
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
         <!-- TMP, it should be ${spring-cloud-gateway.version} -->
-        <version>4.0.3</version>
+        <version>4.0.4</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

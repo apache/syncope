@@ -44,7 +44,7 @@ public abstract class AttrWizardBuilder extends BaseAjaxWizardBuilder<Attr> {
 
     protected static class AttrStep extends WizardStep {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 8145346883748040158L;
 
         AttrStep(final Attr modelObject) {
             AjaxTextFieldPanel schema = new AjaxTextFieldPanel(

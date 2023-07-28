@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa.bootstrap;
+package org.apache.syncope.wa.bootstrap.mapping;
 
 import java.util.Map;
 import java.util.Optional;
