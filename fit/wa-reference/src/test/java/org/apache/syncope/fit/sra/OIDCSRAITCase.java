@@ -139,6 +139,24 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         clientApp.getSupportedGrantTypes().add(OIDCGrantType.authorization_code);
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
+
+        await().atMost(60, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
+            try {
+                String metadata = WebClient.create(
+                        WA_ADDRESS + "/oidc/" + OidcConstants.WELL_KNOWN_OPENID_CONFIGURATION_URL).
+                        get().readEntity(String.class);
+                if (!metadata.contains("groups")) {
+                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
+                    throw new IllegalStateException();
+                }
+
+                return true;
+            } catch (Exception e) {
+                // ignore
+            }
+            return false;
+        });
+        WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
     }
 
     @BeforeAll
@@ -165,8 +183,6 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
 
     @Test
     public void web() throws IOException {
-        WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
-
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpClientContext context = HttpClientContext.create();
         context.setCookieStore(new BasicCookieStore());
@@ -264,25 +280,6 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
 
     @Test
     public void rest() throws IOException, ParseException {
-        await().atMost(60, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
-            try {
-                String metadata = WebClient.create(
-                        WA_ADDRESS + "/oidc/" + OidcConstants.WELL_KNOWN_OPENID_CONFIGURATION_URL).
-                        get().readEntity(String.class);
-                if (!metadata.contains("groups")) {
-                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
-                    throw new IllegalStateException();
-                }
-
-                return true;
-            } catch (Exception e) {
-                // ignore
-            }
-            return false;
-        });
-        oidcClientAppSetup(getClass().getName(), SRA_REGISTRATION_ID, CLIENT_APP_ID, CLIENT_ID, CLIENT_SECRET);
-        WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
-
         // 0. access public route
         WebClient client = WebClient.create(SRA_ADDRESS + "/public/post").
                 accept(MediaType.APPLICATION_JSON).type(MediaType.APPLICATION_JSON);
