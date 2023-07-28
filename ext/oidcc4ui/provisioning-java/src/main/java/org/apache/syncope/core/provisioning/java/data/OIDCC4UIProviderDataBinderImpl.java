@@ -173,6 +173,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
         op.setTokenEndpoint(opTO.getTokenEndpoint());
         op.setUserinfoEndpoint(opTO.getUserinfoEndpoint());
         op.setEndSessionEndpoint(opTO.getEndSessionEndpoint());
+        op.setScopes(opTO.getScopes());
         op.setHasDiscovery(opTO.getHasDiscovery());
         op.setCreateUnmatching(opTO.isCreateUnmatching());
         op.setSelfRegUnmatching(opTO.isSelfRegUnmatching());
@@ -243,6 +244,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
         opTO.setTokenEndpoint(op.getTokenEndpoint());
         opTO.setUserinfoEndpoint(op.getUserinfoEndpoint());
         opTO.setEndSessionEndpoint(op.getEndSessionEndpoint());
+        opTO.getScopes().addAll(op.getScopes());
         opTO.setHasDiscovery(op.getHasDiscovery());
         opTO.setCreateUnmatching(op.isCreateUnmatching());
         opTO.setSelfRegUnmatching(op.isSelfRegUnmatching());

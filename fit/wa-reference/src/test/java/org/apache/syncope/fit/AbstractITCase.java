@@ -22,10 +22,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.nimbusds.jose.util.IOUtils;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +50,7 @@ import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.fit.sra.AbstractSRAITCase;
+import org.apereo.cas.oidc.OidcConstants;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.FormElement;
@@ -117,26 +115,22 @@ public abstract class AbstractITCase {
         await().atMost(60, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
             boolean refreshed = false;
             try {
-                String metadata = IOUtils.readInputStreamToString(
-                        (InputStream) WebClient.create(
-                                WA_ADDRESS + "/idp/metadata").get().getEntity(),
-                        StandardCharsets.UTF_8);
+                String metadata = WebClient.create(
+                        WA_ADDRESS + "/idp/metadata").get().readEntity(String.class);
                 if (metadata.contains("localhost:8080")) {
                     WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
-                metadata = IOUtils.readInputStreamToString(
-                        (InputStream) WebClient.create(
-                                WA_ADDRESS + "/oidc/.well-known/openid-configuration").get().getEntity(),
-                        StandardCharsets.UTF_8);
+                metadata = WebClient.create(
+                        WA_ADDRESS + "/oidc/" + OidcConstants.WELL_KNOWN_OPENID_CONFIGURATION_URL).
+                        get().readEntity(String.class);
                 if (metadata.contains("localhost:8080")) {
                     WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
-                metadata = IOUtils.readInputStreamToString(
-                        (InputStream) WebClient.create(
-                                WA_ADDRESS + "/actuator/registeredServices", "anonymous", "anonymousKey", null).
-                                get().getEntity(), StandardCharsets.UTF_8);
+                metadata = WebClient.create(
+                        WA_ADDRESS + "/actuator/registeredServices", "anonymous", "anonymousKey", null).
+                        get().readEntity(String.class);
                 if (metadata.contains("localhost:8080/syncope-wa")) {
                     WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();

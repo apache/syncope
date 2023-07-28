@@ -28,8 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.stream.Stream;
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
@@ -45,18 +47,20 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
+import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeAll;
 
-public class OIDC4UIITCase extends AbstractUIITCase {
+public class OIDCC4UIITCase extends AbstractUIITCase {
 
     private static void clientAppSetup(final String appName, final String baseAddress, final long appId) {
         OIDCRPClientAppTO clientApp = CLIENT_APP_SERVICE.list(ClientAppType.OIDCRP).stream().
@@ -66,6 +70,7 @@ public class OIDC4UIITCase extends AbstractUIITCase {
                 orElseGet(() -> {
                     OIDCRPClientAppTO app = new OIDCRPClientAppTO();
                     app.setName(appName);
+                    app.setRealm(SyncopeConstants.ROOT_REALM);
                     app.setClientAppId(appId);
                     app.setClientId(appName);
                     app.setClientSecret(appName);
@@ -92,6 +97,9 @@ public class OIDC4UIITCase extends AbstractUIITCase {
                 Set.of(OIDCResponseType.CODE, OIDCResponseType.ID_TOKEN_TOKEN, OIDCResponseType.TOKEN));
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
+        clientApp.getScopes().add(OIDCScope.openid);
+        clientApp.getScopes().add(OIDCScope.profile);
+        clientApp.getScopes().add(OIDCScope.email);
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
         WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
@@ -99,8 +107,8 @@ public class OIDC4UIITCase extends AbstractUIITCase {
 
     private static String getAppName(final String address) {
         return CONSOLE_ADDRESS.equals(address)
-                ? OIDC4UIITCase.class.getName() + "_Console"
-                : OIDC4UIITCase.class.getName() + "_Enduser";
+                ? OIDCC4UIITCase.class.getName() + "_Console"
+                : OIDCC4UIITCase.class.getName() + "_Enduser";
     }
 
     @BeforeAll
@@ -134,6 +142,9 @@ public class OIDC4UIITCase extends AbstractUIITCase {
             cas.setUserinfoEndpoint(cas.getIssuer() + "/profile");
             cas.setEndSessionEndpoint(cas.getIssuer() + "/logout");
 
+            cas.getScopes().addAll(Stream.of(OIDCScope.values()).map(OIDCScope::name).collect(Collectors.toList()));
+            cas.getScopes().add("syncope");
+
             cas.setCreateUnmatching(createUnmatching);
             cas.setSelfRegUnmatching(selfRegUnmatching);
 
@@ -145,27 +156,27 @@ public class OIDC4UIITCase extends AbstractUIITCase {
 
             item = new Item();
             item.setIntAttrName("email");
-            item.setExtAttrName("mail");
+            item.setExtAttrName("email");
             cas.add(item);
 
             item = new Item();
             item.setIntAttrName("userId");
-            item.setExtAttrName("mail");
+            item.setExtAttrName("email");
             cas.add(item);
 
             item = new Item();
             item.setIntAttrName("firstname");
-            item.setExtAttrName("givenName");
+            item.setExtAttrName("given_name");
             cas.add(item);
 
             item = new Item();
             item.setIntAttrName("surname");
-            item.setExtAttrName("sn");
+            item.setExtAttrName("family_name");
             cas.add(item);
 
             item = new Item();
             item.setIntAttrName("fullname");
-            item.setExtAttrName("cn");
+            item.setExtAttrName("name");
             cas.add(item);
 
             OIDCC4UI_PROVIDER_SERVICE.create(cas);

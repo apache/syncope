@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf;
 import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.wa.bootstrap.mapping.AuthModulePropertySourceMapper;
 import org.junit.jupiter.api.Test;
 
 public class AuthModulePropertySourceMapperTest {

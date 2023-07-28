@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
@@ -72,6 +73,7 @@ public class OIDCClientCache {
                 Optional.ofNullable(metadata.getUserInfoEndpointURI()).map(URI::toASCIIString).orElse(null));
         opTO.setEndSessionEndpoint(
                 Optional.ofNullable(metadata.getEndSessionEndpointURI()).map(URI::toASCIIString).orElse(null));
+        Optional.ofNullable(metadata.getScopes()).ifPresent(s -> opTO.getScopes().addAll(s.toStringList()));
     }
 
     protected final List<OidcClient> cache = Collections.synchronizedList(new ArrayList<>());
@@ -94,15 +96,15 @@ public class OIDCClientCache {
         metadata.setEndSessionEndpointURI(
                 Optional.ofNullable(op.getEndSessionEndpoint()).map(URI::create).orElse(null));
 
-        OidcConfiguration config = new OidcConfiguration();
-        config.setClientId(op.getClientID());
-        config.setSecret(op.getClientSecret());
-        config.setProviderMetadata(metadata);
-        config.setScope("openid profile email address phone offline_access");
-        config.setUseNonce(false);
-        config.setLogoutHandler(new NoOpLogoutHandler());
+        OidcConfiguration cfg = new OidcConfiguration();
+        cfg.setClientId(op.getClientID());
+        cfg.setSecret(op.getClientSecret());
+        cfg.setProviderMetadata(metadata);
+        cfg.setScope(op.getScopes().stream().collect(Collectors.joining(" ")));
+        cfg.setUseNonce(false);
+        cfg.setLogoutHandler(new NoOpLogoutHandler());
 
-        OidcClient client = new OidcClient(config);
+        OidcClient client = new OidcClient(cfg);
         client.setName(op.getName());
         client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         client.setCallbackUrl(callbackUrl);

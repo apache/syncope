@@ -25,8 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.security.AccessControlException;
 import java.util.List;
 import javax.ws.rs.ForbiddenException;
@@ -36,7 +34,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -108,9 +105,7 @@ public class RESTITCase extends AbstractITCase {
         Response response = noContentService.create(groupCR);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(
-                StringUtils.EMPTY,
-                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
+        assertEquals(StringUtils.EMPTY, response.readEntity(String.class));
 
         GroupTO group = getObject(response.getLocation(), GroupService.class, GroupTO.class);
         assertNotNull(group);
@@ -122,16 +117,12 @@ public class RESTITCase extends AbstractITCase {
         response = noContentService.update(groupUR);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(
-                StringUtils.EMPTY,
-                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
+        assertEquals(StringUtils.EMPTY, response.readEntity(String.class));
 
         response = noContentService.delete(group.getKey());
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
-        assertEquals(
-                StringUtils.EMPTY,
-                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
+        assertEquals(StringUtils.EMPTY, response.readEntity(String.class));
     }
 
     @Test
@@ -203,9 +194,7 @@ public class RESTITCase extends AbstractITCase {
         String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
         assertNotNull(contentDisposition);
 
-        Object entity = response.getEntity();
-        assertTrue(entity instanceof InputStream);
-        String configExport = IOUtils.toString((InputStream) entity, StandardCharsets.UTF_8.name());
+        String configExport = response.readEntity(String.class);
         assertFalse(configExport.isEmpty());
         assertTrue(configExport.length() > 1000);
     }

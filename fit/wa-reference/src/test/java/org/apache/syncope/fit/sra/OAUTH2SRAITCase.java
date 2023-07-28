@@ -19,16 +19,13 @@
 package org.apache.syncope.fit.sra;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-import java.text.ParseException;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 import org.apache.http.HttpStatus;
@@ -54,6 +51,8 @@ public class OAUTH2SRAITCase extends OIDCSRAITCase {
         } catch (Exception e) {
             fail("Could not load /sra-oauth2.properties", e);
         }
+        SRA_REGISTRATION_ID = "OAUTH2";
+        CLIENT_APP_ID = 2L;
         CLIENT_ID = props.getProperty("sra.oauth2.client-id");
         assertNotNull(CLIENT_ID);
         CLIENT_SECRET = props.getProperty("sra.oauth2.client-secret");
@@ -61,7 +60,8 @@ public class OAUTH2SRAITCase extends OIDCSRAITCase {
         TOKEN_URI = props.getProperty("sra.oauth2.tokenUri");
         assertNotNull(TOKEN_URI);
 
-        oidcClientAppSetup(OAUTH2SRAITCase.class.getName(), "OAUTH2", 2L, CLIENT_ID, CLIENT_SECRET);
+        oidcClientAppSetup(
+                OAUTH2SRAITCase.class.getName(), SRA_REGISTRATION_ID, CLIENT_APP_ID, CLIENT_ID, CLIENT_SECRET);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class OAUTH2SRAITCase extends OIDCSRAITCase {
     }
 
     @Override
-    protected void checkIdToken(final JsonNode json) throws ParseException {
-        assertFalse(json.has("id_token"));
+    protected boolean checkIdToken() {
+        return false;
     }
 }

@@ -84,10 +84,10 @@ public abstract class AbstractUIITCase extends AbstractITCase {
                     DefaultAttrReleasePolicyConf policyConf = new DefaultAttrReleasePolicyConf();
                     policyConf.getPrincipalAttrRepoConf().getAttrRepos().add(stubAttrRepo);
                     policyConf.getReleaseAttrs().put("attr1", "identifier");
-                    policyConf.getReleaseAttrs().put("firstname", "givenName");
-                    policyConf.getReleaseAttrs().put("surname", "sn");
-                    policyConf.getReleaseAttrs().put("fullname", "cn");
-                    policyConf.getReleaseAttrs().put("email", "mail");
+                    policyConf.getReleaseAttrs().put("firstname", "given_name");
+                    policyConf.getReleaseAttrs().put("surname", "family_name");
+                    policyConf.getReleaseAttrs().put("fullname", "name");
+                    policyConf.getReleaseAttrs().put("email", "email");
 
                     AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
                     policy.setName(description);

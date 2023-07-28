@@ -46,6 +46,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
@@ -73,6 +74,7 @@ public class SAML2SRAITCase extends AbstractSRAITCase {
                 orElseGet(() -> {
                     SAML2SPClientAppTO app = new SAML2SPClientAppTO();
                     app.setName(appName);
+                    app.setRealm(SyncopeConstants.ROOT_REALM);
                     app.setClientAppId(3L);
                     app.setEntityId(SRA_ADDRESS);
                     app.setMetadataLocation(SRA_ADDRESS + "/saml2/metadata");

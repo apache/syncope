@@ -26,7 +26,7 @@ import javax.ws.rs.HttpMethod;
 import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.WebContext;
 
-public class OIDC4UIContext implements WebContext {
+public class OIDCC4UIContext implements WebContext {
 
     @Override
     public String getRequestMethod() {

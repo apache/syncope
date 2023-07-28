@@ -57,6 +57,14 @@ under the License.
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-core-util-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-core-authentication-attributes</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-oidc-core</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>

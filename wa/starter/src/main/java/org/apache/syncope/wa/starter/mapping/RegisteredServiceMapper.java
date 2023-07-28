@@ -23,9 +23,9 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
-import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.services.DefaultRegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
@@ -43,7 +43,7 @@ import org.springframework.beans.factory.ObjectProvider;
 
 public class RegisteredServiceMapper {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RegisteredServiceMapper.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(RegisteredServiceMapper.class);
 
     protected final String pac4jCoreName;
 
@@ -61,8 +61,6 @@ public class RegisteredServiceMapper {
 
     protected final List<ClientAppMapper> clientAppMappers;
 
-    protected final CasConfigurationProperties properties;
-
     public RegisteredServiceMapper(
             final String pac4jCoreName,
             final ObjectProvider<AuthenticationEventExecutionPlan> authEventExecPlan,
@@ -71,8 +69,7 @@ public class RegisteredServiceMapper {
             final List<AccessMapper> accessMappers,
             final List<AttrReleaseMapper> attrReleaseMappers,
             final List<TicketExpirationMapper> ticketExpirationMappers,
-            final List<ClientAppMapper> clientAppMappers,
-            final CasConfigurationProperties properties) {
+            final List<ClientAppMapper> clientAppMappers) {
 
         this.pac4jCoreName = pac4jCoreName;
         this.authEventExecPlan = authEventExecPlan;
@@ -82,19 +79,20 @@ public class RegisteredServiceMapper {
         this.attrReleaseMappers = attrReleaseMappers;
         this.ticketExpirationMappers = ticketExpirationMappers;
         this.clientAppMappers = clientAppMappers;
-        this.properties = properties;
     }
 
     public RegisteredService toRegisteredService(final WAClientApp clientApp) {
-        ClientAppMapper clientAppMapper = clientAppMappers.stream().
+        return clientAppMappers.stream().
                 filter(m -> m.supports(clientApp.getClientAppTO())).
                 findFirst().
-                orElse(null);
-        if (clientAppMapper == null) {
-            LOG.warn("Unable to locate ClientAppMapper for {}", clientApp.getClientAppTO().getClass().getName());
-            return null;
-        }
+                map(clientAppMapper -> toRegisteredService(clientApp, clientAppMapper)).
+                orElseGet(() -> {
+                    LOG.warn("Unable to locate mapper for {}", clientApp.getClientAppTO().getClass().getName());
+                    return null;
+                });
+    }
 
+    public RegisteredService toRegisteredService(final WAClientApp clientApp, final ClientAppMapper clientAppMapper) {
         RegisteredServiceAuthenticationPolicy authPolicy = null;
         RegisteredServiceMultifactorPolicy mfaPolicy = null;
         RegisteredServiceDelegatedAuthenticationPolicy delegatedAuthPolicy = null;
@@ -168,7 +166,6 @@ public class RegisteredServiceMapper {
                 tgtExpirationPolicy,
                 stExpirationPolicy,
                 tgtProxyExpirationPolicy,
-                stProxyExpirationPolicy,
-                properties);
+                stProxyExpirationPolicy);
     }
 }

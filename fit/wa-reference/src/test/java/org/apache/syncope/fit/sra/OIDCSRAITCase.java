@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.sra;
 
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.oneOf;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.HttpHeaders;
@@ -59,16 +61,24 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.OIDCGrantType;
+import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
+import org.apereo.cas.oidc.OidcConstants;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class OIDCSRAITCase extends AbstractSRAITCase {
+
+    protected static String SRA_REGISTRATION_ID;
+
+    protected static Long CLIENT_APP_ID;
 
     protected static String CLIENT_ID;
 
@@ -97,6 +107,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
                 orElseGet(() -> {
                     OIDCRPClientAppTO app = new OIDCRPClientAppTO();
                     app.setName(appName);
+                    app.setRealm(SyncopeConstants.ROOT_REALM);
                     app.setClientAppId(clientAppId);
                     app.setClientId(clientId);
                     app.setClientSecret(clientSecret);
@@ -121,8 +132,30 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         clientApp.setLogoutUri(SRA_ADDRESS + "/logout");
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
+        clientApp.getScopes().add(OIDCScope.openid);
+        clientApp.getScopes().add(OIDCScope.profile);
+        clientApp.getScopes().add(OIDCScope.email);
+        clientApp.getSupportedGrantTypes().add(OIDCGrantType.password);
+        clientApp.getSupportedGrantTypes().add(OIDCGrantType.authorization_code);
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
+
+        await().atMost(60, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
+            try {
+                String metadata = WebClient.create(
+                        WA_ADDRESS + "/oidc/" + OidcConstants.WELL_KNOWN_OPENID_CONFIGURATION_URL).
+                        get().readEntity(String.class);
+                if (!metadata.contains("groups")) {
+                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
+                    throw new IllegalStateException();
+                }
+
+                return true;
+            } catch (Exception e) {
+                // ignore
+            }
+            return false;
+        });
         WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
     }
 
@@ -136,13 +169,16 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         } catch (Exception e) {
             fail("Could not load /sra-oidc.properties", e);
         }
+        SRA_REGISTRATION_ID = "OIDC";
+        CLIENT_APP_ID = 1L;
         CLIENT_ID = props.getProperty("sra.oidc.client-id");
         assertNotNull(CLIENT_ID);
         CLIENT_SECRET = props.getProperty("sra.oidc.client-secret");
         assertNotNull(CLIENT_SECRET);
         TOKEN_URI = WA_ADDRESS + "/oidc/accessToken";
 
-        oidcClientAppSetup(OIDCSRAITCase.class.getName(), "OIDC", 1L, CLIENT_ID, CLIENT_SECRET);
+        oidcClientAppSetup(
+                OIDCSRAITCase.class.getName(), SRA_REGISTRATION_ID, CLIENT_APP_ID, CLIENT_ID, CLIENT_SECRET);
     }
 
     @Test
@@ -222,16 +258,24 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         checkLogout(response);
     }
 
-    protected void checkIdToken(final JsonNode json) throws ParseException {
-        SignedJWT idToken = SignedJWT.parse(json.get("id_token").asText());
-        assertNotNull(idToken);
-        JWTClaimsSet idTokenClaimsSet = idToken.getJWTClaimsSet();
-        assertEquals("verdi", idTokenClaimsSet.getStringClaim("preferred_username"));
+    private void checkJWT(final String token, final boolean idToken) throws ParseException {
+        assertNotNull(token);
+        SignedJWT jwt = SignedJWT.parse(token);
+        assertNotNull(jwt);
+        JWTClaimsSet idTokenClaimsSet = jwt.getJWTClaimsSet();
+        assertEquals("verdi", idTokenClaimsSet.getSubject());
+        if (idToken) {
+            assertEquals("verdi", idTokenClaimsSet.getStringClaim("preferred_username"));
+        }
         assertEquals("verdi@syncope.org", idTokenClaimsSet.getStringClaim("email"));
         assertEquals("Verdi", idTokenClaimsSet.getStringClaim("family_name"));
         assertEquals("Giuseppe", idTokenClaimsSet.getStringClaim("given_name"));
         assertEquals("Giuseppe Verdi", idTokenClaimsSet.getStringClaim("name"));
         assertEquals(Set.of("root", "child", "citizen"), Set.of(idTokenClaimsSet.getStringArrayClaim("groups")));
+    }
+
+    protected boolean checkIdToken() {
+        return true;
     }
 
     @Test
@@ -249,19 +293,23 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
                 param("client_secret", CLIENT_SECRET).
                 param("username", "verdi").
                 param("password", "password").
-                param("scope", "openid profile email address phone offline_access syncope");
+                param("scope", "openid profile email syncope");
         response = WebClient.create(TOKEN_URI).post(form);
         assertEquals(HttpStatus.SC_OK, response.getStatus());
         assertTrue(response.getHeaderString(HttpHeaders.CONTENT_TYPE).startsWith(MediaType.APPLICATION_JSON));
 
         JsonNode json = MAPPER.readTree(response.readEntity(String.class));
 
-        // 1a. verify id_token
-        checkIdToken(json);
+        if (checkIdToken()) {
+            // 1a. take and verify id_token
+            String idToken = json.get("id_token").asText();
+            assertNotNull(idToken);
+            checkJWT(idToken, true);
+        }
 
-        // 1b. take access_token
+        // 1b. take and verify access_token
         String accessToken = json.get("access_token").asText();
-        assertNotNull(accessToken);
+        checkJWT(accessToken, false);
 
         // 2. access protected route
         client = WebClient.create(SRA_ADDRESS + "/protected/post").

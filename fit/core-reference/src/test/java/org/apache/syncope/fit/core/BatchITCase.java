@@ -28,9 +28,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +39,6 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
@@ -201,7 +198,7 @@ public class BatchITCase extends AbstractITCase {
         assertTrue(response.getMediaType().toString().
                 startsWith(RESTHeaders.multipartMixedWith(boundary.substring(2))));
 
-        String body = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
+        String body = response.readEntity(String.class);
         LOG.debug("Batch response body:\n{}", body);
 
         check(BatchPayloadParser.parse(
@@ -245,7 +242,7 @@ public class BatchITCase extends AbstractITCase {
         assertTrue(response.getMediaType().toString().
                 startsWith(RESTHeaders.multipartMixedWith(boundary.substring(2))));
 
-        String body = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
+        String body = response.readEntity(String.class);
         LOG.debug("Batch response body:\n{}", body);
 
         check(BatchPayloadParser.parse(
