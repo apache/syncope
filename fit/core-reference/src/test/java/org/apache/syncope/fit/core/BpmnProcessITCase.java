@@ -26,9 +26,6 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.fit.AbstractITCase;
@@ -62,8 +59,7 @@ public class BpmnProcessITCase extends AbstractITCase {
         Response response = BPMN_PROCESS_SERVICE.get(USER_WORKFLOW_KEY);
         assertTrue(response.getMediaType().toString().
                 startsWith(CLIENT_FACTORY.getContentType().getMediaType().toString()));
-        assertTrue(response.getEntity() instanceof InputStream);
-        String definition = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
+        String definition = response.readEntity(String.class);
         assertNotNull(definition);
         assertFalse(definition.isEmpty());
     }
@@ -71,7 +67,7 @@ public class BpmnProcessITCase extends AbstractITCase {
     @Test
     public void updateUserWorkflowProcess() throws IOException {
         Response response = BPMN_PROCESS_SERVICE.get(USER_WORKFLOW_KEY);
-        String definition = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
+        String definition = response.readEntity(String.class);
 
         BPMN_PROCESS_SERVICE.set(USER_WORKFLOW_KEY, definition);
     }

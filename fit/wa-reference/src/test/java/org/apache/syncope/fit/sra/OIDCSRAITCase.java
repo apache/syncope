@@ -61,6 +61,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
@@ -68,11 +69,14 @@ import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
+import org.apereo.cas.oidc.OidcConstants;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class OIDCSRAITCase extends AbstractSRAITCase {
+
+    protected static Long CLIENT_APP_ID;
 
     protected static String CLIENT_ID;
 
@@ -101,6 +105,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
                 orElseGet(() -> {
                     OIDCRPClientAppTO app = new OIDCRPClientAppTO();
                     app.setName(appName);
+                    app.setRealm(SyncopeConstants.ROOT_REALM);
                     app.setClientAppId(clientAppId);
                     app.setClientId(clientId);
                     app.setClientSecret(clientSecret);
@@ -129,9 +134,9 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         clientApp.getScopes().add(OIDCScope.profile);
         clientApp.getScopes().add(OIDCScope.email);
         clientApp.getSupportedGrantTypes().add(OIDCGrantType.password);
+        clientApp.getSupportedGrantTypes().add(OIDCGrantType.authorization_code);
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
-        WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
     }
 
     @BeforeAll
@@ -144,17 +149,20 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         } catch (Exception e) {
             fail("Could not load /sra-oidc.properties", e);
         }
+        CLIENT_APP_ID = 1L;
         CLIENT_ID = props.getProperty("sra.oidc.client-id");
         assertNotNull(CLIENT_ID);
         CLIENT_SECRET = props.getProperty("sra.oidc.client-secret");
         assertNotNull(CLIENT_SECRET);
         TOKEN_URI = WA_ADDRESS + "/oidc/accessToken";
 
-        oidcClientAppSetup(OIDCSRAITCase.class.getName(), "OIDC", 1L, CLIENT_ID, CLIENT_SECRET);
+        oidcClientAppSetup(OIDCSRAITCase.class.getName(), "OIDC", CLIENT_APP_ID, CLIENT_ID, CLIENT_SECRET);
     }
 
     @Test
     public void web() throws IOException {
+        WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
+
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpClientContext context = HttpClientContext.create();
         context.setCookieStore(new BasicCookieStore());
@@ -253,21 +261,22 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
     @Test
     public void rest() throws IOException, ParseException {
         await().atMost(60, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
-            boolean refreshed = false;
             try {
                 String metadata = WebClient.create(
-                        WA_ADDRESS + "/oidc/.well-known/openid-configuration").get().readEntity(String.class);
+                        WA_ADDRESS + "/oidc/" + OidcConstants.WELL_KNOWN_OPENID_CONFIGURATION_URL).
+                        get().readEntity(String.class);
                 if (!metadata.contains("groups")) {
                     WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
 
-                refreshed = true;
+                return true;
             } catch (Exception e) {
                 // ignore
             }
-            return refreshed;
+            return false;
         });
+        WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
 
         // 0. access public route
         WebClient client = WebClient.create(SRA_ADDRESS + "/public/post").

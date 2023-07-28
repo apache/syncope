@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.logic.oidc.NoOpSessionStore;
-import org.apache.syncope.core.logic.oidc.OIDC4UIContext;
+import org.apache.syncope.core.logic.oidc.OIDCC4UIContext;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -114,7 +114,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         // 2. create OIDCRequest
         WithLocationAction action = oidcClient.getRedirectionAction(
-                new CallContext(new OIDC4UIContext(), NoOpSessionStore.INSTANCE)).
+                new CallContext(new OIDCC4UIContext(), NoOpSessionStore.INSTANCE)).
                 map(WithLocationAction.class::cast).
                 orElseThrow(() -> {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
@@ -143,9 +143,8 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             OidcCredentials credentials = new OidcCredentials();
             credentials.setCode(new AuthorizationCode(authorizationCode));
 
-            OIDC4UIContext ctx = new OIDC4UIContext();
-
-            oidcClient.getAuthenticator().validate(new CallContext(ctx, NoOpSessionStore.INSTANCE), credentials);
+            oidcClient.getAuthenticator().validate(
+                    new CallContext(new OIDCC4UIContext(), NoOpSessionStore.INSTANCE), credentials);
 
             idToken = credentials.getIdToken().getJWTClaimsSet();
             idTokenHint = credentials.getIdToken().serialize();
@@ -157,8 +156,8 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         // 3. prepare the result
-        OIDCLoginResponse loginResponse = new OIDCLoginResponse();
-        loginResponse.setLogoutSupported(StringUtils.isNotBlank(op.getEndSessionEndpoint()));
+        OIDCLoginResponse loginResp = new OIDCLoginResponse();
+        loginResp.setLogoutSupported(StringUtils.isNotBlank(op.getEndSessionEndpoint()));
 
         // 3a. find matching user (if any) and return the received attributes
         String keyValue = idToken.getSubject();
@@ -171,16 +170,16 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
                     orElse(null);
             if (value != null) {
                 attrTO.getValues().add(value);
-                loginResponse.getAttrs().add(attrTO);
+                loginResp.getAttrs().add(attrTO);
                 if (item.isConnObjectKey()) {
                     keyValue = value;
                 }
             }
         }
 
-        List<String> matchingUsers = keyValue == null
-                ? List.of()
-                : userManager.findMatchingUser(keyValue, op.getConnObjectKeyItem().get());
+        List<String> matchingUsers = Optional.ofNullable(keyValue).
+                map(k -> userManager.findMatchingUser(k, op.getConnObjectKeyItem().get())).
+                orElse(List.of());
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 
         // 3b. not found: create or selfreg if configured
@@ -191,23 +190,23 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
                 String defaultUsername = keyValue;
                 username = AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(),
-                        () -> userManager.create(op, loginResponse, defaultUsername));
+                        () -> userManager.create(op, loginResp, defaultUsername));
             } else if (op.isSelfRegUnmatching()) {
                 UserTO userTO = new UserTO();
 
-                userManager.fill(op, loginResponse, userTO);
+                userManager.fill(op, loginResp, userTO);
 
-                loginResponse.getAttrs().clear();
-                loginResponse.getAttrs().addAll(userTO.getPlainAttrs());
+                loginResp.getAttrs().clear();
+                loginResp.getAttrs().addAll(userTO.getPlainAttrs());
                 if (StringUtils.isNotBlank(userTO.getUsername())) {
-                    loginResponse.setUsername(userTO.getUsername());
+                    loginResp.setUsername(userTO.getUsername());
                 } else {
-                    loginResponse.setUsername(keyValue);
+                    loginResp.setUsername(keyValue);
                 }
 
-                loginResponse.setSelfReg(true);
+                loginResp.setSelfReg(true);
 
-                return loginResponse;
+                return loginResp;
             } else {
                 throw new NotFoundException(Optional.ofNullable(keyValue).
                         map(value -> "User matching the provided value " + value).
@@ -220,13 +219,13 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
                 LOG.debug("About to update {} for {}", matchingUsers.get(0), keyValue);
 
                 username = AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(),
-                        () -> userManager.update(matchingUsers.get(0), op, loginResponse));
+                        () -> userManager.update(matchingUsers.get(0), op, loginResp));
             } else {
                 username = matchingUsers.get(0);
             }
         }
 
-        loginResponse.setUsername(username);
+        loginResp.setUsername(username);
 
         // 4. generate JWT for further access
         Map<String, Object> claims = new HashMap<>();
@@ -236,18 +235,18 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         byte[] authorities = null;
         try {
             authorities = ENCRYPTOR.encode(POJOHelper.serialize(
-                    authDataAccessor.getAuthorities(loginResponse.getUsername(), null)), CipherAlgorithm.AES).
+                    authDataAccessor.getAuthorities(loginResp.getUsername(), null)), CipherAlgorithm.AES).
                     getBytes();
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);
         }
 
         Pair<String, OffsetDateTime> accessTokenInfo =
-                accessTokenDataBinder.create(loginResponse.getUsername(), claims, authorities, true);
-        loginResponse.setAccessToken(accessTokenInfo.getLeft());
-        loginResponse.setAccessTokenExpiryTime(accessTokenInfo.getRight());
+                accessTokenDataBinder.create(loginResp.getUsername(), claims, authorities, true);
+        loginResp.setAccessToken(accessTokenInfo.getLeft());
+        loginResp.setAccessTokenExpiryTime(accessTokenInfo.getRight());
 
-        return loginResponse;
+        return loginResp;
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "'))")
@@ -274,7 +273,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         profile.setIdTokenString((String) claimsSet.getClaim(JWT_CLAIM_ID_TOKEN));
 
         WithLocationAction action = oidcClient.getLogoutAction(
-                new CallContext(new OIDC4UIContext(), NoOpSessionStore.INSTANCE),
+                new CallContext(new OIDCC4UIContext(), NoOpSessionStore.INSTANCE),
                 profile,
                 redirectURI).
                 map(WithLocationAction.class::cast).

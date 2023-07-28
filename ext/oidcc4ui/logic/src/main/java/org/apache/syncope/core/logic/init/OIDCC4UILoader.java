@@ -20,7 +20,7 @@ package org.apache.syncope.core.logic.init;
 
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
-import org.apache.syncope.common.lib.types.OIDC4UIEntitlement;
+import org.apache.syncope.common.lib.types.OIDCC4UIEntitlement;
 import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.springframework.core.Ordered;
@@ -34,7 +34,7 @@ public class OIDCC4UILoader implements SyncopeCoreLoader {
 
     @Override
     public void load() {
-        EntitlementsHolder.getInstance().addAll(OIDC4UIEntitlement.values());
+        EntitlementsHolder.getInstance().addAll(OIDCC4UIEntitlement.values());
         ImplementationTypesHolder.getInstance().putAll(OIDCClientImplementationType.values());
     }
 }
