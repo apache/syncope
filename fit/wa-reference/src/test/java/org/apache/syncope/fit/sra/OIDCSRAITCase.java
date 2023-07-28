@@ -76,6 +76,8 @@ import org.junit.jupiter.api.Test;
 
 public class OIDCSRAITCase extends AbstractSRAITCase {
 
+    protected static String SRA_REGISTRATION_ID;
+
     protected static Long CLIENT_APP_ID;
 
     protected static String CLIENT_ID;
@@ -149,6 +151,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         } catch (Exception e) {
             fail("Could not load /sra-oidc.properties", e);
         }
+        SRA_REGISTRATION_ID = "OIDC";
         CLIENT_APP_ID = 1L;
         CLIENT_ID = props.getProperty("sra.oidc.client-id");
         assertNotNull(CLIENT_ID);
@@ -156,7 +159,8 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         assertNotNull(CLIENT_SECRET);
         TOKEN_URI = WA_ADDRESS + "/oidc/accessToken";
 
-        oidcClientAppSetup(OIDCSRAITCase.class.getName(), "OIDC", CLIENT_APP_ID, CLIENT_ID, CLIENT_SECRET);
+        oidcClientAppSetup(
+                OIDCSRAITCase.class.getName(), SRA_REGISTRATION_ID, CLIENT_APP_ID, CLIENT_ID, CLIENT_SECRET);
     }
 
     @Test
@@ -276,6 +280,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
             }
             return false;
         });
+        oidcClientAppSetup(getClass().getName(), SRA_REGISTRATION_ID, CLIENT_APP_ID, CLIENT_ID, CLIENT_SECRET);
         WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
 
         // 0. access public route
