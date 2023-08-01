@@ -45,6 +45,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -71,6 +72,7 @@ public class CASSRAITCase extends AbstractSRAITCase {
                 orElseGet(() -> {
                     CASSPClientAppTO app = new CASSPClientAppTO();
                     app.setName(appName);
+                    app.setRealm(SyncopeConstants.ROOT_REALM);
                     app.setClientAppId(4L);
                     app.setServiceId("http://127.0.0.1:8080/.*");
 

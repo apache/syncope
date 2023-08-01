@@ -19,16 +19,35 @@
 package org.apache.syncope.wa.bootstrap;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
+import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
+import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
+import org.apache.syncope.wa.bootstrap.mapping.AttrRepoPropertySourceMapper;
+import org.apache.syncope.wa.bootstrap.mapping.AuthModulePropertySourceMapper;
+import org.apereo.cas.configuration.model.support.oidc.OidcDiscoveryProperties;
+import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
+import org.apereo.cas.oidc.claims.OidcEmailScopeAttributeReleasePolicy;
+import org.apereo.cas.oidc.claims.OidcPhoneScopeAttributeReleasePolicy;
+import org.apereo.cas.oidc.claims.OidcProfileScopeAttributeReleasePolicy;
+import org.apereo.cas.services.BaseMappedAttributeReleasePolicy;
+import org.apereo.cas.services.ChainingAttributeReleasePolicy;
+import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
+import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,17 +68,21 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
 
     protected final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper;
 
+    protected final AttrReleaseMapper attrReleaseMapper;
+
     protected final CipherExecutor<String, String> configurationCipher;
 
     public WAPropertySourceLocator(
             final WARestClient waRestClient,
             final AuthModulePropertySourceMapper authModulePropertySourceMapper,
             final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper,
+            final AttrReleaseMapper attrReleaseMapper,
             final CipherExecutor<String, String> configurationCipher) {
 
         this.waRestClient = waRestClient;
         this.authModulePropertySourceMapper = authModulePropertySourceMapper;
         this.attrRepoPropertySourceMapper = attrRepoPropertySourceMapper;
+        this.attrReleaseMapper = attrReleaseMapper;
         this.configurationCipher = configurationCipher;
     }
 
@@ -108,6 +131,56 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
             Map<String, Object> map = attrRepoTO.getConf().map(attrRepoTO, attrRepoPropertySourceMapper);
             properties.putAll(index(map, prefixes));
         });
+
+        Set<String> customClaims = syncopeClient.getService(WAClientAppService.class).list().stream().
+                filter(clientApp -> clientApp.getAttrReleasePolicy() != null
+                && clientApp.getClientAppTO() instanceof OIDCRPClientAppTO).
+                flatMap(clientApp -> {
+                    OIDCRPClientAppTO rp = OIDCRPClientAppTO.class.cast(clientApp.getClientAppTO());
+
+                    RegisteredServiceAttributeReleasePolicy attributeReleasePolicy =
+                            attrReleaseMapper.build(clientApp.getAttrReleasePolicy());
+
+                    Set<String> claims = new HashSet<>();
+                    if (attributeReleasePolicy instanceof BaseMappedAttributeReleasePolicy) {
+                        claims.addAll(((BaseMappedAttributeReleasePolicy) attributeReleasePolicy).
+                                getAllowedAttributes().values().stream().
+                                map(Objects::toString).collect(Collectors.toSet()));
+                    } else if (attributeReleasePolicy instanceof ReturnAllowedAttributeReleasePolicy) {
+                        claims.addAll(((ReturnAllowedAttributeReleasePolicy) attributeReleasePolicy).
+                                getAllowedAttributes().stream().collect(Collectors.toSet()));
+                    } else if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy) {
+                        ((ChainingAttributeReleasePolicy) attributeReleasePolicy).getPolicies().stream().
+                                filter(ReturnAllowedAttributeReleasePolicy.class::isInstance).
+                                findFirst().map(ReturnAllowedAttributeReleasePolicy.class::cast).
+                                map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
+                                ifPresent(claims::addAll);
+                    }
+                    if (rp.getScopes().contains(OIDCScope.profile)) {
+                        claims.removeAll(OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
+                    }
+                    if (rp.getScopes().contains(OIDCScope.address)) {
+                        claims.removeAll(OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
+                    }
+                    if (rp.getScopes().contains(OIDCScope.email)) {
+                        claims.removeAll(OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
+                    }
+                    if (rp.getScopes().contains(OIDCScope.phone)) {
+                        claims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
+                    }
+
+                    return claims.stream();
+                }).collect(Collectors.toSet());
+        if (!customClaims.isEmpty()) {
+            Stream.concat(new OidcDiscoveryProperties().getClaims().stream(), customClaims.stream()).
+                    collect(Collectors.joining(","));
+
+            properties.put("cas.authn.oidc.discovery.claims",
+                    Stream.concat(new OidcDiscoveryProperties().getClaims().stream(), customClaims.stream()).
+                            collect(Collectors.joining(",")));
+            properties.put("cas.authn.oidc.core.user-defined-scopes.syncope",
+                    customClaims.stream().collect(Collectors.joining(",")));
+        }
 
         syncopeClient.getService(WAConfigService.class).list().forEach(attr -> properties.put(
                 attr.getSchema(), attr.getValues().stream().collect(Collectors.joining(","))));

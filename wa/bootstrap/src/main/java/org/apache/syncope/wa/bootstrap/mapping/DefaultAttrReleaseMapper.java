@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa.starter.mapping;
+package org.apache.syncope.wa.bootstrap.mapping;
 
 import java.util.HashSet;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;

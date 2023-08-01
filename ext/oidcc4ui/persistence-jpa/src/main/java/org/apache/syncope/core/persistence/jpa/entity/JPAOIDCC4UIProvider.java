@@ -22,6 +22,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -47,6 +49,7 @@ import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIUserTemplate;
 import org.apache.syncope.core.persistence.jpa.validation.entity.OIDCC4UIProviderCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.springframework.util.CollectionUtils;
 
 @Entity
 @Table(name = JPAOIDCC4UIProvider.TABLE)
@@ -84,6 +87,8 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
 
     @Column(nullable = true)
     private String endSessionEndpoint;
+
+    private String scopes;
 
     @Column(nullable = false)
     private boolean hasDiscovery;
@@ -202,6 +207,20 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
     @Override
     public void setEndSessionEndpoint(final String endSessionEndpoint) {
         this.endSessionEndpoint = endSessionEndpoint;
+    }
+
+    @Override
+    public List<String> getScopes() {
+        return Optional.ofNullable(scopes).
+                map(s -> Stream.of(s.split(" ")).collect(Collectors.toList())).
+                orElse(List.of());
+    }
+
+    @Override
+    public void setScopes(final List<String> scopes) {
+        this.scopes = CollectionUtils.isEmpty(scopes)
+                ? ""
+                : scopes.stream().collect(Collectors.joining(" "));
     }
 
     @Override

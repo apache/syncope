@@ -48,6 +48,8 @@ public class OIDCC4UIProviderTO extends ItemContainer implements EntityTO {
 
     private String endSessionEndpoint;
 
+    private final List<String> scopes = new ArrayList<>();
+
     private boolean hasDiscovery;
 
     private boolean createUnmatching;
@@ -141,6 +143,12 @@ public class OIDCC4UIProviderTO extends ItemContainer implements EntityTO {
 
     public void setEndSessionEndpoint(final String endSessionEndpoint) {
         this.endSessionEndpoint = endSessionEndpoint;
+    }
+
+    @JacksonXmlElementWrapper(localName = "scopes")
+    @JacksonXmlProperty(localName = "scope")
+    public List<String> getScopes() {
+        return scopes;
     }
 
     public UserTO getUserTemplate() {

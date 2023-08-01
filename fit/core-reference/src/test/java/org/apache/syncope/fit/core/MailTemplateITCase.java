@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
@@ -89,10 +88,7 @@ public class MailTemplateITCase extends AbstractITCase {
         response = MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.TEXT);
         assertEquals(200, response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_PLAIN));
-        assertTrue(response.getEntity() instanceof InputStream);
-        assertEquals(
-                textTemplate,
-                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
+        assertEquals(textTemplate, response.readEntity(String.class));
 
         // 3. set HTML
         String htmlTemplate = "<html><body>Hi there, I am ${username}.</body></html>";
@@ -102,10 +98,7 @@ public class MailTemplateITCase extends AbstractITCase {
         response = MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.HTML);
         assertEquals(200, response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_HTML));
-        assertTrue(response.getEntity() instanceof InputStream);
-        assertEquals(
-                htmlTemplate,
-                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
+        assertEquals(htmlTemplate, response.readEntity(String.class));
 
         // 4. remove HTML
         MAIL_TEMPLATE_SERVICE.removeFormat(key, MailTemplateFormat.HTML);
@@ -120,10 +113,7 @@ public class MailTemplateITCase extends AbstractITCase {
         response = MAIL_TEMPLATE_SERVICE.getFormat(key, MailTemplateFormat.TEXT);
         assertEquals(200, response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_PLAIN));
-        assertTrue(response.getEntity() instanceof InputStream);
-        assertEquals(
-                textTemplate,
-                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
+        assertEquals(textTemplate, response.readEntity(String.class));
 
         // 5. remove mail template
         MAIL_TEMPLATE_SERVICE.delete(key);

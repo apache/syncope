@@ -19,18 +19,16 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcEmailScopeAttributeReleasePolicy;
@@ -70,8 +68,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             final RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy,
             final RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy,
             final RegisteredServiceProxyGrantingTicketExpirationPolicy tgtProxyExpirationPolicy,
-            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy,
-            final CasConfigurationProperties properties) {
+            final RegisteredServiceProxyTicketExpirationPolicy stProxyExpirationPolicy) {
 
         OIDCRPClientAppTO rp = OIDCRPClientAppTO.class.cast(clientApp.getClientAppTO());
         OidcRegisteredService service = new OidcRegisteredService();
@@ -89,37 +86,37 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         service.setJwtAccessToken(rp.isJwtAccessToken());
         service.setBypassApprovalPrompt(rp.isBypassApprovalPrompt());
         service.setSupportedGrantTypes(rp.getSupportedGrantTypes().stream().
-                map(OIDCGrantType::name).collect(Collectors.toCollection(HashSet::new)));
+                map(OIDCGrantType::name).collect(Collectors.toSet()));
         service.setSupportedResponseTypes(rp.getSupportedResponseTypes().stream().
-                map(OIDCResponseType::getExternalForm).collect(Collectors.toCollection(HashSet::new)));
-        if (rp.getSubjectType() != null) {
-            service.setSubjectType(rp.getSubjectType().name());
-        }
+                map(OIDCResponseType::getExternalForm).collect(Collectors.toSet()));
+        Optional.ofNullable(rp.getSubjectType()).ifPresent(st -> service.setSubjectType(st.name()));
         service.setLogoutUrl(rp.getLogoutUri());
+
+        service.setScopes(rp.getScopes().stream().
+                map(OIDCScope::name).
+                collect(Collectors.toSet()));
 
         ChainingAttributeReleasePolicy chain;
         if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy) {
             chain = (ChainingAttributeReleasePolicy) attributeReleasePolicy;
         } else {
             chain = new ChainingAttributeReleasePolicy();
-            if (attributeReleasePolicy != null) {
-                chain.addPolicies(attributeReleasePolicy);
-            }
+            Optional.ofNullable(attributeReleasePolicy).ifPresent(chain::addPolicies);
         }
 
-        if (rp.getScopes().contains(OIDCScope.OPENID)) {
+        if (rp.getScopes().contains(OIDCScope.openid)) {
             chain.addPolicies(new OidcOpenIdScopeAttributeReleasePolicy());
         }
-        if (rp.getScopes().contains(OIDCScope.PROFILE)) {
+        if (rp.getScopes().contains(OIDCScope.profile)) {
             chain.addPolicies(new OidcProfileScopeAttributeReleasePolicy());
         }
-        if (rp.getScopes().contains(OIDCScope.ADDRESS)) {
+        if (rp.getScopes().contains(OIDCScope.address)) {
             chain.addPolicies(new OidcAddressScopeAttributeReleasePolicy());
         }
-        if (rp.getScopes().contains(OIDCScope.EMAIL)) {
+        if (rp.getScopes().contains(OIDCScope.email)) {
             chain.addPolicies(new OidcEmailScopeAttributeReleasePolicy());
         }
-        if (rp.getScopes().contains(OIDCScope.PHONE)) {
+        if (rp.getScopes().contains(OIDCScope.phone)) {
             chain.addPolicies(new OidcPhoneScopeAttributeReleasePolicy());
         }
 
@@ -138,25 +135,21 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                     map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
                     ifPresent(customClaims::addAll);
         }
-        if (rp.getScopes().contains(OIDCScope.PROFILE)) {
+        if (rp.getScopes().contains(OIDCScope.profile)) {
             customClaims.removeAll(OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCScope.ADDRESS)) {
+        if (rp.getScopes().contains(OIDCScope.address)) {
             customClaims.removeAll(OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCScope.EMAIL)) {
+        if (rp.getScopes().contains(OIDCScope.email)) {
             customClaims.removeAll(OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCScope.PHONE)) {
+        if (rp.getScopes().contains(OIDCScope.phone)) {
             customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
+
         if (!customClaims.isEmpty()) {
-            List<String> supportedClaims = properties.getAuthn().getOidc().getDiscovery().getClaims();
-            if (!supportedClaims.containsAll(customClaims)) {
-                properties.getAuthn().getOidc().getDiscovery().setClaims(
-                        Stream.concat(supportedClaims.stream(), customClaims.stream()).
-                                distinct().collect(Collectors.toList()));
-            }
+            service.getScopes().add(CUSTOM_SCOPE);
 
             chain.addPolicies(new OidcCustomScopeAttributeReleasePolicy(
                     CUSTOM_SCOPE, customClaims.stream().collect(Collectors.toList())));

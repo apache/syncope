@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa.bootstrap;
+package org.apache.syncope.wa.bootstrap.mapping;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.attr.StubAttrRepoConf;
 import org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
 import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.configuration.CasCoreConfigurationUtils;
 import org.apereo.cas.configuration.model.core.authentication.AttributeRepositoryStates;
 import org.apereo.cas.configuration.model.core.authentication.StubPrincipalAttributesProperties;

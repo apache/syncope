@@ -60,6 +60,10 @@ public interface OIDCC4UIProvider extends Entity {
 
     void setEndSessionEndpoint(String endSessionEndpoint);
 
+    List<String> getScopes();
+
+    void setScopes(List<String> scopes);
+
     boolean getHasDiscovery();
 
     void setHasDiscovery(boolean hasDiscovery);

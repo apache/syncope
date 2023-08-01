@@ -319,10 +319,8 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public SAML2LoginResponse validateLoginResponse(final SAML2Response saml2Response) {
         // 0. look for IdP
-        SAML2SP4UIIdP idp = idpDAO.findByEntityID(saml2Response.getIdpEntityID());
-        if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + saml2Response.getIdpEntityID() + '\'');
-        }
+        SAML2SP4UIIdP idp = Optional.ofNullable(idpDAO.findByEntityID(saml2Response.getIdpEntityID())).
+                orElseThrow(() -> new NotFoundException("SAML 2.0 IdP '" + saml2Response.getIdpEntityID() + '\''));
 
         // 1. look for configured client
         SAML2Client saml2Client = getSAML2Client(
@@ -373,7 +371,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
         for (SAML2Credentials.SAMLAttribute attr : credentials.getAttributes()) {
             if (!attr.getAttributeValues().isEmpty()) {
-                String attrName = attr.getFriendlyName() == null ? attr.getName() : attr.getFriendlyName();
+                String attrName = Optional.ofNullable(attr.getFriendlyName()).orElse(attr.getName());
                 if (connObjectKeyItem != null && attrName.equals(connObjectKeyItem.getExtAttrName())) {
                     keyValue = attr.getAttributeValues().get(0);
                 }
@@ -382,9 +380,9 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             }
         }
 
-        List<String> matchingUsers = keyValue == null
-                ? List.of()
-                : userManager.findMatchingUser(keyValue, idp.getKey());
+        List<String> matchingUsers = Optional.ofNullable(keyValue).
+                map(k -> userManager.findMatchingUser(k, idp.getKey())).
+                orElse(List.of());
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 
         String username;

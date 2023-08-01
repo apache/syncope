@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -30,6 +31,7 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.OIDCProvidersDirectoryPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.OIDCProviderRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wizards.mapping.ItemTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.mapping.JEXLTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.mapping.OIDCProviderMappingPanel;
@@ -42,6 +44,7 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
+import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
@@ -107,11 +110,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
     @Override
     protected WizardModel buildModelSteps(final OIDCC4UIProviderTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new OP(modelObject));
-        if (modelObject.getKey() == null) {
-            wizardModel.add(new OPContinue(modelObject));
-        } else {
-            wizardModel.add(new OPContinue(modelObject, true));
-        }
+        wizardModel.add(new OPContinue(modelObject, modelObject.getKey() != null));
 
         Mapping mapping = new Mapping();
         mapping.setOutputMarkupId(true);
@@ -145,6 +144,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
     @Override
     protected Future<Pair<Serializable, Serializable>> execute(
             final Callable<Pair<Serializable, Serializable>> future) {
+
         return SyncopeConsoleSession.get().execute(future);
     }
 
@@ -200,61 +200,63 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
 
         private static final long serialVersionUID = -7087008312629522790L;
 
-        public OPContinue(final OIDCC4UIProviderTO opTO) {
-            final WebMarkupContainer content = new WebMarkupContainer("content");
+        public OPContinue(final OIDCC4UIProviderTO opTO, final boolean readOnly) {
             this.setOutputMarkupId(true);
+
+            WebMarkupContainer content = new WebMarkupContainer("content");
             content.setOutputMarkupId(true);
             add(content);
 
             UrlValidator urlValidator = new UrlValidator();
-            final AjaxTextFieldPanel issuer = new AjaxTextFieldPanel(
+
+            AjaxTextFieldPanel issuer = new AjaxTextFieldPanel(
                     "issuer", "issuer", new PropertyModel<>(opTO, "issuer"));
             issuer.addValidator(urlValidator);
             issuer.addRequiredLabel();
-            content.add(issuer);
+            content.add(issuer.setReadOnly(readOnly));
 
-            final AjaxCheckBoxPanel hasDiscovery = new AjaxCheckBoxPanel(
+            AjaxCheckBoxPanel hasDiscovery = new AjaxCheckBoxPanel(
                     "hasDiscovery", "hasDiscovery", new PropertyModel<>(opTO, "hasDiscovery"));
             content.add(hasDiscovery);
 
-            final AjaxTextFieldPanel authorizationEndpoint = new AjaxTextFieldPanel("authorizationEndpoint",
+            AjaxTextFieldPanel authorizationEndpoint = new AjaxTextFieldPanel("authorizationEndpoint",
                     "authorizationEndpoint", new PropertyModel<>(opTO, "authorizationEndpoint"));
             authorizationEndpoint.addRequiredLabel();
             authorizationEndpoint.addValidator(urlValidator);
-            content.add(authorizationEndpoint);
+            content.add(authorizationEndpoint.setReadOnly(readOnly));
 
-            final AjaxTextFieldPanel userinfoEndpoint = new AjaxTextFieldPanel("userinfoEndpoint",
+            AjaxTextFieldPanel userinfoEndpoint = new AjaxTextFieldPanel("userinfoEndpoint",
                     "userinfoEndpoint", new PropertyModel<>(opTO, "userinfoEndpoint"));
             userinfoEndpoint.addValidator(urlValidator);
-            content.add(userinfoEndpoint);
+            content.add(userinfoEndpoint.setReadOnly(readOnly));
 
-            final AjaxTextFieldPanel tokenEndpoint = new AjaxTextFieldPanel("tokenEndpoint",
+            AjaxTextFieldPanel tokenEndpoint = new AjaxTextFieldPanel("tokenEndpoint",
                     "tokenEndpoint", new PropertyModel<>(opTO, "tokenEndpoint"));
             tokenEndpoint.addRequiredLabel();
             tokenEndpoint.addValidator(urlValidator);
-            content.add(tokenEndpoint);
+            content.add(tokenEndpoint.setReadOnly(readOnly));
 
-            final AjaxTextFieldPanel jwksUri = new AjaxTextFieldPanel("jwksUri",
+            AjaxTextFieldPanel jwksUri = new AjaxTextFieldPanel("jwksUri",
                     "jwksUri", new PropertyModel<>(opTO, "jwksUri"));
             jwksUri.addRequiredLabel();
             jwksUri.addValidator(urlValidator);
-            content.add(jwksUri);
+            content.add(jwksUri.setReadOnly(readOnly));
 
-            final AjaxTextFieldPanel endSessionEndpoint = new AjaxTextFieldPanel("endSessionEndpoint",
+            AjaxTextFieldPanel endSessionEndpoint = new AjaxTextFieldPanel("endSessionEndpoint",
                     "endSessionEndpoint", new PropertyModel<>(opTO, "endSessionEndpoint"));
             endSessionEndpoint.addValidator(urlValidator);
-            content.add(endSessionEndpoint);
+            content.add(endSessionEndpoint.setReadOnly(readOnly));
 
-            final WebMarkupContainer visibleParam = new WebMarkupContainer("visibleParams");
-            visibleParam.setOutputMarkupPlaceholderTag(true);
-            visibleParam.add(authorizationEndpoint);
-            visibleParam.add(userinfoEndpoint);
-            visibleParam.add(tokenEndpoint);
-            visibleParam.add(jwksUri);
-            visibleParam.add(endSessionEndpoint);
-            content.add(visibleParam);
+            WebMarkupContainer visibleParams = new WebMarkupContainer("visibleParams");
+            visibleParams.setOutputMarkupPlaceholderTag(true);
+            visibleParams.add(authorizationEndpoint);
+            visibleParams.add(userinfoEndpoint);
+            visibleParams.add(tokenEndpoint);
+            visibleParams.add(jwksUri);
+            visibleParams.add(endSessionEndpoint);
+            content.add(visibleParams);
 
-            showHide(hasDiscovery, visibleParam);
+            showHide(hasDiscovery, visibleParams);
 
             hasDiscovery.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -262,70 +264,20 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    showHide(hasDiscovery, visibleParam);
-                    target.add(visibleParam);
+                    showHide(hasDiscovery, visibleParams);
+                    target.add(visibleParams);
                 }
             });
-        }
 
-        public OPContinue(final OIDCC4UIProviderTO opTO, final boolean readOnly) {
-            WebMarkupContainer content = new WebMarkupContainer("content");
-            this.setOutputMarkupId(true);
-            content.setOutputMarkupId(true);
-            add(content);
-
-            final AjaxTextFieldPanel issuer = new AjaxTextFieldPanel(
-                    "issuer", "issuer", new PropertyModel<>(opTO, "issuer"));
-            issuer.setReadOnly(readOnly);
-            content.add(issuer);
-
-            final AjaxCheckBoxPanel hasDiscovery = new AjaxCheckBoxPanel(
-                    "hasDiscovery", "hasDiscovery", new PropertyModel<>(opTO, "hasDiscovery"));
-            hasDiscovery.setReadOnly(readOnly);
-            content.add(hasDiscovery);
-
-            final AjaxTextFieldPanel authorizationEndpoint = new AjaxTextFieldPanel("authorizationEndpoint",
-                    "authorizationEndpoint", new PropertyModel<>(opTO, "authorizationEndpoint"));
-            authorizationEndpoint.setReadOnly(readOnly);
-            content.add(authorizationEndpoint);
-
-            final AjaxTextFieldPanel userinfoEndpoint = new AjaxTextFieldPanel("userinfoEndpoint",
-                    "userinfoEndpoint", new PropertyModel<>(opTO, "userinfoEndpoint"));
-            userinfoEndpoint.setReadOnly(readOnly);
-            content.add(userinfoEndpoint);
-
-            final AjaxTextFieldPanel tokenEndpoint = new AjaxTextFieldPanel("tokenEndpoint",
-                    "tokenEndpoint", new PropertyModel<>(opTO, "tokenEndpoint"));
-            tokenEndpoint.setReadOnly(readOnly);
-            content.add(tokenEndpoint);
-
-            final AjaxTextFieldPanel jwksUri = new AjaxTextFieldPanel("jwksUri",
-                    "jwksUri", new PropertyModel<>(opTO, "jwksUri"));
-            jwksUri.setReadOnly(readOnly);
-            content.add(jwksUri);
-
-            final AjaxTextFieldPanel endSessionEndpoint = new AjaxTextFieldPanel("endSessionEndpoint",
-                    "endSessionEndpoint", new PropertyModel<>(opTO, "endSessionEndpoint"));
-            endSessionEndpoint.setReadOnly(readOnly);
-            content.add(endSessionEndpoint);
-
-            final WebMarkupContainer visibleParam = new WebMarkupContainer("visibleParams");
-            visibleParam.setOutputMarkupPlaceholderTag(true);
-            visibleParam.add(authorizationEndpoint);
-            visibleParam.add(userinfoEndpoint);
-            visibleParam.add(tokenEndpoint);
-            visibleParam.add(jwksUri);
-            visibleParam.add(endSessionEndpoint);
-            content.add(visibleParam);
+            AjaxTextFieldPanel value = new AjaxTextFieldPanel("panel", "scopes", new Model<>());
+            value.setChoices(Stream.of(OIDCScope.values()).map(OIDCScope::name).collect(Collectors.toList()));
+            content.add(new MultiFieldPanel.Builder<String>(
+                    new PropertyModel<>(opTO, "scopes")).build("scopes", "scopes", value));
         }
     }
 
     private static void showHide(final AjaxCheckBoxPanel hasDiscovery, final WebMarkupContainer visibleParams) {
-        if (hasDiscovery.getField().getValue().equals("false")) {
-            visibleParams.setVisible(true);
-        } else {
-            visibleParams.setVisible(false);
-        }
+        visibleParams.setVisible("false".equals(hasDiscovery.getField().getValue()));
     }
 
     /**

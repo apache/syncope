@@ -51,7 +51,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.OIDC4UIEntitlement;
+import org.apache.syncope.common.lib.types.OIDCC4UIEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -103,7 +103,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
 
         this.addNewItemPanelBuilder(new OIDCProviderWizardBuilder(
                 this, new OIDCC4UIProviderTO(), implementationRestClient, restClient, pageRef), true);
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, OIDC4UIEntitlement.OP_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, OIDCC4UIEntitlement.OP_CREATE);
 
         modal.size(Modal.Size.Large);
 
@@ -184,7 +184,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                         new AjaxWizard.EditItemActionEvent<>(object, target));
                 modal.header(Model.of(StringUtils.capitalize(("Edit " + object.getName()))));
             }
-        }, ActionLink.ActionType.EDIT, OIDC4UIEntitlement.OP_UPDATE);
+        }, ActionLink.ActionType.EDIT, OIDCC4UIEntitlement.OP_UPDATE);
 
         panel.add(new ActionLink<>() {
 
@@ -218,7 +218,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                 target.add(templateModal);
 
             }
-        }, ActionLink.ActionType.TEMPLATE, OIDC4UIEntitlement.OP_UPDATE);
+        }, ActionLink.ActionType.TEMPLATE, OIDCC4UIEntitlement.OP_UPDATE);
 
         panel.add(new ActionLink<>() {
 
@@ -236,7 +236,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, OIDC4UIEntitlement.OP_DELETE, true);
+        }, ActionLink.ActionType.DELETE, OIDCC4UIEntitlement.OP_DELETE, true);
         return panel;
     }
 

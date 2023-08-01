@@ -89,7 +89,7 @@ public class WARestClient {
         return Optional.empty();
     }
 
-    protected SyncopeClient getSyncopeClient() {
+    public SyncopeClient getSyncopeClient() {
         synchronized (this) {
             if (client == null) {
                 getCore().ifPresent(core -> {
