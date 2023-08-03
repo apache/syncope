@@ -330,7 +330,7 @@ public class WAContext {
     }
 
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
-    @Bean
+    @Bean(name = MultifactorAuthenticationTrustStorage.BEAN_NAME)
     public MultifactorAuthenticationTrustStorage mfaTrustStorage(
             final CasConfigurationProperties casProperties,
             @Qualifier("mfaTrustRecordKeyGenerator")
