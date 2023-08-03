@@ -29,6 +29,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
+import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
 import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 
@@ -95,6 +96,21 @@ public class AuthProfileTO implements EntityTO {
             return this;
         }
 
+        public AuthProfileTO.Builder mfaTrustedDevice(final MfaTrustedDevice device) {
+            instance.getMfaTrustedDevices().add(device);
+            return this;
+        }
+
+        public AuthProfileTO.Builder mfaTrustedDevices(final MfaTrustedDevice... devices) {
+            instance.getMfaTrustedDevices().addAll(List.of(devices));
+            return this;
+        }
+
+        public AuthProfileTO.Builder mfaTrustedDevices(final Collection<MfaTrustedDevice> devices) {
+            instance.getMfaTrustedDevices().addAll(devices);
+            return this;
+        }
+
         public AuthProfileTO.Builder credential(final WebAuthnDeviceCredential credential) {
             instance.getWebAuthnDeviceCredentials().add(credential);
             return this;
@@ -126,6 +142,8 @@ public class AuthProfileTO implements EntityTO {
     private final List<GoogleMfaAuthAccount> googleMfaAuthAccounts = new ArrayList<>();
 
     private final List<U2FDevice> u2fRegisteredDevices = new ArrayList<>();
+
+    private final List<MfaTrustedDevice> mfaTrustedDevices = new ArrayList<>();
 
     private final List<WebAuthnDeviceCredential> webAuthnDeviceCredentials = new ArrayList<>();
 
@@ -172,6 +190,12 @@ public class AuthProfileTO implements EntityTO {
         return u2fRegisteredDevices;
     }
 
+    @JacksonXmlElementWrapper(localName = "mfaTrustedDevices")
+    @JacksonXmlProperty(localName = "mfaTrustedDevice")
+    public List<MfaTrustedDevice> getMfaTrustedDevices() {
+        return mfaTrustedDevices;
+    }
+
     @JacksonXmlElementWrapper(localName = "credentials")
     @JacksonXmlProperty(localName = "credential")
     public List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials() {
@@ -187,6 +211,7 @@ public class AuthProfileTO implements EntityTO {
                 append(googleMfaAuthTokens).
                 append(googleMfaAuthAccounts).
                 append(u2fRegisteredDevices).
+                append(mfaTrustedDevices).
                 append(webAuthnDeviceCredentials).
                 build();
     }
@@ -210,6 +235,7 @@ public class AuthProfileTO implements EntityTO {
                 append(googleMfaAuthTokens, other.googleMfaAuthTokens).
                 append(googleMfaAuthAccounts, other.googleMfaAuthAccounts).
                 append(u2fRegisteredDevices, other.u2fRegisteredDevices).
+                append(mfaTrustedDevices, other.mfaTrustedDevices).
                 append(webAuthnDeviceCredentials, other.webAuthnDeviceCredentials).
                 build();
     }

@@ -26,6 +26,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,7 @@ import org.apache.syncope.wa.starter.mapping.RemoteEndpointAccessMapper;
 import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
 import org.apache.syncope.wa.starter.mapping.TicketExpirationMapper;
 import org.apache.syncope.wa.starter.mapping.TimeBasedAccessMapper;
+import org.apache.syncope.wa.starter.mfa.WAMultifactorAuthenticationTrustStorage;
 import org.apache.syncope.wa.starter.oidc.WAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.WASamlIdPCasEventListener;
@@ -88,6 +90,8 @@ import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerat
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
+import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustRecordKeyGenerator;
+import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustStorage;
 import org.apereo.cas.util.DateTimeUtils;
 import org.apereo.cas.util.LdapUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
@@ -323,6 +327,23 @@ public class WAContext {
                     ldap);
         }
         return new WAGoogleMfaAuthCredentialRepository(waRestClient, googleAuthenticatorInstance);
+    }
+
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Bean
+    public MultifactorAuthenticationTrustStorage mfaTrustStorage(
+            final CasConfigurationProperties casProperties,
+            @Qualifier("mfaTrustRecordKeyGenerator")
+            final MultifactorAuthenticationTrustRecordKeyGenerator keyGenerationStrategy,
+            @Qualifier("mfaTrustCipherExecutor")
+            final CipherExecutor<Serializable, String> mfaTrustCipherExecutor,
+            final WARestClient waRestClient) {
+
+        return new WAMultifactorAuthenticationTrustStorage(
+                casProperties.getAuthn().getMfa().getTrusted(),
+                mfaTrustCipherExecutor,
+                keyGenerationStrategy,
+                waRestClient);
     }
 
     @Bean

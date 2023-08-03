@@ -159,6 +159,7 @@ import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
+import org.apache.syncope.common.rest.api.service.wa.MfaTrustStorageService;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
@@ -385,6 +386,8 @@ public abstract class AbstractITCase {
 
     protected static U2FRegistrationService U2F_REGISTRATION_SERVICE;
 
+    protected static MfaTrustStorageService MFA_TRUST_STORAGE_SERVICE;
+
     protected static WebAuthnRegistrationService WEBAUTHN_REGISTRATION_SERVICE;
 
     protected static ImpersonationService IMPERSONATION_SERVICE;
@@ -418,6 +421,7 @@ public abstract class AbstractITCase {
         GOOGLE_MFA_AUTH_TOKEN_SERVICE = ANONYMOUS_CLIENT.getService(GoogleMfaAuthTokenService.class);
         GOOGLE_MFA_AUTH_ACCOUNT_SERVICE = ANONYMOUS_CLIENT.getService(GoogleMfaAuthAccountService.class);
         U2F_REGISTRATION_SERVICE = ANONYMOUS_CLIENT.getService(U2FRegistrationService.class);
+        MFA_TRUST_STORAGE_SERVICE = ANONYMOUS_CLIENT.getService(MfaTrustStorageService.class);
         WEBAUTHN_REGISTRATION_SERVICE = ANONYMOUS_CLIENT.getService(WebAuthnRegistrationService.class);
         IMPERSONATION_SERVICE = ANONYMOUS_CLIENT.getService(ImpersonationService.class);
 

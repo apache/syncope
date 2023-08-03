@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
+import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
 import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -43,6 +44,10 @@ public interface AuthProfile extends Entity {
     List<GoogleMfaAuthAccount> getGoogleMfaAuthAccounts();
 
     void setGoogleMfaAuthAccounts(List<GoogleMfaAuthAccount> accounts);
+
+    List<MfaTrustedDevice> getMfaTrustedDevices();
+
+    void setMfaTrustedDevices(List<MfaTrustedDevice> records);
 
     List<WebAuthnDeviceCredential> getWebAuthnDeviceCredentials();
 

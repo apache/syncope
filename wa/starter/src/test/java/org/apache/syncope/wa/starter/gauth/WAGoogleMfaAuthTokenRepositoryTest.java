@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.wa.starter.gauth.token;
+package org.apache.syncope.wa.starter.gauth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
