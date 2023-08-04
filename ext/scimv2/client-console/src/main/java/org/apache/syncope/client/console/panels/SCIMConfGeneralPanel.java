@@ -50,7 +50,7 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
 
                     @Override
                     public void setObject(final Date object) {
-                        scimGeneralConf.setCreationDate(DateOps.convert(object));
+                        scimGeneralConf.setCreationDate(DateOps.toOffsetDateTime(object));
                     }
                 }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
         creationDatePanel.setEnabled(false);
@@ -67,7 +67,7 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
 
                     @Override
                     public void setObject(final Date object) {
-                        scimGeneralConf.setLastChangeDate(DateOps.convert(object));
+                        scimGeneralConf.setLastChangeDate(DateOps.toOffsetDateTime(object));
                     }
                 }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
         lastChangeDatePanel.setEnabled(false);

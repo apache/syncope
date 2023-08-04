@@ -151,14 +151,14 @@ public class DelegationWizardBuilder extends BaseAjaxWizardBuilder<DelegationTO>
             add(new AjaxDateTimeFieldPanel(
                     "start",
                     "start",
-                    new DateOps.WrappedDateModel(new PropertyModel<>(modelObject, "start")),
+                    DateOps.WrappedDateModel.ofOffset(new PropertyModel<>(modelObject, "start")),
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT).
                     addRequiredLabel());
 
             add(new AjaxDateTimeFieldPanel(
                     "end",
                     "end",
-                    new DateOps.WrappedDateModel(new PropertyModel<>(modelObject, "end")),
+                    DateOps.WrappedDateModel.ofOffset(new PropertyModel<>(modelObject, "end")),
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT));
         }
     }

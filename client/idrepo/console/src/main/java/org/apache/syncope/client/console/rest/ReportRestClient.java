@@ -85,7 +85,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
     @Override
     public void startExecution(final String reportKey, final Date startAt) {
         getService(ReportService.class).execute(new ExecSpecs.Builder().key(reportKey).
-                startAt(DateOps.convert(startAt)).build());
+                startAt(DateOps.toOffsetDateTime(startAt)).build());
     }
 
     @Override

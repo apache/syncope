@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
+import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
 import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.wicket.PageReference;
@@ -155,6 +156,15 @@ public class AuthProfileDirectoryPanel
             @Override
             protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
                 return !rowModel.getObject().getU2FRegisteredDevices().isEmpty();
+            }
+        });
+        columns.add(new BooleanConditionColumn<>(new StringResourceModel("mfaTrustedDevices")) {
+
+            private static final long serialVersionUID = -8236820422411536323L;
+
+            @Override
+            protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
+                return !rowModel.getObject().getMfaTrustedDevices().isEmpty();
             }
         });
         columns.add(new BooleanConditionColumn<>(new StringResourceModel("webAuthnAccount")) {
@@ -367,6 +377,57 @@ public class AuthProfileDirectoryPanel
                 authProfileModal.show(true);
             }
         }, ActionLink.ActionType.FO_EDIT, AMEntitlement.AUTH_PROFILE_UPDATE);
+
+        panel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
+                model.setObject(restClient.read(model.getObject().getKey()));
+                target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
+                        authProfileModal,
+                        new AuthProfileItemDirectoryPanel<MfaTrustedDevice>(
+                                "panel", restClient, authProfileModal, model.getObject(), pageRef) {
+
+                    private static final long serialVersionUID = 5788448799796630011L;
+
+                    @Override
+                    protected List<MfaTrustedDevice> getItems() {
+                        return model.getObject().getMfaTrustedDevices();
+                    }
+
+                    @Override
+                    protected MfaTrustedDevice defaultItem() {
+                        return new MfaTrustedDevice();
+                    }
+
+                    @Override
+                    protected String sortProperty() {
+                        return "id";
+                    }
+
+                    @Override
+                    protected String paginatorRowsKey() {
+                        return AMConstants.PREF_AUTHPROFILE_MFA_TRUSTED_FDEVICES_PAGINATOR_ROWS;
+                    }
+
+                    @Override
+                    protected List<IColumn<MfaTrustedDevice, String>> getColumns() {
+                        List<IColumn<MfaTrustedDevice, String>> columns = new ArrayList<>();
+                        columns.add(new PropertyColumn<>(new ResourceModel("id"), "id", "id"));
+                        columns.add(new PropertyColumn<>(new ResourceModel("name"), "name", "name"));
+                        columns.add(new DatePropertyColumn<>(
+                                new ResourceModel("recordDate"), "recordDate", "recordDate"));
+                        columns.add(new DatePropertyColumn<>(
+                                new ResourceModel("expirationDate"), "expirationDate", "expirationDate"));
+                        return columns;
+                    }
+                }, pageRef)));
+                authProfileModal.header(new Model<>(getString("mfaTrustedDevices", model)));
+                authProfileModal.show(true);
+            }
+        }, ActionLink.ActionType.DOWN, AMEntitlement.AUTH_PROFILE_UPDATE);
 
         panel.add(new ActionLink<>() {
 
