@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -301,7 +302,10 @@ public class BeanPanel<T extends Serializable> extends Panel {
             panel = new AjaxDateTimeFieldPanel(id, fieldName, model,
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
         } else if (OffsetDateTime.class.equals(type)) {
-            panel = new AjaxDateTimeFieldPanel(id, fieldName, new DateOps.WrappedDateModel(model),
+            panel = new AjaxDateTimeFieldPanel(id, fieldName, DateOps.WrappedDateModel.ofOffset(model),
+                    DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
+        } else if (ZonedDateTime.class.equals(type)) {
+            panel = new AjaxDateTimeFieldPanel(id, fieldName, DateOps.WrappedDateModel.ofZoned(model),
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
         } else if (type.isEnum()) {
             panel = new AjaxDropDownChoicePanel(id, fieldName, model).

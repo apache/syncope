@@ -19,15 +19,17 @@
 package org.apache.syncope.core.logic.wa;
 
 import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.common.lib.wa.U2FDevice;
+import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
 import org.apache.syncope.core.logic.AbstractAuthProfileLogic;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -36,11 +38,11 @@ import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 import org.springframework.security.access.prepost.PreAuthorize;
 
-public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
+public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
 
     protected final EntityFactory entityFactory;
 
-    public U2FRegistrationLogic(
+    public MfaTrusStorageLogic(
             final EntityFactory entityFactory,
             final AuthProfileDAO authProfileDAO,
             final AuthProfileDataBinder binder) {
@@ -50,61 +52,29 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void create(final String owner, final U2FDevice device) {
-        AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
-            AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
-            authProfile.setOwner(owner);
-            return authProfile;
-        });
-
-        List<U2FDevice> devices = profile.getU2FRegisteredDevices();
-        devices.add(device);
-        profile.setU2FRegisteredDevices(devices);
-        authProfileDAO.save(profile);
-    }
-
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void delete(final Long id, final OffsetDateTime expirationDate) {
-        List<AuthProfile> profiles = authProfileDAO.findAll(-1, -1);
-        profiles.forEach(profile -> {
-            List<U2FDevice> devices = profile.getU2FRegisteredDevices();
-            if (devices != null) {
-                if (id != null) {
-                    devices.removeIf(device -> device.getId() == id);
-                } else if (expirationDate != null) {
-                    devices.removeIf(device -> device.getIssueDate().compareTo(expirationDate) < 0);
-                } else {
-                    devices = List.of();
-                }
-                profile.setU2FRegisteredDevices(devices);
-                authProfileDAO.save(profile);
-            }
-        });
-    }
-
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public Pair<Integer, List<U2FDevice>> search(
+    public Pair<Integer, List<MfaTrustedDevice>> search(
             final Integer page,
             final Integer itemsPerPage,
+            final String principal,
             final Long id,
-            final OffsetDateTime expirationDate,
+            final OffsetDateTime recordDate,
             final List<OrderByClause> orderByClauses) {
 
-        List<Comparator<U2FDevice>> comparatorList = orderByClauses.
+        List<Comparator<MfaTrustedDevice>> comparatorList = orderByClauses.
                 stream().
                 map(orderByClause -> {
-                    Comparator<U2FDevice> comparator = null;
+                    Comparator<MfaTrustedDevice> comparator = null;
                     if (orderByClause.getField().equals("id")) {
                         comparator = (o1, o2) -> new CompareToBuilder().
                                 append(o1.getId(), o2.getId()).toComparison();
                     }
-                    if (orderByClause.getField().equals("issueDate")) {
+                    if (orderByClause.getField().equals("expirationDate")) {
                         comparator = (o1, o2) -> new CompareToBuilder().
-                                append(o1.getIssueDate(), o2.getIssueDate()).toComparison();
+                                append(o1.getExpirationDate(), o2.getExpirationDate()).toComparison();
                     }
-                    if (orderByClause.getField().equals("record")) {
+                    if (orderByClause.getField().equals("recordDate")) {
                         comparator = (o1, o2) -> new CompareToBuilder().
-                                append(o1.getRecord(), o2.getRecord()).toComparison();
+                                append(o1.getRecordDate(), o2.getRecordDate()).toComparison();
                     }
                     if (comparator != null) {
                         if (orderByClause.getDirection() == OrderByClause.Direction.DESC) {
@@ -117,30 +87,32 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
                 filter(Objects::nonNull).
                 collect(Collectors.toList());
 
-        List<U2FDevice> devices = authProfileDAO.findAll(-1, -1).
-                stream().
-                map(AuthProfile::getU2FRegisteredDevices).
-                filter(Objects::nonNull).
-                flatMap(List::stream).
+        List<MfaTrustedDevice> devices = (principal == null
+                ? authProfileDAO.findAll(-1, -1).stream().
+                        map(AuthProfile::getMfaTrustedDevices).filter(Objects::nonNull).flatMap(List::stream)
+                : authProfileDAO.findByOwner(principal).
+                        map(AuthProfile::getMfaTrustedDevices).filter(Objects::nonNull).map(List::stream).
+                        orElse(Stream.empty())).
                 filter(device -> {
                     EqualsBuilder builder = new EqualsBuilder();
+                    builder.appendSuper(device.getExpirationDate().isAfter(ZonedDateTime.now()));
                     if (id != null) {
                         builder.append(id, (Long) device.getId());
                     }
-                    if (expirationDate != null) {
-                        builder.appendSuper(device.getIssueDate().compareTo(expirationDate) >= 0);
+                    if (recordDate != null) {
+                        builder.appendSuper(device.getRecordDate().isAfter(recordDate.toZonedDateTime()));
                     }
                     return builder.build();
                 }).
                 filter(Objects::nonNull).
                 collect(Collectors.toList());
 
-        List<U2FDevice> result = devices.stream().
+        List<MfaTrustedDevice> result = devices.stream().
                 limit(itemsPerPage).
                 skip(itemsPerPage * (page <= 0 ? 0L : page.longValue() - 1L)).
                 sorted((o1, o2) -> {
                     int compare;
-                    for (Comparator<U2FDevice> comparator : comparatorList) {
+                    for (Comparator<MfaTrustedDevice> comparator : comparatorList) {
                         compare = comparator.compare(o1, o2);
                         if (compare != 0) {
                             return compare;
@@ -150,5 +122,38 @@ public class U2FRegistrationLogic extends AbstractAuthProfileLogic {
                 })
                 .collect(Collectors.toList());
         return Pair.of(devices.size(), result);
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void create(final String owner, final MfaTrustedDevice device) {
+        AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
+            AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
+            authProfile.setOwner(owner);
+            return authProfile;
+        });
+
+        List<MfaTrustedDevice> devices = profile.getMfaTrustedDevices();
+        devices.add(device);
+        profile.setMfaTrustedDevices(devices);
+        authProfileDAO.save(profile);
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void delete(final OffsetDateTime expirationDate, final String recordKey) {
+        List<AuthProfile> profiles = authProfileDAO.findAll(-1, -1);
+        profiles.forEach(profile -> {
+            List<MfaTrustedDevice> devices = profile.getMfaTrustedDevices();
+            if (devices != null) {
+                if (recordKey != null) {
+                    devices.removeIf(device -> recordKey.equals(device.getRecordKey()));
+                } else if (expirationDate != null) {
+                    devices.removeIf(device -> device.getExpirationDate().isBefore(expirationDate.toZonedDateTime()));
+                } else {
+                    devices = List.of();
+                }
+                profile.setMfaTrustedDevices(devices);
+                authProfileDAO.save(profile);
+            }
+        });
     }
 }

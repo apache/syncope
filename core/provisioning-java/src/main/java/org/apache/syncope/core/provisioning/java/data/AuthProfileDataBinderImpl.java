@@ -40,6 +40,7 @@ public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
         authProfileTO.getGoogleMfaAuthTokens().addAll(authProfile.getGoogleMfaAuthTokens());
         authProfileTO.getGoogleMfaAuthAccounts().addAll(authProfile.getGoogleMfaAuthAccounts());
         authProfileTO.getU2FRegisteredDevices().addAll(authProfile.getU2FRegisteredDevices());
+        authProfileTO.getMfaTrustedDevices().addAll(authProfile.getMfaTrustedDevices());
         authProfileTO.getWebAuthnDeviceCredentials().addAll(authProfile.getWebAuthnDeviceCredentials());
         return authProfileTO;
     }
@@ -57,6 +58,7 @@ public class AuthProfileDataBinderImpl implements AuthProfileDataBinder {
         authProfile.setGoogleMfaAuthTokens(authProfileTO.getGoogleMfaAuthTokens());
         authProfile.setGoogleMfaAuthAccounts(authProfileTO.getGoogleMfaAuthAccounts());
         authProfile.setU2FRegisteredDevices(authProfileTO.getU2FRegisteredDevices());
+        authProfile.setMfaTrustedDevices(authProfileTO.getMfaTrustedDevices());
         authProfile.setWebAuthnDeviceCredentials(authProfileTO.getWebAuthnDeviceCredentials());
         return authProfile;
     }
