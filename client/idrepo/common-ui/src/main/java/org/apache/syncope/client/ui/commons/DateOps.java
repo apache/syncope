@@ -20,7 +20,9 @@ package org.apache.syncope.client.ui.commons;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -46,37 +48,69 @@ public final class DateOps {
         public String format(final OffsetDateTime date) {
             return Optional.ofNullable(date).map(v -> fdf.format(convert(date))).orElse(StringUtils.EMPTY);
         }
+
+        public String format(final ZonedDateTime date) {
+            return Optional.ofNullable(date).map(v -> fdf.format(convert(date))).orElse(StringUtils.EMPTY);
+        }
     }
 
-    public static class WrappedDateModel implements IModel<Date>, Serializable {
+    public static final class WrappedDateModel implements IModel<Date>, Serializable {
 
         private static final long serialVersionUID = 31027882183172L;
 
-        private final IModel<OffsetDateTime> wrapped;
+        public static WrappedDateModel ofOffset(final IModel<OffsetDateTime> offset) {
+            WrappedDateModel instance = new WrappedDateModel();
+            instance.offset = offset;
+            return instance;
+        }
 
-        public WrappedDateModel(final IModel<OffsetDateTime> wrapped) {
-            this.wrapped = wrapped;
+        public static WrappedDateModel ofZoned(final IModel<ZonedDateTime> zoned) {
+            WrappedDateModel instance = new WrappedDateModel();
+            instance.zoned = zoned;
+            return instance;
+        }
+
+        private IModel<OffsetDateTime> offset;
+
+        private IModel<ZonedDateTime> zoned;
+
+        private WrappedDateModel() {
+            // private constructor for static utility class
         }
 
         @Override
         public Date getObject() {
-            return convert(wrapped.getObject());
+            return offset == null ? convert(zoned.getObject()) : convert(offset.getObject());
         }
 
         @Override
         public void setObject(final Date object) {
-            wrapped.setObject(convert(object));
+            if (offset == null) {
+                zoned.setObject(toZonedDateTime(object));
+            } else {
+                offset.setObject(toOffsetDateTime(object));
+            }
         }
     }
 
     public static final ZoneOffset DEFAULT_OFFSET = OffsetDateTime.now().getOffset();
 
+    public static final ZoneId DEFAULT_ZONE = ZonedDateTime.now().getZone();
+
     public static Date convert(final OffsetDateTime date) {
         return Optional.ofNullable(date).map(v -> new Date(v.toInstant().toEpochMilli())).orElse(null);
     }
 
-    public static OffsetDateTime convert(final Date date) {
+    public static Date convert(final ZonedDateTime date) {
+        return Optional.ofNullable(date).map(v -> new Date(v.toInstant().toEpochMilli())).orElse(null);
+    }
+
+    public static OffsetDateTime toOffsetDateTime(final Date date) {
         return Optional.ofNullable(date).map(v -> v.toInstant().atOffset(DEFAULT_OFFSET)).orElse(null);
+    }
+
+    public static ZonedDateTime toZonedDateTime(final Date date) {
+        return Optional.ofNullable(date).map(v -> ZonedDateTime.ofInstant(v.toInstant(), DEFAULT_ZONE)).orElse(null);
     }
 
     private DateOps() {

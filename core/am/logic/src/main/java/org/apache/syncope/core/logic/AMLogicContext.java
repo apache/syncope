@@ -23,6 +23,7 @@ import org.apache.syncope.core.logic.init.AMEntitlementLoader;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthAccountLogic;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthTokenLogic;
 import org.apache.syncope.core.logic.wa.ImpersonationLogic;
+import org.apache.syncope.core.logic.wa.MfaTrusStorageLogic;
 import org.apache.syncope.core.logic.wa.U2FRegistrationLogic;
 import org.apache.syncope.core.logic.wa.WAClientAppLogic;
 import org.apache.syncope.core.logic.wa.WAConfigLogic;
@@ -187,6 +188,16 @@ public class AMLogicContext {
             final EntityFactory entityFactory) {
 
         return new U2FRegistrationLogic(entityFactory, authProfileDAO, authProfileDataBinder);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public MfaTrusStorageLogic mfaTrusStorageLogic(
+            final AuthProfileDAO authProfileDAO,
+            final AuthProfileDataBinder authProfileDataBinder,
+            final EntityFactory entityFactory) {
+
+        return new MfaTrusStorageLogic(entityFactory, authProfileDAO, authProfileDataBinder);
     }
 
     @ConditionalOnMissingBean

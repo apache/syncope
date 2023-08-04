@@ -29,6 +29,7 @@ import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
+import org.apache.syncope.common.rest.api.service.wa.MfaTrustStorageService;
 import org.apache.syncope.common.rest.api.service.wa.U2FRegistrationService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
@@ -44,6 +45,7 @@ import org.apache.syncope.core.logic.SRARouteLogic;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthAccountLogic;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthTokenLogic;
 import org.apache.syncope.core.logic.wa.ImpersonationLogic;
+import org.apache.syncope.core.logic.wa.MfaTrusStorageLogic;
 import org.apache.syncope.core.logic.wa.U2FRegistrationLogic;
 import org.apache.syncope.core.logic.wa.WAClientAppLogic;
 import org.apache.syncope.core.logic.wa.WAConfigLogic;
@@ -59,6 +61,7 @@ import org.apache.syncope.core.rest.cxf.service.SRARouteServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.GoogleMfaAuthAccountServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.GoogleMfaAuthTokenServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.ImpersonationServiceImpl;
+import org.apache.syncope.core.rest.cxf.service.wa.MfaTrustStorageServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.U2FRegistrationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.WAClientAppServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.WAConfigServiceImpl;
@@ -144,6 +147,12 @@ public class AMRESTCXFContext {
     @Bean
     public U2FRegistrationService u2fRegistrationService(final U2FRegistrationLogic u2fRegistrationLogic) {
         return new U2FRegistrationServiceImpl(u2fRegistrationLogic);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public MfaTrustStorageService mfaTrustStorageService(final MfaTrusStorageLogic mfaTrusStorageLogic) {
+        return new MfaTrustStorageServiceImpl(mfaTrusStorageLogic);
     }
 
     @ConditionalOnMissingBean
