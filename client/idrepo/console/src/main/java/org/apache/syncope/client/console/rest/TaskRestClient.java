@@ -203,7 +203,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     public void startExecution(final String taskKey, final Date startAt, final boolean dryRun) {
         getService(TaskService.class).execute(new ExecSpecs.Builder().key(taskKey).
-                startAt(DateOps.convert(startAt)).dryRun(dryRun).build());
+                startAt(DateOps.toOffsetDateTime(startAt)).dryRun(dryRun).build());
     }
 
     @Override

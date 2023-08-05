@@ -1356,7 +1356,7 @@ under the License.
         <plugin>
           <groupId>io.github.git-commit-id</groupId>
           <artifactId>git-commit-id-maven-plugin</artifactId>
-          <version>5.0.0</version>
+          <version>6.0.0</version>
           <executions>
             <execution>
               <goals>
@@ -1607,9 +1607,9 @@ under the License.
         <plugin>
           <groupId>us.hebi.sass</groupId>
           <artifactId>sass-cli-maven-plugin</artifactId>
-          <version>1.0.2</version>
+          <version>1.0.3</version>
           <configuration>
-            <sassVersion>1.57.1</sassVersion>
+            <sassVersion>1.62.0</sassVersion>
             <skip>${sass.skip}</skip>
           </configuration>
         </plugin>

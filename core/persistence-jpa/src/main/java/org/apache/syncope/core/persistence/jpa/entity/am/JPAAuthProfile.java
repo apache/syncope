@@ -30,6 +30,7 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
+import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
 import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
@@ -56,6 +57,10 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     protected static final TypeReference<List<U2FDevice>> U2F_TYPEREF = new TypeReference<List<U2FDevice>>() {
     };
 
+    protected static final TypeReference<List<MfaTrustedDevice>> MFA_TRUSTED_DEVICE_TYPEREF =
+            new TypeReference<List<MfaTrustedDevice>>() {
+    };
+
     protected static final TypeReference<List<ImpersonationAccount>> IMPERSONATION_TYPEREF =
             new TypeReference<List<ImpersonationAccount>>() {
     };
@@ -78,6 +83,9 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
 
     @Lob
     private String u2fRegisteredDevices;
+
+    @Lob
+    private String mfaTrustedDevices;
 
     @Lob
     private String webAuthnDeviceCredentials;
@@ -121,8 +129,19 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     }
 
     @Override
-    public void setU2FRegisteredDevices(final List<U2FDevice> records) {
-        u2fRegisteredDevices = POJOHelper.serialize(records);
+    public void setU2FRegisteredDevices(final List<U2FDevice> devices) {
+        u2fRegisteredDevices = POJOHelper.serialize(devices);
+    }
+
+    @Override
+    public List<MfaTrustedDevice> getMfaTrustedDevices() {
+        return Optional.ofNullable(mfaTrustedDevices).
+                map(v -> POJOHelper.deserialize(v, MFA_TRUSTED_DEVICE_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
+    }
+
+    @Override
+    public void setMfaTrustedDevices(final List<MfaTrustedDevice> devices) {
+        mfaTrustedDevices = POJOHelper.serialize(devices);
     }
 
     @Override
