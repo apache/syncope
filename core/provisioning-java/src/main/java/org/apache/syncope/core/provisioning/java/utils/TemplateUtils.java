@@ -176,6 +176,14 @@ public class TemplateUtils {
                 }
             }
 
+            if (((UserTO) template).isMustChangePassword()) {
+                if (realmMember instanceof UserTO) {
+                    ((UserTO) realmMember).setMustChangePassword(true);
+                } else if (realmMember instanceof UserCR) {
+                    ((UserCR) realmMember).setMustChangePassword(true);
+                }
+            }
+
             fillRelationships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
             fillMemberships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
 
