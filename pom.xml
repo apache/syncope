@@ -1583,7 +1583,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.43.2</version>
+          <version>0.43.0</version>
         </plugin>
 
         <plugin>
