@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.any.PasswordPanel;
@@ -43,25 +44,22 @@ public class UserDetails extends Details<UserTO> {
 
     private static final long serialVersionUID = 6592027822510220463L;
 
-    private static final String PASSWORD_CONTENT_PATH = "body:content";
-
-    protected final AjaxTextFieldPanel username;
-
-    protected final UserTO userTO;
-
     public UserDetails(
             final UserWrapper wrapper,
             final boolean templateMode,
             final boolean includeStatusPanel,
             final boolean showPasswordManagement,
             final PageReference pageRef) {
+
         super(wrapper, templateMode, includeStatusPanel, pageRef);
 
-        userTO = wrapper.getInnerObject();
+        UserTO userTO = wrapper.getInnerObject();
+
         // ------------------------
         // Username
         // ------------------------
-        username = new AjaxTextFieldPanel(Constants.USERNAME_FIELD_NAME, Constants.USERNAME_FIELD_NAME,
+        AjaxTextFieldPanel username = new AjaxTextFieldPanel(
+                Constants.USERNAME_FIELD_NAME, Constants.USERNAME_FIELD_NAME,
                 new PropertyModel<>(userTO, Constants.USERNAME_FIELD_NAME), false);
 
         if (wrapper.getPreviousUserTO() != null && StringUtils.compare(
@@ -76,6 +74,15 @@ public class UserDetails extends Details<UserTO> {
             username.addRequiredLabel();
         }
         add(username);
+        // ------------------------
+
+        // ------------------------
+        // mustChangePassword
+        // ------------------------
+        AjaxCheckBoxPanel mustChangePassword = new AjaxCheckBoxPanel(
+                "mustChangePassword", "mustChangePassword", new PropertyModel<>(userTO, "mustChangePassword"));
+
+        add(mustChangePassword.setOutputMarkupPlaceholderTag(true).setVisible(templateMode));
         // ------------------------
 
         // ------------------------
@@ -107,7 +114,7 @@ public class UserDetails extends Details<UserTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         model.setObject(model.getObject() == 0 ? -1 : 0);
-                        Component passwordPanel = getParent().get(PASSWORD_CONTENT_PATH);
+                        Component passwordPanel = getParent().get("body:content");
                         passwordPanel.setEnabled(model.getObject() >= 0);
                         target.add(passwordPanel);
                     }
@@ -118,7 +125,7 @@ public class UserDetails extends Details<UserTO> {
         accordion.setOutputMarkupId(true);
         accordion.setVisible(showPasswordManagement);
         add(accordion);
-        // ------------------------        
+        // ------------------------
     }
 
     @Override
@@ -130,10 +137,7 @@ public class UserDetails extends Details<UserTO> {
 
         private static final long serialVersionUID = -8198836979773590078L;
 
-        public EditUserPasswordPanel(
-                final String id,
-                final UserWrapper wrapper,
-                final boolean templateMode) {
+        public EditUserPasswordPanel(final String id, final UserWrapper wrapper, final boolean templateMode) {
             super(id);
             setOutputMarkupId(true);
             add(new Label("warning", new ResourceModel("password.change.warning")));
