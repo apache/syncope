@@ -18,17 +18,14 @@
  */
 package org.apache.syncope.ext.elasticsearch.client;
 
-import org.apache.http.HttpHost;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("elasticsearch")
 public class ElasticsearchProperties {
 
-    private String hostname = "localhost";
-
-    private int port = 9200;
-
-    private String scheme = HttpHost.DEFAULT_SCHEME_NAME;
+    private List<String> hosts = new ArrayList<>();
 
     private int indexMaxResultWindow = 10000;
 
@@ -36,28 +33,12 @@ public class ElasticsearchProperties {
 
     private String numberOfReplicas = "1";
 
-    public String getHostname() {
-        return hostname;
+    public List<String> getHosts() {
+        return hosts;
     }
 
-    public void setHostname(final String hostname) {
-        this.hostname = hostname;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(final int port) {
-        this.port = port;
-    }
-
-    public String getScheme() {
-        return scheme;
-    }
-
-    public void setScheme(final String scheme) {
-        this.scheme = scheme;
+    public void setHosts(final List<String> hosts) {
+        this.hosts = hosts;
     }
 
     public int getIndexMaxResultWindow() {

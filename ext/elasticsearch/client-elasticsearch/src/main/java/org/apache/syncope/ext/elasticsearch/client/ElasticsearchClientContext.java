@@ -19,11 +19,12 @@
 package org.apache.syncope.ext.elasticsearch.client;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.http.HttpHost;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.identityconnectors.common.CollectionUtil;
 import org.springframework.boot.actuate.health.HealthContributor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -39,7 +40,8 @@ public class ElasticsearchClientContext {
     @Bean
     public ElasticsearchClientFactoryBean elasticsearchClientFactoryBean(final ElasticsearchProperties props) {
         return new ElasticsearchClientFactoryBean(
-                List.of(new HttpHost(props.getHostname(), props.getPort(), props.getScheme())));
+                CollectionUtil.nullAsEmpty(props.getHosts()).stream().
+                        map(HttpHost::create).collect(Collectors.toList()));
     }
 
     @ConditionalOnMissingBean
