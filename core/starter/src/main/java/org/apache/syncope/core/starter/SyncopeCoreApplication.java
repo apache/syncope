@@ -54,6 +54,8 @@ import org.springframework.boot.actuate.mail.MailHealthIndicator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchClientAutoConfiguration;
+import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
@@ -81,7 +83,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
             DataSourceTransactionManagerAutoConfiguration.class,
             JdbcTemplateAutoConfiguration.class,
             QuartzAutoConfiguration.class,
-            TaskExecutionAutoConfiguration.class },
+            TaskExecutionAutoConfiguration.class,
+            ElasticsearchRestClientAutoConfiguration.class,
+            ElasticsearchClientAutoConfiguration.class },
         proxyBeanMethods = false)
 @EnableTransactionManagement
 public class SyncopeCoreApplication extends SpringBootServletInitializer {
