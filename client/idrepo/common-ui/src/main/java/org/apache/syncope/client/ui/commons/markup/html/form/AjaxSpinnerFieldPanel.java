@@ -49,6 +49,8 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
     private final Options options;
 
+    private final boolean convertValuesToString;
+
     private SpinnerBehavior behavior;
 
     private AjaxSpinnerFieldPanel(
@@ -57,7 +59,8 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             final Class<T> reference,
             final IModel<T> model,
             final Options options,
-            final boolean enableOnChange) {
+            final boolean enableOnChange,
+            final boolean convertValuesToString) {
 
         super(id, name, model);
 
@@ -91,6 +94,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
         this.model = model;
         this.reference = reference;
         this.options = options;
+        this.convertValuesToString = convertValuesToString;
     }
 
     @Override
@@ -125,9 +129,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             @Override
             public void setObject(final T object) {
                 list.clear();
-                if (object != null) {
-                    list.add(object.toString());
-                }
+                Optional.ofNullable(object).ifPresent(v -> list.add(convertValuesToString ? v.toString() : v));
             }
         });
 
@@ -221,7 +223,8 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
     @Override
     public AjaxSpinnerFieldPanel<T> clone() {
-        AjaxSpinnerFieldPanel<T> panel = new AjaxSpinnerFieldPanel<>(getId(), name, reference, model, options, false);
+        AjaxSpinnerFieldPanel<T> panel = new AjaxSpinnerFieldPanel<>(
+                getId(), name, reference, model, options, false, convertValuesToString);
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
@@ -251,6 +254,8 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
         private boolean enableOnChange = false;
 
+        private boolean convertValuesToString = true;
+
         public Builder<T> min(final T min) {
             options.set("min", min);
             return this;
@@ -271,13 +276,19 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             return this;
         }
 
+        public Builder<T> convertValuesToString(final boolean convertValuesToString) {
+            this.convertValuesToString = convertValuesToString;
+            return this;
+        }
+
         public AjaxSpinnerFieldPanel<T> build(
                 final String id,
                 final String name,
                 final Class<T> reference,
                 final IModel<T> model) {
 
-            return new AjaxSpinnerFieldPanel<>(id, name, reference, model, options, enableOnChange);
+            return new AjaxSpinnerFieldPanel<>(
+                    id, name, reference, model, options, enableOnChange, convertValuesToString);
         }
     }
 }

@@ -41,7 +41,7 @@ public class ParametersWizardPanel extends BaseAjaxWizardBuilder<ParametersWizar
 
     @Override
     protected WizardModel buildModelSteps(final ParametersForm modelObject, final WizardModel wizardModel) {
-        wizardModel.add(new ParametersWizardSchemaStep(modelObject));
+        wizardModel.add(new ParametersWizardSchemaStep(mode, modelObject));
         wizardModel.add(new ParametersWizardAttrStep(mode, modelObject));
         return wizardModel;
     }

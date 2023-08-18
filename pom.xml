@@ -425,7 +425,7 @@ under the License.
 
     <disruptor.version>3.4.4</disruptor.version>
 
-    <elasticsearch.version>8.9.0</elasticsearch.version>
+    <elasticsearch.version>8.9.1</elasticsearch.version>
 
     <commons-jexl.version>3.3</commons-jexl.version>
     <commons-text.version>1.10.0</commons-text.version>
@@ -1583,7 +1583,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.43.3</version>
+          <version>0.43.4</version>
         </plugin>
 
         <plugin>

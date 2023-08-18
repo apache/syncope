@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import jakarta.ws.rs.core.MediaType;
 import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
@@ -130,30 +129,31 @@ public class ParametersWizardAttrStep extends WizardStep {
 
             case Long:
                 panel = new AjaxSpinnerFieldPanel.Builder<Long>().
+                        convertValuesToString(false).
                         build(id, valueHeaderName, Long.class, new Model<>());
                 break;
 
             case Double:
                 panel = new AjaxSpinnerFieldPanel.Builder<Double>().
+                        convertValuesToString(false).
                         build(id, valueHeaderName, Double.class, new Model<>());
                 break;
 
             case Binary:
                 panel = new BinaryFieldPanel(id, valueHeaderName, new Model<>(),
-                        MediaType.APPLICATION_OCTET_STREAM, schema.getModelObject());
+                        plainSchemaTO.getMimeType(), schema.getModelObject());
                 break;
 
             default:
                 panel = new AjaxTextFieldPanel(id, valueHeaderName, new Model<>(), false);
         }
+
         if (plainSchemaTO.isMultivalue()) {
             return new MultiFieldPanel.Builder<>(
                     new PropertyModel<>(param, "values")).build(id, valueHeaderName, panel);
-        } else {
-            panel.setNewModel(param.getValues());
         }
 
-        panel.setRequired("true".equalsIgnoreCase(plainSchemaTO.getMandatoryCondition()));
+        panel.setNewModel(param.getValues());
         return panel;
     }
 }

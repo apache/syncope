@@ -376,7 +376,7 @@ public class AuthProfileDirectoryPanel
                 authProfileModal.header(new Model<>(getString("u2fRegisteredDevices", model)));
                 authProfileModal.show(true);
             }
-        }, ActionLink.ActionType.FO_EDIT, AMEntitlement.AUTH_PROFILE_UPDATE);
+        }, ActionLink.ActionType.DEPROVISION, AMEntitlement.AUTH_PROFILE_UPDATE);
 
         panel.add(new ActionLink<>() {
 
