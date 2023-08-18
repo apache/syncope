@@ -57,7 +57,6 @@ public class PropagationDataView extends MultilevelPanel.SecondLevel {
         };
 
         add(jsonPanel);
-
     }
 
     private static String getJSONInfo(final PropagationTaskTO taskTO) {

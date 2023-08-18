@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -30,19 +31,25 @@ public class ParametersWizardSchemaStep extends WizardStep {
 
     private static final long serialVersionUID = -7843275202297616553L;
 
-    public ParametersWizardSchemaStep(final ParametersWizardPanel.ParametersForm modelObject) {
-        modelObject.getSchema().setMandatoryCondition("false");
+    public ParametersWizardSchemaStep(
+            final AjaxWizard.Mode mode,
+            final ParametersWizardPanel.ParametersForm modelObject) {
+
+        setOutputMarkupId(true);
 
         WebMarkupContainer content = new WebMarkupContainer("content");
-        this.setOutputMarkupId(true);
-        content.setOutputMarkupId(true);
-        add(content);
+        add(content.setOutputMarkupId(true));
 
         AjaxDropDownChoicePanel<AttrSchemaType> type = new AjaxDropDownChoicePanel<>(
                 "type", getString("type"), new PropertyModel<>(modelObject.getSchema(), "type"));
+        type.setReadOnly(mode != AjaxWizard.Mode.CREATE);
         type.setChoices(List.of(
-                AttrSchemaType.String, AttrSchemaType.Long, AttrSchemaType.Double,
-                AttrSchemaType.Boolean, AttrSchemaType.Date, AttrSchemaType.Binary));
+                AttrSchemaType.String,
+                AttrSchemaType.Long,
+                AttrSchemaType.Double,
+                AttrSchemaType.Boolean,
+                AttrSchemaType.Date,
+                AttrSchemaType.Binary));
         content.add(type);
 
         content.add(new AjaxCheckBoxPanel("multivalue", getString("multivalue"),

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.enduser.markup.html.form;
 
+import java.util.Optional;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.model.IModel;
@@ -28,15 +29,14 @@ public class BpmnProcessesAjaxPanel extends AjaxTextFieldPanel {
 
     public BpmnProcessesAjaxPanel(
             final String id, final String name, final IModel<String> model) {
+
         this(id, name, model, null);
     }
 
     public BpmnProcessesAjaxPanel(
             final String id, final String name, final IModel<String> model, final Behavior behavior) {
-        super(id, name, model, false);
-        if (behavior != null) {
-            field.add(behavior);
-        }
-    }
 
+        super(id, name, model, false);
+        Optional.ofNullable(behavior).ifPresent(field::add);
+    }
 }

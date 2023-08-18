@@ -428,7 +428,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.9.0</elasticsearch.version>
+    <elasticsearch.version>8.9.1</elasticsearch.version>
 
     <log4j2.version>2.20.0</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
@@ -1713,7 +1713,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.43.3</version>
+          <version>0.43.4</version>
         </plugin>
 
         <plugin>
