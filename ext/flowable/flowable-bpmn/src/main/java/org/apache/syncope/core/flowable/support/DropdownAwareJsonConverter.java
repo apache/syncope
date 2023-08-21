@@ -25,7 +25,7 @@ import org.flowable.editor.language.json.converter.BpmnJsonConverter;
 public class DropdownAwareJsonConverter extends BpmnJsonConverter {
 
     public DropdownAwareJsonConverter() {
-        convertersToBpmnMap.put(StencilConstants.STENCIL_TASK_USER, DropdownAwareUserTaskJsonConverter.class);
-        convertersToJsonMap.put(UserTask.class, DropdownAwareUserTaskJsonConverter.class);
+        BPMN_CONVERTERS.put(StencilConstants.STENCIL_TASK_USER, DropdownAwareUserTaskJsonConverter.class);
+        JSON_CONVERTERS.put(UserTask.class, DropdownAwareUserTaskJsonConverter.class);
     }
 }
