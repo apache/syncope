@@ -56,7 +56,7 @@ under the License.
       <artifactId>flowable-idm-spring-configurator</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.flowable</groupId>
+      <groupId>net.tirasa.flowable-leftovers</groupId>
       <artifactId>flowable-json-converter</artifactId>
     </dependency>
 

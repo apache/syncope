@@ -926,12 +926,12 @@ under the License.
         <artifactId>flowable-idm-spring-configurator</artifactId>
         <version>${flowable.version}</version>
       </dependency>
-      <!-- TODO: SYNCOPE-1718 -->
       <dependency>
-        <groupId>org.flowable</groupId>
+        <groupId>net.tirasa.flowable-leftovers</groupId>
         <artifactId>flowable-json-converter</artifactId>
-        <version>${flowable-old.version}</version>
+        <version>${flowable.version}</version>
       </dependency>
+      <!-- TODO: SYNCOPE-1718 -->
       <dependency>
         <groupId>org.flowable</groupId>
         <artifactId>flowable-ui-modeler-frontend</artifactId>
@@ -1077,7 +1077,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>3.0.0-beta1</version>
+        <version>3.0.0</version>
       </dependency>
 
       <dependency>

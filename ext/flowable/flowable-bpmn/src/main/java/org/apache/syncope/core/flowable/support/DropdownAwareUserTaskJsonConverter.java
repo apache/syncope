@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.flowable.support;
 
+import static org.flowable.editor.language.json.converter.util.JsonConverterUtil.getProperty;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
