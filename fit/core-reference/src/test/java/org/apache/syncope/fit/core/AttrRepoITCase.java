@@ -34,7 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
-import org.apache.syncope.common.lib.attr.CaseCanonicalizationMode;
 import org.apache.syncope.common.lib.attr.JDBCAttrRepoConf;
 import org.apache.syncope.common.lib.attr.LDAPAttrRepoConf;
 import org.apache.syncope.common.lib.attr.StubAttrRepoConf;
@@ -42,6 +41,7 @@ import org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrRepoState;
+import org.apache.syncope.common.lib.types.CaseCanonicalizationMode;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
@@ -236,9 +236,7 @@ public class AttrRepoITCase extends AbstractITCase {
         assertNotNull(newJDBCAttrRepoTO);
 
         conf = newJDBCAttrRepoTO.getConf();
-        assertEquals(
-                CaseCanonicalizationMode.UPPER,
-                JDBCAttrRepoConf.class.cast(conf).getCaseCanonicalization());
+        assertEquals(CaseCanonicalizationMode.UPPER, JDBCAttrRepoConf.class.cast(conf).getCaseCanonicalization());
     }
 
     @Test

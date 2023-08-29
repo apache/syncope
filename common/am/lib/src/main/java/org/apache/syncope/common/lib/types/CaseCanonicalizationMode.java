@@ -1,4 +1,4 @@
-package org.apache.syncope.common.lib.attr;
+package org.apache.syncope.common.lib.types;
 
 public enum CaseCanonicalizationMode {
 

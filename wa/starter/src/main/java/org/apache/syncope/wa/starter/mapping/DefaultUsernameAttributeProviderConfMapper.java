@@ -29,7 +29,6 @@ import org.apache.syncope.common.lib.types.PersistentIdGenerator;
 import org.apereo.cas.authentication.principal.OidcPairwisePersistentIdGenerator;
 import org.apereo.cas.authentication.principal.ShibbolethCompatiblePersistentIdGenerator;
 import org.apereo.cas.services.AnonymousRegisteredServiceUsernameAttributeProvider;
-import org.apereo.cas.services.BaseRegisteredServiceUsernameAttributeProvider;
 import org.apereo.cas.services.BaseWebBasedRegisteredService;
 import org.apereo.cas.services.DefaultRegisteredServiceUsernameProvider;
 import org.apereo.cas.services.GroovyRegisteredServiceUsernameProvider;
@@ -70,39 +69,40 @@ public class DefaultUsernameAttributeProviderConfMapper implements UsernameAttri
 
     @Override
     public void map(final AnonymousUsernameAttributeProviderConf conf) {
-        AnonymousRegisteredServiceUsernameAttributeProvider arsuap =
+        AnonymousRegisteredServiceUsernameAttributeProvider provider =
                 new AnonymousRegisteredServiceUsernameAttributeProvider();
-        toPersistentIdGenerator(conf.getPersistentIdGenerator()).ifPresent(arsuap::setPersistentIdGenerator);
-        service.setUsernameAttributeProvider(arsuap);
+        toPersistentIdGenerator(conf.getPersistentIdGenerator()).ifPresent(provider::setPersistentIdGenerator);
+        provider.setCanonicalizationMode(conf.getCaseCanonicalizationMode().name());
+        service.setUsernameAttributeProvider(provider);
     }
 
     @Override
     public void map(final DefaultUsernameAttributeProviderConf conf) {
         service.setUsernameAttributeProvider(
-                new DefaultRegisteredServiceUsernameProvider(conf.getCaseCanonicalizationMode()
-                        .name()));
+                new DefaultRegisteredServiceUsernameProvider(conf.getCaseCanonicalizationMode().name()));
     }
 
     @Override
     public void map(final GroovyUsernameAttributeProviderConf conf) {
-        BaseRegisteredServiceUsernameAttributeProvider provider = new GroovyRegisteredServiceUsernameProvider(
-                conf.getGroovyScript());
+        GroovyRegisteredServiceUsernameProvider provider =
+                new GroovyRegisteredServiceUsernameProvider(conf.getGroovyScript());
         provider.setCanonicalizationMode(conf.getCaseCanonicalizationMode().name());
-        service.setUsernameAttributeProvider(new GroovyRegisteredServiceUsernameProvider(conf.getGroovyScript()));
+        service.setUsernameAttributeProvider(provider);
     }
 
     @Override
     public void map(final PairwiseOidcUsernameAttributeProviderConf conf) {
-        PairwiseOidcRegisteredServiceUsernameAttributeProvider porsuap =
+        PairwiseOidcRegisteredServiceUsernameAttributeProvider provider =
                 new PairwiseOidcRegisteredServiceUsernameAttributeProvider();
-        toPersistentIdGenerator(conf.getPersistentIdGenerator()).ifPresent(porsuap::setPersistentIdGenerator);
-        service.setUsernameAttributeProvider(porsuap);
+        toPersistentIdGenerator(conf.getPersistentIdGenerator()).ifPresent(provider::setPersistentIdGenerator);
+        provider.setCanonicalizationMode(conf.getCaseCanonicalizationMode().name());
+        service.setUsernameAttributeProvider(provider);
     }
 
     @Override
     public void map(final PrincipalAttributeUsernameAttributeProviderConf conf) {
         service.setUsernameAttributeProvider(
-                new PrincipalAttributeRegisteredServiceUsernameProvider(conf.getUsernameAttribute(),
-                        conf.getCaseCanonicalizationMode().name()));
+                new PrincipalAttributeRegisteredServiceUsernameProvider(
+                        conf.getUsernameAttribute(), conf.getCaseCanonicalizationMode().name()));
     }
 }

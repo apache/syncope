@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.common.lib.clientapps;
 
-import java.util.Objects;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class PrincipalAttributeUsernameAttributeProviderConf extends BaseAttributeProviderConf
-        implements UsernameAttributeProviderConf {
+public class PrincipalAttributeUsernameAttributeProviderConf extends AbstractAttributeProviderConf {
 
     private static final long serialVersionUID = -4762223354637243358L;
 
@@ -42,24 +42,27 @@ public class PrincipalAttributeUsernameAttributeProviderConf extends BaseAttribu
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.usernameAttribute);
-        return hash;
+        return new HashCodeBuilder()
+                .appendSuper(super.hashCode())
+                .append(usernameAttribute)
+                .toHashCode();
     }
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
             return false;
         }
-        final PrincipalAttributeUsernameAttributeProviderConf other =
-                (PrincipalAttributeUsernameAttributeProviderConf) obj;
-        return Objects.equals(this.usernameAttribute, other.usernameAttribute);
+        PrincipalAttributeUsernameAttributeProviderConf conf = (PrincipalAttributeUsernameAttributeProviderConf) obj;
+        return new EqualsBuilder()
+                .appendSuper(super.equals(obj))
+                .append(this.usernameAttribute, conf.usernameAttribute)
+                .isEquals();
     }
 }
