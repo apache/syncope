@@ -69,33 +69,42 @@ public class DefaultUsernameAttributeProviderConfMapper implements UsernameAttri
 
     @Override
     public void map(final AnonymousUsernameAttributeProviderConf conf) {
-        AnonymousRegisteredServiceUsernameAttributeProvider arsuap =
+        AnonymousRegisteredServiceUsernameAttributeProvider provider =
                 new AnonymousRegisteredServiceUsernameAttributeProvider();
-        toPersistentIdGenerator(conf.getPersistentIdGenerator()).ifPresent(arsuap::setPersistentIdGenerator);
-        service.setUsernameAttributeProvider(arsuap);
+        toPersistentIdGenerator(conf.getPersistentIdGenerator()).ifPresent(provider::setPersistentIdGenerator);
+        provider.setCanonicalizationMode(conf.getCaseCanonicalizationMode().name());
+        service.setUsernameAttributeProvider(provider);
     }
 
     @Override
     public void map(final DefaultUsernameAttributeProviderConf conf) {
-        service.setUsernameAttributeProvider(new DefaultRegisteredServiceUsernameProvider());
+        DefaultRegisteredServiceUsernameProvider provider = new DefaultRegisteredServiceUsernameProvider();
+        provider.setCanonicalizationMode(conf.getCaseCanonicalizationMode().name());
+        service.setUsernameAttributeProvider(provider);
     }
 
     @Override
     public void map(final GroovyUsernameAttributeProviderConf conf) {
-        service.setUsernameAttributeProvider(new GroovyRegisteredServiceUsernameProvider(conf.getGroovyScript()));
+        GroovyRegisteredServiceUsernameProvider provider =
+                new GroovyRegisteredServiceUsernameProvider(conf.getGroovyScript());
+        provider.setCanonicalizationMode(conf.getCaseCanonicalizationMode().name());
+        service.setUsernameAttributeProvider(provider);
     }
 
     @Override
     public void map(final PairwiseOidcUsernameAttributeProviderConf conf) {
-        PairwiseOidcRegisteredServiceUsernameAttributeProvider porsuap =
+        PairwiseOidcRegisteredServiceUsernameAttributeProvider provider =
                 new PairwiseOidcRegisteredServiceUsernameAttributeProvider();
-        toPersistentIdGenerator(conf.getPersistentIdGenerator()).ifPresent(porsuap::setPersistentIdGenerator);
-        service.setUsernameAttributeProvider(porsuap);
+        toPersistentIdGenerator(conf.getPersistentIdGenerator()).ifPresent(provider::setPersistentIdGenerator);
+        provider.setCanonicalizationMode(conf.getCaseCanonicalizationMode().name());
+        service.setUsernameAttributeProvider(provider);
     }
 
     @Override
     public void map(final PrincipalAttributeUsernameAttributeProviderConf conf) {
-        service.setUsernameAttributeProvider(
-                new PrincipalAttributeRegisteredServiceUsernameProvider(conf.getUsernameAttribute()));
+        PrincipalAttributeRegisteredServiceUsernameProvider provider =
+                new PrincipalAttributeRegisteredServiceUsernameProvider(conf.getUsernameAttribute());
+        provider.setCanonicalizationMode(conf.getCaseCanonicalizationMode().name());
+        service.setUsernameAttributeProvider(provider);
     }
 }

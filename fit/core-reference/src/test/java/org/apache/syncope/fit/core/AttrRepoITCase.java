@@ -41,6 +41,7 @@ import org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrRepoState;
+import org.apache.syncope.common.lib.types.CaseCanonicalizationMode;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
@@ -226,7 +227,7 @@ public class AttrRepoITCase extends AbstractITCase {
 
         AttrRepoConf conf = jdbcAttrRepoTO.getConf();
         assertNotNull(conf);
-        JDBCAttrRepoConf.class.cast(conf).setCaseCanonicalization(JDBCAttrRepoConf.CaseCanonicalizationMode.UPPER);
+        JDBCAttrRepoConf.class.cast(conf).setCaseCanonicalization(CaseCanonicalizationMode.UPPER);
         newJDBCAttrRepoTO.setConf(conf);
 
         // update new attr repo
@@ -235,9 +236,7 @@ public class AttrRepoITCase extends AbstractITCase {
         assertNotNull(newJDBCAttrRepoTO);
 
         conf = newJDBCAttrRepoTO.getConf();
-        assertEquals(
-                JDBCAttrRepoConf.CaseCanonicalizationMode.UPPER,
-                JDBCAttrRepoConf.class.cast(conf).getCaseCanonicalization());
+        assertEquals(CaseCanonicalizationMode.UPPER, JDBCAttrRepoConf.class.cast(conf).getCaseCanonicalization());
     }
 
     @Test

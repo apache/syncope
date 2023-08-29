@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.common.lib.clientapps;
 
-import java.util.Objects;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.PersistentIdGenerator;
 
-public class AnonymousUsernameAttributeProviderConf implements UsernameAttributeProviderConf {
+public class AnonymousUsernameAttributeProviderConf extends AbstractAttributeProviderConf {
 
     private static final long serialVersionUID = -4762223354637243358L;
 
@@ -42,24 +43,27 @@ public class AnonymousUsernameAttributeProviderConf implements UsernameAttribute
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.persistentIdGenerator);
-        return hash;
+        return new HashCodeBuilder()
+                .appendSuper(super.hashCode())
+                .append(persistentIdGenerator)
+                .toHashCode();
     }
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
             return false;
         }
-        final AnonymousUsernameAttributeProviderConf other =
-                (AnonymousUsernameAttributeProviderConf) obj;
-        return Objects.equals(this.persistentIdGenerator, other.persistentIdGenerator);
+        AnonymousUsernameAttributeProviderConf conf = (AnonymousUsernameAttributeProviderConf) obj;
+        return new EqualsBuilder()
+                .appendSuper(super.equals(obj))
+                .append(this.persistentIdGenerator, conf.persistentIdGenerator)
+                .isEquals();
     }
 }
