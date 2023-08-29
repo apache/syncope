@@ -20,32 +20,27 @@ package org.apache.syncope.common.lib.clientapps;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.types.CaseCanonicalizationMode;
 
-public class GroovyUsernameAttributeProviderConf extends AbstractAttributeProviderConf {
+public abstract class AbstractAttributeProviderConf implements UsernameAttributeProviderConf {
 
-    private static final long serialVersionUID = -4762223354637243358L;
+    private static final long serialVersionUID = 497016622295991904L;
 
-    private String groovyScript;
+    protected CaseCanonicalizationMode caseCanonicalizationMode = CaseCanonicalizationMode.NONE;
 
-    public String getGroovyScript() {
-        return groovyScript;
+    public CaseCanonicalizationMode getCaseCanonicalizationMode() {
+        return caseCanonicalizationMode;
     }
 
-    public void setGroovyScript(final String groovyScript) {
-        this.groovyScript = groovyScript;
-    }
-
-    @Override
-    public void map(final Mapper mapper) {
-        mapper.map(this);
+    public void setCaseCanonicalizationMode(final CaseCanonicalizationMode caseCanonicalizationMode) {
+        this.caseCanonicalizationMode = caseCanonicalizationMode;
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder()
-                .appendSuper(super.hashCode())
-                .append(groovyScript)
-                .toHashCode();
+        return new HashCodeBuilder().
+                append(caseCanonicalizationMode).
+                toHashCode();
     }
 
     @Override
@@ -59,10 +54,9 @@ public class GroovyUsernameAttributeProviderConf extends AbstractAttributeProvid
         if (obj.getClass() != getClass()) {
             return false;
         }
-        GroovyUsernameAttributeProviderConf conf = (GroovyUsernameAttributeProviderConf) obj;
-        return new EqualsBuilder()
-                .appendSuper(super.equals(obj))
-                .append(this.groovyScript, conf.groovyScript)
-                .isEquals();
+        AbstractAttributeProviderConf rhs = (AbstractAttributeProviderConf) obj;
+        return new EqualsBuilder().
+                append(this.caseCanonicalizationMode, rhs.caseCanonicalizationMode).
+                isEquals();
     }
 }

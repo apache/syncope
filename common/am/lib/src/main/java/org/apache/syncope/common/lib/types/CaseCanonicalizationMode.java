@@ -16,14 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.clientapps;
+package org.apache.syncope.common.lib.types;
 
-public class DefaultUsernameAttributeProviderConf extends AbstractAttributeProviderConf {
+public enum CaseCanonicalizationMode {
 
-    private static final long serialVersionUID = 4315599812817709524L;
+    LOWER,
+    UPPER,
+    NONE;
 
-    @Override
-    public void map(final Mapper mapper) {
-        mapper.map(this);
-    }
 }

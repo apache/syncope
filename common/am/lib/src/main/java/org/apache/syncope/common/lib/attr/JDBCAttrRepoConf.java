@@ -24,18 +24,11 @@ import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.AbstractJDBCConf;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
+import org.apache.syncope.common.lib.types.CaseCanonicalizationMode;
 
 public class JDBCAttrRepoConf extends AbstractJDBCConf implements AttrRepoConf {
 
     private static final long serialVersionUID = -4474060002361453868L;
-
-    public enum CaseCanonicalizationMode {
-
-        LOWER,
-        UPPER,
-        NONE;
-
-    }
 
     public enum QueryType {
         AND,
