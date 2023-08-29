@@ -20,7 +20,8 @@ package org.apache.syncope.common.lib.clientapps;
 
 import java.util.Objects;
 
-public class PrincipalAttributeUsernameAttributeProviderConf implements UsernameAttributeProviderConf {
+public class PrincipalAttributeUsernameAttributeProviderConf extends BaseAttributeProviderConf
+        implements UsernameAttributeProviderConf {
 
     private static final long serialVersionUID = -4762223354637243358L;
 

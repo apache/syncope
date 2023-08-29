@@ -29,14 +29,6 @@ public class JDBCAttrRepoConf extends AbstractJDBCConf implements AttrRepoConf {
 
     private static final long serialVersionUID = -4474060002361453868L;
 
-    public enum CaseCanonicalizationMode {
-
-        LOWER,
-        UPPER,
-        NONE;
-
-    }
-
     public enum QueryType {
         AND,
         OR

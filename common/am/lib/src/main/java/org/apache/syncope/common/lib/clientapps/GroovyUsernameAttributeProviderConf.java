@@ -20,7 +20,8 @@ package org.apache.syncope.common.lib.clientapps;
 
 import java.util.Objects;
 
-public class GroovyUsernameAttributeProviderConf implements UsernameAttributeProviderConf {
+public class GroovyUsernameAttributeProviderConf extends BaseAttributeProviderConf
+        implements UsernameAttributeProviderConf {
 
     private static final long serialVersionUID = -4762223354637243358L;
 

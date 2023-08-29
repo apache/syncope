@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
+import org.apache.syncope.common.lib.attr.CaseCanonicalizationMode;
 import org.apache.syncope.common.lib.attr.JDBCAttrRepoConf;
 import org.apache.syncope.common.lib.attr.LDAPAttrRepoConf;
 import org.apache.syncope.common.lib.attr.StubAttrRepoConf;
@@ -226,7 +227,7 @@ public class AttrRepoITCase extends AbstractITCase {
 
         AttrRepoConf conf = jdbcAttrRepoTO.getConf();
         assertNotNull(conf);
-        JDBCAttrRepoConf.class.cast(conf).setCaseCanonicalization(JDBCAttrRepoConf.CaseCanonicalizationMode.UPPER);
+        JDBCAttrRepoConf.class.cast(conf).setCaseCanonicalization(CaseCanonicalizationMode.UPPER);
         newJDBCAttrRepoTO.setConf(conf);
 
         // update new attr repo
@@ -236,7 +237,7 @@ public class AttrRepoITCase extends AbstractITCase {
 
         conf = newJDBCAttrRepoTO.getConf();
         assertEquals(
-                JDBCAttrRepoConf.CaseCanonicalizationMode.UPPER,
+                CaseCanonicalizationMode.UPPER,
                 JDBCAttrRepoConf.class.cast(conf).getCaseCanonicalization());
     }
 

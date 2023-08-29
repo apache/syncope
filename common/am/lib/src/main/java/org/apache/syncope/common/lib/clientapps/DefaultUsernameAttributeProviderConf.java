@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.common.lib.clientapps;
 
-public class DefaultUsernameAttributeProviderConf implements UsernameAttributeProviderConf {
+public class DefaultUsernameAttributeProviderConf extends BaseAttributeProviderConf
+        implements UsernameAttributeProviderConf {
 
     private static final long serialVersionUID = 4315599812817709524L;
 
