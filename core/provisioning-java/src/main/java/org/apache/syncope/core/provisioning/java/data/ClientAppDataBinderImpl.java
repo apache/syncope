@@ -343,5 +343,6 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         }
 
         clientApp.setProperties(clientAppTO.getProperties());
+        clientApp.setLogoutType(clientAppTO.getLogoutType());
     }
 }
