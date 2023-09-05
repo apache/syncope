@@ -92,9 +92,9 @@ public interface ConnectorManager {
     void registerConnector(ExternalResource resource);
 
     /**
-     * Removes the Spring bean for the given id from the context.
+     * Removes the Spring bean for the given resource from the context.
      *
      * @param id Spring bean id
      */
-    void unregisterConnector(String id);
+    void unregisterConnector(ExternalResource resource);
 }

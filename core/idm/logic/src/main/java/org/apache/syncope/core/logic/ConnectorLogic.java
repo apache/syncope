@@ -82,8 +82,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     }
 
     protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
-        if (!authorized) {
+        if (!effectiveRealms.stream().anyMatch(realm::startsWith)) {
             throw new DelegatedAdministrationException(realm, ConnInstance.class.getSimpleName(), key);
         }
     }
@@ -132,10 +131,8 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_DELETE + "')")
     public ConnInstanceTO delete(final String key) {
-        ConnInstance connInstance = connInstanceDAO.authFind(key);
-        if (connInstance == null) {
-            throw new NotFoundException("Connector '" + key + '\'');
-        }
+        ConnInstance connInstance = Optional.ofNullable(connInstanceDAO.authFind(key)).
+                orElseThrow(() -> new NotFoundException("Connector '" + key + '\''));
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_DELETE),
@@ -151,7 +148,6 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
         ConnInstanceTO deleted = binder.getConnInstanceTO(connInstance);
         connInstanceDAO.delete(key);
-        connectorManager.unregisterConnector(key);
         return deleted;
     }
 
@@ -210,7 +206,6 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
-
     public List<ConnIdObjectClass> buildObjectClassInfo(
             final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
@@ -261,12 +256,10 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public ConnInstanceTO readByResource(final String resourceName, final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
 
-        ExternalResource resource = resourceDAO.find(resourceName);
-        if (resource == null) {
-            throw new NotFoundException("Resource '" + resourceName + '\'');
-        }
-        ConnInstanceTO connInstance = binder.
-                getConnInstanceTO(connectorManager.getConnector(resource).getConnInstance());
+        ExternalResource resource = Optional.ofNullable(resourceDAO.find(resourceName)).
+                orElseThrow(() -> new NotFoundException("Resource '" + resourceName + '\''));
+        ConnInstanceTO connInstance = binder.getConnInstanceTO(
+                connectorManager.getConnector(resource).getConnInstance());
         connInstance.setKey(resource.getConnector().getKey());
         return connInstance;
     }

@@ -90,7 +90,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                 "bundleName",
                 "bundleName",
                 new PropertyModel<>(connInstanceTO, "bundleName"), false);
-        bundleName.setEnabled(connInstanceTO.getKey() == null);
+        bundleName.setEnabled(connInstanceTO.getKey() == null || connInstanceTO.isErrored());
         bundleName.setChoices(bundles.stream().map(ConnIdBundle::getBundleName).
                 distinct().sorted().collect(Collectors.toList()));
         bundleName.getField().setOutputMarkupId(true);
@@ -100,14 +100,14 @@ public class ConnectorDetailsPanel extends WizardStep {
                 "connectorName",
                 "connectorName",
                 new PropertyModel<>(connInstanceTO, "connectorName"), false);
-        connectorName.setEnabled(connInstanceTO.getBundleName() == null);
+        connectorName.setEnabled(connInstanceTO.getBundleName() == null || connInstanceTO.isErrored());
         Optional.ofNullable(connInstanceTO.getConnectorName()).ifPresent(v -> connectorName.setChoices(List.of(v)));
         connectorName.getField().setOutputMarkupId(true);
         add(connectorName.addRequiredLabel().setOutputMarkupId(true));
 
         AjaxDropDownChoicePanel<String> version = new AjaxDropDownChoicePanel<>(
                 "version", "version", new PropertyModel<>(connInstanceTO, "version"), false);
-        version.setEnabled(connInstanceTO.getConnectorName() == null);
+        version.setEnabled(connInstanceTO.getConnectorName() == null || connInstanceTO.isErrored());
         Optional.ofNullable(connInstanceTO.getVersion()).ifPresent(v -> version.setChoices(List.of(v)));
         version.getField().setOutputMarkupId(true);
         add(version.addRequiredLabel().setOutputMarkupId(true));
