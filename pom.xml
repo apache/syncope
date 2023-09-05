@@ -439,10 +439,10 @@ under the License.
 
     <pac4j.version>5.5.0</pac4j.version>
 
-    <cas.version>6.6.10</cas.version>
+    <cas.version>6.6.11</cas.version>
     <cas-client.version>3.6.4</cas-client.version>
 
-    <h2.version>2.2.220</h2.version>
+    <h2.version>2.2.222</h2.version>
 
     <swagger-core.version>2.2.15</swagger-core.version>
     <swagger-ui.version>5.4.2</swagger-ui.version>
@@ -505,7 +505,7 @@ under the License.
     <jdbc.postgresql.version>42.6.0</jdbc.postgresql.version>
     <jdbc.mysql.version>8.1.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.1.4</jdbc.mariadb.version>
-    <jdbc.mssql.version>12.4.0.jre</jdbc.mssql.version>
+    <jdbc.mssql.version>12.4.1.jre</jdbc.mssql.version>
     <jdbc.oracle.version>23.2.0.0</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
