@@ -167,10 +167,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_UPDATE + "')")
     public ResourceTO update(final ResourceTO resourceTO) {
-        ExternalResource resource = resourceDAO.authFind(resourceTO.getKey());
-        if (resource == null) {
-            throw new NotFoundException("Resource '" + resourceTO.getKey() + '\'');
-        }
+        ExternalResource resource = Optional.ofNullable(resourceDAO.authFind(resourceTO.getKey())).
+                orElseThrow(() -> new NotFoundException("Resource '" + resourceTO.getKey() + '\''));
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_UPDATE),
@@ -202,10 +200,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             resource.getOrgUnit().setSyncToken(ConnObjectUtils.toString(
                     connector.getLatestSyncToken(new ObjectClass(resource.getOrgUnit().getObjectClass()))));
         } else {
-            AnyType anyType = anyTypeDAO.find(anyTypeKey);
-            if (anyType == null) {
-                throw new NotFoundException("AnyType '" + anyTypeKey + '\'');
-            }
+            AnyType anyType = Optional.ofNullable(anyTypeDAO.find(anyTypeKey)).
+                    orElseThrow(() -> new NotFoundException("AnyType '" + anyTypeKey + '\''));
             Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                     orElseThrow(() -> new NotFoundException(
                     "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
@@ -224,10 +220,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_UPDATE + "')")
     public void removeSyncToken(final String key, final String anyTypeKey) {
-        ExternalResource resource = resourceDAO.authFind(key);
-        if (resource == null) {
-            throw new NotFoundException("Resource '" + key + '\'');
-        }
+        ExternalResource resource = Optional.ofNullable(resourceDAO.authFind(key)).
+                orElseThrow(() -> new NotFoundException("Resource '" + key + '\''));
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
             if (resource.getOrgUnit() == null) {
                 throw new NotFoundException("Realm provision not enabled for Resource '" + key + '\'');
@@ -235,10 +229,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
             resource.getOrgUnit().setSyncToken(null);
         } else {
-            AnyType anyType = anyTypeDAO.find(anyTypeKey);
-            if (anyType == null) {
-                throw new NotFoundException("AnyType '" + anyTypeKey + '\'');
-            }
+            AnyType anyType = Optional.ofNullable(anyTypeDAO.find(anyTypeKey)).
+                    orElseThrow(() -> new NotFoundException("AnyType '" + anyTypeKey + '\''));
             Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                     orElseThrow(() -> new NotFoundException(
                     "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
@@ -256,30 +248,26 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_DELETE + "')")
     public ResourceTO delete(final String key) {
-        ExternalResource resource = resourceDAO.authFind(key);
-        if (resource == null) {
-            throw new NotFoundException("Resource '" + key + '\'');
-        }
+        ExternalResource resource = Optional.ofNullable(resourceDAO.authFind(key)).
+                orElseThrow(() -> new NotFoundException("Resource '" + key + '\''));
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_DELETE),
                 resource.getConnector().getAdminRealm().getFullPath());
         securityChecks(effectiveRealms, resource.getConnector().getAdminRealm().getFullPath(), resource.getKey());
 
-        ResourceTO resourceToDelete = binder.getResourceTO(resource);
+        connectorManager.unregisterConnector(resource);
 
+        ResourceTO deleted = binder.getResourceTO(resource);
         resourceDAO.delete(key);
-
-        return resourceToDelete;
+        return deleted;
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_READ + "')")
     @Transactional(readOnly = true)
     public ResourceTO read(final String key) {
-        ExternalResource resource = resourceDAO.authFind(key);
-        if (resource == null) {
-            throw new NotFoundException("Resource '" + key + '\'');
-        }
+        ExternalResource resource = Optional.ofNullable(resourceDAO.authFind(key)).
+                orElseThrow(() -> new NotFoundException("Resource '" + key + '\''));
 
         return binder.getResourceTO(resource);
     }
@@ -293,15 +281,11 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     protected Triple<AnyType, ExternalResource, Provision> getProvision(
             final String anyTypeKey, final String resourceKey) {
 
-        AnyType anyType = anyTypeDAO.find(anyTypeKey);
-        if (anyType == null) {
-            throw new NotFoundException("AnyType '" + anyTypeKey + "'");
-        }
+        AnyType anyType = Optional.ofNullable(anyTypeDAO.find(anyTypeKey)).
+                orElseThrow(() -> new NotFoundException("AnyType '" + anyTypeKey + '\''));
 
-        ExternalResource resource = resourceDAO.find(resourceKey);
-        if (resource == null) {
-            throw new NotFoundException("Resource '" + resourceKey + "'");
-        }
+        ExternalResource resource = Optional.ofNullable(resourceDAO.authFind(resourceKey)).
+                orElseThrow(() -> new NotFoundException("Resource '" + resourceKey + '\''));
         Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                 orElseThrow(() -> new NotFoundException(
                 "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
@@ -322,10 +306,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
 
         // 1. find any
-        Any<?> any = anyUtilsFactory.getInstance(triple.getLeft().getKind()).dao().authFind(anyKey);
-        if (any == null) {
-            throw new NotFoundException(triple.getLeft() + " " + anyKey);
-        }
+        Any<?> any = Optional.ofNullable(anyUtilsFactory.getInstance(triple.getLeft().getKind()).
+                dao().authFind(anyKey)).
+                orElseThrow(() -> new NotFoundException(triple.getLeft() + " " + anyKey));
 
         // 2.get ConnObjectKey value
         return mappingManager.getConnObjectKeyValue(any, triple.getMiddle(), triple.getRight()).
@@ -343,10 +326,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
 
         // 1. find any
-        Any<?> any = anyUtilsFactory.getInstance(triple.getLeft().getKind()).dao().authFind(anyKey);
-        if (any == null) {
-            throw new NotFoundException(triple.getLeft() + " " + anyKey);
-        }
+        Any<?> any = Optional.ofNullable(anyUtilsFactory.getInstance(triple.getLeft().getKind()).
+                dao().authFind(anyKey)).
+                orElseThrow(() -> new NotFoundException(triple.getLeft() + " " + anyKey));
 
         // 2. find on resource
         List<ConnectorObject> connObjs = outboundMatcher.match(
@@ -473,10 +455,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public void check(final ResourceTO resourceTO) {
-        ConnInstance connInstance = connInstanceDAO.find(resourceTO.getConnector());
-        if (connInstance == null) {
-            throw new NotFoundException("Connector '" + resourceTO.getConnector() + '\'');
-        }
+        ConnInstance connInstance = Optional.ofNullable(connInstanceDAO.find(resourceTO.getConnector())).
+                orElseThrow(() -> new NotFoundException("Connector '" + resourceTO.getConnector() + '\''));
 
         connectorManager.createConnector(
                 connectorManager.buildConnInstanceOverride(

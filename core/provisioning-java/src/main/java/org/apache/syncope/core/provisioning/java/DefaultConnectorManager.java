@@ -177,9 +177,16 @@ public class DefaultConnectorManager implements ConnectorManager {
         LOG.debug("Successfully registered bean {}", beanName);
     }
 
-    @Override
-    public void unregisterConnector(final String id) {
+    protected void unregisterConnector(final String id) {
         ApplicationContextProvider.getBeanFactory().destroySingleton(id);
+    }
+
+    @Override
+    public void unregisterConnector(final ExternalResource resource) {
+        String beanName = getBeanName(resource);
+        if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
+            unregisterConnector(beanName);
+        }
     }
 
     @Transactional(readOnly = true)

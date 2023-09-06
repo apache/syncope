@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
 import org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -106,6 +107,8 @@ public class MasterDomain {
         masterEntityManagerFactory.setDataSource(Objects.requireNonNull((DataSource) masterDataSource.getObject()));
         masterEntityManagerFactory.setJpaVendorAdapter(vendorAdapter);
         masterEntityManagerFactory.setCommonEntityManagerFactoryConf(commonEMFConf);
+        masterEntityManagerFactory.setConnectorManagerRemoteCommitListener(
+                new ConnectorManagerRemoteCommitListener(SyncopeConstants.MASTER_DOMAIN));
 
         if (props.getMetaDataFactory() != null) {
             masterEntityManagerFactory.setJpaPropertyMap(Map.of(

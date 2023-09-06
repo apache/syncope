@@ -28,6 +28,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
+import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
 import org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,12 +125,16 @@ public class DomainConfFactory implements DomainRegistry {
         vendorAdapter.setGenerateDdl(true);
         vendorAdapter.setDatabasePlatform(domain.getDatabasePlatform());
 
+        ConnectorManagerRemoteCommitListener connectorManagerRemoteCommitListener =
+                new ConnectorManagerRemoteCommitListener(domain.getKey());
+
         BeanDefinitionBuilder emf = BeanDefinitionBuilder.rootBeanDefinition(DomainEntityManagerFactoryBean.class).
                 addPropertyValue("mappingResources", domain.getOrm()).
                 addPropertyValue("persistenceUnitName", domain.getKey()).
                 addPropertyReference("dataSource", domain.getKey() + "DataSource").
                 addPropertyValue("jpaVendorAdapter", vendorAdapter).
-                addPropertyReference("commonEntityManagerFactoryConf", "commonEMFConf");
+                addPropertyReference("commonEntityManagerFactoryConf", "commonEMFConf").
+                addPropertyValue("connectorManagerRemoteCommitListener", connectorManagerRemoteCommitListener);
         if (ctx.getEnvironment().containsProperty("openjpaMetaDataFactory")) {
             emf.addPropertyValue("jpaPropertyMap", Map.of(
                     "openjpa.MetaDataFactory",

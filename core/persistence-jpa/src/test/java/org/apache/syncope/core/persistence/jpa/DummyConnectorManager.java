@@ -23,7 +23,6 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -32,11 +31,11 @@ import org.apache.syncope.core.provisioning.api.ConnectorManager;
 public class DummyConnectorManager implements ConnectorManager {
 
     @Override
-    public void registerConnector(final ExternalResource resource) throws NotFoundException {
+    public void registerConnector(final ExternalResource resource) {
     }
 
     @Override
-    public void unregisterConnector(final String id) {
+    public void unregisterConnector(final ExternalResource resource) {
     }
 
     @Override
