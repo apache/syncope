@@ -164,6 +164,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setInformationUrl(clientApp.getInformationUrl());
         clientAppTO.setPrivacyUrl(clientApp.getPrivacyUrl());
         clientAppTO.setUsernameAttributeProviderConf(clientApp.getUsernameAttributeProviderConf());
+        clientAppTO.setLogoutType(clientApp.getLogoutType());
 
         clientAppTO.setAuthPolicy(Optional.ofNullable(clientApp.getAuthPolicy()).
                 map(AuthPolicy::getKey).orElse(null));
@@ -343,5 +344,6 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         }
 
         clientApp.setProperties(clientAppTO.getProperties());
+        clientApp.setLogoutType(clientAppTO.getLogoutType());
     }
 }

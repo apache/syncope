@@ -31,6 +31,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.clientapps.UsernameAttributeProviderConf;
+import org.apache.syncope.common.lib.types.LogoutType;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key", "description" })
@@ -73,6 +74,8 @@ public abstract class ClientAppTO implements NamedEntityTO {
     private String ticketExpirationPolicy;
 
     private final List<Attr> properties = new ArrayList<>();
+    
+    private LogoutType logoutType = LogoutType.NONE;
 
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED)
     public abstract String getDiscriminator();
@@ -204,6 +207,14 @@ public abstract class ClientAppTO implements NamedEntityTO {
         return properties;
     }
 
+    public LogoutType getLogoutType() {
+        return logoutType;
+    }
+
+    public void setLogoutType(final LogoutType logoutType) {
+        this.logoutType = logoutType;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder()
@@ -223,6 +234,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(attrReleasePolicy)
                 .append(ticketExpirationPolicy)
                 .append(properties)
+                .append(logoutType)
                 .toHashCode();
     }
 
@@ -255,6 +267,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(this.attrReleasePolicy, rhs.attrReleasePolicy)
                 .append(this.ticketExpirationPolicy, rhs.ticketExpirationPolicy)
                 .append(this.properties, rhs.properties)
+                .append(this.logoutType, rhs.logoutType)
                 .isEquals();
     }
 }

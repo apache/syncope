@@ -54,6 +54,7 @@ import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.LogoutType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCScope;
@@ -254,6 +255,11 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
             ((AbstractSingleSelectChoice<?>) ticketExpirationPolicy.getField()).setNullValid(true);
             fields.add(ticketExpirationPolicy);
 
+            AjaxDropDownChoicePanel<LogoutType> logoutType = new AjaxDropDownChoicePanel<>(
+                    "field", "logoutType", new PropertyModel<>(clientAppTO, "logoutType"), false);
+            logoutType.setChoices(List.of(LogoutType.values()));
+            fields.add(logoutType);
+            
             switch (type) {
                 case CASSP:
                     fields.add(new AjaxTextFieldPanel(
