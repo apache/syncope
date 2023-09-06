@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.am;
 import java.util.List;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.clientapps.UsernameAttributeProviderConf;
+import org.apache.syncope.common.lib.types.LogoutType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
@@ -85,4 +86,8 @@ public interface ClientApp extends Entity {
     List<Attr> getProperties();
 
     void setProperties(List<Attr> properties);
+
+    LogoutType getLogoutType();
+
+    void setLogoutType(LogoutType logoutType);
 }

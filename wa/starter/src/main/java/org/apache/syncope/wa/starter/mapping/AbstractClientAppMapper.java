@@ -29,6 +29,7 @@ import org.apereo.cas.services.DefaultRegisteredServiceProperty;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAuthenticationPolicy;
+import org.apereo.cas.services.RegisteredServiceLogoutType;
 import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.apereo.cas.services.RegisteredServiceProperty;
 import org.apereo.cas.services.RegisteredServiceProxyGrantingTicketExpirationPolicy;
@@ -57,6 +58,8 @@ abstract class AbstractClientAppMapper implements ClientAppMapper {
                             (existing, replacement) -> existing));
             service.setProperties(properties);
         }
+
+        service.setLogoutType(RegisteredServiceLogoutType.valueOf(clientApp.getLogoutType().name()));
     }
 
     protected void setPolicies(

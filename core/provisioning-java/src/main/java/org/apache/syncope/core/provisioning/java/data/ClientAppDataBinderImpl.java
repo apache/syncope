@@ -175,6 +175,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
                 map(TicketExpirationPolicy::getKey).orElse(null));
 
         clientAppTO.getProperties().addAll(clientApp.getProperties());
+        clientAppTO.setLogoutType(clientApp.getLogoutType());
     }
 
     protected SAML2SPClientAppTO getSAMLClientAppTO(final SAML2SPClientApp clientApp) {
@@ -343,5 +344,6 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         }
 
         clientApp.setProperties(clientAppTO.getProperties());
+        clientApp.setLogoutType(clientAppTO.getLogoutType());
     }
 }

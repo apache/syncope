@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.jpa.entity.am;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.clientapps.UsernameAttributeProviderConf;
+import org.apache.syncope.common.lib.types.LogoutType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
@@ -87,6 +90,9 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
 
     @Lob
     private String properties;
+
+    @Enumerated(EnumType.STRING)
+    private LogoutType logoutType;
 
     @Override
     public Long getClientAppId() {
@@ -234,5 +240,15 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     @Override
     public void setProperties(final List<Attr> properties) {
         this.properties = POJOHelper.serialize(properties);
+    }
+
+    @Override
+    public LogoutType getLogoutType() {
+        return this.logoutType;
+    }
+
+    @Override
+    public void setLogoutType(final LogoutType logoutType) {
+        this.logoutType = logoutType;
     }
 }

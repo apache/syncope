@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
+import org.apache.syncope.common.lib.types.LogoutType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
@@ -55,6 +56,7 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceDelegatedAuthenticationPolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
+import org.apereo.cas.services.RegisteredServiceLogoutType;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.util.RandomUtils;
@@ -76,6 +78,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         oidcrpTO.setSubjectType(OIDCSubjectType.PUBLIC);
         oidcrpTO.getSupportedGrantTypes().add(OIDCGrantType.password);
         oidcrpTO.getSupportedResponseTypes().add(OIDCResponseType.CODE);
+        oidcrpTO.setLogoutType(LogoutType.BACK_CHANNEL);
 
         return oidcrpTO;
     }
@@ -90,7 +93,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         saml2spto.setRequiredNameIdFormat(SAML2SPNameId.EMAIL_ADDRESS);
         saml2spto.setEncryptionOptional(true);
         saml2spto.setEncryptAssertions(true);
-
+        saml2spto.setLogoutType(LogoutType.BACK_CHANNEL);
         return saml2spto;
     }
 
@@ -186,6 +189,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         assertTrue(((AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria) oidc.
                 getAuthenticationPolicy().getCriteria()).isTryAll());
         assertTrue(oidc.getAttributeReleasePolicy() instanceof ReturnAllowedAttributeReleasePolicy);
+        assertEquals(RegisteredServiceLogoutType.valueOf(oidcrpto.getLogoutType().name()), oidc.getLogoutType());
 
         // 5. more client with different attributes 
         waClientApp = new WAClientApp();
@@ -209,6 +213,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         assertTrue(saml.getAuthenticationPolicy().getRequiredAuthenticationHandlers().contains("TestAuthModule"));
         assertNotNull(found.getAccessStrategy());
         assertTrue(saml.getAttributeReleasePolicy() instanceof ChainingAttributeReleasePolicy);
+        assertEquals(RegisteredServiceLogoutType.valueOf(samlspto.getLogoutType().name()), saml.getLogoutType());
 
         waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(buildSAML2SP());
