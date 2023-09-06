@@ -81,7 +81,7 @@ https://camunda.org/[Camunda^] or http://jbpm.jboss.org/[jBPM^], can be written 
 ==== Persistence
 
 All data (users, groups, attributes, resources, ...) is internally managed at a high level using a standard 
-https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.2^] approach based on http://openjpa.apache.org[Apache OpenJPA^].
+https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.2^] approach based on https://openjpa.apache.org[Apache OpenJPA^].
 The data is persisted into an underlying 
 database, referred to as *_Internal Storage_*. Consistency is ensured via the comprehensive
 https://docs.spring.io/spring-framework/docs/5.3.x/reference/html/data-access.html#transaction[transaction management^] 

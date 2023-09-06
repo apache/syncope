@@ -92,6 +92,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         return ((Number) query.getSingleResult()).intValue();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ExternalResource find(final String name) {
         return entityManager().find(JPAExternalResource.class, name);
@@ -133,6 +134,17 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
                 flatMap(provision -> provision.getMapping().getItems().stream()).
                 filter(item -> item.getTransformers().contains(transformer.getKey())).
                 count() > 0;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ExternalResource> findByConnInstance(final String connInstance) {
+        TypedQuery<ExternalResource> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAExternalResource.class.getSimpleName() + " e "
+                + "WHERE e.connector.id=:connInstance", ExternalResource.class);
+        query.setParameter("connInstance", connInstance);
+
+        return query.getResultList();
     }
 
     @Override

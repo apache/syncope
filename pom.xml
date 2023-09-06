@@ -457,7 +457,7 @@ under the License.
     <wicket-bootstrap.version>7.0.0</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.0.0-M1</wicket-spring-boot.version>
 
-    <antlr4.version>4.13.0</antlr4.version>
+    <antlr4.version>4.13.1</antlr4.version>
 
     <curator.version>5.5.0</curator.version>
     <zookeeper.version>3.8.1</zookeeper.version>

@@ -206,14 +206,13 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
 
     @Override
     public List<? extends ExternalResource> getResources() {
-        return this.resources;
+        return resources;
     }
 
     @Override
     public boolean add(final ExternalResource resource) {
         checkType(resource, JPAExternalResource.class);
-        return this.resources.contains((JPAExternalResource) resource)
-                || this.resources.add((JPAExternalResource) resource);
+        return resources.contains((JPAExternalResource) resource) || resources.add((JPAExternalResource) resource);
     }
 
     @Override
