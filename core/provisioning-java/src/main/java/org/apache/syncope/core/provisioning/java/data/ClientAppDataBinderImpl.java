@@ -164,7 +164,6 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setInformationUrl(clientApp.getInformationUrl());
         clientAppTO.setPrivacyUrl(clientApp.getPrivacyUrl());
         clientAppTO.setUsernameAttributeProviderConf(clientApp.getUsernameAttributeProviderConf());
-        clientAppTO.setLogoutType(clientApp.getLogoutType());
 
         clientAppTO.setAuthPolicy(Optional.ofNullable(clientApp.getAuthPolicy()).
                 map(AuthPolicy::getKey).orElse(null));
@@ -176,6 +175,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
                 map(TicketExpirationPolicy::getKey).orElse(null));
 
         clientAppTO.getProperties().addAll(clientApp.getProperties());
+        clientAppTO.setLogoutType(clientApp.getLogoutType());
     }
 
     protected SAML2SPClientAppTO getSAMLClientAppTO(final SAML2SPClientApp clientApp) {

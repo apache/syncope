@@ -86,8 +86,8 @@ public interface ClientApp extends Entity {
     List<Attr> getProperties();
 
     void setProperties(List<Attr> properties);
-    
+
     LogoutType getLogoutType();
-    
+
     void setLogoutType(LogoutType logoutType);
 }

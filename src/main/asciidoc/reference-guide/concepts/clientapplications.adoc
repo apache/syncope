@@ -40,6 +40,8 @@ https://apereo.github.io/cas/6.6.x/integration/Attribute-Release-PrincipalId-Att
 . <<policies-attribute-release,attribute release policy>>
 . <<policies-ticket-expiration,ticket expiration policy>>
 . additional properties
+. logout type, mapping to
+https://apereo.github.io/cas/6.6.x/installation/Logout-Single-Signout.html#slo-requests[the equivalent CAS setting^]
 
 More parameters are required to be specified depending on the actual client application type.
 

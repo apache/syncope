@@ -22,4 +22,5 @@ public enum LogoutType {
     NONE,
     BACK_CHANNEL,
     FRONT_CHANNEL
+
 }

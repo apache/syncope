@@ -74,7 +74,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
     private String ticketExpirationPolicy;
 
     private final List<Attr> properties = new ArrayList<>();
-    
+
     private LogoutType logoutType = LogoutType.NONE;
 
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED)

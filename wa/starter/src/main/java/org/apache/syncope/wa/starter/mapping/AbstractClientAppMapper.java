@@ -58,7 +58,7 @@ abstract class AbstractClientAppMapper implements ClientAppMapper {
                             (existing, replacement) -> existing));
             service.setProperties(properties);
         }
-        
+
         service.setLogoutType(RegisteredServiceLogoutType.valueOf(clientApp.getLogoutType().name()));
     }
 
