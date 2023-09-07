@@ -24,10 +24,10 @@ import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.context.ApplicationContext;
 
 public class RuntimeDomainLoader implements DomainWatcher {
 
@@ -37,12 +37,16 @@ public class RuntimeDomainLoader implements DomainWatcher {
 
     protected final DomainRegistry domainRegistry;
 
+    protected final ApplicationContext ctx;
+
     public RuntimeDomainLoader(
             final DomainHolder domainHolder,
-            final DomainRegistry domainRegistry) {
+            final DomainRegistry domainRegistry,
+            final ApplicationContext ctx) {
 
         this.domainHolder = domainHolder;
         this.domainRegistry = domainRegistry;
+        this.ctx = ctx;
     }
 
     @Override
@@ -54,9 +58,9 @@ public class RuntimeDomainLoader implements DomainWatcher {
 
             domainRegistry.register(domain);
 
-            ApplicationContextProvider.getApplicationContext().getBeansOfType(SyncopeCoreLoader.class).values().
+            ctx.getBeansOfType(SyncopeCoreLoader.class).values().
                     stream().sorted(Comparator.comparing(SyncopeCoreLoader::getOrder)).
-                    forEach(loader -> {
+                    forEachOrdered(loader -> {
                         String loaderName = AopUtils.getTargetClass(loader).getName();
 
                         LOG.debug("[{}] Starting on domain '{}'", loaderName, domain);
@@ -73,7 +77,7 @@ public class RuntimeDomainLoader implements DomainWatcher {
         if (domainHolder.getDomains().containsKey(domain)) {
             LOG.info("Domain {} unregistration", domain);
 
-            ApplicationContextProvider.getApplicationContext().getBeansOfType(SyncopeCoreLoader.class).values().
+            ctx.getBeansOfType(SyncopeCoreLoader.class).values().
                     stream().sorted(Comparator.comparing(SyncopeCoreLoader::getOrder).reversed()).
                     forEachOrdered(loader -> {
                         String loaderName = AopUtils.getTargetClass(loader).getName();

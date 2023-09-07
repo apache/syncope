@@ -147,6 +147,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -252,9 +253,10 @@ public class PersistenceContext {
     @Bean
     public RuntimeDomainLoader runtimeDomainLoader(
             final DomainHolder domainHolder,
-            final DomainRegistry domainRegistry) {
+            final DomainRegistry domainRegistry,
+            final ApplicationContext ctx) {
 
-        return new RuntimeDomainLoader(domainHolder, domainRegistry);
+        return new RuntimeDomainLoader(domainHolder, domainRegistry, ctx);
     }
 
     @ConditionalOnMissingBean

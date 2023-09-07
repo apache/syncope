@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
@@ -60,10 +61,8 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public Domain read(final String key) {
-        DomainEntity domain = domainDAO.find(key);
-        if (domain == null) {
-            throw new NotFoundException("Domain " + key);
-        }
+        DomainEntity domain = Optional.ofNullable(domainDAO.find(key)).
+                orElseThrow(() -> new NotFoundException("Domain " + key));
 
         return domain.get();
     }
@@ -90,10 +89,8 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void changeAdminPassword(final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
-        DomainEntity domain = domainDAO.find(key);
-        if (domain == null) {
-            throw new NotFoundException("Domain " + key);
-        }
+        DomainEntity domain = Optional.ofNullable(domainDAO.find(key)).
+                orElseThrow(() -> new NotFoundException("Domain " + key));
 
         Domain domainObj = domain.get();
         domainObj.setAdminPassword(password);
@@ -104,10 +101,8 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void adjustPoolSize(final String key, final int poolMaxActive, final int poolMinIdle) {
-        DomainEntity domain = domainDAO.find(key);
-        if (domain == null) {
-            throw new NotFoundException("Domain " + key);
-        }
+        DomainEntity domain = Optional.ofNullable(domainDAO.find(key)).
+                orElseThrow(() -> new NotFoundException("Domain " + key));
 
         Domain domainObj = domain.get();
         domainObj.setPoolMaxActive(poolMaxActive);
