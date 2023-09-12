@@ -24,10 +24,11 @@ import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
 public class RuntimeDomainLoader implements DomainWatcher {
 
@@ -37,16 +38,18 @@ public class RuntimeDomainLoader implements DomainWatcher {
 
     protected final DomainRegistry domainRegistry;
 
-    protected final ApplicationContext ctx;
-
     public RuntimeDomainLoader(
             final DomainHolder domainHolder,
             final DomainRegistry domainRegistry,
-            final ApplicationContext ctx) {
+            final ConfigurableApplicationContext ctx) {
 
         this.domainHolder = domainHolder;
         this.domainRegistry = domainRegistry;
-        this.ctx = ctx;
+
+        // only needed by ZookeeperDomainOps' early init on afterPropertiesSet
+        if (ApplicationContextProvider.getApplicationContext() == null) {
+            ApplicationContextProvider.setApplicationContext(ctx);
+        }
     }
 
     @Override
@@ -58,7 +61,7 @@ public class RuntimeDomainLoader implements DomainWatcher {
 
             domainRegistry.register(domain);
 
-            ctx.getBeansOfType(SyncopeCoreLoader.class).values().
+            ApplicationContextProvider.getBeanFactory().getBeansOfType(SyncopeCoreLoader.class).values().
                     stream().sorted(Comparator.comparing(SyncopeCoreLoader::getOrder)).
                     forEachOrdered(loader -> {
                         String loaderName = AopUtils.getTargetClass(loader).getName();
@@ -77,7 +80,7 @@ public class RuntimeDomainLoader implements DomainWatcher {
         if (domainHolder.getDomains().containsKey(domain)) {
             LOG.info("Domain {} unregistration", domain);
 
-            ctx.getBeansOfType(SyncopeCoreLoader.class).values().
+            ApplicationContextProvider.getBeanFactory().getBeansOfType(SyncopeCoreLoader.class).values().
                     stream().sorted(Comparator.comparing(SyncopeCoreLoader::getOrder).reversed()).
                     forEachOrdered(loader -> {
                         String loaderName = AopUtils.getTargetClass(loader).getName();
