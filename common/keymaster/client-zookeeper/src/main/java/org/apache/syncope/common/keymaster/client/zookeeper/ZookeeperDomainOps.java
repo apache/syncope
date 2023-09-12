@@ -48,6 +48,15 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
 
     protected static final String DOMAIN_PATH = "/domains";
 
+    protected static String buildDomainPath(final String... parts) {
+        String prefix = DOMAIN_PATH;
+        String suffix = StringUtils.EMPTY;
+        if (parts != null && parts.length > 0) {
+            suffix = '/' + String.join("/", parts);
+        }
+        return prefix + suffix;
+    }
+
     @Autowired
     protected CuratorFramework client;
 
@@ -91,15 +100,6 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
             });
             cache.start();
         }
-    }
-
-    protected static String buildDomainPath(final String... parts) {
-        String prefix = DOMAIN_PATH;
-        String suffix = StringUtils.EMPTY;
-        if (parts != null && parts.length > 0) {
-            suffix = '/' + String.join("/", parts);
-        }
-        return prefix + suffix;
     }
 
     @Override

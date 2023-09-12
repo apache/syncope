@@ -112,36 +112,40 @@ public class ConnectorManagerRemoteCommitListener implements RemoteCommitListene
     @SuppressWarnings("unchecked")
     @Override
     public void afterCommit(final RemoteCommitEvent event) {
-        ((Collection<Object>) event.getPersistedObjectIds()).stream().
-                filter(StringId.class::isInstance).
-                map(StringId.class::cast).
-                forEach(id -> {
-                    if (JPAExternalResource.class.isAssignableFrom(id.getType())) {
-                        registerForExternalResource(id.getId());
-                    } else if (JPAConnInstance.class.isAssignableFrom(id.getType())) {
-                        registerForConnInstance(id.getId());
-                    }
-                });
+        if (event.getPayloadType() == RemoteCommitEvent.PAYLOAD_OIDS_WITH_ADDS) {
+            ((Collection<Object>) event.getPersistedObjectIds()).stream().
+                    filter(StringId.class::isInstance).
+                    map(StringId.class::cast).
+                    forEach(id -> {
+                        if (JPAExternalResource.class.isAssignableFrom(id.getType())) {
+                            registerForExternalResource(id.getId());
+                        } else if (JPAConnInstance.class.isAssignableFrom(id.getType())) {
+                            registerForConnInstance(id.getId());
+                        }
+                    });
+        }
 
-        ((Collection<Object>) event.getUpdatedObjectIds()).stream().
-                filter(StringId.class::isInstance).
-                map(StringId.class::cast).
-                forEach(id -> {
-                    if (JPAExternalResource.class.isAssignableFrom(id.getType())) {
-                        registerForExternalResource(id.getId());
-                    } else if (JPAConnInstance.class.isAssignableFrom(id.getType())) {
-                        registerForConnInstance(id.getId());
-                    }
-                });
+        if (event.getPayloadType() != RemoteCommitEvent.PAYLOAD_EXTENTS) {
+            ((Collection<Object>) event.getUpdatedObjectIds()).stream().
+                    filter(StringId.class::isInstance).
+                    map(StringId.class::cast).
+                    forEach(id -> {
+                        if (JPAExternalResource.class.isAssignableFrom(id.getType())) {
+                            registerForExternalResource(id.getId());
+                        } else if (JPAConnInstance.class.isAssignableFrom(id.getType())) {
+                            registerForConnInstance(id.getId());
+                        }
+                    });
 
-        ((Collection<Object>) event.getDeletedObjectIds()).stream().
-                filter(StringId.class::isInstance).
-                map(StringId.class::cast).
-                forEach(id -> {
-                    if (JPAExternalResource.class.isAssignableFrom(id.getType())) {
-                        unregister(id.getId());
-                    }
-                });
+            ((Collection<Object>) event.getDeletedObjectIds()).stream().
+                    filter(StringId.class::isInstance).
+                    map(StringId.class::cast).
+                    forEach(id -> {
+                        if (JPAExternalResource.class.isAssignableFrom(id.getType())) {
+                            unregister(id.getId());
+                        }
+                    });
+        }
     }
 
     @Override
