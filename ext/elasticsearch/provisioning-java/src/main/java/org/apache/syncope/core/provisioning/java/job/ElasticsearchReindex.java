@@ -20,11 +20,10 @@ package org.apache.syncope.core.provisioning.java.job;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
-import co.elastic.clients.elasticsearch.core.IndexRequest;
-import co.elastic.clients.elasticsearch.core.IndexResponse;
+import co.elastic.clients.elasticsearch.core.BulkRequest;
+import co.elastic.clients.elasticsearch.core.BulkResponse;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
 import java.io.IOException;
-import java.util.Map;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -112,62 +111,75 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                         AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT, anyObjectSettings(), anyObjectMapping());
 
                 int users = userDAO.count();
-                setStatus("Indexing " + users + " users...");
+                String uindex = ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER);
+                setStatus("Indexing " + users + " users under " + uindex + "...");
                 for (int page = 1; page <= (users / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                    BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
+
                     for (String user : userDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
-                                index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
+                        bulkRequest.operations(op -> op.index(idx -> idx.
+                                index(uindex).
                                 id(user).
-                                document(utils.document(userDAO.find(user), AuthContextUtils.getDomain())).
-                                build();
-                        try {
-                            IndexResponse response = client.index(request);
-                            LOG.debug("Index successfully created for {}: {}", user, response);
-                        } catch (Exception e) {
-                            LOG.error("Could not create index for {} {}", AnyTypeKind.USER, user, e);
-                        }
+                                document(utils.document(userDAO.find(user)))));
+                    }
+
+                    try {
+                        BulkResponse response = client.bulk(bulkRequest.build());
+                        LOG.debug("Index successfully created for {} [{}/{}]: {}",
+                                uindex, page, AnyDAO.DEFAULT_PAGE_SIZE, response);
+                    } catch (Exception e) {
+                        LOG.error("Could not create index for {} [{}/{}]: {}",
+                                uindex, page, AnyDAO.DEFAULT_PAGE_SIZE, e);
                     }
                 }
 
                 int groups = groupDAO.count();
-                setStatus("Indexing " + groups + " groups...");
+                String gindex = ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP);
+                setStatus("Indexing " + groups + " groups under " + gindex + "...");
                 for (int page = 1; page <= (groups / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                    BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
+
                     for (String group : groupDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
-                                index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP)).
+                        bulkRequest.operations(op -> op.index(idx -> idx.
+                                index(gindex).
                                 id(group).
-                                document(utils.document(groupDAO.find(group), AuthContextUtils.getDomain())).
-                                build();
-                        try {
-                            IndexResponse response = client.index(request);
-                            LOG.debug("Index successfully created for {}: {}", group, response);
-                        } catch (Exception e) {
-                            LOG.error("Could not create index for {} {}", AnyTypeKind.GROUP, group, e);
-                        }
+                                document(utils.document(groupDAO.find(group)))));
+                    }
+
+                    try {
+                        BulkResponse response = client.bulk(bulkRequest.build());
+                        LOG.debug("Index successfully created for {} [{}/{}]: {}",
+                                gindex, page, AnyDAO.DEFAULT_PAGE_SIZE, response);
+                    } catch (Exception e) {
+                        LOG.error("Could not create index for {} [{}/{}]: {}",
+                                gindex, page, AnyDAO.DEFAULT_PAGE_SIZE, e);
                     }
                 }
 
                 int anyObjects = anyObjectDAO.count();
-                setStatus("Indexing " + anyObjects + " any objects...");
+                String aindex = ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT);
+                setStatus("Indexing " + anyObjects + " any objects under " + aindex + "...");
                 for (int page = 1; page <= (anyObjects / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                    BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
+
                     for (String anyObject : anyObjectDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
-                                index(ElasticsearchUtils.getAnyIndex(
-                                        AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT)).
+                        bulkRequest.operations(op -> op.index(idx -> idx.
+                                index(aindex).
                                 id(anyObject).
-                                document(utils.document(anyObjectDAO.find(anyObject), AuthContextUtils.getDomain())).
-                                build();
-                        try {
-                            IndexResponse response = client.index(request);
-                            LOG.debug("Index successfully created for {}: {}", anyObject, response);
-                        } catch (Exception e) {
-                            LOG.error("Could not create index for {} {}", AnyTypeKind.ANY_OBJECT, anyObject, e);
-                        }
+                                document(utils.document(anyObjectDAO.find(anyObject)))));
+                    }
+
+                    try {
+                        BulkResponse response = client.bulk(bulkRequest.build());
+                        LOG.debug("Index successfully created for {} [{}/{}]: {}",
+                                aindex, page, AnyDAO.DEFAULT_PAGE_SIZE, response);
+                    } catch (Exception e) {
+                        LOG.error("Could not create index for {} [{}/{}]: {}",
+                                aindex, page, AnyDAO.DEFAULT_PAGE_SIZE, e);
                     }
                 }
 
-                indexManager.createAuditIndex(
-                        AuthContextUtils.getDomain(), auditSettings(), auditMapping());
+                indexManager.createAuditIndex(AuthContextUtils.getDomain(), auditSettings(), auditMapping());
 
                 setStatus("Rebuild indexes for domain " + AuthContextUtils.getDomain() + " successfully completed");
             } catch (Exception e) {
