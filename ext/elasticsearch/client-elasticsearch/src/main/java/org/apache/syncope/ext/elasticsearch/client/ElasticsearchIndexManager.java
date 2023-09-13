@@ -253,7 +253,7 @@ public class ElasticsearchIndexManager {
             IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
                     index(ElasticsearchUtils.getAnyIndex(event.getDomain(), event.getAny().getType().getKind())).
                     id(event.getAny().getKey()).
-                    document(elasticsearchUtils.document(event.getAny(), event.getDomain())).
+                    document(elasticsearchUtils.document(event.getAny())).
                     build();
             IndexResponse response = client.index(request);
             LOG.debug("Index successfully created or updated for {}: {}", event.getAny(), response);
