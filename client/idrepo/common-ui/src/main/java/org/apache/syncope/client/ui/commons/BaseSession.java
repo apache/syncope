@@ -85,7 +85,7 @@ public interface BaseSession {
                 Locale.CANADA_FRENCH,
                 Locale.ITALIAN,
                 Locale.JAPANESE,
-                new Locale("pt", "BR"),
-                new Locale("ru"));
+                Locale.of("pt", "BR"),
+                Locale.of("ru"));
     }
 }
