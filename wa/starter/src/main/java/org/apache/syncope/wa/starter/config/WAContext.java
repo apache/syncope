@@ -19,15 +19,12 @@
 package org.apache.syncope.wa.starter.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.warrenstrange.googleauth.IGoogleAuthenticator;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.io.Serializable;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -66,16 +63,13 @@ import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataGenerato
 import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataLocator;
 import org.apache.syncope.wa.starter.services.WAServiceRegistry;
 import org.apache.syncope.wa.starter.surrogate.WASurrogateAuthenticationService;
-import org.apache.syncope.wa.starter.u2f.WAU2FDeviceRepository;
 import org.apache.syncope.wa.starter.webauthn.WAWebAuthnCredentialRepository;
-import org.apereo.cas.adaptors.u2f.storage.U2FDeviceRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
-import org.apereo.cas.configuration.model.support.mfa.u2f.U2FCoreMultifactorAuthenticationProperties;
 import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
@@ -92,7 +86,6 @@ import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
 import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustRecordKeyGenerator;
 import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustStorage;
-import org.apereo.cas.util.DateTimeUtils;
 import org.apereo.cas.util.LdapUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
@@ -364,20 +357,6 @@ public class WAContext {
             final WARestClient waRestClient) {
 
         return new WAWebAuthnCredentialRepository(casProperties, waRestClient);
-    }
-
-    @Bean
-    public U2FDeviceRepository u2fDeviceRepository(
-            final CasConfigurationProperties casProperties,
-            final WARestClient waRestClient) {
-
-        U2FCoreMultifactorAuthenticationProperties u2f = casProperties.getAuthn().getMfa().getU2f().getCore();
-        OffsetDateTime expirationDate = OffsetDateTime.now().
-                minus(u2f.getExpireDevices(), DateTimeUtils.toChronoUnit(u2f.getExpireDevicesTimeUnit()));
-        LoadingCache<String, String> requestStorage = Caffeine.newBuilder().
-                expireAfterWrite(u2f.getExpireRegistrations(), u2f.getExpireRegistrationsTimeUnit()).
-                build(key -> StringUtils.EMPTY);
-        return new WAU2FDeviceRepository(casProperties, requestStorage, waRestClient, expirationDate);
     }
 
     @Bean

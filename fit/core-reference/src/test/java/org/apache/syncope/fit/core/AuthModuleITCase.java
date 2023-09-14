@@ -45,7 +45,6 @@ import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
-import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
@@ -63,7 +62,6 @@ public class AuthModuleITCase extends AbstractITCase {
         LDAP,
         JAAS,
         JDBC,
-        U2F,
         OIDC,
         OAUTH20;
 
@@ -166,11 +164,6 @@ public class AuthModuleITCase extends AbstractITCase {
                 SyncopeAuthModuleConf.class.cast(conf).setDomain(SyncopeConstants.MASTER_DOMAIN);
                 break;
 
-            case U2F:
-                conf = new U2FAuthModuleConf();
-                U2FAuthModuleConf.class.cast(conf).setExpireDevices(50);
-                break;
-
             case STATIC:
             default:
                 conf = new StaticAuthModuleConf();
@@ -231,11 +224,8 @@ public class AuthModuleITCase extends AbstractITCase {
                 authModule -> isSpecificConf(authModule.getConf(), SyncopeAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultSyncopeAuthModule")));
         assertTrue(authModuleTOs.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), U2FAuthModuleConf.class)
-                && authModule.getKey().equals("DefaultU2FAuthModule")));
-        assertTrue(authModuleTOs.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), OAuth20AuthModuleConf.class)
-                        && authModule.getKey().equals("DefaultOAuth20AuthModule")));
+                && authModule.getKey().equals("DefaultOAuth20AuthModule")));
     }
 
     @Test
@@ -334,17 +324,6 @@ public class AuthModuleITCase extends AbstractITCase {
         assertNotNull(authModuleTO);
         assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
         assertTrue(isSpecificConf(authModuleTO.getConf(), SyncopeAuthModuleConf.class));
-        assertFalse(isSpecificConf(authModuleTO.getConf(), U2FAuthModuleConf.class));
-    }
-
-    @Test
-    public void getU2FAuthModule() {
-        AuthModuleTO authModuleTO = AUTH_MODULE_SERVICE.read("DefaultU2FAuthModule");
-
-        assertNotNull(authModuleTO);
-        assertTrue(StringUtils.isNotBlank(authModuleTO.getDescription()));
-        assertTrue(isSpecificConf(authModuleTO.getConf(), U2FAuthModuleConf.class));
-        assertFalse(isSpecificConf(authModuleTO.getConf(), LDAPAuthModuleConf.class));
     }
 
     @Test
@@ -564,29 +543,6 @@ public class AuthModuleITCase extends AbstractITCase {
 
         conf = newStaticAuthModuleTO.getConf();
         assertEquals(2, StaticAuthModuleConf.class.cast(conf).getUsers().size());
-    }
-
-    @Test
-    public void updateU2fAuthModule() {
-        AuthModuleTO u2fAuthModuleTO = AUTH_MODULE_SERVICE.read("DefaultU2FAuthModule");
-        assertNotNull(u2fAuthModuleTO);
-
-        AuthModuleTO newU2fAuthModuleTO = buildAuthModuleTO(AuthModuleSupportedType.U2F);
-        newU2fAuthModuleTO = createAuthModule(newU2fAuthModuleTO);
-        assertNotNull(newU2fAuthModuleTO);
-
-        AuthModuleConf conf = u2fAuthModuleTO.getConf();
-        assertNotNull(conf);
-        U2FAuthModuleConf.class.cast(conf).setExpireDevices(24);
-        newU2fAuthModuleTO.setConf(conf);
-
-        // update new auth module
-        AUTH_MODULE_SERVICE.update(newU2fAuthModuleTO);
-        newU2fAuthModuleTO = AUTH_MODULE_SERVICE.read(newU2fAuthModuleTO.getKey());
-        assertNotNull(newU2fAuthModuleTO);
-
-        conf = newU2fAuthModuleTO.getConf();
-        assertEquals(24, U2FAuthModuleConf.class.cast(conf).getExpireDevices());
     }
 
     @Test

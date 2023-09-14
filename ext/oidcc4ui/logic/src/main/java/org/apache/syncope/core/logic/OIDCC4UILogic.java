@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.time.OffsetDateTime;
@@ -141,13 +140,13 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         JWTClaimsSet idToken;
         try {
             OidcCredentials credentials = new OidcCredentials();
-            credentials.setCode(new AuthorizationCode(authorizationCode));
+            credentials.setCode(authorizationCode);
 
             oidcClient.getAuthenticator().validate(
                     new CallContext(new OIDCC4UIContext(), NoOpSessionStore.INSTANCE), credentials);
 
-            idToken = credentials.getIdToken().getJWTClaimsSet();
-            idTokenHint = credentials.getIdToken().serialize();
+            idToken = credentials.toIdToken().getJWTClaimsSet();
+            idTokenHint = credentials.toIdToken().serialize();
         } catch (Exception e) {
             LOG.error("While validating Token Response", e);
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);

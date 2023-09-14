@@ -54,11 +54,6 @@ public class WASamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerator {
     }
 
     @Override
-    public SamlIdPMetadataDocument generate(final Optional<SamlRegisteredService> registeredService) throws Exception {
-        return super.generate(registeredService);
-    }
-
-    @Override
     protected SamlIdPMetadataDocument finalizeMetadataDocument(
             final SamlIdPMetadataDocument doc,
             final Optional<SamlRegisteredService> registeredService) throws Exception {

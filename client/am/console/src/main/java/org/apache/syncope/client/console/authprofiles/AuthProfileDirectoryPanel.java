@@ -46,7 +46,6 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
-import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -147,15 +146,6 @@ public class AuthProfileDirectoryPanel
             @Override
             protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
                 return !rowModel.getObject().getGoogleMfaAuthAccounts().isEmpty();
-            }
-        });
-        columns.add(new BooleanConditionColumn<>(new StringResourceModel("u2fRegisteredDevices")) {
-
-            private static final long serialVersionUID = -8236820422411536323L;
-
-            @Override
-            protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
-                return !rowModel.getObject().getU2FRegisteredDevices().isEmpty();
             }
         });
         columns.add(new BooleanConditionColumn<>(new StringResourceModel("mfaTrustedDevices")) {
@@ -328,55 +318,6 @@ public class AuthProfileDirectoryPanel
                 authProfileModal.show(true);
             }
         }, ActionLink.ActionType.EXECUTE, AMEntitlement.AUTH_PROFILE_UPDATE);
-
-        panel.add(new ActionLink<>() {
-
-            private static final long serialVersionUID = -3722207913631435501L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target, final AuthProfileTO ignore) {
-                model.setObject(restClient.read(model.getObject().getKey()));
-                target.add(authProfileModal.setContent(new ModalDirectoryPanel<>(
-                        authProfileModal,
-                        new AuthProfileItemDirectoryPanel<U2FDevice>(
-                                "panel", restClient, authProfileModal, model.getObject(), pageRef) {
-
-                    private static final long serialVersionUID = 5788448799796630011L;
-
-                    @Override
-                    protected List<U2FDevice> getItems() {
-                        return model.getObject().getU2FRegisteredDevices();
-                    }
-
-                    @Override
-                    protected U2FDevice defaultItem() {
-                        return new U2FDevice();
-                    }
-
-                    @Override
-                    protected String sortProperty() {
-                        return "id";
-                    }
-
-                    @Override
-                    protected String paginatorRowsKey() {
-                        return AMConstants.PREF_AUTHPROFILE_U2FDEVICES_PAGINATOR_ROWS;
-                    }
-
-                    @Override
-                    protected List<IColumn<U2FDevice, String>> getColumns() {
-                        List<IColumn<U2FDevice, String>> columns = new ArrayList<>();
-                        columns.add(new PropertyColumn<>(new ResourceModel("id"), "id", "id"));
-                        columns.add(new DatePropertyColumn<>(
-                                new ResourceModel("issueDate"), "issueDate", "issueDate"));
-                        columns.add(new PropertyColumn<>(new ResourceModel("record"), "record", "record"));
-                        return columns;
-                    }
-                }, pageRef)));
-                authProfileModal.header(new Model<>(getString("u2fRegisteredDevices", model)));
-                authProfileModal.show(true);
-            }
-        }, ActionLink.ActionType.DEPROVISION, AMEntitlement.AUTH_PROFILE_UPDATE);
 
         panel.add(new ActionLink<>() {
 

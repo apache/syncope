@@ -61,8 +61,8 @@ public class WARefreshContextJob implements Job {
             LOG.info("Generated SAML2 IdP metadata for {}", document.getAppliesTo());
 
             advertiseReady();
-        } catch (final Exception e) {
-            throw new JobExecutionException("While generating SAML2 IdP metadata", e);
+        } catch (Throwable t) {
+            throw new JobExecutionException("While generating SAML2 IdP metadata", t);
         }
     }
 

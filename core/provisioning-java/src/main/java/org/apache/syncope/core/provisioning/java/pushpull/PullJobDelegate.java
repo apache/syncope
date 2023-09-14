@@ -73,7 +73,6 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> implements SyncopePullExecutor {
 
@@ -198,23 +197,19 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
     }
 
     protected RealmPullResultHandler buildRealmHandler() {
-        return (RealmPullResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(DefaultRealmPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        return ApplicationContextProvider.getBeanFactory().createBean(DefaultRealmPullResultHandler.class);
     }
 
     protected AnyObjectPullResultHandler buildAnyObjectHandler() {
-        return (AnyObjectPullResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(DefaultAnyObjectPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        return ApplicationContextProvider.getBeanFactory().createBean(DefaultAnyObjectPullResultHandler.class);
     }
 
     protected UserPullResultHandler buildUserHandler() {
-        return (UserPullResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(DefaultUserPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        return ApplicationContextProvider.getBeanFactory().createBean(DefaultUserPullResultHandler.class);
     }
 
     protected GroupPullResultHandler buildGroupHandler() {
-        return (GroupPullResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(DefaultGroupPullResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        return ApplicationContextProvider.getBeanFactory().createBean(DefaultGroupPullResultHandler.class);
     }
 
     @Override

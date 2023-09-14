@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
-import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
@@ -103,10 +102,6 @@ public class AuthModuleTest extends AbstractTest {
         authModule = authModuleDAO.find("DefaultSyncopeAuthModule");
         assertNotNull(authModule);
         assertTrue(authModule.getConf() instanceof SyncopeAuthModuleConf);
-
-        authModule = authModuleDAO.find("DefaultU2FAuthModule");
-        assertNotNull(authModule);
-        assertTrue(authModule.getConf() instanceof U2FAuthModuleConf);
     }
 
     @Test
@@ -139,9 +134,6 @@ public class AuthModuleTest extends AbstractTest {
         assertTrue(authModules.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), SyncopeAuthModuleConf.class)
                 && authModule.getKey().equals("DefaultSyncopeAuthModule")));
-        assertTrue(authModules.stream().anyMatch(
-                authModule -> isSpecificConf(authModule.getConf(), U2FAuthModuleConf.class)
-                && authModule.getKey().equals("DefaultU2FAuthModule")));
     }
 
     @Test
@@ -243,14 +235,6 @@ public class AuthModuleTest extends AbstractTest {
         conf.setTokenLength(9);
         conf.setTimeToKillInSeconds(120);
         saveAuthModule("SimpleMfaAuthModuleConf", conf);
-    }
-
-    @Test
-    public void saveWithU2FModule() {
-        U2FAuthModuleConf conf = new U2FAuthModuleConf();
-        conf.setExpireDevices(50);
-
-        saveAuthModule("U2FAuthModuleTest", conf);
     }
 
     @Test
@@ -384,22 +368,6 @@ public class AuthModuleTest extends AbstractTest {
         AuthModule found = authModuleDAO.find(module.getKey());
         assertNotNull(found);
         assertEquals(2, StaticAuthModuleConf.class.cast(found.getConf()).getUsers().size());
-    }
-
-    @Test
-    public void updateWithU2fModule() {
-        AuthModule module = authModuleDAO.find("DefaultU2FAuthModule");
-        assertNotNull(module);
-        AuthModuleConf conf = module.getConf();
-        U2FAuthModuleConf.class.cast(conf).setExpireDevices(24);
-        module.setConf(conf);
-
-        module = authModuleDAO.save(module);
-        assertNotNull(module);
-        assertNotNull(module.getKey());
-        AuthModule found = authModuleDAO.find(module.getKey());
-        assertNotNull(found);
-        assertEquals(24, U2FAuthModuleConf.class.cast(found.getConf()).getExpireDevices());
     }
 
     @Test

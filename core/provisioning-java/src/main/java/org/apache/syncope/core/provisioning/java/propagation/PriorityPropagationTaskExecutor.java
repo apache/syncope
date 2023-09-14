@@ -48,7 +48,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
@@ -74,8 +73,8 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
     protected PropagationTaskCallable newPropagationTaskCallable(
             final PropagationTaskInfo taskInfo, final PropagationReporter reporter, final String executor) {
 
-        PropagationTaskCallable callable = (PropagationTaskCallable) ApplicationContextProvider.getBeanFactory().
-                createBean(DefaultPropagationTaskCallable.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+        PropagationTaskCallable callable = ApplicationContextProvider.getBeanFactory().
+                createBean(DefaultPropagationTaskCallable.class);
         callable.setTaskInfo(taskInfo);
         callable.setReporter(reporter);
         callable.setExecutor(executor);

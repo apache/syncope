@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
-import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
@@ -52,9 +51,6 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
 
     protected static final TypeReference<List<GoogleMfaAuthAccount>> GOOGLE_MFA_ACCOUNTS_TYPEREF =
             new TypeReference<List<GoogleMfaAuthAccount>>() {
-    };
-
-    protected static final TypeReference<List<U2FDevice>> U2F_TYPEREF = new TypeReference<List<U2FDevice>>() {
     };
 
     protected static final TypeReference<List<MfaTrustedDevice>> MFA_TRUSTED_DEVICE_TYPEREF =
@@ -80,9 +76,6 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
 
     @Lob
     private String googleMfaAuthTokens;
-
-    @Lob
-    private String u2fRegisteredDevices;
 
     @Lob
     private String mfaTrustedDevices;
@@ -120,17 +113,6 @@ public class JPAAuthProfile extends AbstractGeneratedKeyEntity implements AuthPr
     @Override
     public void setGoogleMfaAuthAccounts(final List<GoogleMfaAuthAccount> accounts) {
         googleMfaAuthAccounts = POJOHelper.serialize(accounts);
-    }
-
-    @Override
-    public List<U2FDevice> getU2FRegisteredDevices() {
-        return Optional.ofNullable(u2fRegisteredDevices).
-                map(v -> POJOHelper.deserialize(v, U2F_TYPEREF)).orElseGet(() -> new ArrayList<>(0));
-    }
-
-    @Override
-    public void setU2FRegisteredDevices(final List<U2FDevice> devices) {
-        u2fRegisteredDevices = POJOHelper.serialize(devices);
     }
 
     @Override

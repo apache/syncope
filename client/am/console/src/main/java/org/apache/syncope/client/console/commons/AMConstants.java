@@ -48,9 +48,6 @@ public final class AMConstants {
     public static final String PREF_AUTHPROFILE_GOOGLEMFAAUTHACCOUNTS_PAGINATOR_ROWS =
             "authprofile.googlemfaauthaccounts.paginator.rows";
 
-    public static final String PREF_AUTHPROFILE_U2FDEVICES_PAGINATOR_ROWS =
-            "authprofile.u2fdevices.paginator.rows";
-
     public static final String PREF_AUTHPROFILE_MFA_TRUSTED_FDEVICES_PAGINATOR_ROWS =
             "authprofile.mfaTrustedDevices.paginator.rows";
 

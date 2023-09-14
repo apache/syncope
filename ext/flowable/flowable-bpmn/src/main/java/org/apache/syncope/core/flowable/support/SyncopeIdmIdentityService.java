@@ -22,7 +22,6 @@ import org.flowable.idm.api.GroupQuery;
 import org.flowable.idm.api.UserQuery;
 import org.flowable.idm.engine.IdmEngineConfiguration;
 import org.flowable.idm.engine.impl.IdmIdentityServiceImpl;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.context.ConfigurableApplicationContext;
 
 public class SyncopeIdmIdentityService extends IdmIdentityServiceImpl {
@@ -39,13 +38,11 @@ public class SyncopeIdmIdentityService extends IdmIdentityServiceImpl {
 
     @Override
     public UserQuery createUserQuery() {
-        return (UserQuery) ctx.getBeanFactory().
-                createBean(SyncopeUserQueryImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+        return ctx.getBeanFactory().createBean(SyncopeUserQueryImpl.class);
     }
 
     @Override
     public GroupQuery createGroupQuery() {
-        return (GroupQuery) ctx.getBeanFactory().
-                createBean(SyncopeGroupQueryImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+        return ctx.getBeanFactory().createBean(SyncopeGroupQueryImpl.class);
     }
 }
