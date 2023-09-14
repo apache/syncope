@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM eclipse-temurin:17-focal
+FROM eclipse-temurin:17-jammy
 MAINTAINER dev@syncope.apache.org
 
 RUN set -x
