@@ -411,7 +411,7 @@ under the License.
 
     <cxf.version>4.0.2</cxf.version>
     <bouncycastle.version>1.76</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.32</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.34</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.2.0-M2</spring-boot.version>
     <spring-cloud-gateway.version>4.1.0-M1</spring-cloud-gateway.version>
@@ -1632,7 +1632,7 @@ under the License.
         <plugin>
           <groupId>org.sonarsource.scanner.maven</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
-          <version>3.9.1.2184</version>
+          <version>3.10.0.2594</version>
         </plugin>
       </plugins>
     </pluginManagement>
