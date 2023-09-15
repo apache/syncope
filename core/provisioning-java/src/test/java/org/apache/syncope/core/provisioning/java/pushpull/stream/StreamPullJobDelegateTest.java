@@ -45,7 +45,6 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.junit.jupiter.api.Test;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
@@ -62,8 +61,7 @@ public class StreamPullJobDelegateTest extends AbstractTest {
     private SyncopeStreamPullExecutor executor() {
         synchronized (this) {
             if (executor == null) {
-                executor = (SyncopeStreamPullExecutor) ApplicationContextProvider.getBeanFactory().
-                        createBean(StreamPullJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                executor = ApplicationContextProvider.getBeanFactory().createBean(StreamPullJobDelegate.class);
             }
         }
         return executor;

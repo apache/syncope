@@ -22,7 +22,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 public final class URIUtils {
 
@@ -51,7 +50,7 @@ public final class URIUtils {
 
         URI uri;
         if (candidate.startsWith("file:")) {
-            uri = new File(new URL(candidate).getFile()).getAbsoluteFile().toURI();
+            uri = new File(new URI(candidate).toURL().getFile()).getAbsoluteFile().toURI();
         } else {
             uri = new URI(candidate);
         }

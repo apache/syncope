@@ -46,7 +46,6 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -120,8 +119,8 @@ public class ReportLogicTest extends AbstractTest {
         JobExecutionContext ctx = mock(JobExecutionContext.class);
         when(ctx.getMergedJobDataMap()).thenReturn(jobDataMap);
 
-        ReportJobDelegate delegate = (ReportJobDelegate) ApplicationContextProvider.getBeanFactory().
-                createBean(TestReportJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        ReportJobDelegate delegate =
+                ApplicationContextProvider.getBeanFactory().createBean(TestReportJobDelegate.class);
         delegate.execute(report.getKey(), false, ctx);
 
         report = logic.read(report.getKey());

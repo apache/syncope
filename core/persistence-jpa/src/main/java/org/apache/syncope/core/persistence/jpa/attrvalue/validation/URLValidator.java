@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.attrvalue.validation;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -31,8 +30,8 @@ public class URLValidator extends AbstractValidator {
     @Override
     protected void doValidate(final PlainSchema schema, final PlainAttrValue attrValue) {
         try {
-            new URL(attrValue.getStringValue());
-        } catch (MalformedURLException e) {
+            new URI(attrValue.getStringValue()).toURL();
+        } catch (Exception e) {
             throw new InvalidPlainAttrValueException("\"" + attrValue.getValue() + "\" is not a valid URL");
         }
     }

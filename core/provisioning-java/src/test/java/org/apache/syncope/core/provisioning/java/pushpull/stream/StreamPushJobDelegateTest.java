@@ -44,7 +44,6 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
@@ -61,8 +60,7 @@ public class StreamPushJobDelegateTest extends AbstractTest {
     private SyncopeStreamPushExecutor executor() {
         synchronized (this) {
             if (executor == null) {
-                executor = (SyncopeStreamPushExecutor) ApplicationContextProvider.getBeanFactory().
-                        createBean(StreamPushJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                executor = ApplicationContextProvider.getBeanFactory().createBean(StreamPushJobDelegate.class);
             }
         }
         return executor;

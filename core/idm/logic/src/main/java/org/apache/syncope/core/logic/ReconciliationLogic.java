@@ -106,7 +106,6 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -376,8 +375,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     protected SyncopeSinglePushExecutor singlePushExecutor() {
-        return (SyncopeSinglePushExecutor) ApplicationContextProvider.getBeanFactory().
-                createBean(SinglePushJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        return ApplicationContextProvider.getBeanFactory().createBean(SinglePushJobDelegate.class);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
@@ -490,8 +488,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         List<ProvisioningReport> results = new ArrayList<>();
         try {
             SyncopeSinglePullExecutor executor =
-                    (SyncopeSinglePullExecutor) ApplicationContextProvider.getBeanFactory().
-                            createBean(SinglePullJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                    ApplicationContextProvider.getBeanFactory().createBean(SinglePullJobDelegate.class);
 
             results.addAll(executor.pull(
                     resource,
@@ -679,8 +676,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 columns.toArray(String[]::new))) {
 
             SyncopeStreamPushExecutor executor =
-                    (SyncopeStreamPushExecutor) ApplicationContextProvider.getBeanFactory().
-                            createBean(StreamPushJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                    ApplicationContextProvider.getBeanFactory().createBean(StreamPushJobDelegate.class);
             return executor.push(
                     anyType,
                     matching,
@@ -729,8 +725,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             }
 
             SyncopeStreamPullExecutor executor =
-                    (SyncopeStreamPullExecutor) ApplicationContextProvider.getBeanFactory().
-                            createBean(StreamPullJobDelegate.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                    ApplicationContextProvider.getBeanFactory().createBean(StreamPullJobDelegate.class);
             return executor.pull(anyType,
                     spec.getKeyColumn(),
                     columns,
