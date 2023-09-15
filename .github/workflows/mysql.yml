@@ -36,11 +36,11 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: 17
+        java-version: 21-ea
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4.5
       with:
-        maven-version: 3.9.0
+        maven-version: 3.9.4
     - uses: actions/cache@v3
       with:
         path: ~/.m2/repository
@@ -62,11 +62,11 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'      
-        java-version: 17
+        java-version: 21-ea
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4.5
       with:
-        maven-version: 3.9.0
+        maven-version: 3.9.4
     - uses: actions/cache@v3
       with:
         path: ~/.m2/repository

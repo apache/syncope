@@ -21,7 +21,6 @@ package org.apache.syncope.wa.bootstrap.mapping;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -42,7 +41,6 @@ import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
-import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AuthModuleState;
@@ -59,7 +57,6 @@ import org.apereo.cas.configuration.model.support.mfa.duo.DuoSecurityMultifactor
 import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.simple.CasSimpleMultifactorAuthenticationProperties;
-import org.apereo.cas.configuration.model.support.mfa.u2f.U2FMultifactorAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oauth.Pac4jOAuth20ClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.BasePac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jAppleOidcClientProperties;
@@ -344,19 +341,6 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setDuoSecretKey(conf.getSecretKey());
 
         return prefix("cas.authn.mfa.duo.", CasCoreConfigurationUtils.asMap(props));
-    }
-
-    @Override
-    public Map<String, Object> map(final AuthModuleTO authModuleTO, final U2FAuthModuleConf conf) {
-        U2FMultifactorAuthenticationProperties props = new U2FMultifactorAuthenticationProperties();
-        props.setName(authModuleTO.getKey());
-        props.setOrder(authModuleTO.getOrder());
-        props.getCore().setExpireDevices(conf.getExpireDevices());
-        props.getCore().setExpireDevicesTimeUnit(TimeUnit.valueOf(conf.getExpireDevicesTimeUnit()));
-        props.getCore().setExpireRegistrations(conf.getExpireRegistrations());
-        props.getCore().setExpireRegistrationsTimeUnit(TimeUnit.valueOf(conf.getExpireRegistrationsTimeUnit()));
-
-        return prefix("cas.authn.mfa.u2f.", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override

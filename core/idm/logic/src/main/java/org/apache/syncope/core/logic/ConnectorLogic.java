@@ -154,7 +154,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_LIST + "')")
     @Transactional(readOnly = true)
     public List<ConnInstanceTO> list(final String lang) {
-        CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
+        CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : Locale.of(lang));
 
         return connInstanceDAO.findAll().stream().map(binder::getConnInstanceTO).collect(Collectors.toList());
     }
@@ -162,7 +162,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public ConnInstanceTO read(final String key, final String lang) {
-        CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
+        CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : Locale.of(lang));
 
         ConnInstance connInstance = connInstanceDAO.authFind(key);
         if (connInstance == null) {
@@ -178,7 +178,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         if (StringUtils.isBlank(lang)) {
             CurrentLocale.set(Locale.ENGLISH);
         } else {
-            CurrentLocale.set(new Locale(lang));
+            CurrentLocale.set(Locale.of(lang));
         }
 
         List<ConnIdBundle> connectorBundleTOs = new ArrayList<>();
@@ -254,7 +254,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public ConnInstanceTO readByResource(final String resourceName, final String lang) {
-        CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
+        CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : Locale.of(lang));
 
         ExternalResource resource = Optional.ofNullable(resourceDAO.find(resourceName)).
                 orElseThrow(() -> new NotFoundException("Resource '" + resourceName + '\''));

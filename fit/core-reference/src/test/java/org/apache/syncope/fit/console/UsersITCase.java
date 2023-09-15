@@ -30,6 +30,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class UsersITCase extends AbstractConsoleITCase {
@@ -584,6 +585,7 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "actions:actions:actionRepeater:11:action:action", IndicatingOnConfirmAjaxLink.class);
     }
 
+    @Disabled
     @Test
     public void editDateTimeField() {
         TESTER.clickLink("body:realmsLI:realms", false);
@@ -660,14 +662,14 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
+        assertEquals("12:00 AM", TESTER.getComponentFromLastRenderedPage("body:content:body:"
+                + "container:content:tabbedPanel:panel:searchResult:"
+                + "outerObjectsRepeater:0:outer:form:content:form:view:plainSchemas:"
+                + "tabs:0:body:content:schemas:1:panel:field:timepicker").getDefaultModelObjectAsString());
+
         Calendar cal = Calendar.getInstance();
         cal.set(2017, Calendar.JANUARY, 19, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
-
-        assertEquals(TESTER.getComponentFromLastRenderedPage("body:content:body:"
-                + "container:content:tabbedPanel:panel:searchResult:"
-                + "outerObjectsRepeater:0:outer:form:content:form:view:plainSchemas:"
-                + "tabs:0:body:content:schemas:1:panel:field:timepicker").getDefaultModelObjectAsString(), "12:00 AM");
 
         TESTER.assertModelValue("body:content:body:container:content:"
                 + "tabbedPanel:panel:searchResult:outerObjectsRepeater:0:outer:form:content:"

@@ -45,7 +45,6 @@ import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 public final class MappingUtils {
 
@@ -84,8 +83,8 @@ public final class MappingUtils {
         if (StringUtils.isNotBlank(item.getPropagationJEXLTransformer())
                 || StringUtils.isNotBlank(item.getPullJEXLTransformer())) {
 
-            JEXLItemTransformer jexlTransformer = (JEXLItemTransformer) ApplicationContextProvider.getBeanFactory().
-                    createBean(JEXLItemTransformerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+            JEXLItemTransformer jexlTransformer = ApplicationContextProvider.getBeanFactory().
+                    createBean(JEXLItemTransformerImpl.class);
 
             jexlTransformer.setPropagationJEXL(item.getPropagationJEXLTransformer());
             jexlTransformer.setPullJEXL(item.getPullJEXLTransformer());

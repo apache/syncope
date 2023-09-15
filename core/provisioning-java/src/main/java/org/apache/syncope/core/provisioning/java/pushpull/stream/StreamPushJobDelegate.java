@@ -50,7 +50,6 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStreamPushExecutor {
 
@@ -59,20 +58,17 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
 
     @Override
     protected AnyObjectPushResultHandler buildAnyObjectHandler() {
-        return (AnyObjectPushResultHandler) ApplicationContextProvider.getBeanFactory().createBean(
-                StreamAnyObjectPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        return ApplicationContextProvider.getBeanFactory().createBean(StreamAnyObjectPushResultHandler.class);
     }
 
     @Override
     protected UserPushResultHandler buildUserHandler() {
-        return (UserPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(StreamUserPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        return ApplicationContextProvider.getBeanFactory().createBean(StreamUserPushResultHandler.class);
     }
 
     @Override
     protected GroupPushResultHandler buildGroupHandler() {
-        return (GroupPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(StreamGroupPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        return ApplicationContextProvider.getBeanFactory().createBean(StreamGroupPushResultHandler.class);
     }
 
     private ExternalResource externalResource(

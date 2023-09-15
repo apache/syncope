@@ -31,7 +31,6 @@ import java.util.stream.IntStream;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
-import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
@@ -77,27 +76,6 @@ public class AuthProfileTest extends AbstractTest {
     }
 
     @Test
-    public void u2fRegisteredDevice() {
-        String id = SecureRandomUtils.generateRandomUUID().toString();
-        createAuthProfileWithU2FDevice(id, "{ 'record': 1 }");
-
-        Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
-        assertTrue(result.isPresent());
-
-        assertFalse(authProfileDAO.findAll(-1, -1).isEmpty());
-
-        AuthProfile authProfile = result.get();
-        result = Optional.ofNullable(authProfileDAO.find(authProfile.getKey()));
-        assertTrue(result.isPresent());
-
-        authProfile.setOwner("SyncopeCreate-NewU2F");
-        authProfile.setU2FRegisteredDevices(List.of());
-        authProfileDAO.save(authProfile);
-
-        assertFalse(authProfileDAO.findByOwner(id).isPresent());
-    }
-
-    @Test
     public void webAuthnRegisteredDevice() {
         String id = SecureRandomUtils.generateRandomUUID().toString();
         String record = "[ {"
@@ -127,7 +105,7 @@ public class AuthProfileTest extends AbstractTest {
         result = Optional.ofNullable(authProfileDAO.find(authProfile.getKey()));
         assertTrue(result.isPresent());
 
-        authProfile.setOwner("SyncopeCreate-NewU2F");
+        authProfile.setOwner("newowner");
         authProfile.setWebAuthnDeviceCredentials(List.of());
         authProfileDAO.save(authProfile);
 
@@ -187,14 +165,6 @@ public class AuthProfileTest extends AbstractTest {
         profile.setOwner(owner);
         GoogleMfaAuthToken token = new GoogleMfaAuthToken.Builder().issueDate(LocalDateTime.now()).token(otp).build();
         profile.setGoogleMfaAuthTokens(List.of(token));
-        return authProfileDAO.save(profile);
-    }
-
-    private AuthProfile createAuthProfileWithU2FDevice(final String owner, final String record) {
-        AuthProfile profile = entityFactory.newEntity(AuthProfile.class);
-        profile.setOwner(owner);
-        U2FDevice device = new U2FDevice.Builder().issueDate(OffsetDateTime.now()).record(record).build();
-        profile.setU2FRegisteredDevices(List.of(device));
         return authProfileDAO.save(profile);
     }
 

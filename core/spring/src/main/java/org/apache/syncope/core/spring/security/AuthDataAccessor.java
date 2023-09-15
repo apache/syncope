@@ -65,7 +65,6 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
@@ -158,8 +157,7 @@ public class AuthDataAccessor {
                 jwtSSOProviders = new HashMap<>();
 
                 implementationLookup.getJWTSSOProviderClasses().stream().
-                        map(clazz -> (JWTSSOProvider) ApplicationContextProvider.getBeanFactory().
-                        createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true)).
+                        map(clazz -> (JWTSSOProvider) ApplicationContextProvider.getBeanFactory().createBean(clazz)).
                         forEach(jwtSSOProvider -> jwtSSOProviders.put(jwtSSOProvider.getIssuer(), jwtSSOProvider));
             }
         }

@@ -19,7 +19,6 @@
 package org.apache.syncope.sra;
 
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationListener;
@@ -37,14 +36,12 @@ public final class ApplicationContextUtils {
             bean = type.cast(ctx.getBeanFactory().getSingleton(actualClazz));
         } else {
             if (ApplicationListener.class.isAssignableFrom(type)) {
-                RootBeanDefinition bd = new RootBeanDefinition(
-                        Class.forName(actualClazz), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                RootBeanDefinition bd = new RootBeanDefinition(Class.forName(actualClazz));
                 bd.setScope(BeanDefinition.SCOPE_SINGLETON);
                 ((BeanDefinitionRegistry) ctx.getBeanFactory()).registerBeanDefinition(actualClazz, bd);
                 bean = ctx.getBean(type);
             } else {
-                bean = type.cast(ctx.getBeanFactory().
-                        createBean(Class.forName(actualClazz), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false));
+                bean = type.cast(ctx.getBeanFactory().createBean(Class.forName(actualClazz)));
                 ctx.getBeanFactory().registerSingleton(actualClazz, bean);
             }
         }

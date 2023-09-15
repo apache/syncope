@@ -32,7 +32,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.ForwardedHeaderUtils;
 
 public class ServerWebExchangeContext implements WebContext {
 
@@ -139,17 +139,23 @@ public class ServerWebExchangeContext implements WebContext {
 
     @Override
     public String getServerName() {
-        return UriComponentsBuilder.fromHttpRequest(exchange.getRequest()).build().getHost();
+        return ForwardedHeaderUtils.
+                adaptFromForwardedHeaders(exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).
+                build().getHost();
     }
 
     @Override
     public int getServerPort() {
-        return UriComponentsBuilder.fromHttpRequest(exchange.getRequest()).build().getPort();
+        return ForwardedHeaderUtils.
+                adaptFromForwardedHeaders(exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).
+                build().getPort();
     }
 
     @Override
     public String getScheme() {
-        return UriComponentsBuilder.fromHttpRequest(exchange.getRequest()).build().getScheme();
+        return ForwardedHeaderUtils.
+                adaptFromForwardedHeaders(exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).
+                build().getScheme();
     }
 
     @Override
@@ -159,7 +165,9 @@ public class ServerWebExchangeContext implements WebContext {
 
     @Override
     public String getFullRequestURL() {
-        return UriComponentsBuilder.fromHttpRequest(exchange.getRequest()).build().toUriString();
+        return ForwardedHeaderUtils.
+                adaptFromForwardedHeaders(exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).
+                build().toUriString();
     }
 
     @Override

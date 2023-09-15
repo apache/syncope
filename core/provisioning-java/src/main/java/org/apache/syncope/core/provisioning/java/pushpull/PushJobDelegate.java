@@ -59,7 +59,6 @@ import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> implements SyncopePushExecutor {
 
@@ -130,23 +129,19 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
     }
 
     protected RealmPushResultHandler buildRealmHandler() {
-        return (RealmPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(DefaultRealmPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        return ApplicationContextProvider.getBeanFactory().createBean(DefaultRealmPushResultHandler.class);
     }
 
     protected AnyObjectPushResultHandler buildAnyObjectHandler() {
-        return (AnyObjectPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(DefaultAnyObjectPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        return ApplicationContextProvider.getBeanFactory().createBean(DefaultAnyObjectPushResultHandler.class);
     }
 
     protected UserPushResultHandler buildUserHandler() {
-        return (UserPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(DefaultUserPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        return ApplicationContextProvider.getBeanFactory().createBean(DefaultUserPushResultHandler.class);
     }
 
     protected GroupPushResultHandler buildGroupHandler() {
-        return (GroupPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(DefaultGroupPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        return ApplicationContextProvider.getBeanFactory().createBean(DefaultGroupPushResultHandler.class);
     }
 
     protected List<PushActions> getPushActions(final List<? extends Implementation> impls) {

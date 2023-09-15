@@ -38,7 +38,6 @@ import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 /**
@@ -51,9 +50,7 @@ public class AfterHandlingJob extends AbstractInterruptableJob {
     private static final Logger LOG = LoggerFactory.getLogger(AfterHandlingJob.class);
 
     public static void schedule(final SchedulerFactoryBean scheduler, final Map<String, Object> jobMap) {
-        @SuppressWarnings("unchecked")
-        AfterHandlingJob jobInstance = (AfterHandlingJob) ApplicationContextProvider.getBeanFactory().
-                createBean(AfterHandlingJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+        AfterHandlingJob jobInstance = ApplicationContextProvider.getBeanFactory().createBean(AfterHandlingJob.class);
         String jobName = AfterHandlingJob.class.getSimpleName() + SecureRandomUtils.generateRandomUUID();
 
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());

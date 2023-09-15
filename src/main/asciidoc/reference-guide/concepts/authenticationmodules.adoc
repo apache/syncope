@@ -35,7 +35,6 @@ Several authentication modules are provided:
     ** https://apereo.github.io/cas/6.6.x/integration/Delegate-Authentication-Azure-AD.html[Azure Active Directory^]
 * MFA:
     ** https://apereo.github.io/cas/6.6.x/mfa/DuoSecurity-Authentication.html[Duo Security^]
-    ** https://apereo.github.io/cas/6.6.x/mfa/FIDO-U2F-Authentication.html[Fido U2F^]
     ** https://apereo.github.io/cas/6.6.x/mfa/GoogleAuthenticator-Authentication.html[Google Authenticator^]
 
 [TIP]
