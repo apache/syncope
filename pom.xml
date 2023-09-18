@@ -409,7 +409,7 @@ under the License.
     <connid.okta.version>3.0.1</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
 
-    <cxf.version>3.6.1</cxf.version>
+    <cxf.version>3.6.2</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
     <nimbus-jose-jwt.version>9.34</nimbus-jose-jwt.version>
 
@@ -663,7 +663,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.uuid</groupId>
         <artifactId>java-uuid-generator</artifactId>
-        <version>4.2.0</version>
+        <version>4.3.0</version>
       </dependency>
 
       <dependency>
