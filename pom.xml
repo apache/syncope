@@ -435,7 +435,7 @@ under the License.
     <cas.version>7.0.0-SNAPSHOT</cas.version>
     <cas-client.version>4.0.2</cas-client.version>
 
-    <h2.version>2.2.222</h2.version>
+    <h2.version>2.2.224</h2.version>
 
     <swagger-core.version>2.2.16</swagger-core.version>
     <swagger-ui.version>5.6.1</swagger-ui.version>
