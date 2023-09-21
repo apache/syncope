@@ -221,15 +221,15 @@ under the License.
             <artifactId>build-helper-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>regex-property</id>
+                <id>windows-connid-location</id>
                 <goals>
                   <goal>regex-property</goal>
                 </goals>
                 <configuration>
                   <name>syncope.connid.location</name>
                   <value>file://${bundles.directory}</value>
-                  <regex>\\</regex>
-                  <replacement>\</replacement>
+                  <regex>\\\\</regex>
+                  <replacement>\\</replacement>
                   <failIfNoMatch>false</failIfNoMatch>
                 </configuration>
               </execution>
