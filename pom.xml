@@ -420,12 +420,12 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <flowable.version>7.0.0.M2</flowable.version>
+    <flowable.version>7.0.0</flowable.version>
     <flowable-old.version>6.8.0</flowable-old.version>
 
     <disruptor.version>3.4.4</disruptor.version>
 
-    <elasticsearch.version>8.10.1</elasticsearch.version>
+    <elasticsearch.version>8.10.2</elasticsearch.version>
 
     <commons-jexl.version>3.3</commons-jexl.version>
     <commons-text.version>1.10.0</commons-text.version>
