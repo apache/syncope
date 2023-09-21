@@ -413,7 +413,7 @@ under the License.
     <bouncycastle.version>1.70</bouncycastle.version>
     <nimbus-jose-jwt.version>9.35</nimbus-jose-jwt.version>
 
-    <spring-boot.version>2.7.15</spring-boot.version>
+    <spring-boot.version>2.7.16</spring-boot.version>
     <spring-cloud-gateway.version>3.1.8</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.2</openjpa.version>
@@ -428,7 +428,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.10.1</elasticsearch.version>
+    <elasticsearch.version>8.10.2</elasticsearch.version>
 
     <log4j2.version>2.20.0</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
