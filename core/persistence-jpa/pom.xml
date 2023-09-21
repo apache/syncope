@@ -214,9 +214,29 @@ under the License.
         </os>
       </activation>
 
-      <properties>
-        <syncope.connid.location>file://${bundles.directory}\</syncope.connid.location>
-      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>regex-property</id>
+                <goals>
+                  <goal>regex-property</goal>
+                </goals>
+                <configuration>
+                  <name>syncope.connid.location</name>
+                  <value>file://${bundles.directory}</value>
+                  <regex>\\</regex>
+                  <replacement>\</replacement>
+                  <failIfNoMatch>false</failIfNoMatch>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
 
     <profile>
