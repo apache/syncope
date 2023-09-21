@@ -227,7 +227,7 @@ under the License.
                 </goals>
                 <configuration>
                   <name>syncope.connid.location</name>
-                  <value>file://${bundles.directory}</value>
+                  <value>file://${project.build.directory}\bundles\</value>
                   <regex>\\\\</regex>
                   <replacement>\\</replacement>
                   <failIfNoMatch>false</failIfNoMatch>
