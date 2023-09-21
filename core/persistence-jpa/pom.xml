@@ -215,7 +215,7 @@ under the License.
       </activation>
 
       <properties>
-        <syncope.connid.location>file://${bundles.directory}/</syncope.connid.location>
+        <syncope.connid.location>file://${bundles.directory}\</syncope.connid.location>
       </properties>
     </profile>
 
