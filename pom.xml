@@ -1255,17 +1255,6 @@ under the License.
         <enabled>true</enabled>
       </releases>
     </repository>
-    <!-- TMP -->
-    <repository>
-      <id>projectlombok.org</id>
-      <url>https://projectlombok.org/edge-releases</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
     <repository>
       <id>repository.spring.milestone</id>
       <url>https://repo.spring.io/milestone</url>

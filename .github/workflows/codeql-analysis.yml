@@ -46,7 +46,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: 21-ea
+        java-version: 21
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4.5
       with:
