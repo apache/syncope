@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -153,15 +152,15 @@ public class ConnInstanceTest extends AbstractTest {
         assertFalse(conf.isEmpty());
 
         assertNotNull(conf);
-        assertTrue(conf.size() == 2);
+        assertEquals(2, conf.size());
     }
 
     @Test
     public void delete() {
-        ConnInstance connectorInstance = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
-        assertNotNull(connectorInstance);
+        ConnInstance connInstance = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
+        assertNotNull(connInstance);
 
-        connInstanceDAO.delete(connectorInstance.getKey());
+        connInstanceDAO.delete(connInstance.getKey());
 
         ConnInstance actual = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
         assertNull(actual);
