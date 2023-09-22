@@ -234,8 +234,8 @@ under the License.
                 </configuration>
               </execution>
             </executions>
-          </plugin>          
-        </plugins>        
+          </plugin>
+        </plugins>
       </build>
     </profile>
 
