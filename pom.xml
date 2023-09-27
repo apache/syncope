@@ -414,7 +414,7 @@ under the License.
     <nimbus-jose-jwt.version>9.35</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.2.0-M3</spring-boot.version>
-    <spring-cloud-gateway.version>4.1.0-M1</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>4.1.0-M2</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.0-SNAPSHOT</openjpa.version>
 
@@ -430,7 +430,7 @@ under the License.
     <commons-jexl.version>3.3</commons-jexl.version>
     <commons-text.version>1.10.0</commons-text.version>
 
-    <pac4j.version>6.0.0-RC9-SNAPSHOT</pac4j.version>
+    <pac4j.version>6.0.0-RC9</pac4j.version>
 
     <cas.version>7.0.0-SNAPSHOT</cas.version>
     <cas-client.version>4.0.3</cas-client.version>
@@ -1318,6 +1318,7 @@ under the License.
             <compilerArgs>
               <arg>-Xlint:unchecked</arg>
               <arg>-parameters</arg>
+              <arg>-proc:full</arg>
             </compilerArgs>
           </configuration>
         </plugin>
