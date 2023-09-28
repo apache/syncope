@@ -188,7 +188,6 @@ public class AuthModuleTest extends AbstractTest {
         conf.setSecretKey("Q2IU2i6BFNd6VYflZT8Evl6lF7oPlj4PM15BmRU7");
         conf.setIntegrationKey("DIOXVRZD1UMZ8XXMNFQ6");
         conf.setApiHost("theapi.duosecurity.com");
-        conf.setApplicationKey("u4IHCaREMB7Cb0S6QMISAgHycpj6lPBkDGfWt99I");
         saveAuthModule("DuoMfaAuthModuleTest", conf);
     }
 

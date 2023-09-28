@@ -110,7 +110,6 @@ public class AuthModuleITCase extends AbstractITCase {
                 DuoMfaAuthModuleConf.class.cast(conf).setSecretKey("Q2IU2i6BFNd6VYflZT8Evl6lF7oPlj4PM15BmRU7");
                 DuoMfaAuthModuleConf.class.cast(conf).setIntegrationKey("DIOXVRZD1UMZ8XXMNFQ6");
                 DuoMfaAuthModuleConf.class.cast(conf).setApiHost("theapi.duosecurity.com");
-                DuoMfaAuthModuleConf.class.cast(conf).setApplicationKey("u4IHCaREMB7Cb0S6QMISAgHycpj6lPBkDGfWt99I");
                 break;
 
             case JAAS:

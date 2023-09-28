@@ -73,7 +73,7 @@ under the License.
   <AuthModule id="DefaultSimpleMfaAuthModule" authModuleState="ACTIVE"
               description="Simple Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf","tokenLength":6, "timeToKillInSeconds":30}'/>
   <AuthModule id="DefaultDuoMfaAuthModule" authModuleState="ACTIVE"
-              description="Duo Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf","integrationKey":"DIOXVRZD2UMZ8XXMNFQ5","secretKey":"Q2IU2i8BFNd6VYflZT8Evl6lF7oPlj3PM15BmRU7", "applicationKey":"u1IHBaREMB7Cb5S4QMISAgHycpj8lPBkDGfWt23I", "apiHost":"theapi.duosecurity.com"}'/>
+              description="Duo Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf","integrationKey":"DIOXVRZD2UMZ8XXMNFQ5","secretKey":"Q2IU2i8BFNd6VYflZT8Evl6lF7oPlj3PM15BmRU7", "apiHost":"theapi.duosecurity.com"}'/>
   <AuthModule id="DefaultOIDCAuthModule" authModuleState="ACTIVE"
               description="OIDC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","discoveryUri":"https://localhost:9443/syncope-wa/oidc/.well-known/openid-configuration", "clientId":"client-id", "clientSecret": "client-secret" }'/>
   <AuthModule id="DefaultSAML2IdPAuthModule" authModuleState="ACTIVE"

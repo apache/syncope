@@ -29,8 +29,6 @@ public class DuoMfaAuthModuleConf implements MFAAuthModuleConf {
 
     private String secretKey;
 
-    private String applicationKey;
-
     private String apiHost;
 
     @Override
@@ -52,14 +50,6 @@ public class DuoMfaAuthModuleConf implements MFAAuthModuleConf {
 
     public void setSecretKey(final String secretKey) {
         this.secretKey = secretKey;
-    }
-
-    public String getApplicationKey() {
-        return applicationKey;
-    }
-
-    public void setApplicationKey(final String applicationKey) {
-        this.applicationKey = applicationKey;
     }
 
     public String getApiHost() {

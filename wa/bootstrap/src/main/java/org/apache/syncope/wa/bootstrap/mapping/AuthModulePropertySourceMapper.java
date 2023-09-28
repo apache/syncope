@@ -329,14 +329,12 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         return prefix("cas.authn.mfa.gauth.", CasCoreConfigurationUtils.asMap(props));
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public Map<String, Object> map(final AuthModuleTO authModuleTO, final DuoMfaAuthModuleConf conf) {
         DuoSecurityMultifactorAuthenticationProperties props = new DuoSecurityMultifactorAuthenticationProperties();
         props.setName(authModuleTO.getKey());
         props.setOrder(authModuleTO.getOrder());
         props.setDuoApiHost(conf.getApiHost());
-        props.setDuoApplicationKey(conf.getApplicationKey());
         props.setDuoIntegrationKey(conf.getIntegrationKey());
         props.setDuoSecretKey(conf.getSecretKey());
 
