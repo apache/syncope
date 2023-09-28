@@ -36,6 +36,7 @@ import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.rest.api.service.ConfParamService;
 import org.apache.syncope.common.keymaster.rest.api.service.DomainService;
 import org.apache.syncope.common.keymaster.rest.api.service.NetworkServiceService;
+import org.apache.syncope.core.keymaster.internal.InternalConfParamHelper;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalConfParamOps;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalDomainOps;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalServiceOps;
@@ -61,9 +62,9 @@ import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
 import org.apache.syncope.core.spring.security.WebSecurityContext;
+import org.apache.syncope.core.starter.SelfKeymasterContext.SelfKeymasterCondition;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -75,6 +76,7 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 @EnableConfigurationProperties(KeymasterProperties.class)
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureBefore(WebSecurityContext.class)
+@Conditional(SelfKeymasterCondition.class)
 public class SelfKeymasterContext {
 
     private static final Pattern HTTP = Pattern.compile("^http.+");
@@ -90,7 +92,6 @@ public class SelfKeymasterContext {
         }
     }
 
-    @Conditional(SelfKeymasterCondition.class)
     @Bean
     public Server selfKeymasterContainer(
             final ConfParamService confParamService,
@@ -121,7 +122,6 @@ public class SelfKeymasterContext {
         return selfKeymasterContainer.create();
     }
 
-    @Conditional(SelfKeymasterCondition.class)
     @Bean
     public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider(
             final DomainOps domainOps,
@@ -140,13 +140,19 @@ public class SelfKeymasterContext {
                 keymasterProperties);
     }
 
-    @Conditional(SelfKeymasterCondition.class)
     @Bean
-    public ConfParamOps internalConfParamOps(final ConfParamLogic confParamLogic, final KeymasterProperties props) {
-        return new SelfKeymasterInternalConfParamOps(confParamLogic, props);
+    public InternalConfParamHelper internalConfParamHelper(
+            final ConfParamDAO confParamDAO,
+            final SelfKeymasterEntityFactory entityFactory) {
+
+        return new InternalConfParamHelper(confParamDAO, entityFactory);
     }
 
-    @Conditional(SelfKeymasterCondition.class)
+    @Bean
+    public ConfParamOps internalConfParamOps(final InternalConfParamHelper helper) {
+        return new SelfKeymasterInternalConfParamOps(helper);
+    }
+
     @Bean
     public ServiceOps internalServiceOps(
             final NetworkServiceLogic networkServiceLogic,
@@ -155,22 +161,16 @@ public class SelfKeymasterContext {
         return new SelfKeymasterInternalServiceOps(networkServiceLogic, props);
     }
 
-    @Conditional(SelfKeymasterCondition.class)
     @Bean
     public DomainOps domainOps(final DomainLogic domainLogic, final KeymasterProperties props) {
         return new SelfKeymasterInternalDomainOps(domainLogic, props);
     }
 
-    @ConditionalOnMissingBean
     @Bean
-    public ConfParamLogic confParamLogic(
-            final ConfParamDAO confParamDAO,
-            final SelfKeymasterEntityFactory selfKeymasterEntityFactory) {
-
-        return new ConfParamLogic(confParamDAO, selfKeymasterEntityFactory);
+    public ConfParamLogic confParamLogic(final InternalConfParamHelper helper) {
+        return new ConfParamLogic(helper);
     }
 
-    @ConditionalOnMissingBean
     @Bean
     public DomainLogic domainLogic(
             final DomainDAO domainDAO,
@@ -180,7 +180,6 @@ public class SelfKeymasterContext {
         return new DomainLogic(domainDAO, selfKeymasterEntityFactory, domainWatcher);
     }
 
-    @ConditionalOnMissingBean
     @Bean
     public NetworkServiceLogic networkServiceLogic(
             final NetworkServiceDAO serviceDAO,
@@ -189,43 +188,36 @@ public class SelfKeymasterContext {
         return new NetworkServiceLogic(serviceDAO, selfKeymasterEntityFactory);
     }
 
-    @ConditionalOnMissingBean
     @Bean
     public SelfKeymasterEntityFactory selfKeymasterEntityFactory() {
         return new JPASelfKeymasterEntityFactory();
     }
 
-    @ConditionalOnMissingBean
     @Bean
     public ConfParamDAO confParamDAO() {
         return new JPAConfParamDAO();
     }
 
-    @ConditionalOnMissingBean
     @Bean
     public DomainDAO domainDAO() {
         return new JPADomainDAO();
     }
 
-    @ConditionalOnMissingBean
     @Bean
     public NetworkServiceDAO networkServiceDAO() {
         return new JPANetworkServiceDAO();
     }
 
-    @ConditionalOnMissingBean
     @Bean
     public ConfParamService confParamService(final ConfParamLogic confParamLogic) {
         return new ConfParamServiceImpl(confParamLogic);
     }
 
-    @ConditionalOnMissingBean
     @Bean
     public DomainService domainService(final DomainLogic domainLogic) {
         return new DomainServiceImpl(domainLogic);
     }
 
-    @ConditionalOnMissingBean
     @Bean
     public NetworkServiceService networkServiceService(final NetworkServiceLogic networkServiceLogic) {
         return new NetworkServiceServiceImpl(networkServiceLogic);

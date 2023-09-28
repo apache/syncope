@@ -42,7 +42,7 @@ public final class AuthContextUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthContextUtils.class);
 
-    private static final String FAKE_PASSWORD = "FAKE_PASSWORD";
+    private static final String PLACEHOLDER_PWD = "PLACEHOLDER_PWD";
 
     private static final String UNAUTHENTICATED = "unauthenticated";
 
@@ -55,7 +55,7 @@ public final class AuthContextUtils {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
-                new User(newUsername, FAKE_PASSWORD, auth.getAuthorities()),
+                new User(newUsername, PLACEHOLDER_PWD, auth.getAuthorities()),
                 auth.getCredentials(), auth.getAuthorities());
         newAuth.setDetails(auth.getDetails());
         SecurityContextHolder.getContext().setAuthentication(newAuth);
@@ -135,11 +135,11 @@ public final class AuthContextUtils {
         List<GrantedAuthority> authorities = entitlements.stream().
                 map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
                 collect(Collectors.toList());
-        UsernamePasswordAuthenticationToken fakeAuth = new UsernamePasswordAuthenticationToken(
-                new User(username, FAKE_PASSWORD, authorities), FAKE_PASSWORD, authorities);
-        fakeAuth.setDetails(new SyncopeAuthenticationDetails(domain, getDelegatedBy().orElse(null)));
+        UsernamePasswordAuthenticationToken asAuth = new UsernamePasswordAuthenticationToken(
+                new User(username, PLACEHOLDER_PWD, authorities), PLACEHOLDER_PWD, authorities);
+        asAuth.setDetails(new SyncopeAuthenticationDetails(domain, getDelegatedBy().orElse(null)));
 
-        return call(fakeAuth, callable);
+        return call(asAuth, callable);
     }
 
     public static <T> T callAsAdmin(final String domain, final Callable<T> callable) {

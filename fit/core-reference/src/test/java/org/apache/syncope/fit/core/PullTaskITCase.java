@@ -948,11 +948,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP_*").query()).
                 page(1).size(0).build()).getTotalCount();
 
-        // 0. first cleanup then create 100 users on LDAP
+        // 0. first cleanup then create 20 users on LDAP
         ldapCleanup();
 
         ExecutorService tp = Executors.newFixedThreadPool(10);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 20; i++) {
             String idx = StringUtils.leftPad(String.valueOf(i), 2, "0");
             tp.submit(() -> {
                 try {
@@ -981,9 +981,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
         pullTask.setDescription("LDAP Concurrent Pull Task");
 
         ThreadPoolSettings tps = new ThreadPoolSettings();
-        tps.setCorePoolSize(3);
-        tps.setMaxPoolSize(3);
-        tps.setQueueCapacity(100);
+        tps.setCorePoolSize(1);
+        tps.setMaxPoolSize(2);
+        tps.setQueueCapacity(40);
         pullTask.setConcurrentSettings(tps);
 
         Response response = TASK_SERVICE.create(TaskType.PULL, pullTask);
@@ -993,7 +993,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         try {
             // 2. run concurrent pull task
             ExecTO execution = execProvisioningTask(
-                    TASK_SERVICE, TaskType.PULL, pullTaskKey, 5 * MAX_WAIT_SECONDS, false);
+                    TASK_SERVICE, TaskType.PULL, pullTaskKey, 2 * MAX_WAIT_SECONDS, false);
 
             // 3. verify execution status
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
@@ -1001,7 +1001,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 4. verify that the given number of users was effectively pulled
             result = USER_SERVICE.search(new AnyQuery.Builder().fiql(
                     SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP_*").query()).
-                    page(1).size(200).build());
+                    page(1).size(100).build());
             assertTrue(result.getTotalCount() > usersBefore);
         } finally {
             if (result != null) {

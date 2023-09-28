@@ -375,19 +375,6 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                                 new ObjectClass(provision.getObjectClass()),
                                 dispatcher,
                                 options);
-                        break;
-                }
-
-                if (provision.getUidOnCreate() != null) {
-                    AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
-                    profile.getResults().stream().
-                            filter(result -> result.getUidValue() != null && result.getKey() != null
-                            && result.getOperation() == ResourceOperation.CREATE
-                            && result.getAnyType().equals(provision.getAnyType())).
-                            forEach(result -> anyUtils.addAttr(
-                            validator,
-                            result.getKey(),
-                            plainSchemaDAO.find(provision.getUidOnCreate()), result.getUidValue()));
                 }
             } catch (Throwable t) {
                 throw new JobExecutionException("While pulling from connector", t);
@@ -400,6 +387,28 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 }
             }
         }
+
+        dispatcher.shutdown();
+
+        for (Provision provision : pullTask.getResource().getProvisions().stream().
+                filter(provision -> provision.getMapping() != null && provision.getUidOnCreate() != null).
+                sorted(provisionSorter).collect(Collectors.toList())) {
+
+            try {
+                AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeDAO.find(provision.getAnyType()).getKind());
+                profile.getResults().stream().
+                        filter(result -> result.getUidValue() != null && result.getKey() != null
+                        && result.getOperation() == ResourceOperation.CREATE
+                        && result.getAnyType().equals(provision.getAnyType())).
+                        forEach(result -> anyUtils.addAttr(
+                        validator,
+                        result.getKey(),
+                        plainSchemaDAO.find(provision.getUidOnCreate()), result.getUidValue()));
+            } catch (Throwable t) {
+                LOG.error("While setting UID on create", t);
+            }
+        }
+
         try {
             setGroupOwners(ghandler);
         } catch (Exception e) {
@@ -411,8 +420,6 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 action.afterAll(profile);
             }
         }
-
-        dispatcher.cleanup();
 
         setStatus("Pull done");
 

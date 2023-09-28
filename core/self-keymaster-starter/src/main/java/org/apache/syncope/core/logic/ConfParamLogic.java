@@ -18,75 +18,42 @@
  */
 package org.apache.syncope.core.logic;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Optional;
-import java.util.TreeMap;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.core.persistence.api.dao.ConfParamDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.entity.ConfParam;
-import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
+import org.apache.syncope.core.keymaster.internal.InternalConfParamHelper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 public class ConfParamLogic extends AbstractTransactionalLogic<EntityTO> {
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected final InternalConfParamHelper helper;
 
-    protected final ConfParamDAO confParamDAO;
-
-    protected final SelfKeymasterEntityFactory entityFactory;
-
-    public ConfParamLogic(final ConfParamDAO confParamDAO, final SelfKeymasterEntityFactory entityFactory) {
-        this.confParamDAO = confParamDAO;
-        this.entityFactory = entityFactory;
+    public ConfParamLogic(final InternalConfParamHelper helper) {
+        this.helper = helper;
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     @Transactional(readOnly = true)
     public Map<String, Object> list() {
-        Map<String, Object> params = new TreeMap<>();
-        confParamDAO.findAll().forEach(param -> {
-            try {
-                params.put(param.getKey(), MAPPER.treeToValue(param.getValue(), Object.class));
-            } catch (JsonProcessingException e) {
-                LOG.error("While processing {}'s value", param.getKey(), e);
-            }
-        });
-        return params;
+        return helper.list();
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     @Transactional(readOnly = true)
     public JsonNode get(final String key) {
-        ConfParam param = confParamDAO.find(key);
-
-        return Optional.ofNullable(param).map(ConfParam::getValue).orElse(null);
+        return helper.get(key);
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void set(final String key, final JsonNode value) {
-        ConfParam param = confParamDAO.find(key);
-        if (param == null) {
-            param = entityFactory.newConfParam();
-            param.setKey(key);
-        }
-
-        if (value == null) {
-            throw new NotFoundException("No value provided for " + key);
-        }
-
-        param.setValue(value);
-        confParamDAO.save(param);
+        helper.set(key, value);
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void remove(final String key) {
-        confParamDAO.delete(key);
+        helper.remove(key);
     }
 
     @Override
