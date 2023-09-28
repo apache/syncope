@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
@@ -32,16 +33,22 @@ import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeResultHandler;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
 public abstract class SyncopeResultHandlerDispatcher<
         T extends ProvisioningTask<?>, A extends ProvisioningActions, RA extends SyncopeResultHandler<T, A>> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeResultHandlerDispatcher.class);
+
+    private static final String PLACEHOLDER_PWD = "PLACEHOLDER_PWD";
 
     protected final Optional<ThreadPoolTaskExecutor> tpte;
 
@@ -53,7 +60,7 @@ public abstract class SyncopeResultHandlerDispatcher<
 
     protected final List<Future<Void>> futures = new ArrayList<>();
 
-    public SyncopeResultHandlerDispatcher(final ProvisioningProfile<T, A> profile) {
+    protected SyncopeResultHandlerDispatcher(final ProvisioningProfile<T, A> profile) {
         if (profile.getTask().getConcurrentSettings() == null) {
             tpte = Optional.empty();
             ecs = Optional.empty();
@@ -64,18 +71,25 @@ public abstract class SyncopeResultHandlerDispatcher<
             t.setQueueCapacity(profile.getTask().getConcurrentSettings().getQueueCapacity());
             t.setWaitForTasksToCompleteOnShutdown(true);
             t.setThreadNamePrefix("provisioningTask-" + profile.getTask().getKey() + "-");
-            t.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+            t.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String domain = AuthContextUtils.getDomain();
+            String delegatedBy = AuthContextUtils.getDelegatedBy().orElse(null);
+            Set<SyncopeGrantedAuthority> authorities = AuthContextUtils.getAuthorities();
             t.setTaskDecorator(d -> () -> {
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                // set placeholder authentication object by creating fresh and copying data from caller's
+                UsernamePasswordAuthenticationToken placeHolderAuth = new UsernamePasswordAuthenticationToken(
+                        new User(profile.getExecutor(), PLACEHOLDER_PWD, authorities), PLACEHOLDER_PWD, authorities);
+                placeHolderAuth.setDetails(new SyncopeAuthenticationDetails(domain, delegatedBy));
+                SecurityContextHolder.getContext().setAuthentication(placeHolderAuth);
+
                 d.run();
             });
 
             t.initialize();
-            this.tpte = Optional.of(t);
 
-            this.ecs = Optional.of(new ExecutorCompletionService<>(t.getThreadPoolExecutor()));
+            tpte = Optional.of(t);
+            ecs = Optional.of(new ExecutorCompletionService<>(t.getThreadPoolExecutor()));
         }
     }
 
@@ -97,7 +111,7 @@ public abstract class SyncopeResultHandlerDispatcher<
         }
     }
 
-    protected void cleanup() {
+    protected void shutdown() {
         for (Future<Void> f : this.futures) {
             try {
                 f.get();
