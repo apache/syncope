@@ -36,6 +36,7 @@ import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.rest.api.service.ConfParamService;
 import org.apache.syncope.common.keymaster.rest.api.service.DomainService;
 import org.apache.syncope.common.keymaster.rest.api.service.NetworkServiceService;
+import org.apache.syncope.core.keymaster.internal.InternalConfParamHelper;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalConfParamOps;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalDomainOps;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalServiceOps;
@@ -142,8 +143,17 @@ public class SelfKeymasterContext {
 
     @Conditional(SelfKeymasterCondition.class)
     @Bean
-    public ConfParamOps internalConfParamOps(final ConfParamLogic confParamLogic, final KeymasterProperties props) {
-        return new SelfKeymasterInternalConfParamOps(confParamLogic, props);
+    public InternalConfParamHelper internalConfParamHelper(
+            final ConfParamDAO confParamDAO,
+            final SelfKeymasterEntityFactory entityFactory) {
+
+        return new InternalConfParamHelper(confParamDAO, entityFactory);
+    }
+
+    @Conditional(SelfKeymasterCondition.class)
+    @Bean
+    public ConfParamOps internalConfParamOps(final InternalConfParamHelper helper) {
+        return new SelfKeymasterInternalConfParamOps(helper);
     }
 
     @Conditional(SelfKeymasterCondition.class)
@@ -163,11 +173,8 @@ public class SelfKeymasterContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ConfParamLogic confParamLogic(
-            final ConfParamDAO confParamDAO,
-            final SelfKeymasterEntityFactory selfKeymasterEntityFactory) {
-
-        return new ConfParamLogic(confParamDAO, selfKeymasterEntityFactory);
+    public ConfParamLogic confParamLogic(final InternalConfParamHelper helper) {
+        return new ConfParamLogic(helper);
     }
 
     @ConditionalOnMissingBean

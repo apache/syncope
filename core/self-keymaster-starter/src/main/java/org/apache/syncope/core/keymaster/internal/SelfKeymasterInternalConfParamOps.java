@@ -21,46 +21,34 @@ package org.apache.syncope.core.keymaster.internal;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
-import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
-import org.apache.syncope.core.logic.ConfParamLogic;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConfParamOps.class);
 
-    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    protected final ConfParamLogic logic;
+    protected final InternalConfParamHelper helper;
 
-    protected final KeymasterProperties props;
-
-    public SelfKeymasterInternalConfParamOps(final ConfParamLogic logic, final KeymasterProperties props) {
-        this.logic = logic;
-        this.props = props;
+    public SelfKeymasterInternalConfParamOps(final InternalConfParamHelper helper) {
+        this.helper = helper;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Map<String, Object> list(final String domain) {
-        return AuthContextUtils.callAs(
-                domain,
-                props.getUsername(),
-                List.of(),
-                () -> logic.list());
+        return helper.list();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public <T> T get(final String domain, final String key, final T defaultValue, final Class<T> reference) {
-        JsonNode valueNode = AuthContextUtils.callAs(
-                domain,
-                props.getUsername(),
-                List.of(),
-                () -> logic.get(key));
+        JsonNode valueNode = helper.get(key);
         if (valueNode == null) {
             return defaultValue;
         }
@@ -73,25 +61,19 @@ public class SelfKeymasterInternalConfParamOps implements ConfParamOps {
         }
     }
 
+    @Transactional
     @Override
     public <T> void set(final String domain, final String key, final T value) {
         if (value == null) {
             remove(domain, key);
         } else {
-            JsonNode valueNode = MAPPER.valueToTree(value);
-
-            AuthContextUtils.callAs(domain, props.getUsername(), List.of(), () -> {
-                logic.set(key, valueNode);
-                return null;
-            });
+            helper.set(key, MAPPER.valueToTree(value));
         }
     }
 
+    @Transactional
     @Override
     public void remove(final String domain, final String key) {
-        AuthContextUtils.callAs(domain, props.getUsername(), List.of(), () -> {
-            logic.remove(key);
-            return null;
-        });
+        helper.remove(key);
     }
 }

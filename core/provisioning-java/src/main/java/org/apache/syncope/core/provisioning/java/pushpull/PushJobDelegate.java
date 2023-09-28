@@ -284,7 +284,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
             }
         }
 
-        dispatcher.cleanup();
+        dispatcher.shutdown();
 
         setStatus("Push done");
 
