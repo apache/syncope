@@ -278,13 +278,13 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
             }
         }
 
+        dispatcher.shutdown();
+
         if (!profile.isDryRun()) {
             for (PushActions action : profile.getActions()) {
                 action.afterAll(profile);
             }
         }
-
-        dispatcher.shutdown();
 
         setStatus("Push done");
 
