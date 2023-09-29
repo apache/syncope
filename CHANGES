@@ -2,6 +2,24 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.5
+================================================================================
+
+** Bug
+    * [SYNCOPE-1764] - Connector capabilities and/or configuration are not updated in cluster environments
+    * [SYNCOPE-1770] - Errors upon Core restart after adding domain
+    * [SYNCOPE-1774] - Admin console does not recognize parameter type
+    * [SYNCOPE-1777] - DelegatedAdministrationException is occasionally thrown during Pull Task execution
+
+** New Feature
+    * [SYNCOPE-1772] - WA: support MFA trusted device storage
+
+** Improvement
+    * [SYNCOPE-1771] - WA: support delegated authentication for Google, Keycloak and Apple ID
+    * [SYNCOPE-1773] - Support configuration for multi-nodes Elasticsearch clusters
+    * [SYNCOPE-1775] - It should be possible to set logoutType to WA services
+    * [SYNCOPE-1776] - Let Elasticsearch re-index use bulk requests
+
 Release Notes - Syncope - Version 3.0.4
 ================================================================================
 
