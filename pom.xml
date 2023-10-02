@@ -499,7 +499,7 @@ under the License.
     <jdbc.mysql.version>8.1.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.1.4</jdbc.mariadb.version>
     <jdbc.mssql.version>12.4.1.jre</jdbc.mssql.version>
-    <jdbc.oracle.version>23.2.0.0</jdbc.oracle.version>
+    <jdbc.oracle.version>23.3.0.23.09</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
 
