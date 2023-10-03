@@ -26,6 +26,7 @@ import org.apache.syncope.client.enduser.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.panels.CardPanel;
+import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.wicket.PageReference;
@@ -151,7 +152,7 @@ public class SelfPasswordReset extends BasePage {
 
             TextField<String> username = new TextField<>("username",
                     new PropertyModel<>(SelfPasswordReset.this, "usernameValue"), String.class);
-            username.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+            username.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
