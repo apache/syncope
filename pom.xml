@@ -1318,7 +1318,6 @@ under the License.
             <compilerArgs>
               <arg>-Xlint:unchecked</arg>
               <arg>-parameters</arg>
-              <arg>-proc:full</arg>
             </compilerArgs>
           </configuration>
         </plugin>
