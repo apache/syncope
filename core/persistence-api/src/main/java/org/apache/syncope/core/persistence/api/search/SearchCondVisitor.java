@@ -76,8 +76,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
     protected static String getValue(final SearchCondition<SearchBean> sc) {
         String value = SearchUtils.toSqlWildcardString(
-                URLDecoder.decode(sc.getStatement().getValue().toString(), StandardCharsets.UTF_8), false).
-                replaceAll("\\\\_", "_");
+                URLDecoder.decode(sc.getStatement().getValue().toString(), StandardCharsets.UTF_8), false);
 
         // see SYNCOPE-1321
         if (TIMEZONE.matcher(value).matches()) {
