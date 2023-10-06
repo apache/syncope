@@ -180,6 +180,8 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
                     new CharacterRule(EnglishCharacterData.Alphabetical, halfMinLength),
                     new CharacterRule(EnglishCharacterData.Digit, halfMinLength));
         }
-        return SecureRandomUtils.passwordGenerator().generatePassword(ruleConf.getMinLength(), characterRules);
+        int min = Math.max(ruleConf.getMinLength(),
+                characterRules.stream().mapToInt(CharacterRule::getNumberOfCharacters).sum());
+        return SecureRandomUtils.passwordGenerator().generatePassword(min, characterRules);
     }
 }
