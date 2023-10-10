@@ -80,13 +80,18 @@ public class ServerWebExchangeContext implements WebContext {
     }
 
     @Override
+    public Optional<String> getQueryString() {
+        return Optional.ofNullable(exchange.getRequest().getURI().getQuery());
+    }
+
+    @Override
     public Map<String, String[]> getRequestParameters() {
         Map<String, String[]> params = new HashMap<>();
 
-        this.exchange.getRequest().getQueryParams().
+        exchange.getRequest().getQueryParams().
                 forEach((key, value) -> params.put(key, new String[] { value.toString() }));
 
-        if (this.form != null) {
+        if (form != null) {
             form.forEach((key, values) -> params.put(key, values.toArray(String[]::new)));
         }
 
@@ -100,12 +105,12 @@ public class ServerWebExchangeContext implements WebContext {
 
     @Override
     public String getRequestMethod() {
-        return this.exchange.getRequest().getMethod().name();
+        return exchange.getRequest().getMethod().name();
     }
 
     @Override
     public String getRemoteAddr() {
-        return this.exchange.getRequest().getRemoteAddress().getHostString();
+        return exchange.getRequest().getRemoteAddress().getHostString();
     }
 
     /**
@@ -114,7 +119,7 @@ public class ServerWebExchangeContext implements WebContext {
      * @return the native exchange
      */
     public ServerWebExchange getNative() {
-        return this.exchange;
+        return exchange;
     }
 
     @Override
@@ -124,12 +129,12 @@ public class ServerWebExchangeContext implements WebContext {
 
     @Override
     public Optional<String> getResponseHeader(final String s) {
-        return Optional.ofNullable(this.exchange.getResponse().getHeaders().getFirst(s));
+        return Optional.ofNullable(exchange.getResponse().getHeaders().getFirst(s));
     }
 
     @Override
     public void setResponseContentType(final String content) {
-        this.exchange.getResponse().getHeaders().set(HttpHeaders.CONTENT_TYPE, content);
+        exchange.getResponse().getHeaders().set(HttpHeaders.CONTENT_TYPE, content);
     }
 
     @Override
@@ -139,40 +144,36 @@ public class ServerWebExchangeContext implements WebContext {
 
     @Override
     public String getServerName() {
-        return ForwardedHeaderUtils.
-                adaptFromForwardedHeaders(exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).
-                build().getHost();
+        return ForwardedHeaderUtils.adaptFromForwardedHeaders(
+                exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).build().getHost();
     }
 
     @Override
     public int getServerPort() {
-        return ForwardedHeaderUtils.
-                adaptFromForwardedHeaders(exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).
-                build().getPort();
+        return ForwardedHeaderUtils.adaptFromForwardedHeaders(
+                exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).build().getPort();
     }
 
     @Override
     public String getScheme() {
-        return ForwardedHeaderUtils.
-                adaptFromForwardedHeaders(exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).
-                build().getScheme();
+        return ForwardedHeaderUtils.adaptFromForwardedHeaders(
+                exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).build().getScheme();
     }
 
     @Override
     public boolean isSecure() {
-        return this.exchange.getRequest().getSslInfo() != null;
+        return exchange.getRequest().getSslInfo() != null;
     }
 
     @Override
     public String getFullRequestURL() {
-        return ForwardedHeaderUtils.
-                adaptFromForwardedHeaders(exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).
-                build().toUriString();
+        return ForwardedHeaderUtils.adaptFromForwardedHeaders(
+                exchange.getRequest().getURI(), exchange.getRequest().getHeaders()).build().toUriString();
     }
 
     @Override
     public Collection<Cookie> getRequestCookies() {
-        MultiValueMap<String, HttpCookie> cookies = this.exchange.getRequest().getCookies();
+        MultiValueMap<String, HttpCookie> cookies = exchange.getRequest().getCookies();
 
         Collection<Cookie> pac4jCookies = new LinkedHashSet<>();
         cookies.toSingleValueMap().values().forEach(c -> {
@@ -190,7 +191,7 @@ public class ServerWebExchangeContext implements WebContext {
         c.maxAge(cookie.getMaxAge());
         c.httpOnly(cookie.isHttpOnly());
         c.domain(cookie.getDomain());
-        this.exchange.getResponse().addCookie(c.build());
+        exchange.getResponse().addCookie(c.build());
     }
 
     @Override

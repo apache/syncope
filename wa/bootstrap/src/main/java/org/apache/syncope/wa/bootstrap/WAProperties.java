@@ -26,13 +26,13 @@ public class WAProperties extends SyncopeProperties {
 
     private static final long serialVersionUID = 7925827623055998239L;
 
-    private long contextRefreshDelay = 15;
+    private int contextRefreshDelay = 15;
 
-    public long getContextRefreshDelay() {
+    public int getContextRefreshDelay() {
         return contextRefreshDelay;
     }
 
-    public void setContextRefreshDelay(final long contextRefreshDelay) {
+    public void setContextRefreshDelay(final int contextRefreshDelay) {
         this.contextRefreshDelay = contextRefreshDelay;
     }
 }
