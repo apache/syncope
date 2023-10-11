@@ -425,7 +425,7 @@ under the License.
 
     <disruptor.version>3.4.4</disruptor.version>
 
-    <elasticsearch.version>8.10.2</elasticsearch.version>
+    <elasticsearch.version>8.10.3</elasticsearch.version>
 
     <commons-jexl.version>3.3</commons-jexl.version>
     <commons-text.version>1.10.0</commons-text.version>
@@ -486,7 +486,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>10.1.13</tomcat.version>
+    <tomcat.version>10.1.14</tomcat.version>
     <wildfly.version>29.0.1.Final</wildfly.version>
     <payara.version>6.2023.7</payara.version>
     <jakarta.faces.version>4.0.4</jakarta.faces.version>
