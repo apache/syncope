@@ -329,4 +329,17 @@ public class SearchCondConverterTest {
 
         assertEquals(SearchCond.getLeaf(cond), SearchCondConverter.convert(VISITOR, fiql));
     }
+
+    @Test
+    public void issueSYNCOPE1779() {
+        String fiql = new UserFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("ros_*").query();
+        assertEquals("username=~ros_*", fiql);
+
+        AttrCond attrCond = new AnyCond(AttrCond.Type.ILIKE);
+        attrCond.setSchema("username");
+        attrCond.setExpression("ros\\_%");
+        SearchCond leaf = SearchCond.getLeaf(attrCond);
+
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
+    }
 }

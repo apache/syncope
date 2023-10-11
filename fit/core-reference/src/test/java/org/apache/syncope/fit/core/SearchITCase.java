@@ -875,4 +875,43 @@ public class SearchITCase extends AbstractITCase {
         assertEquals(1, users.getResult().size());
         assertEquals(user.getKey(), users.getResult().get(0).getKey());
     }
+
+    @Test
+    public void issueSYNCOPE1779() {
+        // 1. create user with underscore
+        UserTO userWithUnderscore = createUser(UserITCase.getSample("syncope1779_test@syncope.apache.org")).getEntity();
+        // 2 create second user without underscore
+        createUser(UserITCase.getSample("syncope1779test@syncope.apache.org")).getEntity();
+
+        // 3. search for user
+        if (IS_ELASTICSEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        // Search by username
+        PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM)
+                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncope1779_*")
+                        .and().is("firstname").equalTo("syncope1779_*")
+                        .and().is("userId").equalTo("syncope1779_*").query())
+                .build());
+        assertEquals(1, users.getResult().size());
+        assertEquals(userWithUnderscore.getKey(), users.getResult().get(0).getKey());
+        // Search also by attribute
+        users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM)
+                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("syncope1779_*").query())
+                .build());
+        assertEquals(1, users.getResult().size());
+        assertEquals(userWithUnderscore.getKey(), users.getResult().get(0).getKey());
+        // search for both
+        users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM)
+                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("syncope1779*").query())
+                .build());
+        assertEquals(2, users.getResult().size());
+
+        users.getResult().forEach(u -> USER_SERVICE.delete(u.getKey()));
+    }
 }
