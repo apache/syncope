@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.wa.bootstrap.WAProperties;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
@@ -107,6 +108,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration(proxyBeanMethods = false)
 public class WAContext {
@@ -395,6 +400,16 @@ public class WAContext {
     @Bean
     public SyncopeWAInfoContributor syncopeWAInfoContributor(final WAProperties waProperties) {
         return new SyncopeWAInfoContributor(waProperties);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public UserDetailsService actuatorUserDetailsService(final WAProperties waProperties) {
+        UserDetails user = User.withUsername(waProperties.getAnonymousUser()).
+                password("{noop}" + waProperties.getAnonymousKey()).
+                roles(IdRepoEntitlement.ANONYMOUS).
+                build();
+        return new InMemoryUserDetailsManager(user);
     }
 
     @Bean

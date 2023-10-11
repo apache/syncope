@@ -49,6 +49,10 @@ under the License.
       <appender-ref ref="main"/>
     </asyncLogger>
 
+    <asyncLogger name="io.micrometer" additivity="false" level="ERROR">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+
     <asyncLogger name="org.apache.syncope.client.lib" additivity="false" level="OFF">
       <appender-ref ref="main"/>
     </asyncLogger>
