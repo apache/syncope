@@ -999,6 +999,11 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         } else {
                             query.append('?').append(setParameter(parameters, cond.getExpression()));
                         }
+                        // workaround for Oracle DB adding explicit escaping string, to search 
+                        // for literal _ (underscore) (SYNCOPE-1779)
+                        if (isOracle()) {
+                            query.append(" ESCAPE '\\' ");
+                        }
                     } else {
                         if (!(cond instanceof AnyCond)) {
                             query.append("' AND");
