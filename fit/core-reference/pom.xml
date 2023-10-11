@@ -550,6 +550,7 @@ under the License.
                     <env>
                       <discovery.type>single-node</discovery.type>
                       <cluster.name>elasticsearch</cluster.name>
+                      <cluster.routing.allocation.disk.threshold_enabled>false</cluster.routing.allocation.disk.threshold_enabled>
                       <xpack.security.enabled>false</xpack.security.enabled>
                       <ingest.geoip.downloader.enabled>false</ingest.geoip.downloader.enabled>
                       <ES_JAVA_OPTS>-Xms750m -Xmx750m</ES_JAVA_OPTS>
