@@ -999,7 +999,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         } else {
                             query.append('?').append(setParameter(parameters, cond.getExpression()));
                         }
-                        if(isOracle()){
+                        if (isOracle()) {
                             query.append(" ESCAPE '\\' ");
                         }
                     } else {
