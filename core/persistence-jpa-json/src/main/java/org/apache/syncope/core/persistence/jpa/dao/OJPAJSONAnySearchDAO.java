@@ -246,7 +246,7 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                     append(lower ? ")" : "");
             // workaround for Oracle DB adding explicit escaping string, to search 
             // for literal _ (underscore) (SYNCOPE-1779)
-            if (lower) {
+            if (cond.getType() == AttrCond.Type.ILIKE || cond.getType() == AttrCond.Type.LIKE) {
                 query.append(" ESCAPE '\\' ");
             }
         }
