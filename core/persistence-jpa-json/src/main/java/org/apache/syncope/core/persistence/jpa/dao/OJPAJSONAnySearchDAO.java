@@ -244,6 +244,11 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             query.append(lower ? "LOWER(" : "").
                     append('?').append(setParameter(parameters, value)).
                     append(lower ? ")" : "");
+            // workaround for Oracle DB adding explicit escaping string, to search 
+            // for literal _ (underscore) (SYNCOPE-1779)
+            if (lower) {
+                query.append(" ESCAPE '\\' ");
+            }
         }
     }
 
