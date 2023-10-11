@@ -894,7 +894,9 @@ public class SearchITCase extends AbstractITCase {
 
         // Search by username
         PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM)
-                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncope1779_*").query())
+                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncope1779_*")
+                        .and().is("firstname").equalTo("syncope1779_*")
+                        .and().is("userId").equalTo("syncope1779_*").query())
                 .build());
         assertEquals(1, users.getResult().size());
         assertEquals(userWithUnderscore.getKey(), users.getResult().get(0).getKey());

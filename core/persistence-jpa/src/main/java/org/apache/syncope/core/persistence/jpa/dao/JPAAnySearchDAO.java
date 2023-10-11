@@ -995,11 +995,12 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         }
                         query.append(" LIKE ");
                         if (ignoreCase) {
-                            query.append("LOWER(?").append(setParameter(parameters, cond.getExpression())).append(')')
-                                    .append(" ESCAPE '\\' ");
+                            query.append("LOWER(?").append(setParameter(parameters, cond.getExpression())).append(')');
                         } else {
-                            query.append('?').append(setParameter(parameters, cond.getExpression()))
-                                    .append(" ESCAPE '\\' ");
+                            query.append('?').append(setParameter(parameters, cond.getExpression()));
+                        }
+                        if(isOracle()){
+                            query.append(" ESCAPE '\\' ");
                         }
                     } else {
                         if (!(cond instanceof AnyCond)) {
