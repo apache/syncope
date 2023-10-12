@@ -135,7 +135,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             final int maxWaitSeconds,
             final boolean dryRun) throws Exception {
 
-        ExecutorService service = Executors.newFixedThreadPool(taskKeys.size());
+        ExecutorService service = Executors.newVirtualThreadPerTaskExecutor();
         List<Future<ExecTO>> futures = new ArrayList<>();
 
         taskKeys.forEach(taskKey -> {

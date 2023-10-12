@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Supplier;
@@ -36,9 +35,9 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopeResultHandler;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
+import org.apache.syncope.core.spring.task.VirtualThreadPoolTaskExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -50,25 +49,20 @@ public abstract class SyncopeResultHandlerDispatcher<
 
     private static final String PLACEHOLDER_PWD = "PLACEHOLDER_PWD";
 
-    protected final Optional<ThreadPoolTaskExecutor> tpte;
-
-    protected final Optional<ExecutorCompletionService<Void>> ecs;
+    protected final Optional<VirtualThreadPoolTaskExecutor> tpte;
 
     protected final Map<String, Supplier<RA>> suppliers = new ConcurrentHashMap<>();
 
     protected final Map<String, RA> handlers = new ConcurrentHashMap<>();
 
-    protected final List<Future<Void>> futures = new ArrayList<>();
+    protected final List<Future<?>> futures = new ArrayList<>();
 
     protected SyncopeResultHandlerDispatcher(final ProvisioningProfile<T, A> profile) {
         if (profile.getTask().getConcurrentSettings() == null) {
             tpte = Optional.empty();
-            ecs = Optional.empty();
         } else {
-            ThreadPoolTaskExecutor t = new ThreadPoolTaskExecutor();
-            t.setCorePoolSize(profile.getTask().getConcurrentSettings().getCorePoolSize());
-            t.setMaxPoolSize(profile.getTask().getConcurrentSettings().getMaxPoolSize());
-            t.setQueueCapacity(profile.getTask().getConcurrentSettings().getQueueCapacity());
+            VirtualThreadPoolTaskExecutor t = new VirtualThreadPoolTaskExecutor();
+            t.setPoolSize(profile.getTask().getConcurrentSettings().getPoolSize());
             t.setWaitForTasksToCompleteOnShutdown(true);
             t.setThreadNamePrefix("provisioningTask-" + profile.getTask().getKey() + "-");
             t.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
@@ -89,7 +83,6 @@ public abstract class SyncopeResultHandlerDispatcher<
             t.initialize();
 
             tpte = Optional.of(t);
-            ecs = Optional.of(new ExecutorCompletionService<>(t.getThreadPoolExecutor()));
         }
     }
 
@@ -106,13 +99,11 @@ public abstract class SyncopeResultHandlerDispatcher<
     }
 
     protected void submit(final Runnable runnable) {
-        if (ecs.isPresent()) {
-            futures.add(ecs.get().submit(runnable, null));
-        }
+        tpte.ifPresent(executor -> futures.add(executor.submit(runnable)));
     }
 
     protected void shutdown() {
-        for (Future<Void> f : this.futures) {
+        for (Future<?> f : this.futures) {
             try {
                 f.get();
             } catch (ExecutionException | InterruptedException e) {
@@ -120,6 +111,6 @@ public abstract class SyncopeResultHandlerDispatcher<
             }
         }
 
-        tpte.ifPresent(ThreadPoolTaskExecutor::shutdown);
+        tpte.ifPresent(VirtualThreadPoolTaskExecutor::shutdown);
     }
 }

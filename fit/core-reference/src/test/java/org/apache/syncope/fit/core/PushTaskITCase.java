@@ -365,9 +365,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         pushTask.getFilters().put(AnyTypeKind.USER.name(), "username!=puccini;username!=vivaldi");
 
         ThreadPoolSettings tps = new ThreadPoolSettings();
-        tps.setCorePoolSize(3);
-        tps.setMaxPoolSize(3);
-        tps.setQueueCapacity(100);
+        tps.setPoolSize(3);
         pushTask.setConcurrentSettings(tps);
 
         Response response = TASK_SERVICE.create(TaskType.PUSH, pushTask);

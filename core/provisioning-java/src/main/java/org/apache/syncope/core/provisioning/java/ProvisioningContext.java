@@ -23,7 +23,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -169,6 +168,7 @@ import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
+import org.apache.syncope.core.spring.task.VirtualThreadPoolTaskExecutor;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -189,7 +189,6 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -218,15 +217,12 @@ public class ProvisioningContext {
      */
     @Bean
     @Primary
-    public ThreadPoolTaskExecutor asyncConnectorFacadeExecutor(final ProvisioningProperties props) {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(props.getAsyncConnectorFacadeExecutor().getCorePoolSize());
-        executor.setMaxPoolSize(props.getAsyncConnectorFacadeExecutor().getMaxPoolSize());
-        executor.setQueueCapacity(props.getAsyncConnectorFacadeExecutor().getQueueCapacity());
+    public VirtualThreadPoolTaskExecutor asyncConnectorFacadeExecutor(final ProvisioningProperties props) {
+        VirtualThreadPoolTaskExecutor executor = new VirtualThreadPoolTaskExecutor();
+        executor.setPoolSize(props.getAsyncConnectorFacadeExecutor().getPoolSize());
         executor.setAwaitTerminationSeconds(props.getAsyncConnectorFacadeExecutor().getAwaitTerminationSeconds());
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setThreadNamePrefix("AsyncConnectorFacadeExecutor-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executor.initialize();
         return executor;
     }
@@ -234,7 +230,7 @@ public class ProvisioningContext {
     @Bean
     public AsyncConfigurer asyncConfigurer(
             @Qualifier("asyncConnectorFacadeExecutor")
-            final ThreadPoolTaskExecutor asyncConnectorFacadeExecutor) {
+            final VirtualThreadPoolTaskExecutor asyncConnectorFacadeExecutor) {
 
         return new AsyncConfigurer() {
 
@@ -264,16 +260,13 @@ public class ProvisioningContext {
      * @return executor thread pool task executor
      */
     @Bean
-    public ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor(final ProvisioningProperties props) {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(props.getPropagationTaskExecutorAsyncExecutor().getCorePoolSize());
-        executor.setMaxPoolSize(props.getPropagationTaskExecutorAsyncExecutor().getMaxPoolSize());
-        executor.setQueueCapacity(props.getPropagationTaskExecutorAsyncExecutor().getQueueCapacity());
+    public VirtualThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor(final ProvisioningProperties props) {
+        VirtualThreadPoolTaskExecutor executor = new VirtualThreadPoolTaskExecutor();
+        executor.setPoolSize(props.getPropagationTaskExecutorAsyncExecutor().getPoolSize());
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setAwaitTerminationSeconds(
                 props.getPropagationTaskExecutorAsyncExecutor().getAwaitTerminationSeconds());
         executor.setThreadNamePrefix("PropagationTaskExecutor-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executor.initialize();
         return executor;
     }
@@ -546,7 +539,7 @@ public class ProvisioningContext {
     @Bean
     public PropagationTaskExecutor propagationTaskExecutor(
             @Qualifier("propagationTaskExecutorAsyncExecutor")
-            final ThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor,
+            final VirtualThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor,
             final TaskUtilsFactory taskUtilsFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final ConnectorManager connectorManager,

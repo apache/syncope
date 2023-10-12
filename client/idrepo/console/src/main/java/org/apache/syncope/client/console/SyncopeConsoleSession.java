@@ -33,6 +33,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -63,7 +65,6 @@ import org.apache.wicket.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.task.TaskRejectedException;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.CollectionUtils;
 
 public class SyncopeConsoleSession extends AuthenticatedWebSession implements BaseSession {
@@ -103,7 +104,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
     protected final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
 
-    protected final ThreadPoolTaskExecutor executor;
+    protected final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     protected String domain;
 
@@ -131,8 +132,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
         super(request);
 
         clientFactory = SyncopeWebApplication.get().newClientFactory();
-
-        executor = SyncopeWebApplication.get().newThreadPoolTaskExecutor();
     }
 
     protected String message(final SyncopeClientException sce) {

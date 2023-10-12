@@ -53,7 +53,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.rest.cxf.batch.BatchProcess;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.apache.syncope.core.spring.task.VirtualThreadPoolTaskExecutor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -64,7 +64,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
 
     protected final SyncopeLogic logic;
 
-    protected final ThreadPoolTaskExecutor batchExecutor;
+    protected final VirtualThreadPoolTaskExecutor batchExecutor;
 
     protected final Bus bus;
 
@@ -74,7 +74,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
 
     public SyncopeServiceImpl(
             final SyncopeLogic logic,
-            final ThreadPoolTaskExecutor batchExecutor,
+            final VirtualThreadPoolTaskExecutor batchExecutor,
             final Bus bus,
             final BatchDAO batchDAO,
             final EntityFactory entityFactory) {

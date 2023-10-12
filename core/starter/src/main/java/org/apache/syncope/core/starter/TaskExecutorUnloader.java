@@ -51,13 +51,13 @@ public class TaskExecutorUnloader implements SyncopeCoreLoader {
     @Override
     public void unload() {
         tptes.forEach((name, tpte) -> {
-            LOG.info("Shutting down ThreadPoolTaskExecutor {}...", name);
+            LOG.info("Shutting down {}...", name);
             try {
                 tpte.shutdown();
 
-                LOG.info("Successfully shut down ThreadPoolTaskExecutor {}", name);
+                LOG.info("Successfully shut down {}", name);
             } catch (Exception e) {
-                LOG.error("While shutting down ThreadPoolTaskExecutor {}", name, e);
+                LOG.error("While shutting down {}", name, e);
             }
         });
     }

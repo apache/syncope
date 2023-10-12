@@ -57,79 +57,6 @@ public class NumbersInfo implements BaseBean {
         }
     }
 
-    public static class TaskExecutorInfo {
-
-        private int size;
-
-        private int active;
-
-        private int queued;
-
-        private int completed;
-
-        public int getSize() {
-            return size;
-        }
-
-        public void setSize(final int size) {
-            this.size = size;
-        }
-
-        public int getActive() {
-            return active;
-        }
-
-        public void setActive(final int active) {
-            this.active = active;
-        }
-
-        public int getQueued() {
-            return queued;
-        }
-
-        public void setQueued(final int queued) {
-            this.queued = queued;
-        }
-
-        public int getCompleted() {
-            return completed;
-        }
-
-        public void setCompleted(final int completed) {
-            this.completed = completed;
-        }
-
-        @Override
-        public int hashCode() {
-            return new HashCodeBuilder().
-                    append(size).
-                    append(active).
-                    append(queued).
-                    append(completed).
-                    build();
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final TaskExecutorInfo other = (TaskExecutorInfo) obj;
-            return new EqualsBuilder().
-                    append(size, other.size).
-                    append(active, other.active).
-                    append(queued, other.queued).
-                    append(completed, other.completed).
-                    build();
-        }
-    }
-
     private int totalUsers;
 
     private final Map<String, Integer> usersByRealm = new HashMap<>();
@@ -157,8 +84,6 @@ public class NumbersInfo implements BaseBean {
     private int totalRoles;
 
     private final Map<String, Boolean> confCompleteness = new HashMap<>();
-
-    private final Map<String, TaskExecutorInfo> taskExecutorInfos = new HashMap<>();
 
     public int getTotalUsers() {
         return totalUsers;
@@ -248,10 +173,6 @@ public class NumbersInfo implements BaseBean {
         return confCompleteness;
     }
 
-    public Map<String, TaskExecutorInfo> getTaskExecutorInfos() {
-        return taskExecutorInfos;
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -269,7 +190,6 @@ public class NumbersInfo implements BaseBean {
                 append(totalResources).
                 append(totalRoles).
                 append(confCompleteness).
-                append(taskExecutorInfos).
                 build();
     }
 
@@ -300,7 +220,6 @@ public class NumbersInfo implements BaseBean {
                 append(totalAny2, other.totalAny2).
                 append(any2ByRealm, other.any2ByRealm).
                 append(confCompleteness, other.confCompleteness).
-                append(taskExecutorInfos, other.taskExecutorInfos).
                 build();
     }
 }
