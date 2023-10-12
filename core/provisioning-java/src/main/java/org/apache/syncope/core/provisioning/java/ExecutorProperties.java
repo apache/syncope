@@ -20,36 +20,17 @@ package org.apache.syncope.core.provisioning.java;
 
 public class ExecutorProperties {
 
-    private int corePoolSize = 5;
-
-    private int maxPoolSize = 25;
-
-    private int queueCapacity = 100;
+    private int poolSize = 25;
 
     private int awaitTerminationSeconds = 5;
 
-    public int getCorePoolSize() {
-        return corePoolSize;
+
+    public int getPoolSize() {
+        return poolSize;
     }
 
-    public void setCorePoolSize(final int corePoolSize) {
-        this.corePoolSize = corePoolSize;
-    }
-
-    public int getMaxPoolSize() {
-        return maxPoolSize;
-    }
-
-    public void setMaxPoolSize(final int maxPoolSize) {
-        this.maxPoolSize = maxPoolSize;
-    }
-
-    public int getQueueCapacity() {
-        return queueCapacity;
-    }
-
-    public void setQueueCapacity(final int queueCapacity) {
-        this.queueCapacity = queueCapacity;
+    public void setPoolSize(final int maxPoolSize) {
+        this.poolSize = maxPoolSize;
     }
 
     public int getAwaitTerminationSeconds() {

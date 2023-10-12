@@ -45,7 +45,7 @@ public class PushResultHandlerDispatcher
             return false;
         }
 
-        if (ecs.isEmpty()) {
+        if (tpte.isEmpty()) {
             boolean result = nonConcurrentHandler(anyType).handle(anyKey);
 
             executor.reportHandled(anyType, anyKey);

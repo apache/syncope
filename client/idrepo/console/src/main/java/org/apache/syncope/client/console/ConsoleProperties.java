@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -31,48 +30,11 @@ public class ConsoleProperties extends CommonUIProperties {
 
     private static final long serialVersionUID = -6444470724127309370L;
 
-    public static class Topology implements Serializable {
-
-        private static final long serialVersionUID = -4530238696048859905L;
-
-        private int corePoolSize = 10;
-
-        private int maxPoolSize = 20;
-
-        private int queueCapacity = 50;
-
-        public int getCorePoolSize() {
-            return corePoolSize;
-        }
-
-        public void setCorePoolSize(final int corePoolSize) {
-            this.corePoolSize = corePoolSize;
-        }
-
-        public int getMaxPoolSize() {
-            return maxPoolSize;
-        }
-
-        public void setMaxPoolSize(final int maxPoolSize) {
-            this.maxPoolSize = maxPoolSize;
-        }
-
-        public int getQueueCapacity() {
-            return queueCapacity;
-        }
-
-        public void setQueueCapacity(final int queueCapacity) {
-            this.queueCapacity = queueCapacity;
-        }
-    }
-
     private final Map<String, Class<? extends BasePage>> page = new HashMap<>();
 
     private String defaultAnyPanelClass = AnyPanel.class.getName();
 
     private int realmsFullTreeThreshold = 20;
-
-    private final Topology topology = new Topology();
 
     public Map<String, Class<? extends BasePage>> getPage() {
         return page;
@@ -92,9 +54,5 @@ public class ConsoleProperties extends CommonUIProperties {
 
     public void setRealmsFullTreeThreshold(final int realmsFullTreeThreshold) {
         this.realmsFullTreeThreshold = realmsFullTreeThreshold;
-    }
-
-    public Topology getTopology() {
-        return topology;
     }
 }

@@ -48,8 +48,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.task.VirtualThreadPoolTaskExecutor;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * Sorts the tasks to be executed according to related
@@ -82,7 +82,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
         return callable;
     }
 
-    protected final ThreadPoolTaskExecutor taskExecutor;
+    protected final VirtualThreadPoolTaskExecutor taskExecutor;
 
     public PriorityPropagationTaskExecutor(
             final ConnectorManager connectorManager,
@@ -98,7 +98,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
             final ApplicationEventPublisher publisher,
-            final ThreadPoolTaskExecutor taskExecutor) {
+            final VirtualThreadPoolTaskExecutor taskExecutor) {
 
         super(connectorManager,
                 connObjectUtils,

@@ -73,7 +73,6 @@ import org.apache.wicket.request.resource.ResourceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
@@ -274,16 +273,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     public Class<? extends BasePage> getPageClass(final String name) {
         return props.getPage().get(name);
-    }
-
-    public ThreadPoolTaskExecutor newThreadPoolTaskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setWaitForTasksToCompleteOnShutdown(false);
-        executor.setCorePoolSize(props.getTopology().getCorePoolSize());
-        executor.setMaxPoolSize(props.getTopology().getMaxPoolSize());
-        executor.setQueueCapacity(props.getTopology().getQueueCapacity());
-        executor.initialize();
-        return executor;
     }
 
     public SyncopeAnonymousClient newAnonymousClient(final String domain) {
