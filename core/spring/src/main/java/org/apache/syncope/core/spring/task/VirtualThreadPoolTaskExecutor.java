@@ -19,13 +19,10 @@
 package org.apache.syncope.core.spring.task;
 
 import java.util.Optional;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -59,7 +56,7 @@ public class VirtualThreadPoolTaskExecutor
      * @return the maximum number of managed threads
      */
     public int getPoolSize() {
-        return this.poolSize;
+        return poolSize;
     }
 
     /**
@@ -88,25 +85,6 @@ public class VirtualThreadPoolTaskExecutor
      */
     public void setTaskDecorator(final TaskDecorator taskDecorator) {
         this.taskDecorator = taskDecorator;
-    }
-
-    /**
-     * Create the BlockingQueue to use for the ThreadPoolExecutor.
-     * <p>
-     * A LinkedBlockingQueue instance will be created for a positive
-     * capacity value; a SynchronousQueue else.
-     *
-     * @param queueCapacity the specified queue capacity
-     * @return the BlockingQueue instance
-     * @see java.util.concurrent.LinkedBlockingQueue
-     * @see java.util.concurrent.SynchronousQueue
-     */
-    protected BlockingQueue<Runnable> createQueue(final int queueCapacity) {
-        if (queueCapacity > 0) {
-            return new LinkedBlockingQueue<>(queueCapacity);
-        }
-
-        return new SynchronousQueue<>();
     }
 
     @Override
