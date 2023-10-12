@@ -41,7 +41,7 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
     protected static final Logger LOG = LoggerFactory.getLogger(DAO.class);
 
     private static final Map<String, Boolean> IS_ORACLE = new ConcurrentHashMap<>();
-    
+
     protected EntityManagerFactory entityManagerFactory() {
         return EntityManagerFactoryUtils.findEntityManagerFactory(
                 ApplicationContextProvider.getBeanFactory(), AuthContextUtils.getDomain());
@@ -71,7 +71,6 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
             isOracle = ((MappingRepository) emfspi.getConfiguration()
                     .getMetaDataRepositoryInstance()).getDBDictionary() instanceof OracleDictionary;
             IS_ORACLE.put(AuthContextUtils.getDomain(), isOracle);
-
         }
         return isOracle;
     }
