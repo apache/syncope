@@ -156,8 +156,6 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             // remove all filters not contained in the TO
             pushTask.getFilters().entrySet().
                     removeIf(filter -> !pushTaskTO.getFilters().containsKey(filter.getKey()));
-
-            pushTask.setConcurrentSettings(pushTaskTO.getConcurrentSettings());
         } else if (provisioningTask instanceof PullTask && provisioningTaskTO instanceof PullTaskTO) {
             PullTask pullTask = (PullTask) provisioningTask;
             PullTaskTO pullTaskTO = (PullTaskTO) provisioningTaskTO;
@@ -217,8 +215,6 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     removeIf(anyTemplate -> !pullTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey()));
 
             pullTask.setRemediation(pullTaskTO.isRemediation());
-
-            pullTask.setConcurrentSettings(pullTaskTO.getConcurrentSettings());
         }
 
         // 3. fill the remaining fields
@@ -233,6 +229,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                         () -> LOG.debug("Invalid Implementation {}, ignoring...", action)));
         // remove all implementations not contained in the TO
         provisioningTask.getActions().removeIf(impl -> !provisioningTaskTO.getActions().contains(impl.getKey()));
+
+        provisioningTask.setConcurrentSettings(provisioningTaskTO.getConcurrentSettings());
     }
 
     protected void fill(final MacroTask macroTask, final MacroTaskTO macroTaskTO) {
@@ -411,6 +409,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             provisioningTaskTO.setPerformUpdate(provisioningTask.isPerformUpdate());
             provisioningTaskTO.setPerformDelete(provisioningTask.isPerformDelete());
             provisioningTaskTO.setSyncStatus(provisioningTask.isSyncStatus());
+
+            provisioningTaskTO.setConcurrentSettings(provisioningTask.getConcurrentSettings());
         }
     }
 
@@ -498,8 +498,6 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                         put(template.getAnyType().getKey(), template.get()));
 
                 pullTaskTO.setRemediation(pullTask.isRemediation());
-
-                pullTaskTO.setConcurrentSettings(pullTask.getConcurrentSettings());
                 break;
 
             case PUSH:
@@ -515,8 +513,6 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                         ? UnmatchingRule.ASSIGN : pushTask.getUnmatchingRule());
 
                 pushTaskTO.getFilters().putAll(pushTask.getFilters());
-
-                pushTaskTO.setConcurrentSettings(pushTask.getConcurrentSettings());
                 break;
 
             case NOTIFICATION:

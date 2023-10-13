@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Supplier;
@@ -52,18 +51,15 @@ public abstract class SyncopeResultHandlerDispatcher<
 
     protected final Optional<ThreadPoolTaskExecutor> tpte;
 
-    protected final Optional<ExecutorCompletionService<Void>> ecs;
-
     protected final Map<String, Supplier<RA>> suppliers = new ConcurrentHashMap<>();
 
     protected final Map<String, RA> handlers = new ConcurrentHashMap<>();
 
-    protected final List<Future<Void>> futures = new ArrayList<>();
+    protected final List<Future<?>> futures = new ArrayList<>();
 
     protected SyncopeResultHandlerDispatcher(final ProvisioningProfile<T, A> profile) {
         if (profile.getTask().getConcurrentSettings() == null) {
             tpte = Optional.empty();
-            ecs = Optional.empty();
         } else {
             ThreadPoolTaskExecutor t = new ThreadPoolTaskExecutor();
             t.setCorePoolSize(profile.getTask().getConcurrentSettings().getCorePoolSize());
@@ -89,7 +85,6 @@ public abstract class SyncopeResultHandlerDispatcher<
             t.initialize();
 
             tpte = Optional.of(t);
-            ecs = Optional.of(new ExecutorCompletionService<>(t.getThreadPoolExecutor()));
         }
     }
 
@@ -106,13 +101,11 @@ public abstract class SyncopeResultHandlerDispatcher<
     }
 
     protected void submit(final Runnable runnable) {
-        if (ecs.isPresent()) {
-            futures.add(ecs.get().submit(runnable, null));
-        }
+        tpte.ifPresent(executor -> futures.add(executor.submit(runnable)));
     }
 
     protected void shutdown() {
-        for (Future<Void> f : this.futures) {
+        for (Future<?> f : this.futures) {
             try {
                 f.get();
             } catch (ExecutionException | InterruptedException e) {
