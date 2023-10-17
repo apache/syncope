@@ -420,6 +420,8 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
+    <groovy.version>5.0.0-SNAPSHOT</groovy.version>
+
     <flowable.version>7.0.0</flowable.version>
     <flowable-old.version>6.8.0</flowable-old.version>
 
@@ -868,6 +870,57 @@ under the License.
         <groupId>net.tirasa.connid</groupId>
         <artifactId>slf4j-logging</artifactId>
         <version>${connid.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-templates</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-xml</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-jsr223</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-datetime</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-dateutil</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-sql</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-json</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-yaml</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-groovysh</artifactId>
+        <version>${groovy.version}</version>
       </dependency>
 
       <dependency>
@@ -1698,7 +1751,7 @@ under the License.
           <dependency>
             <groupId>org.apache.groovy</groupId>
             <artifactId>groovy-ant</artifactId>
-            <version>4.0.15</version>
+            <version>${groovy.version}</version>
           </dependency>
         </dependencies>
         <executions>
@@ -2199,6 +2252,44 @@ under the License.
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <id>jdk-22</id>
+
+      <activation>
+        <jdk>22</jdk>
+      </activation>
+
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.6.0</version>
+            <scope>test</scope>
+          </dependency>
+          <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.6.0</version>
+            <scope>test</scope>
+          </dependency>
+
+          <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.14.9</version>
+          </dependency>
+
+          <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>1.14.9</version>
+            <scope>test</scope>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
     </profile>
   </profiles>
 
