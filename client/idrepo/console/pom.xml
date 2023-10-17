@@ -288,12 +288,6 @@ under the License.
         </dependency>
 
         <dependency>
-          <groupId>org.mockito</groupId>
-          <artifactId>mockito-core</artifactId>
-          <version>5.6.0</version>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
           <groupId>net.bytebuddy</groupId>
           <artifactId>byte-buddy-agent</artifactId>
           <version>1.14.9</version>
