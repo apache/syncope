@@ -411,7 +411,7 @@ under the License.
 
     <cxf.version>3.6.2</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.36</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.37</nimbus-jose-jwt.version>
 
     <spring-boot.version>2.7.16</spring-boot.version>
     <spring-cloud-gateway.version>3.1.8</spring-cloud-gateway.version>
@@ -467,7 +467,7 @@ under the License.
     <antlr4.version>4.13.1</antlr4.version>
 
     <curator.version>5.5.0</curator.version>
-    <zookeeper.version>3.8.1</zookeeper.version>
+    <zookeeper.version>3.8.3</zookeeper.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
     <testds.bindDn>uid=admin,ou=system</testds.bindDn>
