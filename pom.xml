@@ -1698,7 +1698,7 @@ under the License.
           <dependency>
             <groupId>org.apache.groovy</groupId>
             <artifactId>groovy-ant</artifactId>
-            <version>4.0.15</version>
+            <version>5.0.0-SNAPSHOT</version>
           </dependency>
         </dependencies>
         <executions>
