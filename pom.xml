@@ -451,7 +451,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>4.1.2</chartjs.version>
 
-    <wicket.version>10.0.0-M1</wicket.version>
+    <wicket.version>10.0.0-M2</wicket.version>
     <wicketstuff.version>10.0.0-M1</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
     <wicket-bootstrap.version>7.0.0</wicket-bootstrap.version>
@@ -460,7 +460,7 @@ under the License.
     <antlr4.version>4.13.1</antlr4.version>
 
     <curator.version>5.5.0</curator.version>
-    <zookeeper.version>3.8.1</zookeeper.version>
+    <zookeeper.version>3.9.1</zookeeper.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
     <testds.bindDn>uid=admin,ou=system</testds.bindDn>
@@ -992,21 +992,6 @@ under the License.
         <version>${wicket.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-extensions</artifactId>
-        <version>${wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-auth-roles</artifactId>
-        <version>${wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-native-websocket-javax</artifactId>
-        <version>${wicket.version}</version>
       </dependency>
       <dependency>
         <groupId>org.wicketstuff</groupId>
