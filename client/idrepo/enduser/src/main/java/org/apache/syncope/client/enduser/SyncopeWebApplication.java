@@ -48,6 +48,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authorization.IAuthorizationStrategy;
 import org.apache.wicket.authorization.IAuthorizationStrategy.AllowAllAuthorizationStrategy;
+import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.ResourceIsolationRequestCycleListener;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -277,6 +278,11 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     public Class<? extends BasePage> getPageClass(final String name, final Class<? extends BasePage> defaultValue) {
         return props.getPage().getOrDefault(name, defaultValue);
+    }
+
+    @Override
+    protected Class<? extends AbstractAuthenticatedWebSession> getWebSessionClass() {
+        return SyncopeEnduserSession.class;
     }
 
     @Override
