@@ -240,7 +240,7 @@ public class DelegationITCase extends AbstractITCase {
         // 3b. search users as rossini with delegation -> SUCCESS
         int forRossini = rossini.delegatedBy("bellini").getService(UserService.class).search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).getTotalCount();
-        if (!IS_ELASTICSEARCH_ENABLED) {
+        if (!IS_EXT_SEARCH_ENABLED) {
             assertEquals(forBellini, forRossini);
         }
 

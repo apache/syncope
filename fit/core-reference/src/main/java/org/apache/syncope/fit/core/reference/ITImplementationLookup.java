@@ -212,18 +212,22 @@ public class ITImplementationLookup implements ImplementationLookup {
 
     private final ElasticsearchInit elasticsearchInit;
 
+    private final OpenSearchInit openSearchInit;
+
     private boolean loaded;
 
     public ITImplementationLookup(
             final UserWorkflowAdapter uwf,
             final AnySearchDAO anySearchDAO,
             final EnableFlowableForTestUsers enableFlowableForTestUsers,
-            final ElasticsearchInit elasticsearchInit) {
+            final ElasticsearchInit elasticsearchInit,
+            final OpenSearchInit openSearchInit) {
 
         this.uwf = uwf;
         this.anySearchDAO = anySearchDAO;
         this.enableFlowableForTestUsers = enableFlowableForTestUsers;
         this.elasticsearchInit = elasticsearchInit;
+        this.openSearchInit = openSearchInit;
     }
 
     @Override
@@ -250,6 +254,14 @@ public class ITImplementationLookup implements ImplementationLookup {
         if (elasticsearchInit != null && AopUtils.getTargetClass(anySearchDAO).getName().contains("Elasticsearch")) {
             AuthContextUtils.callAsAdmin(domain, () -> {
                 elasticsearchInit.init();
+                return null;
+            });
+        }
+
+        // in case the OpenSearch extension is enabled, reinit a clean index for all available domains
+        if (openSearchInit != null && AopUtils.getTargetClass(anySearchDAO).getName().contains("OpenSearch")) {
+            AuthContextUtils.callAsAdmin(domain, () -> {
+                openSearchInit.init();
                 return null;
             });
         }

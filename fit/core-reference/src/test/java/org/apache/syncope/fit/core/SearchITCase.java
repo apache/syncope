@@ -176,7 +176,7 @@ public class SearchITCase extends AbstractITCase {
         GroupTO group = createGroup(groupCR).getEntity();
         assertNotNull(group);
 
-        if (IS_ELASTICSEARCH_ENABLED) {
+        if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -234,7 +234,7 @@ public class SearchITCase extends AbstractITCase {
         role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
         assertNotNull(role);
 
-        if (IS_ELASTICSEARCH_ENABLED) {
+        if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -329,7 +329,7 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchByDate() {
-        if (IS_ELASTICSEARCH_ENABLED) {
+        if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -475,7 +475,7 @@ public class SearchITCase extends AbstractITCase {
                 build();
         String printer = createAnyObject(anyObjectCR).getEntity().getKey();
 
-        if (IS_ELASTICSEARCH_ENABLED) {
+        if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -665,7 +665,7 @@ public class SearchITCase extends AbstractITCase {
                     build();
             updateAnyObject(anyObjectUR);
 
-            if (IS_ELASTICSEARCH_ENABLED) {
+            if (IS_EXT_SEARCH_ENABLED) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
@@ -704,7 +704,7 @@ public class SearchITCase extends AbstractITCase {
         req.getPlainAttrs().add(new AttrPatch.Builder(attr("ctype", "ou=sample,o=isp")).build());
         USER_SERVICE.update(req);
 
-        if (IS_ELASTICSEARCH_ENABLED) {
+        if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -769,7 +769,7 @@ public class SearchITCase extends AbstractITCase {
             USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getUserSearchConditionBuilder().is("userId").equalTo("*@apache.org").query()).
                     orderBy(SyncopeClient.getOrderByClauseBuilder().asc("surname").desc("firstname").build()).build());
-            if (!IS_ELASTICSEARCH_ENABLED) {
+            if (!IS_EXT_SEARCH_ENABLED) {
                 fail();
             }
         } catch (SyncopeClientException e) {
@@ -849,7 +849,7 @@ public class SearchITCase extends AbstractITCase {
         UserTO user = createUser(userCR).getEntity();
 
         // 3. search for user
-        if (IS_ELASTICSEARCH_ENABLED) {
+        if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -884,7 +884,7 @@ public class SearchITCase extends AbstractITCase {
         createUser(UserITCase.getSample("syncope1779test@syncope.apache.org")).getEntity();
 
         // 3. search for user
-        if (IS_ELASTICSEARCH_ENABLED) {
+        if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
