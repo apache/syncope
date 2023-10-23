@@ -22,7 +22,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -311,10 +310,9 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 build();
         LOG.debug("Search JSON request: {}", request);
 
-        @SuppressWarnings("rawtypes")
-        List<Hit<Map>> esResult = null;
+        List<Hit<Void>> esResult = null;
         try {
-            esResult = client.search(request, Map.class).hits().hits();
+            esResult = client.search(request, Void.class).hits().hits();
         } catch (Exception e) {
             LOG.error("While searching in OpenSearch", e);
         }

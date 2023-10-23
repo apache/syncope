@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -192,10 +192,9 @@ public class OpenSearchAuditConfDAO extends JPAAuditConfDAO {
                 sort(sortBuilders(orderBy)).
                 build();
 
-        @SuppressWarnings("rawtypes")
-        List<Hit<Map>> esResult = null;
+        List<Hit<ObjectNode>> esResult = null;
         try {
-            esResult = client.search(request, Map.class).hits().hits();
+            esResult = client.search(request, ObjectNode.class).hits().hits();
         } catch (Exception e) {
             LOG.error("While searching in OpenSearch", e);
         }
@@ -203,7 +202,7 @@ public class OpenSearchAuditConfDAO extends JPAAuditConfDAO {
         return CollectionUtils.isEmpty(esResult)
                 ? List.of()
                 : esResult.stream().
-                        map(hit -> POJOHelper.convertValue(hit.source().get("message"), AuditEntry.class)).
+                        map(hit -> POJOHelper.convertValue(hit.source().get("message").asText(), AuditEntry.class)).
                         filter(Objects::nonNull).collect(Collectors.toList());
     }
 }
