@@ -430,7 +430,7 @@ under the License.
 
     <elasticsearch.version>8.10.4</elasticsearch.version>
 
-    <log4j2.version>2.20.0</log4j2.version>
+    <log4j2.version>2.21.0</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
 
     <commons-jexl.version>3.3</commons-jexl.version>
