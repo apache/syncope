@@ -61,11 +61,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.syncope.common.lib.OIDCScopeConstants;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
-import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
@@ -132,9 +132,9 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         clientApp.setLogoutUri(SRA_ADDRESS + "/logout");
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
-        clientApp.getScopes().add(OIDCScope.openid);
-        clientApp.getScopes().add(OIDCScope.profile);
-        clientApp.getScopes().add(OIDCScope.email);
+        clientApp.getScopes().add(OIDCScopeConstants.OPEN_ID);
+        clientApp.getScopes().add(OIDCScopeConstants.PROFILE);
+        clientApp.getScopes().add(OIDCScopeConstants.EMAIL);
         clientApp.getSupportedGrantTypes().add(OIDCGrantType.password);
         clientApp.getSupportedGrantTypes().add(OIDCGrantType.authorization_code);
 
