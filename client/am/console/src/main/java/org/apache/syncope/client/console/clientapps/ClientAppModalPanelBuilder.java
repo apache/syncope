@@ -330,7 +330,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                         @Override
                         protected Iterator<String> getChoices(final String input) {
                             List<String> choices = new ArrayList<>(OIDCScopeConstants.ALL_STANDARD_SCOPES);
-                            choices.add(OIDCScopeConstants.CUSTOM_SCOPE);
+                            choices.add(OIDCScopeConstants.SYNCOPE);
                             return choices.iterator();
                         }
                     };

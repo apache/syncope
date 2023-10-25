@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib;
 
-import java.util.Arrays;
 import java.util.List;
 
 public final class OIDCScopeConstants {
@@ -33,9 +32,9 @@ public final class OIDCScopeConstants {
 
     public static final String PHONE = "phone";
 
-    public static final String CUSTOM_SCOPE = "syncope";
+    public static final String SYNCOPE = "syncope";
 
-    public static final List<String> ALL_STANDARD_SCOPES = Arrays.asList(OPEN_ID, PROFILE, EMAIL, ADDRESS, PHONE);
+    public static final List<String> ALL_STANDARD_SCOPES = List.of(OPEN_ID, PROFILE, EMAIL, ADDRESS, PHONE);
 
     private OIDCScopeConstants() {
         // private constructor for static utility class

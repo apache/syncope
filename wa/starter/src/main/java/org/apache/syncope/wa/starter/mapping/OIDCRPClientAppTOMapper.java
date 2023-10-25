@@ -144,11 +144,11 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
 
-        if (rp.getScopes().contains(OIDCScopeConstants.CUSTOM_SCOPE)) {
-            service.getScopes().add(OIDCScopeConstants.CUSTOM_SCOPE);
+        if (!customClaims.isEmpty()) {
+            service.getScopes().add(OIDCScopeConstants.SYNCOPE);
 
             chain.addPolicies(new OidcCustomScopeAttributeReleasePolicy(
-                    OIDCScopeConstants.CUSTOM_SCOPE, customClaims.stream().collect(Collectors.toList())));
+                    OIDCScopeConstants.SYNCOPE, customClaims.stream().collect(Collectors.toList())));
         }
 
         setPolicies(service, authPolicy, mfaPolicy, accessStrategy, chain,
