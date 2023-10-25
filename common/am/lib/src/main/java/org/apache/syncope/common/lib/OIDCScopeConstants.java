@@ -16,13 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.common.lib;
 
-public enum OIDCScope {
-    openid,
-    profile,
-    email,
-    address,
-    phone
+import java.util.List;
 
+public final class OIDCScopeConstants {
+
+    public static final String OPEN_ID = "openid";
+
+    public static final String PROFILE = "profile";
+
+    public static final String EMAIL = "email";
+
+    public static final String ADDRESS = "address";
+
+    public static final String PHONE = "phone";
+
+    public static final String SYNCOPE = "syncope";
+
+    public static final List<String> ALL_STANDARD_SCOPES = List.of(OPEN_ID, PROFILE, EMAIL, ADDRESS, PHONE);
+
+    private OIDCScopeConstants() {
+        // private constructor for static utility class
+    }
 }

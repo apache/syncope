@@ -30,8 +30,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.OIDCScopeConstants;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
-import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
@@ -156,16 +156,16 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
                                 map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
                                 ifPresent(claims::addAll);
                     }
-                    if (rp.getScopes().contains(OIDCScope.profile)) {
+                    if (rp.getScopes().contains(OIDCScopeConstants.PROFILE)) {
                         claims.removeAll(OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
                     }
-                    if (rp.getScopes().contains(OIDCScope.address)) {
+                    if (rp.getScopes().contains(OIDCScopeConstants.ADDRESS)) {
                         claims.removeAll(OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
                     }
-                    if (rp.getScopes().contains(OIDCScope.email)) {
+                    if (rp.getScopes().contains(OIDCScopeConstants.EMAIL)) {
                         claims.removeAll(OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
                     }
-                    if (rp.getScopes().contains(OIDCScope.phone)) {
+                    if (rp.getScopes().contains(OIDCScopeConstants.PHONE)) {
                         claims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
                     }
 
