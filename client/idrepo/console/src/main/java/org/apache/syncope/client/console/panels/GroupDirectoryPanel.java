@@ -105,7 +105,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
     protected final BaseModal<Serializable> membersModal = new BaseModal<>(Constants.OUTER);
 
-    protected final MembersTogglePanel templates;
+    protected final MembersTogglePanel membersTogglePanel;
 
     protected GroupDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
         super(id, builder, wizardInModal);
@@ -118,7 +118,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
         addOuterObject(membersModal);
         membersModal.size(Modal.Size.Large);
 
-        templates = new MembersTogglePanel(page.getPageReference()) {
+        membersTogglePanel = new MembersTogglePanel(page.getPageReference()) {
 
             private static final long serialVersionUID = -8765794727538618705L;
 
@@ -200,7 +200,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         };
 
-        addOuterObject(templates);
+        addOuterObject(membersTogglePanel);
     }
 
     @Override
@@ -273,8 +273,9 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                templates.setTargetObject(model.getObject());
-                templates.toggle(target, true);
+                membersTogglePanel.setHeader(target, model.getObject().getName());
+                membersTogglePanel.setTargetObject(model.getObject());
+                membersTogglePanel.toggle(target, model.getObject(), true);
             }
 
             @Override
