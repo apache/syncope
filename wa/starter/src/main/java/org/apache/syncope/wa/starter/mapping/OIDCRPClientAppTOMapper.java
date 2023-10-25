@@ -23,11 +23,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.OIDCScopeConstants;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
-import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
@@ -50,8 +50,6 @@ import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPo
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 
 public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
-
-    private static final String CUSTOM_SCOPE = "syncope";
 
     @Override
     public boolean supports(final ClientAppTO clientApp) {
@@ -92,9 +90,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         Optional.ofNullable(rp.getSubjectType()).ifPresent(st -> service.setSubjectType(st.name()));
         service.setLogoutUrl(rp.getLogoutUri());
 
-        service.setScopes(rp.getScopes().stream().
-                map(OIDCScope::name).
-                collect(Collectors.toSet()));
+        service.setScopes(new HashSet<>(rp.getScopes()));
 
         ChainingAttributeReleasePolicy chain;
         if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy) {
@@ -104,19 +100,19 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
             Optional.ofNullable(attributeReleasePolicy).ifPresent(chain::addPolicies);
         }
 
-        if (rp.getScopes().contains(OIDCScope.openid)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.OPEN_ID)) {
             chain.addPolicies(new OidcOpenIdScopeAttributeReleasePolicy());
         }
-        if (rp.getScopes().contains(OIDCScope.profile)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.PROFILE)) {
             chain.addPolicies(new OidcProfileScopeAttributeReleasePolicy());
         }
-        if (rp.getScopes().contains(OIDCScope.address)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.ADDRESS)) {
             chain.addPolicies(new OidcAddressScopeAttributeReleasePolicy());
         }
-        if (rp.getScopes().contains(OIDCScope.email)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.EMAIL)) {
             chain.addPolicies(new OidcEmailScopeAttributeReleasePolicy());
         }
-        if (rp.getScopes().contains(OIDCScope.phone)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.PHONE)) {
             chain.addPolicies(new OidcPhoneScopeAttributeReleasePolicy());
         }
 
@@ -135,24 +131,24 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                     map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
                     ifPresent(customClaims::addAll);
         }
-        if (rp.getScopes().contains(OIDCScope.profile)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.PROFILE)) {
             customClaims.removeAll(OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCScope.address)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.ADDRESS)) {
             customClaims.removeAll(OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCScope.email)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.EMAIL)) {
             customClaims.removeAll(OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCScope.phone)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.PHONE)) {
             customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
 
-        if (!customClaims.isEmpty()) {
-            service.getScopes().add(CUSTOM_SCOPE);
+        if (rp.getScopes().contains(OIDCScopeConstants.CUSTOM_SCOPE)) {
+            service.getScopes().add(OIDCScopeConstants.CUSTOM_SCOPE);
 
             chain.addPolicies(new OidcCustomScopeAttributeReleasePolicy(
-                    CUSTOM_SCOPE, customClaims.stream().collect(Collectors.toList())));
+                    OIDCScopeConstants.CUSTOM_SCOPE, customClaims.stream().collect(Collectors.toList())));
         }
 
         setPolicies(service, authPolicy, mfaPolicy, accessStrategy, chain,
