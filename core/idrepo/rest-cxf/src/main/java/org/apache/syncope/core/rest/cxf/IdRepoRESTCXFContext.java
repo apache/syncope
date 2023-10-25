@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
@@ -131,6 +130,7 @@ import org.apache.syncope.core.rest.cxf.service.SyncopeServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.TaskServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.UserSelfServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.UserServiceImpl;
+import org.apache.syncope.core.spring.task.VirtualThreadPoolTaskExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -140,7 +140,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @PropertySource("classpath:errorMessages.properties")
 @EnableConfigurationProperties(RESTProperties.class)
@@ -150,15 +149,12 @@ public class IdRepoRESTCXFContext {
     private static final Logger LOG = LoggerFactory.getLogger(IdRepoRESTCXFContext.class);
 
     @Bean
-    public ThreadPoolTaskExecutor batchExecutor(final RESTProperties props) {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(props.getBatchExecutor().getCorePoolSize());
-        executor.setMaxPoolSize(props.getBatchExecutor().getMaxPoolSize());
-        executor.setQueueCapacity(props.getBatchExecutor().getQueueCapacity());
+    public VirtualThreadPoolTaskExecutor batchExecutor(final RESTProperties props) {
+        VirtualThreadPoolTaskExecutor executor = new VirtualThreadPoolTaskExecutor();
+        executor.setPoolSize(props.getBatchExecutor().getPoolSize());
         executor.setAwaitTerminationSeconds(props.getBatchExecutor().getAwaitTerminationSeconds());
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setThreadNamePrefix("Batch-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executor.initialize();
         return executor;
     }
@@ -486,7 +482,7 @@ public class IdRepoRESTCXFContext {
             final Bus bus,
             final SyncopeLogic syncopeLogic,
             @Qualifier("batchExecutor")
-            final ThreadPoolTaskExecutor batchExecutor,
+            final VirtualThreadPoolTaskExecutor batchExecutor,
             final BatchDAO batchDAO,
             final EntityFactory entityFactory) {
 

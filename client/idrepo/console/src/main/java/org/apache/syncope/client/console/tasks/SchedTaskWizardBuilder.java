@@ -380,38 +380,16 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             provisioningTaskSpecifics.add(enableConcurrentSettings.
                     setVisible(taskTO instanceof ProvisioningTaskTO).setOutputMarkupId(true));
 
-            FieldPanel<Integer> corePoolSize = new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
-                    "corePoolSize",
-                    "corePoolSize",
+            FieldPanel<Integer> poolSize = new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
+                    "poolSize",
+                    "poolSize",
                     Integer.class,
-                    new ConcurrentSettingsValueModel(concurrentSettingsModel, "corePoolSize")).setRequired(true);
-            corePoolSize.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
-            corePoolSize.setVisible(taskTO instanceof ProvisioningTaskTO
+                    new ConcurrentSettingsValueModel(concurrentSettingsModel, "poolSize")).setRequired(true);
+            poolSize.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
+            poolSize.setVisible(taskTO instanceof ProvisioningTaskTO
                     ? concurrentSettingsModel.getObject() != null
                     : false);
-            provisioningTaskSpecifics.add(corePoolSize);
-
-            FieldPanel<Integer> maxPoolSize = new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
-                    "maxPoolSize",
-                    "maxPoolSize",
-                    Integer.class,
-                    new ConcurrentSettingsValueModel(concurrentSettingsModel, "maxPoolSize")).setRequired(true);
-            maxPoolSize.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
-            maxPoolSize.setVisible(taskTO instanceof ProvisioningTaskTO
-                    ? concurrentSettingsModel.getObject() != null
-                    : false);
-            provisioningTaskSpecifics.add(maxPoolSize);
-
-            FieldPanel<Integer> queueCapacity = new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
-                    "queueCapacity",
-                    "queueCapacity",
-                    Integer.class,
-                    new ConcurrentSettingsValueModel(concurrentSettingsModel, "queueCapacity")).setRequired(true);
-            queueCapacity.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
-            queueCapacity.setVisible(taskTO instanceof ProvisioningTaskTO
-                    ? concurrentSettingsModel.getObject() != null
-                    : false);
-            provisioningTaskSpecifics.add(queueCapacity);
+            provisioningTaskSpecifics.add(poolSize);
 
             enableConcurrentSettings.getField().add(
                     new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -426,9 +404,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                         concurrentSettingsModel.setObject(null);
                     }
 
-                    corePoolSize.setVisible(concurrentSettingsModel.getObject() != null);
-                    maxPoolSize.setVisible(concurrentSettingsModel.getObject() != null);
-                    queueCapacity.setVisible(concurrentSettingsModel.getObject() != null);
+                    poolSize.setVisible(concurrentSettingsModel.getObject() != null);
 
                     target.add(provisioningTaskSpecifics);
                 }

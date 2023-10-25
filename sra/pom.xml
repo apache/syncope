@@ -189,6 +189,7 @@ under the License.
               <layout>ZIP</layout>
               <classifier>exec</classifier>
               <attach>false</attach>
+              <loaderImplementation>CLASSIC</loaderImplementation>
             </configuration>
             <goals>
               <goal>repackage</goal>

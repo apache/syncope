@@ -191,6 +191,11 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.wicket</groupId>
+      <artifactId>wicket-tester</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
       <scope>test</scope>
@@ -550,6 +555,7 @@ under the License.
                     <env>
                       <discovery.type>single-node</discovery.type>
                       <cluster.name>elasticsearch</cluster.name>
+                      <cluster.routing.allocation.disk.threshold_enabled>false</cluster.routing.allocation.disk.threshold_enabled>
                       <xpack.security.enabled>false</xpack.security.enabled>
                       <ingest.geoip.downloader.enabled>false</ingest.geoip.downloader.enabled>
                       <ES_JAVA_OPTS>-Xms750m -Xmx750m</ES_JAVA_OPTS>
@@ -1593,7 +1599,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly28x</containerId>
+                <containerId>wildfly30x</containerId>
                 <zipUrlInstaller>
                   <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>

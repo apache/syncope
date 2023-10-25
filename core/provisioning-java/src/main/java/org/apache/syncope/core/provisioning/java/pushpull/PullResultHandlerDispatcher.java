@@ -51,7 +51,7 @@ public class PullResultHandlerDispatcher
             return false;
         }
 
-        if (ecs.isEmpty()) {
+        if (tpte.isEmpty()) {
             boolean result = nonConcurrentHandler(delta.getObjectClass().getObjectClassValue()).handle(delta);
 
             executor.reportHandled(delta.getObjectClass().getObjectClassValue(), delta.getObject().getName());

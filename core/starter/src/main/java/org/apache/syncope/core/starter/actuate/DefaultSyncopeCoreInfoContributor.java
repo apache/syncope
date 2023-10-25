@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -69,7 +68,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.context.PayloadApplicationEvent;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.Transactional;
 
 public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContributor, InfoContributor {
@@ -87,36 +85,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             + "active threads = ([0-9]+), "
             + "queued tasks = ([0-9]+), "
             + "completed tasks = ([0-9]+).*");
-
-    protected static NumbersInfo.TaskExecutorInfo getTaskExecutorInfo(final String toString) {
-        NumbersInfo.TaskExecutorInfo info = new NumbersInfo.TaskExecutorInfo();
-
-        Matcher matcher = THREADPOOLTASKEXECUTOR_PATTERN.matcher(toString);
-        if (matcher.matches() && matcher.groupCount() == 4) {
-            try {
-                info.setSize(Integer.parseInt(matcher.group(1)));
-            } catch (NumberFormatException e) {
-                LOG.error("While parsing thread pool size", e);
-            }
-            try {
-                info.setActive(Integer.parseInt(matcher.group(2)));
-            } catch (NumberFormatException e) {
-                LOG.error("While parsing active threads #", e);
-            }
-            try {
-                info.setQueued(Integer.parseInt(matcher.group(3)));
-            } catch (NumberFormatException e) {
-                LOG.error("While parsing queued threads #", e);
-            }
-            try {
-                info.setCompleted(Integer.parseInt(matcher.group(4)));
-            } catch (NumberFormatException e) {
-                LOG.error("While parsing completed threads #", e);
-            }
-        }
-
-        return info;
-    }
 
     protected static void initSystemInfo() {
         if (SYSTEM_INFO == null) {
@@ -169,15 +137,13 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
 
     protected final NotificationDAO notificationDAO;
 
+    protected final PersistenceInfoDAO persistenceInfoDAO;
+
     protected final ConfParamOps confParamOps;
 
     protected final ConnIdBundleManager bundleManager;
 
     protected final ImplementationLookup implLookup;
-
-    protected final Map<String, ThreadPoolTaskExecutor> taskExecutors;
-
-    protected final PersistenceInfoDAO persistenceInfoDAO;
 
     public DefaultSyncopeCoreInfoContributor(
             final AnyTypeDAO anyTypeDAO,
@@ -192,11 +158,10 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             final TaskDAO taskDAO,
             final VirSchemaDAO virSchemaDAO,
             final SecurityQuestionDAO securityQuestionDAO,
+            final PersistenceInfoDAO persistenceInfoDAO,
             final ConfParamOps confParamOps,
             final ConnIdBundleManager bundleManager,
-            final ImplementationLookup implLookup,
-            final Map<String, ThreadPoolTaskExecutor> taskExecutors,
-            final PersistenceInfoDAO persistenceInfoDAO) {
+            final ImplementationLookup implLookup) {
 
         this.anyTypeDAO = anyTypeDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
@@ -210,11 +175,10 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
         this.taskDAO = taskDAO;
         this.virSchemaDAO = virSchemaDAO;
         this.securityQuestionDAO = securityQuestionDAO;
+        this.persistenceInfoDAO = persistenceInfoDAO;
         this.confParamOps = confParamOps;
         this.bundleManager = bundleManager;
         this.implLookup = implLookup;
-        this.taskExecutors = taskExecutors;
-        this.persistenceInfoDAO = persistenceInfoDAO;
     }
 
     protected boolean isSelfRegAllowed() {
@@ -330,9 +294,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
                     NumbersInfo.ConfItem.SECURITY_QUESTION.name(), !securityQuestionDAO.findAll().isEmpty());
             numbersInfo.getConfCompleteness().put(
                     NumbersInfo.ConfItem.ROLE.name(), numbersInfo.getTotalRoles() > 0);
-
-            taskExecutors.forEach((name, bean) -> numbersInfo.getTaskExecutorInfos().
-                    put(name, getTaskExecutorInfo(bean.getThreadPoolExecutor().toString())));
 
             return numbersInfo;
         });

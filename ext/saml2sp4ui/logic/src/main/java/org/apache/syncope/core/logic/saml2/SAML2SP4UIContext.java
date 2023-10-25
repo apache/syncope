@@ -41,6 +41,11 @@ public class SAML2SP4UIContext implements WebContext {
     }
 
     @Override
+    public Optional<String> getQueryString() {
+        return Optional.empty();
+    }
+
+    @Override
     public String getRequestMethod() {
         return SAML2BindingType.POST.getUri().equals(bindingType)
                 ? HttpMethod.POST

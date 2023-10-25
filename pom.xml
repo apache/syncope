@@ -411,33 +411,35 @@ under the License.
 
     <cxf.version>4.0.3</cxf.version>
     <bouncycastle.version>1.76</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.35</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.37</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.2.0-M3</spring-boot.version>
+    <spring-boot.version>3.2.0-RC1</spring-boot.version>
     <spring-cloud-gateway.version>4.1.0-M2</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.0-SNAPSHOT</openjpa.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
+    <groovy.version>5.0.0-SNAPSHOT</groovy.version>
+
     <flowable.version>7.0.0</flowable.version>
     <flowable-old.version>6.8.0</flowable-old.version>
 
     <disruptor.version>3.4.4</disruptor.version>
 
-    <elasticsearch.version>8.10.2</elasticsearch.version>
+    <elasticsearch.version>8.10.4</elasticsearch.version>
 
     <commons-jexl.version>3.3</commons-jexl.version>
     <commons-text.version>1.10.0</commons-text.version>
 
-    <pac4j.version>6.0.0-RC9</pac4j.version>
+    <pac4j.version>6.0.0-RC10-SNAPSHOT</pac4j.version>
 
     <cas.version>7.0.0-SNAPSHOT</cas.version>
     <cas-client.version>4.0.3</cas-client.version>
 
     <h2.version>2.2.224</h2.version>
 
-    <swagger-core.version>2.2.16</swagger-core.version>
+    <swagger-core.version>2.2.17</swagger-core.version>
     <swagger-ui.version>5.7.2</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
@@ -451,8 +453,8 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>4.1.2</chartjs.version>
 
-    <wicket.version>10.0.0-M1</wicket.version>
-    <wicketstuff.version>10.0.0-M1</wicketstuff.version>
+    <wicket.version>10.0.0-M2</wicket.version>
+    <wicketstuff.version>10.0.0-M2</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
     <wicket-bootstrap.version>7.0.0</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.0.0-M1</wicket-spring-boot.version>
@@ -460,7 +462,7 @@ under the License.
     <antlr4.version>4.13.1</antlr4.version>
 
     <curator.version>5.5.0</curator.version>
-    <zookeeper.version>3.8.1</zookeeper.version>
+    <zookeeper.version>3.9.1</zookeeper.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
     <testds.bindDn>uid=admin,ou=system</testds.bindDn>
@@ -486,9 +488,9 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>10.1.13</tomcat.version>
-    <wildfly.version>29.0.1.Final</wildfly.version>
-    <payara.version>6.2023.7</payara.version>
+    <tomcat.version>10.1.15</tomcat.version>
+    <wildfly.version>30.0.0.Final</wildfly.version>
+    <payara.version>6.2023.9</payara.version>
     <jakarta.faces.version>4.0.4</jakarta.faces.version>
 
     <docker.postgresql.version>16</docker.postgresql.version>
@@ -851,7 +853,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>2.8.0</version>
+        <version>2.9.1</version>
       </dependency>
 
       <dependency>
@@ -868,6 +870,57 @@ under the License.
         <groupId>net.tirasa.connid</groupId>
         <artifactId>slf4j-logging</artifactId>
         <version>${connid.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-templates</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-xml</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-jsr223</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-datetime</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-dateutil</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-sql</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-json</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-yaml</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.groovy</groupId>
+        <artifactId>groovy-groovysh</artifactId>
+        <version>${groovy.version}</version>
       </dependency>
 
       <dependency>
@@ -992,21 +1045,6 @@ under the License.
         <version>${wicket.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-extensions</artifactId>
-        <version>${wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-auth-roles</artifactId>
-        <version>${wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-native-websocket-javax</artifactId>
-        <version>${wicket.version}</version>
       </dependency>
       <dependency>
         <groupId>org.wicketstuff</groupId>
@@ -1506,7 +1544,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.9</version>
+          <version>1.10.10</version>
           <configuration>
             <container>
               <log>${project.build.directory}/log/cargo.log</log>
@@ -1561,7 +1599,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.3.1</version>
           <configuration>
             <configLocation>${rootpom.basedir}/src/main/resources/org/apache/syncope/checkstyle.xml</configLocation>
             <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -1605,7 +1643,7 @@ under the License.
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.9</version>
+          <version>0.8.11</version>
         </plugin>
 
         <plugin>
@@ -1713,7 +1751,7 @@ under the License.
           <dependency>
             <groupId>org.apache.groovy</groupId>
             <artifactId>groovy-ant</artifactId>
-            <version>4.0.15</version>
+            <version>${groovy.version}</version>
           </dependency>
         </dependencies>
         <executions>
@@ -1921,7 +1959,7 @@ under the License.
             <link>https://ci.apache.org/projects/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/2.8.0/api/</link>
+            <link>https://tika.apache.org/2.9.0/api/</link>
             <link>https://docs.spring.io/spring-boot/docs/current/api/</link>
             <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
@@ -2214,6 +2252,44 @@ under the License.
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <id>jdk-22</id>
+
+      <activation>
+        <jdk>22</jdk>
+      </activation>
+
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.6.0</version>
+            <scope>test</scope>
+          </dependency>
+          <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.6.0</version>
+            <scope>test</scope>
+          </dependency>
+
+          <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>1.14.9</version>
+          </dependency>
+
+          <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>1.14.9</version>
+            <scope>test</scope>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
     </profile>
   </profiles>
 

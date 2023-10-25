@@ -41,7 +41,7 @@ public class JdbcAuditAppender extends DefaultAuditAppender {
 
         ColumnMapping[] columnMappings = {
             ColumnMapping.newBuilder().
-            setConfiguration(logCtx.getConfiguration()).setName("EVENT_DATE").setType(Timestamp.class).build(),
+            setConfiguration(logCtx.getConfiguration()).setName("EVENT_DATE").setColumnType(Timestamp.class).build(),
             ColumnMapping.newBuilder().
             setConfiguration(logCtx.getConfiguration()).setName("LOGGER_LEVEL").setPattern("%level").build(),
             ColumnMapping.newBuilder().

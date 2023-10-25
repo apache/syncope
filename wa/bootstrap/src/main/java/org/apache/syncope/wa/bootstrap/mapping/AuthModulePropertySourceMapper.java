@@ -45,7 +45,6 @@ import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.syncope.wa.bootstrap.WARestClient;
-import org.apereo.cas.configuration.CasCoreConfigurationUtils;
 import org.apereo.cas.configuration.model.core.authentication.AuthenticationHandlerStates;
 import org.apereo.cas.configuration.model.support.generic.AcceptAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jaas.JaasAuthenticationProperties;
@@ -89,7 +88,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
                 collect(Collectors.joining(","));
         props.setUsers(users);
 
-        return prefix("cas.authn.accept.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.accept.", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -119,7 +118,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
 
         fill(props, conf);
 
-        return prefix("cas.authn.ldap[].", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.ldap[].", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -136,7 +135,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
                 map(item -> item.getIntAttrName() + ":" + item.getExtAttrName()).collect(Collectors.toList()));
         fill(props, conf);
 
-        return prefix("cas.authn.jdbc.query[].", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.jdbc.query[].", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -151,7 +150,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setLoginConfigType(conf.getLoginConfigurationFile());
         props.setRealm(conf.getRealm());
 
-        return prefix("cas.authn.jaas[].", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.jaas[].", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -173,7 +172,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setProfileAttrs(authModuleTO.getItems().stream().
                 collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
 
-        return prefix("cas.authn.pac4j.oauth2[].", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.pac4j.oauth2[].", WAConfUtils.asMap(props));
     }
 
     protected void map(
@@ -205,7 +204,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
         client.setGeneric(props);
 
-        return prefix("cas.authn.pac4j.oidc[].generic.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.pac4j.oidc[].generic.", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -217,7 +216,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
         client.setAzure(props);
 
-        return prefix("cas.authn.pac4j.oidc[].azure.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.pac4j.oidc[].azure.", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -228,7 +227,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
         client.setGoogle(props);
 
-        return prefix("cas.authn.pac4j.oidc[].google.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.pac4j.oidc[].google.", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -241,7 +240,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
         client.setKeycloak(props);
 
-        return prefix("cas.authn.pac4j.oidc[].keycloak.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.pac4j.oidc[].keycloak.", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -256,7 +255,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         Pac4jOidcClientProperties client = new Pac4jOidcClientProperties();
         client.setApple(props);
 
-        return prefix("cas.authn.pac4j.oidc[].apple.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.pac4j.oidc[].apple.", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -286,7 +285,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
                 ? TriStateBoolean.UNDEFINED
                 : TriStateBoolean.valueOf(conf.getNameIdPolicyAllowCreate().toUpperCase()));
 
-        return prefix("cas.authn.pac4j.saml[].", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.pac4j.saml[].", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -305,7 +304,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setAttributeMappings(authModuleTO.getItems().stream().
                 collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
 
-        return prefix("cas.authn.syncope.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.syncope.", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -326,7 +325,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
             props.setLdap(ldapProps);
         }
 
-        return prefix("cas.authn.mfa.gauth.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.mfa.gauth.", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -338,7 +337,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setDuoIntegrationKey(conf.getIntegrationKey());
         props.setDuoSecretKey(conf.getSecretKey());
 
-        return prefix("cas.authn.mfa.duo.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.mfa.duo.", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -364,6 +363,6 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
             }
         }
 
-        return prefix("cas.authn.mfa.simple.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.mfa.simple.", WAConfUtils.asMap(props));
     }
 }

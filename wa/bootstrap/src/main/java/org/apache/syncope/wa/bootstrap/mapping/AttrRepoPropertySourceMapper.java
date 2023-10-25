@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.wa.bootstrap.WARestClient;
-import org.apereo.cas.configuration.CasCoreConfigurationUtils;
 import org.apereo.cas.configuration.model.core.authentication.AttributeRepositoryStates;
 import org.apereo.cas.configuration.model.core.authentication.StubPrincipalAttributesProperties;
 import org.apereo.cas.configuration.model.support.jdbc.JdbcPrincipalAttributesProperties;
@@ -53,7 +52,7 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
         props.setOrder(attrRepoTO.getOrder());
         props.setAttributes(conf.getAttributes());
 
-        return prefix("cas.authn.attribute-repository.stub.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.attribute-repository.stub.", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -68,7 +67,7 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
                 collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
         fill(props, conf);
 
-        return prefix("cas.authn.attribute-repository.ldap[].", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.attribute-repository.ldap[].", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -90,7 +89,7 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
                 collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
         fill(props, conf);
 
-        return prefix("cas.authn.attribute-repository.jdbc[].", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.attribute-repository.jdbc[].", WAConfUtils.asMap(props));
     }
 
     @Override
@@ -114,6 +113,6 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
         props.setAttributeMappings(attrRepoTO.getItems().
                 stream().collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
 
-        return prefix("cas.authn.attribute-repository.syncope.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.attribute-repository.syncope.", WAConfUtils.asMap(props));
     }
 }

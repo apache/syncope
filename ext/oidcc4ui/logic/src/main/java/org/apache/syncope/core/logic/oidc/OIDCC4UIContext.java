@@ -29,6 +29,11 @@ import org.pac4j.core.context.WebContext;
 public class OIDCC4UIContext implements WebContext {
 
     @Override
+    public Optional<String> getQueryString() {
+        return Optional.empty();
+    }
+
+    @Override
     public String getRequestMethod() {
         return HttpMethod.GET;
     }

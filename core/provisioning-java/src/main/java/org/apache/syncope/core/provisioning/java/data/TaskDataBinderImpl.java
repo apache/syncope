@@ -156,8 +156,6 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             // remove all filters not contained in the TO
             pushTask.getFilters().entrySet().
                     removeIf(filter -> !pushTaskTO.getFilters().containsKey(filter.getKey()));
-
-            pushTask.setConcurrentSettings(pushTaskTO.getConcurrentSettings());
         } else if (provisioningTask instanceof PullTask && provisioningTaskTO instanceof PullTaskTO) {
             PullTask pullTask = (PullTask) provisioningTask;
             PullTaskTO pullTaskTO = (PullTaskTO) provisioningTaskTO;
@@ -217,8 +215,6 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     removeIf(anyTemplate -> !pullTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey()));
 
             pullTask.setRemediation(pullTaskTO.isRemediation());
-
-            pullTask.setConcurrentSettings(pullTaskTO.getConcurrentSettings());
         }
 
         // 3. fill the remaining fields
@@ -233,6 +229,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                         () -> LOG.debug("Invalid Implementation {}, ignoring...", action)));
         // remove all implementations not contained in the TO
         provisioningTask.getActions().removeIf(impl -> !provisioningTaskTO.getActions().contains(impl.getKey()));
+
+        provisioningTask.setConcurrentSettings(provisioningTaskTO.getConcurrentSettings());
     }
 
     protected void fill(final MacroTask macroTask, final MacroTaskTO macroTaskTO) {
@@ -281,8 +279,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         if (taskUtils.getType() == TaskType.SCHEDULED) {
             task.setJobDelegate(Optional.ofNullable(implementationDAO.find(taskTO.getJobDelegate())).
                     orElseThrow(() -> new NotFoundException("JobDelegate " + taskTO.getJobDelegate())));
-        } else if (taskTO instanceof MacroTaskTO) {
-            MacroTaskTO macroTaskTO = (MacroTaskTO) taskTO;
+        } else if (taskTO instanceof MacroTaskTO macroTaskTO) {
             MacroTask macroTask = (MacroTask) task;
 
             Implementation jobDelegate = macroTaskTO.getJobDelegate() == null
@@ -304,8 +301,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     orElseThrow(() -> new NotFoundException("Realm " + macroTaskTO.getRealm())));
 
             fill(macroTask, macroTaskTO);
-        } else if (taskTO instanceof ProvisioningTaskTO) {
-            ProvisioningTaskTO provisioningTaskTO = (ProvisioningTaskTO) taskTO;
+        } else if (taskTO instanceof ProvisioningTaskTO provisioningTaskTO) {
             ProvisioningTask<?> provisioningTask = (ProvisioningTask<?>) task;
 
             provisioningTask.setResource(Optional.ofNullable(resourceDAO.find(provisioningTaskTO.getResource())).
@@ -335,16 +331,15 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         task.setCronExpression(taskTO.getCronExpression());
         task.setActive(taskTO.isActive());
 
-        if (task instanceof MacroTask) {
+        if (task instanceof MacroTask macroTask) {
             MacroTaskTO macroTaskTO = (MacroTaskTO) taskTO;
-            MacroTask macroTask = (MacroTask) task;
 
             macroTask.getCommands().clear();
             macroTask.getCommandArgs().clear();
 
             fill(macroTask, macroTaskTO);
-        } else if (task instanceof ProvisioningTask) {
-            fill((ProvisioningTask) task, (ProvisioningTaskTO) taskTO);
+        } else if (task instanceof ProvisioningTask<?> provisioningTask) {
+            fill(provisioningTask, (ProvisioningTaskTO) taskTO);
         }
     }
 
@@ -411,6 +406,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             provisioningTaskTO.setPerformUpdate(provisioningTask.isPerformUpdate());
             provisioningTaskTO.setPerformDelete(provisioningTask.isPerformDelete());
             provisioningTaskTO.setSyncStatus(provisioningTask.isSyncStatus());
+
+            provisioningTaskTO.setConcurrentSettings(provisioningTask.getConcurrentSettings());
         }
     }
 
@@ -435,7 +432,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         }
 
         switch (taskUtils.getType()) {
-            case PROPAGATION:
+            case PROPAGATION -> {
                 PropagationTask propagationTask = (PropagationTask) task;
                 PropagationTaskTO propagationTaskTO = (PropagationTaskTO) taskTO;
 
@@ -448,18 +445,18 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 propagationTaskTO.setAnyTypeKind(propagationTask.getAnyTypeKind());
                 propagationTaskTO.setAnyType(propagationTask.getAnyType());
                 propagationTaskTO.setEntityKey(propagationTask.getEntityKey());
-                break;
+            }
 
-            case SCHEDULED:
+            case SCHEDULED -> {
                 SchedTask schedTask = (SchedTask) task;
                 SchedTaskTO schedTaskTO = (SchedTaskTO) taskTO;
 
                 schedTaskTO.setJobDelegate(schedTask.getJobDelegate().getKey());
 
                 fill(schedTaskTO, schedTask);
-                break;
+            }
 
-            case MACRO:
+            case MACRO -> {
                 MacroTask macroTask = (MacroTask) task;
                 MacroTaskTO macroTaskTO = (MacroTaskTO) taskTO;
 
@@ -474,9 +471,9 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 macroTaskTO.setSaveExecs(macroTask.isSaveExecs());
 
                 fill(macroTaskTO, macroTask);
-                break;
+            }
 
-            case PULL:
+            case PULL -> {
                 PullTask pullTask = (PullTask) task;
                 PullTaskTO pullTaskTO = (PullTaskTO) taskTO;
 
@@ -498,11 +495,9 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                         put(template.getAnyType().getKey(), template.get()));
 
                 pullTaskTO.setRemediation(pullTask.isRemediation());
+            }
 
-                pullTaskTO.setConcurrentSettings(pullTask.getConcurrentSettings());
-                break;
-
-            case PUSH:
+            case PUSH -> {
                 PushTask pushTask = (PushTask) task;
                 PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
 
@@ -515,11 +510,9 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                         ? UnmatchingRule.ASSIGN : pushTask.getUnmatchingRule());
 
                 pushTaskTO.getFilters().putAll(pushTask.getFilters());
+            }
 
-                pushTaskTO.setConcurrentSettings(pushTask.getConcurrentSettings());
-                break;
-
-            case NOTIFICATION:
+            case NOTIFICATION -> {
                 NotificationTask notificationTask = (NotificationTask) task;
                 NotificationTaskTO notificationTaskTO = (NotificationTaskTO) taskTO;
 
@@ -536,9 +529,10 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     taskTO.setLatestExecStatus("[EXECUTED]");
                 }
                 notificationTaskTO.setTraceLevel(notificationTask.getTraceLevel());
-                break;
+            }
 
-            default:
+            default -> {
+            }
         }
 
         return taskTO;

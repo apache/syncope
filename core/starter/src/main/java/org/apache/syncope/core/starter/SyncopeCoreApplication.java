@@ -65,13 +65,11 @@ import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguratio
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication(
@@ -134,11 +132,10 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
             final TaskDAO taskDAO,
             final VirSchemaDAO virSchemaDAO,
             final SecurityQuestionDAO securityQuestionDAO,
+            final PersistenceInfoDAO persistenceInfoDAO,
             final ConfParamOps confParamOps,
             final ConnIdBundleManager bundleManager,
-            final ImplementationLookup implLookup,
-            final ApplicationContext ctx,
-            final PersistenceInfoDAO persistenceInfoDAO) {
+            final ImplementationLookup implLookup) {
 
         return new DefaultSyncopeCoreInfoContributor(
                 anyTypeDAO,
@@ -153,11 +150,10 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
                 taskDAO,
                 virSchemaDAO,
                 securityQuestionDAO,
+                persistenceInfoDAO,
                 confParamOps,
                 bundleManager,
-                implLookup,
-                ctx.getBeansOfType(ThreadPoolTaskExecutor.class),
-                persistenceInfoDAO);
+                implLookup);
     }
 
     @ConditionalOnMissingBean

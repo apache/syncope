@@ -28,42 +28,20 @@ public class ThreadPoolSettings implements Serializable {
 
     private static final long serialVersionUID = -3860071577309258396L;
 
-    private int corePoolSize = 1;
+    private int poolSize = Integer.MAX_VALUE;
 
-    private int maxPoolSize = Integer.MAX_VALUE;
-
-    private int queueCapacity = Integer.MAX_VALUE;
-
-    public int getCorePoolSize() {
-        return corePoolSize;
+    public int getPoolSize() {
+        return poolSize;
     }
 
-    public void setCorePoolSize(final int corePoolSize) {
-        this.corePoolSize = corePoolSize;
-    }
-
-    public int getMaxPoolSize() {
-        return maxPoolSize;
-    }
-
-    public void setMaxPoolSize(final int maxPoolSize) {
-        this.maxPoolSize = maxPoolSize;
-    }
-
-    public int getQueueCapacity() {
-        return queueCapacity;
-    }
-
-    public void setQueueCapacity(final int queueCapacity) {
-        this.queueCapacity = queueCapacity;
+    public void setPoolSize(final int poolSize) {
+        this.poolSize = poolSize;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                append(corePoolSize).
-                append(maxPoolSize).
-                append(queueCapacity).
+                append(poolSize).
                 build();
     }
 
@@ -80,18 +58,14 @@ public class ThreadPoolSettings implements Serializable {
         }
         final ThreadPoolSettings other = (ThreadPoolSettings) obj;
         return new EqualsBuilder().
-                append(corePoolSize, other.corePoolSize).
-                append(maxPoolSize, other.maxPoolSize).
-                append(queueCapacity, other.queueCapacity).
+                append(poolSize, other.poolSize).
                 build();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE).
-                append(corePoolSize).
-                append(maxPoolSize).
-                append(queueCapacity).
+                append(poolSize).
                 build();
     }
 }

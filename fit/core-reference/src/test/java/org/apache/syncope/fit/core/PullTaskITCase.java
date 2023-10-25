@@ -951,7 +951,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // 0. first cleanup then create 20 users on LDAP
         ldapCleanup();
 
-        ExecutorService tp = Executors.newFixedThreadPool(10);
+        ExecutorService tp = Executors.newVirtualThreadPerTaskExecutor();
         for (int i = 0; i < 20; i++) {
             String idx = StringUtils.leftPad(String.valueOf(i), 2, "0");
             tp.submit(() -> {
@@ -981,9 +981,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         pullTask.setDescription("LDAP Concurrent Pull Task");
 
         ThreadPoolSettings tps = new ThreadPoolSettings();
-        tps.setCorePoolSize(1);
-        tps.setMaxPoolSize(2);
-        tps.setQueueCapacity(40);
+        tps.setPoolSize(2);
         pullTask.setConcurrentSettings(tps);
 
         Response response = TASK_SERVICE.create(TaskType.PULL, pullTask);
