@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -41,10 +40,10 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
+import org.apache.syncope.common.lib.OIDCScopeConstants;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
-import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
@@ -270,7 +269,7 @@ public class OIDCProviderWizardBuilder extends AjaxWizardBuilder<OIDCC4UIProvide
             });
 
             AjaxTextFieldPanel value = new AjaxTextFieldPanel("panel", "scopes", new Model<>());
-            value.setChoices(Stream.of(OIDCScope.values()).map(OIDCScope::name).toList());
+            value.setChoices(OIDCScopeConstants.ALL_STANDARD_SCOPES);
             content.add(new MultiFieldPanel.Builder<String>(
                     new PropertyModel<>(opTO, "scopes")).build("scopes", "scopes", value));
         }
