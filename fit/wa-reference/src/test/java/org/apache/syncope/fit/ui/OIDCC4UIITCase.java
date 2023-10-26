@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
@@ -46,13 +45,13 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
+import org.apache.syncope.common.lib.OIDCScopeConstants;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
-import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
@@ -96,9 +95,9 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
                 Set.of(OIDCResponseType.CODE, OIDCResponseType.ID_TOKEN_TOKEN, OIDCResponseType.TOKEN));
         clientApp.setAuthPolicy(getAuthPolicy().getKey());
         clientApp.setAttrReleasePolicy(getAttrReleasePolicy().getKey());
-        clientApp.getScopes().add(OIDCScope.openid);
-        clientApp.getScopes().add(OIDCScope.profile);
-        clientApp.getScopes().add(OIDCScope.email);
+        clientApp.getScopes().add(OIDCScopeConstants.OPEN_ID);
+        clientApp.getScopes().add(OIDCScopeConstants.PROFILE);
+        clientApp.getScopes().add(OIDCScopeConstants.EMAIL);
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
         WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
@@ -141,7 +140,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             cas.setUserinfoEndpoint(cas.getIssuer() + "/profile");
             cas.setEndSessionEndpoint(cas.getIssuer() + "/logout");
 
-            cas.getScopes().addAll(Stream.of(OIDCScope.values()).map(OIDCScope::name).toList());
+            cas.getScopes().addAll(OIDCScopeConstants.ALL_STANDARD_SCOPES);
             cas.getScopes().add("syncope");
 
             cas.setCreateUnmatching(createUnmatching);

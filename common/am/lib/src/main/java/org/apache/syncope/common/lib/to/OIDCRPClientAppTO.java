@@ -28,7 +28,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
-import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 
 @Schema(allOf = { ClientAppTO.class })
@@ -52,7 +51,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private final List<OIDCResponseType> supportedResponseTypes = new ArrayList<>();
 
-    private final List<OIDCScope> scopes = new ArrayList<>();
+    private final List<String> scopes = new ArrayList<>();
 
     private String logoutUri;
 
@@ -135,7 +134,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     @JacksonXmlElementWrapper(localName = "scopes")
     @JacksonXmlProperty(localName = "scope")
-    public List<OIDCScope> getScopes() {
+    public List<String> getScopes() {
         return scopes;
     }
 

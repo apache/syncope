@@ -35,7 +35,6 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
-import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -59,8 +58,8 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
             new TypeReference<Set<OIDCResponseType>>() {
     };
 
-    protected static final TypeReference<Set<OIDCScope>> SCOPE_TYPEREF =
-            new TypeReference<Set<OIDCScope>>() {
+    protected static final TypeReference<Set<String>> SCOPE_TYPEREF =
+            new TypeReference<Set<String>>() {
     };
 
     @Column(unique = true, nullable = false)
@@ -99,7 +98,7 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     private String scopes;
 
     @Transient
-    private Set<OIDCScope> scopesSet = new HashSet<>();
+    private Set<String> scopesSet = new HashSet<>();
 
     private String logoutUri;
 
@@ -179,7 +178,7 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     }
 
     @Override
-    public Set<OIDCScope> getScopes() {
+    public Set<String> getScopes() {
         return scopesSet;
     }
 

@@ -50,6 +50,7 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.client.ui.commons.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.common.lib.OIDCScopeConstants;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -57,7 +58,6 @@ import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.LogoutType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
-import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
@@ -319,10 +319,26 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                             new PropertyModel<>(clientAppTO, "supportedResponseTypes"),
                             new ListModel<>(List.of(OIDCResponseType.values()))));
 
-                    fields.add(new AjaxPalettePanel.Builder<OIDCScope>().setName("scopes").build(
+                    AutoCompleteSettings scopesSettings = new AutoCompleteSettings();
+                    scopesSettings.setShowCompleteListOnFocusGain(true);
+                    scopesSettings.setShowListOnEmptyInput(true);
+                    AjaxSearchFieldPanel scopes = new AjaxSearchFieldPanel(
+                            "panel", "scopes", new PropertyModel<>(clientAppTO, "scopes"), scopesSettings) {
+
+                        private static final long serialVersionUID = 7160878678968866138L;
+
+                        @Override
+                        protected Iterator<String> getChoices(final String input) {
+                            List<String> choices = new ArrayList<>(OIDCScopeConstants.ALL_STANDARD_SCOPES);
+                            choices.add(OIDCScopeConstants.SYNCOPE);
+                            return choices.iterator();
+                        }
+                    };
+                    fields.add(new MultiFieldPanel.Builder<String>(
+                            new PropertyModel<>(clientAppTO, "scopes")).build(
                             "field",
-                            new PropertyModel<>(clientAppTO, "scopes"),
-                            new ListModel<>(List.of(OIDCScope.values()))));
+                            "scopes",
+                            scopes));
 
                     AjaxTextFieldPanel logoutUri = new AjaxTextFieldPanel(
                             "field", "logoutUri", new PropertyModel<>(clientAppTO, "logoutUri"), false);

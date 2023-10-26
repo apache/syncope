@@ -23,11 +23,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.syncope.common.lib.OIDCScopeConstants;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
-import org.apache.syncope.common.lib.types.OIDCScope;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
 import org.apereo.cas.oidc.claims.OidcEmailScopeAttributeReleasePolicy;
@@ -48,8 +48,6 @@ import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPo
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 
 public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
-
-    private static final String CUSTOM_SCOPE = "syncope";
 
     @Override
     public boolean supports(final ClientAppTO clientApp) {
@@ -90,9 +88,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         Optional.ofNullable(rp.getSubjectType()).ifPresent(st -> service.setSubjectType(st.name()));
         service.setLogoutUrl(rp.getLogoutUri());
 
-        service.setScopes(rp.getScopes().stream().
-                map(OIDCScope::name).
-                collect(Collectors.toSet()));
+        service.setScopes(new HashSet<>(rp.getScopes()));
 
         Set<String> customClaims = new HashSet<>();
         if (attributeReleasePolicy instanceof BaseMappedAttributeReleasePolicy baseMapped) {
@@ -109,21 +105,21 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                     map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
                     ifPresent(customClaims::addAll);
         }
-        if (rp.getScopes().contains(OIDCScope.profile)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.PROFILE)) {
             customClaims.removeAll(OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCScope.address)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.ADDRESS)) {
             customClaims.removeAll(OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCScope.email)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.EMAIL)) {
             customClaims.removeAll(OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
-        if (rp.getScopes().contains(OIDCScope.phone)) {
+        if (rp.getScopes().contains(OIDCScopeConstants.PHONE)) {
             customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
         }
 
         if (!customClaims.isEmpty()) {
-            service.getScopes().add(CUSTOM_SCOPE);
+            service.getScopes().add(OIDCScopeConstants.SYNCOPE);
         }
 
         // never set attribute relase policy for OIDC services to avoid becoming scope-free for CAS
