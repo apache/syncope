@@ -237,9 +237,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
                 // send event to close eventually opened actions toggle panel
-                if (builder.getTogglePanel() != null) {
-                    builder.getTogglePanel().close(target);
-                }
+                Optional.ofNullable(builder.getTogglePanel()).ifPresent(p -> p.close(target));
 
                 if (builder.multiLevelPanel == null) {
                     batchModal.header(new ResourceModel("batch"));
