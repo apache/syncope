@@ -39,7 +39,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -165,15 +164,14 @@ public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
 
         public SAML2IdPEntityProvider(final int paginatorRows) {
             super(paginatorRows);
-            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<? extends SAML2IdPEntityTO> iterator(final long first, final long count) {
-            List<SAML2IdPEntityTO> list = restClient.list();
-            list.sort(comparator);
-            return list.subList((int) first, (int) first + (int) count).iterator();
+            List<SAML2IdPEntityTO> idps = restClient.list();
+            idps.sort(comparator);
+            return idps.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override

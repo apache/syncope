@@ -31,6 +31,7 @@ import org.apache.syncope.sra.security.PublicRouteMatcher;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
@@ -60,7 +61,7 @@ public class SyncopeSRAApplication {
     public PublicRouteMatcher publicRouteMatcher() {
         return new PublicRouteMatcher();
     }
-    
+
     @Bean
     public CsrfRouteMatcher csrfRouteMatcher(final PublicRouteMatcher publicRouteMatcher) {
         return new CsrfRouteMatcher(publicRouteMatcher);
@@ -69,8 +70,8 @@ public class SyncopeSRAApplication {
     @ConditionalOnMissingBean
     @Bean
     public RouteProvider routeProvider(final ConfigurableApplicationContext ctx,
-                                       final ServiceOps serviceOps,
-                                       final SRAProperties props) {
+            final ServiceOps serviceOps,
+            final SRAProperties props) {
         return new RouteProvider(
                 serviceOps,
                 ctx,
@@ -94,7 +95,7 @@ public class SyncopeSRAApplication {
     @ConditionalOnMissingBean
     @Bean
     public SyncopeCoreHealthIndicator syncopeCoreHealthIndicator(final ServiceOps serviceOps,
-                                                                 final SRAProperties props) {
+            final SRAProperties props) {
         return new SyncopeCoreHealthIndicator(
                 serviceOps,
                 props.getAnonymousUser(),
@@ -108,11 +109,15 @@ public class SyncopeSRAApplication {
         return new SyncopeSRAInfoContributor();
     }
 
+    @ConditionalOnProperty(
+            prefix = "keymaster", name = "enableAutoRegistration", havingValue = "true", matchIfMissing = true)
     @Bean
     public KeymasterStart keymasterStart() {
         return new KeymasterStart(NetworkService.Type.SRA);
     }
 
+    @ConditionalOnProperty(
+            prefix = "keymaster", name = "enableAutoRegistration", havingValue = "true", matchIfMissing = true)
     @Bean
     public KeymasterStop keymasterStop() {
         return new KeymasterStop(NetworkService.Type.SRA);
@@ -120,8 +125,8 @@ public class SyncopeSRAApplication {
 
     @Bean
     public WebExceptionHandler syncopeSRAWebExceptionHandler(
-        @Qualifier("routeProvider") final RouteProvider routeProvider,
-        final SRAProperties props) {
+            @Qualifier("routeProvider") final RouteProvider routeProvider,
+            final SRAProperties props) {
         return new SyncopeSRAWebExceptionHandler(routeProvider, props);
     }
 }

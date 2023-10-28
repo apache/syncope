@@ -30,6 +30,7 @@ import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStop;
 import org.apache.wicket.request.resource.IResource;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
@@ -78,11 +79,15 @@ public class SyncopeEnduserApplication extends SpringBootServletInitializer {
                 props.isUseGZIPCompression());
     }
 
+    @ConditionalOnProperty(
+            prefix = "keymaster", name = "enableAutoRegistration", havingValue = "true", matchIfMissing = true)
     @Bean
     public KeymasterStart keymasterStart() {
         return new KeymasterStart(NetworkService.Type.ENDUSER);
     }
 
+    @ConditionalOnProperty(
+            prefix = "keymaster", name = "enableAutoRegistration", havingValue = "true", matchIfMissing = true)
     @Bean
     public KeymasterStop keymasterStop() {
         return new KeymasterStop(NetworkService.Type.ENDUSER);

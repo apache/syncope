@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.common.keymaster.rest.api.service;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.Serializable;
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -29,12 +34,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 
 /**
  * REST operations for Self Keymaster's service discovery.
  */
+@Tag(name = "Network Services")
+@SecurityRequirements({
+    @SecurityRequirement(name = "BasicAuthentication") })
 @Path("networkServices")
 public interface NetworkServiceService extends Serializable {
 
@@ -44,20 +51,40 @@ public interface NetworkServiceService extends Serializable {
 
     }
 
+    /**
+     * Returns the list of registered services.
+     *
+     * @param serviceType service type
+     * @return list of registered services
+     */
     @GET
     @Path("{serviceType}")
     @Produces({ MediaType.APPLICATION_JSON })
     List<NetworkService> list(@NotNull @PathParam("serviceType") NetworkService.Type serviceType);
 
+    /**
+     * Returns the service instance to invoke, for the given type.
+     *
+     * @param serviceType service type
+     * @return service instance to invoke, for the given type
+     */
     @GET
     @Path("{serviceType}/get")
     @Produces({ MediaType.APPLICATION_JSON })
     NetworkService get(@NotNull @PathParam("serviceType") NetworkService.Type serviceType);
 
+    /**
+     * (Un)registers the given service.
+     *
+     * @param networkService service instance
+     * @param action action to perform on the given service
+     */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-    Response action(
+    void action(
             @NotNull NetworkService networkService,
             @QueryParam("action") Action action);
 }

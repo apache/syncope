@@ -19,12 +19,21 @@
 package org.apache.syncope.core.starter;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.jaxrs.ext.MessageContext;
+import org.apache.cxf.jaxrs.model.doc.JavaDocProvider;
+import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
+import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.SpringJAXRSServerFactoryBean;
+import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
@@ -56,6 +65,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPADomainDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPANetworkServiceDAO;
 import org.apache.syncope.core.persistence.jpa.entity.JPASelfKeymasterEntityFactory;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
+import org.apache.syncope.core.rest.cxf.JavaDocUtils;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
@@ -63,6 +73,8 @@ import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider;
 import org.apache.syncope.core.spring.security.WebSecurityContext;
 import org.apache.syncope.core.starter.SelfKeymasterContext.SelfKeymasterCondition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
@@ -71,6 +83,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 @EnableConfigurationProperties(KeymasterProperties.class)
@@ -78,6 +91,8 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 @AutoConfigureBefore(WebSecurityContext.class)
 @Conditional(SelfKeymasterCondition.class)
 public class SelfKeymasterContext {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SelfKeymasterContext.class);
 
     private static final Pattern HTTP = Pattern.compile("^http.+");
 
@@ -102,7 +117,8 @@ public class SelfKeymasterContext {
             final GZIPOutInterceptor gzipOutInterceptor,
             final JAXRSBeanValidationInInterceptor validationInInterceptor,
             final RestServiceExceptionMapper restServiceExceptionMapper,
-            final Bus bus) {
+            final Bus bus,
+            final Environment env) {
 
         SpringJAXRSServerFactoryBean selfKeymasterContainer = new SpringJAXRSServerFactoryBean();
         selfKeymasterContainer.setBus(bus);
@@ -118,6 +134,54 @@ public class SelfKeymasterContext {
         selfKeymasterContainer.setOutInterceptors(List.of(gzipOutInterceptor));
 
         selfKeymasterContainer.setProviders(List.of(restServiceExceptionMapper, jsonProvider));
+
+        // OpenAPI
+        JavaDocProvider javaDocProvider = JavaDocUtils.getJavaDocURLs().
+                map(JavaDocProvider::new).
+                orElseGet(() -> JavaDocUtils.getJavaDocPaths(env).
+                map(javaDocPaths -> {
+                    try {
+                        return new JavaDocProvider(javaDocPaths);
+                    } catch (Exception e) {
+                        LOG.error("Could not set javadoc paths from {}", List.of(javaDocPaths), e);
+                        return null;
+                    }
+                }).
+                orElse(null));
+        OpenApiCustomizer openApiCustomizer = new OpenApiCustomizer() {
+
+            @Override
+            public OpenAPIConfiguration customize(final OpenAPIConfiguration configuration) {
+                super.customize(configuration);
+
+                MessageContext ctx = JAXRSUtils.createContextValue(
+                        JAXRSUtils.getCurrentMessage(), null, MessageContext.class);
+
+                String url = StringUtils.substringBeforeLast(ctx.getUriInfo().getRequestUri().getRawPath(), "/");
+                configuration.getOpenAPI().setServers(List.of(new io.swagger.v3.oas.models.servers.Server().url(url)));
+
+                return configuration;
+            }
+        };
+        openApiCustomizer.setDynamicBasePath(false);
+        openApiCustomizer.setReplaceTags(false);
+        openApiCustomizer.setJavadocProvider(javaDocProvider);
+
+        String version = env.getProperty("version");
+        OpenApiFeature openapiFeature = new OpenApiFeature();
+        openapiFeature.setUseContextBasedConfig(true);
+        openapiFeature.setTitle("Apache Syncope Self Keymaster");
+        openapiFeature.setVersion(version);
+        openapiFeature.setDescription("Apache Syncope Self Keymaster" + version);
+        openapiFeature.setContactName("The Apache Syncope community");
+        openapiFeature.setContactEmail("dev@syncope.apache.org");
+        openapiFeature.setContactUrl("https://syncope.apache.org");
+        openapiFeature.setScan(false);
+        openapiFeature.setResourcePackages(Set.of("org.apache.syncope.common.keymaster.rest.api.service"));
+        openapiFeature.setSecurityDefinitions(
+                Map.of("BasicAuthentication", new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("basic")));
+        openapiFeature.setCustomizer(openApiCustomizer);
+        selfKeymasterContainer.setFeatures(List.of(openapiFeature));
 
         return selfKeymasterContainer.create();
     }

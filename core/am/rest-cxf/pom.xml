@@ -43,13 +43,6 @@ under the License.
       <artifactId>jakarta.servlet-api</artifactId> 
       <scope>provided</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.syncope.common.am</groupId>
-      <artifactId>syncope-common-am-rest-api</artifactId>
-      <version>${project.version}</version>
-      <classifier>javadoc</classifier>
-    </dependency>
     
     <dependency>
       <groupId>org.apache.syncope.core.idrepo</groupId>
@@ -65,6 +58,12 @@ under the License.
       <groupId>org.apache.syncope.common.am</groupId>
       <artifactId>syncope-common-am-rest-api</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.common.am</groupId>
+      <artifactId>syncope-common-am-rest-api</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
     </dependency>
   </dependencies>
 

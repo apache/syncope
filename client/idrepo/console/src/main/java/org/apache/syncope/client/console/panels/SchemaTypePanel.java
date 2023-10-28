@@ -47,7 +47,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -218,9 +217,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
         private SchemaProvider(final int paginatorRows, final SchemaType schemaType) {
             super(paginatorRows);
-
             this.schemaType = schemaType;
-            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
@@ -228,7 +225,6 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
         public Iterator<SchemaTO> iterator(final long first, final long count) {
             List<SchemaTO> schemas = restClient.getSchemas(this.schemaType, keyword);
             schemas.sort(comparator);
-
             return schemas.subList((int) first, (int) first + (int) count).iterator();
         }
 
