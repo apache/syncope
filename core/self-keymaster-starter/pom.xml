@@ -47,7 +47,13 @@ under the License.
     <dependency>
       <groupId>org.apache.syncope.common.keymaster.self</groupId>
       <artifactId>syncope-common-keymaster-self-rest-api</artifactId>
-      <version>${project.version}</version>      
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.common.keymaster.self</groupId>
+      <artifactId>syncope-common-keymaster-self-rest-api</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
     </dependency>
   </dependencies>
 

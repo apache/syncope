@@ -284,18 +284,9 @@ public class IdRepoRESTCXFContext {
         openapiFeature.setScan(false);
         openapiFeature.setResourcePackages(Set.of("org.apache.syncope.common.rest.api.service"));
         openapiFeature.setCustomizer(openApiCustomizer);
-
-        Map<String, SecurityScheme> securityDefinitions = new HashMap<>();
-        SecurityScheme basicAuth = new SecurityScheme();
-        basicAuth.setType(SecurityScheme.Type.HTTP);
-        basicAuth.setScheme("basic");
-        securityDefinitions.put("BasicAuthentication", basicAuth);
-        SecurityScheme bearer = new SecurityScheme();
-        bearer.setType(SecurityScheme.Type.HTTP);
-        bearer.setScheme("bearer");
-        bearer.setBearerFormat("JWT");
-        securityDefinitions.put("Bearer", bearer);
-        openapiFeature.setSecurityDefinitions(securityDefinitions);
+        openapiFeature.setSecurityDefinitions(Map.of(
+                "BasicAuthentication", new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("basic"),
+                "Bearer", new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")));
 
         return openapiFeature;
     }

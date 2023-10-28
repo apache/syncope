@@ -50,7 +50,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.basic.Label;
@@ -217,15 +216,14 @@ public class AttrRepoDirectoryPanel
 
         private AttrRepoProvider(final int paginatorRows) {
             super(paginatorRows);
-            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<AttrRepoTO> iterator(final long first, final long count) {
-            List<AttrRepoTO> result = restClient.list();
-            result.sort(comparator);
-            return result.subList((int) first, (int) first + (int) count).iterator();
+            List<AttrRepoTO> attrRepos = restClient.list();
+            attrRepos.sort(comparator);
+            return attrRepos.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
