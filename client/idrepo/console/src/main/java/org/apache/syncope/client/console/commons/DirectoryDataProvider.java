@@ -16,9 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.ui.commons;
+package org.apache.syncope.client.console.commons;
 
 import java.io.Serializable;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 
@@ -26,7 +27,7 @@ public abstract class DirectoryDataProvider<T extends Serializable> extends Sort
 
     private static final long serialVersionUID = 6267494272884913376L;
 
-    protected final int paginatorRows;
+    protected int paginatorRows;
 
     public DirectoryDataProvider(final int paginatorRows) {
         super();
@@ -34,5 +35,9 @@ public abstract class DirectoryDataProvider<T extends Serializable> extends Sort
 
         // default sorting
         setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
+    }
+
+    public void setPaginatorRows(final int paginatorRows) {
+        this.paginatorRows = paginatorRows;
     }
 }

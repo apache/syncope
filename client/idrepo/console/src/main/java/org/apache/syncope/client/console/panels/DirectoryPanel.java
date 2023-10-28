@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.client.console.PreferenceManager;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -32,7 +33,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogg
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
@@ -272,8 +272,8 @@ public abstract class DirectoryPanel<
 
     public void updateResultTable(final AjaxRequestTarget target) {
         updateResultTable(false);
-        if (DirectoryPanel.this.container.isVisibleInHierarchy()) {
-            target.add(DirectoryPanel.this.container);
+        if (container.isVisibleInHierarchy()) {
+            target.add(container);
         }
     }
 
@@ -282,11 +282,10 @@ public abstract class DirectoryPanel<
     }
 
     protected void updateResultTable(final boolean create, final int rows) {
-        synchronized (this) {
-            if (dataProvider == null) {
-                dataProvider = dataProvider();
-            }
+        if (dataProvider == null) {
+            dataProvider = dataProvider();
         }
+        dataProvider.setPaginatorRows(rows);
 
         int currentPage = Optional.ofNullable(resultTable).
                 map(table -> (create ? (int) table.getPageCount() - 1 : (int) table.getCurrentPage())).orElse(0);
@@ -333,7 +332,7 @@ public abstract class DirectoryPanel<
     }
 
     public DirectoryPanel<T, W, DP, E> disableCheckBoxes() {
-        this.checkBoxEnabled = false;
+        checkBoxEnabled = false;
         return this;
     }
 
@@ -348,8 +347,8 @@ public abstract class DirectoryPanel<
                 updateResultTable(data.isCreate(), data.getRows());
             }
 
-            if (DirectoryPanel.this.container.isVisibleInHierarchy()) {
-                data.getTarget().add(DirectoryPanel.this.container);
+            if (container.isVisibleInHierarchy()) {
+                data.getTarget().add(container);
             }
         }
         super.onEvent(event);
@@ -458,7 +457,7 @@ public abstract class DirectoryPanel<
         }
 
         private PageReference getPageRef() {
-            return this.pageRef;
+            return pageRef;
         }
     }
 }
