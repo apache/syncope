@@ -50,7 +50,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
@@ -200,16 +199,14 @@ public class NotificationDirectoryPanel
 
         public NotificationProvider(final int paginatorRows) {
             super(paginatorRows);
-
-            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<NotificationTO> iterator(final long first, final long count) {
-            List<NotificationTO> list = restClient.list();
-            list.sort(comparator);
-            return list.subList((int) first, (int) first + (int) count).iterator();
+            List<NotificationTO> notifications = restClient.list();
+            notifications.sort(comparator);
+            return notifications.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override

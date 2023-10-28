@@ -56,7 +56,7 @@ public class ConfParamServiceImpl implements ConfParamService {
     }
 
     @Override
-    public Response set(final String key, final InputStream value) {
+    public void set(final String key, final InputStream value) {
         JsonNode valueNode = null;
         try {
             valueNode = MAPPER.readTree(value);
@@ -65,12 +65,10 @@ public class ConfParamServiceImpl implements ConfParamService {
         }
 
         logic.set(key, valueNode);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response remove(final String key) {
+    public void remove(final String key) {
         logic.remove(key);
-        return Response.noContent().build();
     }
 }

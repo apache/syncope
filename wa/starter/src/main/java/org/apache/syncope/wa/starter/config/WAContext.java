@@ -102,6 +102,7 @@ import org.pac4j.core.client.Client;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -412,11 +413,15 @@ public class WAContext {
         return new InMemoryUserDetailsManager(user);
     }
 
+    @ConditionalOnProperty(
+            prefix = "keymaster", name = "enableAutoRegistration", havingValue = "true", matchIfMissing = true)
     @Bean
     public KeymasterStart keymasterStart() {
         return new KeymasterStart(NetworkService.Type.WA);
     }
 
+    @ConditionalOnProperty(
+            prefix = "keymaster", name = "enableAutoRegistration", havingValue = "true", matchIfMissing = true)
     @Bean
     public KeymasterStop keymasterStop() {
         return new KeymasterStop(NetworkService.Type.WA);

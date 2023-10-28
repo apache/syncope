@@ -49,7 +49,6 @@ import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
@@ -195,15 +194,14 @@ public class MailTemplateDirectoryPanel
 
         public MailTemplateProvider(final int paginatorRows) {
             super(paginatorRows);
-            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<MailTemplateTO> iterator(final long first, final long count) {
-            final List<MailTemplateTO> list = restClient.listTemplates();
-            list.sort(comparator);
-            return list.subList((int) first, (int) first + (int) count).iterator();
+            List<MailTemplateTO> templates = restClient.listTemplates();
+            templates.sort(comparator);
+            return templates.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override

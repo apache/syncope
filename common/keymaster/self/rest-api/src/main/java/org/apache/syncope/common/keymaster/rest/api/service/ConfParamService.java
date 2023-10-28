@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.common.keymaster.rest.api.service;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Map;
@@ -35,26 +40,55 @@ import javax.ws.rs.core.Response;
 /**
  * REST operations for Self Keymaster's conf params.
  */
+@Tag(name = "Conf Parameters")
+@SecurityRequirements({
+    @SecurityRequirement(name = "BasicAuthentication") })
 @Path("conf")
 public interface ConfParamService extends Serializable {
 
+    /**
+     * Returns the full list of defined conf parameters, with values.
+     *
+     * @return full list of defined conf parameters, with values
+     */
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
     Map<String, Object> list();
 
+    /**
+     * Returns the value(s) of the given conf parameter, if defined.
+     *
+     * @param key conf parameter key
+     * @return the value(s) of the given conf parameter, if defined
+     */
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON })
     Response get(@NotNull @PathParam("key") String key);
 
+    /**
+     * Sets the value(s) for the given conf parameter.
+     *
+     * @param key conf parameter key
+     * @param value conf parameter value(s)
+     */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @POST
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })
-    Response set(@NotNull @PathParam("key") String key, InputStream value);
+    void set(@NotNull @PathParam("key") String key, InputStream value);
 
+    /**
+     * Deletes the conf parameter matching the provided key.
+     *
+     * @param key conf parameter key
+     */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON })
-    Response remove(@NotNull @PathParam("key") String key);
+    void remove(@NotNull @PathParam("key") String key);
 }
