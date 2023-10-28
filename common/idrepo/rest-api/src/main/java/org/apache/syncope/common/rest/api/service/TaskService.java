@@ -69,7 +69,7 @@ public interface TaskService extends ExecutableService {
      * @param key key of task to be read
      * @param details whether include executions or not, defaults to true
      * @param <T> type of taskTO
-     * @return task with matching id
+     * @return task with matching key
      */
     @GET
     @Path("{type}/{key}")

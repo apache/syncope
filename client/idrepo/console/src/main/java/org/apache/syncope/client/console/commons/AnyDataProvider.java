@@ -83,7 +83,6 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
                 break;
 
             default:
-                setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
         }
 
         this.comparator = new SortableAnyProviderComparator<>(this);

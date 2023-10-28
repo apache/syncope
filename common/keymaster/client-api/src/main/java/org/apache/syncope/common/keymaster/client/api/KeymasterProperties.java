@@ -33,6 +33,8 @@ public class KeymasterProperties {
 
     private int maxRetries = 3;
 
+    private boolean enableAutoRegistration = true;
+
     public String getAddress() {
         return address;
     }
@@ -71,5 +73,13 @@ public class KeymasterProperties {
 
     public void setMaxRetries(final int maxRetries) {
         this.maxRetries = maxRetries;
+    }
+
+    public boolean isEnableAutoRegistration() {
+        return enableAutoRegistration;
+    }
+
+    public void setEnableAutoRegistration(final boolean enableAutoRegistration) {
+        this.enableAutoRegistration = enableAutoRegistration;
     }
 }

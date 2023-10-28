@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.keymaster.rest.cxf.service;
 
-import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.rest.api.service.NetworkServiceService;
@@ -47,12 +46,11 @@ public class NetworkServiceServiceImpl implements NetworkServiceService {
     }
 
     @Override
-    public Response action(final NetworkService networkService, final Action action) {
+    public void action(final NetworkService networkService, final Action action) {
         if (action == Action.unregister) {
             logic.unregister(networkService);
         } else {
             logic.register(networkService);
         }
-        return Response.noContent().build();
     }
 }
