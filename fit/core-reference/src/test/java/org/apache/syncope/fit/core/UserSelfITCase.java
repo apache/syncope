@@ -334,7 +334,7 @@ public class UserSelfITCase extends AbstractITCase {
         }
         ANONYMOUS_CLIENT.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "Rossi");
 
-        if (IS_ELASTICSEARCH_ENABLED) {
+        if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {

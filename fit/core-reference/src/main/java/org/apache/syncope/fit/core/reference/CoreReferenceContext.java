@@ -48,6 +48,15 @@ public class CoreReferenceContext {
     }
 
     @Bean
+    public OpenSearchInit openSearchInit(
+            final ImplementationDAO implementationDAO,
+            final EntityFactory entityFactory,
+            final TaskLogic taskLogic) {
+
+        return new OpenSearchInit(implementationDAO, entityFactory, taskLogic);
+    }
+
+    @Bean
     public EnableFlowableForTestUsers enableFlowableForTestUsers(final UserDAO userDAO) {
         return new EnableFlowableForTestUsers(userDAO);
     }
@@ -57,9 +66,11 @@ public class CoreReferenceContext {
             final UserWorkflowAdapter uwf,
             final AnySearchDAO anySearchDAO,
             final EnableFlowableForTestUsers enableFlowableForTestUsers,
-            final ElasticsearchInit elasticsearchInit) {
+            final ElasticsearchInit elasticsearchInit,
+            final OpenSearchInit openSearchInit) {
 
-        return new ITImplementationLookup(uwf, anySearchDAO, enableFlowableForTestUsers, elasticsearchInit);
+        return new ITImplementationLookup(
+                uwf, anySearchDAO, enableFlowableForTestUsers, elasticsearchInit, openSearchInit);
     }
 
     @Bean

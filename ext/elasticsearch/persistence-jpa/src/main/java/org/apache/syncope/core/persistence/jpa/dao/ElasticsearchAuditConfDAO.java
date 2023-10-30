@@ -30,11 +30,11 @@ import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -184,15 +184,15 @@ public class ElasticsearchAuditConfDAO extends JPAAuditConfDAO {
                 index(ElasticsearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(getQuery(entityKey, type, category, subcategory, events, result, before, after)).
+                fields(f -> f.field("message")).
                 from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
                 size(itemsPerPage < 0 ? indexMaxResultWindow : itemsPerPage).
                 sort(sortBuilders(orderBy)).
                 build();
 
-        @SuppressWarnings("rawtypes")
-        List<Hit<Map>> esResult = null;
+        List<Hit<ObjectNode>> esResult = null;
         try {
-            esResult = client.search(request, Map.class).hits().hits();
+            esResult = client.search(request, ObjectNode.class).hits().hits();
         } catch (Exception e) {
             LOG.error("While searching in Elasticsearch", e);
         }

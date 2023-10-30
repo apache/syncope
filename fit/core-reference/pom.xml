@@ -505,7 +505,7 @@ under the License.
 
     <profile>
       <id>elasticsearch-it</id>
-      
+
       <properties>
         <spring.profiles.active>embedded,elasticsearch</spring.profiles.active>
       </properties>
@@ -527,7 +527,7 @@ under the License.
           <version>${project.version}</version>
         </dependency>
       </dependencies>
-      
+
       <build>
         <plugins>
           <plugin>
@@ -583,14 +583,14 @@ under the License.
               </execution>
             </executions>
           </plugin>
-          
+
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven3-plugin</artifactId>
             <inherited>true</inherited>
           </plugin>
         </plugins>
-        
+
         <testResources>
           <testResource>
             <directory>src/test/resources</directory>
@@ -618,6 +618,120 @@ under the License.
       </build>
     </profile>
   
+    <profile>
+      <id>opensearch-it</id>
+
+      <properties>
+        <spring.profiles.active>embedded,opensearch</spring.profiles.active>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.ext.opensearch</groupId>
+          <artifactId>syncope-ext-opensearch-logic</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.opensearch</groupId>
+          <artifactId>syncope-ext-opensearch-provisioning-java</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.opensearch</groupId>
+          <artifactId>syncope-ext-opensearch-persistence-jpa</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <includes>
+                <include>**/org/apache/syncope/fit/core/*ITCase.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <name>opensearchproject/opensearch:${opensearch.version}</name>
+                  <run>
+                    <env>
+                      <discovery.type>single-node</discovery.type>
+                      <cluster.name>elasticsearch</cluster.name>
+                      <cluster.routing.allocation.disk.threshold_enabled>false</cluster.routing.allocation.disk.threshold_enabled>
+                      <plugins.security.disabled>true</plugins.security.disabled>
+                      <OPENSEARCH_JAVA_OPTS>-Xms750m -Xmx750m</OPENSEARCH_JAVA_OPTS>
+                    </env>
+                    <ports>
+                      <port>9200:9200</port>
+                      <port>9300:9300</port>
+                    </ports>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-opensearch</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-opensearch</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven3-plugin</artifactId>
+            <inherited>true</inherited>
+          </plugin>
+        </plugins>
+
+        <testResources>
+          <testResource>
+            <directory>src/test/resources</directory>
+            <filtering>true</filtering>
+            <excludes>
+              <exclude>saml.keystore.jks</exclude>
+              <exclude>test.pdf</exclude>
+            </excludes>
+          </testResource>
+          <testResource>
+            <directory>src/test/resources</directory>
+            <filtering>false</filtering>
+            <includes>
+              <include>saml.keystore.jks</include>
+              <include>test.pdf</include>
+            </includes>
+          </testResource>
+          <testResource>
+            <directory>${basedir}/../../core/rest-cxf/src/main/resources</directory>
+            <includes>
+              <include>errorMessages.properties</include>
+            </includes>
+          </testResource>
+        </testResources>
+      </build>
+    </profile>
+
     <profile>
       <id>pgjsonb-it</id>
 

@@ -417,6 +417,64 @@ scheduled execution; rather, it can be run every time you want to blank and re-c
 starting from Syncope's internal storage.
 
 [discrete]
+===== Enable the <<opensearch>> extension
+
+Add the following dependencies to `core/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.opensearch</groupId>
+  <artifactId>syncope-ext-opensearch-logic</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.syncope.ext.opensearch</groupId>
+  <artifactId>syncope-ext-opensearch-provisioning-java</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.syncope.ext.opensearch</groupId>
+  <artifactId>syncope-ext-opensearch-persistence-jpa</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
+Create
+
+[source]
+....
+opensearch.hosts[0]=http://localhost:9200
+opensearch.indexMaxResultWindow=10000
+opensearch.numberOfShards=1
+opensearch.numberOfReplicas=1
+....
+
+as `core/src/main/resources/core-opensearch.properties`.
+
+Do not forget to include `opensearch` as 
+https://docs.spring.io/spring-boot/docs/2.7.x/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+for the Core application.
+
+If needed, customize the `@Bean` declarations from
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/opensearch/client-opensearch/src/main/java/org/apache/syncope/ext/opensearch/client/OpenSearchClientContext.java[OpenSearchClientContext^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/3_0_X/ext/opensearch/client-opensearch/src/main/java/org/apache/syncope/ext/opensearch/client/OpenSearchClientContext.java[OpenSearchClientContext^]
+endif::[]
+as explained <<extending-configuration,above>>.
+
+It is also required to initialize the OpenSearch indexes: add a new Java <<implementations,implementation>> for
+`TASKJOB_DELEGATE` and use `org.apache.syncope.core.provisioning.java.job.OpenSearchReindex` as class. +
+Then, create a new <<tasks-scheduled, scheduled task>>, select the implementation just created as job delegate and execute it.
+
+[TIP]
+The `org.apache.syncope.core.provisioning.java.job.OpenSearchReindex` task created above is not meant for
+scheduled execution; rather, it can be run every time you want to blank and re-create the OpenSearch indexes
+starting from Syncope's internal storage.
+
+[discrete]
 ===== Enable the <<SCIM>> extension
 
 Add the following dependencies to `core/pom.xml`:
