@@ -74,7 +74,7 @@ public abstract class AbstractUIITCase {
 
     protected static boolean IS_FLOWABLE_ENABLED = false;
 
-    protected static boolean IS_ELASTICSEARCH_ENABLED = false;
+    protected static boolean IS_EXT_SEARCH_ENABLED = false;
 
     @BeforeAll
     public static void anonymousSetup() throws IOException {
@@ -103,7 +103,8 @@ public abstract class AbstractUIITCase {
         IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
 
         JsonNode anySearchDAO = beans.findValues("anySearchDAO").get(0);
-        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
+        IS_EXT_SEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch")
+                || anySearchDAO.get("type").asText().contains("OpenSearch");
     }
 
     protected static <V extends Serializable> Component findComponentByProp(

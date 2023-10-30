@@ -703,7 +703,7 @@ public class GroupITCase extends AbstractITCase {
         GroupTO group = createGroup(groupCR).getEntity();
         assertEquals(fiql, group.getADynMembershipConds().get(PRINTER));
 
-        if (IS_ELASTICSEARCH_ENABLED) {
+        if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -930,7 +930,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void provisionMembers() throws InterruptedException {
-        assumeFalse(IS_ELASTICSEARCH_ENABLED);
+        assumeFalse(IS_EXT_SEARCH_ENABLED);
 
         // 1. create group without resources
         GroupCR groupCR = getBasicSample("forProvision");

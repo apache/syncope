@@ -124,6 +124,28 @@ endif::[]
 .
 ====
 
+==== OpenSearch
+
+This extension provides an alternate internal search engine for <<users-groups-and-any-objects>> and <<audit-events>>,
+requiring an external https://opensearch.org/[OpenSearch^] cluster.
+
+[TIP]
+As search operations are central for different aspects of the <<provisioning,provisioning process>>, the global
+performance is expected to improve when using this extension.
+
+[NOTE]
+.Extension Sources
+====
+The source code of this extension is available from the Apache Syncope
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/opensearch[source tree^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/ext/opensearch[source tree^]
+endif::[]
+.
+====
+
 ==== SCIM
 
 http://www.simplecloud.info/[SCIM^] (System for Cross-domain Identity Management) 2.0 is the open API for managing

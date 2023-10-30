@@ -231,7 +231,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void fromCSV() throws Exception {
-        assumeFalse(IS_ELASTICSEARCH_ENABLED);
+        assumeFalse(IS_EXT_SEARCH_ENABLED);
 
         removeTestUsers();
 
@@ -421,7 +421,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         PullTaskTO task = TASK_SERVICE.read(TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", false);
         assertEquals(SyncopeConstants.ROOT_REALM, task.getDestinationRealm());
 
-        if (IS_ELASTICSEARCH_ENABLED) {
+        if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {
@@ -595,7 +595,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertTrue(connObjectTO.getAttr("LOCATION").get().getValues().get(0).startsWith(prefix));
 
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
-            if (IS_ELASTICSEARCH_ENABLED) {
+            if (IS_EXT_SEARCH_ENABLED) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
@@ -622,7 +622,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 4. pull
             execProvisioningTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
 
-            if (IS_ELASTICSEARCH_ENABLED) {
+            if (IS_EXT_SEARCH_ENABLED) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
@@ -632,7 +632,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
             // hence PrefixItemTransformer was applied during pull)
-            if (IS_ELASTICSEARCH_ENABLED) {
+            if (IS_EXT_SEARCH_ENABLED) {
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException ex) {
@@ -1215,7 +1215,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE307() {
-        assumeFalse(IS_ELASTICSEARCH_ENABLED);
+        assumeFalse(IS_EXT_SEARCH_ENABLED);
 
         UserCR userCR = UserITCase.getUniqueSample("s307@apache.org");
         userCR.setUsername("test0");

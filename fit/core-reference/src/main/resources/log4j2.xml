@@ -153,6 +153,9 @@ under the License.
     <asyncLogger name="org.elasticsearch" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
+    <asyncLogger name="org.opensearch" additivity="false" level="INFO">
+      <appender-ref ref="main"/>
+    </asyncLogger>
     <asyncLogger name="io.netty" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
     </asyncLogger>
