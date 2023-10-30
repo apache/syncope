@@ -187,6 +187,7 @@ public class OpenSearchAuditConfDAO extends JPAAuditConfDAO {
                 index(OpenSearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(getQuery(entityKey, type, category, subcategory, events, result, before, after)).
+                fields(f -> f.field("message")).
                 from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
                 size(itemsPerPage < 0 ? indexMaxResultWindow : itemsPerPage).
                 sort(sortBuilders(orderBy)).
@@ -202,7 +203,7 @@ public class OpenSearchAuditConfDAO extends JPAAuditConfDAO {
         return CollectionUtils.isEmpty(esResult)
                 ? List.of()
                 : esResult.stream().
-                        map(hit -> POJOHelper.convertValue(hit.source().get("message").asText(), AuditEntry.class)).
+                        map(hit -> POJOHelper.convertValue(hit.source().get("message"), AuditEntry.class)).
                         filter(Objects::nonNull).collect(Collectors.toList());
     }
 }
