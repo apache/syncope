@@ -413,7 +413,7 @@ under the License.
     <bouncycastle.version>1.76</bouncycastle.version>
     <nimbus-jose-jwt.version>9.37</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.2.0-RC1</spring-boot.version>
+    <spring-boot.version>3.2.0-RC2</spring-boot.version>
     <spring-cloud-gateway.version>4.1.0-RC1</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.0-SNAPSHOT</openjpa.version>
@@ -624,12 +624,6 @@ under the License.
         <groupId>org.opensearch.client</groupId>
         <artifactId>opensearch-java</artifactId>
         <version>${opensearch-java.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>jakarta.json</groupId>
-        <artifactId>jakarta.json-api</artifactId>
-        <version>2.1.2</version>
       </dependency>
 
       <dependency>
