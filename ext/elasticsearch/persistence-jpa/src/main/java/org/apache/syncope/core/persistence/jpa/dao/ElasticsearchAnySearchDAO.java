@@ -157,12 +157,10 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                         return noRealm;
                     });
 
-                    realmDAO.findDescendants(
-                            realm.getFullPath(), null, -1, -1).stream().
-                            filter(r -> r.getFullPath().startsWith(base.getFullPath())).
+                    realmDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
                             forEach(descendant -> queries.add(
                             new Query.Builder().term(QueryBuilders.term().
-                                    field("realm").value(descendant.getKey()).build()).
+                                    field("realm").value(descendant).build()).
                                     build()));
                 } else {
                     DynRealm dynRealm = dynRealmDAO.find(realmPath);

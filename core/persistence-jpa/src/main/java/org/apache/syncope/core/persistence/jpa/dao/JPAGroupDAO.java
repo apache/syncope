@@ -65,7 +65,7 @@ import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
-import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -147,14 +147,14 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public int count() {
         Query query = entityManager().createQuery(
-                "SELECT COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e");
+                "SELECT COUNT(e) FROM " + anyUtils().anyClass().getSimpleName() + " e");
         return ((Number) query.getSingleResult()).intValue();
     }
 
     @Override
     public Map<String, Integer> countByRealm() {
         Query query = entityManager().createQuery(
-                "SELECT e.realm, COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e GROUP BY e.realm");
+                "SELECT e.realm, COUNT(e) FROM " + anyUtils().anyClass().getSimpleName() + " e GROUP BY e.realm");
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -277,7 +277,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public List<Group> findAll(final int page, final int itemsPerPage) {
         TypedQuery<Group> query = entityManager().createQuery(
-                "SELECT e FROM  " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", Group.class);
+                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", Group.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 
@@ -321,7 +321,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                     insert.executeUpdate();
 
                     publisher.publishEvent(
-                            new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
+                            new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
                 });
             }
         }
@@ -350,7 +350,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                     insert.executeUpdate();
 
                     publisher.publishEvent(
-                            new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
+                            new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
                 });
             }
         });
@@ -377,7 +377,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
             anyObjectDAO.save(leftEnd);
             publisher.publishEvent(
-                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, leftEnd, AuthContextUtils.getDomain()));
+                    new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, leftEnd, AuthContextUtils.getDomain()));
         });
 
         findUMemberships(group).forEach(membership -> {
@@ -394,7 +394,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
             userDAO.save(leftEnd);
             publisher.publishEvent(
-                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, leftEnd, AuthContextUtils.getDomain()));
+                    new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, leftEnd, AuthContextUtils.getDomain()));
         });
 
         clearUDynMembers(group);
@@ -582,8 +582,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                 delete.executeUpdate();
             }
 
-            publisher.publishEvent(
-                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
+            publisher.publishEvent(new EntityLifecycleEvent<>(
+                    this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
         });
 
         return Pair.of(before, after);
@@ -601,8 +601,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         dynGroups.forEach(group -> {
             before.add(group.getKey());
 
-            publisher.publishEvent(
-                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain()));
+            publisher.publishEvent(new EntityLifecycleEvent<>(
+                    this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain()));
         });
 
         return before;
@@ -680,8 +680,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                 delete.executeUpdate();
             }
 
-            publisher.publishEvent(
-                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
+            publisher.publishEvent(new EntityLifecycleEvent<>(
+                    this, SyncDeltaType.UPDATE, memb.getGroup(), AuthContextUtils.getDomain()));
         });
 
         return Pair.of(before, after);
@@ -699,8 +699,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         dynGroups.forEach(group -> {
             before.add(group.getKey());
 
-            publisher.publishEvent(
-                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain()));
+            publisher.publishEvent(new EntityLifecycleEvent<>(
+                    this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain()));
         });
 
         return before;

@@ -27,13 +27,16 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.jpa.dao.ElasticsearchAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.ElasticsearchAuditConfDAO;
+import org.apache.syncope.core.persistence.jpa.dao.ElasticsearchRealmDAO;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -68,6 +71,17 @@ public class ElasticsearchPersistenceContext {
                 validator,
                 client,
                 props.getIndexMaxResultWindow());
+    }
+
+    @ConditionalOnMissingBean(name = "elasticsearchRealmDAO")
+    @Bean
+    public RealmDAO realmDAO(
+            final @Lazy RoleDAO roleDAO,
+            final ApplicationEventPublisher publisher,
+            final ElasticsearchProperties props,
+            final ElasticsearchClient client) {
+
+        return new ElasticsearchRealmDAO(roleDAO, publisher, client, props.getIndexMaxResultWindow());
     }
 
     @ConditionalOnMissingBean(name = "elasticsearchAuditConfDAO")

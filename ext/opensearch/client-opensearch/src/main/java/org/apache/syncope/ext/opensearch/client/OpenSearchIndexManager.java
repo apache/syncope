@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.opensearch.client.opensearch.OpenSearchClient;
@@ -238,25 +239,29 @@ public class OpenSearchIndexManager {
     }
 
     @TransactionalEventListener
-    public void any(final AnyLifecycleEvent<Any<?>> event) throws IOException {
-        LOG.debug("About to {} index for {}", event.getType().name(), event.getAny());
+    public void any(final EntityLifecycleEvent<Entity> event) throws IOException {
+        LOG.debug("About to {} index for {}", event.getType().name(), event.getEntity());
 
-        if (event.getType() == SyncDeltaType.DELETE) {
-            DeleteRequest request = new DeleteRequest.Builder().index(
-                    OpenSearchUtils.getAnyIndex(event.getDomain(), event.getAny().getType().getKind())).
-                    id(event.getAny().getKey()).
-                    build();
-            DeleteResponse response = client.delete(request);
-            LOG.debug("Index successfully deleted for {}[{}]: {}",
-                    event.getAny().getType().getKind(), event.getAny().getKey(), response);
-        } else {
-            IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
-                    index(OpenSearchUtils.getAnyIndex(event.getDomain(), event.getAny().getType().getKind())).
-                    id(event.getAny().getKey()).
-                    document(ppenSearchUtils.document(event.getAny())).
-                    build();
-            IndexResponse response = client.index(request);
-            LOG.debug("Index successfully created or updated for {}: {}", event.getAny(), response);
+        if (event.getEntity() instanceof Any) {
+            Any<?> any = (Any<?>) event.getEntity();
+
+            if (event.getType() == SyncDeltaType.DELETE) {
+                DeleteRequest request = new DeleteRequest.Builder().index(
+                        OpenSearchUtils.getAnyIndex(event.getDomain(), any.getType().getKind())).
+                        id(any.getKey()).
+                        build();
+                DeleteResponse response = client.delete(request);
+                LOG.debug("Index successfully deleted for {}[{}]: {}",
+                        any.getType().getKind(), any.getKey(), response);
+            } else {
+                IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
+                        index(OpenSearchUtils.getAnyIndex(event.getDomain(), any.getType().getKind())).
+                        id(any.getKey()).
+                        document(ppenSearchUtils.document(any)).
+                        build();
+                IndexResponse response = client.index(request);
+                LOG.debug("Index successfully created or updated for {}: {}", any, response);
+            }
         }
     }
 

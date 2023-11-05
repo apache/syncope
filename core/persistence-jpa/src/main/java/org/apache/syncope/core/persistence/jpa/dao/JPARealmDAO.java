@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -41,14 +42,21 @@ import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.ProvisioningPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
     protected final RoleDAO roleDAO;
 
-    public JPARealmDAO(final RoleDAO roleDAO) {
+    protected final ApplicationEventPublisher publisher;
+
+    public JPARealmDAO(final RoleDAO roleDAO, final ApplicationEventPublisher publisher) {
         this.roleDAO = roleDAO;
+        this.publisher = publisher;
     }
 
     @Override
@@ -183,6 +191,27 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         return query.getResultList();
     }
 
+    @Override
+    public List<String> findDescendants(final String base, final String prefix) {
+        List<Object> parameters = new ArrayList<>();
+
+        StringBuilder queryString = buildDescendantQuery(base, null, parameters);
+        TypedQuery<Realm> query = entityManager().createQuery(queryString.
+                append(" AND (e.fullPath=?").
+                append(setParameter(parameters, prefix)).
+                append(" OR e.fullPath LIKE ?").
+                append(setParameter(parameters, SyncopeConstants.ROOT_REALM.equals(prefix) ? "/%" : prefix + "/%")).
+                append(')').
+                append(" ORDER BY e.fullPath").toString(),
+                Realm.class);
+
+        for (int i = 1; i <= parameters.size(); i++) {
+            query.setParameter(i, parameters.get(i - 1));
+        }
+
+        return query.getResultList().stream().map(Realm::getKey).collect(Collectors.toList());
+    }
+
     protected <T extends Policy> List<Realm> findSamePolicyChildren(final Realm realm, final T policy) {
         List<Realm> result = new ArrayList<>();
 
@@ -285,6 +314,30 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
     }
 
     @Override
+    public int count() {
+        Query query = entityManager().createNativeQuery(
+                "SELECT COUNT(id) FROM " + JPARealm.TABLE);
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    @Override
+    public List<String> findAllKeys(final int page, final int itemsPerPage) {
+        Query query = entityManager().createNativeQuery("SELECT id FROM " + JPARealm.TABLE + " ORDER BY fullPath");
+
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+
+        if (itemsPerPage > 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
+        @SuppressWarnings("unchecked")
+        List<Object> raw = query.getResultList();
+        return raw.stream().map(key -> key instanceof Object[]
+                ? (String) ((Object[]) key)[0]
+                : ((String) key)).collect(Collectors.toList());
+    }
+
+    @Override
     public Realm save(final Realm realm) {
         String fullPathBefore = realm.getFullPath();
         String fullPathAfter = buildFullPath(realm);
@@ -297,6 +350,9 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         if (!fullPathAfter.equals(fullPathBefore)) {
             findChildren(realm).forEach(this::save);
         }
+
+        publisher.publishEvent(
+                new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, merged, AuthContextUtils.getDomain()));
 
         return merged;
     }
@@ -313,6 +369,9 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
             toBeDeleted.setParent(null);
 
             entityManager().remove(toBeDeleted);
+
+            publisher.publishEvent(
+                    new EntityLifecycleEvent<>(this, SyncDeltaType.DELETE, toBeDeleted, AuthContextUtils.getDomain()));
         });
     }
 }
