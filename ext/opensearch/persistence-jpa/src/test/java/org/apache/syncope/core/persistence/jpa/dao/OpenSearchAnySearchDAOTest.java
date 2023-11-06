@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -113,22 +114,19 @@ public class OpenSearchAnySearchDAOTest {
     public void getAdminRealmsFilter4realm() throws IOException {
         // 1. mock
         Realm root = mock(Realm.class);
-        when(root.getKey()).thenReturn("rootKey");
         when(root.getFullPath()).thenReturn(SyncopeConstants.ROOT_REALM);
 
         when(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenReturn(root);
-        when(realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, null, -1, -1)).thenReturn(List.of(root));
+        when(realmDAO.findDescendants(eq(SyncopeConstants.ROOT_REALM), anyString())).thenReturn(List.of("rootKey"));
 
         // 2. test
         Set<String> adminRealms = Set.of(SyncopeConstants.ROOT_REALM);
         Triple<Optional<Query>, Set<String>, Set<String>> filter =
                 searchDAO.getAdminRealmsFilter(root, true, adminRealms, AnyTypeKind.USER);
 
-        assertThat(
-                new Query.Builder().disMax(QueryBuilders.disMax().queries(
-                        new Query.Builder().term(QueryBuilders.term().field("realm").value(
-                                FieldValue.of("rootKey")).build()).build()).build()).
-                        build()).
+        assertThat(new Query.Builder().disMax(QueryBuilders.disMax().queries(
+                new Query.Builder().term(QueryBuilders.term().field("realm").value(FieldValue.of("rootKey")).build()).
+                        build()).build()).build()).
                 usingRecursiveComparison().isEqualTo(filter.getLeft().get());
         assertEquals(Set.of(), filter.getMiddle());
         assertEquals(Set.of(), filter.getRight());

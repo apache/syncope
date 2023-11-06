@@ -147,14 +147,14 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public int count() {
         Query query = entityManager().createQuery(
-                "SELECT COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e");
+                "SELECT COUNT(e) FROM " + anyUtils().anyClass().getSimpleName() + " e");
         return ((Number) query.getSingleResult()).intValue();
     }
 
     @Override
     public Map<String, Integer> countByRealm() {
         Query query = entityManager().createQuery(
-                "SELECT e.realm, COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e GROUP BY e.realm");
+                "SELECT e.realm, COUNT(e) FROM " + anyUtils().anyClass().getSimpleName() + " e GROUP BY e.realm");
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -166,7 +166,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public Map<String, Integer> countByStatus() {
         Query query = entityManager().createQuery(
-                "SELECT e.status, COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e GROUP BY e.status");
+                "SELECT e.status, COUNT(e) FROM " + anyUtils().anyClass().getSimpleName() + " e GROUP BY e.status");
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -270,7 +270,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public List<User> findAll(final int page, final int itemsPerPage) {
         TypedQuery<User> query = entityManager().createQuery(
-                "SELECT e FROM  " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", User.class);
+                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", User.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 

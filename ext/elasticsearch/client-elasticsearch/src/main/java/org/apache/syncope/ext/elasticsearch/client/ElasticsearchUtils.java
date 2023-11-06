@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -50,6 +51,10 @@ public class ElasticsearchUtils {
 
     public static String getAnyIndex(final String domain, final AnyTypeKind kind) {
         return domain.toLowerCase() + '_' + kind.name().toLowerCase();
+    }
+
+    public static String getRealmIndex(final String domain) {
+        return domain.toLowerCase() + "_realm";
     }
 
     public static String getAuditIndex(final String domain) {
@@ -121,7 +126,7 @@ public class ElasticsearchUtils {
             builder.put("relationships", relationships);
             builder.put("relationshipTypes", relationshipTypes);
 
-            ElasticsearchUtils.this.customizeDocument(builder, anyObject);
+            customizeDocument(builder, anyObject);
         } else if (any instanceof Group) {
             Group group = ((Group) any);
             builder.put("name", group.getName());
@@ -137,7 +142,7 @@ public class ElasticsearchUtils {
             members.addAll(groupDAO.findADynMembers(group));
             builder.put("members", members);
 
-            ElasticsearchUtils.this.customizeDocument(builder, group);
+            customizeDocument(builder, group);
         } else if (any instanceof User) {
             User user = ((User) any);
             builder.put("username", user.getUsername());
@@ -191,6 +196,21 @@ public class ElasticsearchUtils {
     }
 
     protected void customizeDocument(final Map<String, Object> builder, final User user) {
+    }
+
+    public Map<String, Object> document(final Realm realm) {
+        Map<String, Object> builder = new HashMap<>();
+        builder.put("id", realm.getKey());
+        builder.put("name", realm.getName());
+        builder.put("parent_id", realm.getParent() == null ? null : realm.getParent().getKey());
+        builder.put("fullPath", realm.getFullPath());
+
+        customizeDocument(builder, realm);
+
+        return builder;
+    }
+
+    protected void customizeDocument(final Map<String, Object> builder, final Realm realm) {
     }
 
     public Map<String, Object> document(
