@@ -26,14 +26,17 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.jpa.dao.OpenSearchAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.OpenSearchAuditConfDAO;
+import org.apache.syncope.core.persistence.jpa.dao.OpenSearchRealmDAO;
 import org.apache.syncope.ext.opensearch.client.OpenSearchProperties;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -68,6 +71,17 @@ public class OpenSearchPersistenceContext {
                 validator,
                 client,
                 props.getIndexMaxResultWindow());
+    }
+
+    @ConditionalOnMissingBean(name = "openSearchRealmDAO")
+    @Bean
+    public RealmDAO realmDAO(
+            final @Lazy RoleDAO roleDAO,
+            final ApplicationEventPublisher publisher,
+            final OpenSearchProperties props,
+            final OpenSearchClient client) {
+
+        return new OpenSearchRealmDAO(roleDAO, publisher, client, props.getIndexMaxResultWindow());
     }
 
     @ConditionalOnMissingBean(name = "openSearchAuditConfDAO")

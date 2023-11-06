@@ -58,7 +58,7 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
-import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -236,7 +236,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                             taskInfo.getEntityKey(),
                             plainSchemaDAO.find(provision.getUidOnCreate()),
                             result.getUidValue());
-                    publisher.publishEvent(new AnyLifecycleEvent<>(
+                    publisher.publishEvent(new EntityLifecycleEvent<>(
                             this,
                             SyncDeltaType.UPDATE,
                             anyUtils.dao().find(taskInfo.getEntityKey()),

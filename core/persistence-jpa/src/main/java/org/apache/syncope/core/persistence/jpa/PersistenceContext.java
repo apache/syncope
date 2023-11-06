@@ -605,8 +605,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public RealmDAO realmDAO(final @Lazy RoleDAO roleDAO) {
-        return new JPARealmDAO(roleDAO);
+    public RealmDAO realmDAO(final @Lazy RoleDAO roleDAO, final ApplicationEventPublisher publisher) {
+        return new JPARealmDAO(roleDAO, publisher);
     }
 
     @ConditionalOnMissingBean

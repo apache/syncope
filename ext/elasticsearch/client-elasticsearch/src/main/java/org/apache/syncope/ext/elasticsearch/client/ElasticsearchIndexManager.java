@@ -20,6 +20,7 @@ package org.apache.syncope.ext.elasticsearch.client;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.Refresh;
 import co.elastic.clients.elasticsearch._types.analysis.CustomNormalizer;
 import co.elastic.clients.elasticsearch._types.analysis.Normalizer;
 import co.elastic.clients.elasticsearch._types.mapping.DynamicTemplate;
@@ -45,7 +46,9 @@ import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.slf4j.Logger;
@@ -85,6 +88,12 @@ public class ElasticsearchIndexManager {
                 value();
     }
 
+    public boolean existsRealmIndex(final String domain) throws IOException {
+        return client.indices().exists(new ExistsRequest.Builder().
+                index(ElasticsearchUtils.getRealmIndex(domain)).build()).
+                value();
+    }
+
     public boolean existsAuditIndex(final String domain) throws IOException {
         return client.indices().exists(new ExistsRequest.Builder().
                 index(ElasticsearchUtils.getAuditIndex(domain)).build()).
@@ -107,6 +116,19 @@ public class ElasticsearchIndexManager {
     }
 
     public TypeMapping defaultAnyMapping() throws IOException {
+        return new TypeMapping.Builder().
+                dynamicTemplates(List.of(Map.of(
+                        "strings",
+                        new DynamicTemplate.Builder().
+                                matchMappingType("string").
+                                mapping(new Property.Builder().
+                                        keyword(new KeywordProperty.Builder().normalizer("string_lowercase").build()).
+                                        build()).
+                                build()))).
+                build();
+    }
+
+    public TypeMapping defaultRealmMapping() throws IOException {
         return new TypeMapping.Builder().
                 dynamicTemplates(List.of(Map.of(
                         "strings",
@@ -198,6 +220,45 @@ public class ElasticsearchIndexManager {
         LOG.debug("Successfully removed {}: {}", ElasticsearchUtils.getAnyIndex(domain, kind), response);
     }
 
+    protected CreateIndexResponse doCreateRealmIndex(
+            final String domain,
+            final IndexSettings settings,
+            final TypeMapping mappings) throws IOException {
+
+        return client.indices().create(
+                new CreateIndexRequest.Builder().
+                        index(ElasticsearchUtils.getRealmIndex(domain)).
+                        settings(settings).
+                        mappings(mappings).
+                        build());
+    }
+
+    public void createRealmIndex(
+            final String domain,
+            final IndexSettings settings,
+            final TypeMapping mappings)
+            throws IOException {
+
+        try {
+            CreateIndexResponse response = doCreateRealmIndex(domain, settings, mappings);
+
+            LOG.debug("Successfully created realm index {}: {}",
+                    ElasticsearchUtils.getRealmIndex(domain), response);
+        } catch (ElasticsearchException e) {
+            LOG.debug("Could not create realm index {} because it already exists",
+                    ElasticsearchUtils.getRealmIndex(domain), e);
+
+            removeRealmIndex(domain);
+            doCreateRealmIndex(domain, settings, mappings);
+        }
+    }
+
+    public void removeRealmIndex(final String domain) throws IOException {
+        DeleteIndexResponse response = client.indices().delete(
+                new DeleteIndexRequest.Builder().index(ElasticsearchUtils.getRealmIndex(domain)).build());
+        LOG.debug("Successfully removed {}: {}", ElasticsearchUtils.getRealmIndex(domain), response);
+    }
+
     protected CreateIndexResponse doCreateAuditIndex(
             final String domain,
             final IndexSettings settings,
@@ -238,31 +299,54 @@ public class ElasticsearchIndexManager {
     }
 
     @TransactionalEventListener
-    public void any(final AnyLifecycleEvent<Any<?>> event) throws IOException {
-        LOG.debug("About to {} index for {}", event.getType().name(), event.getAny());
+    public void entity(final EntityLifecycleEvent<Entity> event) throws IOException {
+        LOG.debug("About to {} index for {}", event.getType().name(), event.getEntity());
 
-        if (event.getType() == SyncDeltaType.DELETE) {
-            DeleteRequest request = new DeleteRequest.Builder().index(
-                    ElasticsearchUtils.getAnyIndex(event.getDomain(), event.getAny().getType().getKind())).
-                    id(event.getAny().getKey()).
-                    build();
-            DeleteResponse response = client.delete(request);
-            LOG.debug("Index successfully deleted for {}[{}]: {}",
-                    event.getAny().getType().getKind(), event.getAny().getKey(), response);
-        } else {
-            IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
-                    index(ElasticsearchUtils.getAnyIndex(event.getDomain(), event.getAny().getType().getKind())).
-                    id(event.getAny().getKey()).
-                    document(elasticsearchUtils.document(event.getAny())).
-                    build();
-            IndexResponse response = client.index(request);
-            LOG.debug("Index successfully created or updated for {}: {}", event.getAny(), response);
+        if (event.getEntity() instanceof Any) {
+            Any<?> any = (Any<?>) event.getEntity();
+
+            if (event.getType() == SyncDeltaType.DELETE) {
+                DeleteRequest request = new DeleteRequest.Builder().index(
+                        ElasticsearchUtils.getAnyIndex(event.getDomain(), any.getType().getKind())).
+                        id(any.getKey()).
+                        build();
+                DeleteResponse response = client.delete(request);
+                LOG.debug("Index successfully deleted for {}[{}]: {}",
+                        any.getType().getKind(), any.getKey(), response);
+            } else {
+                IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
+                        index(ElasticsearchUtils.getAnyIndex(event.getDomain(), any.getType().getKind())).
+                        id(any.getKey()).
+                        document(elasticsearchUtils.document(any)).
+                        build();
+                IndexResponse response = client.index(request);
+                LOG.debug("Index successfully created or updated for {}: {}", any, response);
+            }
+        } else if (event.getEntity() instanceof Realm) {
+            Realm realm = (Realm) event.getEntity();
+
+            if (event.getType() == SyncDeltaType.DELETE) {
+                DeleteRequest request = new DeleteRequest.Builder().
+                        index(ElasticsearchUtils.getRealmIndex(event.getDomain())).
+                        id(realm.getKey()).
+                        refresh(Refresh.True).
+                        build();
+                DeleteResponse response = client.delete(request);
+                LOG.debug("Index successfully deleted for {}: {}", realm, response);
+            } else {
+                IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
+                        index(ElasticsearchUtils.getRealmIndex(event.getDomain())).
+                        id(realm.getKey()).
+                        document(elasticsearchUtils.document(realm)).
+                        refresh(Refresh.True).
+                        build();
+                IndexResponse response = client.index(request);
+                LOG.debug("Index successfully created or updated for {}: {}", realm, response);
+            }
         }
     }
 
-    public void audit(final String domain, final long instant, final JsonNode message)
-            throws IOException {
-
+    public void audit(final String domain, final long instant, final JsonNode message) throws IOException {
         LOG.debug("About to audit");
 
         IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().

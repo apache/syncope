@@ -45,13 +45,13 @@ import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
@@ -266,12 +266,12 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     }
 
     @Override
-    public void cancelByUser(final AnyLifecycleEvent<Any<?>> event) {
+    public void cancelByUser(final EntityLifecycleEvent<Entity> event) {
         if (AuthContextUtils.getDomain().equals(event.getDomain())
                 && event.getType() == SyncDeltaType.DELETE
-                && event.getAny() instanceof User) {
+                && event.getEntity() instanceof User) {
 
-            User user = (User) event.getAny();
+            User user = (User) event.getEntity();
             engine.getRuntimeService().createNativeProcessInstanceQuery().
                     sql(createProcessInstanceQuery(user.getKey()).toString()).
                     list().forEach(procInst -> engine.getRuntimeService().deleteProcessInstance(
