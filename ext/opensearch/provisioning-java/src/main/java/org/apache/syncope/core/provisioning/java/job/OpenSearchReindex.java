@@ -23,6 +23,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -61,6 +62,9 @@ public class OpenSearchReindex extends AbstractSchedTaskJobDelegate<SchedTask> {
     @Autowired
     protected AnyObjectDAO anyObjectDAO;
 
+    @Autowired
+    protected RealmDAO realmDAO;
+
     protected IndexSettings userSettings() throws IOException {
         return indexManager.defaultSettings();
     }
@@ -70,6 +74,10 @@ public class OpenSearchReindex extends AbstractSchedTaskJobDelegate<SchedTask> {
     }
 
     protected IndexSettings anyObjectSettings() throws IOException {
+        return indexManager.defaultSettings();
+    }
+
+    protected IndexSettings realmSettings() throws IOException {
         return indexManager.defaultSettings();
     }
 
@@ -87,6 +95,10 @@ public class OpenSearchReindex extends AbstractSchedTaskJobDelegate<SchedTask> {
 
     protected TypeMapping anyObjectMapping() throws IOException {
         return indexManager.defaultAnyMapping();
+    }
+
+    protected TypeMapping realmMapping() throws IOException {
+        return indexManager.defaultRealmMapping();
     }
 
     protected TypeMapping auditMapping() throws IOException {
@@ -176,6 +188,31 @@ public class OpenSearchReindex extends AbstractSchedTaskJobDelegate<SchedTask> {
                     } catch (Exception e) {
                         LOG.error("Could not create index for {} [{}/{}]: {}",
                                 aindex, page, AnyDAO.DEFAULT_PAGE_SIZE, e);
+                    }
+                }
+
+                indexManager.createRealmIndex(AuthContextUtils.getDomain(), realmSettings(), realmMapping());
+
+                int realms = realmDAO.count();
+                String rindex = OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain());
+                setStatus("Indexing " + realms + " realms under " + rindex + "...");
+                for (int page = 1; page <= (realms / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                    BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
+
+                    for (String realm : realmDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                        bulkRequest.operations(op -> op.index(idx -> idx.
+                                index(rindex).
+                                id(realm).
+                                document(utils.document(realmDAO.find(realm)))));
+                    }
+
+                    try {
+                        BulkResponse response = client.bulk(bulkRequest.build());
+                        LOG.debug("Index successfully created for {} [{}/{}]: {}",
+                                rindex, page, AnyDAO.DEFAULT_PAGE_SIZE, response);
+                    } catch (Exception e) {
+                        LOG.error("Could not create index for {} [{}/{}]: {}",
+                                rindex, page, AnyDAO.DEFAULT_PAGE_SIZE, e);
                     }
                 }
 

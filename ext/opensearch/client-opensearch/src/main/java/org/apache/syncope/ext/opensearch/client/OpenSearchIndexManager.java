@@ -25,11 +25,13 @@ import java.util.Map;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.OpenSearchException;
+import org.opensearch.client.opensearch._types.Refresh;
 import org.opensearch.client.opensearch._types.analysis.CustomNormalizer;
 import org.opensearch.client.opensearch._types.analysis.Normalizer;
 import org.opensearch.client.opensearch._types.mapping.DynamicTemplate;
@@ -62,7 +64,7 @@ public class OpenSearchIndexManager {
 
     protected final OpenSearchClient client;
 
-    protected final OpenSearchUtils ppenSearchUtils;
+    protected final OpenSearchUtils openSearchUtils;
 
     protected final String numberOfShards;
 
@@ -75,7 +77,7 @@ public class OpenSearchIndexManager {
             final String numberOfReplicas) {
 
         this.client = client;
-        this.ppenSearchUtils = ppenSearchUtils;
+        this.openSearchUtils = ppenSearchUtils;
         this.numberOfShards = numberOfShards;
         this.numberOfReplicas = numberOfReplicas;
     }
@@ -83,6 +85,12 @@ public class OpenSearchIndexManager {
     public boolean existsAnyIndex(final String domain, final AnyTypeKind kind) throws IOException {
         return client.indices().exists(new ExistsRequest.Builder().
                 index(OpenSearchUtils.getAnyIndex(domain, kind)).build()).
+                value();
+    }
+
+    public boolean existsRealmIndex(final String domain) throws IOException {
+        return client.indices().exists(new ExistsRequest.Builder().
+                index(OpenSearchUtils.getRealmIndex(domain)).build()).
                 value();
     }
 
@@ -108,6 +116,19 @@ public class OpenSearchIndexManager {
     }
 
     public TypeMapping defaultAnyMapping() throws IOException {
+        return new TypeMapping.Builder().
+                dynamicTemplates(List.of(Map.of(
+                        "strings",
+                        new DynamicTemplate.Builder().
+                                matchMappingType("string").
+                                mapping(new Property.Builder().
+                                        keyword(new KeywordProperty.Builder().normalizer("string_lowercase").build()).
+                                        build()).
+                                build()))).
+                build();
+    }
+
+    public TypeMapping defaultRealmMapping() throws IOException {
         return new TypeMapping.Builder().
                 dynamicTemplates(List.of(Map.of(
                         "strings",
@@ -199,6 +220,45 @@ public class OpenSearchIndexManager {
         LOG.debug("Successfully removed {}: {}", OpenSearchUtils.getAnyIndex(domain, kind), response);
     }
 
+    protected CreateIndexResponse doCreateRealmIndex(
+            final String domain,
+            final IndexSettings settings,
+            final TypeMapping mappings) throws IOException {
+
+        return client.indices().create(
+                new CreateIndexRequest.Builder().
+                        index(OpenSearchUtils.getRealmIndex(domain)).
+                        settings(settings).
+                        mappings(mappings).
+                        build());
+    }
+
+    public void createRealmIndex(
+            final String domain,
+            final IndexSettings settings,
+            final TypeMapping mappings)
+            throws IOException {
+
+        try {
+            CreateIndexResponse response = doCreateRealmIndex(domain, settings, mappings);
+
+            LOG.debug("Successfully created realm index {}: {}",
+                    OpenSearchUtils.getRealmIndex(domain), response);
+        } catch (OpenSearchException e) {
+            LOG.debug("Could not create realm index {} because it already exists",
+                    OpenSearchUtils.getRealmIndex(domain), e);
+
+            removeRealmIndex(domain);
+            doCreateRealmIndex(domain, settings, mappings);
+        }
+    }
+
+    public void removeRealmIndex(final String domain) throws IOException {
+        DeleteIndexResponse response = client.indices().delete(
+                new DeleteIndexRequest.Builder().index(OpenSearchUtils.getRealmIndex(domain)).build());
+        LOG.debug("Successfully removed {}: {}", OpenSearchUtils.getRealmIndex(domain), response);
+    }
+
     protected CreateIndexResponse doCreateAuditIndex(
             final String domain,
             final IndexSettings settings,
@@ -239,7 +299,7 @@ public class OpenSearchIndexManager {
     }
 
     @TransactionalEventListener
-    public void any(final EntityLifecycleEvent<Entity> event) throws IOException {
+    public void entity(final EntityLifecycleEvent<Entity> event) throws IOException {
         LOG.debug("About to {} index for {}", event.getType().name(), event.getEntity());
 
         if (event.getEntity() instanceof Any) {
@@ -257,23 +317,42 @@ public class OpenSearchIndexManager {
                 IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
                         index(OpenSearchUtils.getAnyIndex(event.getDomain(), any.getType().getKind())).
                         id(any.getKey()).
-                        document(ppenSearchUtils.document(any)).
+                        document(openSearchUtils.document(any)).
                         build();
                 IndexResponse response = client.index(request);
                 LOG.debug("Index successfully created or updated for {}: {}", any, response);
             }
+        } else if (event.getEntity() instanceof Realm) {
+            Realm realm = (Realm) event.getEntity();
+
+            if (event.getType() == SyncDeltaType.DELETE) {
+                DeleteRequest request = new DeleteRequest.Builder().
+                        index(OpenSearchUtils.getRealmIndex(event.getDomain())).
+                        id(realm.getKey()).
+                        refresh(Refresh.True).
+                        build();
+                DeleteResponse response = client.delete(request);
+                LOG.debug("Index successfully deleted for {}: {}", realm, response);
+            } else {
+                IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
+                        index(OpenSearchUtils.getRealmIndex(event.getDomain())).
+                        id(realm.getKey()).
+                        document(openSearchUtils.document(realm)).
+                        refresh(Refresh.True).
+                        build();
+                IndexResponse response = client.index(request);
+                LOG.debug("Index successfully created or updated for {}: {}", realm, response);
+            }
         }
     }
 
-    public void audit(final String domain, final long instant, final JsonNode message)
-            throws IOException {
-
+    public void audit(final String domain, final long instant, final JsonNode message) throws IOException {
         LOG.debug("About to audit");
 
         IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
                 index(OpenSearchUtils.getAuditIndex(domain)).
                 id(SecureRandomUtils.generateRandomUUID().toString()).
-                document(ppenSearchUtils.document(instant, message, domain)).
+                document(openSearchUtils.document(instant, message, domain)).
                 build();
         IndexResponse response = client.index(request);
 

@@ -126,7 +126,7 @@ public class ElasticsearchUtils {
             builder.put("relationships", relationships);
             builder.put("relationshipTypes", relationshipTypes);
 
-            ElasticsearchUtils.this.customizeDocument(builder, anyObject);
+            customizeDocument(builder, anyObject);
         } else if (any instanceof Group) {
             Group group = ((Group) any);
             builder.put("name", group.getName());
@@ -142,7 +142,7 @@ public class ElasticsearchUtils {
             members.addAll(groupDAO.findADynMembers(group));
             builder.put("members", members);
 
-            ElasticsearchUtils.this.customizeDocument(builder, group);
+            customizeDocument(builder, group);
         } else if (any instanceof User) {
             User user = ((User) any);
             builder.put("username", user.getUsername());

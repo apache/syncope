@@ -18,17 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.ScriptLanguage;
-import co.elastic.clients.elasticsearch._types.ScriptSortType;
-import co.elastic.clients.elasticsearch._types.SearchType;
-import co.elastic.clients.elasticsearch._types.SortOptions;
-import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
-import co.elastic.clients.elasticsearch.core.CountRequest;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.search.Hit;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -37,28 +26,39 @@ import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
+import org.apache.syncope.ext.opensearch.client.OpenSearchUtils;
+import org.opensearch.client.opensearch.OpenSearchClient;
+import org.opensearch.client.opensearch._types.FieldValue;
+import org.opensearch.client.opensearch._types.ScriptSortType;
+import org.opensearch.client.opensearch._types.SearchType;
+import org.opensearch.client.opensearch._types.SortOptions;
+import org.opensearch.client.opensearch._types.SortOrder;
+import org.opensearch.client.opensearch._types.query_dsl.Query;
+import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
+import org.opensearch.client.opensearch.core.CountRequest;
+import org.opensearch.client.opensearch.core.SearchRequest;
+import org.opensearch.client.opensearch.core.search.Hit;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
-public class ElasticsearchRealmDAO extends JPARealmDAO {
+public class OpenSearchRealmDAO extends JPARealmDAO {
 
     protected static final List<SortOptions> ES_SORT_OPTIONS_REALM = List.of(
             new SortOptions.Builder().
                     script(s -> s.type(ScriptSortType.Number).
-                    script(t -> t.inline(i -> i.lang(ScriptLanguage.Painless).
+                    script(t -> t.inline(i -> i.lang("painless").
                     source("doc['fullPath'].value.chars().filter(ch -> ch == '/').count()"))).
                     order(SortOrder.Asc)).
                     build());
 
-    protected final ElasticsearchClient client;
+    protected final OpenSearchClient client;
 
     protected final int indexMaxResultWindow;
 
-    public ElasticsearchRealmDAO(
+    public OpenSearchRealmDAO(
             final RoleDAO roleDAO,
             final ApplicationEventPublisher publisher,
-            final ElasticsearchClient client,
+            final OpenSearchClient client,
             final int indexMaxResultWindow) {
 
         super(roleDAO, publisher);
@@ -78,10 +78,10 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
         }
 
         SearchRequest request = new SearchRequest.Builder().
-                index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
+                index(OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(new Query.Builder().term(QueryBuilders.term().
-                        field("fullPath").value(fullPath).build()).build()).
+                        field("fullPath").value(FieldValue.of(fullPath)).build()).build()).
                 size(1).
                 build();
 
@@ -99,7 +99,7 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
 
     protected List<String> search(final Query query) {
         SearchRequest request = new SearchRequest.Builder().
-                index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
+                index(OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(query).
                 sort(ES_SORT_OPTIONS_REALM).
@@ -110,7 +110,7 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
                     map(Hit::id).
                     collect(Collectors.toList());
         } catch (Exception e) {
-            LOG.error("While searching in Elasticsearch", e);
+            LOG.error("While searching in OpenSearch", e);
             return List.of();
         }
     }
@@ -119,7 +119,7 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
     public List<Realm> findByName(final String name) {
         List<String> result = search(
                 new Query.Builder().term(QueryBuilders.term().
-                        field("name").value(name).build()).build());
+                        field("name").value(FieldValue.of(name)).build()).build());
         return result.stream().map(this::find).collect(Collectors.toList());
     }
 
@@ -127,14 +127,14 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
     public List<Realm> findChildren(final Realm realm) {
         List<String> result = search(
                 new Query.Builder().term(QueryBuilders.term().
-                        field("parent_id").value(realm.getKey()).build()).build());
+                        field("parent_id").value(FieldValue.of(realm.getKey())).build()).build());
         return result.stream().map(this::find).collect(Collectors.toList());
     }
 
     protected Query buildDescendantQuery(final String base, final String keyword) {
         Query prefix = new Query.Builder().disMax(QueryBuilders.disMax().queries(
                 new Query.Builder().term(QueryBuilders.term().
-                        field("fullPath").value(base).build()).build(),
+                        field("fullPath").value(FieldValue.of(base)).build()).build(),
                 new Query.Builder().regexp(QueryBuilders.regexp().
                         field("fullPath").value(SyncopeConstants.ROOT_REALM.equals(base) ? "/.*" : base + "/.*").
                         build()).build()).build()).build();
@@ -154,14 +154,14 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
     @Override
     public int countDescendants(final String base, final String keyword) {
         CountRequest request = new CountRequest.Builder().
-                index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
+                index(OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 query(buildDescendantQuery(base, keyword)).
                 build();
 
         try {
             return (int) client.count(request).count();
         } catch (Exception e) {
-            LOG.error("While counting in Elasticsearch", e);
+            LOG.error("While counting in OpenSearch", e);
             return 0;
         }
     }
@@ -174,7 +174,7 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
             final int itemsPerPage) {
 
         SearchRequest request = new SearchRequest.Builder().
-                index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
+                index(OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(buildDescendantQuery(base, keyword)).
                 from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
@@ -188,7 +188,7 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
                     map(Hit::id).
                     collect(Collectors.toList());
         } catch (Exception e) {
-            LOG.error("While searching in Elasticsearch", e);
+            LOG.error("While searching in OpenSearch", e);
         }
 
         return result.stream().map(this::find).collect(Collectors.toList());
@@ -198,7 +198,7 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
     public List<String> findDescendants(final String base, final String prefix) {
         Query prefixQuery = new Query.Builder().disMax(QueryBuilders.disMax().queries(
                 new Query.Builder().term(QueryBuilders.term().
-                        field("fullPath").value(base).build()).build(),
+                        field("fullPath").value(FieldValue.of(base)).build()).build(),
                 new Query.Builder().prefix(QueryBuilders.prefix().
                         field("fullPath").value(SyncopeConstants.ROOT_REALM.equals(prefix) ? "/" : prefix + "/").
                         build()).build()).build()).build();
@@ -209,7 +209,7 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
                 build();
 
         SearchRequest request = new SearchRequest.Builder().
-                index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
+                index(OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(query).
                 from(0).
@@ -223,7 +223,7 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
                     map(Hit::id).
                     collect(Collectors.toList());
         } catch (Exception e) {
-            LOG.error("While searching in Elasticsearch", e);
+            LOG.error("While searching in OpenSearch", e);
         }
         return result;
     }
