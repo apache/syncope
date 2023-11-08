@@ -194,7 +194,6 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             readOnly = plainSchema.isReadonly();
             type = plainSchema.getType();
             jexlHelp = false;
-
         }
 
         FieldPanel panel;
