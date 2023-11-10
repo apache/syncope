@@ -64,4 +64,12 @@ public interface OIDCRPClientApp extends ClientApp {
     String getJwks();
 
     void setJwks(String jwks);
+
+    String getJwksUri();
+
+    void setJwksUri(String jwksUri);
+
+    String getTokenEndpointAuthenticationMethod();
+
+    void setTokenEndpointAuthenticationMethod(String tokenEndpointAuthenticationMethod);
 }

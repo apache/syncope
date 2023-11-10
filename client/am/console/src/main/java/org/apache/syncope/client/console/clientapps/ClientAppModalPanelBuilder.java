@@ -359,6 +359,18 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                         jwks.setNewModel(new PropertyModel<>(clientAppTO, "jwks"));
                     }
                     fields.add(jwks);
+
+                    AjaxTextFieldPanel jwksUri = new AjaxTextFieldPanel(
+                            "field", "jwksUri", new PropertyModel<>(clientAppTO, "jwksUri"), false);
+                    jwksUri.addValidator(new UrlValidator());
+                    fields.add(jwksUri);
+
+                    AjaxTextFieldPanel tokenEndpointAuthenticationMethod = new AjaxTextFieldPanel(
+                            "field",
+                            "tokenEndpointAuthenticationMethod",
+                            new PropertyModel<>(clientAppTO, "tokenEndpointAuthenticationMethod"),
+                            false);
+                    fields.add(tokenEndpointAuthenticationMethod);
                     break;
 
                 case SAML2SP:

@@ -59,6 +59,10 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private String jwks;
 
+    private String jwksUri;
+
+    private String tokenEndpointAuthenticationMethod = "client_secret_basic";
+
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
@@ -156,6 +160,22 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.jwks = jwks;
     }
 
+    public String getJwksUri() {
+        return jwksUri;
+    }
+
+    public void setJwksUri(final String jwksUri) {
+        this.jwksUri = jwksUri;
+    }
+
+    public String getTokenEndpointAuthenticationMethod() {
+        return tokenEndpointAuthenticationMethod;
+    }
+
+    public void setTokenEndpointAuthenticationMethod(final String tokenEndpointAuthenticationMethod) {
+        this.tokenEndpointAuthenticationMethod = tokenEndpointAuthenticationMethod;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (obj == null) {
@@ -182,6 +202,8 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(this.scopes, rhs.scopes)
                 .append(this.bypassApprovalPrompt, rhs.bypassApprovalPrompt)
                 .append(this.jwks, rhs.jwks)
+                .append(this.jwksUri, rhs.jwksUri)
+                .append(this.tokenEndpointAuthenticationMethod, rhs.tokenEndpointAuthenticationMethod)
                 .isEquals();
     }
 
@@ -201,6 +223,8 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(scopes)
                 .append(bypassApprovalPrompt)
                 .append(jwks)
+                .append(jwksUri)
+                .append(tokenEndpointAuthenticationMethod)
                 .toHashCode();
     }
 }

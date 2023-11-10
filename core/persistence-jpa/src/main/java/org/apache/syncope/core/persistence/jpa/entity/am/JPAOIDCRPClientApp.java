@@ -105,6 +105,10 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Lob
     private String jwks;
 
+    private String jwksUri;
+
+    private String tokenEndpointAuthenticationMethod;
+
     @Override
     public Set<String> getRedirectUris() {
         return redirectUrisSet;
@@ -203,6 +207,26 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Override
     public void setJwks(final String jwks) {
         this.jwks = jwks;
+    }
+
+    @Override
+    public String getJwksUri() {
+        return jwksUri;
+    }
+
+    @Override
+    public void setJwksUri(final String jwksUri) {
+        this.jwksUri = jwksUri;
+    }
+
+    @Override
+    public String getTokenEndpointAuthenticationMethod() {
+        return tokenEndpointAuthenticationMethod;
+    }
+
+    @Override
+    public void setTokenEndpointAuthenticationMethod(final String tokenEndpointAuthenticationMethod) {
+        this.tokenEndpointAuthenticationMethod = tokenEndpointAuthenticationMethod;
     }
 
     protected void json2list(final boolean clearFirst) {
