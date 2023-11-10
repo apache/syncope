@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.client.console.clientapps;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -37,6 +40,7 @@ import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSearchFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -53,6 +57,7 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.OIDCScopeConstants;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.LogoutType;
@@ -344,6 +349,16 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                             "field", "logoutUri", new PropertyModel<>(clientAppTO, "logoutUri"), false);
                     logoutUri.addValidator(new UrlValidator());
                     fields.add(logoutUri);
+
+                    BinaryFieldPanel jwks = new BinaryFieldPanel(
+                            "field", "jwks", new PropertyModel<>(clientAppTO, "jwks"), MediaType.APPLICATION_JSON, "");
+                    if (clientAppTO instanceof OIDCRPClientAppTO
+                            && StringUtils.isNotBlank(((OIDCRPClientAppTO) clientAppTO).getJwks())) {
+                        ((OIDCRPClientAppTO) clientAppTO).setJwks(Base64.getEncoder().encodeToString(
+                                ((OIDCRPClientAppTO) clientAppTO).getJwks().getBytes(StandardCharsets.UTF_8)));
+                        jwks.setNewModel(new PropertyModel<>(clientAppTO, "jwks"));
+                    }
+                    fields.add(jwks);
                     break;
 
                 case SAML2SP:
@@ -455,6 +470,10 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         @Override
         public void onSubmit(final AjaxRequestTarget target) {
             try {
+                if (clientAppTO instanceof OIDCRPClientAppTO) {
+                    ((OIDCRPClientAppTO) clientAppTO).setJwks(new String(Base64.getDecoder().decode(
+                            ((OIDCRPClientAppTO) clientAppTO).getJwks()), StandardCharsets.UTF_8));
+                }
                 if (clientAppTO.getKey() == null) {
                     clientAppRestClient.create(type, clientAppTO);
                 } else {

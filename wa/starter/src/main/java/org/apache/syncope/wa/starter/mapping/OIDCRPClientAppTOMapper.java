@@ -83,6 +83,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         }
         service.setJwtAccessToken(rp.isJwtAccessToken());
         service.setBypassApprovalPrompt(rp.isBypassApprovalPrompt());
+        service.setJwks(rp.getJwks());
         service.setSupportedGrantTypes(rp.getSupportedGrantTypes().stream().
                 map(OIDCGrantType::name).collect(Collectors.toSet()));
         service.setSupportedResponseTypes(rp.getSupportedResponseTypes().stream().

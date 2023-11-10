@@ -57,6 +57,8 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private boolean bypassApprovalPrompt = true;
 
+    private String jwks;
+
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
@@ -146,6 +148,14 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.bypassApprovalPrompt = bypassApprovalPrompt;
     }
 
+    public String getJwks() {
+        return jwks;
+    }
+
+    public void setJwks(final String jwks) {
+        this.jwks = jwks;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (obj == null) {
@@ -171,6 +181,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(this.jwtAccessToken, rhs.jwtAccessToken)
                 .append(this.scopes, rhs.scopes)
                 .append(this.bypassApprovalPrompt, rhs.bypassApprovalPrompt)
+                .append(this.jwks, rhs.jwks)
                 .isEquals();
     }
 
@@ -189,6 +200,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(jwtAccessToken)
                 .append(scopes)
                 .append(bypassApprovalPrompt)
+                .append(jwks)
                 .toHashCode();
     }
 }

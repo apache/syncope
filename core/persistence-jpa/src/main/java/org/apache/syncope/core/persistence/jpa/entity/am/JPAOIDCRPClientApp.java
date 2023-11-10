@@ -102,6 +102,9 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     private String logoutUri;
 
+    @Lob
+    private String jwks;
+
     @Override
     public Set<String> getRedirectUris() {
         return redirectUrisSet;
@@ -190,6 +193,16 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Override
     public void setLogoutUri(final String logoutUri) {
         this.logoutUri = logoutUri;
+    }
+
+    @Override
+    public String getJwks() {
+        return jwks;
+    }
+
+    @Override
+    public void setJwks(final String jwks) {
+        this.jwks = jwks;
     }
 
     protected void json2list(final boolean clearFirst) {

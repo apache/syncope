@@ -60,4 +60,8 @@ public interface OIDCRPClientApp extends ClientApp {
     String getLogoutUri();
 
     void setLogoutUri(String logoutUri);
+
+    String getJwks();
+
+    void setJwks(String jwks);
 }
