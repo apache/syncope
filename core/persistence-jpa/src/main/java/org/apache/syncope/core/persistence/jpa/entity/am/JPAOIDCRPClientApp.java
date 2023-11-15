@@ -33,7 +33,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethods;
+import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
@@ -101,14 +101,14 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Transient
     private Set<String> scopesSet = new HashSet<>();
 
-    private String logoutUri;
-
     @Lob
     private String jwks;
 
     private String jwksUri;
 
-    private OIDCClientAuthenticationMethods tokenEndpointAuthenticationMethod;
+    private OIDCClientAuthenticationMethod tokenEndpointAuthenticationMethod;
+
+    private String logoutUri;
 
     @Override
     public Set<String> getRedirectUris() {
@@ -191,16 +191,6 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     }
 
     @Override
-    public String getLogoutUri() {
-        return logoutUri;
-    }
-
-    @Override
-    public void setLogoutUri(final String logoutUri) {
-        this.logoutUri = logoutUri;
-    }
-
-    @Override
     public String getJwks() {
         return jwks;
     }
@@ -221,14 +211,25 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     }
 
     @Override
-    public OIDCClientAuthenticationMethods getTokenEndpointAuthenticationMethod() {
+    public OIDCClientAuthenticationMethod getTokenEndpointAuthenticationMethod() {
         return tokenEndpointAuthenticationMethod;
     }
 
     @Override
     public void setTokenEndpointAuthenticationMethod(
-            final OIDCClientAuthenticationMethods tokenEndpointAuthenticationMethod) {
+            final OIDCClientAuthenticationMethod tokenEndpointAuthenticationMethod) {
+
         this.tokenEndpointAuthenticationMethod = tokenEndpointAuthenticationMethod;
+    }
+
+    @Override
+    public String getLogoutUri() {
+        return logoutUri;
+    }
+
+    @Override
+    public void setLogoutUri(final String logoutUri) {
+        this.logoutUri = logoutUri;
     }
 
     protected void json2list(final boolean clearFirst) {

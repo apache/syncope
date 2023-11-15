@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethods;
+import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
@@ -54,16 +54,16 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private final List<String> scopes = new ArrayList<>();
 
-    private String logoutUri;
-
     private boolean bypassApprovalPrompt = true;
 
     private String jwks;
 
     private String jwksUri;
 
-    private OIDCClientAuthenticationMethods tokenEndpointAuthenticationMethod =
-            OIDCClientAuthenticationMethods.CLIENT_SECRET_BASIC;
+    private OIDCClientAuthenticationMethod tokenEndpointAuthenticationMethod =
+            OIDCClientAuthenticationMethod.client_secret_basic;
+
+    private String logoutUri;
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -124,14 +124,6 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.subjectType = subjectType;
     }
 
-    public String getLogoutUri() {
-        return logoutUri;
-    }
-
-    public void setLogoutUri(final String logoutUri) {
-        this.logoutUri = logoutUri;
-    }
-
     public boolean isJwtAccessToken() {
         return jwtAccessToken;
     }
@@ -170,13 +162,21 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.jwksUri = jwksUri;
     }
 
-    public OIDCClientAuthenticationMethods getTokenEndpointAuthenticationMethod() {
+    public OIDCClientAuthenticationMethod getTokenEndpointAuthenticationMethod() {
         return tokenEndpointAuthenticationMethod;
     }
 
     public void setTokenEndpointAuthenticationMethod(
-            final OIDCClientAuthenticationMethods tokenEndpointAuthenticationMethod) {
+            final OIDCClientAuthenticationMethod tokenEndpointAuthenticationMethod) {
         this.tokenEndpointAuthenticationMethod = tokenEndpointAuthenticationMethod;
+    }
+
+    public String getLogoutUri() {
+        return logoutUri;
+    }
+
+    public void setLogoutUri(final String logoutUri) {
+        this.logoutUri = logoutUri;
     }
 
     @Override
@@ -200,13 +200,13 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(this.redirectUris, rhs.redirectUris)
                 .append(this.supportedGrantTypes, rhs.supportedGrantTypes)
                 .append(this.supportedResponseTypes, rhs.supportedResponseTypes)
-                .append(this.logoutUri, rhs.logoutUri)
                 .append(this.jwtAccessToken, rhs.jwtAccessToken)
                 .append(this.scopes, rhs.scopes)
                 .append(this.bypassApprovalPrompt, rhs.bypassApprovalPrompt)
                 .append(this.jwks, rhs.jwks)
                 .append(this.jwksUri, rhs.jwksUri)
                 .append(this.tokenEndpointAuthenticationMethod, rhs.tokenEndpointAuthenticationMethod)
+                .append(this.logoutUri, rhs.logoutUri)
                 .isEquals();
     }
 
@@ -221,13 +221,13 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(redirectUris)
                 .append(supportedGrantTypes)
                 .append(supportedResponseTypes)
-                .append(logoutUri)
                 .append(jwtAccessToken)
                 .append(scopes)
                 .append(bypassApprovalPrompt)
                 .append(jwks)
                 .append(jwksUri)
                 .append(tokenEndpointAuthenticationMethod)
+                .append(logoutUri)
                 .toHashCode();
     }
 }

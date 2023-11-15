@@ -61,7 +61,7 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.LogoutType;
-import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethods;
+import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
@@ -356,26 +356,28 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                             "jwks",
                             new Model<>() {
 
-                                private static final long serialVersionUID = 7666049400663637482L;
+                        private static final long serialVersionUID = 7666049400663637482L;
 
-                                @Override
-                                public String getObject() {
-                                    return StringUtils.isBlank(((OIDCRPClientAppTO) clientAppTO).getJwks())
-                                            ? null
-                                            : Base64.getEncoder().encodeToString(((OIDCRPClientAppTO) clientAppTO)
-                                            .getJwks().getBytes(StandardCharsets.UTF_8));
-                                }
+                        @Override
+                        public String getObject() {
+                            OIDCRPClientAppTO oidcRPCA = (OIDCRPClientAppTO) clientAppTO;
+                            return StringUtils.isBlank(oidcRPCA.getJwks())
+                                    ? null
+                                    : Base64.getEncoder().encodeToString(
+                                            oidcRPCA.getJwks().getBytes(StandardCharsets.UTF_8));
+                        }
 
-                                @Override
-                                public void setObject(final String object) {
-                                    if (StringUtils.isNotBlank(object)) {
-                                        ((OIDCRPClientAppTO) clientAppTO).setJwks(
-                                                new String(Base64.getDecoder().decode(object), StandardCharsets.UTF_8));
-                                    } else {
-                                        ((OIDCRPClientAppTO) clientAppTO).setJwks("");
-                                    }
-                                }
-                            },
+                        @Override
+                        public void setObject(final String object) {
+                            OIDCRPClientAppTO oidcRPCA = (OIDCRPClientAppTO) clientAppTO;
+                            if (StringUtils.isBlank(object)) {
+                                oidcRPCA.setJwks(null);
+                            } else {
+                                oidcRPCA.setJwks(
+                                        new String(Base64.getDecoder().decode(object), StandardCharsets.UTF_8));
+                            }
+                        }
+                    },
                             MediaType.APPLICATION_JSON,
                             "client-jwks");
                     fields.add(jwks);
@@ -385,13 +387,13 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     jwksUri.addValidator(new UrlValidator());
                     fields.add(jwksUri);
 
-                    AjaxDropDownChoicePanel<OIDCClientAuthenticationMethods> tokenEndpointAuthenticationMethod =
+                    AjaxDropDownChoicePanel<OIDCClientAuthenticationMethod> tokenEndpointAuthenticationMethod =
                             new AjaxDropDownChoicePanel<>(
-                            "field",
-                            "tokenEndpointAuthenticationMethod",
-                            new PropertyModel<>(clientAppTO, "tokenEndpointAuthenticationMethod"),
-                            false);
-                    tokenEndpointAuthenticationMethod.setChoices(List.of(OIDCClientAuthenticationMethods.values()));
+                                    "field",
+                                    "tokenEndpointAuthenticationMethod",
+                                    new PropertyModel<>(clientAppTO, "tokenEndpointAuthenticationMethod"),
+                                    false);
+                    tokenEndpointAuthenticationMethod.setChoices(List.of(OIDCClientAuthenticationMethod.values()));
                     fields.add(tokenEndpointAuthenticationMethod);
                     break;
 

@@ -18,20 +18,11 @@
  */
 package org.apache.syncope.common.lib.types;
 
-public enum OIDCClientAuthenticationMethods {
-    CLIENT_SECRET_BASIC("client_secret_basic"),
-    CLIENT_SECRET_POST("client_secret_post"),
-    CLIENT_SECRET_JWT("client_secret_jwt"),
-    PRIVATE_KEY_JWT("private_key_jwt"),
-    TLS_CLIENT_AUTH("tls_client_auth");
+public enum OIDCClientAuthenticationMethod {
+    client_secret_basic,
+    client_secret_post,
+    client_secret_jwt,
+    private_key_jwt,
+    tls_client_auth;
 
-    private final String authenticationMethod;
-
-    OIDCClientAuthenticationMethods(final String authenticationMethod) {
-        this.authenticationMethod = authenticationMethod;
-    }
-
-    public String getAuthenticationMethod() {
-        return authenticationMethod;
-    }
 }
