@@ -237,6 +237,9 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.getScopes().clear();
         clientApp.getScopes().addAll(clientAppTO.getScopes());
         clientApp.setLogoutUri(clientAppTO.getLogoutUri());
+        clientApp.setJwks(clientAppTO.getJwks());
+        clientApp.setJwksUri(clientAppTO.getJwksUri());
+        clientApp.setTokenEndpointAuthenticationMethod(clientAppTO.getTokenEndpointAuthenticationMethod());
     }
 
     protected OIDCRPClientAppTO getOIDCClientAppTO(final OIDCRPClientApp clientApp) {
@@ -254,6 +257,9 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setLogoutUri(clientApp.getLogoutUri());
         clientAppTO.setJwtAccessToken(clientApp.isJwtAccessToken());
         clientAppTO.setBypassApprovalPrompt(clientApp.isBypassApprovalPrompt());
+        clientAppTO.setJwks(clientApp.getJwks());
+        clientAppTO.setJwksUri(clientApp.getJwksUri());
+        clientAppTO.setTokenEndpointAuthenticationMethod(clientApp.getTokenEndpointAuthenticationMethod());
 
         return clientAppTO;
     }
