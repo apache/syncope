@@ -46,7 +46,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
@@ -250,7 +250,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
         // finally publish events for all groups affected by this operation, via membership
         user.getMemberships().stream().forEach(m -> publisher.publishEvent(
-                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, m.getRightEnd(), AuthContextUtils.getDomain())));
+                new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, m.getRightEnd(), AuthContextUtils.getDomain())));
 
         return result;
     }
@@ -318,7 +318,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         // finally publish events for all groups affected by this operation, via membership
         result.getResult().getLeft().getMemberships().stream().map(MembershipUR::getGroup).distinct().
                 map(groupDAO::find).filter(Objects::nonNull).
-                forEach(group -> publisher.publishEvent(new AnyLifecycleEvent<>(
+                forEach(group -> publisher.publishEvent(new EntityLifecycleEvent<>(
                 this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain())));
 
         return result;
@@ -410,7 +410,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         doDelete(user, eraser, context);
 
         // finally publish events for all groups affected by this operation, via membership
-        groups.forEach(group -> publisher.publishEvent(new AnyLifecycleEvent<>(
+        groups.forEach(group -> publisher.publishEvent(new EntityLifecycleEvent<>(
                 this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain())));
     }
 }

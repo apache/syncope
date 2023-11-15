@@ -81,6 +81,7 @@ under the License.
     <module>saml2sp4ui</module>
     <module>oidcc4ui</module>
     <module>elasticsearch</module>
+    <module>opensearch</module>
     <module>scimv2</module>
   </modules>
 

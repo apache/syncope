@@ -32,7 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -91,7 +91,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user = userDAO.save(user);
 
         publisher.publishEvent(
-                new AnyLifecycleEvent<>(this, SyncDeltaType.CREATE, user, AuthContextUtils.getDomain()));
+                new EntityLifecycleEvent<>(this, SyncDeltaType.CREATE, user, AuthContextUtils.getDomain()));
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceKeys(user.getKey()));
@@ -122,7 +122,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         User updated = userDAO.save(user);
 
         publisher.publishEvent(
-                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
+                new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         return new UserWorkflowResult<>(updated.getKey(), null, null, "activate");
     }
@@ -137,8 +137,8 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         metadata(user, updater, context);
         User updated = userDAO.save(user);
 
-        publisher.publishEvent(new AnyLifecycleEvent<>(
-                this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
+        publisher.publishEvent(
+                new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         return new UserWorkflowResult<>(
                 Pair.of(userUR, !user.isSuspended()),
@@ -154,7 +154,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         User updated = userDAO.save(user);
 
         publisher.publishEvent(
-                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
+                new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         return new UserWorkflowResult<>(updated.getKey(), null, null, "suspend");
     }
@@ -166,7 +166,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         User updated = userDAO.save(user);
 
         publisher.publishEvent(
-                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
+                new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         return new UserWorkflowResult<>(updated.getKey(), null, null, "reactivate");
     }
@@ -180,7 +180,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         User updated = userDAO.save(user);
 
         publisher.publishEvent(
-                new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
+                new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
     }
 
     @Override
@@ -208,6 +208,6 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         userDAO.delete(user);
 
         publisher.publishEvent(
-                new AnyLifecycleEvent<>(this, SyncDeltaType.DELETE, user, AuthContextUtils.getDomain()));
+                new EntityLifecycleEvent<>(this, SyncDeltaType.DELETE, user, AuthContextUtils.getDomain()));
     }
 }

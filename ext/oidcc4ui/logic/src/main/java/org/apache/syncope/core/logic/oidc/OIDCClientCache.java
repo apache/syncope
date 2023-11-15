@@ -107,12 +107,12 @@ public class OIDCClientCache {
         cfg.setOpMetadataResolver(new StaticOidcOpMetadataResolver(cfg, metadata));
         cfg.setScope(op.getScopes().stream().collect(Collectors.joining(" ")));
         cfg.setUseNonce(false);
-        cfg.setSessionLogoutHandler(new NoOpSessionLogoutHandler());
 
         OidcClient client = new OidcClient(cfg);
         client.setName(op.getName());
         client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         client.setCallbackUrl(callbackUrl);
+        client.getConfig().setSessionLogoutHandler(new NoOpSessionLogoutHandler());
         client.init();
 
         cache.add(client);

@@ -35,7 +35,7 @@ import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEventPublisher;
@@ -129,7 +129,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
                 insert.executeUpdate();
 
                 publisher.publishEvent(
-                        new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
+                        new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
             });
         }
 
@@ -145,7 +145,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
         query.getResultList().forEach(user -> {
             user.getRoles().remove(role);
             publisher.publishEvent(
-                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
+                    new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, user, AuthContextUtils.getDomain()));
         });
 
         clearDynMembers(role);

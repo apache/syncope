@@ -27,7 +27,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
-import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEventPublisher;
@@ -54,7 +54,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
         group = groupDAO.saveAndRefreshDynMemberships(group);
 
         publisher.publishEvent(
-                new AnyLifecycleEvent<>(this, SyncDeltaType.CREATE, group, AuthContextUtils.getDomain()));
+                new EntityLifecycleEvent<>(this, SyncDeltaType.CREATE, group, AuthContextUtils.getDomain()));
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.set(ResourceOperation.CREATE, groupDAO.findAllResourceKeys(group.getKey()));
@@ -70,8 +70,8 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
         metadata(group, updater, context);
         Group updated = groupDAO.save(group);
 
-        publisher.publishEvent(new AnyLifecycleEvent<>(
-                this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
+        publisher.publishEvent(
+                new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, updated, AuthContextUtils.getDomain()));
 
         return new WorkflowResult<>(groupUR, propByRes, "update");
     }
@@ -81,6 +81,6 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
         groupDAO.delete(group);
 
         publisher.publishEvent(
-                new AnyLifecycleEvent<>(this, SyncDeltaType.DELETE, group, AuthContextUtils.getDomain()));
+                new EntityLifecycleEvent<>(this, SyncDeltaType.DELETE, group, AuthContextUtils.getDomain()));
     }
 }

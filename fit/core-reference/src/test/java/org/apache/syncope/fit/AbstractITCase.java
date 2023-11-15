@@ -391,7 +391,7 @@ public abstract class AbstractITCase {
 
     protected static boolean IS_FLOWABLE_ENABLED = false;
 
-    protected static boolean IS_ELASTICSEARCH_ENABLED = false;
+    protected static boolean IS_EXT_SEARCH_ENABLED = false;
 
     @BeforeAll
     public static void anonymousSetup() throws IOException {
@@ -433,7 +433,8 @@ public abstract class AbstractITCase {
         IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
 
         JsonNode anySearchDAO = beans.findValues("anySearchDAO").get(0);
-        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
+        IS_EXT_SEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch")
+                || anySearchDAO.get("type").asText().contains("OpenSearch");
     }
 
     @BeforeAll
@@ -983,7 +984,7 @@ public abstract class AbstractITCase {
     }
 
     protected static List<AuditEntry> query(final AuditQuery query, final int maxWaitSeconds) {
-        if (IS_ELASTICSEARCH_ENABLED) {
+        if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ex) {

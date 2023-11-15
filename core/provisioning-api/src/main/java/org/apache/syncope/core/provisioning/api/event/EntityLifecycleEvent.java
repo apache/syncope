@@ -18,25 +18,25 @@
  */
 package org.apache.syncope.core.provisioning.api.event;
 
-import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEvent;
 
-public class AnyLifecycleEvent<A extends Any<?>> extends ApplicationEvent {
+public class EntityLifecycleEvent<E extends Entity> extends ApplicationEvent {
 
     private static final long serialVersionUID = -781747175059834365L;
 
     private final SyncDeltaType type;
 
-    private final A any;
+    private final E entity;
 
     private final String domain;
 
-    public AnyLifecycleEvent(final Object source, final SyncDeltaType type, final A any, final String domain) {
+    public EntityLifecycleEvent(final Object source, final SyncDeltaType type, final E entity, final String domain) {
         super(source);
 
         this.type = type;
-        this.any = any;
+        this.entity = entity;
         this.domain = domain;
     }
 
@@ -44,8 +44,8 @@ public class AnyLifecycleEvent<A extends Any<?>> extends ApplicationEvent {
         return type;
     }
 
-    public A getAny() {
-        return any;
+    public E getEntity() {
+        return entity;
     }
 
     public String getDomain() {

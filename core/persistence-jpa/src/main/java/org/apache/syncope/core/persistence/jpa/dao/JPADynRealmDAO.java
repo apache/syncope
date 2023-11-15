@@ -33,7 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.jpa.entity.JPADynRealm;
-import org.apache.syncope.core.provisioning.api.event.AnyLifecycleEvent;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEventPublisher;
@@ -122,7 +122,7 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
             }
             if (any != null) {
                 publisher.publishEvent(
-                        new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
+                        new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
             }
         });
     }
@@ -144,7 +144,7 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
             insert.executeUpdate();
 
             publisher.publishEvent(
-                    new AnyLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
+                    new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, any, AuthContextUtils.getDomain()));
             cleared.remove(any.getKey());
         }));
 

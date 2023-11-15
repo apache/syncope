@@ -56,6 +56,11 @@ public class ElasticsearchIndexLoader implements SyncopeCoreLoader {
                         indexManager.defaultSettings(), indexManager.defaultAnyMapping());
             }
 
+            if (!indexManager.existsRealmIndex(domain)) {
+                indexManager.createRealmIndex(domain,
+                        indexManager.defaultSettings(), indexManager.defaultRealmMapping());
+            }
+
             if (!indexManager.existsAuditIndex(domain)) {
                 indexManager.createAuditIndex(domain,
                         indexManager.defaultSettings(), indexManager.defaultAuditMapping());

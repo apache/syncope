@@ -64,22 +64,17 @@ public class DomainServiceImpl implements DomainService {
     }
 
     @Override
-    public Response changeAdminPassword(
-            final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
-
+    public void changeAdminPassword(final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
         logic.changeAdminPassword(key, password, cipherAlgorithm);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response adjustPoolSize(final String key, final int poolMaxActive, final int poolMinIdle) {
+    public void adjustPoolSize(final String key, final int poolMaxActive, final int poolMinIdle) {
         logic.adjustPoolSize(key, poolMaxActive, poolMinIdle);
-        return Response.noContent().build();
     }
 
     @Override
-    public Response delete(final String key) {
+    public void delete(final String key) {
         logic.delete(key);
-        return Response.noContent().build();
     }
 }

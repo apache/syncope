@@ -249,8 +249,7 @@ public class SecurityConfig {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "SAML2")
-    public SAML2Client saml2Client(final ResourcePatternResolver resourceResolver,
-            final SRAProperties props) {
+    public SAML2Client saml2Client(final ResourcePatternResolver resourceResolver, final SRAProperties props) {
         SAML2Configuration cfg = new SAML2Configuration(
                 resourceResolver.getResource(props.getSaml2().getKeystore()),
                 null,
@@ -291,13 +290,12 @@ public class SecurityConfig {
         cfg.setServiceProviderMetadataResourceFilepath(props.getSaml2().getSpMetadataFilePath());
         cfg.setAcceptedSkew(props.getSaml2().getSkew());
 
-        cfg.setSessionLogoutHandler(new NoOpSessionLogoutHandler());
-
         SAML2Client saml2Client = new SAML2Client(cfg);
         saml2Client.setName(SRAProperties.AMType.SAML2.name());
         saml2Client.setCallbackUrl(props.getSaml2().getEntityId()
                 + SAML2WebSsoAuthenticationWebFilter.FILTER_PROCESSES_URI);
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
+        saml2Client.getConfig().setSessionLogoutHandler(new NoOpSessionLogoutHandler());
         saml2Client.init();
 
         return saml2Client;

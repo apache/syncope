@@ -89,6 +89,6 @@ public final class WAConfUtils {
     }
 
     private WAConfUtils() {
-        // private construcator for static utility class
+        // private constructor for static utility class
     }
 }

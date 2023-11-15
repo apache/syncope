@@ -101,8 +101,8 @@ This extension adds features to all components and layers that are available, an
 
 ==== Elasticsearch
 
-This extension provides an alternate internal search engine for <<users-groups-and-any-objects>> and <<audit-events>>,
-requiring an external https://www.elastic.co/[Elasticsearch^] cluster.
+This extension provides an alternate internal search engine for <<users-groups-and-any-objects>>,<<realms>> and
+<<audit-events>>, requiring an external https://www.elastic.co/[Elasticsearch^] cluster.
 
 [WARNING]
 This extension supports Elasticsearch server versions starting from 8.x.
@@ -120,6 +120,28 @@ https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/elasticsearch[so
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/tree/master/ext/elasticsearch[source tree^]
+endif::[]
+.
+====
+
+==== OpenSearch
+
+This extension provides an alternate internal search engine for <<users-groups-and-any-objects>>,<<realms>> and
+<<audit-events>>, requiring an external https://opensearch.org/[OpenSearch^] cluster.
+
+[TIP]
+As search operations are central for different aspects of the <<provisioning,provisioning process>>, the global
+performance is expected to improve when using this extension.
+
+[NOTE]
+.Extension Sources
+====
+The source code of this extension is available from the Apache Syncope
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/opensearch[source tree^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/ext/opensearch[source tree^]
 endif::[]
 .
 ====

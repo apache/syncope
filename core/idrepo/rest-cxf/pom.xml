@@ -86,12 +86,6 @@ under the License.
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
     </dependency> 
-    <dependency>
-      <groupId>org.apache.syncope.common.idrepo</groupId>
-      <artifactId>syncope-common-idrepo-rest-api</artifactId>
-      <version>${project.version}</version>
-      <classifier>javadoc</classifier>
-    </dependency>
     
     <dependency>
       <groupId>org.apache.syncope.core.idrepo</groupId>
@@ -102,6 +96,12 @@ under the License.
       <groupId>org.apache.syncope.common.idrepo</groupId>
       <artifactId>syncope-common-idrepo-rest-api</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.common.idrepo</groupId>
+      <artifactId>syncope-common-idrepo-rest-api</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
     </dependency>
 
     <!-- TEST -->

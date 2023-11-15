@@ -147,7 +147,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public Map<AnyType, Integer> countByType() {
         Query query = entityManager().createQuery(
-                "SELECT e.type, COUNT(e) AS countByType FROM  " + anyUtils().anyClass().getSimpleName() + " e "
+                "SELECT e.type, COUNT(e) AS countByType FROM " + anyUtils().anyClass().getSimpleName() + " e "
                 + "GROUP BY e.type ORDER BY countByType DESC");
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -161,7 +161,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public Map<String, Integer> countByRealm(final AnyType anyType) {
         Query query = entityManager().createQuery(
-                "SELECT e.realm, COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e "
+                "SELECT e.realm, COUNT(e) FROM " + anyUtils().anyClass().getSimpleName() + " e "
                 + "WHERE e.type=:type GROUP BY e.realm");
         query.setParameter("type", anyType);
 
@@ -240,14 +240,14 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public int count() {
         Query query = entityManager().createQuery(
-                "SELECT COUNT(e) FROM  " + anyUtils().anyClass().getSimpleName() + " e");
+                "SELECT COUNT(e) FROM " + anyUtils().anyClass().getSimpleName() + " e");
         return ((Number) query.getSingleResult()).intValue();
     }
 
     @Override
     public List<AnyObject> findAll(final int page, final int itemsPerPage) {
         TypedQuery<AnyObject> query = entityManager().createQuery(
-                "SELECT e FROM  " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", AnyObject.class);
+                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", AnyObject.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 

@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.commons.AMConstants;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AuthModuleDirectoryPanel.AuthModuleProvider;
@@ -38,7 +39,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AuthModuleWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
@@ -50,7 +50,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.basic.Label;
@@ -221,15 +220,14 @@ public class AuthModuleDirectoryPanel
 
         private AuthModuleProvider(final int paginatorRows) {
             super(paginatorRows);
-            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<AuthModuleTO> iterator(final long first, final long count) {
-            List<AuthModuleTO> result = restClient.list();
-            result.sort(comparator);
-            return result.subList((int) first, (int) first + (int) count).iterator();
+            List<AuthModuleTO> authModules = restClient.list();
+            authModules.sort(comparator);
+            return authModules.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override

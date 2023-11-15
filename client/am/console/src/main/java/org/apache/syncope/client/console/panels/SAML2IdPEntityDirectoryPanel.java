@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.client.console.commons.AMConstants;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.SAML2IdPEntityDirectoryPanel.SAML2IdPEntityProvider;
 import org.apache.syncope.client.console.rest.SAML2IdPEntityRestClient;
@@ -31,7 +32,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.SAML2IdPEntityWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.DirectoryDataProvider;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -39,7 +39,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -165,15 +164,14 @@ public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
 
         public SAML2IdPEntityProvider(final int paginatorRows) {
             super(paginatorRows);
-            setSort(Constants.KEY_FIELD_NAME, SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<? extends SAML2IdPEntityTO> iterator(final long first, final long count) {
-            List<SAML2IdPEntityTO> list = restClient.list();
-            list.sort(comparator);
-            return list.subList((int) first, (int) first + (int) count).iterator();
+            List<SAML2IdPEntityTO> idps = restClient.list();
+            idps.sort(comparator);
+            return idps.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override

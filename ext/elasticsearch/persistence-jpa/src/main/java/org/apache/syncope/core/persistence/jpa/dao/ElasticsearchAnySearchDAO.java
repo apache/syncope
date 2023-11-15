@@ -36,7 +36,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -158,12 +157,10 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                         return noRealm;
                     });
 
-                    realmDAO.findDescendants(
-                            realm.getFullPath(), null, -1, -1).stream().
-                            filter(r -> r.getFullPath().startsWith(base.getFullPath())).
+                    realmDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
                             forEach(descendant -> queries.add(
                             new Query.Builder().term(QueryBuilders.term().
-                                    field("realm").value(descendant.getKey()).build()).
+                                    field("realm").value(descendant).build()).
                                     build()));
                 } else {
                     DynRealm dynRealm = dynRealmDAO.find(realmPath);
@@ -311,10 +308,9 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 build();
         LOG.debug("Search JSON request: {}", request);
 
-        @SuppressWarnings("rawtypes")
-        List<Hit<Map>> esResult = null;
+        List<Hit<Void>> esResult = null;
         try {
-            esResult = client.search(request, Map.class).hits().hits();
+            esResult = client.search(request, Void.class).hits().hits();
         } catch (Exception e) {
             LOG.error("While searching in Elasticsearch", e);
         }

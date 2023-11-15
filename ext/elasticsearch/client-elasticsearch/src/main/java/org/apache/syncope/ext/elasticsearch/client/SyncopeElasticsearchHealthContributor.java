@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.ext.elasticsearch.client;
 
-import static co.elastic.clients.elasticsearch._types.HealthStatus.Green;
-import static co.elastic.clients.elasticsearch._types.HealthStatus.Red;
-import static co.elastic.clients.elasticsearch._types.HealthStatus.Yellow;
-
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.cluster.HealthResponse;
 import org.springframework.boot.actuate.health.Health;
