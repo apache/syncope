@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethods;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
@@ -61,7 +62,8 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private String jwksUri;
 
-    private String tokenEndpointAuthenticationMethod = "client_secret_basic";
+    private OIDCClientAuthenticationMethods tokenEndpointAuthenticationMethod =
+            OIDCClientAuthenticationMethods.CLIENT_SECRET_BASIC;
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -168,11 +170,12 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.jwksUri = jwksUri;
     }
 
-    public String getTokenEndpointAuthenticationMethod() {
+    public OIDCClientAuthenticationMethods getTokenEndpointAuthenticationMethod() {
         return tokenEndpointAuthenticationMethod;
     }
 
-    public void setTokenEndpointAuthenticationMethod(final String tokenEndpointAuthenticationMethod) {
+    public void setTokenEndpointAuthenticationMethod(
+            final OIDCClientAuthenticationMethods tokenEndpointAuthenticationMethod) {
         this.tokenEndpointAuthenticationMethod = tokenEndpointAuthenticationMethod;
     }
 

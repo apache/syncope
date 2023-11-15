@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity.am;
 
 import java.util.Set;
+import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethods;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
@@ -69,7 +70,7 @@ public interface OIDCRPClientApp extends ClientApp {
 
     void setJwksUri(String jwksUri);
 
-    String getTokenEndpointAuthenticationMethod();
+    OIDCClientAuthenticationMethods getTokenEndpointAuthenticationMethod();
 
-    void setTokenEndpointAuthenticationMethod(String tokenEndpointAuthenticationMethod);
+    void setTokenEndpointAuthenticationMethod(OIDCClientAuthenticationMethods tokenEndpointAuthenticationMethod);
 }

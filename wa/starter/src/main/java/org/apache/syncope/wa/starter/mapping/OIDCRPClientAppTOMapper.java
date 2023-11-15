@@ -95,7 +95,8 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
                 map(OIDCResponseType::getExternalForm).collect(Collectors.toSet()));
         Optional.ofNullable(rp.getSubjectType()).ifPresent(st -> service.setSubjectType(st.name()));
         service.setLogoutUrl(rp.getLogoutUri());
-        service.setTokenEndpointAuthenticationMethod(rp.getTokenEndpointAuthenticationMethod());
+        service.setTokenEndpointAuthenticationMethod(
+                rp.getTokenEndpointAuthenticationMethod().getAuthenticationMethod());
 
         service.setScopes(new HashSet<>(rp.getScopes()));
 

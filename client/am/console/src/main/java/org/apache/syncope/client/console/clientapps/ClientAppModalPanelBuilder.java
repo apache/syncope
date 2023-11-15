@@ -61,6 +61,7 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.LogoutType;
+import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethods;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
@@ -351,13 +352,32 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     fields.add(logoutUri);
 
                     BinaryFieldPanel jwks = new BinaryFieldPanel(
-                            "field", "jwks", new PropertyModel<>(clientAppTO, "jwks"), MediaType.APPLICATION_JSON, "");
-                    if (clientAppTO instanceof OIDCRPClientAppTO
-                            && StringUtils.isNotBlank(((OIDCRPClientAppTO) clientAppTO).getJwks())) {
-                        ((OIDCRPClientAppTO) clientAppTO).setJwks(Base64.getEncoder().encodeToString(
-                                ((OIDCRPClientAppTO) clientAppTO).getJwks().getBytes(StandardCharsets.UTF_8)));
-                        jwks.setNewModel(new PropertyModel<>(clientAppTO, "jwks"));
-                    }
+                            "field",
+                            "jwks",
+                            new Model<>() {
+
+                                private static final long serialVersionUID = 7666049400663637482L;
+
+                                @Override
+                                public String getObject() {
+                                    return StringUtils.isBlank(((OIDCRPClientAppTO) clientAppTO).getJwks())
+                                            ? null
+                                            : Base64.getEncoder().encodeToString(((OIDCRPClientAppTO) clientAppTO)
+                                            .getJwks().getBytes(StandardCharsets.UTF_8));
+                                }
+
+                                @Override
+                                public void setObject(final String object) {
+                                    if (StringUtils.isNotBlank(object)) {
+                                        ((OIDCRPClientAppTO) clientAppTO).setJwks(
+                                                new String(Base64.getDecoder().decode(object), StandardCharsets.UTF_8));
+                                    } else {
+                                        ((OIDCRPClientAppTO) clientAppTO).setJwks("");
+                                    }
+                                }
+                            },
+                            MediaType.APPLICATION_JSON,
+                            "client-jwks");
                     fields.add(jwks);
 
                     AjaxTextFieldPanel jwksUri = new AjaxTextFieldPanel(
@@ -365,11 +385,13 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     jwksUri.addValidator(new UrlValidator());
                     fields.add(jwksUri);
 
-                    AjaxTextFieldPanel tokenEndpointAuthenticationMethod = new AjaxTextFieldPanel(
+                    AjaxDropDownChoicePanel<OIDCClientAuthenticationMethods> tokenEndpointAuthenticationMethod =
+                            new AjaxDropDownChoicePanel<>(
                             "field",
                             "tokenEndpointAuthenticationMethod",
                             new PropertyModel<>(clientAppTO, "tokenEndpointAuthenticationMethod"),
                             false);
+                    tokenEndpointAuthenticationMethod.setChoices(List.of(OIDCClientAuthenticationMethods.values()));
                     fields.add(tokenEndpointAuthenticationMethod);
                     break;
 
@@ -482,10 +504,6 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
         @Override
         public void onSubmit(final AjaxRequestTarget target) {
             try {
-                if (clientAppTO instanceof OIDCRPClientAppTO) {
-                    ((OIDCRPClientAppTO) clientAppTO).setJwks(new String(Base64.getDecoder().decode(
-                            ((OIDCRPClientAppTO) clientAppTO).getJwks()), StandardCharsets.UTF_8));
-                }
                 if (clientAppTO.getKey() == null) {
                     clientAppRestClient.create(type, clientAppTO);
                 } else {

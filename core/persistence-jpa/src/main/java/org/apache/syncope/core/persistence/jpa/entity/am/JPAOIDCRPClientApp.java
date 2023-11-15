@@ -33,6 +33,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethods;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
@@ -107,7 +108,7 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     private String jwksUri;
 
-    private String tokenEndpointAuthenticationMethod;
+    private OIDCClientAuthenticationMethods tokenEndpointAuthenticationMethod;
 
     @Override
     public Set<String> getRedirectUris() {
@@ -220,12 +221,13 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     }
 
     @Override
-    public String getTokenEndpointAuthenticationMethod() {
+    public OIDCClientAuthenticationMethods getTokenEndpointAuthenticationMethod() {
         return tokenEndpointAuthenticationMethod;
     }
 
     @Override
-    public void setTokenEndpointAuthenticationMethod(final String tokenEndpointAuthenticationMethod) {
+    public void setTokenEndpointAuthenticationMethod(
+            final OIDCClientAuthenticationMethods tokenEndpointAuthenticationMethod) {
         this.tokenEndpointAuthenticationMethod = tokenEndpointAuthenticationMethod;
     }
 
