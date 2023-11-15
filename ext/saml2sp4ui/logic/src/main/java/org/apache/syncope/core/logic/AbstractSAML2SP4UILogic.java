@@ -23,7 +23,6 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.core.logic.saml2.NoOpSessionLogoutHandler;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
 import org.springframework.core.io.FileUrlResource;
@@ -75,7 +74,6 @@ abstract class AbstractSAML2SP4UILogic extends AbstractTransactionalLogic<Entity
         cfg.setAuthnRequestSigned(true);
         cfg.setSpLogoutRequestSigned(true);
         cfg.setAcceptedSkew(props.getSkew());
-        cfg.setSessionLogoutHandler(new NoOpSessionLogoutHandler());
 
         return cfg;
     }

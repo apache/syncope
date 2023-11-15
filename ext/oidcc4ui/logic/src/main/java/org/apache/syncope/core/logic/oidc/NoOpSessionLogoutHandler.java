@@ -18,7 +18,29 @@
  */
 package org.apache.syncope.core.logic.oidc;
 
+import java.util.Optional;
+import org.pac4j.core.context.CallContext;
 import org.pac4j.core.logout.handler.SessionLogoutHandler;
 
 public class NoOpSessionLogoutHandler implements SessionLogoutHandler {
+
+    @Override
+    public void recordSession(final CallContext ctx, final String key) {
+        // nothing to do
+    }
+
+    @Override
+    public void destroySession(final CallContext ctx, final String key) {
+        // nothing to do
+    }
+
+    @Override
+    public void renewSession(final CallContext ctx, final String oldSessionId) {
+        // nothing to do
+    }
+
+    @Override
+    public Optional<String> cleanRecord(final String sessionId) {
+        return Optional.empty();
+    }
 }

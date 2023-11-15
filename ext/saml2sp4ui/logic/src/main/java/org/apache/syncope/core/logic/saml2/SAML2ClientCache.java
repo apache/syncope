@@ -134,6 +134,7 @@ public class SAML2ClientCache {
         SAML2Client saml2Client = new SAML2Client(cfg);
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         saml2Client.setCallbackUrl(callbackUrl);
+        saml2Client.getConfig().setSessionLogoutHandler(new NoOpSessionLogoutHandler());
         saml2Client.init();
 
         cache.add(saml2Client);
