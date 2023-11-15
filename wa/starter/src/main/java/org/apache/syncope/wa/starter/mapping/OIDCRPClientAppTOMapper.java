@@ -23,6 +23,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.OIDCScopeConstants;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
@@ -81,12 +82,18 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         }
         service.setJwtAccessToken(rp.isJwtAccessToken());
         service.setBypassApprovalPrompt(rp.isBypassApprovalPrompt());
+        if (StringUtils.isNotBlank(rp.getJwksUri())) {
+            service.setJwks(rp.getJwksUri());
+        } else {
+            service.setJwks(rp.getJwks());
+        }
         service.setSupportedGrantTypes(rp.getSupportedGrantTypes().stream().
                 map(OIDCGrantType::name).collect(Collectors.toSet()));
         service.setSupportedResponseTypes(rp.getSupportedResponseTypes().stream().
                 map(OIDCResponseType::getExternalForm).collect(Collectors.toSet()));
         Optional.ofNullable(rp.getSubjectType()).ifPresent(st -> service.setSubjectType(st.name()));
         service.setLogoutUrl(rp.getLogoutUri());
+        service.setTokenEndpointAuthenticationMethod(rp.getTokenEndpointAuthenticationMethod().name());
 
         service.setScopes(new HashSet<>(rp.getScopes()));
 

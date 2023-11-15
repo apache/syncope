@@ -33,6 +33,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
@@ -99,6 +100,13 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     @Transient
     private Set<String> scopesSet = new HashSet<>();
+
+    @Lob
+    private String jwks;
+
+    private String jwksUri;
+
+    private OIDCClientAuthenticationMethod tokenEndpointAuthenticationMethod;
 
     private String logoutUri;
 
@@ -180,6 +188,38 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Override
     public Set<String> getScopes() {
         return scopesSet;
+    }
+
+    @Override
+    public String getJwks() {
+        return jwks;
+    }
+
+    @Override
+    public void setJwks(final String jwks) {
+        this.jwks = jwks;
+    }
+
+    @Override
+    public String getJwksUri() {
+        return jwksUri;
+    }
+
+    @Override
+    public void setJwksUri(final String jwksUri) {
+        this.jwksUri = jwksUri;
+    }
+
+    @Override
+    public OIDCClientAuthenticationMethod getTokenEndpointAuthenticationMethod() {
+        return tokenEndpointAuthenticationMethod;
+    }
+
+    @Override
+    public void setTokenEndpointAuthenticationMethod(
+            final OIDCClientAuthenticationMethod tokenEndpointAuthenticationMethod) {
+
+        this.tokenEndpointAuthenticationMethod = tokenEndpointAuthenticationMethod;
     }
 
     @Override
