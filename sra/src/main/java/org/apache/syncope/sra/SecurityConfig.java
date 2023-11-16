@@ -33,7 +33,6 @@ import org.apache.syncope.sra.security.LogoutRouteMatcher;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
 import org.apache.syncope.sra.security.cas.CASSecurityConfigUtils;
 import org.apache.syncope.sra.security.oauth2.OAuth2SecurityConfigUtils;
-import org.apache.syncope.sra.security.pac4j.NoOpSessionLogoutHandler;
 import org.apache.syncope.sra.security.saml2.SAML2MetadataEndpoint;
 import org.apache.syncope.sra.security.saml2.SAML2SecurityConfigUtils;
 import org.apache.syncope.sra.security.saml2.SAML2WebSsoAuthenticationWebFilter;
@@ -295,7 +294,6 @@ public class SecurityConfig {
         saml2Client.setCallbackUrl(props.getSaml2().getEntityId()
                 + SAML2WebSsoAuthenticationWebFilter.FILTER_PROCESSES_URI);
         saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
-        saml2Client.getConfig().setSessionLogoutHandler(new NoOpSessionLogoutHandler());
         saml2Client.init();
 
         return saml2Client;

@@ -112,7 +112,6 @@ public class OIDCClientCache {
         client.setName(op.getName());
         client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
         client.setCallbackUrl(callbackUrl);
-        client.getConfig().setSessionLogoutHandler(new NoOpSessionLogoutHandler());
         client.init();
 
         cache.add(client);
