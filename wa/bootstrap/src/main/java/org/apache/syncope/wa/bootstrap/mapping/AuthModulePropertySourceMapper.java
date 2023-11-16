@@ -41,6 +41,7 @@ import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
+import org.apache.syncope.common.lib.auth.X509AuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AuthModuleState;
@@ -66,6 +67,10 @@ import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jKeyCloakOidcCl
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.saml.Pac4jSamlClientProperties;
 import org.apereo.cas.configuration.model.support.syncope.SyncopeAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.x509.SubjectDnPrincipalResolverProperties.SubjectDnFormat;
+import org.apereo.cas.configuration.model.support.x509.X509LdapProperties;
+import org.apereo.cas.configuration.model.support.x509.X509Properties;
+import org.apereo.cas.configuration.model.support.x509.X509Properties.PrincipalTypes;
 import org.apereo.cas.util.ResourceUtils;
 import org.apereo.cas.util.model.TriStateBoolean;
 
@@ -286,6 +291,75 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
                 : TriStateBoolean.valueOf(conf.getNameIdPolicyAllowCreate().toUpperCase()));
 
         return prefix("cas.authn.pac4j.saml[].", WAConfUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final X509AuthModuleConf conf) {
+        X509Properties props = new X509Properties();
+        props.setName(conf.getName());
+        props.setOrder(conf.getOrder());
+        props.setCacheMaxElementsInMemory(conf.getCacheMaxElementsInMemory());
+        props.setCacheTimeToLiveSeconds(conf.getCacheTimeToLiveSeconds());
+        props.setCheckAll(conf.isCheckAll());
+        props.setCheckKeyUsage(conf.isCheckKeyUsage());
+        props.setCrlExpiredPolicy(conf.getCrlExpiredPolicy().name());
+        props.setCrlFetcher(conf.getCrlFetcher().name());
+        props.setCrlResourceExpiredPolicy(conf.getCrlResourceExpiredPolicy().name());
+        props.setCrlResourceUnavailablePolicy(conf.getCrlResourceUnavailablePolicy().name());
+        props.setCrlResources(conf.getCrlResources());
+        props.setCrlUnavailablePolicy(conf.getCrlUnavailablePolicy().name());
+        props.setExtractCert(conf.isExtractCert());
+        props.setMaxPathLength(conf.getMaxPathLength());
+        props.setMaxPathLengthAllowUnspecified(conf.isMaxPathLengthAllowUnspecified());
+        props.setMixedMode(conf.isMixedMode());
+        props.setRefreshIntervalSeconds(conf.getRefreshIntervalSeconds());
+        props.setRegExSubjectDnPattern(conf.getRegExSubjectDnPattern());
+        props.setRegExTrustedIssuerDnPattern(conf.getRegExTrustedIssuerDnPattern());
+        props.setRequireKeyUsage(conf.isRequireKeyUsage());
+        props.setRevocationChecker(conf.getRevocationChecker().name());
+        props.setRevocationPolicyThreshold(conf.getRevocationPolicyThreshold());
+        props.setSslHeaderName(conf.getSslHeaderName());
+        props.setThrowOnFetchFailure(conf.isThrowOnFetchFailure());
+
+        props.setPrincipalType(PrincipalTypes.valueOf(conf.getPrincipalType().name()));
+        if (StringUtils.isNotBlank(conf.getPrincipalAlternateAttribute())) {
+            switch (props.getPrincipalType()) {
+                case CN_EDIPI:
+                    props.getCnEdipi().setAlternatePrincipalAttribute(conf.getPrincipalAlternateAttribute());
+                    break;
+
+                case RFC822_EMAIL:
+                    props.getRfc822Email().setAlternatePrincipalAttribute(conf.getPrincipalAlternateAttribute());
+                    break;
+
+                case SUBJECT:
+                    props.setPrincipalDescriptor(conf.getPrincipalAlternateAttribute());
+                    break;
+
+                case SUBJECT_ALT_NAME:
+                    props.getSubjectAltName().setAlternatePrincipalAttribute(conf.getPrincipalAlternateAttribute());
+                    break;
+
+                case SUBJECT_DN:
+                case SERIAL_NO_DN:
+                case SERIAL_NO:
+                default:
+            }
+        }
+        props.getSubjectDn().setFormat(SubjectDnFormat.valueOf(conf.getPrincipalTypeSubjectDnFormat().name()));
+        props.getSerialNoDn().setSerialNumberPrefix(conf.getPrincipalTypeSerialNoDnSerialNumberPrefix());
+        props.getSerialNoDn().setValueDelimiter(conf.getPrincipalTypeSerialNoDnValueDelimiter());
+        props.getSerialNo().setPrincipalHexSNZeroPadding(conf.isPrincipalTypeSerialNoHexSNZeroPadding());
+        props.getSerialNo().setPrincipalSNRadix(conf.getPrincipalTypeSerialNoSNRadix());
+
+        if (conf.getLdap() != null) {
+            X509LdapProperties ldapProps = new X509LdapProperties();
+            ldapProps.setCertificateAttribute(conf.getLdap().getCertificateAttribute());
+            fill(ldapProps, conf.getLdap());
+            props.setLdap(ldapProps);
+        }
+
+        return prefix("cas.authn.x509.", WAConfUtils.asMap(props));
     }
 
     @Override

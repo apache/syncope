@@ -27,9 +27,9 @@ public class OAuth20AuthModuleConf extends AbstractOAuth20AuthModuleConf impleme
     private static final long serialVersionUID = 299820485764241682L;
 
     protected String authUrl;
-    
+
     protected String profileUrl;
-    
+
     protected Map<String, String> profileAttrs = new LinkedHashMap<>();
 
     protected boolean withState;
