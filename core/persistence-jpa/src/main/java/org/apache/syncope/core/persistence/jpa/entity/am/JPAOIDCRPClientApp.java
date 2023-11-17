@@ -106,6 +106,7 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     private String jwksUri;
 
+    @Enumerated(EnumType.STRING)
     private OIDCClientAuthenticationMethod tokenEndpointAuthenticationMethod;
 
     private String logoutUri;
