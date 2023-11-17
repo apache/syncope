@@ -1480,7 +1480,7 @@ under the License.
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
           <artifactId>mssql-jdbc</artifactId>
-          <version>${jdbc.mssql.version}11</version>
+          <version>${jdbc.mssql.version}</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
