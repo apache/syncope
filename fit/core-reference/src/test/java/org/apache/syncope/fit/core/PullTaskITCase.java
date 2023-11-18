@@ -1118,6 +1118,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE258() throws IOException {
+        assumeFalse(IS_EXT_SEARCH_ENABLED);
+
         // -----------------------------
         // Add a custom correlation rule
         // -----------------------------
