@@ -893,25 +893,60 @@ public class SearchITCase extends AbstractITCase {
         }
 
         // Search by username
-        PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM)
-                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncope1779_*")
-                        .and().is("firstname").equalTo("syncope1779_*")
-                        .and().is("userId").equalTo("syncope1779_*").query())
-                .build());
+        PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncope1779_*").
+                        and().is("firstname").equalTo("syncope1779_*").
+                        and().is("userId").equalTo("syncope1779_*").query()).
+                build());
         assertEquals(1, users.getResult().size());
         assertEquals(userWithUnderscore.getKey(), users.getResult().get(0).getKey());
         // Search also by attribute
-        users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM)
-                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("syncope1779_*").query())
-                .build());
+        users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("syncope1779_*").query()).
+                build());
         assertEquals(1, users.getResult().size());
         assertEquals(userWithUnderscore.getKey(), users.getResult().get(0).getKey());
         // search for both
-        users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM)
-                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("syncope1779*").query())
-                .build());
+        users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("syncope1779*").query()).
+                build());
         assertEquals(2, users.getResult().size());
 
         users.getResult().forEach(u -> USER_SERVICE.delete(u.getKey()));
+    }
+
+    @Test
+    public void issueSYNCOPE1790() {
+        // 0. search by email verdi@syncope.org
+        PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("verdi@syncope.org").query()).
+                build());
+        int before = users.getTotalCount();
+        assertTrue(before > 0);
+        assertFalse(users.getResult().isEmpty());
+        assertTrue(users.getResult().stream().
+                allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").orElseThrow().getValues().get(0))));
+
+        // 1. create user with similar email
+        UserTO user = createUser(UserITCase.getSample("bisverdi@syncope.org")).getEntity();
+        assertNotNull(user);
+
+        // 2. search again
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("verdi@syncope.org").query()).
+                build());
+        assertEquals(before, users.getTotalCount());
+        assertFalse(users.getResult().isEmpty());
+        assertTrue(users.getResult().stream().
+                allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").orElseThrow().getValues().get(0))));
+        assertTrue(users.getResult().stream().noneMatch(u -> user.getKey().equals(u.getKey())));
     }
 }
