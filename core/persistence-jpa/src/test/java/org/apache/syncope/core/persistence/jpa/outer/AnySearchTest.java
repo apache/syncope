@@ -49,6 +49,7 @@ import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
@@ -237,5 +238,45 @@ public class AnySearchTest extends AbstractTest {
         matching = searchDAO.search(SearchCond.getLeaf(originalNameCond), AnyTypeKind.GROUP);
         assertEquals(1, matching.size());
         assertEquals(group.getKey(), matching.get(0).getKey());
+    }
+
+    @Test
+    public void issueSYNCOPE1790() {
+        // 0. search by email
+        AttrCond emailCond = new AttrCond(AttrCond.Type.EQ);
+        emailCond.setSchema("email");
+        emailCond.setExpression("verdi@syncope.org");
+
+        SearchCond cond = SearchCond.getLeaf(emailCond);
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEquals("verdi", users.get(0).getUsername());
+
+        // 1. set rossini's email address for conditions as per SYNCOPE-1790
+        User rossini = userDAO.findByUsername("rossini");
+        assertNotNull(rossini);
+
+        UPlainAttr mail = entityFactory.newEntity(UPlainAttr.class);
+        mail.setOwner(rossini);
+        mail.setSchema(plainSchemaDAO.find("email"));
+        mail.add(validator, "bisverdi@syncope.org", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        rossini.add(mail);
+
+        userDAO.save(rossini);
+        entityManager().flush();
+
+        rossini = userDAO.findByUsername("rossini");
+        assertEquals(
+                "bisverdi@syncope.org",
+                rossini.getPlainAttr("email").map(a -> a.getValuesAsStrings().get(0)).orElseThrow());
+
+        // 2. search again
+        users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEquals("verdi", users.get(0).getUsername());
     }
 }
