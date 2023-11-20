@@ -84,6 +84,7 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         }
         service.setJwtAccessToken(rp.isJwtAccessToken());
         service.setBypassApprovalPrompt(rp.isBypassApprovalPrompt());
+        service.setGenerateRefreshToken(rp.isGenerateRefreshToken());
         if (StringUtils.isNotBlank(rp.getJwksUri())) {
             service.setJwks(rp.getJwksUri());
         } else {

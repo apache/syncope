@@ -44,6 +44,10 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private boolean jwtAccessToken;
 
+    private boolean bypassApprovalPrompt = true;
+
+    private boolean generateRefreshToken = true;
+
     private OIDCSubjectType subjectType;
 
     private final List<String> redirectUris = new ArrayList<>();
@@ -53,8 +57,6 @@ public class OIDCRPClientAppTO extends ClientAppTO {
     private final List<OIDCResponseType> supportedResponseTypes = new ArrayList<>();
 
     private final List<String> scopes = new ArrayList<>();
-
-    private boolean bypassApprovalPrompt = true;
 
     private String jwks;
 
@@ -146,6 +148,14 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.bypassApprovalPrompt = bypassApprovalPrompt;
     }
 
+    public boolean isGenerateRefreshToken() {
+        return generateRefreshToken;
+    }
+
+    public void setGenerateRefreshToken(final boolean generateRefreshToken) {
+        this.generateRefreshToken = generateRefreshToken;
+    }
+
     public String getJwks() {
         return jwks;
     }
@@ -196,13 +206,14 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(this.clientId, rhs.clientId)
                 .append(this.clientSecret, rhs.clientSecret)
                 .append(this.signIdToken, rhs.signIdToken)
+                .append(this.jwtAccessToken, rhs.jwtAccessToken)
+                .append(this.bypassApprovalPrompt, rhs.bypassApprovalPrompt)
+                .append(this.generateRefreshToken, rhs.generateRefreshToken)
                 .append(this.subjectType, rhs.subjectType)
                 .append(this.redirectUris, rhs.redirectUris)
                 .append(this.supportedGrantTypes, rhs.supportedGrantTypes)
                 .append(this.supportedResponseTypes, rhs.supportedResponseTypes)
-                .append(this.jwtAccessToken, rhs.jwtAccessToken)
                 .append(this.scopes, rhs.scopes)
-                .append(this.bypassApprovalPrompt, rhs.bypassApprovalPrompt)
                 .append(this.jwks, rhs.jwks)
                 .append(this.jwksUri, rhs.jwksUri)
                 .append(this.tokenEndpointAuthenticationMethod, rhs.tokenEndpointAuthenticationMethod)
@@ -217,13 +228,14 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .append(clientId)
                 .append(clientSecret)
                 .append(signIdToken)
+                .append(jwtAccessToken)
+                .append(bypassApprovalPrompt)
+                .append(generateRefreshToken)
                 .append(subjectType)
                 .append(redirectUris)
                 .append(supportedGrantTypes)
                 .append(supportedResponseTypes)
-                .append(jwtAccessToken)
                 .append(scopes)
-                .append(bypassApprovalPrompt)
                 .append(jwks)
                 .append(jwksUri)
                 .append(tokenEndpointAuthenticationMethod)

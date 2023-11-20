@@ -74,6 +74,8 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
 
     private boolean bypassApprovalPrompt = true;
 
+    private boolean generateRefreshToken = true;
+
     @Enumerated(EnumType.STRING)
     private OIDCSubjectType subjectType;
 
@@ -164,6 +166,16 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     @Override
     public void setBypassApprovalPrompt(final boolean bypassApprovalPrompt) {
         this.bypassApprovalPrompt = bypassApprovalPrompt;
+    }
+
+    @Override
+    public boolean isGenerateRefreshToken() {
+        return generateRefreshToken;
+    }
+
+    @Override
+    public void setGenerateRefreshToken(final boolean generateRefreshToken) {
+        this.generateRefreshToken = generateRefreshToken;
     }
 
     @Override
