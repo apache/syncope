@@ -301,6 +301,8 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                             "field", "jwtAccessToken", new PropertyModel<>(clientAppTO, "jwtAccessToken")));
                     fields.add(new AjaxCheckBoxPanel(
                             "field", "bypassApprovalPrompt", new PropertyModel<>(clientAppTO, "bypassApprovalPrompt")));
+                    fields.add(new AjaxCheckBoxPanel(
+                            "field", "generateRefreshToken", new PropertyModel<>(clientAppTO, "generateRefreshToken")));
 
                     AjaxDropDownChoicePanel<OIDCSubjectType> subjectType = new AjaxDropDownChoicePanel<>(
                             "field", "subjectType", new PropertyModel<>(clientAppTO, "subjectType"), false);

@@ -227,6 +227,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientApp.setSignIdToken(clientAppTO.isSignIdToken());
         clientApp.setJwtAccessToken(clientAppTO.isJwtAccessToken());
         clientApp.setBypassApprovalPrompt(clientAppTO.isBypassApprovalPrompt());
+        clientApp.setGenerateRefreshToken(clientAppTO.isGenerateRefreshToken());
         clientApp.setSubjectType(clientAppTO.getSubjectType());
         clientApp.getRedirectUris().clear();
         clientApp.getRedirectUris().addAll(clientAppTO.getRedirectUris());
@@ -257,6 +258,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         clientAppTO.setLogoutUri(clientApp.getLogoutUri());
         clientAppTO.setJwtAccessToken(clientApp.isJwtAccessToken());
         clientAppTO.setBypassApprovalPrompt(clientApp.isBypassApprovalPrompt());
+        clientAppTO.setGenerateRefreshToken(clientApp.isGenerateRefreshToken());
         clientAppTO.setJwks(clientApp.getJwks());
         clientAppTO.setJwksUri(clientApp.getJwksUri());
         clientAppTO.setTokenEndpointAuthenticationMethod(clientApp.getTokenEndpointAuthenticationMethod());
