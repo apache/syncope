@@ -687,6 +687,23 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
+    public void changePwdDate() {
+        AnyCond statusCond = new AnyCond(AttrCond.Type.IEQ);
+        statusCond.setSchema("status");
+        statusCond.setExpression("suspended");
+
+        AnyCond changePwdDateCond = new AnyCond(AttrCond.Type.ISNULL);
+        changePwdDateCond.setSchema("changePwdDate");
+
+        SearchCond cond = SearchCond.getAnd(SearchCond.getNotLeaf(statusCond), SearchCond.getLeaf(changePwdDateCond));
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(5, users.size());
+    }
+
+    @Test
     public void issue202() {
         ResourceCond ws2 = new ResourceCond();
         ws2.setResource("ws-target-resource-2");

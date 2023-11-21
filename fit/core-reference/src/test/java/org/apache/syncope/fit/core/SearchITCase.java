@@ -615,6 +615,14 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
+    public void changePwdDate() {
+        int users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql("status!~suspended;changePwdDate==$null").build()).
+                getTotalCount();
+        assertTrue(users > 0);
+    }
+
+    @Test
     public void issueSYNCOPE768() {
         int usersWithNullable = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").nullValue().query()).build()).
