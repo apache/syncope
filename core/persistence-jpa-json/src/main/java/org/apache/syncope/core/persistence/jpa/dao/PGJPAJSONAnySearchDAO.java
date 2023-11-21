@@ -788,7 +788,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             switch (cond.getType()) {
 
                 case ISNULL:
-                    // shouldn't occour: processed before
+                    query.append(column).append(" IS NULL");
                     break;
 
                 case ISNOTNULL:
@@ -816,8 +816,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                     query.append(column);
                     query.append('=');
 
-                    if ((schema.getType() == AttrSchemaType.String
-                            || schema.getType() == AttrSchemaType.Enum) && lower) {
+                    if (lower
+                            && (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)) {
+
                         query.append("LOWER(?").append(setParameter(parameters, attrValue.getValue())).append(')');
                     } else {
                         query.append('?').append(setParameter(parameters, attrValue.getValue()));
