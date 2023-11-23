@@ -54,6 +54,10 @@ public interface OIDCRPClientApp extends ClientApp {
 
     void setBypassApprovalPrompt(boolean bypassApprovalPrompt);
 
+    boolean isGenerateRefreshToken();
+
+    void setGenerateRefreshToken(boolean generateRefreshToken);
+
     OIDCSubjectType getSubjectType();
 
     void setSubjectType(OIDCSubjectType subjectType);

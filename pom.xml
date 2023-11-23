@@ -499,7 +499,7 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.6.0</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.0</jdbc.postgresql.version>
     <jdbc.mysql.version>8.2.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.2.0</jdbc.mariadb.version>
     <jdbc.mssql.version>12.4.1.jre</jdbc.mssql.version>
@@ -2277,28 +2277,15 @@ under the License.
       <dependencyManagement>
         <dependencies>
           <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>5.6.0</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.6.0</version>
-            <scope>test</scope>
-          </dependency>
-
-          <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>1.14.9</version>
+            <version>1.14.10</version>
           </dependency>
 
           <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy-agent</artifactId>
-            <version>1.14.9</version>
+            <version>1.14.10</version>
             <scope>test</scope>
           </dependency>
         </dependencies>
