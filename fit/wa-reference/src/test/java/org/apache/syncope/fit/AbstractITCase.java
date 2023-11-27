@@ -116,39 +116,39 @@ public abstract class AbstractITCase {
     public static void waitForWARefresh() {
         SAML2IdPEntityService samlIdPEntityService = ADMIN_CLIENT.getService(SAML2IdPEntityService.class);
 
-        await().atMost(60, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
+        await().atMost(120, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
             boolean refreshed = false;
             try {
                 String metadata = WebClient.create(
                         WA_ADDRESS + "/idp/metadata").get().readEntity(String.class);
                 if (metadata.contains("localhost:8080")) {
-                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
                 metadata = WebClient.create(
                         WA_ADDRESS + "/oidc/" + OidcConstants.WELL_KNOWN_OPENID_CONFIGURATION_URL).
                         get().readEntity(String.class);
                 if (metadata.contains("localhost:8080")) {
-                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
                 metadata = WebClient.create(
                         WA_ADDRESS + "/actuator/registeredServices", ANONYMOUS_USER, ANONYMOUS_KEY, null).
                         get().readEntity(String.class);
                 if (metadata.contains("localhost:8080/syncope-wa")) {
-                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
                 metadata = WebClient.create(
                         WA_ADDRESS + "/actuator/authenticationHandlers", ANONYMOUS_USER, ANONYMOUS_KEY, null).
                         get().readEntity(String.class);
                 if (!metadata.contains("DefaultLDAPAuthModule")) {
-                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
 
                 samlIdPEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
                 refreshed = true;
+            } catch (IllegalStateException e) {
+                WebClient.create(
+                        WA_ADDRESS + "/actuator/refresh", ANONYMOUS_USER, ANONYMOUS_KEY, null).
+                        post(null);
             } catch (Exception e) {
                 // ignore
             }
