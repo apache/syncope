@@ -66,6 +66,10 @@ public abstract class AbstractITCase {
 
     protected static final String ADMIN_PWD = "password";
 
+    private static final String ANONYMOUS_USER = "anonymous";
+
+    private static final String ANONYMOUS_KEY = "anonymousKey";
+
     protected static final String CORE_ADDRESS = "https://localhost:9443/syncope/rest";
 
     protected static final String CONSOLE_ADDRESS = "https://localhost:9443/syncope-console/";
@@ -129,9 +133,16 @@ public abstract class AbstractITCase {
                     throw new IllegalStateException();
                 }
                 metadata = WebClient.create(
-                        WA_ADDRESS + "/actuator/registeredServices", "anonymous", "anonymousKey", null).
+                        WA_ADDRESS + "/actuator/registeredServices", ANONYMOUS_USER, ANONYMOUS_KEY, null).
                         get().readEntity(String.class);
                 if (metadata.contains("localhost:8080/syncope-wa")) {
+                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
+                    throw new IllegalStateException();
+                }
+                metadata = WebClient.create(
+                        WA_ADDRESS + "/actuator/authenticationHandlers", ANONYMOUS_USER, ANONYMOUS_KEY, null).
+                        get().readEntity(String.class);
+                if (!metadata.contains("DefaultLDAPAuthModule")) {
                     WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
