@@ -142,7 +142,8 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
                 append(')');
 
         if (keyword != null) {
-            queryString.append(" AND LOWER(e.name) LIKE ?").append(setParameter(parameters, keyword));
+            queryString.append(" AND LOWER(e.name) LIKE ?").
+                    append(setParameter(parameters, "%" + keyword.replaceAll("_", "\\\\_").toLowerCase() + "%"));
         }
 
         return queryString;

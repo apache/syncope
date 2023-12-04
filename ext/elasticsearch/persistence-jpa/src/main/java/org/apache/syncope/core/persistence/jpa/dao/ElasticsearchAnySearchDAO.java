@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -87,21 +86,6 @@ import org.springframework.util.CollectionUtils;
  * Search engine implementation for users, groups and any objects, based on Elasticsearch.
  */
 public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
-
-    protected static final char[] ELASTICSEARCH_REGEX_CHARS = new char[] {
-        '.', '?', '+', '*', '|', '{', '}', '[', ']', '(', ')', '"', '\\', '&' };
-
-    protected static String escapeForLikeRegex(final char c) {
-        StringBuilder output = new StringBuilder();
-
-        if (ArrayUtils.contains(ELASTICSEARCH_REGEX_CHARS, c)) {
-            output.append('\\');
-        }
-
-        output.append(c);
-
-        return output.toString();
-    }
 
     protected final ElasticsearchClient client;
 
@@ -565,7 +549,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                                 append(Character.toUpperCase(c)).
                                 append(']');
                     } else {
-                        output.append(escapeForLikeRegex(c));
+                        output.append(ElasticsearchUtils.escapeForLikeRegex(c));
                     }
                 }
                 query = new Query.Builder().regexp(QueryBuilders.regexp().
