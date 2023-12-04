@@ -335,10 +335,19 @@ public class SearchCondConverterTest {
         String fiql = new UserFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("ros_*").query();
         assertEquals("username=~ros_*", fiql);
 
-        AttrCond attrCond = new AnyCond(AttrCond.Type.ILIKE);
-        attrCond.setSchema("username");
-        attrCond.setExpression("ros\\_%");
-        SearchCond leaf = SearchCond.getLeaf(attrCond);
+        AnyCond anyCond = new AnyCond(AttrCond.Type.ILIKE);
+        anyCond.setSchema("username");
+        anyCond.setExpression("ros\\_%");
+        SearchCond leaf = SearchCond.getLeaf(anyCond);
+
+        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
+
+        fiql = "name==_018c34a9-f86b-75cf-855b-a3915cc5ff44";
+
+        anyCond = new AnyCond(AttrCond.Type.EQ);
+        anyCond.setSchema("name");
+        anyCond.setExpression("_018c34a9-f86b-75cf-855b-a3915cc5ff44");
+        leaf = SearchCond.getLeaf(anyCond);
 
         assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }

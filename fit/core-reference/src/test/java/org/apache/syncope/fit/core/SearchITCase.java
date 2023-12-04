@@ -921,6 +921,28 @@ public class SearchITCase extends AbstractITCase {
         assertEquals(2, users.getResult().size());
 
         users.getResult().forEach(u -> USER_SERVICE.delete(u.getKey()));
+
+        // 4. create any object with underscore
+        AnyObjectTO printer = createAnyObject(
+                new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, PRINTER, "_syncope1779").build()).getEntity();
+
+        // 5. search for printer
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        PagedResult<AnyObjectTO> printers = ANY_OBJECT_SERVICE.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql("$type==PRINTER;name==_syncope1779").
+                        build());
+        assertEquals(1, printers.getResult().size());
+        assertEquals(printer.getKey(), printers.getResult().get(0).getKey());
+
+        printers.getResult().forEach(u -> ANY_OBJECT_SERVICE.delete(u.getKey()));
     }
 
     @Test

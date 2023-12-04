@@ -77,8 +77,10 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
     protected static String getValue(final SearchCondition<SearchBean> sc) {
         String value = SearchUtils.toSqlWildcardString(
                 URLDecoder.decode(sc.getStatement().getValue().toString(), StandardCharsets.UTF_8), false);
+        if (value.indexOf('%') == -1) {
+            value = value.replaceAll("\\\\_", "_");
+        }
 
-        // see SYNCOPE-1321
         if (TIMEZONE.matcher(value).matches()) {
             char[] valueAsArray = value.toCharArray();
             valueAsArray[valueAsArray.length - 5] = '+';
