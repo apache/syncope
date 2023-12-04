@@ -143,10 +143,24 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
             return prefix;
         }
 
+        StringBuilder output = new StringBuilder();
+        for (char c : keyword.toLowerCase().toCharArray()) {
+            if (c == '%') {
+                output.append(".*");
+            } else if (Character.isLetter(c)) {
+                output.append('[').
+                        append(c).
+                        append(Character.toUpperCase(c)).
+                        append(']');
+            } else {
+                output.append(ElasticsearchUtils.escapeForLikeRegex(c));
+            }
+        }
+
         return new Query.Builder().bool(QueryBuilders.bool().must(
                 prefix,
-                new Query.Builder().wildcard(QueryBuilders.wildcard().
-                        field("name").value(keyword.replace("%", "*").toLowerCase()).build()).
+                new Query.Builder().regexp(QueryBuilders.regexp().
+                        field("name").value(output.toString()).build()).
                         build()).build()).
                 build();
     }
