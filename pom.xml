@@ -1438,7 +1438,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.6.0</version>
+          <version>3.6.1</version>
           <configuration>
             <outputDirectory>${bundles.directory}</outputDirectory>
             <artifactItems>
