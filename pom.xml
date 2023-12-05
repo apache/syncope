@@ -459,7 +459,7 @@ under the License.
     <wicket.version>10.0.0-M2</wicket.version>
     <wicketstuff.version>10.0.0-M2</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
-    <wicket-bootstrap.version>7.0.0</wicket-bootstrap.version>
+    <wicket-bootstrap.version>7.0.1</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.0.0-M1</wicket-spring-boot.version>
 
     <antlr4.version>4.13.1</antlr4.version>
