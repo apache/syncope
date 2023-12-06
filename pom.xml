@@ -459,7 +459,7 @@ under the License.
     <wicket.version>10.0.0-M2</wicket.version>
     <wicketstuff.version>10.0.0-M2</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
-    <wicket-bootstrap.version>7.0.0</wicket-bootstrap.version>
+    <wicket-bootstrap.version>7.0.1</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.0.0-M1</wicket-spring-boot.version>
 
     <antlr4.version>4.13.1</antlr4.version>
@@ -1249,7 +1249,7 @@ under the License.
       <dependency>
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
-        <version>1.15.4</version>
+        <version>1.17.1</version>
       </dependency>
 
       <!-- TEST -->
@@ -1677,7 +1677,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.1</version>
         <executions>
           <execution>
             <id>default-cli</id>
