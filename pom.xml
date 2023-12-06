@@ -500,7 +500,7 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.7.0</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.1</jdbc.postgresql.version>
     <jdbc.mysql.version>8.2.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.3.1</jdbc.mariadb.version>
     <jdbc.mssql.version>12.4.2.jre</jdbc.mssql.version>
