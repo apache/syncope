@@ -56,6 +56,15 @@ public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
         }
     }
 
+    private static boolean isBase64(final String value) {
+        try {
+            Base64.getDecoder().decode(value);
+            return value.length() % 4 == 0;
+        } catch (IllegalArgumentException iae) {
+            return false;
+        }
+    }
+
     private static boolean isJSON(final String value) {
         try {
             JSON_MAPPER.readTree(value);
@@ -75,8 +84,7 @@ public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
     }
 
     private static boolean isPEM(final String value) {
-        try {
-            PemReader reader = new PemReader(new StringReader(value));
+        try (PemReader reader = new PemReader(new StringReader(value))) {
             return reader.readPemObject() != null;
         } catch (IOException e) {
             return false;
@@ -110,22 +118,22 @@ public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
                 if (isDate(param.getValues().get(0).toString())) {
                     schema.setType(AttrSchemaType.Date);
                 } else // 2. does it look like Base64?
-                if (org.apache.commons.codec.binary.Base64.isBase64(param.getValues().get(0).toString())) {
+                if (isBase64(param.getValues().get(0).toString())) {
+                    schema.setType(AttrSchemaType.Binary);
                     String value = new String(Base64.getDecoder().decode(param.getValues().get(0).toString()));
 
                     // 3. is it JSON?
                     if (isJSON(value)) {
-                        schema.setType(AttrSchemaType.Binary);
                         schema.setMimeType(MediaType.APPLICATION_JSON);
                     } else // 4. is it XML?
                     if (isXML(value)) {
-                        schema.setType(AttrSchemaType.Binary);
                         schema.setMimeType(MediaType.APPLICATION_XML);
                     } else // 5. is it PEM?
                     if (isPEM(value)) {
-                        schema.setType(AttrSchemaType.Binary);
                         schema.setMimeType("application/x-pem-file");
                     }
+                } else {
+                    schema.setType(AttrSchemaType.String);
                 }
             }
         }
@@ -142,6 +150,6 @@ public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
 
     @Override
     public final ConfParam getItem() {
-        return this.form.getParam();
+        return form.getParam();
     }
 }
