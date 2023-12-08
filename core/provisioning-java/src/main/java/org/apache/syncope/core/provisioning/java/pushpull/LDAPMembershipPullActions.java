@@ -19,12 +19,13 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -78,9 +79,9 @@ public class LDAPMembershipPullActions implements PullActions {
     @Autowired
     protected UserProvisioningManager userProvisioningManager;
 
-    protected final Map<String, Set<String>> membershipsBefore = new HashMap<>();
+    protected final Map<String, Set<String>> membershipsBefore = new ConcurrentHashMap<>();
 
-    protected final Map<String, Set<String>> membershipsAfter = new HashMap<>();
+    protected final Map<String, Set<String>> membershipsAfter = new ConcurrentHashMap<>();
 
     /**
      * Allows easy subclassing for the ConnId AD connector bundle.
@@ -155,8 +156,10 @@ public class LDAPMembershipPullActions implements PullActions {
         groupDAO.findUMemberships(groupDAO.find(entity.getKey())).forEach(uMembership -> {
             Set<String> memb = membershipsBefore.get(uMembership.getLeftEnd().getKey());
             if (memb == null) {
-                memb = new HashSet<>();
-                membershipsBefore.put(uMembership.getLeftEnd().getKey(), memb);
+                memb = Collections.synchronizedSet(new HashSet<>());
+                memb = Optional.ofNullable(membershipsBefore
+                        .putIfAbsent(uMembership.getLeftEnd().getKey(), memb))
+                    .orElse(memb);
             }
             memb.add(entity.getKey());
         });
@@ -194,8 +197,10 @@ public class LDAPMembershipPullActions implements PullActions {
             if (match.isPresent()) {
                 Set<String> memb = membershipsAfter.get(match.get().getAny().getKey());
                 if (memb == null) {
-                    memb = new HashSet<>();
-                    membershipsAfter.put(match.get().getAny().getKey(), memb);
+                    memb = Collections.synchronizedSet(new HashSet<>());
+                    memb = Optional.ofNullable(membershipsAfter
+                            .putIfAbsent(match.get().getAny().getKey(), memb))
+                        .orElse(memb);
                 }
                 memb.add(entity.getKey());
             } else {
