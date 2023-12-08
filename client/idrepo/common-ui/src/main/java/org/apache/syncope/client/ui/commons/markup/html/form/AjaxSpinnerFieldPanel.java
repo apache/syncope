@@ -167,8 +167,17 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
                             LOG.error("While attempting to parse {}", obj, e);
                         }
                     } else if (obj instanceof Number) {
-                        // Don't parse anything
-                        number = reference.cast(obj);
+                        number = reference.equals(Integer.class)
+                                ? reference.cast(((Number) obj).intValue())
+                                : reference.equals(Long.class)
+                                ? reference.cast(((Number) obj).longValue())
+                                : reference.equals(Short.class)
+                                ? reference.cast(((Number) obj).shortValue())
+                                : reference.equals(Float.class)
+                                ? reference.cast(((Number) obj).floatValue())
+                                : reference.equals(byte.class)
+                                ? reference.cast(((Number) obj).byteValue())
+                                : reference.cast(((Number) obj).doubleValue());
                     }
                 }
 
@@ -178,7 +187,9 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             @Override
             @SuppressWarnings("unchecked")
             public void setObject(final T object) {
-                item.setModelObject(Optional.ofNullable(object).map(Object::toString).orElse(null));
+                item.setModelObject(Optional.ofNullable(object).
+                        map(v -> convertValuesToString ? v.toString() : v).
+                        orElse(null));
             }
         });
 
