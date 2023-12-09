@@ -154,7 +154,8 @@ public class LDAPMembershipPullActions implements PullActions {
         }
 
         groupDAO.findUMemberships(groupDAO.find(entity.getKey())).forEach(uMembership -> {
-            Set<String> memb = membershipsBefore.computeIfAbsent(uMembership.getLeftEnd().getKey(),
+            Set<String> memb = membershipsBefore.computeIfAbsent(
+                uMembership.getLeftEnd().getKey(),
                 k -> Collections.synchronizedSet(new HashSet<>()));
             memb.add(entity.getKey());
         });
