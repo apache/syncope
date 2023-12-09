@@ -154,13 +154,8 @@ public class LDAPMembershipPullActions implements PullActions {
         }
 
         groupDAO.findUMemberships(groupDAO.find(entity.getKey())).forEach(uMembership -> {
-            Set<String> memb = membershipsBefore.get(uMembership.getLeftEnd().getKey());
-            if (memb == null) {
-                memb = Collections.synchronizedSet(new HashSet<>());
-                memb = Optional.ofNullable(membershipsBefore
-                        .putIfAbsent(uMembership.getLeftEnd().getKey(), memb))
-                    .orElse(memb);
-            }
+            Set<String> memb = membershipsBefore.computeIfAbsent(uMembership.getLeftEnd().getKey(),
+                k -> Collections.synchronizedSet(new HashSet<>()));
             memb.add(entity.getKey());
         });
     }
@@ -195,13 +190,9 @@ public class LDAPMembershipPullActions implements PullActions {
                     profile.getTask().getResource(),
                     profile.getConnector());
             if (match.isPresent()) {
-                Set<String> memb = membershipsAfter.get(match.get().getAny().getKey());
-                if (memb == null) {
-                    memb = Collections.synchronizedSet(new HashSet<>());
-                    memb = Optional.ofNullable(membershipsAfter
-                            .putIfAbsent(match.get().getAny().getKey(), memb))
-                        .orElse(memb);
-                }
+                Set<String> memb = membershipsAfter.computeIfAbsent(
+                    match.get().getAny().getKey(),
+                    k -> Collections.synchronizedSet(new HashSet<>()));
                 memb.add(entity.getKey());
             } else {
                 LOG.warn("Could not find matching user for {}", membValue);
