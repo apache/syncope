@@ -54,6 +54,7 @@ import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
+import org.apache.syncope.common.lib.request.ResourceAR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -68,19 +69,23 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
+import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.GenerateRandomPasswordPropagationActions;
@@ -101,7 +106,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ImplementationTO propagationActions = null;
         try {
             propagationActions = IMPLEMENTATION_SERVICE.read(
-                    IdMImplementationType.PULL_ACTIONS, LDAPPasswordPropagationActions.class.getSimpleName());
+                    IdMImplementationType.PROPAGATION_ACTIONS, LDAPPasswordPropagationActions.class.getSimpleName());
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 propagationActions = new ImplementationTO();
@@ -1609,5 +1614,24 @@ public class UserIssuesITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.InvalidUser, e.getType());
             assertTrue(e.getMessage().contains("InvalidPassword: Password must be 10 or more characters in length."));
         }
+    }
+
+    @Test
+    public void issueSYNCOPE1793() {
+        RoleTO role = new RoleTO();
+        role.setKey("syncope1793" + getUUIDString());
+        role.getRealms().add(SyncopeConstants.ROOT_REALM);
+        role.getEntitlements().add(IdRepoEntitlement.USER_UPDATE);
+        role = createRole(role);
+
+        UserCR userCR = UserITCase.getUniqueSample("syncope1793@apache.org");
+        userCR.getRoles().add(role.getKey());
+        UserTO userTO = createUser(userCR).getEntity();
+
+        UserService userService = CLIENT_FACTORY.create(userTO.getUsername(), "password123").
+                getService(UserService.class);
+        Response response = userService.associate(new ResourceAR.Builder().key(userTO.getKey()).
+                resource(RESOURCE_NAME_NOPROPAGATION).action(ResourceAssociationAction.ASSIGN).build());
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
 }
