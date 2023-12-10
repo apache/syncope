@@ -25,7 +25,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -98,7 +97,6 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     @Mock
     private ProvisioningReport result;
 
-    @Mock
     private Map<String, Set<String>> membershipsAfter;
 
     @Mock
@@ -139,6 +137,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
         anyReq = new UserUR();
         membershipsBefore = new HashMap<>();
+        membershipsAfter = new HashMap<>();
         ReflectionTestUtils.setField(ldapMembershipPullActions, "membershipsBefore", membershipsBefore);
         ReflectionTestUtils.setField(ldapMembershipPullActions, "membershipsAfter", membershipsAfter);
 
@@ -208,8 +207,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
         ldapMembershipPullActions.after(profile, syncDelta, entity, result);
 
-        verify(membershipsAfter).get(anyString());
-        verify(membershipsAfter).put(anyString(), any());
+        assertEquals(1, membershipsAfter.get(user.getKey()).size());
         assertEquals(expected, attribute.getValue());
     }
 }
