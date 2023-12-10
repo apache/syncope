@@ -507,17 +507,17 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     }
 
     protected void updateChecks(final String key) {
-        User user = userDAO.authFind(key);
+        UserTO userTO = binder.getUserTO(key);
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.USER_UPDATE),
-                user.getRealm().getFullPath());
+                userTO.getRealm());
         userDAO.securityChecks(
                 authRealms,
-                user.getKey(),
-                user.getRealm().getFullPath(),
-                user.getMemberships().stream().
-                        map(m -> m.getRightEnd().getKey()).
+                userTO.getKey(),
+                userTO.getRealm(),
+                userTO.getMemberships().stream().
+                        map(MembershipTO::getGroupKey).
                         collect(Collectors.toSet()));
     }
 
