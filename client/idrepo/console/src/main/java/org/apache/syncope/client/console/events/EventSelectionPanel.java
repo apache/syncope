@@ -48,11 +48,11 @@ public abstract class EventSelectionPanel extends Panel {
 
     private final Set<String> selected = new HashSet<>();
 
-    public EventSelectionPanel(final String id, final EventCategory eventCategoryTO, final IModel<List<String>> model) {
+    public EventSelectionPanel(final String id, final EventCategory eventCategory, final IModel<List<String>> model) {
         super(id);
         setOutputMarkupId(true);
 
-        List<String> events = getEvents(eventCategoryTO);
+        List<String> events = getEvents(eventCategory);
 
         // needed to avoid model reset: model have to be managed into SelectedEventsPanel
         selected.addAll(model.getObject());
@@ -64,21 +64,21 @@ public abstract class EventSelectionPanel extends Panel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                Set<String> toBeRemoved = new HashSet<>();
-                Set<String> toBeAdded = new HashSet<>();
+                Set<AuditLoggerName> toBeRemoved = new HashSet<>();
+                Set<AuditLoggerName> toBeAdded = new HashSet<>();
 
-                getEvents(eventCategoryTO).forEach(event -> {
-                    String eventString = AuditLoggerName.buildEvent(
-                            eventCategoryTO.getType(),
-                            eventCategoryTO.getCategory(),
-                            eventCategoryTO.getSubcategory(),
+                getEvents(eventCategory).forEach(event -> {
+                    AuditLoggerName auditLoggerName = new AuditLoggerName(
+                            eventCategory.getType(),
+                            eventCategory.getCategory(),
+                            eventCategory.getSubcategory(),
                             event,
                             AuditElements.Result.SUCCESS);
 
-                    if (successGroup.getModelObject().contains(eventString)) {
-                        toBeAdded.add(eventString);
+                    if (successGroup.getModelObject().contains(auditLoggerName.toString())) {
+                        toBeAdded.add(auditLoggerName);
                     } else {
-                        toBeRemoved.add(eventString);
+                        toBeRemoved.add(auditLoggerName);
                     }
                 });
 
@@ -113,13 +113,13 @@ public abstract class EventSelectionPanel extends Panel {
             @Override
             protected void populateItem(final ListItem<String> item) {
                 item.add(new Check<>("successCheck",
-                    new Model<>(AuditLoggerName.buildEvent(
-                        eventCategoryTO.getType(),
-                        eventCategoryTO.getCategory(),
-                        eventCategoryTO.getSubcategory(),
-                        item.getModelObject(),
-                        AuditElements.Result.SUCCESS)),
-                    successGroup));
+                        new Model<>(AuditLoggerName.buildEvent(
+                                eventCategory.getType(),
+                                eventCategory.getCategory(),
+                                eventCategory.getSubcategory(),
+                                item.getModelObject(),
+                                AuditElements.Result.SUCCESS)),
+                        successGroup));
             }
         };
         successGroup.add(successView);
@@ -131,21 +131,21 @@ public abstract class EventSelectionPanel extends Panel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                Set<String> toBeRemoved = new HashSet<>();
-                Set<String> toBeAdded = new HashSet<>();
+                Set<AuditLoggerName> toBeRemoved = new HashSet<>();
+                Set<AuditLoggerName> toBeAdded = new HashSet<>();
 
-                getEvents(eventCategoryTO).forEach(event -> {
-                    String eventString = AuditLoggerName.buildEvent(
-                            eventCategoryTO.getType(),
-                            eventCategoryTO.getCategory(),
-                            eventCategoryTO.getSubcategory(),
+                getEvents(eventCategory).forEach(event -> {
+                    AuditLoggerName auditLoggerName = new AuditLoggerName(
+                            eventCategory.getType(),
+                            eventCategory.getCategory(),
+                            eventCategory.getSubcategory(),
                             event,
                             AuditElements.Result.FAILURE);
 
-                    if (failureGroup.getModelObject().contains(eventString)) {
-                        toBeAdded.add(eventString);
+                    if (failureGroup.getModelObject().contains(auditLoggerName.toString())) {
+                        toBeAdded.add(auditLoggerName);
                     } else {
-                        toBeRemoved.add(eventString);
+                        toBeRemoved.add(auditLoggerName);
                     }
                 });
 
@@ -169,13 +169,13 @@ public abstract class EventSelectionPanel extends Panel {
             @Override
             protected void populateItem(final ListItem<String> item) {
                 item.add(new Check<>("failureCheck",
-                    new Model<>(AuditLoggerName.buildEvent(
-                        eventCategoryTO.getType(),
-                        eventCategoryTO.getCategory(),
-                        eventCategoryTO.getSubcategory(),
-                        item.getModelObject(),
-                        AuditElements.Result.FAILURE)),
-                    failureGroup));
+                        new Model<>(AuditLoggerName.buildEvent(
+                                eventCategory.getType(),
+                                eventCategory.getCategory(),
+                                eventCategory.getSubcategory(),
+                                item.getModelObject(),
+                                AuditElements.Result.FAILURE)),
+                        failureGroup));
             }
         };
         failureGroup.add(failureView);

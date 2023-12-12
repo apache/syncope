@@ -44,12 +44,16 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.audit.EventCategory;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -58,9 +62,11 @@ import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -68,10 +74,13 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
@@ -593,13 +602,13 @@ public class AuditITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1695() {
         // add audit conf for pull
-        AUDIT_SERVICE.set(
-                buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]", true));
-        AUDIT_SERVICE.set(
-                buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]", true));
-        AUDIT_SERVICE.set(
-                buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]",
-                        true));
+        AUDIT_SERVICE.set(buildAuditConf(
+                "syncope.audit.[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]", true));
+        AUDIT_SERVICE.set(buildAuditConf(
+                "syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]", true));
+        AUDIT_SERVICE.set(buildAuditConf(
+                "syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]", true));
+
         UserTO pullFromLDAP = null;
         try {
             // pull from resource-ldap -> generates an audit entry
@@ -644,16 +653,57 @@ public class AuditITCase extends AbstractITCase {
                 USER_SERVICE.delete(pullFromLDAP.getKey());
 
                 // restore previous audit
-                AUDIT_SERVICE.set(
-                        buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]",
-                                false));
-                AUDIT_SERVICE.set(
-                        buildAuditConf("syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]",
-                                false));
                 AUDIT_SERVICE.set(buildAuditConf(
-                        "syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]",
-                        false));
+                        "syncope.audit.[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]", false));
+                AUDIT_SERVICE.set(buildAuditConf(
+                        "syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]", false));
+                AUDIT_SERVICE.set(buildAuditConf(
+                        "syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]", false));
             }
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE1791() throws IOException {
+        ImplementationTO logicActions;
+        try {
+            logicActions = IMPLEMENTATION_SERVICE.read(
+                    IdRepoImplementationType.LOGIC_ACTIONS, "CustomAuditLogicActions");
+        } catch (SyncopeClientException e) {
+            logicActions = new ImplementationTO();
+            logicActions.setKey("CustomAuditLogicActions");
+            logicActions.setEngine(ImplementationEngine.GROOVY);
+            logicActions.setType(IdRepoImplementationType.LOGIC_ACTIONS);
+            logicActions.setBody(IOUtils.toString(
+                    getClass().getResourceAsStream("/CustomAuditLogicActions.groovy"), StandardCharsets.UTF_8));
+            Response response = IMPLEMENTATION_SERVICE.create(logicActions);
+            logicActions = IMPLEMENTATION_SERVICE.read(
+                    logicActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+        }
+        assertNotNull(logicActions);
+
+        RealmTO root = getRealm(SyncopeConstants.ROOT_REALM).orElseThrow();
+        root.getActions().add(logicActions.getKey());
+        REALM_SERVICE.update(root);
+
+        int before = AUDIT_SERVICE.search(
+                new AuditQuery.Builder().type(AuditElements.EventCategoryType.CUSTOM).build()).getTotalCount();
+        try {
+            AUDIT_SERVICE.set(buildAuditConf("syncope.audit.[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", true));
+
+            AnyObjectTO printer = createAnyObject(AnyObjectITCase.getSample("syncope-1791")).getEntity();
+            updateAnyObject(new AnyObjectUR.Builder(printer.getKey()).
+                    plainAttr(attrAddReplacePatch("location", "new" + getUUIDString())).
+                    build());
+
+            int after = AUDIT_SERVICE.search(
+                    new AuditQuery.Builder().type(AuditElements.EventCategoryType.CUSTOM).build()).getTotalCount();
+            assertEquals(before + 1, after);
+        } finally {
+            AUDIT_SERVICE.set(buildAuditConf("syncope.audit.[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", false));
+
+            root.getActions().remove(logicActions.getKey());
+            REALM_SERVICE.update(root);
         }
     }
 }

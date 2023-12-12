@@ -107,6 +107,7 @@ import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -133,8 +134,8 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuditAccessor auditAccessor(final AuditConfDAO auditConfDAO) {
-        return new AuditAccessor(auditConfDAO);
+    public AuditAccessor auditAccessor(final AuditConfDAO auditConfDAO, final LoggingSystem loggingSystem) {
+        return new AuditAccessor(auditConfDAO, loggingSystem);
     }
 
     @ConditionalOnMissingBean
@@ -251,7 +252,8 @@ public class IdRepoLogicContext {
             final EntityFactory entityFactory,
             final AuditDataBinder binder,
             final AuditManager auditManager,
-            final List<AuditAppender> auditAppenders) {
+            final List<AuditAppender> auditAppenders,
+            final LoggingSystem loggingSystem) {
 
         return new AuditLogic(
                 auditConfDAO,
@@ -259,7 +261,8 @@ public class IdRepoLogicContext {
                 entityFactory,
                 binder,
                 auditManager,
-                auditAppenders);
+                auditAppenders,
+                loggingSystem);
     }
 
     @ConditionalOnMissingBean

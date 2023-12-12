@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -59,6 +58,8 @@ import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.springframework.boot.logging.LogLevel;
+import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -86,13 +87,16 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     protected final List<AuditAppender> auditAppenders;
 
+    protected final LoggingSystem loggingSystem;
+
     public AuditLogic(
             final AuditConfDAO auditConfDAO,
             final ExternalResourceDAO resourceDAO,
             final EntityFactory entityFactory,
             final AuditDataBinder binder,
             final AuditManager auditManager,
-            final List<AuditAppender> auditAppenders) {
+            final List<AuditAppender> auditAppenders,
+            final LoggingSystem loggingSystem) {
 
         this.auditConfDAO = auditConfDAO;
         this.resourceDAO = resourceDAO;
@@ -100,6 +104,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
         this.binder = binder;
         this.auditManager = auditManager;
         this.auditAppenders = auditAppenders;
+        this.loggingSystem = loggingSystem;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "')")
@@ -126,7 +131,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
         audit.setActive(auditTO.isActive());
         audit = auditConfDAO.save(audit);
 
-        setLevel(audit.getKey(), audit.isActive() ? Level.DEBUG : Level.OFF);
+        setLevel(audit.getKey(), audit.isActive() ? LogLevel.DEBUG : LogLevel.OFF);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_DELETE + "')")
@@ -135,23 +140,21 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
                 orElseThrow(() -> new NotFoundException("Audit " + key));
         auditConfDAO.delete(audit);
 
-        setLevel(audit.getKey(), Level.OFF);
+        setLevel(audit.getKey(), LogLevel.OFF);
     }
 
-    protected void setLevel(final String key, final Level level) {
+    protected void setLevel(final String key, final LogLevel level) {
         String auditLoggerName = AuditLoggerName.getAuditEventLoggerName(AuthContextUtils.getDomain(), key);
 
         LoggerContext logCtx = (LoggerContext) LogManager.getContext(false);
         LoggerConfig logConf = logCtx.getConfiguration().getLoggerConfig(auditLoggerName);
 
-        // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
         auditAppenders.stream().
                 filter(appender -> appender.getEvents().stream().
                 anyMatch(event -> key.equalsIgnoreCase(event.toAuditKey()))).
                 forEach(auditAppender -> AuditLoader.addAppenderToLoggerContext(logCtx, auditAppender, logConf));
 
-        logConf.setLevel(level);
-        logCtx.updateLoggers();
+        loggingSystem.setLogLevel(auditLoggerName, level);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "') "
@@ -163,8 +166,27 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             }
         }
 
-        // use set to avoid duplications or null elements
         Set<EventCategory> events = new HashSet<>();
+
+        EventCategory authenticationEventCategory = new EventCategory();
+        authenticationEventCategory.setCategory(AuditElements.AUTHENTICATION_CATEGORY);
+        authenticationEventCategory.getEvents().add(AuditElements.LOGIN_EVENT);
+        events.add(authenticationEventCategory);
+
+        events.add(new EventCategory(EventCategoryType.PROPAGATION));
+        events.add(new EventCategory(EventCategoryType.PULL));
+        events.add(new EventCategory(EventCategoryType.PUSH));
+
+        EventCategory pullTaskEventCategory = new EventCategory(EventCategoryType.TASK);
+        pullTaskEventCategory.setCategory(PullJobDelegate.class.getSimpleName());
+        events.add(pullTaskEventCategory);
+
+        EventCategory pushTaskEventCategory = new EventCategory(EventCategoryType.TASK);
+        pushTaskEventCategory.setCategory(PushJobDelegate.class.getSimpleName());
+        events.add(pushTaskEventCategory);
+
+        events.add(new EventCategory(EventCategoryType.WA));
+        events.add(new EventCategory(EventCategoryType.CUSTOM));
 
         try {
             ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
@@ -172,7 +194,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
             String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
                     + ClassUtils.convertClassNameToResourcePath(
-                            SystemPropertyUtils.resolvePlaceholders(this.getClass().getPackage().getName()))
+                            SystemPropertyUtils.resolvePlaceholders(getClass().getPackage().getName()))
                     + "/**/*.class";
 
             Resource[] resources = resourcePatternResolver.getResources(packageSearchPath);
@@ -196,16 +218,6 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
                     }
                 }
             }
-
-            // SYNCOPE-608
-            EventCategory authenticationControllerEvents = new EventCategory();
-            authenticationControllerEvents.setCategory(AuditElements.AUTHENTICATION_CATEGORY);
-            authenticationControllerEvents.getEvents().add(AuditElements.LOGIN_EVENT);
-            events.add(authenticationControllerEvents);
-
-            events.add(new EventCategory(EventCategoryType.PROPAGATION));
-            events.add(new EventCategory(EventCategoryType.PULL));
-            events.add(new EventCategory(EventCategoryType.PUSH));
 
             for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
                 resourceDAO.findAll().forEach(resource -> {
@@ -243,14 +255,6 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
                     events.add(pushEventCategory);
                 });
             }
-
-            EventCategory eventCategory = new EventCategory(EventCategoryType.TASK);
-            eventCategory.setCategory(PullJobDelegate.class.getSimpleName());
-            events.add(eventCategory);
-
-            eventCategory = new EventCategory(EventCategoryType.TASK);
-            eventCategory.setCategory(PushJobDelegate.class.getSimpleName());
-            events.add(eventCategory);
         } catch (Exception e) {
             LOG.error("Failure retrieving audit/notification events", e);
         }

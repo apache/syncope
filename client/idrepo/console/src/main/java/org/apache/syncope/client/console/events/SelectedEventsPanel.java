@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.client.console.events;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
@@ -51,18 +53,18 @@ public class SelectedEventsPanel extends Panel {
         add(selectionContainer);
 
         ListMultipleChoice<String> selectedEvents =
-            new ListMultipleChoice<>("selectedEvents", new ListModel<>(), model) {
+                new ListMultipleChoice<>("selectedEvents", new ListModel<>(), model) {
 
-                private static final long serialVersionUID = 1226677544225737338L;
+            private static final long serialVersionUID = 1226677544225737338L;
 
-                @Override
-                protected void onComponentTag(final ComponentTag tag) {
-                    super.onComponentTag(tag);
-                    tag.remove("size");
-                    tag.remove("multiple");
-                    tag.put("size", 5);
-                }
-            };
+            @Override
+            protected void onComponentTag(final ComponentTag tag) {
+                super.onComponentTag(tag);
+                tag.remove("size");
+                tag.remove("multiple");
+                tag.put("size", 5);
+            }
+        };
         selectedEvents.setMaxRows(5);
         selectedEvents.setChoiceRenderer(new IChoiceRenderer<>() {
 
@@ -103,12 +105,13 @@ public class SelectedEventsPanel extends Panel {
             EventSelectionChanged eventSelectionChanged = (EventSelectionChanged) event.getPayload();
 
             eventSelectionChanged.getToBeRemoved().
-                    forEach(toBeRemoved -> model.getObject().remove(toBeRemoved));
+                    forEach(toBeRemoved -> model.getObject().remove(toBeRemoved.toString()));
 
             eventSelectionChanged.getToBeAdded().stream().
-                    filter(toBeAdded -> !model.getObject().contains(toBeAdded)).
-                    forEach(toBeAdded -> model.getObject().add(toBeAdded));
+                    filter(toBeAdded -> !model.getObject().contains(toBeAdded.toString())).
+                    forEach(toBeAdded -> model.getObject().add(toBeAdded.toString()));
 
+            Collections.sort(model.getObject());
             eventSelectionChanged.getTarget().add(selectionContainer);
         }
     }
@@ -137,14 +140,15 @@ public class SelectedEventsPanel extends Panel {
 
         private final AjaxRequestTarget target;
 
-        private final Set<String> toBeRemoved;
+        private final Set<AuditLoggerName> toBeRemoved;
 
-        private final Set<String> toBeAdded;
+        private final Set<AuditLoggerName> toBeAdded;
 
         public EventSelectionChanged(
                 final AjaxRequestTarget target,
-                final Set<String> toBeAdded,
-                final Set<String> toBeRemoved) {
+                final Set<AuditLoggerName> toBeAdded,
+                final Set<AuditLoggerName> toBeRemoved) {
+
             this.target = target;
             this.toBeAdded = toBeAdded;
             this.toBeRemoved = toBeRemoved;
@@ -154,11 +158,11 @@ public class SelectedEventsPanel extends Panel {
             return target;
         }
 
-        public Set<String> getToBeRemoved() {
+        public Set<AuditLoggerName> getToBeRemoved() {
             return toBeRemoved;
         }
 
-        public Set<String> getToBeAdded() {
+        public Set<AuditLoggerName> getToBeAdded() {
             return toBeAdded;
         }
     }

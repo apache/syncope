@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
-import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
@@ -45,6 +44,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -78,30 +78,30 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
     protected final NotificationRestClient notificationRestClient;
 
-    protected final AuditRestClient auditRestClient;
-
     protected final AnyTypeRestClient anyTypeRestClient;
 
     protected final ImplementationRestClient implementationRestClient;
 
     protected final SchemaRestClient schemaRestClient;
 
+    protected final IModel<List<EventCategory>> eventCategories;
+
     public NotificationWizardBuilder(
             final NotificationTO notificationTO,
             final NotificationRestClient notificationRestClient,
-            final AuditRestClient auditRestClient,
             final AnyTypeRestClient anyTypeRestClient,
             final ImplementationRestClient implementationRestClient,
             final SchemaRestClient schemaRestClient,
+            final IModel<List<EventCategory>> eventCategories,
             final PageReference pageRef) {
 
         super(new NotificationWrapper(notificationTO), pageRef);
 
         this.notificationRestClient = notificationRestClient;
-        this.auditRestClient = auditRestClient;
         this.anyTypeRestClient = anyTypeRestClient;
         this.implementationRestClient = implementationRestClient;
         this.schemaRestClient = schemaRestClient;
+        this.eventCategories = eventCategories;
     }
 
     @Override
@@ -182,7 +182,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
             add(new EventCategoryPanel(
                     "eventSelection",
-                    auditRestClient.listEvents(),
+                    eventCategories.getObject(),
                     new PropertyModel<>(modelObject.getInnerObject(), "events")) {
 
                 private static final long serialVersionUID = 6429053774964787735L;

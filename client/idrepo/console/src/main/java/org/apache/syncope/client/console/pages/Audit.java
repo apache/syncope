@@ -21,19 +21,17 @@ package org.apache.syncope.client.console.pages;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.events.EventCategoryPanel;
 import org.apache.syncope.client.console.events.SelectedEventsPanel;
 import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.common.lib.audit.EventCategory;
-import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -46,8 +44,7 @@ public class Audit extends BasePage {
     @SpringBean
     protected AuditRestClient auditRestClient;
 
-    protected final LoadableDetachableModel<List<EventCategory>> eventCategories =
-            new LoadableDetachableModel<List<EventCategory>>() {
+    protected final IModel<List<EventCategory>> eventCategories = new LoadableDetachableModel<List<EventCategory>>() {
 
         private static final long serialVersionUID = 4659376149825914247L;
 
@@ -105,35 +102,9 @@ public class Audit extends BasePage {
                     SelectedEventsPanel.EventSelectionChanged eventSelectionChanged =
                             (SelectedEventsPanel.EventSelectionChanged) event.getPayload();
 
-                    eventSelectionChanged.getToBeRemoved().forEach(toBeRemoved -> {
-                        Pair<EventCategory, AuditElements.Result> eventCategory =
-                                AuditLoggerName.parseEventCategory(toBeRemoved);
+                    eventSelectionChanged.getToBeRemoved().forEach(auditRestClient::delete);
 
-                        AuditLoggerName auditLoggerName = new AuditLoggerName(
-                                eventCategory.getKey().getType(),
-                                eventCategory.getKey().getCategory(),
-                                eventCategory.getKey().getSubcategory(),
-                                CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
-                                ? null : eventCategory.getKey().getEvents().iterator().next(),
-                                eventCategory.getValue());
-
-                        auditRestClient.disableAudit(auditLoggerName);
-                    });
-
-                    eventSelectionChanged.getToBeAdded().forEach(toBeAdded -> {
-                        Pair<EventCategory, AuditElements.Result> eventCategory =
-                                AuditLoggerName.parseEventCategory(toBeAdded);
-
-                        AuditLoggerName auditLoggerName = new AuditLoggerName(
-                                eventCategory.getKey().getType(),
-                                eventCategory.getKey().getCategory(),
-                                eventCategory.getKey().getSubcategory(),
-                                CollectionUtils.isEmpty(eventCategory.getKey().getEvents())
-                                ? null : eventCategory.getKey().getEvents().iterator().next(),
-                                eventCategory.getValue());
-
-                        auditRestClient.enableAudit(auditLoggerName);
-                    });
+                    eventSelectionChanged.getToBeAdded().forEach(auditRestClient::enable);
                 }
             }
         });

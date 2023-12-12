@@ -25,7 +25,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.rewrite.RewriteAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.logic.audit.AuditAppender;
@@ -41,20 +40,20 @@ public class AuditLoader implements SyncopeCoreLoader {
             final AuditAppender auditAppender,
             final LoggerConfig eventLogConf) {
 
-        Appender targetAppender = ctx.getConfiguration().getAppender(auditAppender.getTargetAppenderName());
-        if (targetAppender == null) {
-            targetAppender = auditAppender.getTargetAppender();
-        }
+        Appender targetAppender = Optional.ofNullable(
+                ctx.getConfiguration().getAppender(auditAppender.getTargetAppenderName())).map(Appender.class::cast).
+                orElseGet(() -> auditAppender.getTargetAppender());
         targetAppender.start();
         ctx.getConfiguration().addAppender(targetAppender);
 
-        Optional<RewriteAppender> rewriteAppender = auditAppender.getRewriteAppender();
-        if (rewriteAppender.isPresent()) {
-            rewriteAppender.get().start();
-            eventLogConf.addAppender(rewriteAppender.get(), Level.DEBUG, null);
-        } else {
-            eventLogConf.addAppender(targetAppender, Level.DEBUG, null);
-        }
+        auditAppender.getRewriteAppender().ifPresentOrElse(
+                rewriteAppender -> {
+                    rewriteAppender.start();
+                    eventLogConf.addAppender(rewriteAppender, Level.DEBUG, null);
+                },
+                () -> eventLogConf.addAppender(targetAppender, Level.DEBUG, null));
+
+        ctx.updateLoggers();
     }
 
     protected final AuditAccessor auditAccessor;
@@ -68,14 +67,13 @@ public class AuditLoader implements SyncopeCoreLoader {
 
     @Override
     public int getOrder() {
-        return 300;
+        return 500;
     }
 
     @Override
     public void load(final String domain, final DataSource datasource) {
         LoggerContext logCtx = (LoggerContext) LogManager.getContext(false);
 
-        // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
         auditAppenders.forEach(auditAppender -> auditAppender.getEvents().stream().
                 map(event -> AuditLoggerName.getAuditEventLoggerName(domain, event.toAuditKey())).
                 forEach(domainAuditLoggerName -> {
@@ -85,9 +83,9 @@ public class AuditLoader implements SyncopeCoreLoader {
                     if (isRootLogConf) {
                         eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
                     }
+                    eventLogConf.setLevel(Level.DEBUG);
 
                     addAppenderToLoggerContext(logCtx, auditAppender, eventLogConf);
-                    eventLogConf.setLevel(Level.DEBUG);
 
                     if (isRootLogConf) {
                         logCtx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
@@ -95,10 +93,8 @@ public class AuditLoader implements SyncopeCoreLoader {
                 }));
 
         AuthContextUtils.callAsAdmin(domain, () -> {
-            auditAccessor.synchronizeLoggingWithAudit(logCtx);
+            auditAccessor.synchronizeLoggingWithAudit();
             return null;
         });
-
-        logCtx.updateLoggers();
     }
 }

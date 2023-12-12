@@ -33,6 +33,7 @@ import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.java.ProvisioningContext;
 import org.apache.syncope.core.spring.security.SecurityContext;
 import org.apache.syncope.core.workflow.java.WorkflowContext;
+import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -59,6 +60,11 @@ public class IdMLogicTestContext {
     @Bean
     public JavaMailSender javaMailSender() {
         return mock(JavaMailSender.class);
+    }
+
+    @Bean
+    public LoggingSystem loggingSystem() {
+        return mock(LoggingSystem.class);
     }
 
     @Bean

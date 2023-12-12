@@ -50,14 +50,14 @@ public class AuditRestClient extends BaseRestClient {
                 collect(Collectors.toList());
     }
 
-    public void enableAudit(final AuditLoggerName auditLoggerName) {
+    public void enable(final AuditLoggerName auditLoggerName) {
         AuditConfTO audit = new AuditConfTO();
         audit.setKey(auditLoggerName.toAuditKey());
         audit.setActive(true);
         getService(AuditService.class).set(audit);
     }
 
-    public void disableAudit(final AuditLoggerName auditLoggerName) {
+    public void delete(final AuditLoggerName auditLoggerName) {
         try {
             getService(AuditService.class).delete(auditLoggerName.toAuditKey());
         } catch (SyncopeClientException e) {
