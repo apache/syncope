@@ -18,16 +18,11 @@
  */
 package org.apache.syncope.core.logic.init;
 
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
-import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.springframework.boot.logging.LogLevel;
+import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -39,22 +34,17 @@ public class AuditAccessor {
 
     protected final AuditConfDAO auditConfDAO;
 
-    public AuditAccessor(final AuditConfDAO auditConfDAO) {
+    protected final LoggingSystem loggingSystem;
+
+    public AuditAccessor(final AuditConfDAO auditConfDAO, final LoggingSystem loggingSystem) {
         this.auditConfDAO = auditConfDAO;
+        this.loggingSystem = loggingSystem;
     }
 
     @Transactional
-    public void synchronizeLoggingWithAudit(final LoggerContext ctx) {
-        Map<String, AuditConf> audits = auditConfDAO.findAll().stream().
-                collect(Collectors.toMap(
-                        audit -> AuditLoggerName.getAuditEventLoggerName(AuthContextUtils.getDomain(), audit.getKey()),
-                        Function.identity()));
-
-        audits.forEach((logger, audit) -> {
-            LoggerConfig logConf = ctx.getConfiguration().getLoggerConfig(logger);
-            logConf.setLevel(audit.isActive() ? Level.DEBUG : Level.OFF);
-        });
-
-        ctx.updateLoggers();
+    public void synchronizeLoggingWithAudit() {
+        auditConfDAO.findAll().forEach(auditConf -> loggingSystem.setLogLevel(
+                AuditLoggerName.getAuditEventLoggerName(AuthContextUtils.getDomain(), auditConf.getKey()),
+                auditConf.isActive() ? LogLevel.DEBUG : LogLevel.OFF));
     }
 }

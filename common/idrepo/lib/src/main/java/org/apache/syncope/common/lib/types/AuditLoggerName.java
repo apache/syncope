@@ -20,7 +20,6 @@ package org.apache.syncope.common.lib.types;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.text.ParseException;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +43,104 @@ public class AuditLoggerName implements BaseBean {
 
     public static String getAuditEventLoggerName(final String domain, final String loggerName) {
         return domain + '.' + loggerName;
+    }
+
+    public static AuditLoggerName fromAuditKey(final String key) {
+        if (StringUtils.isBlank(key)) {
+            throw new IllegalArgumentException("Null value not permitted");
+        }
+
+        if (!key.startsWith(AUDIT_PREFIX)) {
+            throw new IllegalArgumentException("Audit logger name must start with " + AUDIT_PREFIX);
+        }
+
+        Map.Entry<EventCategory, Result> eventCategory = parseEventCategory(key.replace(AUDIT_PREFIX + '.', ""));
+
+        return new AuditLoggerName(
+                eventCategory.getKey().getType(),
+                eventCategory.getKey().getCategory(),
+                eventCategory.getKey().getSubcategory(),
+                eventCategory.getKey().getEvents().isEmpty()
+                ? StringUtils.EMPTY : eventCategory.getKey().getEvents().iterator().next(),
+                eventCategory.getValue());
+    }
+
+    public static Pair<EventCategory, Result> parseEventCategory(final String event) {
+        EventCategory eventCategory = new EventCategory();
+
+        Result condition = null;
+
+        if (StringUtils.isNotEmpty(event)) {
+            String[] elements = event.substring(1, event.length() - 1).split("\\]:\\[");
+
+            if (elements.length == 1) {
+                eventCategory.setType(EventCategoryType.CUSTOM);
+                condition = Result.SUCCESS;
+                eventCategory.getEvents().add(event);
+            } else {
+                eventCategory.setType(EventCategoryType.valueOf(elements[0]));
+
+                eventCategory.setCategory(StringUtils.isNotEmpty(elements[1]) ? elements[1] : null);
+
+                eventCategory.setSubcategory(StringUtils.isNotEmpty(elements[2]) ? elements[2] : null);
+
+                if (elements.length > 3 && StringUtils.isNotEmpty(elements[3])) {
+                    eventCategory.getEvents().add(elements[3]);
+                }
+
+                if (elements.length > 4) {
+                    condition = Result.valueOf(elements[4].toUpperCase());
+                }
+            }
+        }
+
+        return Pair.of(eventCategory, condition);
+    }
+
+    /**
+     * Build event string with the following syntax [type]:[category]:[subcategory]:[event]:[maybe result value cond].
+     *
+     * @param type event type.
+     * @param category event category.
+     * @param subcategory event subcategory.
+     * @param event event.
+     * @param result result value condition.
+     * @return event string.
+     */
+    public static String buildEvent(
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
+            final String event,
+            final AuditElements.Result result) {
+
+        StringBuilder eventBuilder = new StringBuilder();
+
+        eventBuilder.append('[');
+        if (type != null) {
+            eventBuilder.append(type.name());
+        }
+        eventBuilder.append("]:[");
+        if (StringUtils.isNotBlank(category)) {
+            eventBuilder.append(category);
+        }
+        eventBuilder.append("]:[");
+        if (StringUtils.isNotBlank(subcategory)) {
+            eventBuilder.append(subcategory);
+        }
+        eventBuilder.append("]:[");
+        if (StringUtils.isNotBlank(event)) {
+            eventBuilder.append(event);
+        }
+        eventBuilder.append(']');
+
+        if (result != null) {
+            eventBuilder.append(":[").
+                    append(result).
+                    append(']');
+        }
+
+        return eventBuilder.toString();
     }
 
     private final EventCategoryType type;
@@ -93,11 +190,6 @@ public class AuditLoggerName implements BaseBean {
         return subcategory;
     }
 
-    public String toAuditKey() {
-        return new StringBuilder().append(AUDIT_PREFIX).append('.').
-                append(buildEvent(type, category, subcategory, event, result)).toString();
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -130,117 +222,12 @@ public class AuditLoggerName implements BaseBean {
                 build();
     }
 
-    public static AuditLoggerName fromAuditKey(final String key) throws ParseException {
-        if (StringUtils.isBlank(key)) {
-            throw new IllegalArgumentException("Null value not permitted");
-        }
-
-        if (!key.startsWith(AUDIT_PREFIX)) {
-            throw new ParseException("Audit logger name must start with " + AUDIT_PREFIX, 0);
-        }
-
-        Map.Entry<EventCategory, Result> eventCategory = parseEventCategory(key.replace(AUDIT_PREFIX + '.', ""));
-
-        return new AuditLoggerName(
-                eventCategory.getKey().getType(),
-                eventCategory.getKey().getCategory(),
-                eventCategory.getKey().getSubcategory(),
-                eventCategory.getKey().getEvents().isEmpty()
-                ? StringUtils.EMPTY : eventCategory.getKey().getEvents().iterator().next(),
-                eventCategory.getValue());
+    @Override
+    public String toString() {
+        return buildEvent(type, category, subcategory, event, result);
     }
 
-    public static Pair<EventCategory, Result> parseEventCategory(final String event) {
-        EventCategory eventCategory = new EventCategory();
-
-        Result condition = null;
-
-        if (StringUtils.isNotEmpty(event)) {
-            String[] elements = event.substring(1, event.length() - 1).split("\\]:\\[");
-
-            if (elements.length == 1) {
-                eventCategory.setType(EventCategoryType.CUSTOM);
-                condition = Result.SUCCESS;
-                eventCategory.getEvents().add(event);
-            } else {
-                EventCategoryType type;
-
-                if (EventCategoryType.PROPAGATION.name().equals(elements[0])) {
-                    type = EventCategoryType.PROPAGATION;
-                } else if (EventCategoryType.PULL.name().equals(elements[0])) {
-                    type = EventCategoryType.PULL;
-                } else if (EventCategoryType.PUSH.name().equals(elements[0])) {
-                    type = EventCategoryType.PUSH;
-                } else {
-                    try {
-                        type = EventCategoryType.valueOf(elements[0]);
-                    } catch (Exception e) {
-                        type = EventCategoryType.CUSTOM;
-                    }
-                }
-
-                eventCategory.setType(type);
-
-                eventCategory.setCategory(StringUtils.isNotEmpty(elements[1]) ? elements[1] : null);
-
-                eventCategory.setSubcategory(StringUtils.isNotEmpty(elements[2]) ? elements[2] : null);
-
-                if (elements.length > 3 && StringUtils.isNotEmpty(elements[3])) {
-                    eventCategory.getEvents().add(elements[3]);
-                }
-
-                if (elements.length > 4) {
-                    condition = Result.valueOf(elements[4].toUpperCase());
-                }
-            }
-        }
-
-        return Pair.of(eventCategory, condition);
-    }
-
-    /**
-     * Build event string with the following syntax [type]:[category]:[subcategory]:[event]:[maybe result value cond].
-     *
-     * @param type event type.
-     * @param category event category.
-     * @param subcategory event subcategory.
-     * @param event event.
-     * @param condition result value condition.
-     * @return event string.
-     */
-    public static String buildEvent(
-            final AuditElements.EventCategoryType type,
-            final String category,
-            final String subcategory,
-            final String event,
-            final AuditElements.Result condition) {
-
-        StringBuilder eventBuilder = new StringBuilder();
-
-        eventBuilder.append('[');
-        if (type != null) {
-            eventBuilder.append(type.name());
-        }
-        eventBuilder.append("]:[");
-        if (StringUtils.isNotBlank(category)) {
-            eventBuilder.append(category);
-        }
-        eventBuilder.append("]:[");
-        if (StringUtils.isNotBlank(subcategory)) {
-            eventBuilder.append(subcategory);
-        }
-        eventBuilder.append("]:[");
-        if (StringUtils.isNotBlank(event)) {
-            eventBuilder.append(event);
-        }
-        eventBuilder.append(']');
-
-        if (condition != null) {
-            eventBuilder.append(":[").
-                    append(condition).
-                    append(']');
-        }
-
-        return eventBuilder.toString();
+    public String toAuditKey() {
+        return AUDIT_PREFIX + "." + toString();
     }
 }

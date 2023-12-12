@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
@@ -44,7 +45,9 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.to.NotificationTO;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -53,6 +56,7 @@ import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -77,6 +81,18 @@ public class NotificationDirectoryPanel
     @SpringBean
     protected SchemaRestClient schemaRestClient;
 
+    protected final IModel<List<EventCategory>> eventCategories = new LoadableDetachableModel<List<EventCategory>>() {
+
+        private static final long serialVersionUID = 4659376149825914247L;
+
+        @Override
+        protected List<EventCategory> load() {
+            // cannot notify about WA events
+            return auditRestClient.listEvents().stream().
+                    filter(c -> c.getType() != AuditElements.EventCategoryType.WA).collect(Collectors.toList());
+        }
+    };
+
     protected final BaseModal<String> utilityModal = new BaseModal<>(Constants.OUTER);
 
     public NotificationDirectoryPanel(
@@ -97,10 +113,10 @@ public class NotificationDirectoryPanel
         addNewItemPanelBuilder(new NotificationWizardBuilder(
                 new NotificationTO(),
                 notificationRestClient,
-                auditRestClient,
                 anyTypeRestClient,
                 implementationRestClient,
                 schemaRestClient,
+                eventCategories,
                 pageRef), true);
 
         initResultTable();

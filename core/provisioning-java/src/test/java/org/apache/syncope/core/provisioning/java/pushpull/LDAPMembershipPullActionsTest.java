@@ -28,7 +28,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,7 +58,6 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.rules.PullMatch;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
-import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -97,8 +95,6 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     @Mock
     private ProvisioningReport result;
 
-    private Map<String, Set<String>> membershipsAfter;
-
     @Mock
     private ProvisioningTask<?> pullTask;
 
@@ -121,6 +117,8 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
     private AnyUR anyReq;
 
+    private Map<String, Set<String>> membershipsAfter;
+
     private Map<String, Set<String>> membershipsBefore;
 
     private User user;
@@ -130,25 +128,25 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     @BeforeEach
     public void initTest() {
         user = entityFactory.newEntity(User.class);
+        ReflectionTestUtils.setField(user, "id", UUID.randomUUID().toString());
+
         UMembership uMembership = entityFactory.newEntity(UMembership.class);
         uMembership.setLeftEnd(user);
-        ReflectionTestUtils.setField(user, "id", UUID.randomUUID().toString());
-        List<UMembership> uMembList = List.of(uMembership);
 
         anyReq = new UserUR();
+
         membershipsBefore = new HashMap<>();
-        membershipsAfter = new HashMap<>();
         ReflectionTestUtils.setField(ldapMembershipPullActions, "membershipsBefore", membershipsBefore);
+        membershipsAfter = new HashMap<>();
         ReflectionTestUtils.setField(ldapMembershipPullActions, "membershipsAfter", membershipsAfter);
 
-        lenient().when(groupDAO.findUMemberships(groupDAO.find(anyString()))).thenReturn(uMembList);
+        lenient().when(groupDAO.findUMemberships(groupDAO.find(anyString()))).thenReturn(List.of(uMembership));
 
         ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
         connConfPropSchema.setName("testSchemaName");
         ConnConfProperty connConfProperty = new ConnConfProperty();
         connConfProperty.setSchema(connConfPropSchema);
-        connConfProperties = new HashSet<>();
-        connConfProperties.add(connConfProperty);
+        connConfProperties = Set.of(connConfProperty);
 
         lenient().when(profile.getTask()).thenAnswer(ic -> pullTask);
         lenient().when(pullTask.getResource()).thenReturn(resource);
@@ -170,23 +168,20 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     public void beforeUpdateWithGroupTOAndEmptyMemberships() throws JobExecutionException {
         entity = new GroupTO();
         entity.setKey(UUID.randomUUID().toString());
-        Set<String> expected = new HashSet<>();
-        expected.add(entity.getKey());
 
         ldapMembershipPullActions.beforeUpdate(profile, syncDelta, entity, anyReq);
 
         assertTrue(entity instanceof GroupTO);
         assertEquals(1, membershipsBefore.get(user.getKey()).size());
-        assertEquals(expected, membershipsBefore.get(user.getKey()));
+        assertEquals(Set.of(entity.getKey()), membershipsBefore.get(user.getKey()));
     }
 
     @Test
     public void beforeUpdate() throws JobExecutionException {
         entity = new UserTO();
         entity.setKey(UUID.randomUUID().toString());
-        Set<String> memb = new HashSet<>();
-        memb.add(entity.getKey());
-        membershipsBefore.put(user.getKey(), memb);
+
+        membershipsBefore.put(user.getKey(), Set.of(entity.getKey()));
 
         ldapMembershipPullActions.beforeUpdate(profile, syncDelta, entity, anyReq);
 
@@ -197,17 +192,15 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
     @Test
     public void after() throws JobExecutionException {
         entity = new GroupTO();
-        String expectedUid = UUID.randomUUID().toString();
-        Attribute attribute = new Uid(expectedUid);
-        List<String> expected = List.of(expectedUid);
+        entity.setKey(UUID.randomUUID().toString());
 
-        when(connectorObj.getAttributeByName(anyString())).thenReturn(attribute);
+        when(connectorObj.getAttributeByName(anyString())).thenReturn(new Uid(UUID.randomUUID().toString()));
         when(inboundMatcher.match(any(AnyType.class), anyString(), any(ExternalResource.class), any(Connector.class))).
                 thenReturn(Optional.of(new PullMatch(MatchType.ANY, user)));
 
         ldapMembershipPullActions.after(profile, syncDelta, entity, result);
 
         assertEquals(1, membershipsAfter.get(user.getKey()).size());
-        assertEquals(expected, attribute.getValue());
+        assertEquals(entity.getKey(), membershipsAfter.get(user.getKey()).iterator().next());
     }
 }
