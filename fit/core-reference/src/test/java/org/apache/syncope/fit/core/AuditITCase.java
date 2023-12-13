@@ -686,8 +686,8 @@ public class AuditITCase extends AbstractITCase {
         root.getActions().add(logicActions.getKey());
         REALM_SERVICE.update(root);
 
-        int before = AUDIT_SERVICE.search(
-                new AuditQuery.Builder().type(AuditElements.EventCategoryType.CUSTOM).build()).getTotalCount();
+        AuditQuery query = new AuditQuery.Builder().type(AuditElements.EventCategoryType.CUSTOM).build();
+        int before = query(query, MAX_WAIT_SECONDS).size();
         try {
             AUDIT_SERVICE.set(buildAuditConf("syncope.audit.[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", true));
 
@@ -696,8 +696,7 @@ public class AuditITCase extends AbstractITCase {
                     plainAttr(attrAddReplacePatch("location", "new" + getUUIDString())).
                     build());
 
-            int after = AUDIT_SERVICE.search(
-                    new AuditQuery.Builder().type(AuditElements.EventCategoryType.CUSTOM).build()).getTotalCount();
+            int after = query(query, MAX_WAIT_SECONDS).size();
             assertEquals(before + 1, after);
         } finally {
             AUDIT_SERVICE.set(buildAuditConf("syncope.audit.[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", false));
