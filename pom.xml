@@ -435,7 +435,7 @@ under the License.
     <commons-jexl.version>3.3</commons-jexl.version>
     <commons-text.version>1.11.0</commons-text.version>
 
-    <pac4j.version>6.0.0-RC10</pac4j.version>
+    <pac4j.version>6.0.0</pac4j.version>
 
     <cas.version>7.0.0-SNAPSHOT</cas.version>
     <cas-client.version>4.0.3</cas-client.version>
@@ -491,8 +491,8 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>10.1.16</tomcat.version>
-    <wildfly.version>30.0.0.Final</wildfly.version>
+    <tomcat.version>10.1.17</tomcat.version>
+    <wildfly.version>30.0.1.Final</wildfly.version>
     <payara.version>6.2023.9</payara.version>
     <jakarta.faces.version>4.0.5</jakarta.faces.version>
 
