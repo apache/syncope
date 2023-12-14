@@ -272,7 +272,8 @@ public class SecurityConfig {
         cfg.setAuthnRequestSigned(true);
         cfg.setSpLogoutRequestSigned(true);
         cfg.setServiceProviderMetadataResourceFilepath(props.getSaml2().getSpMetadataFilePath());
-        cfg.setAcceptedSkew(props.getSaml2().getSkew());
+        cfg.setMaximumAuthenticationLifetime(props.getSaml2().getMaximumAuthenticationLifetime());
+        cfg.setAcceptedSkew(props.getSaml2().getAcceptedSkew());
 
         cfg.setLogoutHandler(new NoOpLogoutHandler());
 

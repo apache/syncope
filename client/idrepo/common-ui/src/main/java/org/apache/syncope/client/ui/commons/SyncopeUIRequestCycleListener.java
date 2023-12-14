@@ -19,11 +19,14 @@
 package org.apache.syncope.client.ui.commons;
 
 import java.security.AccessControlException;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ForbiddenException;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.core.request.handler.PageProvider;
 import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
@@ -41,15 +44,23 @@ public abstract class SyncopeUIRequestCycleListener implements IRequestCycleList
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeUIRequestCycleListener.class);
 
-    private static Throwable instanceOf(final Exception e, final Class<? extends Exception> clazz) {
-        return clazz.isAssignableFrom(e.getClass())
-                ? e
-                : e.getCause() != null && clazz.isAssignableFrom(e.getCause().getClass())
-                ? e.getCause()
-                : e.getCause() != null && e.getCause().getCause() != null
-                && clazz.isAssignableFrom(e.getCause().getCause().getClass())
-                ? e.getCause().getCause()
-                : null;
+    @SuppressWarnings("unchecked")
+    private static <T extends Exception> Optional<T> instanceOf(final Exception e, final Class<T> clazz) {
+        if (clazz.isAssignableFrom(e.getClass())) {
+            return Optional.of((T) e);
+        }
+
+        if (e.getCause() != null && clazz.isAssignableFrom(e.getCause().getClass())) {
+            return Optional.of((T) e.getCause());
+        }
+
+        if (e.getCause() != null && e.getCause().getCause() != null
+                && clazz.isAssignableFrom(e.getCause().getCause().getClass())) {
+
+            return Optional.of((T) e.getCause().getCause());
+        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -59,33 +70,40 @@ public abstract class SyncopeUIRequestCycleListener implements IRequestCycleList
         PageParameters errorParameters = new PageParameters();
 
         IRequestablePage errorPage;
-        if (instanceOf(e, UnauthorizedInstantiationException.class) != null) {
-            errorParameters.add("errorMessage", BaseSession.Error.AUTHORIZATION.fallback());
+        if (instanceOf(e, UnauthorizedInstantiationException.class).isPresent()) {
+            errorParameters.add("errorMessage", BaseSession.Error.AUTHORIZATION.message());
             errorPage = getErrorPage(errorParameters);
-        } else if (instanceOf(e, AccessControlException.class) != null) {
-            if (StringUtils.containsIgnoreCase(instanceOf(e, AccessControlException.class).getMessage(), "expired")) {
-                errorParameters.add("errorMessage", BaseSession.Error.SESSION_EXPIRED.fallback());
+        } else if (instanceOf(e, AccessControlException.class).isPresent()) {
+            AccessControlException ace = instanceOf(e, AccessControlException.class).get();
+            if (StringUtils.containsIgnoreCase(ace.getMessage(), "expired")) {
+                errorParameters.add("errorMessage", BaseSession.Error.SESSION_EXPIRED.message());
             } else {
-                errorParameters.add("errorMessage", BaseSession.Error.AUTHORIZATION.fallback());
+                errorParameters.add("errorMessage", BaseSession.Error.AUTHORIZATION.message());
             }
             errorPage = getErrorPage(errorParameters);
-        } else if (instanceOf(e, PageExpiredException.class) != null || !isSignedIn()) {
-            errorParameters.add("errorMessage", BaseSession.Error.SESSION_EXPIRED.fallback());
+        } else if (instanceOf(e, SyncopeClientException.class).isPresent()) {
+            SyncopeClientException sce = instanceOf(e, SyncopeClientException.class).get();
+            String errorMessage = sce.getType() == ClientExceptionType.Unknown
+                    ? sce.getElements().stream().collect(Collectors.joining())
+                    : sce.getMessage();
+            errorParameters.add("errorMessage", errorMessage);
             errorPage = getErrorPage(errorParameters);
-        } else if (instanceOf(e, BadRequestException.class) != null
-                || instanceOf(e, WebServiceException.class) != null
-                || instanceOf(e, SyncopeClientException.class) != null) {
+        } else if (instanceOf(e, BadRequestException.class).isPresent()
+                || instanceOf(e, WebServiceException.class).isPresent()) {
 
-            errorParameters.add("errorMessage", BaseSession.Error.REST.fallback());
+            errorParameters.add("errorMessage", BaseSession.Error.REST.message());
+            errorPage = getErrorPage(errorParameters);
+        } else if (instanceOf(e, PageExpiredException.class).isPresent() || !isSignedIn()) {
+            errorParameters.add("errorMessage", BaseSession.Error.SESSION_EXPIRED.message());
             errorPage = getErrorPage(errorParameters);
         } else {
-            Throwable cause = instanceOf(e, ForbiddenException.class);
-            if (cause == null) {
+            Optional<ForbiddenException> cause = instanceOf(e, ForbiddenException.class);
+            if (cause.isPresent()) {
+                errorParameters.add("errorMessage", cause.get().getMessage());
+                errorPage = getErrorPage(errorParameters);
+            } else {
                 // redirect to default Wicket error page
                 errorPage = new ExceptionErrorPage(e, null);
-            } else {
-                errorParameters.add("errorMessage", cause.getMessage());
-                errorPage = getErrorPage(errorParameters);
             }
         }
 
