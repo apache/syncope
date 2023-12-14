@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
+import org.apache.wicket.model.ResourceModel;
 
 public interface BaseSession {
 
@@ -40,12 +41,8 @@ public interface BaseSession {
             this.fallback = fallback;
         }
 
-        public String key() {
-            return key;
-        }
-
-        public String fallback() {
-            return fallback;
+        public String message() {
+            return new ResourceModel(key, fallback).getObject();
         }
     }
 

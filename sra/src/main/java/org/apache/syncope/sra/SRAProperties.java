@@ -228,7 +228,9 @@ public class SRAProperties extends SyncopeProperties {
 
         private String entityId;
 
-        private long skew;
+        private long maximumAuthenticationLifetime = 3600;
+
+        private long acceptedSkew = 300;
 
         private String spMetadataFilePath;
 
@@ -274,12 +276,20 @@ public class SRAProperties extends SyncopeProperties {
             this.entityId = entityId;
         }
 
-        public long getSkew() {
-            return skew;
+        public long getMaximumAuthenticationLifetime() {
+            return maximumAuthenticationLifetime;
         }
 
-        public void setSkew(final int skew) {
-            this.skew = skew;
+        public void setMaximumAuthenticationLifetime(final long maximumAuthenticationLifetime) {
+            this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
+        }
+
+        public long getAcceptedSkew() {
+            return acceptedSkew;
+        }
+
+        public void setAcceptedSkew(final int acceptedSkew) {
+            this.acceptedSkew = acceptedSkew;
         }
 
         public String getSpMetadataFilePath() {

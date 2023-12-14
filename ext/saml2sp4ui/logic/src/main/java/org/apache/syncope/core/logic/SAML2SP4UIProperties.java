@@ -33,7 +33,9 @@ public class SAML2SP4UIProperties {
 
     private String keystoreAlias;
 
-    private long skew;
+    private long maximumAuthenticationLifetime = 3600;
+
+    private long acceptedSkew = 300;
 
     public String getKeystore() {
         return keystore;
@@ -75,11 +77,19 @@ public class SAML2SP4UIProperties {
         this.keystoreAlias = keystoreAlias;
     }
 
-    public long getSkew() {
-        return skew;
+    public long getMaximumAuthenticationLifetime() {
+        return maximumAuthenticationLifetime;
     }
 
-    public void setSkew(final long skew) {
-        this.skew = skew;
+    public void setMaximumAuthenticationLifetime(final long maximumAuthenticationLifetime) {
+        this.maximumAuthenticationLifetime = maximumAuthenticationLifetime;
+    }
+
+    public long getAcceptedSkew() {
+        return acceptedSkew;
+    }
+
+    public void setAcceptedSkew(final long acceptedSkew) {
+        this.acceptedSkew = acceptedSkew;
     }
 }
