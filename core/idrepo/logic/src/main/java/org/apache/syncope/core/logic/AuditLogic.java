@@ -173,10 +173,6 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
         authenticationEventCategory.getEvents().add(AuditElements.LOGIN_EVENT);
         events.add(authenticationEventCategory);
 
-        events.add(new EventCategory(EventCategoryType.PROPAGATION));
-        events.add(new EventCategory(EventCategoryType.PULL));
-        events.add(new EventCategory(EventCategoryType.PUSH));
-
         EventCategory pullTaskEventCategory = new EventCategory(EventCategoryType.TASK);
         pullTaskEventCategory.setCategory(PullJobDelegate.class.getSimpleName());
         events.add(pullTaskEventCategory);
