@@ -93,7 +93,7 @@ public abstract class EventCategoryPanel extends Panel {
 
         return categories.stream().
                 filter(c -> type == c.getType() && StringUtils.equals(category, c.getCategory())).
-                map(EventCategory::getCategory).
+                map(EventCategory::getSubcategory).
                 distinct().
                 sorted().
                 collect(Collectors.toList());
@@ -433,9 +433,9 @@ public abstract class EventCategoryPanel extends Panel {
                 itor.hasNext() && eventCategory.getEvents().isEmpty();) {
 
             EventCategory ec = itor.next();
-            if (eventCategory.getType() == ec.getType()
-                    && StringUtils.equals(eventCategory.getCategory(), ec.getCategory())
-                    && StringUtils.equals(eventCategory.getSubcategory(), ec.getSubcategory())) {
+            if (ec.getType() == eventCategory.getType()
+                    && StringUtils.equals(ec.getCategory(), eventCategory.getCategory())
+                    && StringUtils.equals(ec.getSubcategory(), eventCategory.getSubcategory())) {
 
                 eventCategory.getEvents().addAll(ec.getEvents());
             }
