@@ -73,7 +73,8 @@ abstract class AbstractSAML2SP4UILogic extends AbstractTransactionalLogic<Entity
         cfg.setWantsAssertionsSigned(true);
         cfg.setAuthnRequestSigned(true);
         cfg.setSpLogoutRequestSigned(true);
-        cfg.setAcceptedSkew(props.getSkew());
+        cfg.setMaximumAuthenticationLifetime(props.getMaximumAuthenticationLifetime());
+        cfg.setAcceptedSkew(props.getAcceptedSkew());
 
         return cfg;
     }
