@@ -58,14 +58,11 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
-import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
@@ -118,9 +115,7 @@ public class AuthDataAccessor {
 
     protected final MappingManager mappingManager;
 
-    protected final ImplementationLookup implementationLookup;
-
-    private Map<String, JWTSSOProvider> jwtSSOProviders;
+    private final List<JWTSSOProvider> jwtSSOProviders;
 
     public AuthDataAccessor(
             final SecurityProperties securityProperties,
@@ -135,7 +130,7 @@ public class AuthDataAccessor {
             final ConnectorManager connectorManager,
             final AuditManager auditManager,
             final MappingManager mappingManager,
-            final ImplementationLookup implementationLookup) {
+            final List<JWTSSOProvider> jwtSSOProviders) {
 
         this.securityProperties = securityProperties;
         this.realmDAO = realmDAO;
@@ -149,31 +144,17 @@ public class AuthDataAccessor {
         this.connectorManager = connectorManager;
         this.auditManager = auditManager;
         this.mappingManager = mappingManager;
-        this.implementationLookup = implementationLookup;
+        this.jwtSSOProviders = jwtSSOProviders;
     }
 
     public JWTSSOProvider getJWTSSOProvider(final String issuer) {
-        synchronized (this) {
-            if (jwtSSOProviders == null) {
-                jwtSSOProviders = new HashMap<>();
-
-                implementationLookup.getJWTSSOProviderClasses().stream().
-                        map(clazz -> (JWTSSOProvider) ApplicationContextProvider.getBeanFactory().
-                        createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true)).
-                        forEach(jwtSSOProvider -> jwtSSOProviders.put(jwtSSOProvider.getIssuer(), jwtSSOProvider));
-            }
-        }
-
         if (issuer == null) {
             throw new AuthenticationCredentialsNotFoundException("A null issuer is not permitted");
         }
-        JWTSSOProvider provider = jwtSSOProviders.get(issuer);
-        if (provider == null) {
-            throw new AuthenticationCredentialsNotFoundException(
-                    "Could not find any registered JWTSSOProvider for issuer " + issuer);
-        }
 
-        return provider;
+        return jwtSSOProviders.stream().filter(provider -> issuer.equals(provider.getIssuer())).findFirst().
+                orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
+                "Could not find any registered JWTSSOProvider for issuer " + issuer));
     }
 
     protected String getDelegationKey(final SyncopeAuthenticationDetails details, final String delegatedKey) {

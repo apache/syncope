@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import com.nimbusds.jose.JOSEException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.logic.IdRepoLogicContext;
 import org.apache.syncope.core.logic.TaskLogic;
@@ -27,11 +28,13 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @AutoConfigureBefore(IdRepoLogicContext.class)
 @ComponentScan("org.apache.syncope.fit.core.reference")
@@ -81,5 +84,13 @@ public class CoreReferenceContext {
     @Bean
     public AuditAppender testFileRewriteAuditAppender() {
         return new TestFileRewriteAuditAppender(SyncopeConstants.MASTER_DOMAIN);
+    }
+
+    @Bean
+    public CustomJWTSSOProvider customJWTSSOProvider(
+            final AnySearchDAO anySearchDAO,
+            final @Lazy AuthDataAccessor authDataAccessor) throws JOSEException {
+
+        return new CustomJWTSSOProvider(anySearchDAO, authDataAccessor);
     }
 }

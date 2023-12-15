@@ -48,11 +48,6 @@ public class DummyImplementationLookup implements ImplementationLookup {
     }
 
     @Override
-    public Set<Class<?>> getJWTSSOProviderClasses() {
-        return Set.of();
-    }
-
-    @Override
     public Class<? extends ReportJobDelegate> getReportClass(final Class<? extends ReportConf> reportConfClass) {
         return null;
     }

@@ -67,21 +67,13 @@ import org.apache.syncope.core.spring.policy.DefaultAccountRule;
 import org.apache.syncope.core.spring.policy.DefaultPasswordRule;
 import org.apache.syncope.core.spring.policy.HaveIBeenPwnedPasswordRule;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.SyncopeJWTSSOProvider;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 
 /**
  * Static implementation providing information about the integration test environment.
  */
 public class ITImplementationLookup implements ImplementationLookup {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ITImplementationLookup.class);
-
-    private static final Set<Class<?>> JWTSSOPROVIDER_CLASSES =
-            Set.of(SyncopeJWTSSOProvider.class, CustomJWTSSOProvider.class);
 
     private static final Map<Class<? extends ReportConf>, Class<? extends ReportJobDelegate>> REPORT_CLASSES =
             Map.of(SampleReportConf.class, SampleReportJobDelegate.class);
@@ -121,11 +113,7 @@ public class ITImplementationLookup implements ImplementationLookup {
         private static final long serialVersionUID = 3109256773218160485L;
 
         {
-            Set<String> classNames = ITImplementationLookup.JWTSSOPROVIDER_CLASSES.stream().
-                    map(Class::getName).collect(Collectors.toSet());
-            put(IdRepoImplementationType.JWT_SSO_PROVIDER, classNames);
-
-            classNames = new HashSet<>();
+            Set<String> classNames = new HashSet<>();
             classNames.add(SampleReportJobDelegate.class.getName());
             put(IdRepoImplementationType.REPORT_DELEGATE, classNames);
 
@@ -263,11 +251,6 @@ public class ITImplementationLookup implements ImplementationLookup {
     @Override
     public Set<String> getClassNames(final String type) {
         return CLASS_NAMES.get(type);
-    }
-
-    @Override
-    public Set<Class<?>> getJWTSSOProviderClasses() {
-        return JWTSSOPROVIDER_CLASSES;
     }
 
     @Override

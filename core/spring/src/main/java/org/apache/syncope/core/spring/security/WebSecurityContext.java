@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -30,7 +31,6 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
-import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -163,7 +163,7 @@ public class WebSecurityContext {
             final ConnectorManager connectorManager,
             final AuditManager auditManager,
             final MappingManager mappingManager,
-            final ImplementationLookup implementationLookup) {
+            final List<JWTSSOProvider> jwtSSOProviders) {
 
         return new AuthDataAccessor(
                 securityProperties,
@@ -178,6 +178,6 @@ public class WebSecurityContext {
                 connectorManager,
                 auditManager,
                 mappingManager,
-                implementationLookup);
+                jwtSSOProviders);
     }
 }

@@ -61,7 +61,6 @@ import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
 import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
-import org.apache.syncope.core.spring.security.JWTSSOProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -80,8 +79,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope.core";
 
     private Map<String, Set<String>> classNames;
-
-    private Set<Class<?>> jwtSSOProviderClasses;
 
     private Map<Class<? extends ReportConf>, Class<? extends ReportJobDelegate>> reportJobDelegateClasses;
 
@@ -127,7 +124,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 && !IdMImplementationType.values().containsKey(e.getKey())).
                 collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
-        jwtSSOProviderClasses = new HashSet<>();
         reportJobDelegateClasses = new HashMap<>();
         accountRuleClasses = new HashMap<>();
         passwordRuleClasses = new HashMap<>();
@@ -142,10 +138,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     continue;
                 }
 
-                if (JWTSSOProvider.class.isAssignableFrom(clazz)) {
-                    classNames.get(IdRepoImplementationType.JWT_SSO_PROVIDER).add(clazz.getName());
-                    jwtSSOProviderClasses.add(clazz);
-                } else if (ReportJobDelegate.class.isAssignableFrom(clazz)) {
+                if (ReportJobDelegate.class.isAssignableFrom(clazz)) {
                     ReportConfClass annotation = clazz.getAnnotation(ReportConfClass.class);
                     if (annotation == null) {
                         LOG.warn("Found Report {} without declared configuration", clazz.getName());
@@ -229,7 +222,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         classNames = Collections.unmodifiableMap(classNames);
         LOG.debug("Implementation classes found: {}", classNames);
 
-        jwtSSOProviderClasses = Collections.unmodifiableSet(jwtSSOProviderClasses);
         reportJobDelegateClasses = Collections.unmodifiableMap(reportJobDelegateClasses);
         accountRuleClasses = Collections.unmodifiableMap(accountRuleClasses);
         passwordRuleClasses = Collections.unmodifiableMap(passwordRuleClasses);
@@ -240,11 +232,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     @Override
     public Set<String> getClassNames(final String type) {
         return classNames.get(type);
-    }
-
-    @Override
-    public Set<Class<?>> getJWTSSOProviderClasses() {
-        return jwtSSOProviderClasses;
     }
 
     @Override
