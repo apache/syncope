@@ -35,8 +35,6 @@ public interface ImplementationLookup extends SyncopeCoreLoader {
 
     Set<String> getClassNames(String type);
 
-    Set<Class<?>> getJWTSSOProviderClasses();
-
     Class<? extends ReportJobDelegate> getReportClass(
             Class<? extends ReportConf> reportConfClass);
 

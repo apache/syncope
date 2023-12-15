@@ -37,7 +37,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.JWTSSOProvider;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -56,14 +55,18 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
 
     private final JWSVerifier delegate;
 
-    @Autowired
-    private AnySearchDAO searchDAO;
+    private final AnySearchDAO anySearchDAO;
 
-    @Autowired
-    private AuthDataAccessor authDataAccessor;
+    private final AuthDataAccessor authDataAccessor;
 
-    public CustomJWTSSOProvider() throws JOSEException {
-        delegate = new MACVerifier(CUSTOM_KEY);
+    public CustomJWTSSOProvider(
+            final AnySearchDAO anySearchDAO,
+            final AuthDataAccessor authDataAccessor)
+            throws JOSEException {
+
+        this.delegate = new MACVerifier(CUSTOM_KEY);
+        this.anySearchDAO = anySearchDAO;
+        this.authDataAccessor = authDataAccessor;
     }
 
     @Override
@@ -98,7 +101,7 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
         userIdCond.setType(AttrCond.Type.EQ);
         userIdCond.setExpression(jwtClaims.getSubject());
 
-        List<User> matching = searchDAO.search(SearchCond.getLeaf(userIdCond), AnyTypeKind.USER);
+        List<User> matching = anySearchDAO.search(SearchCond.getLeaf(userIdCond), AnyTypeKind.USER);
         if (matching.size() == 1) {
             User user = matching.get(0);
             Set<SyncopeGrantedAuthority> authorities = authDataAccessor.getAuthorities(user.getUsername(), null);

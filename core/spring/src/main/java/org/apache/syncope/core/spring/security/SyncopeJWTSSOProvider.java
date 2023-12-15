@@ -36,7 +36,6 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -44,21 +43,29 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeJWTSSOProvider.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeJWTSSOProvider.class);
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    @Autowired
-    private SecurityProperties securityProperties;
+    protected final SecurityProperties securityProperties;
 
-    @Autowired
-    private AccessTokenJWSVerifier delegate;
+    protected final AccessTokenJWSVerifier delegate;
 
-    @Autowired
-    private UserDAO userDAO;
+    protected final UserDAO userDAO;
 
-    @Autowired
-    private AccessTokenDAO accessTokenDAO;
+    protected final AccessTokenDAO accessTokenDAO;
+
+    public SyncopeJWTSSOProvider(
+            final SecurityProperties securityProperties,
+            final AccessTokenJWSVerifier delegate,
+            final UserDAO userDAO,
+            final AccessTokenDAO accessTokenDAO) {
+
+        this.securityProperties = securityProperties;
+        this.delegate = delegate;
+        this.userDAO = userDAO;
+        this.accessTokenDAO = accessTokenDAO;
+    }
 
     @Override
     public String getIssuer() {

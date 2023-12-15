@@ -24,7 +24,9 @@ import com.nimbusds.jose.KeyLengthException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.policy.DefaultRuleEnforcer;
@@ -107,6 +109,17 @@ public class SecurityContext {
             throws KeyLengthException, NoSuchAlgorithmException, InvalidKeySpecException {
 
         return new AccessTokenJWSSigner(jwsAlgorithm, jwsKey(jwsAlgorithm, props));
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SyncopeJWTSSOProvider syncopeJWTSSOProvider(
+            final SecurityProperties props,
+            final AccessTokenJWSVerifier accessTokenJWSVerifier,
+            final UserDAO userDAO,
+            final AccessTokenDAO accessTokenDAO) {
+
+        return new SyncopeJWTSSOProvider(props, accessTokenJWSVerifier, userDAO, accessTokenDAO);
     }
 
     @ConditionalOnMissingBean

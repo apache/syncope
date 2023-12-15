@@ -25,7 +25,6 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.ImplementationDirectoryPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
-import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -53,10 +52,7 @@ public class Implementations extends BasePage {
     }
 
     protected List<ITab> buildTabList() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getImplementationTypes().stream().
-                filter(type -> !IdRepoImplementationType.JWT_SSO_PROVIDER.equals(type)
-                && !IdRepoImplementationType.AUDIT_APPENDER.equals(type)).
-                sorted().
+        return SyncopeConsoleSession.get().getPlatformInfo().getImplementationTypes().stream().sorted().
                 map(type -> new AbstractTab(Model.of(type)) {
 
             private static final long serialVersionUID = -5861786415855103549L;

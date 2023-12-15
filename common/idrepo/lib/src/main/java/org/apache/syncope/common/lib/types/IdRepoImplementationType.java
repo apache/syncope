@@ -23,8 +23,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public final class IdRepoImplementationType {
 
-    public static final String JWT_SSO_PROVIDER = "JWT_SSO_PROVIDER";
-
     public static final String ACCOUNT_RULE = "ACCOUNT_RULE";
 
     public static final String PASSWORD_RULE = "PASSWORD_RULE";
@@ -41,12 +39,9 @@ public final class IdRepoImplementationType {
 
     public static final String RECIPIENTS_PROVIDER = "RECIPIENTS_PROVIDER";
 
-    public static final String AUDIT_APPENDER = "AUDIT_APPENDER";
-
     public static final String ITEM_TRANSFORMER = "ITEM_TRANSFORMER";
 
     private static final Map<String, String> VALUES = Map.ofEntries(
-            Pair.of(JWT_SSO_PROVIDER, "org.apache.syncope.core.spring.security.JWTSSOProvider"),
             Pair.of(ACCOUNT_RULE, "org.apache.syncope.core.provisioning.api.rules.AccountRule"),
             Pair.of(PASSWORD_RULE, "org.apache.syncope.core.provisioning.api.rules.PasswordRule"),
             Pair.of(TASKJOB_DELEGATE, "org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate"),
@@ -55,7 +50,6 @@ public final class IdRepoImplementationType {
             Pair.of(VALIDATOR, "org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator"),
             Pair.of(COMMAND, "org.apache.syncope.core.logic.api.Command"),
             Pair.of(RECIPIENTS_PROVIDER, "org.apache.syncope.core.provisioning.api.notification.RecipientsProvider"),
-            Pair.of(AUDIT_APPENDER, "org.apache.syncope.core.logic.audit.AuditAppender"),
             Pair.of(ITEM_TRANSFORMER, "org.apache.syncope.core.provisioning.api.data.ItemTransformer"));
 
     public static Map<String, String> values() {
