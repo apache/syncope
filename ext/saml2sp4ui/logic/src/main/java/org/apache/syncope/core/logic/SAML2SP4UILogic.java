@@ -274,10 +274,8 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             final String idpEntityID) {
 
         // 0. look for IdP
-        SAML2SP4UIIdP idp = idpDAO.findByEntityID(idpEntityID);
-        if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + idpEntityID + '\'');
-        }
+        SAML2SP4UIIdP idp = Optional.ofNullable(idpDAO.findByEntityID(idpEntityID)).
+                orElseThrow(() -> new NotFoundException("SAML 2.0 IdP '" + idpEntityID + '\''));
 
         // 1. look for configured client
         SAML2Client saml2Client = getSAML2Client(saml2ClientCacheLogin, idp, spEntityID, urlContext);
@@ -519,10 +517,9 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
                 saml2Response.getSpEntityID(),
                 saml2Response.getUrlContext());
 
-        SAML2SP4UIIdP idp = idpDAO.findByEntityID(saml2Client.getIdentityProviderResolvedEntityId());
-        if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + saml2Client.getIdentityProviderResolvedEntityId() + '\'');
-        }
+        Optional.ofNullable(idpDAO.findByEntityID(saml2Client.getIdentityProviderResolvedEntityId())).
+                orElseThrow(() -> new NotFoundException(
+                "SAML 2.0 IdP '" + saml2Client.getIdentityProviderResolvedEntityId() + '\''));
 
         // 2. validate the provided SAML response
         SAML2SP4UIContext webCtx = new SAML2SP4UIContext(
