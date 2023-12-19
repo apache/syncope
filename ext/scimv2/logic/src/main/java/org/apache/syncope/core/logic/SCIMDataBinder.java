@@ -815,6 +815,17 @@ public class SCIMDataBinder {
 
             case "active":
                 if (!CollectionUtils.isEmpty(op.getValue())) {
+
+                    // Workaround for Microsoft Entra being not SCIM compliant on PATCH requests
+                    if (op.getValue().get(0) instanceof String) {
+                        String a = (String) op.getValue().get(0);
+                        if (a.equalsIgnoreCase("true")) {
+                            op.setValue(List.of(true));
+                        } else if (a.equalsIgnoreCase("false")) {
+                            op.setValue(List.of(false));
+                        }
+                    }
+
                     statusR = new StatusR.Builder(
                             before.getKey(),
                             (boolean) op.getValue().get(0) ? StatusRType.REACTIVATE : StatusRType.SUSPEND).
