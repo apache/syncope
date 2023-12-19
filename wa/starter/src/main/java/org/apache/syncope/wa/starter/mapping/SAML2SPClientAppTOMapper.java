@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apereo.cas.configuration.support.TriStateBoolean;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
@@ -33,7 +34,6 @@ import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
-import org.apereo.cas.util.model.TriStateBoolean;
 
 public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
 

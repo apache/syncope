@@ -26,6 +26,7 @@ import org.apereo.cas.authentication.principal.DefaultPrincipalAttributesReposit
 import org.apereo.cas.authentication.principal.cache.AbstractPrincipalAttributesRepository;
 import org.apereo.cas.authentication.principal.cache.CachingPrincipalAttributesRepository;
 import org.apereo.cas.configuration.model.core.authentication.PrincipalAttributesCoreProperties.MergingStrategyTypes;
+import org.apereo.cas.configuration.support.TriStateBoolean;
 import org.apereo.cas.services.AbstractRegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
 import org.apereo.cas.services.DenyAllAttributeReleasePolicy;
@@ -33,7 +34,6 @@ import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.apereo.cas.services.ReturnMappedAttributeReleasePolicy;
 import org.apereo.cas.services.consent.DefaultRegisteredServiceConsentPolicy;
-import org.apereo.cas.util.model.TriStateBoolean;
 
 public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
 

@@ -71,8 +71,8 @@ import org.apereo.cas.configuration.model.support.x509.SubjectDnPrincipalResolve
 import org.apereo.cas.configuration.model.support.x509.X509LdapProperties;
 import org.apereo.cas.configuration.model.support.x509.X509Properties;
 import org.apereo.cas.configuration.model.support.x509.X509Properties.PrincipalTypes;
+import org.apereo.cas.configuration.support.TriStateBoolean;
 import org.apereo.cas.util.ResourceUtils;
-import org.apereo.cas.util.model.TriStateBoolean;
 
 public class AuthModulePropertySourceMapper extends PropertySourceMapper implements AuthModuleConf.Mapper {
 
