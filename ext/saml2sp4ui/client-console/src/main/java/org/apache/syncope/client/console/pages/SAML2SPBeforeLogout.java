@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.pages;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import org.apache.syncope.client.ui.commons.SAML2SP4UIConstants;
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
@@ -35,12 +36,15 @@ public class SAML2SPBeforeLogout extends WebPage {
     public SAML2SPBeforeLogout(final PageParameters parameters) {
         super(parameters);
 
-        String idpEntityId = URLEncoder.encode(
-                Session.get().getAttribute(SAML2SP4UIConstants.SAML2SP4UI_IDP_ENTITY_ID).toString(),
-                StandardCharsets.UTF_8);
+        String queryString = Optional.ofNullable(
+                Session.get().getAttribute(SAML2SP4UIConstants.SAML2SP4UI_IDP_ENTITY_ID)).
+                map(idp -> "?" + SAML2SP4UIConstants.SAML2SP4UI_IDP_ENTITY_ID
+                + "=" + URLEncoder.encode(idp.toString(), StandardCharsets.UTF_8)).
+                orElse("");
+
         RequestCycle.get().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(
-                UrlUtils.rewriteToContextRelative(SAML2SP4UIConstants.URL_CONTEXT + "/logout"
-                        + "?" + SAML2SP4UIConstants.SAML2SP4UI_IDP_ENTITY_ID + "=" + idpEntityId,
+                UrlUtils.rewriteToContextRelative(
+                        SAML2SP4UIConstants.URL_CONTEXT + "/logout" + queryString,
                         RequestCycle.get())));
     }
 }
