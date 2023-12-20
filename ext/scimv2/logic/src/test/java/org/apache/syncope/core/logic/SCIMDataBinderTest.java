@@ -32,14 +32,11 @@ import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOperation;
 import org.apache.syncope.ext.scimv2.api.data.SCIMPatchPath;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@ExtendWith(MockitoExtension.class)
-class IVUSCIMDataBinderTest {
+public class SCIMDataBinderTest {
 
     private SCIMDataBinder dataBinder;
 
