@@ -413,8 +413,8 @@ under the License.
     <bouncycastle.version>1.77</bouncycastle.version>
     <nimbus-jose-jwt.version>9.37.3</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.2.0</spring-boot.version>
-    <spring-cloud-gateway.version>4.1.0-RC1</spring-cloud-gateway.version>
+    <spring-boot.version>3.2.1</spring-boot.version>
+    <spring-cloud-gateway.version>4.1.0</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.0-SNAPSHOT</openjpa.version>
 
@@ -1302,16 +1302,6 @@ under the License.
         <enabled>true</enabled>
       </releases>
     </repository>
-    <repository>
-      <id>repository.spring.milestone</id>
-      <url>https://repo.spring.io/milestone</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -1343,17 +1333,6 @@ under the License.
       </releases>
       <snapshots>
         <enabled>true</enabled>
-      </snapshots>
-    </pluginRepository>
-    <!-- TMP -->
-    <pluginRepository>
-      <id>repository.spring.milestone</id>
-      <url>https://repo.spring.io/milestone</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
       </snapshots>
     </pluginRepository>
   </pluginRepositories>
