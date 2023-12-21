@@ -201,6 +201,9 @@ public class BeanPanel<T extends Serializable> extends Panel {
                             break;
 
                         default:
+                            clauses.removeIf(c -> c.getType() == SearchClause.Type.CUSTOM
+                                    && scondAnnot.type().equals(c.getProperty())
+                                    && scondAnnot.type().equals(c.getValue()));
                             panel = new AnyObjectSearchPanel.Builder(
                                     scondAnnot.type(),
                                     new ListModel<>(clauses), pageRef).required(false).build("value");
