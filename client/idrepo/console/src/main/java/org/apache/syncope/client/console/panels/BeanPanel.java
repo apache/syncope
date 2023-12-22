@@ -184,7 +184,10 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean.getObject());
                     String fiql = (String) wrapper.getPropertyValue(fieldName);
 
-                    List<SearchClause> clauses = SearchUtils.getSearchClauses(fiql);
+                    List<SearchClause> clauses = Optional.ofNullable(fiql).
+                            map(f -> SearchUtils.getSearchClauses(f.replaceAll(
+                            SearchUtils.getTypeConditionPattern(scondAnnot.type()).pattern(), ""))).
+                            orElse(new ArrayList<>());
 
                     AbstractFiqlSearchConditionBuilder<?, ?, ?> builder;
                     switch (scondAnnot.type()) {
@@ -201,9 +204,6 @@ public class BeanPanel<T extends Serializable> extends Panel {
                             break;
 
                         default:
-                            clauses.removeIf(c -> c.getType() == SearchClause.Type.CUSTOM
-                                    && scondAnnot.type().equals(c.getProperty())
-                                    && scondAnnot.type().equals(c.getValue()));
                             panel = new AnyObjectSearchPanel.Builder(
                                     scondAnnot.type(),
                                     new ListModel<>(clauses), pageRef).required(false).build("value");
