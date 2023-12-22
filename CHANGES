@@ -2,6 +2,33 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.6
+================================================================================
+
+** Bug
+    * [SYNCOPE-1778] - Reset password requires double click in order to provide username
+    * [SYNCOPE-1779] - Missing support for underscore in queries
+    * [SYNCOPE-1785] - Display rows changes not effective until reload
+    * [SYNCOPE-1790] - Swagger filtered GET returns multiple Users/AnyObjects instead of one
+    * [SYNCOPE-1791] - Unable to save audit config for CUSTOM event in the console
+    * [SYNCOPE-1792] - Error in console while editing conf parameter with values containing numbers
+    * [SYNCOPE-1793] - A logged in user cannot associate/deassociate a resource to himself
+    * [SYNCOPE-1794] - SAML: Authentication issue instant is too old or in the future
+
+** New Feature
+    * [SYNCOPE-1783] - Provide OpenSearch extension
+    * [SYNCOPE-1789] - Add support for X509 authentication
+    * [SYNCOPE-1796] - Verify access token issued by Microsoft Entra (formerly Azure)
+
+** Improvement
+    * [SYNCOPE-1780] - Password policy allows a minimum length less than the number of characters needed
+    * [SYNCOPE-1784] - Allow you to use other OIDCScopes in addition to those currently defined
+    * [SYNCOPE-1786] - Self Keymaster improvements
+    * [SYNCOPE-1787] - Support deployments with large number of Realms
+    * [SYNCOPE-1788] - Allow to insert JWKS value in OIDC Client Applications
+    * [SYNCOPE-1795] - JWT_SSO_PROVIDER and AUDIT_APPENDER should not be Implementations
+    * [SYNCOPE-1797] - Compatibility of SCIM 2.0 requests from Microsoft Entra
+
 Release Notes - Syncope - Version 3.0.5
 ================================================================================
 
