@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.ext</groupId>
     <artifactId>syncope-ext-oidcc4ui</artifactId>
-    <version>3.0.6-SNAPSHOT</version>
+    <version>3.0.6</version>
   </parent>
 
   <name>Apache Syncope Ext: OIDC C4UI Persistence API</name>
