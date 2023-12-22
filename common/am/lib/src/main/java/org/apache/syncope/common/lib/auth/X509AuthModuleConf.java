@@ -211,7 +211,7 @@ public class X509AuthModuleConf implements AuthModuleConf {
     /**
      * Whether to extract certificate from request.
      * The default implementation extracts certificate from header via Tomcat SSLValve parsing logic
-     * and using the {@link #DEFAULT_CERT_HEADER_NAME} header.
+     * and using the {@link #sslHeaderName} header.
      * Must be false by default because if someone enables it they need to make sure they are
      * behind proxy that won't let the header arrive directly from the browser.
      */
