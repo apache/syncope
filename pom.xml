@@ -2251,31 +2251,6 @@ under the License.
         </plugins>
       </build>
     </profile>
-
-    <profile>
-      <id>jdk-22</id>
-
-      <activation>
-        <jdk>22</jdk>
-      </activation>
-
-      <dependencyManagement>
-        <dependencies>
-          <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>1.14.10</version>
-          </dependency>
-
-          <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy-agent</artifactId>
-            <version>1.14.10</version>
-            <scope>test</scope>
-          </dependency>
-        </dependencies>
-      </dependencyManagement>
-    </profile>
   </profiles>
 
   <modules>
