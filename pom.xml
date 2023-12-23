@@ -420,7 +420,7 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>5.0.0-alpha-3</groovy.version>
+    <groovy.version>5.0.0-alpha-4</groovy.version>
 
     <flowable.version>7.0.0</flowable.version>
     <flowable-old.version>6.8.0</flowable-old.version>
