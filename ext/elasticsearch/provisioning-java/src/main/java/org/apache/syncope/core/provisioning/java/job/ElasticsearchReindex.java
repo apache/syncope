@@ -158,14 +158,29 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
             setStatus("Start rebuilding indexes");
 
             try {
+                indexManager.createRealmIndex(AuthContextUtils.getDomain(), realmSettings(), realmMapping());
+
+                int realms = realmDAO.count();
+                String rindex = ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain());
+                setStatus("Indexing " + realms + " realms under " + rindex + "...");
+
+                try (BulkIngester<Void> ingester = BulkIngester.of(b -> b.client(client).
+                        maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
+
+                    for (int page = 1; page <= (realms / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                        for (String realm : realmDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                            ingester.add(op -> op.index(idx -> idx.
+                                    index(rindex).
+                                    id(realm).
+                                    document(utils.document(realmDAO.find(realm)))));
+                        }
+                    }
+                } catch (Exception e) {
+                    LOG.error("Errors while ingesting index {}", rindex, e);
+                }
+
                 indexManager.createAnyIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.USER, userSettings(), userMapping());
-
-                indexManager.createAnyIndex(
-                        AuthContextUtils.getDomain(), AnyTypeKind.GROUP, groupSettings(), groupMapping());
-
-                indexManager.createAnyIndex(
-                        AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT, anyObjectSettings(), anyObjectMapping());
 
                 int users = userDAO.count();
                 String uindex = ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER);
@@ -186,6 +201,9 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                     LOG.error("Errors while ingesting index {}", uindex, e);
                 }
 
+                indexManager.createAnyIndex(
+                        AuthContextUtils.getDomain(), AnyTypeKind.GROUP, groupSettings(), groupMapping());
+
                 int groups = groupDAO.count();
                 String gindex = ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP);
                 setStatus("Indexing " + groups + " groups under " + gindex + "...");
@@ -202,8 +220,11 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                         }
                     }
                 } catch (Exception e) {
-                    LOG.error("Errors while ingesting index {}", uindex, e);
+                    LOG.error("Errors while ingesting index {}", gindex, e);
                 }
+
+                indexManager.createAnyIndex(
+                        AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT, anyObjectSettings(), anyObjectMapping());
 
                 int anyObjects = anyObjectDAO.count();
                 String aindex = ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT);
@@ -221,33 +242,19 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                         }
                     }
                 } catch (Exception e) {
-                    LOG.error("Errors while ingesting index {}", uindex, e);
-                }
-
-                indexManager.createRealmIndex(AuthContextUtils.getDomain(), realmSettings(), realmMapping());
-
-                int realms = realmDAO.count();
-                String rindex = ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain());
-                setStatus("Indexing " + realms + " realms under " + rindex + "...");
-
-                try (BulkIngester<Void> ingester = BulkIngester.of(b -> b.client(client).
-                        maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
-
-                    for (int page = 1; page <= (realms / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                        for (String realm : realmDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                            ingester.add(op -> op.index(idx -> idx.
-                                    index(rindex).
-                                    id(realm).
-                                    document(utils.document(realmDAO.find(realm)))));
-                        }
-                    }
-                } catch (Exception e) {
-                    LOG.error("Errors while ingesting index {}", uindex, e);
+                    LOG.error("Errors while ingesting index {}", aindex, e);
                 }
 
                 indexManager.createAuditIndex(AuthContextUtils.getDomain(), auditSettings(), auditMapping());
 
                 setStatus("Rebuild indexes for domain " + AuthContextUtils.getDomain() + " successfully completed");
+
+                return "Indexes created:\n"
+                        + " " + rindex + " [" + realms + "]\n"
+                        + " " + uindex + " [" + users + "]\n"
+                        + " " + gindex + " [" + groups + "]\n"
+                        + " " + aindex + " [" + anyObjects + "]\n"
+                        + " " + ElasticsearchUtils.getAuditIndex(AuthContextUtils.getDomain());
             } catch (Exception e) {
                 throw new JobExecutionException("While rebuilding index for domain " + AuthContextUtils.getDomain(), e);
             }

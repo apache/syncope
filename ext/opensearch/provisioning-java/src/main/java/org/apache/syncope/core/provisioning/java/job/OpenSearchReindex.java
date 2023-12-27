@@ -113,84 +113,6 @@ public class OpenSearchReindex extends AbstractSchedTaskJobDelegate<SchedTask> {
             setStatus("Start rebuilding indexes");
 
             try {
-                indexManager.createAnyIndex(
-                        AuthContextUtils.getDomain(), AnyTypeKind.USER, userSettings(), userMapping());
-
-                indexManager.createAnyIndex(
-                        AuthContextUtils.getDomain(), AnyTypeKind.GROUP, groupSettings(), groupMapping());
-
-                indexManager.createAnyIndex(
-                        AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT, anyObjectSettings(), anyObjectMapping());
-
-                int users = userDAO.count();
-                String uindex = OpenSearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER);
-                setStatus("Indexing " + users + " users under " + uindex + "...");
-                for (int page = 1; page <= (users / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                    BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
-
-                    for (String user : userDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        bulkRequest.operations(op -> op.index(idx -> idx.
-                                index(uindex).
-                                id(user).
-                                document(utils.document(userDAO.find(user)))));
-                    }
-
-                    try {
-                        BulkResponse response = client.bulk(bulkRequest.build());
-                        LOG.debug("Index successfully created for {} [{}/{}]: {}",
-                                uindex, page, AnyDAO.DEFAULT_PAGE_SIZE, response);
-                    } catch (Exception e) {
-                        LOG.error("Could not create index for {} [{}/{}]: {}",
-                                uindex, page, AnyDAO.DEFAULT_PAGE_SIZE, e);
-                    }
-                }
-
-                int groups = groupDAO.count();
-                String gindex = OpenSearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP);
-                setStatus("Indexing " + groups + " groups under " + gindex + "...");
-                for (int page = 1; page <= (groups / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                    BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
-
-                    for (String group : groupDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        bulkRequest.operations(op -> op.index(idx -> idx.
-                                index(gindex).
-                                id(group).
-                                document(utils.document(groupDAO.find(group)))));
-                    }
-
-                    try {
-                        BulkResponse response = client.bulk(bulkRequest.build());
-                        LOG.debug("Index successfully created for {} [{}/{}]: {}",
-                                gindex, page, AnyDAO.DEFAULT_PAGE_SIZE, response);
-                    } catch (Exception e) {
-                        LOG.error("Could not create index for {} [{}/{}]: {}",
-                                gindex, page, AnyDAO.DEFAULT_PAGE_SIZE, e);
-                    }
-                }
-
-                int anyObjects = anyObjectDAO.count();
-                String aindex = OpenSearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT);
-                setStatus("Indexing " + anyObjects + " any objects under " + aindex + "...");
-                for (int page = 1; page <= (anyObjects / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                    BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
-
-                    for (String anyObject : anyObjectDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        bulkRequest.operations(op -> op.index(idx -> idx.
-                                index(aindex).
-                                id(anyObject).
-                                document(utils.document(anyObjectDAO.find(anyObject)))));
-                    }
-
-                    try {
-                        BulkResponse response = client.bulk(bulkRequest.build());
-                        LOG.debug("Index successfully created for {} [{}/{}]: {}",
-                                aindex, page, AnyDAO.DEFAULT_PAGE_SIZE, response);
-                    } catch (Exception e) {
-                        LOG.error("Could not create index for {} [{}/{}]: {}",
-                                aindex, page, AnyDAO.DEFAULT_PAGE_SIZE, e);
-                    }
-                }
-
                 indexManager.createRealmIndex(AuthContextUtils.getDomain(), realmSettings(), realmMapping());
 
                 int realms = realmDAO.count();
@@ -216,9 +138,94 @@ public class OpenSearchReindex extends AbstractSchedTaskJobDelegate<SchedTask> {
                     }
                 }
 
+                indexManager.createAnyIndex(
+                        AuthContextUtils.getDomain(), AnyTypeKind.USER, userSettings(), userMapping());
+
+                int users = userDAO.count();
+                String uindex = OpenSearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER);
+                setStatus("Indexing " + users + " users under " + uindex + "...");
+                for (int page = 1; page <= (users / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                    BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
+
+                    for (String user : userDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                        bulkRequest.operations(op -> op.index(idx -> idx.
+                                index(uindex).
+                                id(user).
+                                document(utils.document(userDAO.find(user)))));
+                    }
+
+                    try {
+                        BulkResponse response = client.bulk(bulkRequest.build());
+                        LOG.debug("Index successfully created for {} [{}/{}]: {}",
+                                uindex, page, AnyDAO.DEFAULT_PAGE_SIZE, response);
+                    } catch (Exception e) {
+                        LOG.error("Could not create index for {} [{}/{}]: {}",
+                                uindex, page, AnyDAO.DEFAULT_PAGE_SIZE, e);
+                    }
+                }
+
+                indexManager.createAnyIndex(
+                        AuthContextUtils.getDomain(), AnyTypeKind.GROUP, groupSettings(), groupMapping());
+
+                int groups = groupDAO.count();
+                String gindex = OpenSearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP);
+                setStatus("Indexing " + groups + " groups under " + gindex + "...");
+                for (int page = 1; page <= (groups / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                    BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
+
+                    for (String group : groupDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                        bulkRequest.operations(op -> op.index(idx -> idx.
+                                index(gindex).
+                                id(group).
+                                document(utils.document(groupDAO.find(group)))));
+                    }
+
+                    try {
+                        BulkResponse response = client.bulk(bulkRequest.build());
+                        LOG.debug("Index successfully created for {} [{}/{}]: {}",
+                                gindex, page, AnyDAO.DEFAULT_PAGE_SIZE, response);
+                    } catch (Exception e) {
+                        LOG.error("Could not create index for {} [{}/{}]: {}",
+                                gindex, page, AnyDAO.DEFAULT_PAGE_SIZE, e);
+                    }
+                }
+
+                indexManager.createAnyIndex(
+                        AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT, anyObjectSettings(), anyObjectMapping());
+
+                int anyObjects = anyObjectDAO.count();
+                String aindex = OpenSearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT);
+                setStatus("Indexing " + anyObjects + " any objects under " + aindex + "...");
+                for (int page = 1; page <= (anyObjects / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                    BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
+
+                    for (String anyObject : anyObjectDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                        bulkRequest.operations(op -> op.index(idx -> idx.
+                                index(aindex).
+                                id(anyObject).
+                                document(utils.document(anyObjectDAO.find(anyObject)))));
+                    }
+
+                    try {
+                        BulkResponse response = client.bulk(bulkRequest.build());
+                        LOG.debug("Index successfully created for {} [{}/{}]: {}",
+                                aindex, page, AnyDAO.DEFAULT_PAGE_SIZE, response);
+                    } catch (Exception e) {
+                        LOG.error("Could not create index for {} [{}/{}]: {}",
+                                aindex, page, AnyDAO.DEFAULT_PAGE_SIZE, e);
+                    }
+                }
+
                 indexManager.createAuditIndex(AuthContextUtils.getDomain(), auditSettings(), auditMapping());
 
                 setStatus("Rebuild indexes for domain " + AuthContextUtils.getDomain() + " successfully completed");
+
+                return "Indexes created:\n"
+                        + " " + rindex + " [" + realms + "]\n"
+                        + " " + uindex + " [" + users + "]\n"
+                        + " " + gindex + " [" + groups + "]\n"
+                        + " " + aindex + " [" + anyObjects + "]\n"
+                        + " " + OpenSearchUtils.getAuditIndex(AuthContextUtils.getDomain());
             } catch (Exception e) {
                 throw new JobExecutionException("While rebuilding index for domain " + AuthContextUtils.getDomain(), e);
             }
