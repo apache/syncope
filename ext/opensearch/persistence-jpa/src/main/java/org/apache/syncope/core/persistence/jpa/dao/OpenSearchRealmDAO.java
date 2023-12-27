@@ -212,7 +212,7 @@ public class OpenSearchRealmDAO extends JPARealmDAO {
     public List<String> findDescendants(final String base, final String prefix) {
         Query prefixQuery = new Query.Builder().disMax(QueryBuilders.disMax().queries(
                 new Query.Builder().term(QueryBuilders.term().
-                        field("fullPath").value(FieldValue.of(base)).build()).build(),
+                        field("fullPath").value(FieldValue.of(prefix)).build()).build(),
                 new Query.Builder().prefix(QueryBuilders.prefix().
                         field("fullPath").value(SyncopeConstants.ROOT_REALM.equals(prefix) ? "/" : prefix + "/").
                         build()).build()).build()).build();
