@@ -73,7 +73,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         for (char toEscape : POSTGRESQL_REGEX_CHARS.toCharArray()) {
             output = output.replace(String.valueOf(toEscape), "\\" + toEscape);
         }
-        return output;
+        return output.replace("'", "''");
     }
 
     protected static String escapeIfString(final String value, final boolean isStr) {
