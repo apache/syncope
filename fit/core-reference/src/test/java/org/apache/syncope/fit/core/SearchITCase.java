@@ -979,4 +979,29 @@ public class SearchITCase extends AbstractITCase {
                 allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").orElseThrow().getValues().get(0))));
         assertTrue(users.getResult().stream().noneMatch(u -> user.getKey().equals(u.getKey())));
     }
+
+    @Test
+    public void issueSYNCOPE1800() {
+        // 1. create user
+        UserCR userCR = UserITCase.getUniqueSample("syncope800@syncope.apache.org");
+        Attr surname = userCR.getPlainAttr("surname").orElseThrow();
+        surname.getValues().clear();
+        surname.getValues().add("D'Amico");
+        UserTO user = createUser(userCR).getEntity();
+        assertEquals("D'Amico", user.getPlainAttr("surname").orElseThrow().getValues().get(0));
+
+        // 2. search for user
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql("surname=~D'*").build());
+        assertEquals(1, users.getResult().size());
+        assertEquals(user.getKey(), users.getResult().get(0).getKey());
+    }
 }
