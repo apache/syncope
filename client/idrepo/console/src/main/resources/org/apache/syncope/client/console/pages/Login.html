@@ -59,7 +59,7 @@ under the License.
         <img class="login-logo" src="ui-commons/img/logo-green.png" />
 
         <span wicket:id="feedback" role="alert"/>
-        <div class="box alert-danger" style="padding: 5px;text-align: center;" wicket:id="exceptionMessage"/>
+        <div class="box bg-danger mb-3" style="padding: 5px;text-align: center;" wicket:id="exceptionMessage"/>
 
         <form class="form-signin" wicket:id="login">
           <fieldset class="form-group">
@@ -69,12 +69,12 @@ under the License.
             <input type="password" wicket:id="password" class="form-control" 
                    wicket:message="placeholder:password" required="required" />
 
-            <div class="form-group">
-              <select class="form-control select2bs4 select2-hidden-accessible" wicket:id="language"/>
+            <div class="mb-3">
+              <select class="form-control form-select select2bs4 select2-hidden-accessible" wicket:id="language"/>
             </div>
 
-            <div class="form-group">
-              <select class="form-control select2bs4 select2-hidden-accessible" wicket:id="domain"/>
+            <div class="mb-3">
+              <select class="form-control form-select select2bs4 select2-hidden-accessible" wicket:id="domain"/>
             </div>
 
             <button wicket:id="submit" type="submit" class="btn btn-lg btn-primary btn-block btn-signin bg-success"></button>

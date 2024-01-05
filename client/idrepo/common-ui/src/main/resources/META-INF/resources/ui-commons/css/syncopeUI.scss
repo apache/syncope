@@ -238,6 +238,19 @@ a.help {
   }
 }
 
+a {
+  color: #28a745;
+  text-decoration: none;
+}
+
+.nav-link {
+  color: #28a745;
+}
+
+a:hover, .nav-link:hover {
+  color: #146c43;
+}
+
 .modal-open {
   .modal {
     overflow: hidden;
@@ -319,11 +332,11 @@ a.help {
   bottom: 4px;
   width: 100%;
   div {
-    &.float-left {
+    &.float-start {
       position: absolute;
       left: 15px;
     }
-    &.float-right {
+    &.float-end {
       position: absolute;
       right: 15px;
     }
@@ -404,7 +417,7 @@ td.checkGroupColumn {
   background-color: #17a2b8;
 }
 
-.bg-yellow, .bg-yellow>a {
+.text-bg-warning, .text-bg-warning>a {
   color: #fff!important;
 }
 
@@ -1193,6 +1206,18 @@ pre {
   border: none;
   float: right;
   margin-right:12px;
+}
+
+select.form-control {
+  -webkit-appearance: menulist !important;
+  -moz-appearance: menulist !important;
+  -ms-appearance: menulist !important;
+  -o-appearance: menulist !important;
+  appearance: menulist !important;
+}
+
+.text-right {
+  text-align: right;
 }
 
 @media screen and (max-width: 500px) {

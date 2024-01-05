@@ -63,17 +63,17 @@ public class DashboardOverviewPanel extends Panel {
         container.setOutputMarkupId(true);
         add(container);
 
-        totalUsers = new NumberWidget("totalUsers", "bg-yellow", numbers.getTotalUsers(),
+        totalUsers = new NumberWidget("totalUsers", "text-bg-warning", numbers.getTotalUsers(),
                 new ResourceModel("users").getObject(), "ion ion-person");
         container.add(totalUsers);
         totalGroups = new NumberWidget(
-                "totalGroups", "bg-red", numbers.getTotalGroups(),
+                "totalGroups", "text-bg-danger", numbers.getTotalGroups(),
                 new ResourceModel("groups").getObject(), "ion ion-person-stalker");
         container.add(totalGroups);
 
         Triple<Integer, String, String> built = buildTotalAny1OrRoles(numbers);
         totalAny1OrRoles = new NumberWidget(
-                "totalAny1OrRoles", "bg-green", built.getLeft(), built.getMiddle(), built.getRight());
+                "totalAny1OrRoles", "text-bg-success", built.getLeft(), built.getMiddle(), built.getRight());
         container.add(totalAny1OrRoles);
 
         built = buildTotalAny2OrResources(numbers);

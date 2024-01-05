@@ -30,7 +30,7 @@ under the License.
     <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css"/>
     <link href="ui-commons/css/fonts.css" rel="stylesheet" type="text/css"/>
 
-    <link href="css/AdminLTE_plugins/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
+    <link href="css/AdminLTE_plugins/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css"/>
     <link href="ui-commons/css/animations.css" rel="stylesheet" type="text/css"/>
     <link href="ui-commons/css/syncopeUI.css" rel="stylesheet" type="text/css"/>
     <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css"/>
@@ -39,156 +39,266 @@ under the License.
     <link href="ui-commons/css/accessibility.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="ui-commons/js/accessibility.js"></script>
 
-    <script type="text/javascript" src="webjars/bootbox/${bootbox.version}/bootbox.all.js"></script>
+    <script type="text/javascript" src="ui-commons/js/bootbox6.all.min.js"></script>
+<!--    <script type="text/javascript" src="webjars/bootbox/${bootbox.version}/bootbox.all.js"></script>-->
     <script type="text/javascript" src="webjars/jQuery-slimScroll/${jquery-slimscroll.version}/jquery.slimscroll.min.js"></script>
     <script type="text/javascript">
       // global variable for IndicatingOnConfirmAjaxLink
       var proceed = false;
     </script>
   </head>
-  <body class="hold-transition sidebar-mini" wicket:id="body">
+  <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary app-loaded sidebar-open" wicket:id="body">
 
-    <div class="wrapper">
+    <div class="app-wrapper">
       <span wicket:id="feedback"></span>
 
       <!-- Navbar -->
-      <nav class="main-header navbar navbar-expand navbar-white navbar-light bg-green">
-        <!-- Left navbar links -->
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" data-widget="pushmenu" href="#" wicket:id="collapse"><i class="fas fa-bars"></i></a>
-          </li>
-        </ul>
+      <nav class="app-header navbar navbar-expand navbar-red navbar-light bg-success">
+        <div class="container-fluid">
+          <!-- Left navbar links -->
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" data-lte-toggle="sidebar" href="#" wicket:id="collapse"><i class="fas fa-bars"></i></a>
+            </li>
+          </ul>
 
-        <!-- Right navbar links -->
-        <ul class="navbar-nav ml-auto">
-          <li class="nav-item dropdown" wicket:id="extAlertWidgets">
-            <span wicket:id="extAlertWidget"/>
-          </li>
+          <!-- Right navbar links -->
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown" wicket:id="extAlertWidgets">
+              <span wicket:id="extAlertWidget"/>
+            </li>
 
-          <li class="nav-item dropdown user-menu">
-            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-              <span class="d-none d-md-inline"><label wicket:id="username"/></span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-              <!-- Menu Body -->
-              <li class="user-header bg-green">
-                <div class="text-right">
-                  <wicket:message key="domain"/>: <label wicket:id="domain"/>
-                </div>
-              </li>
-              <li class="user-body" wicket:id="delegationsContainer">
-                <div class="row">
-                  <div class="col-xs-12 text-center">
-                    <div class="box box-primary">
-                      <div class="box-header">
-                        <h3 class="box-title" wicket:id="delegationsHeader"/>
+            <li class="nav-item dropdown user-menu">
+              <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                <span class="d-none d-md-inline"><label class="form-label" wicket:id="username"/></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                <!-- Menu Body -->
+                <li class="dropdown-header text-bg-success">
+                  <div class="text-right">
+                    <wicket:message key="domain"/>
+                    : <label class="form-label" wicket:id="domain"/>
+                  </div>
+                </li>
+                <li class="user-body" wicket:id="delegationsContainer">
+                  <div class="row">
+                    <div class="col-xs-12 text-center">
+                      <div class="box box-primary">
+                        <div class="box-header">
+                          <h3 class="box-title" wicket:id="delegationsHeader"/>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="col-xs-12 text-center">
+                    <div class="col-xs-12 text-center">
                     <span wicket:id="delegations">
                       <span wicket:id="delegation"/>
                     </span>
+                    </div>
                   </div>
-                </div>
-              </li>
-              <!-- Menu Footer-->
-              <li class="user-footer">
-                <a href="#" class="btn btn-default btn-flat float-left" wicket:id="endDelegation"><wicket:message key="endDelegation"/></a>
-                <a href="#" class="btn btn-default btn-flat float-right" wicket:id="logout"><wicket:message key="logout"/></a>
-              </li>
-            </ul>
-          </li>
+                </li>
+                <!-- Menu Footer-->
+                <li class="user-footer">
+                  <a href="#" class="btn btn-default btn-flat float-start" wicket:id="endDelegation">
+                    <wicket:message key="endDelegation"/>
+                  </a>
+                  <a href="#" class="btn btn-default btn-flat float-end" wicket:id="logout">
+                    <wicket:message key="logout"/>
+                  </a>
+                </li>
+              </ul>
+            </li>
 
-          <li class="nav-item">
-            <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#"><i class="fas fa-cogs"></i></a>
-          </li>
-        </ul>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-widget="control-sidebar" data-slide="true" href="#"><i
+                      class="fas fa-cogs"></i></a>
+            </li>
+          </ul>
+        </div>
       </nav>
       <!-- /.navbar -->
 
       <!-- Main Sidebar Container -->
-      <aside class="main-sidebar sidebar-light-green elevation-4">
-        <div class="brand-link bg-green d-flex" style="height: 57px;">
-          <span class="d-flex">
+      <aside class="app-sidebar sidebar-light-green elevation-4">
+        <div class="sidebar-brand text-bg-success d-flex" style="height: 57px;">
+          <span class="brand-link" style="position: absolute;">
             <img src="ui-commons/img/logo-mini.png" alt="Apache Syncope Logo" class="brand-image" style="max-height: none; opacity: .8;"/>
-            <span class="brand-text font-weight-light">Apache Syncope</span>
+            <span class="brand-text fw-light">Apache Syncope</span>
           </span>
         </div>
 
         <!-- Sidebar -->
-        <div class="sidebar">
-          <div class="user-panel mt-2 pb-2 mb-2 d-flex">
-          </div>
+        <div class="sidebar-wrapper" data-overlayscrollbars="host">
+          <div class="os-size-observer os-size-observer-appear"><div class="os-size-observer-listener ltr"></div></div>
 
-          <!-- Sidebar Menu -->
-          <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent nav-compact" data-widget="treeview" role="menu" data-accordion="false">
-              <li class="nav-item" wicket:id="dashboardLI"><a href="#" class="nav-link" wicket:id="dashboard"><i class="nav-icon fa fa-tachometer-alt"></i><p><wicket:message key="dashboard"/></p></a></li>
-              <li class="nav-item" wicket:id="realmsLI"><a href="#" class="nav-link" wicket:id="realms"><i class="nav-icon fa fa-folder-open"></i><p><wicket:message key="realms"/></p></a></li>
-              <li class="nav-item" wicket:id="engagementsLI"><a href="#" class="nav-link" wicket:id="engagements"><i class="nav-icon fas fa-tasks"></i><p><wicket:message key="engagements"/></p></a></li>
-              <li class="nav-item" wicket:id="reportsLI"><a href="#" class="nav-link" wicket:id="reports"><i class="nav-icon fa fa-chart-pie"></i><p><wicket:message key="reports"/></p></a></li>
-              <wicket:container wicket:id="idmPages">
-                <li class="nav-item" wicket:id="idmPageLI">
-                  <a href="#" class="nav-link" wicket:id="idmPage"><i wicket:id="idmPageIcon"></i><p wicket:id="idmPageLabel"/></a>
+          <div data-overlayscrollbars-viewport="scrollbarHidden">
+
+            <!-- Sidebar Menu -->
+            <nav class="mt-2">
+              <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview"
+                  role="menu" data-accordion="false">
+                <li class="nav-item" wicket:id="dashboardLI"><a href="#" class="nav-link" wicket:id="dashboard"><i
+                        class="nav-icon fa fa-tachometer-alt"></i>
+                  <p>
+                    <wicket:message key="dashboard"/>
+                  </p>
+                </a></li>
+                <li class="nav-item" wicket:id="realmsLI"><a href="#" class="nav-link" wicket:id="realms"><i
+                        class="nav-icon fa fa-folder-open"></i>
+                  <p>
+                    <wicket:message key="realms"/>
+                  </p>
+                </a></li>
+                <li class="nav-item" wicket:id="engagementsLI"><a href="#" class="nav-link" wicket:id="engagements"><i
+                        class="nav-icon fas fa-tasks"></i>
+                  <p>
+                    <wicket:message key="engagements"/>
+                  </p>
+                </a></li>
+                <li class="nav-item" wicket:id="reportsLI"><a href="#" class="nav-link" wicket:id="reports"><i
+                        class="nav-icon fa fa-chart-pie"></i>
+                  <p>
+                    <wicket:message key="reports"/>
+                  </p>
+                </a></li>
+                <wicket:container wicket:id="idmPages">
+                  <li class="nav-item" wicket:id="idmPageLI">
+                    <a href="#" class="nav-link" wicket:id="idmPage"><i wicket:id="idmPageIcon"></i>
+                      <p wicket:id="idmPageLabel"/></a>
+                  </li>
+                </wicket:container>
+                <wicket:container wicket:id="amPages">
+                  <li class="nav-item" wicket:id="amPageLI">
+                    <a href="#" class="nav-link" wicket:id="amPage"><i wicket:id="amPageIcon"></i>
+                      <p wicket:id="amPageLabel"/></a>
+                  </li>
+                </wicket:container>
+                <li wicket:id="keymasterLI" class="nav-item ">
+                  <a id="keymasterLink" href="#" class="nav-link"><i class="nav-icon fa fa-magic"></i>
+                    <p>
+                      <wicket:message key="keymaster"/>
+                    </p>
+                    <i class="nav-arrow fas fa-angle-left right"></i></a>
+                  <ul wicket:id="keymasterUL" class="nav nav-treeview">
+                    <li class="nav-item" wicket:id="domainsLI"><a href="#" class="nav-link" wicket:id="domains"><i
+                            class="nav-icon fa fa-code-branch"></i>
+                      <p>
+                        <wicket:message key="domains"/>
+                      </p>
+                    </a></li>
+                    <li class="nav-item" wicket:id="networkservicesLI"><a href="#" class="nav-link"
+                                                                          wicket:id="networkservices"><i
+                            class="nav-icon fa fa-server"></i>
+                      <p>
+                        <wicket:message key="networkservices"/>
+                      </p>
+                    </a></li>
+                    <li class="nav-item" wicket:id="parametersLI"><a href="#" class="nav-link" wicket:id="parameters"><i
+                            class="nav-icon fa fa-cog"></i>
+                      <p>
+                        <wicket:message key="parameters"/>
+                      </p>
+                    </a></li>
+                  </ul>
                 </li>
-              </wicket:container>
-              <wicket:container wicket:id="amPages">
-                <li class="nav-item" wicket:id="amPageLI">
-                  <a href="#" class="nav-link" wicket:id="amPage"><i wicket:id="amPageIcon"></i><p wicket:id="amPageLabel"/></a>
+                <li wicket:id="configurationLI" class="nav-item ">
+                  <a id="configurationLink" href="#" class="nav-link"><i class="nav-icon fa fa-edit"></i>
+                    <p>
+                      <wicket:message key="configuration"/>
+                    </p>
+                    <i class="nav-arrow fas fa-angle-left right"></i></a>
+                  <ul wicket:id="configurationUL" class="nav nav-treeview">
+                    <li class="nav-item" wicket:id="auditLI"><a href="#" class="nav-link" wicket:id="audit"><i
+                            class="nav-icon far fa-check-square"></i>
+                      <p>
+                        <wicket:message key="audit"/>
+                      </p>
+                    </a></li>
+                    <li class="nav-item" wicket:id="implementationsLI"><a href="#" class="nav-link"
+                                                                          wicket:id="implementations"><i
+                            class="nav-icon far fa-file-code"></i>
+                      <p>
+                        <wicket:message key="implementations"/>
+                      </p>
+                    </a></li>
+                    <li class="nav-item" wicket:id="logsLI"><a href="#" class="nav-link" wicket:id="logs"><i
+                            class="nav-icon far fa-file-alt"></i>
+                      <p>
+                        <wicket:message key="logs"/>
+                      </p>
+                    </a></li>
+                    <li class="nav-item" wicket:id="notificationsLI"><a href="#" class="nav-link"
+                                                                        wicket:id="notifications"><i
+                            class="nav-icon far fa-envelope"></i>
+                      <p>
+                        <wicket:message key="notifications"/>
+                      </p>
+                    </a></li>
+                    <li class="nav-item" wicket:id="policiesLI"><a href="#" class="nav-link" wicket:id="policies"><i
+                            class="nav-icon fa fa-list"></i>
+                      <p>
+                        <wicket:message key="policies"/>
+                      </p>
+                    </a></li>
+                    <li class="nav-item" wicket:id="securityLI"><a href="#" class="nav-link" wicket:id="security"><i
+                            class="nav-icon fa fa-lock"></i>
+                      <p>
+                        <wicket:message key="security"/>
+                      </p>
+                    </a></li>
+                    <li class="nav-item" wicket:id="typesLI"><a href="#" class="nav-link" wicket:id="types"><i
+                            class="nav-icon fa fa-wrench"></i>
+                      <p>
+                        <wicket:message key="types"/>
+                      </p>
+                    </a></li>
+                  </ul>
                 </li>
-              </wicket:container>
-              <li wicket:id="keymasterLI" class="nav-item has-treeview">
-                <a id="keymasterLink" href="#" class="nav-link"><i class="nav-icon fa fa-magic"></i><p><wicket:message key="keymaster"/></p> <i class="fas fa-angle-left right"></i></a>
-                <ul wicket:id="keymasterUL" class="nav nav-treeview">
-                  <li class="nav-item" wicket:id="domainsLI"><a href="#" class="nav-link" wicket:id="domains"><i class="nav-icon fa fa-code-branch"></i><p><wicket:message key="domains"/></p></a></li>
-                  <li class="nav-item" wicket:id="networkservicesLI"><a href="#" class="nav-link" wicket:id="networkservices"><i class="nav-icon fa fa-server"></i><p><wicket:message key="networkservices"/></p></a></li>
-                  <li class="nav-item" wicket:id="parametersLI"><a href="#" class="nav-link" wicket:id="parameters"><i class="nav-icon fa fa-cog"></i><p><wicket:message key="parameters"/></p></a></li>
-                </ul>
-              </li>
-              <li wicket:id="configurationLI" class="nav-item has-treeview">
-                <a id="configurationLink" href="#" class="nav-link"><i class="nav-icon fa fa-edit"></i><p><wicket:message key="configuration"/></p> <i class="fas fa-angle-left right"></i></a>
-                <ul wicket:id="configurationUL" class="nav nav-treeview">
-                  <li class="nav-item" wicket:id="auditLI"><a href="#" class="nav-link" wicket:id="audit"><i class="nav-icon far fa-check-square"></i><p><wicket:message key="audit"/></p></a></li>
-                  <li class="nav-item" wicket:id="implementationsLI"><a href="#" class="nav-link" wicket:id="implementations"><i class="nav-icon far fa-file-code"></i><p><wicket:message key="implementations"/></p></a></li>
-                  <li class="nav-item" wicket:id="logsLI"><a href="#" class="nav-link" wicket:id="logs"><i class="nav-icon far fa-file-alt"></i><p><wicket:message key="logs"/></p></a></li>
-                  <li class="nav-item" wicket:id="notificationsLI"><a href="#" class="nav-link" wicket:id="notifications"><i class="nav-icon far fa-envelope"></i><p><wicket:message key="notifications"/></p></a></li>
-                  <li class="nav-item" wicket:id="policiesLI"><a href="#" class="nav-link" wicket:id="policies"><i class="nav-icon fa fa-list"></i><p><wicket:message key="policies"/></p></a></li>
-                  <li class="nav-item" wicket:id="securityLI"><a href="#" class="nav-link" wicket:id="security"><i class="nav-icon fa fa-lock"></i><p><wicket:message key="security"/></p></a></li>
-                  <li class="nav-item" wicket:id="typesLI"><a href="#" class="nav-link" wicket:id="types"><i class="nav-icon fa fa-wrench"></i><p><wicket:message key="types"/></p></a></li>
-                </ul>
-              </li>
-              <li wicket:id="extensionsLI" class="nav-item has-treeview">
-                <a id="extensionsLink" href="#" class="nav-link"><i class="nav-icon fa fa-puzzle-piece"></i><p><wicket:message key="extensions"/></p> <i class="fas fa-angle-left right"></i></a>
-                <ul class="nav nav-treeview">
-                  <wicket:container wicket:id="extPages">
-                    <li class="nav-item" wicket:id="extPageLI">
-                      <a href="#" class="nav-link" wicket:id="extPage"><i wicket:id="extPageIcon"></i><p wicket:id="extPageLabel"/></a>
-                    </li>
-                  </wicket:container>
-                </ul>
-              </li>
-            </ul>
-          </nav>
+                <li wicket:id="extensionsLI" class="nav-item ">
+                  <a id="extensionsLink" href="#" class="nav-link"><i class="nav-icon fa fa-puzzle-piece"></i>
+                    <p>
+                      <wicket:message key="extensions"/>
+                    </p>
+                    <i class="nav-arrow fas fa-angle-left right"></i></a>
+                  <ul class="nav nav-treeview">
+                    <wicket:container wicket:id="extPages">
+                      <li class="nav-item" wicket:id="extPageLI">
+                        <a href="#" class="nav-link" wicket:id="extPage"><i wicket:id="extPageIcon"></i>
+                          <p wicket:id="extPageLabel"/></a>
+                      </li>
+                    </wicket:container>
+                  </ul>
+                </li>
+              </ul>
+            </nav>
+          </div>
+          <div class="os-scrollbar os-scrollbar-horizontal os-theme-light os-scrollbar-auto-hide os-scrollbar-handle-interactive os-scrollbar-track-interactive os-scrollbar-cornerless os-scrollbar-unusable os-scrollbar-auto-hide-hidden">
+            <div class="os-scrollbar-track">
+              <div class="os-scrollbar-handle" style="width: 100%;"></div>
+            </div>
+          </div>
+          <div class="os-scrollbar os-scrollbar-vertical os-theme-light os-scrollbar-auto-hide os-scrollbar-handle-interactive os-scrollbar-track-interactive os-scrollbar-visible os-scrollbar-cornerless os-scrollbar-auto-hide-hidden">
+            <div class="os-scrollbar-track">
+              <div class="os-scrollbar-handle" style="height: 39.633%;"></div>
+            </div>
+          </div>
           <!-- /.sidebar-menu -->
         </div>
         <!-- /.sidebar -->
       </aside>
 
-      <div class="content-wrapper accent-success">
+      <main class="app-main content-wrapper accent-success">
         <wicket:child/>
-      </div>
+      </main>
 
-      <footer class="main-footer">
+      <footer class="app-footer">
         <strong>Copyright &copy; 2010&#45;${year}
           <a href="http://www.apache.org/" target="_blank" rel="noopener noreferrer">The Apache Software Foundation</a>.</strong>
         All rights reserved.
       </footer>
 
       <!-- Control Sidebar -->
-      <aside class="control-sidebar control-sidebar-dark">
-        <div class="p-3 control-sidebar-content">
+      <aside class="app-sidebar bg-body-secondary" data-bs-theme="dark" hidden> <!--it overrides the leftmost sidebar, leave hidden untile the control-sidebar will be restored-->--
+        <div class="p-3 sidebar-wrapper control-sidebar">
           <h5><wicket:message key="systemInfo"/></h5>
           <hr class="mb-2"/>
 
@@ -213,7 +323,7 @@ under the License.
             </div>
           </div>
           <div class="row">
-            <div class="info-box col-12 bg-green">
+            <div class="info-box col-12 text-bg-success">
               <span class="info-box-icon"><i class="fas fa-microchip"></i></span>
 
               <div class="info-box-content">
@@ -223,7 +333,7 @@ under the License.
             </div>
           </div>
           <div class="row">
-            <div class="info-box col-12 bg-yellow">
+            <div class="info-box col-12 text-bg-warning">
               <span class="info-box-icon"><i class="fas fa-desktop"></i></span>
 
               <div class="info-box-content">
@@ -247,7 +357,7 @@ under the License.
           <hr class="mb-2"/>
 
           <div class="row">
-            <div class="info-box col-12 bg-red">
+            <div class="info-box col-12 text-bg-danger">
               <span class="info-box-icon"><i class="fa fa-download"></i></span>
 
               <div class="info-box-content">

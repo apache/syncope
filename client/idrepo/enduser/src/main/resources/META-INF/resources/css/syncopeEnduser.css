@@ -399,12 +399,12 @@ div.modal-body div.box-body div.wizard-buttons {
   width: 100%;
 }
 
-.wizard-buttons div.float-left {
+.wizard-buttons div.float-start {
   position: absolute;
   left: 15px;
 }
 
-.wizard-buttons div.float-right {
+.wizard-buttons div.float-end {
   position: absolute;
   right: 15px;
 }

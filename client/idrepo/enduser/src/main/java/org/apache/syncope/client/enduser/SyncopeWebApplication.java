@@ -25,6 +25,8 @@ import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5CssReference;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeSettings;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -158,6 +160,9 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         super.init();
 
         // Application settings
+        // Font Awesome settings
+        FontAwesomeSettings.get(this).setCssResourceReference(FontAwesome5CssReference.instance());
+        
         IBootstrapSettings settings = new BootstrapSettings();
 
         // set theme provider

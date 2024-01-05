@@ -18,12 +18,12 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <head>
-    <title>Multivalue conatiner</title>
+    <title>Multivalue container</title>
   </head>
   <body>
     <wicket:extend>
       <wicket:enclosure child="field-label">
-        <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
+        <label class="form-label" wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
         <span wicket:id="externalAction"/>
       </wicket:enclosure>
 
@@ -36,7 +36,7 @@ under the License.
       <wicket:fragment wicket:id="noDataFragment">
         <div class="form-group">
           <div class="multipanel-box box input-group" style="background-color:#EEE">
-            <label wicket:id="field-label">[LABEL]</label>
+            <label class="form-label" wicket:id="field-label">[LABEL]</label>
           </div>
           <span wicket:id="panelPlus" class="input-group-append input-group-text">[plus]</span>
         </div>

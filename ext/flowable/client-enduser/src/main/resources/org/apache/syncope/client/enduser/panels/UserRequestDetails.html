@@ -25,15 +25,15 @@ under the License.
         <form wicket:id="userRequestWrapForm" class="form-horizontal">
           <span wicket:id="userRequestFormPanel"></span>
           <div>
-            <input wicket:id="submit" type="submit" wicket:message="value:submit" class="btn btn-success float-right"/>
+            <input wicket:id="submit" type="submit" wicket:message="value:submit" class="btn btn-success float-end"/>
           </div>
         </form>
       </wicket:fragment>
       <wicket:fragment wicket:id="formDetails">
-        <span><wicket:message key="executionId"/>: <label wicket:id="executionId"/></span>
-        <span><wicket:message key="startTime"/>: <label wicket:id="startTime"/></span>
+        <span><wicket:message key="executionId"/>: <label class="form-label" wicket:id="executionId"/></span>
+        <span><wicket:message key="startTime"/>: <label class="form-label" wicket:id="startTime"/></span>
       </wicket:fragment>
-      <input wicket:id="delete" type="button" wicket:message="value:delete" class="btn btn-danger float-left">
+      <input wicket:id="delete" type="button" wicket:message="value:delete" class="btn btn-danger float-start">
     </div>
   </wicket:panel>
 </html>
