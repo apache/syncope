@@ -39,9 +39,9 @@ public abstract class JPAJSONEntityListener<A extends Any<?>> {
             getAttrs(entity.getPlainAttrsJSON()).stream().filter(attr -> attr.getSchema() != null).map(attr -> {
                 if (entity instanceof Any) {
                     attr.setOwner((A) entity);
-                } else if (entity instanceof LinkedAccount) {
-                    attr.setOwner((A) ((LinkedAccount) entity).getOwner());
-                    ((LAPlainAttr) attr).setAccount((LinkedAccount) entity);
+                } else if (entity instanceof LinkedAccount linkedAccount) {
+                    attr.setOwner((A) linkedAccount.getOwner());
+                    ((LAPlainAttr) attr).setAccount(linkedAccount);
                 }
                 attr.getValues().forEach(value -> value.setAttr(attr));
                 if (attr.getUniqueValue() != null) {

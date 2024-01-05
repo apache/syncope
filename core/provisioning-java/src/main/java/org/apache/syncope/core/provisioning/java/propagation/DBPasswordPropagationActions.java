@@ -78,7 +78,7 @@ public class DBPasswordPropagationActions implements PropagationActions {
     @Override
     public void before(final PropagationTaskInfo taskInfo) {
         if (AnyTypeKind.USER == taskInfo.getAnyTypeKind()) {
-            User user = userDAO.find(taskInfo.getEntityKey());
+            User user = userDAO.findById(taskInfo.getEntityKey()).orElse(null);
 
             PropagationData data = taskInfo.getPropagationData();
             if (user != null && user.getPassword() != null && data.getAttributes() != null) {

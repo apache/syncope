@@ -34,7 +34,7 @@ public class RemediationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -7033745375669316378L;
 
-    public int countRemediations() {
+    public long countRemediations() {
         return getService(RemediationService.class).
                 list(new RemediationQuery.Builder().page(1).size(0).build()).
                 getTotalCount();

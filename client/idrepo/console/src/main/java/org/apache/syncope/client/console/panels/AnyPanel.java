@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.common.lib.types.AnyTypeKind.ANY_OBJECT;
-import static org.apache.syncope.common.lib.types.AnyTypeKind.GROUP;
-import static org.apache.syncope.common.lib.types.AnyTypeKind.USER;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;

@@ -125,13 +125,10 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
                     item.setPurpose(MappingPurpose.NONE);
 
                     itemTO.getTransformers().forEach(transformerKey -> {
-                        Implementation transformer = implementationDAO.find(transformerKey);
-                        if (transformer == null) {
-                            LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                                    transformerKey);
-                        } else {
-                            item.getTransformers().add(transformer.getKey());
-                        }
+                        implementationDAO.findById(transformerKey).ifPresentOrElse(
+                                transformer -> item.getTransformers().add(transformer.getKey()),
+                                () -> LOG.debug("Invalid {} {}, ignoring...",
+                                        Implementation.class.getSimpleName(), transformerKey));
                         // remove all implementations not contained in the TO
                         item.getTransformers().
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
@@ -177,13 +174,10 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
         if (idpTO.getRequestedAuthnContextProvider() == null) {
             idp.setRequestedAuthnContextProvider(null);
         } else {
-            Implementation implementation = implementationDAO.find(idpTO.getRequestedAuthnContextProvider());
-            if (implementation == null) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                        idpTO.getRequestedAuthnContextProvider());
-            } else {
-                idp.setRequestedAuthnContextProvider(implementation);
-            }
+            implementationDAO.findById(idpTO.getRequestedAuthnContextProvider()).ifPresentOrElse(
+                    idp::setRequestedAuthnContextProvider,
+                    () -> LOG.debug("Invalid {} {}, ignoring...",
+                            Implementation.class.getSimpleName(), idpTO.getRequestedAuthnContextProvider()));
         }
 
         if (idpTO.getUserTemplate() == null) {
@@ -202,14 +196,9 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
         idp.getItems().clear();
         populateItems(idpTO, idp);
 
-        idpTO.getActions().forEach(action -> {
-            Implementation implementation = implementationDAO.find(action);
-            if (implementation == null) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", action);
-            } else {
-                idp.add(implementation);
-            }
-        });
+        idpTO.getActions().forEach(action -> implementationDAO.findById(action).ifPresentOrElse(
+                idp::add,
+                () -> LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), action)));
         // remove all implementations not contained in the TO
         idp.getActions().removeIf(impl -> !idpTO.getActions().contains(impl.getKey()));
 

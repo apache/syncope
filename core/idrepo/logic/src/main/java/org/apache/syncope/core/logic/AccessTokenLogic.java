@@ -90,31 +90,27 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
 
     @PreAuthorize("isAuthenticated()")
     public Pair<String, OffsetDateTime> refresh() {
-        AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername());
-        if (accessToken == null) {
-            throw new NotFoundException("AccessToken for " + AuthContextUtils.getUsername());
-        }
+        AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername()).
+                orElseThrow(() -> new NotFoundException("AccessToken for " + AuthContextUtils.getUsername()));
 
         return binder.update(accessToken, getAuthorities());
     }
 
     @PreAuthorize("isAuthenticated()")
     public void logout() {
-        AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername());
-        if (accessToken == null) {
-            throw new NotFoundException("AccessToken for " + AuthContextUtils.getUsername());
-        }
+        AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername()).
+                orElseThrow(() -> new NotFoundException("AccessToken for " + AuthContextUtils.getUsername()));
 
         delete(accessToken.getKey());
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ACCESS_TOKEN_LIST + "')")
-    public Pair<Integer, List<AccessTokenTO>> list(
+    public Pair<Long, List<AccessTokenTO>> list(
             final int page,
             final int size,
             final List<OrderByClause> orderByClauses) {
 
-        Integer count = accessTokenDAO.count();
+        Long count = accessTokenDAO.count();
 
         List<AccessTokenTO> result = accessTokenDAO.findAll(page, size, orderByClauses).stream().
                 map(binder::getAccessTokenTO).collect(Collectors.toList());
@@ -124,7 +120,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ACCESS_TOKEN_DELETE + "')")
     public void delete(final String key) {
-        accessTokenDAO.delete(key);
+        accessTokenDAO.deleteById(key);
     }
 
     @Override

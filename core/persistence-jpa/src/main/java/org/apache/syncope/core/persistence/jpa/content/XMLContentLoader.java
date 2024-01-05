@@ -18,15 +18,25 @@
  */
 package org.apache.syncope.core.persistence.jpa.content;
 
+import jakarta.persistence.EntityManagerFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Properties;
 import javax.sql.DataSource;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.apache.openjpa.jdbc.conf.JDBCConfiguration;
+import org.apache.openjpa.jdbc.meta.MappingRepository;
+import org.apache.openjpa.jdbc.meta.MappingTool;
+import org.apache.openjpa.lib.conf.Configurations;
+import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
+import org.apache.openjpa.persistence.OpenJPAPersistence;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
+import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
@@ -36,7 +46,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.xml.sax.SAXException;
 
 /**
@@ -46,6 +55,8 @@ public class XMLContentLoader implements ContentLoader {
 
     protected static final Logger LOG = LoggerFactory.getLogger(XMLContentLoader.class);
 
+    protected final PersistenceProperties persistenceProperties;
+
     protected final Resource viewsXML;
 
     protected final Resource indexesXML;
@@ -53,10 +64,12 @@ public class XMLContentLoader implements ContentLoader {
     protected final Environment env;
 
     public XMLContentLoader(
+            final PersistenceProperties persistenceProperties,
             final Resource viewsXML,
             final Resource indexesXML,
             final Environment env) {
 
+        this.persistenceProperties = persistenceProperties;
         this.viewsXML = viewsXML;
         this.indexesXML = indexesXML;
         this.env = env;
@@ -67,20 +80,43 @@ public class XMLContentLoader implements ContentLoader {
         return 400;
     }
 
+    protected void buildJPASchema() {
+        OpenJPAEntityManagerFactorySPI emfspi = (OpenJPAEntityManagerFactorySPI) OpenJPAPersistence.cast(
+                ApplicationContextProvider.getBeanFactory().getBean(EntityManagerFactory.class));
+        JDBCConfiguration jdbcConf = (JDBCConfiguration) emfspi.getConfiguration();
+
+        MappingRepository mappingRepo = jdbcConf.getMappingRepositoryInstance();
+        Collection<Class<?>> classes = mappingRepo.loadPersistentTypes(false, getClass().getClassLoader());
+
+        String action = "buildSchema(ForeignKeys=true)";
+        String props = Configurations.getProperties(action);
+        action = Configurations.getClassName(action);
+        MappingTool mappingTool = new MappingTool(jdbcConf, action, false, getClass().getClassLoader());
+        Configurations.configureInstance(mappingTool, jdbcConf, props, "SynchronizeMappings");
+
+        // initialize the schema
+        for (Class<?> cls : classes) {
+            mappingTool.run(cls);
+        }
+
+        mappingTool.record();
+    }
+
     @Override
     public void load(final String domain, final DataSource datasource) {
         LOG.debug("Loading data for domain [{}]", domain);
 
-        // create EntityManager so OpenJPA will build the SQL schema
-        EntityManagerFactoryUtils.findEntityManagerFactory(
-                ApplicationContextProvider.getBeanFactory(), domain).createEntityManager();
+        if (!SyncopeConstants.MASTER_DOMAIN.equals(domain)) {
+            // ensure that the SQL schema was built after JPA mappings
+            buildJPASchema();
+        }
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource);
         boolean existingData;
         try {
             existingData = jdbcTemplate.queryForObject("SELECT COUNT(0) FROM " + JPARealm.TABLE, Integer.class) > 0;
         } catch (DataAccessException e) {
-            LOG.error("[{}] Could not access table " + JPARealm.TABLE, domain, e);
+            LOG.error("[{}] Could not access table {}", domain, JPARealm.TABLE, e);
             existingData = true;
         }
 

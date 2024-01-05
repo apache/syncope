@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.flowable.idm.api.User;
 import org.flowable.idm.engine.impl.UserQueryImpl;
 import org.flowable.idm.engine.impl.persistence.entity.UserEntity;
@@ -51,23 +49,18 @@ public class SyncopeUserQueryImpl extends UserQueryImpl {
 
     private void execute() {
         if (id != null) {
-            org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.findByUsername(id);
-            if (user == null) {
-                result = List.of();
-            } else if (groupId == null || userDAO.findAllGroupNames(user).contains(groupId)) {
-                result = List.of(fromSyncopeUser(user));
-            }
+            result = userDAO.findByUsername(id).
+                    filter(user -> groupId == null || userDAO.findAllGroupNames(user).contains(groupId)).
+                    map(user -> List.of(fromSyncopeUser(user))).
+                    orElse(List.of());
         } else if (groupId != null) {
-            Group group = groupDAO.findByName(groupId);
-            if (group == null) {
-                result = List.of();
-            } else {
-                result = new ArrayList<>();
-                List<UMembership> memberships = groupDAO.findUMemberships(group);
-                memberships.stream().map(membership -> fromSyncopeUser(membership.getLeftEnd())).
-                        filter(user -> (!result.contains(user))).
-                        forEachOrdered(user -> result.add(user));
-            }
+            groupDAO.findByName(groupId).map(group -> {
+                List<User> r = new ArrayList<>();
+                groupDAO.findUMemberships(group).stream().map(m -> fromSyncopeUser(m.getLeftEnd())).
+                        filter(user -> !r.contains(user)).
+                        forEach(r::add);
+                return r;
+            }).orElse(List.of());
         }
     }
 

@@ -18,51 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.jpa.dao.repo.DynRealmRepoExt;
+import org.apache.syncope.core.persistence.jpa.dao.repo.GroupRepoExt;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RoleRepoExt;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 public class SearchSupport {
 
-    public static class SearchView {
+    public static record SearchView(String alias, String name) {
 
-        protected String alias;
-
-        protected String name;
-
-        protected SearchView(final String alias, final String name) {
-            this.alias = alias;
-            this.name = name;
-        }
-
-        @Override
-        public int hashCode() {
-            return new HashCodeBuilder().
-                    append(alias).
-                    append(name).
-                    build();
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            final SearchView other = (SearchView) obj;
-            return new EqualsBuilder().
-                    append(alias, other.alias).
-                    append(name, other.name).
-                    build();
-        }
     }
 
     protected final AnyTypeKind anyTypeKind;
@@ -127,7 +94,7 @@ public class SearchSupport {
 
     public SearchView dyngroupmembership() {
         return new SearchView("sv" + anyTypeKind.name() + "dgm",
-                anyTypeKind == AnyTypeKind.USER ? JPAGroupDAO.UDYNMEMB_TABLE : JPAGroupDAO.ADYNMEMB_TABLE);
+                anyTypeKind == AnyTypeKind.USER ? GroupRepoExt.UDYNMEMB_TABLE : GroupRepoExt.ADYNMEMB_TABLE);
     }
 
     public SearchView role() {
@@ -143,11 +110,11 @@ public class SearchSupport {
     }
 
     public static SearchView dynrolemembership() {
-        return new SearchView("svdr", JPARoleDAO.DYNMEMB_TABLE);
+        return new SearchView("svdr", RoleRepoExt.DYNMEMB_TABLE);
     }
 
     public static SearchView dynrealmmembership() {
-        return new SearchView("svdrealm", JPADynRealmDAO.DYNMEMB_TABLE);
+        return new SearchView("svdrealm", DynRealmRepoExt.DYNMEMB_TABLE);
     }
 
     public SearchView auxClass() {

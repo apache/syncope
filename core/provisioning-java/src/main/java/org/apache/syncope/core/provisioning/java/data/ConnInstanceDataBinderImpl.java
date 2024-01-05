@@ -103,7 +103,8 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
 
         if (connInstanceTO.getAdminRealm() != null) {
-            connInstance.setAdminRealm(realmDAO.findByFullPath(connInstanceTO.getAdminRealm()));
+            connInstance.setAdminRealm(realmDAO.findByFullPath(connInstanceTO.getAdminRealm()).
+                    orElseThrow(() -> new NotFoundException("Realm " + connInstanceTO.getAdminRealm())));
         }
         if (connInstance.getAdminRealm() == null) {
             sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());
@@ -136,12 +137,12 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
 
         if (connInstanceTO.getAdminRealm() != null) {
-            Realm realm = realmDAO.findByFullPath(connInstanceTO.getAdminRealm());
-            if (realm == null) {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());
-                throw sce;
-            }
+            Realm realm = realmDAO.findByFullPath(connInstanceTO.getAdminRealm()).
+                    orElseThrow(() -> {
+                        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+                        sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());
+                        return sce;
+                    });
             connInstance.setAdminRealm(realm);
         }
 

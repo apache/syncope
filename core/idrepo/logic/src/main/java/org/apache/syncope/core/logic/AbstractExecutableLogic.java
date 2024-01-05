@@ -43,7 +43,7 @@ public abstract class AbstractExecutableLogic<T extends EntityTO> extends Abstra
 
     public abstract ExecTO execute(String key, OffsetDateTime startAt, boolean dryRun);
 
-    public abstract Pair<Integer, List<ExecTO>> listExecutions(
+    public abstract Pair<Long, List<ExecTO>> listExecutions(
             String key,
             OffsetDateTime before,
             OffsetDateTime after,

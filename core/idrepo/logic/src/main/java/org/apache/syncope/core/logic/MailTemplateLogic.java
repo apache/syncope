@@ -65,12 +65,8 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_READ + "')")
     @Transactional(readOnly = true)
     public MailTemplateTO read(final String key) {
-        MailTemplate mailTemplate = mailTemplateDAO.find(key);
-        if (mailTemplate == null) {
-            LOG.error("Could not find mail template '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        mailTemplateDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("MailTemplate " + key));
 
         return getMailTemplateTO(key);
     }
@@ -84,9 +80,10 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_CREATE + "')")
     public MailTemplateTO create(final String key) {
-        if (mailTemplateDAO.find(key) != null) {
+        if (mailTemplateDAO.findById(key).isPresent()) {
             throw new DuplicateException(key);
         }
+
         MailTemplate mailTemplate = entityFactory.newEntity(MailTemplate.class);
         mailTemplate.setKey(key);
         mailTemplateDAO.save(mailTemplate);
@@ -96,12 +93,8 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_READ + "')")
     public String getFormat(final String key, final MailTemplateFormat format) {
-        MailTemplate mailTemplate = mailTemplateDAO.find(key);
-        if (mailTemplate == null) {
-            LOG.error("Could not find mail template '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        MailTemplate mailTemplate = mailTemplateDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("MailTemplate " + key));
 
         String template = format == MailTemplateFormat.HTML
                 ? mailTemplate.getHTMLTemplate()
@@ -117,12 +110,8 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_UPDATE + "')")
     public void setFormat(final String key, final MailTemplateFormat format, final String template) {
-        MailTemplate mailTemplate = mailTemplateDAO.find(key);
-        if (mailTemplate == null) {
-            LOG.error("Could not find mail template '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        MailTemplate mailTemplate = mailTemplateDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("MailTemplate " + key));
 
         if (format == MailTemplateFormat.HTML) {
             mailTemplate.setHTMLTemplate(template);
@@ -135,12 +124,8 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_DELETE + "')")
     public MailTemplateTO delete(final String key) {
-        MailTemplate mailTemplate = mailTemplateDAO.find(key);
-        if (mailTemplate == null) {
-            LOG.error("Could not find mail template '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        MailTemplate mailTemplate = mailTemplateDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("MailTemplate " + key));
 
         List<Notification> notifications = notificationDAO.findByTemplate(mailTemplate);
         if (!notifications.isEmpty()) {
@@ -150,7 +135,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
         }
 
         MailTemplateTO deleted = getMailTemplateTO(key);
-        mailTemplateDAO.delete(key);
+        mailTemplateDAO.deleteById(key);
         return deleted;
     }
 
@@ -162,10 +147,10 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = ((String) args[i]);
-                } else if (args[i] instanceof MailTemplateTO) {
-                    key = ((MailTemplateTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof MailTemplateTO mailTemplateTO) {
+                    key = mailTemplateTO.getKey();
                 }
             }
         }

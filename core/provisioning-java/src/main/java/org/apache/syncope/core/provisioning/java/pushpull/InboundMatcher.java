@@ -22,7 +22,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -148,7 +147,8 @@ public class InboundMatcher {
 
         Stream<Item> mapItems = Stream.concat(
                 provision.get().getMapping().getItems().stream(),
-                virSchemaDAO.find(resource.getKey(), anyType.getKey()).stream().map(VirSchema::asLinkingMappingItem));
+                virSchemaDAO.findByResourceAndAnyType(resource.getKey(), anyType.getKey()).stream().
+                        map(VirSchema::asLinkingMappingItem));
 
         List<ConnectorObject> found = new ArrayList<>();
 
@@ -216,8 +216,9 @@ public class InboundMatcher {
 
     protected List<Implementation> getTransformers(final Item item) {
         return item.getTransformers().stream().
-                map(implementationDAO::find).
-                filter(Objects::nonNull).
+                map(implementationDAO::findById).
+                filter(Optional::isPresent).
+                map(Optional::get).
                 collect(Collectors.toList());
     }
 
@@ -257,29 +258,28 @@ public class InboundMatcher {
 
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {
-                case "key":
-                    Optional.ofNullable(anyUtils.dao().find(finalConnObjectKeyValue)).ifPresent(anys::add);
-                    break;
+                case "key" ->
+                    anyUtils.dao().findById(finalConnObjectKeyValue).ifPresent(anys::add);
 
-                case "username":
+                case "username" -> {
                     if (anyTypeKind == AnyTypeKind.USER && ignoreCaseMatch) {
                         AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("username");
                         cond.setExpression(finalConnObjectKeyValue);
                         anys.addAll(anySearchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.USER));
                     } else {
-                        Optional.ofNullable(userDAO.findByUsername(finalConnObjectKeyValue)).ifPresent(anys::add);
+                        userDAO.findByUsername(finalConnObjectKeyValue).ifPresent(anys::add);
                     }
-                    break;
+                }
 
-                case "name":
+                case "name" -> {
                     if (anyTypeKind == AnyTypeKind.GROUP && ignoreCaseMatch) {
                         AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("name");
                         cond.setExpression(finalConnObjectKeyValue);
                         anys.addAll(anySearchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.GROUP));
                     } else {
-                        Optional.ofNullable(groupDAO.findByName(finalConnObjectKeyValue)).ifPresent(anys::add);
+                        groupDAO.findByName(finalConnObjectKeyValue).ifPresent(anys::add);
                     }
 
                     if (anyTypeKind == AnyTypeKind.ANY_OBJECT && ignoreCaseMatch) {
@@ -290,13 +290,14 @@ public class InboundMatcher {
                     } else {
                         anys.addAll(anyObjectDAO.findByName(finalConnObjectKeyValue));
                     }
-                    break;
+                }
 
-                default:
+                default -> {
+                }
             }
         } else if (intAttrName.getSchemaType() != null) {
             switch (intAttrName.getSchemaType()) {
-                case PLAIN:
+                case PLAIN -> {
                     PlainAttrValue value = intAttrName.getSchema().isUniqueConstraint()
                             ? anyUtils.newPlainAttrUniqueValue()
                             : anyUtils.newPlainAttrValue();
@@ -315,14 +316,14 @@ public class InboundMatcher {
                         anys.addAll(anyUtils.dao().findByPlainAttrValue((PlainSchema) intAttrName.getSchema(),
                                 value, ignoreCaseMatch));
                     }
-                    break;
+                }
 
-                case DERIVED:
+                case DERIVED ->
                     anys.addAll(anyUtils.dao().findByDerAttrValue((DerSchema) intAttrName.getSchema(),
                             finalConnObjectKeyValue, ignoreCaseMatch));
-                    break;
 
-                default:
+                default -> {
+                }
             }
         }
 
@@ -478,31 +479,25 @@ public class InboundMatcher {
 
         List<Realm> result = new ArrayList<>();
 
-        Realm realm;
         switch (connObjectKeyItem.get().getIntAttrName()) {
-            case "key":
-                realm = realmDAO.find(connObjectKey);
-                if (realm != null) {
-                    result.add(realm);
-                }
-                break;
+            case "key" -> {
+                realmDAO.findById(connObjectKey).ifPresent(result::add);
+            }
 
-            case "name":
+            case "name" -> {
                 if (orgUnit.isIgnoreCaseMatch()) {
                     result.addAll(realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, connObjectKey, -1, -1));
                 } else {
                     result.addAll(realmDAO.findByName(connObjectKey).stream().collect(Collectors.toList()));
                 }
-                break;
+            }
 
-            case "fullpath":
-                realm = realmDAO.findByFullPath(connObjectKey);
-                if (realm != null) {
-                    result.add(realm);
-                }
-                break;
+            case "fullpath" -> {
+                realmDAO.findByFullPath(connObjectKey).ifPresent(result::add);
+            }
 
-            default:
+            default -> {
+            }
         }
 
         return result;

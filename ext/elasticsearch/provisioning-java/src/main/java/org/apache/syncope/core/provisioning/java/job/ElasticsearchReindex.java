@@ -160,7 +160,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
             try {
                 indexManager.createRealmIndex(AuthContextUtils.getDomain(), realmSettings(), realmMapping());
 
-                int realms = realmDAO.count();
+                long realms = realmDAO.count();
                 String rindex = ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain());
                 setStatus("Indexing " + realms + " realms under " + rindex + "...");
 
@@ -169,10 +169,11 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
 
                     for (int page = 1; page <= (realms / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                         for (String realm : realmDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                            ingester.add(op -> op.index(idx -> idx.
+                            realmDAO.findById(realm).ifPresent(
+                                    r -> ingester.add(op -> op.index(idx -> idx.
                                     index(rindex).
                                     id(realm).
-                                    document(utils.document(realmDAO.find(realm)))));
+                                    document(utils.document(r)))));
                         }
                     }
                 } catch (Exception e) {
@@ -182,7 +183,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                 indexManager.createAnyIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.USER, userSettings(), userMapping());
 
-                int users = userDAO.count();
+                long users = userDAO.count();
                 String uindex = ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER);
                 setStatus("Indexing " + users + " users under " + uindex + "...");
 
@@ -191,10 +192,11 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
 
                     for (int page = 1; page <= (users / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                         for (String user : userDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                            ingester.add(op -> op.index(idx -> idx.
+                            userDAO.findById(user).ifPresent(
+                                    u -> ingester.add(op -> op.index(idx -> idx.
                                     index(uindex).
                                     id(user).
-                                    document(utils.document(userDAO.find(user)))));
+                                    document(utils.document(u)))));
                         }
                     }
                 } catch (Exception e) {
@@ -204,7 +206,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                 indexManager.createAnyIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.GROUP, groupSettings(), groupMapping());
 
-                int groups = groupDAO.count();
+                long groups = groupDAO.count();
                 String gindex = ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP);
                 setStatus("Indexing " + groups + " groups under " + gindex + "...");
 
@@ -213,10 +215,11 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
 
                     for (int page = 1; page <= (groups / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                         for (String group : groupDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                            ingester.add(op -> op.index(idx -> idx.
+                            groupDAO.findById(group).ifPresent(
+                                    g -> ingester.add(op -> op.index(idx -> idx.
                                     index(gindex).
                                     id(group).
-                                    document(utils.document(groupDAO.find(group)))));
+                                    document(utils.document(g)))));
                         }
                     }
                 } catch (Exception e) {
@@ -226,7 +229,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                 indexManager.createAnyIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT, anyObjectSettings(), anyObjectMapping());
 
-                int anyObjects = anyObjectDAO.count();
+                long anyObjects = anyObjectDAO.count();
                 String aindex = ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT);
                 setStatus("Indexing " + anyObjects + " any objects under " + aindex + "...");
 
@@ -235,10 +238,11 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
 
                     for (int page = 1; page <= (anyObjects / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                         for (String anyObject : anyObjectDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                            ingester.add(op -> op.index(idx -> idx.
+                            anyObjectDAO.findById(anyObject).ifPresent(
+                                    a -> ingester.add(op -> op.index(idx -> idx.
                                     index(aindex).
                                     id(anyObject).
-                                    document(utils.document(anyObjectDAO.find(anyObject)))));
+                                    document(utils.document(a)))));
                         }
                     }
                 } catch (Exception e) {

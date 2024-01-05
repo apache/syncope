@@ -18,22 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
 
 public interface CASSPClientAppDAO extends ClientAppDAO<CASSPClientApp> {
-
-    CASSPClientApp find(String key);
-
-    CASSPClientApp findByClientAppId(Long clientAppId);
-
-    CASSPClientApp findByName(String name);
-
-    List<CASSPClientApp> findAll();
-
-    CASSPClientApp save(CASSPClientApp clientApp);
-
-    void delete(String key);
-
-    void delete(CASSPClientApp clientApp);
 }

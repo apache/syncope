@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -105,7 +106,8 @@ public class DefaultConnectorManager implements ConnectorManager {
             final Optional<Collection<ConnectorCapability>> capabilitiesOverride) {
 
         ConnInstance override = entityFactory.newEntity(ConnInstance.class);
-        override.setAdminRealm(realmDAO.findByFullPath(connInstance.getAdminRealm()));
+        override.setAdminRealm(realmDAO.findByFullPath(connInstance.getAdminRealm()).
+                orElseThrow(() -> new NotFoundException("Realm " + connInstance.getAdminRealm())));
         override.setConnectorName(connInstance.getConnectorName());
         override.setDisplayName(connInstance.getDisplayName());
         override.setBundleName(connInstance.getBundleName());

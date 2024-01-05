@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class ApplicationTest extends AbstractTest {
 
     @Autowired
@@ -41,19 +42,17 @@ public class ApplicationTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Application> applications = applicationDAO.findAll();
+        List<? extends Application> applications = applicationDAO.findAll();
         assertFalse(applications.isEmpty());
         assertEquals(1, applications.size());
     }
 
     @Test
     public void find() {
-        Application mightyApp = applicationDAO.find("mightyApp");
-        assertNotNull(mightyApp);
+        Application mightyApp = applicationDAO.findById("mightyApp").orElseThrow();
         assertEquals(2, mightyApp.getPrivileges().size());
 
-        Privilege getMighty = applicationDAO.findPrivilege("getMighty");
-        assertNotNull(getMighty);
+        Privilege getMighty = applicationDAO.findPrivilege("getMighty").orElseThrow();
         assertEquals(getMighty, mightyApp.getPrivilege("getMighty").get());
 
     }
@@ -90,27 +89,26 @@ public class ApplicationTest extends AbstractTest {
         // 2. update application
         application.setDescription("A description");
 
-        Privilege priv3 = applicationDAO.findPrivilege(privilege3Key);
+        Privilege priv3 = applicationDAO.findPrivilege(privilege3Key).orElseThrow();
         priv3.setApplication(null);
         application.getPrivileges().remove(priv3);
         assertEquals(2, application.getPrivileges().size());
 
         applicationDAO.save(application);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        application = applicationDAO.find(application.getKey());
-        assertNotNull(application);
+        application = applicationDAO.findById(application.getKey()).orElseThrow();
         assertNotNull(application.getDescription());
         assertEquals(2, application.getPrivileges().size());
 
         // 3. delete application
         applicationDAO.delete(application);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        assertNull(applicationDAO.find(application.getKey()));
-        assertNull(applicationDAO.findPrivilege(privilege1Key));
-        assertNull(applicationDAO.findPrivilege(privilege2Key));
+        assertTrue(applicationDAO.findById(application.getKey()).isEmpty());
+        assertTrue(applicationDAO.findPrivilege(privilege1Key).isEmpty());
+        assertTrue(applicationDAO.findPrivilege(privilege2Key).isEmpty());
     }
 }

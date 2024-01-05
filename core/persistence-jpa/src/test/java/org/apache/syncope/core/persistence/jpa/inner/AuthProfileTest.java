@@ -42,7 +42,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class AuthProfileTest extends AbstractTest {
 
     @Autowired
@@ -50,7 +50,7 @@ public class AuthProfileTest extends AbstractTest {
 
     @BeforeEach
     public void beforeEach() {
-        entityManager().createQuery("DELETE FROM " + JPAAuthProfile.class.getSimpleName()).executeUpdate();
+        entityManager.createQuery("DELETE FROM " + JPAAuthProfile.class.getSimpleName()).executeUpdate();
     }
 
     @Test
@@ -59,13 +59,13 @@ public class AuthProfileTest extends AbstractTest {
 
         createAuthProfileWithToken(id, 123456);
 
-        Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
+        Optional<? extends AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
 
         assertFalse(authProfileDAO.findAll(-1, -1).isEmpty());
 
         AuthProfile authProfile = result.get();
-        result = Optional.ofNullable(authProfileDAO.find(authProfile.getKey()));
+        result = authProfileDAO.findById(authProfile.getKey());
         assertTrue(result.isPresent());
 
         authProfile.setOwner("SyncopeCreate-New");
@@ -96,13 +96,13 @@ public class AuthProfileTest extends AbstractTest {
 
         createAuthProfileWithWebAuthnDevice(id, List.of(credential));
 
-        Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
+        Optional<? extends AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
 
         assertFalse(authProfileDAO.findAll(-1, -1).isEmpty());
 
         AuthProfile authProfile = result.get();
-        result = Optional.ofNullable(authProfileDAO.find(authProfile.getKey()));
+        result = authProfileDAO.findById(authProfile.getKey());
         assertTrue(result.isPresent());
 
         authProfile.setOwner("newowner");
@@ -118,13 +118,13 @@ public class AuthProfileTest extends AbstractTest {
 
         createAuthProfileWithAccount(id);
 
-        Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
+        Optional<? extends AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
 
         assertFalse(authProfileDAO.findAll(-1, -1).isEmpty());
 
         AuthProfile authProfile = result.get();
-        result = Optional.ofNullable(authProfileDAO.find(authProfile.getKey()));
+        result = authProfileDAO.findById(authProfile.getKey());
         assertTrue(result.isPresent());
 
         String secret = SecureRandomUtils.generateRandomUUID().toString();
@@ -144,11 +144,11 @@ public class AuthProfileTest extends AbstractTest {
 
         createAuthProfileWithAccount(id);
 
-        Optional<AuthProfile> result = authProfileDAO.findByOwner(id);
+        Optional<? extends AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
 
         AuthProfile authProfile = result.get();
-        result = Optional.ofNullable(authProfileDAO.find(authProfile.getKey()));
+        result = authProfileDAO.findById(authProfile.getKey());
         assertTrue(result.isPresent());
 
         List<ImpersonationAccount> accounts = IntStream.range(1, 10).

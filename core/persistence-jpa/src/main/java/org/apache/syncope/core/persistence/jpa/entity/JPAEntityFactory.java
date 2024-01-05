@@ -104,7 +104,6 @@ import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAttrRepo;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthModule;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthProfile;
@@ -335,8 +334,8 @@ public class JPAEntityFactory implements EntityFactory {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }
 
-        if (result instanceof AbstractGeneratedKeyEntity) {
-            ((AbstractGeneratedKeyEntity) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
+        if (result instanceof AbstractGeneratedKeyEntity abstractGeneratedKeyEntity) {
+            abstractGeneratedKeyEntity.setKey(SecureRandomUtils.generateRandomUUID().toString());
         }
 
         return result;
@@ -364,6 +363,6 @@ public class JPAEntityFactory implements EntityFactory {
 
     @Override
     public Class<? extends AnySearchDAO> anySearchDAOClass() {
-        return JPAAnySearchDAO.class;
+        return null;
     }
 }

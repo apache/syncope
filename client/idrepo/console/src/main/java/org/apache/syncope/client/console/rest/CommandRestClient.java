@@ -28,7 +28,7 @@ public class CommandRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -3582864276979370967L;
 
-    public int count(final String keyword) {
+    public long count(final String keyword) {
         return getService(CommandService.class).
                 search(new CommandQuery.Builder().page(1).size(0).keyword(keyword).build()).
                 getTotalCount();

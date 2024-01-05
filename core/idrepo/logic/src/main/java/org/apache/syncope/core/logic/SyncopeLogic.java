@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -104,7 +103,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             final int page,
             final int size) {
 
-        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+        Realm base = realmDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         AnyCond termCond;
@@ -140,16 +139,13 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
     @PreAuthorize("isAuthenticated()")
     public TypeExtensionTO readTypeExtension(final String groupName) {
-        Group group = groupDAO.findByName(groupName);
-        if (group == null) {
-            throw new NotFoundException("Group " + groupName);
-        }
-        Optional<? extends TypeExtension> typeExt = group.getTypeExtension(anyTypeDAO.findUser());
-        if (typeExt.isEmpty()) {
-            throw new NotFoundException("TypeExtension in " + groupName + " for users");
-        }
+        Group group = groupDAO.findByName(groupName).
+                orElseThrow(() -> new NotFoundException("Group " + groupName));
 
-        return groupDataBinder.getTypeExtensionTO(typeExt.get());
+        TypeExtension typeExt = group.getTypeExtension(anyTypeDAO.findUser()).
+                orElseThrow(() -> new NotFoundException("TypeExtension in " + groupName + " for users"));
+
+        return groupDataBinder.getTypeExtensionTO(typeExt);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.KEYMASTER + "')")

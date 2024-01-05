@@ -34,15 +34,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class WebAuthnRegistrationLogic extends AbstractAuthProfileLogic {
 
-    protected final EntityFactory entityFactory;
-
     public WebAuthnRegistrationLogic(
-            final EntityFactory entityFactory,
+            final AuthProfileDataBinder binder,
             final AuthProfileDAO authProfileDAO,
-            final AuthProfileDataBinder binder) {
+            final EntityFactory entityFactory) {
 
-        super(authProfileDAO, binder);
-        this.entityFactory = entityFactory;
+        super(binder, authProfileDAO, entityFactory);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -86,11 +83,8 @@ public class WebAuthnRegistrationLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void create(final String owner, final WebAuthnAccount account) {
-        AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
-            AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
-            authProfile.setOwner(owner);
-            return authProfile;
-        });
+        AuthProfile profile = authProfile(owner);
+
         profile.setWebAuthnDeviceCredentials(account.getCredentials());
         authProfileDAO.save(profile);
     }

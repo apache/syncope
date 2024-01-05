@@ -21,8 +21,8 @@ package org.apache.syncope.core.persistence.jpa.outer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.ws.rs.core.MediaType;
@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class ReportTest extends AbstractTest {
 
     @Autowired
@@ -51,8 +51,7 @@ public class ReportTest extends AbstractTest {
 
     @Test
     public void find() {
-        Report report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
-        assertNotNull(report);
+        Report report = reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").orElseThrow();
 
         assertNotNull(report.getExecs());
         assertFalse(report.getExecs().isEmpty());
@@ -62,27 +61,25 @@ public class ReportTest extends AbstractTest {
     @Test
     public void saveWithExistingName() {
         assertThrows(EntityExistsException.class, () -> {
-            Report report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
-            assertNotNull(report);
+            Report report = reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").orElseThrow();
 
             String name = report.getName();
 
             report = entityFactory.newEntity(Report.class);
             report.setName(name);
-            report.setJobDelegate(implementationDAO.find("SampleReportJobDelegate"));
+            report.setJobDelegate(implementationDAO.findById("SampleReportJobDelegate").orElseThrow());
             report.setMimeType(MediaType.TEXT_PLAIN);
             report.setFileExt("txt");
             report.setActive(true);
 
             reportDAO.save(report);
-            entityManager().flush();
+            entityManager.flush();
         });
     }
 
     @Test
     public void save() {
-        Report report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
-        assertNotNull(report);
+        Report report = reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").orElseThrow();
         assertEquals(1, report.getExecs().size());
 
         ReportExec reportExec = entityFactory.newEntity(ReportExec.class);
@@ -95,35 +92,34 @@ public class ReportTest extends AbstractTest {
         report.add(reportExec);
         reportDAO.save(report);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
-        assertNotNull(report);
+        report = reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").orElseThrow();
         assertEquals(2, report.getExecs().size());
     }
 
     @Test
     public void deleteReport() {
-        reportDAO.delete("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+        reportDAO.deleteById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
 
-        entityManager().flush();
+        entityManager.flush();
 
-        assertNull(reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b"));
-        assertNull(reportExecDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b"));
+        assertTrue(reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").isEmpty());
+        assertTrue(reportExecDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").isEmpty());
     }
 
     @Test
     public void deleteReportExecution() {
-        ReportExec execution = reportExecDAO.find("c13f39c5-0d35-4bff-ba79-3cd5de940369");
+        ReportExec execution = reportExecDAO.findById("c13f39c5-0d35-4bff-ba79-3cd5de940369").orElseThrow();
         int executionNumber = execution.getReport().getExecs().size();
 
-        reportExecDAO.delete("c13f39c5-0d35-4bff-ba79-3cd5de940369");
+        reportExecDAO.deleteById("c13f39c5-0d35-4bff-ba79-3cd5de940369");
 
-        entityManager().flush();
+        entityManager.flush();
 
-        assertNull(reportExecDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b"));
+        assertTrue(reportExecDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").isEmpty());
 
-        Report report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
+        Report report = reportDAO.findById("0062ea9c-924d-4ecf-9961-4492a8cc6d1b").orElseThrow();
         assertEquals(report.getExecs().size(), executionNumber - 1);
     }
 }

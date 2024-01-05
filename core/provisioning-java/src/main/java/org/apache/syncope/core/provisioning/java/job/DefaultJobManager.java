@@ -340,7 +340,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 LOG.debug("Errors while loading job instances for tasks, aborting");
             } else {
                 // 2. jobs for Reports
-                for (Iterator<Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
+                for (Iterator<? extends Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
                     Report report = it.next();
                     try {
                         register(report, null, securityProperties.getAdminUser());

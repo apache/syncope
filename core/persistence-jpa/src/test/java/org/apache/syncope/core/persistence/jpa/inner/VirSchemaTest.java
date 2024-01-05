@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -36,7 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class VirSchemaTest extends AbstractTest {
 
     @Autowired
@@ -50,19 +49,19 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<VirSchema> list = virSchemaDAO.findAll();
+        List<? extends VirSchema> list = virSchemaDAO.findAll();
         assertEquals(3, list.size());
     }
 
     @Test
     public void search() {
-        List<VirSchema> schemas = virSchemaDAO.findByKeyword("rvirtuald%");
+        List<? extends VirSchema> schemas = virSchemaDAO.findByIdLike("rvirtuald%");
         assertEquals(1, schemas.size());
     }
 
     @Test
     public void findByName() {
-        VirSchema attributeSchema = virSchemaDAO.find("virtualdata");
+        VirSchema attributeSchema = virSchemaDAO.findById("virtualdata").orElseThrow();
         assertNotNull(attributeSchema);
     }
 
@@ -70,14 +69,14 @@ public class VirSchemaTest extends AbstractTest {
     public void save() {
         VirSchema virSchema = entityFactory.newEntity(VirSchema.class);
         virSchema.setKey("virtual");
-        virSchema.setResource(resourceDAO.find("resource-csv"));
+        virSchema.setResource(resourceDAO.findById("resource-csv").orElseThrow());
         virSchema.setAnyType(anyTypeDAO.findUser());
         virSchema.setReadonly(true);
         virSchema.setExtAttrName("EXT_ATTR");
 
         virSchemaDAO.save(virSchema);
 
-        VirSchema actual = virSchemaDAO.find("virtual");
+        VirSchema actual = virSchemaDAO.findById("virtual").orElseThrow();
         assertNotNull(actual);
         assertTrue(actual.isReadonly());
         assertEquals("EXT_ATTR", actual.getExtAttrName());
@@ -85,21 +84,18 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void delete() {
-        VirSchema virtualdata = virSchemaDAO.find("virtualdata");
+        VirSchema virtualdata = virSchemaDAO.findById("virtualdata").orElseThrow();
 
-        virSchemaDAO.delete(virtualdata.getKey());
+        virSchemaDAO.deleteById(virtualdata.getKey());
 
-        VirSchema actual = virSchemaDAO.find("virtualdata");
-        assertNull(actual);
+        assertTrue(virSchemaDAO.findById("virtualdata").isEmpty());
 
         // ------------- //
-        VirSchema rvirtualdata = virSchemaDAO.find("rvirtualdata");
-        assertNotNull(rvirtualdata);
+        VirSchema rvirtualdata = virSchemaDAO.findById("rvirtualdata").orElseThrow();
 
-        virSchemaDAO.delete(rvirtualdata.getKey());
+        virSchemaDAO.deleteById(rvirtualdata.getKey());
 
-        actual = virSchemaDAO.find("rvirtualdata");
-        assertNull(actual);
+        assertTrue(virSchemaDAO.findById("rvirtualdata").isEmpty());
     }
 
     @Test

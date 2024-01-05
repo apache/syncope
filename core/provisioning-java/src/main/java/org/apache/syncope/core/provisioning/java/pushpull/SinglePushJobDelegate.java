@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -72,7 +73,8 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
         profile = new ProvisioningProfile<>(connector, task);
         profile.setExecutor(executor);
         profile.getActions().addAll(getPushActions(pushTaskTO.getActions().stream().
-                map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
+                map(implementationDAO::findById).filter(Optional::isPresent).map(Optional::get).
+                collect(Collectors.toList())));
         profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 
         for (PushActions action : profile.getActions()) {
@@ -93,7 +95,8 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             before(resource, connector, pushTaskTO, executor);
             PushResultHandlerDispatcher dispatcher = new PushResultHandlerDispatcher(profile, this);
 
-            AnyType anyType = anyTypeDAO.find(provision.getAnyType());
+            AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
+                    orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));
 
             dispatcher.addHandlerSupplier(provision.getAnyType(), () -> {
                 SyncopePushResultHandler handler;

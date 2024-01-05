@@ -57,7 +57,7 @@ import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -65,7 +65,6 @@ import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
@@ -80,7 +79,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
-import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
@@ -121,7 +119,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrDAO plainAttrDAO,
             final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
@@ -148,7 +145,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrDAO,
                 plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
@@ -185,7 +181,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             authUserTO.setKey(null);
             authUserTO.setUsername(securityProperties.getAdminUser());
         } else {
-            User authUser = userDAO.findByUsername(authUsername);
+            User authUser = userDAO.findByUsername(authUsername).
+                    orElseThrow(() -> new NotFoundException("User" + authUsername));
             authUserTO = getUserTO(authUser, true);
         }
 
@@ -237,71 +234,67 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             final AnyUtils anyUtils,
             final SyncopeClientException invalidValues) {
 
-        ExternalResource resource = resourceDAO.find(accountTO.getResource());
+        ExternalResource resource = resourceDAO.findById(accountTO.getResource()).orElse(null);
         if (resource == null) {
             LOG.debug("Ignoring invalid resource {}", accountTO.getResource());
-        } else {
-            Optional<? extends LinkedAccount> found =
-                    user.getLinkedAccount(resource.getKey(), accountTO.getConnObjectKeyValue());
-            LinkedAccount account = found.isPresent()
-                    ? found.get()
-                    : new Supplier<LinkedAccount>() {
-
-                        @Override
-                        public LinkedAccount get() {
-                            LinkedAccount acct = entityFactory.newEntity(LinkedAccount.class);
-                            acct.setOwner(user);
-                            user.add(acct);
-
-                            acct.setConnObjectKeyValue(accountTO.getConnObjectKeyValue());
-                            acct.setResource(resource);
-
-                            return acct;
-                        }
-                    }.get();
-
-            account.setUsername(accountTO.getUsername());
-            if (StringUtils.isBlank(accountTO.getPassword())) {
-                account.setEncodedPassword(null, null);
-            } else if (!accountTO.getPassword().equals(account.getPassword())) {
-                if (account.getCipherAlgorithm() == null) {
-                    account.setCipherAlgorithm(CipherAlgorithm.AES);
-                }
-                account.setPassword(accountTO.getPassword());
-            }
-            account.setSuspended(accountTO.isSuspended());
-
-            accountTO.getPlainAttrs().stream().
-                    filter(attrTO -> !attrTO.getValues().isEmpty()).
-                    forEach(attrTO -> {
-                        PlainSchema schema = getPlainSchema(attrTO.getSchema());
-                        if (schema != null) {
-                            LAPlainAttr attr = account.getPlainAttr(schema.getKey()).orElse(null);
-                            if (attr == null) {
-                                attr = entityFactory.newEntity(LAPlainAttr.class);
-                                attr.setSchema(schema);
-                                attr.setOwner(user);
-                                attr.setAccount(account);
-                            }
-                            fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
-
-                            if (attr.getValuesAsStrings().isEmpty()) {
-                                attr.setOwner(null);
-                            } else {
-                                account.add(attr);
-                            }
-                        }
-                    });
-
-            accountTO.getPrivileges().forEach(key -> {
-                Privilege privilege = applicationDAO.findPrivilege(key);
-                if (privilege == null) {
-                    LOG.debug("Invalid privilege {}, ignoring", key);
-                } else {
-                    account.add(privilege);
-                }
-            });
+            return;
         }
+
+        Optional<? extends LinkedAccount> found =
+                user.getLinkedAccount(resource.getKey(), accountTO.getConnObjectKeyValue());
+        LinkedAccount account = found.isPresent()
+                ? found.get()
+                : new Supplier<LinkedAccount>() {
+
+                    @Override
+                    public LinkedAccount get() {
+                        LinkedAccount acct = entityFactory.newEntity(LinkedAccount.class);
+                        acct.setOwner(user);
+                        user.add(acct);
+
+                        acct.setConnObjectKeyValue(accountTO.getConnObjectKeyValue());
+                        acct.setResource(resource);
+
+                        return acct;
+                    }
+                }.get();
+
+        account.setUsername(accountTO.getUsername());
+        if (StringUtils.isBlank(accountTO.getPassword())) {
+            account.setEncodedPassword(null, null);
+        } else if (!accountTO.getPassword().equals(account.getPassword())) {
+            if (account.getCipherAlgorithm() == null) {
+                account.setCipherAlgorithm(CipherAlgorithm.AES);
+            }
+            account.setPassword(accountTO.getPassword());
+        }
+        account.setSuspended(accountTO.isSuspended());
+
+        accountTO.getPlainAttrs().stream().
+                filter(attrTO -> !attrTO.getValues().isEmpty()).
+                forEach(attrTO -> {
+                    PlainSchema schema = getPlainSchema(attrTO.getSchema());
+                    if (schema != null) {
+                        LAPlainAttr attr = account.getPlainAttr(schema.getKey()).orElse(null);
+                        if (attr == null) {
+                            attr = entityFactory.newEntity(LAPlainAttr.class);
+                            attr.setSchema(schema);
+                            attr.setOwner(user);
+                            attr.setAccount(account);
+                        }
+                        fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+
+                        if (attr.getValuesAsStrings().isEmpty()) {
+                            attr.setOwner(null);
+                        } else {
+                            account.add(attr);
+                        }
+                    }
+                });
+
+        accountTO.getPrivileges().forEach(key -> applicationDAO.findPrivilege(key).ifPresentOrElse(
+                account::add,
+                () -> LOG.debug("Invalid privilege {}, ignoring", key)));
     }
 
     @Override
@@ -323,25 +316,17 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         // security question / answer
         if (userCR.getSecurityQuestion() != null) {
-            SecurityQuestion securityQuestion = securityQuestionDAO.find(userCR.getSecurityQuestion());
-            if (securityQuestion != null) {
-                user.setSecurityQuestion(securityQuestion);
-            }
+            securityQuestionDAO.findById(userCR.getSecurityQuestion()).ifPresent(user::setSecurityQuestion);
         }
         setSecurityAnswer(user, userCR.getSecurityAnswer(), scce);
 
         // roles
-        userCR.getRoles().forEach(roleKey -> {
-            Role role = roleDAO.find(roleKey);
-            if (role == null) {
-                LOG.warn("Ignoring unknown role with id {}", roleKey);
-            } else {
-                user.add(role);
-            }
-        });
+        userCR.getRoles().forEach(roleKey -> roleDAO.findById(roleKey).ifPresentOrElse(
+                user::add,
+                () -> LOG.warn("Ignoring unknown role with id {}", roleKey)));
 
         // realm
-        Realm realm = realmDAO.findByFullPath(userCR.getRealm());
+        Realm realm = realmDAO.findByFullPath(userCR.getRealm()).orElse(null);
         if (realm == null) {
             SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             noRealm.getElements().add("Invalid or null realm specified: " + userCR.getRealm());
@@ -352,7 +337,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         // relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
         userCR.getRelationships().forEach(relationshipTO -> {
-            AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getOtherEndKey());
+            AnyObject otherEnd = anyObjectDAO.findById(relationshipTO.getOtherEndKey()).orElse(null);
             if (otherEnd == null) {
                 LOG.debug("Ignoring invalid anyObject " + relationshipTO.getOtherEndKey());
             } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
@@ -366,17 +351,16 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             } else if (user.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
                 relationships.add(Pair.of(otherEnd.getKey(), relationshipTO.getType()));
 
-                RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
-                if (relationshipType == null) {
-                    LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
-                } else {
-                    URelationship relationship = entityFactory.newEntity(URelationship.class);
-                    relationship.setType(relationshipType);
-                    relationship.setRightEnd(otherEnd);
-                    relationship.setLeftEnd(user);
+                relationshipTypeDAO.findById(relationshipTO.getType()).ifPresentOrElse(
+                        relationshipType -> {
+                            URelationship relationship = entityFactory.newEntity(URelationship.class);
+                            relationship.setType(relationshipType);
+                            relationship.setRightEnd(otherEnd);
+                            relationship.setLeftEnd(user);
 
-                    user.add(relationship);
-                }
+                            user.add(relationship);
+                        },
+                        () -> LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType()));
             } else {
                 LOG.error("{} cannot be related to {}", otherEnd, user);
 
@@ -392,8 +376,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         Set<String> groups = new HashSet<>();
         userCR.getMemberships().forEach(membershipTO -> {
             Group group = membershipTO.getGroupKey() == null
-                    ? groupDAO.findByName(membershipTO.getGroupName())
-                    : groupDAO.find(membershipTO.getGroupKey());
+                    ? groupDAO.findByName(membershipTO.getGroupName()).orElse(null)
+                    : groupDAO.findById(membershipTO.getGroupKey()).orElse(null);
             if (group == null) {
                 LOG.debug("Ignoring invalid group {}",
                         membershipTO.getGroupKey() + " / " + membershipTO.getGroupName());
@@ -495,11 +479,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 AuthContextUtils.updateUsername(userUR.getUsername().getValue());
             }
 
-            AccessToken accessToken = accessTokenDAO.findByOwner(oldUsername);
-            if (accessToken != null) {
+            accessTokenDAO.findByOwner(oldUsername).ifPresent(accessToken -> {
                 accessToken.setOwner(userUR.getUsername().getValue());
                 accessTokenDAO.save(accessToken);
-            }
+            });
         }
 
         // security question / answer:
@@ -508,31 +491,29 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 user.setSecurityQuestion(null);
                 user.setSecurityAnswer(null);
             } else {
-                SecurityQuestion securityQuestion =
-                        securityQuestionDAO.find(userUR.getSecurityQuestion().getValue());
-                if (securityQuestion != null) {
-                    user.setSecurityQuestion(securityQuestion);
-                    setSecurityAnswer(user, userUR.getSecurityAnswer().getValue(), scce);
-                }
+                securityQuestionDAO.findById(userUR.getSecurityQuestion().getValue()).
+                        ifPresent(securityQuestion -> {
+                            user.setSecurityQuestion(securityQuestion);
+                            setSecurityAnswer(user, userUR.getSecurityAnswer().getValue(), scce);
+                        });
             }
         }
 
         // roles
         for (StringPatchItem patch : userUR.getRoles()) {
-            Role role = roleDAO.find(patch.getValue());
-            if (role == null) {
-                LOG.warn("Ignoring unknown role with key {}", patch.getValue());
-            } else {
-                switch (patch.getOperation()) {
-                    case ADD_REPLACE:
-                        user.add(role);
-                        break;
+            roleDAO.findById(patch.getValue()).ifPresentOrElse(
+                    role -> {
+                        switch (patch.getOperation()) {
+                            case ADD_REPLACE:
+                                user.add(role);
+                                break;
 
-                    case DELETE:
-                    default:
-                        user.getRoles().remove(role);
-                }
-            }
+                            case DELETE:
+                            default:
+                                user.getRoles().remove(role);
+                        }
+                    },
+                    () -> LOG.warn("Ignoring unknown role with key {}", patch.getValue()));
         }
 
         // attributes and resources
@@ -541,7 +522,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         // relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
         userUR.getRelationships().stream().filter(patch -> patch.getRelationshipTO() != null).forEach(patch -> {
-            RelationshipType relationshipType = relationshipTypeDAO.find(patch.getRelationshipTO().getType());
+            RelationshipType relationshipType = relationshipTypeDAO.findById(patch.getRelationshipTO().getType()).
+                    orElse(null);
             if (relationshipType == null) {
                 LOG.debug("Ignoring invalid relationship type {}", patch.getRelationshipTO().getType());
             } else {
@@ -552,7 +534,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         });
 
                 if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                    AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getOtherEndKey());
+                    AnyObject otherEnd = anyObjectDAO.findById(patch.getRelationshipTO().getOtherEndKey()).orElse(null);
                     if (otherEnd == null) {
                         LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getOtherEndKey());
                     } else if (relationships.contains(
@@ -602,7 +584,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     attr.setOwner(null);
                     attr.setMembership(null);
                     plainAttrValueDAO.deleteAll(attr, anyUtils);
-                    plainAttrDAO.delete(attr);
+                    plainSchemaDAO.delete(attr);
                 });
 
                 if (patch.getOperation() == PatchOperation.DELETE) {
@@ -612,7 +594,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 }
             });
             if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                Group group = groupDAO.find(patch.getGroup());
+                Group group = groupDAO.findById(patch.getGroup()).orElse(null);
                 if (group == null) {
                     LOG.debug("Ignoring invalid group {}", patch.getGroup());
                 } else if (groups.contains(group.getKey())) {
@@ -698,7 +680,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     attr.setOwner(null);
                     attr.setAccount(null);
                     plainAttrValueDAO.deleteAll(attr, anyUtilsFactory.getLinkedAccountInstance());
-                    plainAttrDAO.delete(attr);
+                    plainSchemaDAO.delete(attr);
                 });
             });
             if (patch.getOperation() == PatchOperation.ADD_REPLACE) {

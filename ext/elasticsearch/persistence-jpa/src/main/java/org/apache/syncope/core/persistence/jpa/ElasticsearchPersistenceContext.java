@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import jakarta.persistence.EntityManager;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -32,14 +33,17 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.jpa.dao.ElasticsearchAnySearchDAO;
-import org.apache.syncope.core.persistence.jpa.dao.ElasticsearchAuditConfDAO;
-import org.apache.syncope.core.persistence.jpa.dao.ElasticsearchRealmDAO;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepoExtElasticsearchImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RealmRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RealmRepoExtElasticsearchImpl;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 
 @Configuration(proxyBeanMethods = false)
 public class ElasticsearchPersistenceContext {
@@ -76,20 +80,31 @@ public class ElasticsearchPersistenceContext {
     @ConditionalOnMissingBean(name = "elasticsearchRealmDAO")
     @Bean
     public RealmDAO realmDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final @Lazy RoleDAO roleDAO,
             final ApplicationEventPublisher publisher,
+            final EntityManager domainEntityManager,
             final ElasticsearchProperties props,
             final ElasticsearchClient client) {
 
-        return new ElasticsearchRealmDAO(roleDAO, publisher, client, props.getIndexMaxResultWindow());
+        return jpaRepositoryFactory.getRepository(
+                RealmRepo.class,
+                new RealmRepoExtElasticsearchImpl(
+                        roleDAO,
+                        publisher,
+                        domainEntityManager,
+                        client, props.getIndexMaxResultWindow()));
     }
 
     @ConditionalOnMissingBean(name = "elasticsearchAuditConfDAO")
     @Bean
     public AuditConfDAO auditConfDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final ElasticsearchProperties props,
             final ElasticsearchClient client) {
 
-        return new ElasticsearchAuditConfDAO(client, props.getIndexMaxResultWindow());
+        return jpaRepositoryFactory.getRepository(
+                AuditConfRepo.class,
+                new AuditConfRepoExtElasticsearchImpl(client, props.getIndexMaxResultWindow()));
     }
 }

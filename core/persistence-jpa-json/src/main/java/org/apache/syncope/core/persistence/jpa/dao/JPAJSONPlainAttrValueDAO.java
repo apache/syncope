@@ -21,9 +21,8 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 
-public class JPAJSONPlainAttrValueDAO extends AbstractDAO<PlainAttrValue> implements PlainAttrValueDAO {
+public class JPAJSONPlainAttrValueDAO implements PlainAttrValueDAO {
 
     @Override
     public void deleteAll(final PlainAttr<?> attr, final AnyUtils anyUtils) {

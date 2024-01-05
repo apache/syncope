@@ -62,12 +62,8 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_READ + "')")
     @Transactional(readOnly = true)
     public NotificationTO read(final String key) {
-        Notification notification = notificationDAO.find(key);
-        if (notification == null) {
-            LOG.error("Could not find notification '" + key + '\'');
-
-            throw new NotFoundException(String.valueOf(key));
-        }
+        Notification notification = notificationDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Notification " + key));
 
         return binder.getNotificationTO(notification);
     }
@@ -85,11 +81,8 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_UPDATE + "')")
     public NotificationTO update(final NotificationTO notificationTO) {
-        Notification notification = notificationDAO.find(notificationTO.getKey());
-        if (notification == null) {
-            LOG.error("Could not find notification '" + notificationTO.getKey() + '\'');
-            throw new NotFoundException(String.valueOf(notificationTO.getKey()));
-        }
+        Notification notification = notificationDAO.findById(notificationTO.getKey()).
+                orElseThrow(() -> new NotFoundException("Notification " + notificationTO.getKey()));
 
         binder.update(notification, notificationTO);
         notification = notificationDAO.save(notification);
@@ -99,15 +92,11 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_DELETE + "')")
     public NotificationTO delete(final String key) {
-        Notification notification = notificationDAO.find(key);
-        if (notification == null) {
-            LOG.error("Could not find notification '" + key + '\'');
-
-            throw new NotFoundException(String.valueOf(key));
-        }
+        Notification notification = notificationDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Notification " + key));
 
         NotificationTO deleted = binder.getNotificationTO(notification);
-        notificationDAO.delete(key);
+        notificationDAO.deleteById(key);
         return deleted;
     }
 
@@ -137,17 +126,17 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof NotificationTO) {
-                    key = ((NotificationTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof NotificationTO notificationTO) {
+                    key = notificationTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getNotificationTO(notificationDAO.find(key));
+                return binder.getNotificationTO(notificationDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

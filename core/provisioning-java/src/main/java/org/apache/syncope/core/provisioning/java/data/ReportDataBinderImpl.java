@@ -69,7 +69,7 @@ public class ReportDataBinderImpl extends AbstractExecutableDatabinder implement
         report.setCronExpression(reportTO.getCronExpression());
         report.setActive(reportTO.isActive());
 
-        Implementation jobDelegate = implementationDAO.find(reportTO.getJobDelegate());
+        Implementation jobDelegate = implementationDAO.findById(reportTO.getJobDelegate()).orElse(null);
         if (jobDelegate == null || !IdRepoImplementationType.REPORT_DELEGATE.equals(jobDelegate.getType())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementation);
             sce.getElements().add("Null or invalid JobDelegate, expected " + IdRepoImplementationType.REPORT_DELEGATE);

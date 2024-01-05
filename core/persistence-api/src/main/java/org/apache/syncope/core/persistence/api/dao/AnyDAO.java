@@ -41,8 +41,6 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     A authFind(String key);
 
-    A find(String key);
-
     List<A> findByPlainAttrValue(PlainSchema schema, PlainAttrValue attrValue, boolean ignoreCaseMatch);
 
     Optional<A> findByPlainAttrUniqueValue(
@@ -69,11 +67,6 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
     SearchCond getAllMatchingCond();
 
     /**
-     * @return the total number of any objects of type {@link A}
-     */
-    int count();
-
-    /**
      * Find any objects without any limitation, according to given page and items per page.
      *
      * @param page search result page
@@ -92,12 +85,6 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
     List<String> findAllKeys(int page, int itemsPerPage);
 
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
-
-    A save(A any);
-
-    void delete(String key);
-
-    void delete(A any);
 
     List<String> findDynRealms(String key);
 

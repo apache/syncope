@@ -47,8 +47,6 @@ public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerF
         if (commonEMFConf.getPersistenceUnitPostProcessors() != null) {
             super.setPersistenceUnitPostProcessors(commonEMFConf.getPersistenceUnitPostProcessors());
         }
-
-        commonEMFConf.getDomains().put(this.getPersistenceUnitName(), this.getDataSource());
     }
 
     public void setConnectorManagerRemoteCommitListener(

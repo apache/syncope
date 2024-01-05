@@ -25,7 +25,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
@@ -77,10 +76,10 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_GET + "')")
     @Transactional(readOnly = true)
-    public Attr get(final String schema) {
-        return Optional.ofNullable(waConfigDAO.find(schema)).
+    public Attr get(final String key) {
+        return waConfigDAO.findById(key).
                 map(binder::get).
-                orElseThrow(() -> new NotFoundException("Configuration entry " + schema + " not found"));
+                orElseThrow(() -> new NotFoundException("WAConfigEntry " + key));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_SET + "')")
@@ -90,7 +89,7 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_DELETE + "')")
     public void delete(final String key) {
-        waConfigDAO.delete(key);
+        waConfigDAO.deleteById(key);
     }
 
     protected void registeredServices(final HttpClient client, final String serviceAddress) {

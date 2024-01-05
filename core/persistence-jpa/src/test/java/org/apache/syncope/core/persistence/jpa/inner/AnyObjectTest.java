@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class AnyObjectTest extends AbstractTest {
 
     @Autowired
@@ -48,15 +48,14 @@ public class AnyObjectTest extends AbstractTest {
 
     @Test
     public void find() {
-        AnyObject anyObject = anyObjectDAO.find("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
-        assertNotNull(anyObject);
+        AnyObject anyObject = anyObjectDAO.findById("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElseThrow();
         assertNotNull(anyObject.getType());
         assertFalse(anyObject.getType().getClasses().isEmpty());
     }
 
     @Test
     public void findByName() {
-        AnyObject anyObject = anyObjectDAO.findByName("PRINTER", "HP LJ 1300n");
+        AnyObject anyObject = anyObjectDAO.findByName("PRINTER", "HP LJ 1300n").orElseThrow();
         assertNotNull(anyObject);
         assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", anyObject.getKey());
 
@@ -83,8 +82,8 @@ public class AnyObjectTest extends AbstractTest {
     public void save() {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         anyObject.setName("a name");
-        anyObject.setType(anyTypeDAO.find("PRINTER"));
-        anyObject.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM));
+        anyObject.setType(anyTypeDAO.findById("PRINTER").orElseThrow());
+        anyObject.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
 
         anyObject = anyObjectDAO.save(anyObject);
         assertNotNull(anyObject);
@@ -92,10 +91,10 @@ public class AnyObjectTest extends AbstractTest {
 
     @Test
     public void delete() {
-        AnyObject anyObject = anyObjectDAO.find("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
-        anyObjectDAO.delete(anyObject.getKey());
+        AnyObject anyObject = anyObjectDAO.findById("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElseThrow();
+        anyObjectDAO.deleteById(anyObject.getKey());
 
-        AnyObject actual = anyObjectDAO.find("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
+        AnyObject actual = anyObjectDAO.findById("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElse(null);
         assertNull(actual);
     }
 }

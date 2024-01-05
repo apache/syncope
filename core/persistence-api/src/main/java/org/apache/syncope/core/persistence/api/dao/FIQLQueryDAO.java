@@ -24,15 +24,5 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface FIQLQueryDAO extends DAO<FIQLQuery> {
 
-    FIQLQuery find(String key);
-
     List<FIQLQuery> findByOwner(User user, String target);
-
-    List<FIQLQuery> findAll();
-
-    FIQLQuery save(FIQLQuery fiqlQuery);
-
-    void delete(FIQLQuery fiqlQuery);
-
-    void delete(String key);
 }

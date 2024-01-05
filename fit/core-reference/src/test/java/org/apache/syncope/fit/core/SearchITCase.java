@@ -616,7 +616,7 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void changePwdDate() {
-        int users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        long users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql("status!~suspended;changePwdDate==$null").build()).
                 getTotalCount();
         assertTrue(users > 0);
@@ -624,17 +624,17 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE768() {
-        int usersWithNullable = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        long usersWithNullable = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").nullValue().query()).build()).
                 getTotalCount();
         assertTrue(usersWithNullable > 0);
 
-        int nonOrdered = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        long nonOrdered = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query()).build()).
                 getTotalCount();
         assertTrue(nonOrdered > 0);
 
-        int orderedByNullable = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        long orderedByNullable = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query()).
                 orderBy(SyncopeClient.getOrderByClauseBuilder().asc("ctype").build()).build()).
                 getTotalCount();
@@ -951,7 +951,7 @@ public class SearchITCase extends AbstractITCase {
         PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("verdi@syncope.org").query()).
                 build());
-        int before = users.getTotalCount();
+        long before = users.getTotalCount();
         assertTrue(before > 0);
         assertFalse(users.getResult().isEmpty());
         assertTrue(users.getResult().stream().

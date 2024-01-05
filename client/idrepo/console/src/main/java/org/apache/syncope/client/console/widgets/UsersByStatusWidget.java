@@ -30,11 +30,11 @@ public class UsersByStatusWidget extends BaseWidget {
 
     private static final String[] COLORS = { "green", "orange", "aqua", "red", "gray" };
 
-    private Map<String, Integer> usersByStatus;
+    private Map<String, Long> usersByStatus;
 
     private final ChartJSPanel chart;
 
-    public UsersByStatusWidget(final String id, final Map<String, Integer> usersByStatus) {
+    public UsersByStatusWidget(final String id, final Map<String, Long> usersByStatus) {
         super(id);
         this.usersByStatus = usersByStatus;
         setOutputMarkupId(true);
@@ -43,7 +43,7 @@ public class UsersByStatusWidget extends BaseWidget {
         add(chart);
     }
 
-    private static Doughnut build(final Map<String, Integer> usersByStatus) {
+    private static Doughnut build(final Map<String, Long> usersByStatus) {
         Doughnut doughnut = new Doughnut();
         doughnut.getOptions().setResponsive(true);
         doughnut.getOptions().setMaintainAspectRatio(true);
@@ -55,7 +55,7 @@ public class UsersByStatusWidget extends BaseWidget {
         data.getDatasets().add(dataset);
 
         int i = 0;
-        for (Map.Entry<String, Integer> entry : usersByStatus.entrySet()) {
+        for (Map.Entry<String, Long> entry : usersByStatus.entrySet()) {
             dataset.getData().add(entry.getValue());
             dataset.getBackgroundColor().add(COLORS[i % 5]);
             data.getLabels().add(entry.getKey());
@@ -66,7 +66,7 @@ public class UsersByStatusWidget extends BaseWidget {
         return doughnut;
     }
 
-    public boolean refresh(final Map<String, Integer> usersByStatus) {
+    public boolean refresh(final Map<String, Long> usersByStatus) {
         if (!this.usersByStatus.equals(usersByStatus)) {
             this.usersByStatus = usersByStatus;
             chart.setDefaultModelObject(build(usersByStatus));

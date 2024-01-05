@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -106,7 +105,7 @@ public class SAML2SP4UIUserManager {
 
     @Transactional(readOnly = true)
     public List<String> findMatchingUser(final String connObjectKeyValue, final String idpKey) {
-        SAML2SP4UIIdP idp = idpDAO.find(idpKey);
+        SAML2SP4UIIdP idp = idpDAO.findById(idpKey).orElse(null);
         if (idp == null) {
             LOG.warn("Invalid IdP: {}", idpKey);
             return List.of();
@@ -141,13 +140,14 @@ public class SAML2SP4UIUserManager {
 
     protected List<Implementation> getTransformers(final Item item) {
         return item.getTransformers().stream().
-                map(implementationDAO::find).
-                filter(Objects::nonNull).
+                map(implementationDAO::findById).
+                filter(Optional::isPresent).
+                map(Optional::get).
                 collect(Collectors.toList());
     }
 
     public void fill(final String idpKey, final SAML2LoginResponse loginResponse, final UserTO userTO) {
-        SAML2SP4UIIdP idp = idpDAO.find(idpKey);
+        SAML2SP4UIIdP idp = idpDAO.findById(idpKey).orElse(null);
         if (idp == null) {
             LOG.warn("Invalid IdP: {}", idpKey);
             return;
@@ -178,13 +178,13 @@ public class SAML2SP4UIUserManager {
 
             if (intAttrName != null && intAttrName.getField() != null) {
                 switch (intAttrName.getField()) {
-                    case "username":
+                    case "username" -> {
                         if (!values.isEmpty()) {
                             userTO.setUsername(values.get(0));
                         }
-                        break;
+                    }
 
-                    default:
+                    default ->
                         LOG.warn("Unsupported: {}", intAttrName.getField());
                 }
             } else if (intAttrName != null && intAttrName.getSchemaType() != null) {

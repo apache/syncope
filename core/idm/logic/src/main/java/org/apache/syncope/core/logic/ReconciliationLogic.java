@@ -170,15 +170,12 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     protected Triple<AnyType, ExternalResource, Provision> getProvision(
             final String anyTypeKey, final String resourceKey) {
 
-        AnyType anyType = anyTypeDAO.find(anyTypeKey);
-        if (anyType == null) {
-            throw new NotFoundException("AnyType '" + anyTypeKey + "'");
-        }
+        AnyType anyType = anyTypeDAO.findById(anyTypeKey).
+                orElseThrow(() -> new NotFoundException("AnyType " + anyTypeKey));
 
-        ExternalResource resource = resourceDAO.find(resourceKey);
-        if (resource == null) {
-            throw new NotFoundException("Resource '" + resourceKey + "'");
-        }
+        ExternalResource resource = resourceDAO.findById(resourceKey).
+                orElseThrow(() -> new NotFoundException("Resource '" + resourceKey));
+
         Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                 orElseThrow(() -> new NotFoundException(
                 "Provision for " + anyType + " on Resource '" + resourceKey + "'"));
@@ -295,7 +292,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         Stream<Item> mapItems = Stream.concat(
                 provision.getMapping().getItems().stream(),
-                virSchemaDAO.find(resource.getKey(), anyType.getKey()).stream().map(VirSchema::asLinkingMappingItem));
+                virSchemaDAO.findByResourceAndAnyType(resource.getKey(), anyType.getKey()).stream().
+                        map(VirSchema::asLinkingMappingItem));
         OperationOptions options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new));
 
         SyncDeltaBuilder syncDeltaBuilder = new SyncDeltaBuilder().
@@ -588,10 +586,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final CSVPushSpec spec,
             final OutputStream os) {
 
-        AnyType anyType = anyTypeDAO.find(spec.getAnyTypeKey());
-        if (anyType == null) {
-            throw new NotFoundException("AnyType '" + spec.getAnyTypeKey() + "'");
-        }
+        AnyType anyType = anyTypeDAO.findById(spec.getAnyTypeKey()).
+                orElseThrow(() -> new NotFoundException("AnyType " + spec.getAnyTypeKey()));
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
 
@@ -610,7 +606,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 entitlement = IdRepoEntitlement.USER_SEARCH;
         }
 
-        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+        Realm base = realmDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> adminRealms = RealmUtils.getEffective(AuthContextUtils.getAuthorizations().get(entitlement), realm);
@@ -641,21 +637,21 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             }
         });
         spec.getPlainAttrs().forEach(item -> {
-            if (plainSchemaDAO.find(item) == null) {
+            if (plainSchemaDAO.findById(item) == null) {
                 LOG.warn("Ignoring invalid plain schema {}", item);
             } else {
                 columns.add(item);
             }
         });
         spec.getDerAttrs().forEach(item -> {
-            if (derSchemaDAO.find(item) == null) {
+            if (derSchemaDAO.findById(item) == null) {
                 LOG.warn("Ignoring invalid derived schema {}", item);
             } else {
                 columns.add(item);
             }
         });
         spec.getVirAttrs().forEach(item -> {
-            if (virSchemaDAO.find(item) == null) {
+            if (virSchemaDAO.findById(item) == null) {
                 LOG.warn("Ignoring invalid virtual schema {}", item);
             } else {
                 columns.add(item);
@@ -696,10 +692,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     @Transactional(noRollbackFor = SyncopeClientException.class)
     public List<ProvisioningReport> pull(final CSVPullSpec spec, final InputStream csv) {
-        AnyType anyType = anyTypeDAO.find(spec.getAnyTypeKey());
-        if (anyType == null) {
-            throw new NotFoundException("AnyType '" + spec.getAnyTypeKey() + "'");
-        }
+        AnyType anyType = anyTypeDAO.findById(spec.getAnyTypeKey()).
+                orElseThrow(() -> new NotFoundException("AnyType " + spec.getAnyTypeKey()));
 
         if (realmDAO.findByFullPath(spec.getDestinationRealm()) == null) {
             throw new NotFoundException("Realm " + spec.getDestinationRealm());

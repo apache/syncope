@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -114,13 +115,15 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                 map(Provision::getMapping).
                 filter(mapping -> StringUtils.isNotBlank(mapping.getConnObjectLink())).ifPresentOrElse(mapping -> {
 
-            User user = userDAO.find(taskInfo.getEntityKey());
+            User user = userDAO.findById(taskInfo.getEntityKey()).
+                    orElseThrow(() -> new NotFoundException("User " + taskInfo.getEntityKey()));
             Set<String> groups = new HashSet<>();
 
             // for each user group assigned to the resource of this task, compute and add the group's 
             // connector object link
             userDAO.findAllGroupKeys(user).stream().
-                    map(groupDAO::find).
+                    map(groupDAO::findById).
+                    filter(Optional::isPresent).map(Optional::get).
                     filter(group -> group.getResources().contains(taskInfo.getResource())).
                     forEach(group -> {
                         String groupConnObjectLink = evaluateGroupConnObjectLink(
@@ -173,7 +176,8 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                 for (MembershipUR memb : ((UserUR) taskInfo.getUpdateRequest()).getMemberships()) {
                     String connObjectLink = evaluateGroupConnObjectLink(
                             mapping.getConnObjectLink(),
-                            groupDAO.find(memb.getGroup()));
+                            groupDAO.findById(memb.getGroup()).
+                                    orElseThrow(() -> new NotFoundException("Group " + memb.getGroup())));
                     if (memb.getOperation() == PatchOperation.ADD_REPLACE) {
                         groupsToAdd.add(connObjectLink);
                     } else {

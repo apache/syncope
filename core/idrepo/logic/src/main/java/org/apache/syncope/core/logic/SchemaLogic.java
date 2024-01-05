@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -74,27 +75,27 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
         this.binder = binder;
     }
 
-    protected boolean doesSchemaExist(final SchemaType schemaType, final String name) {
-        boolean found;
+    @SuppressWarnings("unchecked")
+    protected <S extends Schema> Optional<S> findById(final SchemaType schemaType, final String name) {
+        Optional<S> result = Optional.empty();
 
         switch (schemaType) {
             case VIRTUAL:
-                found = virSchemaDAO.find(name) != null;
+                result = (Optional<S>) virSchemaDAO.findById(name);
                 break;
 
             case DERIVED:
-                found = derSchemaDAO.find(name) != null;
+                result = (Optional<S>) derSchemaDAO.findById(name);
                 break;
 
             case PLAIN:
-                found = plainSchemaDAO.find(name) != null;
+                result = (Optional<S>) plainSchemaDAO.findById(name);
                 break;
 
             default:
-                found = false;
         }
 
-        return found;
+        return result;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.SCHEMA_CREATE + "')")
@@ -106,7 +107,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             throw sce;
         }
 
-        if (doesSchemaExist(schemaType, schemaTO.getKey())) {
+        if (findById(schemaType, schemaTO.getKey()).isPresent()) {
             throw new DuplicateException(schemaType + "/" + schemaTO.getKey());
         }
 
@@ -129,22 +130,21 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.SCHEMA_DELETE + "')")
     public void delete(final SchemaType schemaType, final String schemaKey) {
-        if (!doesSchemaExist(schemaType, schemaKey)) {
-            throw new NotFoundException(schemaType + "/" + schemaKey);
-        }
+        findById(schemaType, schemaKey).
+                orElseThrow(() -> new NotFoundException(schemaType + ": " + schemaKey));
 
         switch (schemaType) {
             case VIRTUAL:
-                virSchemaDAO.delete(schemaKey);
+                virSchemaDAO.deleteById(schemaKey);
                 break;
 
             case DERIVED:
-                derSchemaDAO.delete(schemaKey);
+                derSchemaDAO.deleteById(schemaKey);
                 break;
 
             case PLAIN:
             default:
-                plainSchemaDAO.delete(schemaKey);
+                plainSchemaDAO.deleteById(schemaKey);
         }
     }
 
@@ -154,48 +154,46 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
     public <T extends SchemaTO> List<T> search(
             final SchemaType schemaType, final List<String> anyTypeClasses, final String keyword) {
 
-        List<AnyTypeClass> classes = new ArrayList<>(Optional.ofNullable(anyTypeClasses).map(List::size).orElse(0));
-        if (anyTypeClasses != null) {
-            anyTypeClasses.remove(AnyTypeKind.USER.name());
-            anyTypeClasses.remove(AnyTypeKind.GROUP.name());
-            anyTypeClasses.forEach(anyTypeClass -> {
-                AnyTypeClass clazz = anyTypeClassDAO.find(anyTypeClass);
-                if (clazz == null) {
-                    LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), anyTypeClass);
-                } else {
-                    classes.add(clazz);
-                }
-            });
-        }
+        List<AnyTypeClass> classes = new ArrayList<>(anyTypeClasses.size());
+        anyTypeClasses.remove(AnyTypeKind.USER.name());
+        anyTypeClasses.remove(AnyTypeKind.GROUP.name());
+        anyTypeClasses.forEach(anyTypeClass -> anyTypeClassDAO.findById(anyTypeClass).
+                ifPresentOrElse(
+                        classes::add,
+                        () -> LOG.warn("Ignoring invalid {}: {}",
+                                AnyTypeClass.class.getSimpleName(), anyTypeClass)));
 
         List<T> result;
         switch (schemaType) {
             case VIRTUAL:
-                result = (classes.isEmpty()
-                        ? Optional.ofNullable(keyword).
-                                map(k -> virSchemaDAO.findByKeyword(k)).
-                                orElseGet(() -> virSchemaDAO.findAll())
-                        : virSchemaDAO.findByAnyTypeClasses(classes)).stream().
-                        map(schema -> (T) binder.getVirSchemaTO(schema.getKey())).collect(Collectors.toList());
+                List<? extends VirSchema> virSchemas = classes.isEmpty()
+                        ? keyword == null
+                                ? virSchemaDAO.findAll()
+                                : virSchemaDAO.findByIdLike(keyword)
+                        : virSchemaDAO.findByAnyTypeClassIn(classes);
+                result = virSchemas.stream().map(schema -> (T) binder.getVirSchemaTO(schema.getKey())).
+                        collect(Collectors.toList());
                 break;
 
             case DERIVED:
-                result = (classes.isEmpty()
-                        ? Optional.ofNullable(keyword).
-                                map(k -> derSchemaDAO.findByKeyword(k)).
-                                orElseGet(() -> derSchemaDAO.findAll())
-                        : derSchemaDAO.findByAnyTypeClasses(classes)).stream().
-                        map(schema -> (T) binder.getDerSchemaTO(schema.getKey())).collect(Collectors.toList());
+                List<? extends DerSchema> derSchemas = classes.isEmpty()
+                        ? keyword == null
+                                ? derSchemaDAO.findAll()
+                                : derSchemaDAO.findByIdLike(keyword)
+                        : derSchemaDAO.findByAnyTypeClassIn(classes);
+                result = derSchemas.stream().map(schema -> (T) binder.getDerSchemaTO(schema.getKey())).
+                        collect(Collectors.toList());
                 break;
 
             case PLAIN:
             default:
-                result = (classes.isEmpty()
-                        ? Optional.ofNullable(keyword).
-                                map(k -> plainSchemaDAO.findByKeyword(k)).
-                                orElseGet(() -> plainSchemaDAO.findAll())
-                        : plainSchemaDAO.findByAnyTypeClasses(classes)).stream().
-                        map(schema -> (T) binder.getPlainSchemaTO(schema.getKey())).collect(Collectors.toList());
+                List<? extends PlainSchema> plainSchemas = classes.isEmpty()
+                        ? keyword == null
+                                ? plainSchemaDAO.findAll()
+                                : plainSchemaDAO.findByIdLike(keyword)
+                        : plainSchemaDAO.findByAnyTypeClassIn(classes);
+                result = plainSchemas.stream().map(schema -> (T) binder.getPlainSchemaTO(schema.getKey())).
+                        collect(Collectors.toList());
         }
 
         return result;
@@ -224,31 +222,21 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.SCHEMA_UPDATE + "')")
     public <T extends SchemaTO> void update(final SchemaType schemaType, final T schemaTO) {
-        if (!doesSchemaExist(schemaType, schemaTO.getKey())) {
-            throw new NotFoundException(schemaType + "/" + schemaTO.getKey());
-        }
+        Schema schema = findById(schemaType, schemaTO.getKey()).
+                orElseThrow(() -> new NotFoundException(schemaType + ": " + schemaTO.getKey()));
 
         switch (schemaType) {
-            case VIRTUAL:
-                VirSchema virSchema = Optional.ofNullable(virSchemaDAO.find(schemaTO.getKey())).
-                        orElseThrow(() -> new NotFoundException("Virtual Schema '" + schemaTO.getKey() + '\''));
+            case VIRTUAL ->
+                binder.update((VirSchemaTO) schemaTO, (VirSchema) schema);
 
-                binder.update((VirSchemaTO) schemaTO, virSchema);
-                break;
+            case DERIVED ->
+                binder.update((DerSchemaTO) schemaTO, (DerSchema) schema);
 
-            case DERIVED:
-                DerSchema derSchema = Optional.ofNullable(derSchemaDAO.find(schemaTO.getKey())).
-                        orElseThrow(() -> new NotFoundException("Derived Schema '" + schemaTO.getKey() + '\''));
+            case PLAIN ->
+                binder.update((PlainSchemaTO) schemaTO, (PlainSchema) schema);
 
-                binder.update((DerSchemaTO) schemaTO, derSchema);
-                break;
-
-            case PLAIN:
-            default:
-                PlainSchema plainSchema = Optional.ofNullable(plainSchemaDAO.find(schemaTO.getKey())).
-                        orElseThrow(() -> new NotFoundException("Plain Schema '" + schemaTO.getKey() + '\''));
-
-                binder.update((PlainSchemaTO) schemaTO, plainSchema);
+            default -> {
+            }
         }
     }
 
@@ -259,10 +247,10 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
         String key = null;
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof SchemaTO) {
-                    key = ((SchemaTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof SchemaTO schemaTO) {
+                    key = schemaTO.getKey();
                 }
             }
         }
@@ -271,12 +259,12 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
             try {
                 SchemaTO result = null;
 
-                PlainSchema plainSchema = plainSchemaDAO.find(key);
-                if (plainSchema == null) {
-                    DerSchema derSchema = derSchemaDAO.find(key);
-                    if (derSchema == null) {
-                        VirSchema virSchema = virSchemaDAO.find(key);
-                        if (virSchema != null) {
+                Optional<? extends Schema> schema = plainSchemaDAO.findById(key);
+                if (schema.isEmpty()) {
+                    schema = derSchemaDAO.findById(key);
+                    if (schema.isEmpty()) {
+                        schema = virSchemaDAO.findById(key);
+                        if (schema.isPresent()) {
                             result = binder.getVirSchemaTO(key);
                         }
                     } else {

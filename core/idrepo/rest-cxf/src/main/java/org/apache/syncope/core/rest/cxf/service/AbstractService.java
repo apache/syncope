@@ -209,7 +209,7 @@ public abstract class AbstractService implements JAXRSService {
      * @return paged result
      */
     protected <T extends BaseBean> PagedResult<T> buildPagedResult(
-            final List<T> list, final int page, final int size, final int totalCount) {
+            final List<T> list, final int page, final int size, final long totalCount) {
 
         PagedResult<T> result = new PagedResult<>();
         result.getResult().addAll(list);

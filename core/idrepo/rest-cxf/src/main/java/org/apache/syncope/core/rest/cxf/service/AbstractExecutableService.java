@@ -41,7 +41,7 @@ public abstract class AbstractExecutableService extends AbstractService implemen
 
     @Override
     public PagedResult<ExecTO> listExecutions(final ExecQuery query) {
-        Pair<Integer, List<ExecTO>> result = getExecutableLogic().listExecutions(
+        Pair<Long, List<ExecTO>> result = getExecutableLogic().listExecutions(
                 query.getKey(),
                 query.getBefore(),
                 query.getAfter(),

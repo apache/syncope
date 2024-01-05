@@ -115,7 +115,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
             throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
         }
 
-        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+        Realm base = realmDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> authRealms = RealmUtils.getEffective(
@@ -215,7 +215,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
                 before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         AnyObjectTO deletedTO;
-        if (anyObjectDAO.find(before.getLeft().getKey()) == null) {
+        if (anyObjectDAO.findById(before.getLeft().getKey()).isEmpty()) {
             deletedTO = new AnyObjectTO();
             deletedTO.setKey(before.getLeft().getKey());
         } else {
@@ -341,12 +341,12 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof AnyObjectTO) {
-                    key = ((AnyObjectTO) args[i]).getKey();
-                } else if (args[i] instanceof AnyObjectUR) {
-                    key = ((AnyObjectUR) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof AnyObjectTO anyObjectTO) {
+                    key = anyObjectTO.getKey();
+                } else if (args[i] instanceof AnyObjectUR anyObjectUR) {
+                    key = anyObjectUR.getKey();
                 }
             }
         }

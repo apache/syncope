@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
@@ -41,7 +40,6 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
@@ -54,7 +52,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class TaskTest extends AbstractTest {
 
     @Autowired
@@ -70,7 +68,7 @@ public class TaskTest extends AbstractTest {
     public void findByName() {
         Optional<SchedTask> task = taskDAO.findByName(TaskType.SCHEDULED, "SampleJob Task");
         assertTrue(task.isPresent());
-        assertEquals(taskDAO.find(TaskType.SCHEDULED, "e95555d2-1b09-42c8-b25b-f4c4ec597979"), task.get());
+        assertEquals(taskDAO.findById(TaskType.SCHEDULED, "e95555d2-1b09-42c8-b25b-f4c4ec597979"), task);
     }
 
     @Test
@@ -130,11 +128,7 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void savePropagationTask() {
-        ExternalResource resource = resourceDAO.find("ws-target-resource-1");
-        assertNotNull(resource);
-
-        User user = userDAO.find("74cd8ece-715a-44a4-a736-e17b46c4e7e6");
-        assertNotNull(user);
+        ExternalResource resource = resourceDAO.findById("ws-target-resource-1").orElseThrow();
 
         PropagationTask task = entityFactory.newEntity(PropagationTask.class);
         task.setResource(resource);
@@ -151,24 +145,24 @@ public class TaskTest extends AbstractTest {
         task = taskDAO.save(task);
         assertNotNull(task);
 
-        PropagationTask actual = taskDAO.find(TaskType.PROPAGATION, task.getKey());
+        PropagationTask actual = (PropagationTask) taskDAO.findById(TaskType.PROPAGATION, task.getKey()).orElseThrow();
         assertEquals(task, actual);
     }
 
     @Test
     public void delete() {
-        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = (PropagationTask) taskDAO.findById(
+                TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
         ExternalResource resource = task.getResource();
         assertNotNull(resource);
 
         taskDAO.delete(task);
-        task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
-        assertNull(task);
 
-        resource = resourceDAO.find(resource.getKey());
-        assertNotNull(resource);
+        assertTrue(taskDAO.findById(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").isEmpty());
+
+        resource = resourceDAO.findById(resource.getKey()).orElseThrow();
         assertFalse(taskDAO.<PropagationTask>findAll(
                 TaskType.PROPAGATION, resource, null, null, null, -1, -1, List.of()).
                 contains(task));

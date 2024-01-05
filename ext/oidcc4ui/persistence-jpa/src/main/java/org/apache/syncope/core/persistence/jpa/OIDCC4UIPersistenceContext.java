@@ -20,11 +20,12 @@ package org.apache.syncope.core.persistence.jpa;
 
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIEntityFactory;
-import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCC4UIProviderDAO;
+import org.apache.syncope.core.persistence.jpa.dao.repo.OIDCC4UIProviderRepo;
 import org.apache.syncope.core.persistence.jpa.entity.JPAOIDCC4UIEntityFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 
 @Configuration(proxyBeanMethods = false)
 public class OIDCC4UIPersistenceContext {
@@ -37,7 +38,7 @@ public class OIDCC4UIPersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public OIDCC4UIProviderDAO oidcc4UIProviderDAO() {
-        return new JPAOIDCC4UIProviderDAO();
+    public OIDCC4UIProviderDAO oidcc4UIProviderDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(OIDCC4UIProviderRepo.class);
     }
 }

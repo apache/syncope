@@ -24,15 +24,5 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 
 public interface ReportDAO extends DAO<Report> {
 
-    Report find(String key);
-
-    List<Report> findByDelegate(Implementation delegate);
-
-    List<Report> findAll();
-
-    Report save(Report report);
-
-    void delete(String key);
-
-    void delete(Report report);
+    List<? extends Report> findByJobDelegate(Implementation delegate);
 }

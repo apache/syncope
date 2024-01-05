@@ -105,42 +105,42 @@ public class ContentLoaderHandler extends DefaultHandler {
                 case Types.TINYINT:
                 case Types.SMALLINT:
                     try {
-                    parameters[i] = Integer.valueOf(value);
-                } catch (NumberFormatException e) {
-                    LOG.error("Unparsable Integer '{}'", value);
-                    parameters[i] = value;
-                }
-                break;
+                        parameters[i] = Integer.valueOf(value);
+                    } catch (NumberFormatException e) {
+                        LOG.error("Unparsable Integer '{}'", value);
+                        parameters[i] = value;
+                    }
+                    break;
 
                 case Types.NUMERIC:
                 case Types.DECIMAL:
                 case Types.BIGINT:
                     try {
-                    parameters[i] = Long.valueOf(value);
-                } catch (NumberFormatException e) {
-                    LOG.error("Unparsable Long '{}'", value);
-                    parameters[i] = value;
-                }
-                break;
+                        parameters[i] = Long.valueOf(value);
+                    } catch (NumberFormatException e) {
+                        LOG.error("Unparsable Long '{}'", value);
+                        parameters[i] = value;
+                    }
+                    break;
 
                 case Types.DOUBLE:
                     try {
-                    parameters[i] = Double.valueOf(value);
-                } catch (NumberFormatException e) {
-                    LOG.error("Unparsable Double '{}'", value);
-                    parameters[i] = value;
-                }
-                break;
+                        parameters[i] = Double.valueOf(value);
+                    } catch (NumberFormatException e) {
+                        LOG.error("Unparsable Double '{}'", value);
+                        parameters[i] = value;
+                    }
+                    break;
 
                 case Types.REAL:
                 case Types.FLOAT:
                     try {
-                    parameters[i] = Float.valueOf(value);
-                } catch (NumberFormatException e) {
-                    LOG.error("Unparsable Float '{}'", value);
-                    parameters[i] = value;
-                }
-                break;
+                        parameters[i] = Float.valueOf(value);
+                    } catch (NumberFormatException e) {
+                        LOG.error("Unparsable Float '{}'", value);
+                        parameters[i] = value;
+                    }
+                    break;
 
                 case Types.DATE:
                 case Types.TIME:
@@ -148,12 +148,12 @@ public class ContentLoaderHandler extends DefaultHandler {
                 case Types.TIMESTAMP_WITH_TIMEZONE:
                 case -101:
                     try {
-                    parameters[i] = FormatUtils.parseDate(value);
-                } catch (DateTimeParseException e) {
-                    LOG.error("Unparsable Date '{}'", value);
-                    parameters[i] = value;
-                }
-                break;
+                        parameters[i] = FormatUtils.parseDate(value);
+                    } catch (DateTimeParseException e) {
+                        LOG.error("Unparsable Date '{}'", value);
+                        parameters[i] = value;
+                    }
+                    break;
 
                 case Types.BIT:
                 case Types.BOOLEAN:
@@ -164,22 +164,22 @@ public class ContentLoaderHandler extends DefaultHandler {
                 case Types.VARBINARY:
                 case Types.LONGVARBINARY:
                     try {
-                    parameters[i] = DatatypeConverter.parseHexBinary(value);
-                } catch (IllegalArgumentException e) {
-                    parameters[i] = value;
-                }
-                break;
+                        parameters[i] = DatatypeConverter.parseHexBinary(value);
+                    } catch (IllegalArgumentException e) {
+                        parameters[i] = value;
+                    }
+                    break;
 
                 case Types.BLOB:
                     try {
-                    parameters[i] = DatatypeConverter.parseHexBinary(value);
-                } catch (IllegalArgumentException e) {
-                    LOG.warn("Error decoding hex string to specify a blob parameter", e);
-                    parameters[i] = value;
-                } catch (Exception e) {
-                    LOG.warn("Error creating a new blob parameter", e);
-                }
-                break;
+                        parameters[i] = DatatypeConverter.parseHexBinary(value);
+                    } catch (IllegalArgumentException e) {
+                        LOG.warn("Error decoding hex string to specify a blob parameter", e);
+                        parameters[i] = value;
+                    } catch (Exception e) {
+                        LOG.warn("Error creating a new blob parameter", e);
+                    }
+                    break;
 
                 default:
                     parameters[i] = value;

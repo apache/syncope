@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.EntityManager;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -29,8 +30,8 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public class OJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
 
-    public OJPAJSONAnyDAO(final PlainSchemaDAO plainSchemaDAO) {
-        super(plainSchemaDAO);
+    public OJPAJSONAnyDAO(final PlainSchemaDAO plainSchemaDAO, final EntityManager entityManager) {
+        super(plainSchemaDAO, entityManager);
     }
 
     @Override

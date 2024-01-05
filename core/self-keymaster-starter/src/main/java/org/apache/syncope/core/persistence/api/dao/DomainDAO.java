@@ -18,16 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.DomainEntity;
 
 public interface DomainDAO extends DAO<DomainEntity> {
-
-    List<DomainEntity> findAll();
-
-    DomainEntity find(String key);
-
-    DomainEntity save(DomainEntity domain);
-
-    void delete(String key);
 }

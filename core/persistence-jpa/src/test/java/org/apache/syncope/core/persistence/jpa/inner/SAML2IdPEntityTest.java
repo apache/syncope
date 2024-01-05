@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -31,20 +31,34 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class SAML2IdPEntityTest extends AbstractTest {
 
     @Autowired
     private SAML2IdPEntityDAO saml2IdPEntityDAO;
 
+    private SAML2IdPEntity create(final String owner) {
+        SAML2IdPEntity entity = entityFactory.newEntity(SAML2IdPEntity.class);
+        entity.setKey(owner);
+        entity.setMetadata("metadata".getBytes(StandardCharsets.UTF_8));
+        entity.setEncryptionCertificate("encryptionCert".getBytes(StandardCharsets.UTF_8));
+        entity.setEncryptionKey("encryptionKey".getBytes(StandardCharsets.UTF_8));
+        entity.setSigningCertificate("signatureCert".getBytes(StandardCharsets.UTF_8));
+        entity.setSigningKey("signatureKey".getBytes(StandardCharsets.UTF_8));
+        entity = saml2IdPEntityDAO.save(entity);
+        assertNotNull(entity);
+        assertNotNull(saml2IdPEntityDAO.findById(entity.getKey()));
+
+        return entity;
+    }
+
     @Test
     public void find() {
         create("Syncope");
-        SAML2IdPEntity entity = saml2IdPEntityDAO.find("Syncope");
-        assertNotNull(entity);
 
-        entity = saml2IdPEntityDAO.find(UUID.randomUUID().toString());
-        assertNull(entity);
+        assertTrue(saml2IdPEntityDAO.findById("Syncope").isPresent());
+
+        assertTrue(saml2IdPEntityDAO.findById(UUID.randomUUID().toString()).isEmpty());
     }
 
     @Test
@@ -60,25 +74,10 @@ public class SAML2IdPEntityTest extends AbstractTest {
 
         entity = saml2IdPEntityDAO.save(entity);
         assertNotNull(entity);
-        assertNotNull(entity.getKey());
-        SAML2IdPEntity found = saml2IdPEntityDAO.find(entity.getKey());
-        assertNotNull(found);
+        
+        entityManager.flush();
+
+        SAML2IdPEntity found = saml2IdPEntityDAO.findById(entity.getKey()).orElseThrow();
         assertEquals("OtherSyncope", found.getKey());
-    }
-
-    private SAML2IdPEntity create(final String owner) {
-        SAML2IdPEntity entity = entityFactory.newEntity(SAML2IdPEntity.class);
-        entity.setKey(owner);
-        entity.setMetadata("metadata".getBytes(StandardCharsets.UTF_8));
-        entity.setEncryptionCertificate("encryptionCert".getBytes(StandardCharsets.UTF_8));
-        entity.setEncryptionKey("encryptionKey".getBytes(StandardCharsets.UTF_8));
-        entity.setSigningCertificate("signatureCert".getBytes(StandardCharsets.UTF_8));
-        entity.setSigningKey("signatureKey".getBytes(StandardCharsets.UTF_8));
-        saml2IdPEntityDAO.save(entity);
-        assertNotNull(entity);
-        assertNotNull(entity.getKey());
-        assertNotNull(saml2IdPEntityDAO.find(entity.getKey()));
-
-        return entity;
     }
 }

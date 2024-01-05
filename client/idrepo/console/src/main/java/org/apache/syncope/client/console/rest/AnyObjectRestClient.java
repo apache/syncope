@@ -60,7 +60,7 @@ public class AnyObjectRestClient extends AbstractAnyRestClient<AnyObjectTO> {
     }
 
     @Override
-    public int count(final String realm, final String fiql, final String type) {
+    public long count(final String realm, final String fiql, final String type) {
         return getService(AnyObjectService.class).
                 search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(1).size(0).build()).
                 getTotalCount();

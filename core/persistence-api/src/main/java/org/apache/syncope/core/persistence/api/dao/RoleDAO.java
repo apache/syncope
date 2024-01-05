@@ -26,23 +26,11 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface RoleDAO extends DAO<Role> {
 
-    int count();
+    List<Role> findByRealms(Realm realm);
 
-    Role find(String key);
-
-    List<Role> findByRealm(Realm realm);
-
-    List<Role> findByPrivilege(Privilege privilege);
-
-    List<Role> findAll();
-
-    Role save(Role role);
+    List<Role> findByPrivileges(Privilege privilege);
 
     Role saveAndRefreshDynMemberships(Role role);
-
-    void delete(Role role);
-
-    void delete(String key);
 
     List<String> findDynMembers(Role role);
 
@@ -51,5 +39,4 @@ public interface RoleDAO extends DAO<Role> {
     void refreshDynMemberships(User user);
 
     void removeDynMemberships(String key);
-
 }

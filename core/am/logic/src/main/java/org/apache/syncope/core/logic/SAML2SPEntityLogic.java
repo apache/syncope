@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
@@ -37,17 +36,17 @@ public class SAML2SPEntityLogic extends AbstractTransactionalLogic<SAML2SPEntity
 
     protected final SAML2SPEntityDataBinder binder;
 
-    protected final SAML2SPEntityDAO entityDAO;
+    protected final SAML2SPEntityDAO saml2SPEntityDAO;
 
-    public SAML2SPEntityLogic(final SAML2SPEntityDataBinder binder, final SAML2SPEntityDAO entityDAO) {
+    public SAML2SPEntityLogic(final SAML2SPEntityDataBinder binder, final SAML2SPEntityDAO saml2SPEntityDAO) {
         this.binder = binder;
-        this.entityDAO = entityDAO;
+        this.saml2SPEntityDAO = saml2SPEntityDAO;
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_ENTITY_LIST + "')")
     @Transactional(readOnly = true)
     public List<SAML2SPEntityTO> list() {
-        return entityDAO.findAll().stream().
+        return saml2SPEntityDAO.findAll().stream().
                 map(binder::getSAML2SPEntityTO).
                 collect(Collectors.toList());
     }
@@ -56,7 +55,7 @@ public class SAML2SPEntityLogic extends AbstractTransactionalLogic<SAML2SPEntity
             + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public SAML2SPEntityTO read(final String key) {
-        return Optional.ofNullable(entityDAO.find(key)).
+        return saml2SPEntityDAO.findById(key).
                 map(binder::getSAML2SPEntityTO).
                 orElseThrow(() -> new NotFoundException(key + " not found"));
     }
@@ -64,19 +63,17 @@ public class SAML2SPEntityLogic extends AbstractTransactionalLogic<SAML2SPEntity
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_ENTITY_SET + "') "
             + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public SAML2SPEntityTO set(final SAML2SPEntityTO entityTO) {
-        SAML2SPEntity entity = Optional.ofNullable(entityDAO.find(entityTO.getKey())).
+        SAML2SPEntity entity = saml2SPEntityDAO.findById(entityTO.getKey()).
                 map(metadata -> binder.update(metadata, entityTO)).
                 orElseGet(() -> binder.create(entityTO));
-        return binder.getSAML2SPEntityTO(entityDAO.save(entity));
+        return binder.getSAML2SPEntityTO(saml2SPEntityDAO.save(entity));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_SP_ENTITY_DELETE + "')")
     public void delete(final String key) {
-        Optional.ofNullable(entityDAO.find(key)).ifPresentOrElse(
-                entityDAO::delete,
-                () -> {
-                    throw new NotFoundException(key + " not found");
-                });
+        saml2SPEntityDAO.findById(key).ifPresentOrElse(
+                saml2SPEntityDAO::delete,
+                () -> new NotFoundException("SAML SP " + key));
     }
 
     @Override
@@ -86,18 +83,18 @@ public class SAML2SPEntityLogic extends AbstractTransactionalLogic<SAML2SPEntity
         String key = null;
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof SAML2SPEntityTO) {
-                    key = ((SAML2SPEntityTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof SAML2SPEntityTO saml2SPEntityTO) {
+                    key = saml2SPEntityTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getSAML2SPEntityTO(entityDAO.find(key));
-            } catch (final Throwable ignore) {
+                return binder.getSAML2SPEntityTO(saml2SPEntityDAO.findById(key).orElseThrow());
+            } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);
             }

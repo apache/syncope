@@ -49,12 +49,10 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
@@ -193,7 +191,7 @@ public class AuthDataAccessor {
                 domain, "authentication.attributes", new String[] { "username" }, String[].class);
         for (int i = 0; user == null && i < authAttrValues.length; i++) {
             if ("username".equals(authAttrValues[i])) {
-                user = userDAO.findByUsername(authentication.getName());
+                user = userDAO.findByUsername(authentication.getName()).orElse(null);
             } else {
                 AttrCond attrCond = new AttrCond(AttrCond.Type.EQ);
                 attrCond.setSchema(authAttrValues[i]);
@@ -358,12 +356,8 @@ public class AuthDataAccessor {
         }));
 
         // Give group entitlements for owned groups
-        groupDAO.findOwnedByUser(user.getKey()).forEach(group -> {
-            Role groupOwnerRole = roleDAO.find(GROUP_OWNER_ROLE);
-            if (groupOwnerRole == null) {
-                LOG.warn("Role {} was not found", GROUP_OWNER_ROLE);
-            } else {
-                groupOwnerRole.getEntitlements().forEach(entitlement -> {
+        groupDAO.findOwnedByUser(user.getKey()).forEach(group -> roleDAO.findById(GROUP_OWNER_ROLE).ifPresentOrElse(
+                groupOwnerRole -> groupOwnerRole.getEntitlements().forEach(entitlement -> {
                     Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                         HashSet<String> r = new HashSet<>();
                         entForRealms.put(entitlement, r);
@@ -371,9 +365,8 @@ public class AuthDataAccessor {
                     });
 
                     realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
-                });
-            }
-        });
+                }),
+                () -> LOG.warn("Role {} was not found", GROUP_OWNER_ROLE)));
 
         return buildAuthorities(entForRealms);
     }
@@ -407,7 +400,7 @@ public class AuthDataAccessor {
         } else if (securityProperties.getAdminUser().equals(username)) {
             authorities = getAdminAuthorities();
         } else if (delegationKey != null) {
-            Delegation delegation = Optional.ofNullable(delegationDAO.find(delegationKey)).
+            Delegation delegation = delegationDAO.findById(delegationKey).
                     orElseThrow(() -> new UsernameNotFoundException(
                     "Could not find delegation " + delegationKey));
 
@@ -415,7 +408,7 @@ public class AuthDataAccessor {
                     ? getUserAuthorities(delegation.getDelegating())
                     : getDelegatedAuthorities(delegation);
         } else {
-            User user = Optional.ofNullable(userDAO.findByUsername(username)).
+            User user = userDAO.findByUsername(username).
                     orElseThrow(() -> new UsernameNotFoundException(
                     "Could not find any user with username " + username));
 
@@ -431,11 +424,9 @@ public class AuthDataAccessor {
         Set<SyncopeGrantedAuthority> authorities;
 
         if (securityProperties.getAdminUser().equals(authentication.getClaims().getSubject())) {
-            AccessToken accessToken = accessTokenDAO.find(authentication.getClaims().getJWTID());
-            if (accessToken == null) {
-                throw new AuthenticationCredentialsNotFoundException(
-                        "Could not find an Access Token for JWT " + authentication.getClaims().getJWTID());
-            }
+            accessTokenDAO.findById(authentication.getClaims().getJWTID()).
+                    orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
+                    "Could not find an Access Token for JWT " + authentication.getClaims().getJWTID()));
 
             username = securityProperties.getAdminUser();
             authorities = getAdminAuthorities();
@@ -484,7 +475,7 @@ public class AuthDataAccessor {
 
     @Transactional
     public void removeExpired(final String tokenKey) {
-        accessTokenDAO.delete(tokenKey);
+        accessTokenDAO.deleteById(tokenKey);
     }
 
     @Transactional(readOnly = true)

@@ -284,7 +284,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // -----------------------------
         try {
-            int usersPre = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+            long usersPre = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPre);
 
@@ -294,7 +294,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             LOG.debug("Execution of task {}:\n{}", PULL_TASK_KEY, exec);
 
             // check for pull results
-            int usersPost = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+            long usersPost = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPost);
             assertEquals(usersPre + 8, usersPost);
@@ -944,7 +944,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void concurrentPull() throws NamingException, InterruptedException {
-        int usersBefore = USER_SERVICE.search(new AnyQuery.Builder().fiql(
+        long usersBefore = USER_SERVICE.search(new AnyQuery.Builder().fiql(
                 SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP_*").query()).
                 page(1).size(0).build()).getTotalCount();
 

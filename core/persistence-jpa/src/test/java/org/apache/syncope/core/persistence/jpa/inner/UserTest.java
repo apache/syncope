@@ -48,7 +48,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class UserTest extends AbstractTest {
 
     @Autowired
@@ -74,8 +74,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void find() {
-        User user = userDAO.find("823074dc-d280-436d-a7dd-07399fae48ec");
-        assertNotNull(user);
+        User user = userDAO.findById("823074dc-d280-436d-a7dd-07399fae48ec").orElseThrow();
         assertEquals("puccini", user.getUsername());
         assertFalse(user.isSuspended());
         assertFalse(user.isMustChangePassword());
@@ -102,7 +101,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void count() {
-        int count = userDAO.count();
+        long count = userDAO.count();
         assertNotNull(count);
         assertEquals(5, count);
     }
@@ -128,24 +127,29 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findByDerAttrValue() {
-        List<User> list = userDAO.findByDerAttrValue(derSchemaDAO.find("cn"), "Vivaldi, Antonio", false);
+        List<User> list = userDAO.findByDerAttrValue(
+                derSchemaDAO.findById("cn").orElseThrow(), "Vivaldi, Antonio", false);
         assertEquals(1, list.size());
 
-        list = userDAO.findByDerAttrValue(derSchemaDAO.find("cn"), "VIVALDI, ANTONIO", false);
+        list = userDAO.findByDerAttrValue(
+                derSchemaDAO.findById("cn").orElseThrow(), "VIVALDI, ANTONIO", false);
         assertEquals(0, list.size());
 
-        list = userDAO.findByDerAttrValue(derSchemaDAO.find("cn"), "VIVALDI, ANTONIO", true);
+        list = userDAO.findByDerAttrValue(
+                derSchemaDAO.findById("cn").orElseThrow(), "VIVALDI, ANTONIO", true);
         assertEquals(1, list.size());
     }
 
     @Test
     public void findByInvalidDerAttrValue() {
-        assertTrue(userDAO.findByDerAttrValue(derSchemaDAO.find("cn"), "Antonio, Maria, Rossi", false).isEmpty());
+        assertTrue(userDAO.findByDerAttrValue(
+                derSchemaDAO.findById("cn").orElseThrow(), "Antonio, Maria, Rossi", false).isEmpty());
     }
 
     @Test
     public void findByInvalidDerAttrExpression() {
-        assertTrue(userDAO.findByDerAttrValue(derSchemaDAO.find("noschema"), "Antonio, Maria", false).isEmpty());
+        assertTrue(userDAO.findByDerAttrValue(
+                derSchemaDAO.findById("noschema").orElseThrow(), "Antonio, Maria", false).isEmpty());
     }
 
     @Test
@@ -153,7 +157,7 @@ public class UserTest extends AbstractTest {
         UPlainAttrUniqueValue fullnameValue = entityFactory.newEntity(UPlainAttrUniqueValue.class);
         fullnameValue.setStringValue("Gioacchino Rossini");
 
-        PlainSchema fullname = plainSchemaDAO.find("fullname");
+        PlainSchema fullname = plainSchemaDAO.findById("fullname").orElseThrow();
 
         Optional<User> found = userDAO.findByPlainAttrUniqueValue(fullname, fullnameValue, false);
         assertTrue(found.isPresent());
@@ -172,24 +176,21 @@ public class UserTest extends AbstractTest {
         UPlainAttrValue coolValue = entityFactory.newEntity(UPlainAttrValue.class);
         coolValue.setBooleanValue(true);
 
-        List<User> list = userDAO.findByPlainAttrValue(plainSchemaDAO.find("cool"), coolValue, false);
+        List<User> list = userDAO.findByPlainAttrValue(
+                plainSchemaDAO.findById("cool").orElseThrow(), coolValue, false);
         assertEquals(1, list.size());
     }
 
     @Test
     public void findByKey() {
-        User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
-        assertNotNull(user);
+        assertTrue(userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").isPresent());
     }
 
     @Test
     public void findByUsername() {
-        User user = userDAO.findByUsername("rossini");
-        assertNotNull(user);
-        user = userDAO.findByUsername("vivaldi");
-        assertNotNull(user);
-        user = userDAO.findByUsername("user6");
-        assertNull(user);
+        assertTrue(userDAO.findByUsername("rossini").isPresent());
+        assertTrue(userDAO.findByUsername("vivaldi").isPresent());
+        assertTrue(userDAO.findByUsername("user6").isEmpty());
     }
 
     @Test
@@ -203,7 +204,7 @@ public class UserTest extends AbstractTest {
     public void save() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two"));
+        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
         user.setCreator("admin");
         user.setCreationDate(OffsetDateTime.now());
         user.setCipherAlgorithm(CipherAlgorithm.SHA256);
@@ -212,7 +213,7 @@ public class UserTest extends AbstractTest {
         User actual = userDAO.save(user);
         assertNotNull(actual);
 
-        entityManager().flush();
+        entityManager.flush();
 
         assertNotNull(userDAO.findLastChange(actual.getKey()));
         assertTrue(actual.getLastChangeDate().truncatedTo(ChronoUnit.SECONDS).
@@ -221,19 +222,18 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void delete() {
-        User user = userDAO.find("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
+        User user = userDAO.findById("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").orElseThrow();
 
-        userDAO.delete(user.getKey());
+        userDAO.deleteById(user.getKey());
 
-        User actual = userDAO.find("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
-        assertNull(actual);
+        assertTrue(userDAO.findById("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").isEmpty());
     }
 
     @Test
     public void issue237() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two"));
+        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
         user.setCreator("admin");
         user.setCreationDate(OffsetDateTime.now());
 
@@ -250,7 +250,7 @@ public class UserTest extends AbstractTest {
         user.setUsername("username");
         user.setCipherAlgorithm(CipherAlgorithm.AES);
         user.setPassword(null);
-        user.setRealm(realmDAO.findByFullPath("/even/two"));
+        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
 
         User actual = userDAO.save(user);
         assertNull(user.getPassword());
@@ -259,11 +259,12 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void testPasswordGenerator() {
-        String password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"),
+        String password = passwordGenerator.generate(
+                resourceDAO.findById("ws-target-resource-nopropagation").orElseThrow(),
                 List.of(realmDAO.getRoot()));
         assertNotNull(password);
 
-        User user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
+        User user = userDAO.findById("c9b2dec2-00a7-4855-97c0-d854842b4b24").orElseThrow();
         user.setPassword(password);
         userDAO.save(user);
     }
@@ -271,11 +272,12 @@ public class UserTest extends AbstractTest {
     @Test
     public void passwordGeneratorFailing() {
         assertThrows(IllegalArgumentException.class, () -> {
-            String password = passwordGenerator.generate(resourceDAO.find("ws-target-resource-nopropagation"),
+            String password = passwordGenerator.generate(
+                    resourceDAO.findById("ws-target-resource-nopropagation").orElseThrow(),
                     List.of(realmDAO.getRoot()));
             assertNotNull(password);
 
-            User user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
+            User user = userDAO.findById("c9b2dec2-00a7-4855-97c0-d854842b4b24").orElseThrow();
             // SYNCOPE-1666 fail because cipherAlgorithm is already set
             user.setCipherAlgorithm(CipherAlgorithm.SHA);
             user.setPassword(password);
@@ -287,12 +289,12 @@ public class UserTest extends AbstractTest {
     public void issueSYNCOPE1666() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two"));
+        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
         user.setCreator("admin");
         user.setCreationDate(OffsetDateTime.now());
         user.setCipherAlgorithm(CipherAlgorithm.SSHA256);
         user.setPassword("password123");
-        user.setSecurityQuestion(securityQuestionDAO.find("887028ea-66fc-41e7-b397-620d7ea6dfbb"));
+        user.setSecurityQuestion(securityQuestionDAO.findById("887028ea-66fc-41e7-b397-620d7ea6dfbb").orElseThrow());
         String securityAnswer = "my complex answer to @ $complex question è ? £12345";
         user.setSecurityAnswer(securityAnswer);
 

@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -225,7 +226,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
 
             setStatus("Pushing " + provision.getAnyType());
 
-            AnyType anyType = anyTypeDAO.find(provision.getAnyType());
+            AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
+                    orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));
 
             AnyDAO<?> anyDAO = anyUtilsFactory.getInstance(anyType.getKind()).dao();
 

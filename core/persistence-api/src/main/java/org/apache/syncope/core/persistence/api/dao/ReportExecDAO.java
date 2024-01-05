@@ -26,15 +26,13 @@ import org.apache.syncope.core.persistence.api.entity.ReportExec;
 
 public interface ReportExecDAO extends DAO<ReportExec> {
 
-    ReportExec find(String key);
-
     List<ReportExec> findRecent(int max);
 
     ReportExec findLatestStarted(Report report);
 
     ReportExec findLatestEnded(Report report);
 
-    int count(Report report, OffsetDateTime before, OffsetDateTime after);
+    long count(Report report, OffsetDateTime before, OffsetDateTime after);
 
     List<ReportExec> findAll(
             Report report,
@@ -43,10 +41,4 @@ public interface ReportExecDAO extends DAO<ReportExec> {
             int page,
             int itemsPerPage,
             List<OrderByClause> orderByClauses);
-
-    ReportExec save(ReportExec execution);
-
-    void delete(String key);
-
-    void delete(ReportExec execution);
 }

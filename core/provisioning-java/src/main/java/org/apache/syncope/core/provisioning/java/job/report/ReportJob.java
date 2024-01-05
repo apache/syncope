@@ -75,12 +75,13 @@ public class ReportJob extends AbstractInterruptableJob {
                     try {
                         ImplementationDAO implementationDAO =
                                 ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);
-                        Implementation impl = implementationDAO.find(
-                                context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION));
-                        if (impl == null) {
-                            LOG.error("Could not find Implementation '{}', aborting",
-                                    context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION));
-                        } else {
+                        String key = context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION);
+                        Implementation impl = implementationDAO.findById(key).
+                                orElseGet(() -> {
+                                    LOG.error("Could not find Implementation '{}', aborting", key);
+                                    return null;
+                                });
+                        if (impl != null) {
                             delegate = ImplementationManager.buildReportJobDelegate(
                                     impl,
                                     () -> perContextReportJobDelegates.get(impl.getKey()),

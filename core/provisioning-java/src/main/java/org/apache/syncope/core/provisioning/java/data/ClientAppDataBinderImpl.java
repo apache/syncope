@@ -61,14 +61,14 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends ClientApp> T create(final ClientAppTO clientAppTO) {
-        if (clientAppTO instanceof SAML2SPClientAppTO) {
-            return (T) doCreate((SAML2SPClientAppTO) clientAppTO);
+        if (clientAppTO instanceof SAML2SPClientAppTO sAML2SPClientAppTO) {
+            return (T) doCreate(sAML2SPClientAppTO);
         }
-        if (clientAppTO instanceof OIDCRPClientAppTO) {
-            return (T) doCreate((OIDCRPClientAppTO) clientAppTO);
+        if (clientAppTO instanceof OIDCRPClientAppTO oIDCRPClientAppTO) {
+            return (T) doCreate(oIDCRPClientAppTO);
         }
-        if (clientAppTO instanceof CASSPClientAppTO) {
-            return (T) doCreate((CASSPClientAppTO) clientAppTO);
+        if (clientAppTO instanceof CASSPClientAppTO cASSPClientAppTO) {
+            return (T) doCreate(cASSPClientAppTO);
         }
 
         throw new IllegalArgumentException("Unsupported client app: " + clientAppTO.getClass().getName());
@@ -76,12 +76,12 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     @Override
     public <T extends ClientApp> void update(final T clientApp, final ClientAppTO clientAppTO) {
-        if (clientAppTO instanceof SAML2SPClientAppTO) {
-            doUpdate((SAML2SPClientApp) clientApp, (SAML2SPClientAppTO) clientAppTO);
-        } else if (clientAppTO instanceof OIDCRPClientAppTO) {
-            doUpdate((OIDCRPClientApp) clientApp, (OIDCRPClientAppTO) clientAppTO);
-        } else if (clientAppTO instanceof CASSPClientAppTO) {
-            doUpdate((CASSPClientApp) clientApp, (CASSPClientAppTO) clientAppTO);
+        if (clientAppTO instanceof SAML2SPClientAppTO sAML2SPClientAppTO) {
+            doUpdate((SAML2SPClientApp) clientApp, sAML2SPClientAppTO);
+        } else if (clientAppTO instanceof OIDCRPClientAppTO oIDCRPClientAppTO) {
+            doUpdate((OIDCRPClientApp) clientApp, oIDCRPClientAppTO);
+        } else if (clientAppTO instanceof CASSPClientAppTO cASSPClientAppTO) {
+            doUpdate((CASSPClientApp) clientApp, cASSPClientAppTO);
         } else {
             throw new IllegalArgumentException("Unsupported client app: " + clientAppTO.getClass().getName());
         }
@@ -90,14 +90,14 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends ClientAppTO> T getClientAppTO(final ClientApp clientApp) {
-        if (clientApp instanceof SAML2SPClientApp) {
-            return (T) getSAMLClientAppTO((SAML2SPClientApp) clientApp);
+        if (clientApp instanceof SAML2SPClientApp sAML2SPClientApp) {
+            return (T) getSAMLClientAppTO(sAML2SPClientApp);
         }
-        if (clientApp instanceof OIDCRPClientApp) {
-            return (T) getOIDCClientAppTO((OIDCRPClientApp) clientApp);
+        if (clientApp instanceof OIDCRPClientApp oIDCRPClientApp) {
+            return (T) getOIDCClientAppTO(oIDCRPClientApp);
         }
-        if (clientApp instanceof CASSPClientApp) {
-            return (T) getCASClientAppTO((CASSPClientApp) clientApp);
+        if (clientApp instanceof CASSPClientApp cASSPClientApp) {
+            return (T) getCASClientAppTO(cASSPClientApp);
         }
         throw new IllegalArgumentException("Unsupported client app: " + clientApp.getClass().getName());
     }
@@ -280,11 +280,9 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
     }
 
     protected void copyToEntity(final ClientApp clientApp, final ClientAppTO clientAppTO) {
-        if (clientAppTO.getRealm() == null) {
-            clientApp.setRealm(null);
-        } else {
-            clientApp.setRealm((realmDAO.findByFullPath(clientAppTO.getRealm())));
-        }
+        Optional.ofNullable(clientAppTO.getRealm()).
+                flatMap(realmDAO::findByFullPath).
+                ifPresentOrElse(clientApp::setRealm, () -> clientApp.setRealm(null));
 
         clientApp.setName(clientAppTO.getName());
         clientApp.setClientAppId(clientAppTO.getClientAppId());
@@ -298,9 +296,9 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         if (clientAppTO.getAuthPolicy() == null) {
             clientApp.setAuthPolicy(null);
         } else {
-            Policy policy = policyDAO.find(clientAppTO.getAuthPolicy());
-            if (policy instanceof AuthPolicy) {
-                clientApp.setAuthPolicy((AuthPolicy) policy);
+            Policy policy = policyDAO.findById(clientAppTO.getAuthPolicy()).orElse(null);
+            if (policy instanceof AuthPolicy authPolicy) {
+                clientApp.setAuthPolicy(authPolicy);
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
                 sce.getElements().add("Expected " + AuthPolicy.class.getSimpleName()
@@ -312,9 +310,9 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         if (clientAppTO.getAccessPolicy() == null) {
             clientApp.setAccessPolicy(null);
         } else {
-            Policy policy = policyDAO.find(clientAppTO.getAccessPolicy());
-            if (policy instanceof AccessPolicy) {
-                clientApp.setAccessPolicy((AccessPolicy) policy);
+            Policy policy = policyDAO.findById(clientAppTO.getAccessPolicy()).orElse(null);
+            if (policy instanceof AccessPolicy accessPolicy) {
+                clientApp.setAccessPolicy(accessPolicy);
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
                 sce.getElements().add("Expected " + AccessPolicy.class.getSimpleName()
@@ -326,9 +324,9 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         if (clientAppTO.getAttrReleasePolicy() == null) {
             clientApp.setAttrReleasePolicy(null);
         } else {
-            Policy policy = policyDAO.find(clientAppTO.getAttrReleasePolicy());
-            if (policy instanceof AttrReleasePolicy) {
-                clientApp.setAttrReleasePolicy((AttrReleasePolicy) policy);
+            Policy policy = policyDAO.findById(clientAppTO.getAttrReleasePolicy()).orElse(null);
+            if (policy instanceof AttrReleasePolicy attrReleasePolicy) {
+                clientApp.setAttrReleasePolicy(attrReleasePolicy);
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
                 sce.getElements().add("Expected " + AttrReleasePolicy.class.getSimpleName()
@@ -340,9 +338,9 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         if (clientAppTO.getTicketExpirationPolicy() == null) {
             clientApp.setTicketExpirationPolicy(null);
         } else {
-            Policy policy = policyDAO.find(clientAppTO.getTicketExpirationPolicy());
-            if (policy instanceof TicketExpirationPolicy) {
-                clientApp.setTicketExpirationPolicy((TicketExpirationPolicy) policy);
+            Policy policy = policyDAO.findById(clientAppTO.getTicketExpirationPolicy()).orElse(null);
+            if (policy instanceof TicketExpirationPolicy ticketExpirationPolicy) {
+                clientApp.setTicketExpirationPolicy(ticketExpirationPolicy);
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
                 sce.getElements().add("Expected " + TicketExpirationPolicy.class.getSimpleName()

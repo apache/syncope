@@ -94,10 +94,10 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
     @Transactional(readOnly = true)
     @Override
     public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JWTClaimsSet jwtClaims) {
-        User user = userDAO.findByUsername(jwtClaims.getSubject());
+        User user = userDAO.findByUsername(jwtClaims.getSubject()).orElse(null);
         Set<SyncopeGrantedAuthority> authorities = Set.of();
         if (user != null) {
-            AccessToken accessToken = accessTokenDAO.find(jwtClaims.getJWTID());
+            AccessToken accessToken = accessTokenDAO.findById(jwtClaims.getJWTID()).orElse(null);
             if (accessToken != null && accessToken.getAuthorities() != null) {
                 try {
                     authorities = POJOHelper.deserialize(

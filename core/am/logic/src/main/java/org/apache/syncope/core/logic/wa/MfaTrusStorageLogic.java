@@ -40,15 +40,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
 
-    protected final EntityFactory entityFactory;
-
     public MfaTrusStorageLogic(
-            final EntityFactory entityFactory,
+            final AuthProfileDataBinder binder,
             final AuthProfileDAO authProfileDAO,
-            final AuthProfileDataBinder binder) {
+            final EntityFactory entityFactory) {
 
-        super(authProfileDAO, binder);
-        this.entityFactory = entityFactory;
+        super(binder, authProfileDAO, entityFactory);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -126,11 +123,7 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void create(final String owner, final MfaTrustedDevice device) {
-        AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
-            AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
-            authProfile.setOwner(owner);
-            return authProfile;
-        });
+        AuthProfile profile = authProfile(owner);
 
         List<MfaTrustedDevice> devices = profile.getMfaTrustedDevices();
         devices.add(device);

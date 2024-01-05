@@ -65,7 +65,7 @@ public class AccessTokenServiceImpl extends AbstractService implements AccessTok
 
     @Override
     public PagedResult<AccessTokenTO> list(final AccessTokenQuery query) {
-        Pair<Integer, List<AccessTokenTO>> result = logic.list(
+        Pair<Long, List<AccessTokenTO>> result = logic.list(
                 query.getPage(),
                 query.getSize(),
                 getOrderByClauses(query.getOrderBy()));

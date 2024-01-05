@@ -29,7 +29,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -119,7 +118,7 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
-        MailTemplate template = mailTemplateDAO.find(notificationTO.getTemplate());
+        MailTemplate template = mailTemplateDAO.findById(notificationTO.getTemplate()).orElse(null);
         if (template == null) {
             sce.getElements().add("template");
         }
@@ -146,23 +145,19 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         // 1. add or update all (valid) abouts from TO
         notificationTO.getAbouts().entrySet().stream().
                 filter(entry -> StringUtils.isNotBlank(entry.getValue())).
-                forEachOrdered((entry) -> {
+                forEach(entry -> anyTypeDAO.findById(entry.getKey()).ifPresentOrElse(
+                anyType -> {
+                    AnyAbout about = notification.getAbout(anyType).orElse(null);
+                    if (about == null) {
+                        about = entityFactory.newEntity(AnyAbout.class);
+                        about.setAnyType(anyType);
+                        about.setNotification(notification);
 
-                    AnyType anyType = anyTypeDAO.find(entry.getKey());
-                    if (anyType == null) {
-                        LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
-                    } else {
-                        AnyAbout about = notification.getAbout(anyType).orElse(null);
-                        if (about == null) {
-                            about = entityFactory.newEntity(AnyAbout.class);
-                            about.setAnyType(anyType);
-                            about.setNotification(notification);
-
-                            notification.add(about);
-                        }
-                        about.set(entry.getValue());
+                        notification.add(about);
                     }
-                });
+                    about.set(entry.getValue());
+                },
+                () -> LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey())));
 
         // 2. remove all abouts not contained in the TO
         notification.getAbouts().
@@ -180,13 +175,10 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         if (notificationTO.getRecipientsProvider() == null) {
             notification.setRecipientsProvider(null);
         } else {
-            Implementation recipientsProvider = implementationDAO.find(notificationTO.getRecipientsProvider());
-            if (recipientsProvider == null) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                        notificationTO.getRecipientsProvider());
-            } else {
-                notification.setRecipientsProvider(recipientsProvider);
-            }
+            implementationDAO.findById(notificationTO.getRecipientsProvider()).ifPresentOrElse(
+                    notification::setRecipientsProvider,
+                    () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                            notificationTO.getRecipientsProvider()));
         }
     }
 }

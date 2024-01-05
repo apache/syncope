@@ -25,15 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.Notification;
 
 public interface NotificationDAO extends DAO<Notification> {
 
-    Notification find(String key);
-
     List<Notification> findByTemplate(MailTemplate template);
 
     List<Notification> findByRecipientsProvider(Implementation recipientsProvider);
-
-    List<Notification> findAll();
-
-    Notification save(Notification notification);
-
-    void delete(String key);
 }

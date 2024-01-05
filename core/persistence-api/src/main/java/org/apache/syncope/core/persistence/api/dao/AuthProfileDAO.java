@@ -24,17 +24,7 @@ import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 
 public interface AuthProfileDAO extends DAO<AuthProfile> {
 
-    AuthProfile find(String key);
-
-    int count();
+    Optional<? extends AuthProfile> findByOwner(String owner);
 
     List<AuthProfile> findAll(int page, int itemsPerPage);
-
-    Optional<AuthProfile> findByOwner(String owner);
-
-    AuthProfile save(AuthProfile profile);
-
-    void delete(String key);
-
-    void delete(AuthProfile authProfile);
 }

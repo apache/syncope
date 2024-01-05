@@ -105,22 +105,16 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
         role.getRealms().clear();
         for (String realmFullPath : roleTO.getRealms()) {
-            Realm realm = realmDAO.findByFullPath(realmFullPath);
-            if (realm == null) {
-                LOG.debug("Invalid realm full path {}, ignoring", realmFullPath);
-            } else {
-                role.add(realm);
-            }
+            realmDAO.findByFullPath(realmFullPath).ifPresentOrElse(
+                    role::add,
+                    () -> LOG.debug("Invalid realm full path {}, ignoring", realmFullPath));
         }
 
         role.getDynRealms().clear();
         for (String key : roleTO.getDynRealms()) {
-            DynRealm dynRealm = dynRealmDAO.find(key);
-            if (dynRealm == null) {
-                LOG.debug("Invalid dynamic ream {}, ignoring", key);
-            } else {
-                role.add(dynRealm);
-            }
+            dynRealmDAO.findById(key).ifPresentOrElse(
+                    role::add,
+                    () -> LOG.debug("Invalid dynamic ream {}, ignoring", key));
         }
 
         role = roleDAO.save(role);
@@ -141,12 +135,9 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
         role.getPrivileges().clear();
         for (String key : roleTO.getPrivileges()) {
-            Privilege privilege = applicationDAO.findPrivilege(key);
-            if (privilege == null) {
-                LOG.debug("Invalid privilege {}, ignoring", key);
-            } else {
-                role.add(privilege);
-            }
+            applicationDAO.findPrivilege(key).ifPresentOrElse(
+                    role::add,
+                    () -> LOG.debug("Invalid privilege {}, ignoring", key));
         }
 
         return roleDAO.saveAndRefreshDynMemberships(role);

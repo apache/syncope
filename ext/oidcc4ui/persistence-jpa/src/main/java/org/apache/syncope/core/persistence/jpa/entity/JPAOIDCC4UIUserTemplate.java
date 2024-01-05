@@ -47,5 +47,4 @@ public class JPAOIDCC4UIUserTemplate extends AbstractAnyTemplate implements OIDC
         checkType(op, JPAOIDCC4UIProvider.class);
         this.op = (JPAOIDCC4UIProvider) op;
     }
-
 }

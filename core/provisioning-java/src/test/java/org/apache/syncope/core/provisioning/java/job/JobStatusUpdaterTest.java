@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -30,7 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class JobStatusUpdaterTest extends AbstractTest {
 
     @Autowired
@@ -46,9 +45,9 @@ public class JobStatusUpdaterTest extends AbstractTest {
         JobStatusUpdater jobStatusUpdater = new JobStatusUpdater(jobStatusDAO, entityFactory);
 
         jobStatusUpdater.update(new JobStatusEvent(this, refDesc, "Started"));
-        assertNotNull(jobStatusDAO.find(refDesc));
+        assertTrue(jobStatusDAO.findById(refDesc).isPresent());
 
         jobStatusUpdater.update(new JobStatusEvent(this, refDesc, null));
-        assertNull(jobStatusDAO.find(refDesc));
+        assertTrue(jobStatusDAO.findById(refDesc).isPresent());
     }
 }

@@ -121,10 +121,8 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
             final boolean dryRun,
             final JobExecutionContext context) throws JobExecutionException {
 
-        report = reportDAO.find(reportKey);
-        if (report == null) {
-            throw new JobExecutionException("Report " + reportKey + " not found");
-        }
+        report = reportDAO.findById(reportKey).
+                orElseThrow(() -> new JobExecutionException("Report " + reportKey + " not found"));
 
         if (!report.isActive()) {
             LOG.info("Report {} not active, aborting...", reportKey);

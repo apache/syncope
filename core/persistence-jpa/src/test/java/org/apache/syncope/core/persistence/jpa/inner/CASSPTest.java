@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
 import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class CASSPTest extends AbstractClientAppTest {
 
     @Autowired
@@ -39,7 +39,7 @@ public class CASSPTest extends AbstractClientAppTest {
 
     @Test
     public void find() {
-        int beforeCount = casspDAO.findAll().size();
+        long beforeCount = casspDAO.count();
 
         CASSPClientApp rp = entityFactory.newEntity(CASSPClientApp.class);
         rp.setName("CAS");
@@ -58,16 +58,16 @@ public class CASSPTest extends AbstractClientAppTest {
         assertNotNull(rp);
         assertNotNull(rp.getKey());
 
-        int afterCount = casspDAO.findAll().size();
+        long afterCount = casspDAO.count();
         assertEquals(afterCount, beforeCount + 1);
 
-        rp = casspDAO.findByName("CAS");
+        rp = casspDAO.findByName("CAS").orElseThrow();
         assertNotNull(rp);
 
-        rp = casspDAO.findByClientAppId(rp.getClientAppId());
+        rp = casspDAO.findByClientAppId(rp.getClientAppId()).orElseThrow();
         assertNotNull(rp);
 
         casspDAO.delete(rp);
-        assertNull(casspDAO.findByName("CAS"));
+        assertTrue(casspDAO.findByName("CAS").isEmpty());
     }
 }

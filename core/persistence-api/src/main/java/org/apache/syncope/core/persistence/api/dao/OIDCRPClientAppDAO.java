@@ -18,26 +18,12 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 
 public interface OIDCRPClientAppDAO extends ClientAppDAO<OIDCRPClientApp> {
 
-    OIDCRPClientApp find(String key);
-
-    OIDCRPClientApp findByClientAppId(Long clientAppId);
-
-    OIDCRPClientApp findByName(String name);
-
-    OIDCRPClientApp findByClientId(String clientId);
-
-    List<OIDCRPClientApp> findAll();
-
-    OIDCRPClientApp save(OIDCRPClientApp clientApp);
-
-    void delete(String key);
+    Optional<? extends OIDCRPClientApp> findByClientId(String clientId);
 
     void deleteByClientId(String clientId);
-
-    void delete(OIDCRPClientApp clientApp);
 }

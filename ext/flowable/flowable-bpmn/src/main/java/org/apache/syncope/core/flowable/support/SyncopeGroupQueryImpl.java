@@ -49,16 +49,15 @@ public class SyncopeGroupQueryImpl extends GroupQueryImpl {
 
     private void execute() {
         if (id != null) {
-            org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup = groupDAO.findByName(id);
-            if (syncopeGroup == null) {
-                result = List.of();
-            } else {
-                result = List.of(fromSyncopeGroup(syncopeGroup.getName()));
-            }
+            result = groupDAO.findByName(id).
+                    map(group -> List.of(fromSyncopeGroup(group.getName()))).
+                    orElse(List.of());
         } else if (userId != null) {
-            result = userDAO.findAllGroupNames(userDAO.findByUsername(userId)).stream().
+            result = userDAO.findByUsername(userId).
+                    map(user -> userDAO.findAllGroupNames(user).stream().
                     map(SyncopeGroupQueryImpl::fromSyncopeGroup).
-                    collect(Collectors.toList());
+                    collect(Collectors.toList())).
+                    orElse(List.of());
         }
     }
 

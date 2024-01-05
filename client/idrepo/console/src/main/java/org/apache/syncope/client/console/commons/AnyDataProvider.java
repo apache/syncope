@@ -126,7 +126,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
         try {
             if (filtered) {
-                result = Optional.ofNullable(fiql).map(s -> restClient.count(realm, s, type)).orElse(0);
+                result = Optional.ofNullable(fiql).map(s -> restClient.count(realm, s, type)).orElse(0L);
             } else {
                 result = restClient.count(realm, null, type);
             }

@@ -480,7 +480,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         if (engine.getRuntimeService().createProcessInstanceQuery().
                 processInstanceId(procInstID).active().list().isEmpty()) {
 
-            userDAO.delete(user.getKey());
+            userDAO.deleteById(user.getKey());
 
             publisher.publishEvent(
                     new EntityLifecycleEvent<>(this, SyncDeltaType.DELETE, user, AuthContextUtils.getDomain()));
@@ -536,7 +536,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         if (engine.getRuntimeService().createProcessInstanceQuery().
                 processInstanceId(procInstID).active().list().isEmpty()) {
 
-            userDAO.delete(user.getKey());
+            userDAO.deleteById(user.getKey());
 
             publisher.publishEvent(
                     new EntityLifecycleEvent<>(this, SyncDeltaType.DELETE, user, AuthContextUtils.getDomain()));
@@ -568,10 +568,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     protected static void navigateAvailableTasks(final FlowElement flow, final List<String> availableTasks) {
-        if (flow instanceof Gateway) {
-            ((Gateway) flow).getOutgoingFlows().forEach(subflow -> navigateAvailableTasks(subflow, availableTasks));
-        } else if (flow instanceof SequenceFlow) {
-            navigateAvailableTasks(((SequenceFlow) flow).getTargetFlowElement(), availableTasks);
+        if (flow instanceof Gateway gateway) {
+            gateway.getOutgoingFlows().forEach(subflow -> navigateAvailableTasks(subflow, availableTasks));
+        } else if (flow instanceof SequenceFlow sequenceFlow) {
+            navigateAvailableTasks(sequenceFlow.getTargetFlowElement(), availableTasks);
         } else if (flow instanceof org.flowable.bpmn.model.Task) {
             availableTasks.add(flow.getId());
         } else {

@@ -18,11 +18,21 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public interface DAO<E extends Entity> {
 
-    void refresh(E entity);
+    Optional<? extends E> findById(String key);
 
-    void detach(E entity);
+    long count();
+
+    List<? extends E> findAll();
+
+    <S extends E> S save(S entity);
+
+    void delete(E entity);
+
+    void deleteById(String id);
 }

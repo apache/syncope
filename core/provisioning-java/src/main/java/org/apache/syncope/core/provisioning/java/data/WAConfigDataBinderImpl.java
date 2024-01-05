@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Optional;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -43,11 +42,11 @@ public class WAConfigDataBinderImpl implements WAConfigDataBinder {
 
     @Override
     public WAConfigEntry set(final Attr attr) {
-        WAConfigEntry entry = Optional.ofNullable(waConfigDAO.find(attr.getSchema())).orElseGet(() -> {
-            WAConfigEntry waConfigEntry = entityFactory.newEntity(WAConfigEntry.class);
-            waConfigEntry.setKey(attr.getSchema());
-            return waConfigEntry;
-        });
+        WAConfigEntry entry = waConfigDAO.findById(attr.getSchema()).orElse(null);
+        if (entry == null) {
+            entry = entityFactory.newEntity(WAConfigEntry.class);
+            entry.setKey(attr.getSchema());
+        }
         entry.setValues(attr.getValues());
         return entry;
     }

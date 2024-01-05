@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class NotificationTest extends AbstractTest {
 
     @Autowired
@@ -47,18 +47,16 @@ public class NotificationTest extends AbstractTest {
 
     @Test
     public void find() {
-        Notification notification = notificationDAO.find("9e2b911c-25de-4c77-bcea-b86ed9451050");
-        assertNotNull(notification);
+        Notification notification = notificationDAO.findById("9e2b911c-25de-4c77-bcea-b86ed9451050").orElseThrow();
         assertNotNull(notification.getEvents());
         assertFalse(notification.getEvents().isEmpty());
         assertNotNull(notification.getAbout(anyTypeDAO.findUser()));
         assertNotNull(notification.getRecipientsFIQL());
-
     }
 
     @Test
     public void findAll() {
-        List<Notification> notifications = notificationDAO.findAll();
+        List<? extends Notification> notifications = notificationDAO.findAll();
         assertNotNull(notifications);
         assertFalse(notifications.isEmpty());
     }
@@ -80,7 +78,7 @@ public class NotificationTest extends AbstractTest {
 
         notification.setSender("syncope@syncope.apache.org");
         notification.setSubject("Test notification");
-        notification.setTemplate(mailTemplateDAO.find("test"));
+        notification.setTemplate(mailTemplateDAO.findById("test").orElseThrow());
 
         Notification actual = notificationDAO.save(notification);
         assertNotNull(actual);
@@ -89,8 +87,8 @@ public class NotificationTest extends AbstractTest {
 
     @Test
     public void delete() {
-        notificationDAO.delete("9e2b911c-25de-4c77-bcea-b86ed9451050");
-        assertNull(notificationDAO.find("9e2b911c-25de-4c77-bcea-b86ed9451050"));
+        notificationDAO.deleteById("9e2b911c-25de-4c77-bcea-b86ed9451050");
+        assertTrue(notificationDAO.findById("9e2b911c-25de-4c77-bcea-b86ed9451050").isEmpty());
     }
 
     @Test
@@ -112,14 +110,13 @@ public class NotificationTest extends AbstractTest {
 
         notification.setSender("syncope@syncope.apache.org");
         notification.setSubject("Test notification");
-        notification.setTemplate(mailTemplateDAO.find("test"));
+        notification.setTemplate(mailTemplateDAO.findById("test").orElseThrow());
 
         notification = notificationDAO.save(notification);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        Notification actual = notificationDAO.find(notification.getKey());
-        assertNotNull(actual);
+        Notification actual = notificationDAO.findById(notification.getKey()).orElseThrow();
         assertNotNull(actual.getKey());
         assertNotNull(actual.getStaticRecipients());
         assertFalse(actual.getStaticRecipients().isEmpty());
@@ -142,14 +139,13 @@ public class NotificationTest extends AbstractTest {
 
         notification.setSender("syncope@syncope.apache.org");
         notification.setSubject("Test notification");
-        notification.setTemplate(mailTemplateDAO.find("test"));
+        notification.setTemplate(mailTemplateDAO.findById("test").orElseThrow());
 
         notification = notificationDAO.save(notification);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        Notification actual = notificationDAO.find(notification.getKey());
-        assertNotNull(actual);
+        Notification actual = notificationDAO.findById(notification.getKey()).orElseThrow();
         assertNotNull(actual.getKey());
         assertNotNull(actual.getStaticRecipients());
         assertFalse(actual.getStaticRecipients().isEmpty());

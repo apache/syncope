@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.EntityManager;
 import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -37,7 +38,7 @@ import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 
-public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue> implements PlainAttrValueDAO {
+public class JPAPlainAttrValueDAO implements PlainAttrValueDAO {
 
     @SuppressWarnings("unchecked")
     public static <T extends PlainAttrValue> Class<? extends AbstractPlainAttrValue> getEntityReference(
@@ -60,19 +61,25 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue> implements
                 : null;
     }
 
+    protected final EntityManager entityManager;
+
+    public JPAPlainAttrValueDAO(final EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
     @Override
     public void deleteAll(final PlainAttr<?> attr, final AnyUtils anyUtils) {
         if (attr.getUniqueValue() == null) {
             attr.getValues().stream().map(PlainAttrValue::getKey).collect(Collectors.toSet()).forEach(attrValueKey -> {
                 PlainAttrValue attrValue = anyUtils.plainAttrValueClass().cast(
-                        entityManager().find(getEntityReference(anyUtils.plainAttrValueClass()), attrValueKey));
+                        entityManager.find(getEntityReference(anyUtils.plainAttrValueClass()), attrValueKey));
                 if (attrValue != null) {
-                    entityManager().remove(attrValue);
+                    entityManager.remove(attrValue);
                     attr.getValues().remove(attrValue);
                 }
             });
         } else {
-            entityManager().remove(attr.getUniqueValue());
+            entityManager.remove(attr.getUniqueValue());
             attr.setUniqueValue(null);
         }
     }

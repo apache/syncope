@@ -18,22 +18,11 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 
 public interface ApplicationDAO extends DAO<Application> {
 
-    Application find(String key);
-
-    Privilege findPrivilege(String key);
-
-    List<Application> findAll();
-
-    Application save(Application application);
-
-    void delete(Application application);
-
-    void delete(String key);
-
+    Optional<? extends Privilege> findPrivilege(String key);
 }

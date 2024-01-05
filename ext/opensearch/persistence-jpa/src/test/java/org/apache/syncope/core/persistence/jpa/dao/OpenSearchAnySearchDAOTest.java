@@ -116,7 +116,7 @@ public class OpenSearchAnySearchDAOTest {
         Realm root = mock(Realm.class);
         when(root.getFullPath()).thenReturn(SyncopeConstants.ROOT_REALM);
 
-        when(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenReturn(root);
+        when(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenAnswer(ic -> Optional.of(root));
         when(realmDAO.findDescendants(eq(SyncopeConstants.ROOT_REALM), anyString())).thenReturn(List.of("rootKey"));
 
         // 2. test
@@ -138,7 +138,7 @@ public class OpenSearchAnySearchDAOTest {
         DynRealm dyn = mock(DynRealm.class);
         when(dyn.getKey()).thenReturn("dyn");
 
-        when(dynRealmDAO.find("dyn")).thenReturn(dyn);
+        when(dynRealmDAO.findById("dyn")).thenAnswer(ic -> Optional.of(dyn));
 
         // 2. test
         Set<String> adminRealms = Set.of("dyn");
@@ -185,7 +185,7 @@ public class OpenSearchAnySearchDAOTest {
             SearchRequest request = new SearchRequest.Builder().
                     index(OpenSearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                     searchType(SearchType.QueryThenFetch).
-                    query(searchDAO.getQuery(realmDAO.findByFullPath("/any"), true,
+                    query(searchDAO.getQuery(mock(Realm.class), true,
                             adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER)).
                     from(1).
                     size(10).

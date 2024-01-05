@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +55,9 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final PlainSchemaDAO schemaDAO,
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final EntityManagerFactory entityManagerFactory,
+            final EntityManager entityManager) {
 
         super(
                 realmDAO,
@@ -64,7 +68,9 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 schemaDAO,
                 entityFactory,
                 anyUtilsFactory,
-                validator);
+                validator,
+                entityManagerFactory,
+                entityManager);
     }
 
     @Override
@@ -78,7 +84,7 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
         obs.views.forEach(searchView -> {
             boolean searchViewAddedToWhere = false;
-            if (searchView.name.equals(svs.field().name)) {
+            if (searchView.name().equals(svs.field().name())) {
                 StringBuilder attrWhere = new StringBuilder();
                 StringBuilder nullAttrWhere = new StringBuilder();
 
@@ -86,7 +92,7 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                     where.append(", (SELECT ").append(SELECT_COLS_FROM_VIEW).append(",plainSchema,"
                             + "ubinaryValue,ubooleanValue,udateValue,udoubleValue,ulongValue,ustringValue,"
                             + "binaryValue,booleanValue,dateValue,doubleValue,longValue,stringValue FROM ").
-                            append(searchView.name);
+                            append(searchView.name());
                     searchViewAddedToWhere = true;
 
                     attrs.forEach(field -> {
@@ -111,10 +117,10 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                                 append("null AS doubleValue, ").
                                 append("null AS longValue, ").
                                 append("null AS stringValue ").
-                                append("FROM ").append(svs.field().name).
+                                append("FROM ").append(svs.field().name()).
                                 append(" WHERE any_id NOT IN ").
                                 append("(SELECT DISTINCT any_id FROM ").
-                                append(svs.field().name).
+                                append(svs.field().name()).
                                 append(" WHERE ").
                                 append("JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").append(field).append("\")'))");
                     });
@@ -122,10 +128,10 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 }
             }
             if (!searchViewAddedToWhere) {
-                where.append(',').append(searchView.name);
+                where.append(',').append(searchView.name());
             }
 
-            where.append(' ').append(searchView.alias);
+            where.append(' ').append(searchView.alias());
         });
     }
 
@@ -143,7 +149,7 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
         obs.views.add(svs.field());
 
-        item.select = svs.field().alias + '.'
+        item.select = svs.field().alias() + '.'
                 + (schema.isUniqueConstraint() ? "u" : "") + key(schema.getType())
                 + " AS " + fieldName;
         item.where = "plainSchema = '" + fieldName + '\'';
@@ -166,7 +172,7 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 && cond.getType() != AttrCond.Type.ISNULL && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
             query.append("id NOT IN (SELECT DISTINCT any_id FROM ");
-            query.append(svs.field().name).append(" WHERE ");
+            query.append(svs.field().name()).append(" WHERE ");
             fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
             query.append(')');
         } else {
@@ -271,25 +277,24 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         }
 
         StringBuilder query =
-                new StringBuilder("SELECT DISTINCT any_id FROM ").append(svs.field().name).append(" WHERE ");
+                new StringBuilder("SELECT DISTINCT any_id FROM ").append(svs.field().name()).append(" WHERE ");
         switch (cond.getType()) {
-            case ISNOTNULL:
+            case ISNOTNULL ->
                 query.append("JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").
                         append(checked.getLeft().getKey()).append("\")')");
-                break;
 
-            case ISNULL:
+            case ISNULL ->
                 query.append("NOT JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").
                         append(checked.getLeft().getKey()).append("\")')");
-                break;
 
-            default:
+            default -> {
                 if (not && !(cond instanceof AnyCond) && checked.getLeft().isMultivalue()) {
-                    query = new StringBuilder("SELECT DISTINCT id AS any_id FROM ").append(svs.table().name).
+                    query = new StringBuilder("SELECT DISTINCT id AS any_id FROM ").append(svs.table().name()).
                             append(" WHERE ");
                 }
                 fillAttrQuery(anyUtilsFactory.getInstance(svs.anyTypeKind),
                         query, checked.getRight(), checked.getLeft(), cond, not, parameters, svs);
+            }
         }
 
         return query.toString();

@@ -75,7 +75,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class AnySearchTest extends AbstractTest {
 
     private static final String LOGIN_DATE_VALUE = "2009-05-26";
@@ -103,7 +103,7 @@ public class AnySearchTest extends AbstractTest {
 
     @BeforeEach
     public void adjustLoginDateForLocalSystem() throws ParseException {
-        User rossini = userDAO.findByUsername("rossini");
+        User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
         UPlainAttr loginDate = rossini.getPlainAttr("loginDate").get();
         loginDate.getValues().get(0).setDateValue(FormatUtils.parseDate(LOGIN_DATE_VALUE, "yyyy-MM-dd"));
@@ -627,15 +627,15 @@ public class AnySearchTest extends AbstractTest {
 
         List<Group> groups = searchDAO.search(searchCondition, AnyTypeKind.GROUP);
         assertEquals(2, groups.size());
-        assertTrue(groups.contains(groupDAO.findByName("root")));
-        assertTrue(groups.contains(groupDAO.findByName("otherchild")));
+        assertTrue(groups.contains(groupDAO.findByName("root").orElseThrow()));
+        assertTrue(groups.contains(groupDAO.findByName("otherchild").orElseThrow()));
     }
 
     @Test
     public void asGroupOwner() {
         // prepare authentication
         Map<String, Set<String>> entForRealms = new HashMap<>();
-        roleDAO.find(AuthDataAccessor.GROUP_OWNER_ROLE).getEntitlements().forEach(entitlement -> {
+        roleDAO.findById(AuthDataAccessor.GROUP_OWNER_ROLE).orElseThrow().getEntitlements().forEach(entitlement -> {
             Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                 Set<String> r = new HashSet<>();
                 entForRealms.put(entitlement, r);
@@ -796,13 +796,13 @@ public class AnySearchTest extends AbstractTest {
         service.setKind(AnyTypeKind.ANY_OBJECT);
         service = anyTypeDAO.save(service);
 
-        Group citizen = groupDAO.findByName("citizen");
+        Group citizen = groupDAO.findByName("citizen").orElseThrow();
         assertNotNull(citizen);
 
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         anyObject.setName("one");
         anyObject.setType(service);
-        anyObject.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM));
+        anyObject.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
 
         AMembership membership = entityFactory.newEntity(AMembership.class);
         membership.setRightEnd(citizen);
@@ -811,14 +811,14 @@ public class AnySearchTest extends AbstractTest {
         anyObject.add(membership);
         anyObjectDAO.save(anyObject);
 
-        anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
+        anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
         membership = entityFactory.newEntity(AMembership.class);
         membership.setRightEnd(citizen);
         membership.setLeftEnd(anyObject);
         anyObject.add(membership);
         anyObjectDAO.save(anyObject);
 
-        entityManager().flush();
+        entityManager.flush();
 
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroup("citizen");

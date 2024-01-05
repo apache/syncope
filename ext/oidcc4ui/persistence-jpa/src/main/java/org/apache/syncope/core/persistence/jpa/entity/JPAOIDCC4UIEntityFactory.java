@@ -39,8 +39,8 @@ public class JPAOIDCC4UIEntityFactory implements OIDCC4UIEntityFactory {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }
 
-        if (result instanceof AbstractGeneratedKeyEntity) {
-            ((AbstractGeneratedKeyEntity) result).setKey(SecureRandomUtils.generateRandomUUID().toString());
+        if (result instanceof AbstractGeneratedKeyEntity abstractGeneratedKeyEntity) {
+            abstractGeneratedKeyEntity.setKey(SecureRandomUtils.generateRandomUUID().toString());
         }
 
         return result;

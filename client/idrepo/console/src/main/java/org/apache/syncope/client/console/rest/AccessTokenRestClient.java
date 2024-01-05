@@ -35,7 +35,7 @@ public class AccessTokenRestClient extends BaseRestClient {
         getService(AccessTokenService.class).delete(key);
     }
 
-    public int count() {
+    public long count() {
         return getService(AccessTokenService.class).list(
                 new AccessTokenQuery.Builder().page(1).size(0).build()).
                 getTotalCount();

@@ -24,7 +24,7 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 
 public interface VirSchemaDAO extends SchemaDAO<VirSchema> {
 
-    List<String> find(ExternalResource resource);
+    List<? extends VirSchema> findByResource(ExternalResource resource);
 
-    List<VirSchema> find(String resource, String anyType);
+    List<? extends VirSchema> findByResourceAndAnyType(String resource, String anyType);
 }

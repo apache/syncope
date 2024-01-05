@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -43,7 +42,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class PlainSchemaTest extends AbstractTest {
 
     @Autowired
@@ -54,21 +53,20 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<PlainSchema> schemas = plainSchemaDAO.findAll();
+        List<? extends PlainSchema> schemas = plainSchemaDAO.findAll();
         assertEquals(27, schemas.size());
     }
 
     @Test
     public void search() {
-        List<PlainSchema> schemas = plainSchemaDAO.findByKeyword("fullna%");
+        List<? extends PlainSchema> schemas = plainSchemaDAO.findByIdLike("fullna%");
         assertEquals(1, schemas.size());
         assertEquals(0, schemas.get(0).getLabels().size());
     }
 
     @Test
     public void findByName() {
-        PlainSchema schema = plainSchemaDAO.find("firstname");
-        assertNotNull(schema);
+        PlainSchema schema = plainSchemaDAO.findById("firstname").orElseThrow();
 
         assertEquals(3, schema.getLabels().size());
         assertTrue(schema.getLabel(Locale.ITALIAN).isPresent());
@@ -78,15 +76,13 @@ public class PlainSchemaTest extends AbstractTest {
     @Tag("plainAttrTable")
     @Test
     public void findAttrs() {
-        PlainSchema schema = plainSchemaDAO.find("icon");
-        assertNotNull(schema);
+        PlainSchema schema = plainSchemaDAO.findById("icon").orElseThrow();
 
         List<GPlainAttr> gattrs = plainSchemaDAO.findAttrs(schema, GPlainAttr.class);
         assertNotNull(gattrs);
         assertFalse(gattrs.isEmpty());
 
-        schema = plainSchemaDAO.find("aLong");
-        assertNotNull(schema);
+        schema = plainSchemaDAO.findById("aLong").orElseThrow();
 
         List<UPlainAttr> uattrs = plainSchemaDAO.findAttrs(schema, UPlainAttr.class);
         assertNotNull(uattrs);
@@ -95,12 +91,10 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void hasAttrs() {
-        PlainSchema schema = plainSchemaDAO.find("icon");
-        assertNotNull(schema);
+        PlainSchema schema = plainSchemaDAO.findById("icon").orElseThrow();
         assertTrue(plainSchemaDAO.hasAttrs(schema, GPlainAttr.class));
 
-        schema = plainSchemaDAO.find("aLong");
-        assertNotNull(schema);
+        schema = plainSchemaDAO.findById("aLong").orElseThrow();
         assertFalse(plainSchemaDAO.hasAttrs(schema, UPlainAttr.class));
     }
 
@@ -109,14 +103,13 @@ public class PlainSchemaTest extends AbstractTest {
         PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey("secondaryEmail");
         schema.setType(AttrSchemaType.String);
-        schema.setValidator(implementationDAO.find("EmailAddressValidator"));
+        schema.setValidator(implementationDAO.findById("EmailAddressValidator").orElseThrow());
         schema.setMandatoryCondition("false");
         schema.setMultivalue(true);
 
         plainSchemaDAO.save(schema);
 
-        PlainSchema actual = plainSchemaDAO.find("secondaryEmail");
-        assertNotNull(actual);
+        PlainSchema actual = plainSchemaDAO.findById("secondaryEmail").orElseThrow();
         assertEquals(schema, actual);
     }
 
@@ -126,7 +119,7 @@ public class PlainSchemaTest extends AbstractTest {
             PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
             schema.setKey("secondaryEmail");
             schema.setType(AttrSchemaType.String);
-            schema.setValidator(implementationDAO.find("EmailAddressValidator"));
+            schema.setValidator(implementationDAO.findById("EmailAddressValidator").orElseThrow());
             schema.setMandatoryCondition("false");
             schema.setMultivalue(true);
             schema.setUniqueConstraint(true);
@@ -153,8 +146,7 @@ public class PlainSchemaTest extends AbstractTest {
 
         plainSchemaDAO.save(schema);
 
-        PlainSchema actual = plainSchemaDAO.find(schema.getKey());
-        assertNotNull(actual);
+        PlainSchema actual = plainSchemaDAO.findById(schema.getKey()).orElseThrow();
         assertNotNull(actual.getEnumerationKeys());
         assertFalse(actual.getEnumerationKeys().isEmpty());
     }
@@ -170,12 +162,11 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void delete() {
-        PlainSchema firstname = plainSchemaDAO.find("firstname");
+        PlainSchema firstname = plainSchemaDAO.findById("firstname").orElseThrow();
 
-        plainSchemaDAO.delete(firstname.getKey());
+        plainSchemaDAO.deleteById(firstname.getKey());
 
-        PlainSchema actual = plainSchemaDAO.find("firstname");
-        assertNull(actual);
+        assertTrue(plainSchemaDAO.findById("firstname").isEmpty());
     }
 
     @Test

@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -102,16 +101,17 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<RealmTO>> search(
+    public Pair<Long, List<RealmTO>> search(
             final String keyword,
             final String base,
             final int page,
             final int size) {
 
-        Realm baseRealm = Optional.ofNullable(base == null ? realmDAO.getRoot() : realmDAO.findByFullPath(base)).
-                orElseThrow(() -> new NotFoundException(base));
+        Realm baseRealm = base == null
+                ? realmDAO.getRoot()
+                : realmDAO.findByFullPath(base).orElseThrow(() -> new NotFoundException("Realm " + base));
 
-        int count = realmDAO.countDescendants(baseRealm.getFullPath(), keyword);
+        long count = realmDAO.countDescendants(baseRealm.getFullPath(), keyword);
 
         List<Realm> result = realmDAO.findDescendants(baseRealm.getFullPath(), keyword, page, size);
 
@@ -129,13 +129,13 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     public ProvisioningResult<RealmTO> create(final String parentPath, final RealmTO realmTO) {
         Realm parent;
         if (StringUtils.isBlank(realmTO.getParent())) {
-            parent = Optional.ofNullable(realmDAO.findByFullPath(parentPath)).
-                    orElseThrow(() -> new NotFoundException(parentPath));
+            parent = realmDAO.findByFullPath(parentPath).
+                    orElseThrow(() -> new NotFoundException("Realm " + parentPath));
 
             realmTO.setParent(parent.getFullPath());
         } else {
-            parent = Optional.ofNullable(realmDAO.find(realmTO.getParent())).
-                    orElseThrow(() -> new NotFoundException(realmTO.getParent()));
+            parent = realmDAO.findById(realmTO.getParent()).
+                    orElseThrow(() -> new NotFoundException("Realm " + realmTO.getParent()));
 
             if (!parent.getFullPath().equals(parentPath)) {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPath);
@@ -165,8 +165,8 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_UPDATE + "')")
     public ProvisioningResult<RealmTO> update(final RealmTO realmTO) {
-        Realm realm = Optional.ofNullable(realmDAO.findByFullPath(realmTO.getFullPath())).
-                orElseThrow(() -> new NotFoundException(realmTO.getFullPath()));
+        Realm realm = realmDAO.findByFullPath(realmTO.getFullPath()).
+                orElseThrow(() -> new NotFoundException("Realm " + realmTO.getFullPath()));
 
         Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(realm);
 
@@ -189,8 +189,8 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_DELETE + "')")
     public ProvisioningResult<RealmTO> delete(final String fullPath) {
-        Realm realm = Optional.ofNullable(realmDAO.findByFullPath(fullPath)).
-                orElseThrow(() -> new NotFoundException(fullPath));
+        Realm realm = realmDAO.findByFullPath(fullPath).
+                orElseThrow(() -> new NotFoundException("Realm " + fullPath));
 
         if (!realmDAO.findChildren(realm).isEmpty()) {
             throw SyncopeClientException.build(ClientExceptionType.RealmContains);
@@ -204,9 +204,9 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         int groups = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.GROUP);
         int anyObjects = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
         int macroTasks = taskDAO.findByRealm(realm).size();
-        int clientApps = casSPClientAppDAO.findByRealm(realm).size()
-                + saml2SPClientAppDAO.findByRealm(realm).size()
-                + oidcRPClientAppDAO.findByRealm(realm).size();
+        int clientApps = casSPClientAppDAO.findAllByRealm(realm).size()
+                + saml2SPClientAppDAO.findAllByRealm(realm).size()
+                + oidcRPClientAppDAO.findAllByRealm(realm).size();
 
         if (users + groups + anyObjects + macroTasks + clientApps > 0) {
             SyncopeClientException realmContains = SyncopeClientException.build(ClientExceptionType.RealmContains);
@@ -241,17 +241,17 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; fullPath == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    fullPath = (String) args[i];
-                } else if (args[i] instanceof RealmTO) {
-                    fullPath = ((RealmTO) args[i]).getFullPath();
+                if (args[i] instanceof String string) {
+                    fullPath = string;
+                } else if (args[i] instanceof RealmTO realmTO) {
+                    fullPath = realmTO.getFullPath();
                 }
             }
         }
 
         if (fullPath != null) {
             try {
-                return binder.getRealmTO(realmDAO.findByFullPath(fullPath), true);
+                return binder.getRealmTO(realmDAO.findByFullPath(fullPath).orElseThrow(), true);
             } catch (Throwable e) {
                 LOG.debug("Unresolved reference", e);
                 throw new UnresolvedReferenceException(e);

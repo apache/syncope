@@ -33,6 +33,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -77,7 +78,7 @@ public class MSEntraJWTSSOProviderTest {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
                 userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
 
-        when(userDAO.findByUsername(anyString())).thenReturn(user);
+        when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
         when(authDataAccessor.getAuthorities(AUTH_USERNAME, null)).
                 thenReturn(Set.of(mock(SyncopeGrantedAuthority.class)));
         when(user.getUsername()).thenReturn(AUTH_USERNAME);
@@ -105,7 +106,7 @@ public class MSEntraJWTSSOProviderTest {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
                 userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
 
-        when(userDAO.findByUsername(anyString())).thenReturn(user);
+        when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
 
         JWTClaimsSet payload = new JWTClaimsSet.Builder()
                 .issuer(TENANT_ID)
@@ -120,7 +121,7 @@ public class MSEntraJWTSSOProviderTest {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
                 userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
 
-        when(userDAO.findByUsername(anyString())).thenReturn(null);
+        when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.empty());
 
         Instant now = OffsetDateTime.now(ZoneOffset.UTC).toInstant();
         Instant issued = now.minus(1, ChronoUnit.MINUTES);
@@ -145,7 +146,7 @@ public class MSEntraJWTSSOProviderTest {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
                 userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
 
-        when(userDAO.findByUsername(anyString())).thenReturn(user);
+        when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
 
         Instant now = OffsetDateTime.now(ZoneOffset.UTC).toInstant();
         Instant issued = now.minus(1, ChronoUnit.MINUTES);
@@ -168,7 +169,7 @@ public class MSEntraJWTSSOProviderTest {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
                 userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
 
-        when(userDAO.findByUsername(anyString())).thenReturn(user);
+        when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
 
         Instant now = OffsetDateTime.now(ZoneOffset.UTC).toInstant();
         Instant issued = now.plus(6, ChronoUnit.MINUTES);
@@ -191,7 +192,7 @@ public class MSEntraJWTSSOProviderTest {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
                 userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
 
-        when(userDAO.findByUsername(anyString())).thenReturn(user);
+        when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
         when(authDataAccessor.getAuthorities(AUTH_USERNAME, null)).
                 thenReturn(Set.of(mock(SyncopeGrantedAuthority.class)));
         when(user.getUsername()).thenReturn(AUTH_USERNAME);
@@ -217,7 +218,7 @@ public class MSEntraJWTSSOProviderTest {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
                 userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
 
-        when(userDAO.findByUsername(anyString())).thenReturn(user);
+        when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
 
         Instant now = OffsetDateTime.now(ZoneOffset.UTC).toInstant();
         Instant issued = now.minus(1, ChronoUnit.MINUTES);
@@ -240,7 +241,7 @@ public class MSEntraJWTSSOProviderTest {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
                 userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
 
-        when(userDAO.findByUsername(anyString())).thenReturn(user);
+        when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
         when(authDataAccessor.getAuthorities(AUTH_USERNAME, null)).
                 thenReturn(Set.of(mock(SyncopeGrantedAuthority.class)));
         when(user.getUsername()).thenReturn(AUTH_USERNAME);
@@ -266,7 +267,7 @@ public class MSEntraJWTSSOProviderTest {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
                 userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
 
-        when(userDAO.findByUsername(anyString())).thenReturn(user);
+        when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
 
         Instant now = OffsetDateTime.now(ZoneOffset.UTC).toInstant();
         Instant issued = now.minus(1, ChronoUnit.HOURS);
@@ -289,7 +290,7 @@ public class MSEntraJWTSSOProviderTest {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
                 userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
 
-        when(userDAO.findByUsername(anyString())).thenReturn(user);
+        when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
         when(authDataAccessor.getAuthorities(AUTH_USERNAME, null)).
                 thenReturn(Set.of(mock(SyncopeGrantedAuthority.class)));
         when(user.getUsername()).thenReturn(AUTH_USERNAME);

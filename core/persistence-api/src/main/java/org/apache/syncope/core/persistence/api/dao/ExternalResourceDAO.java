@@ -27,10 +27,6 @@ import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 
 public interface ExternalResourceDAO extends DAO<ExternalResource> {
 
-    int count();
-
-    ExternalResource find(String key);
-
     ExternalResource authFind(String key);
 
     List<Provision> findProvisionsByAuxClass(AnyTypeClass anyTypeClass);
@@ -45,11 +41,5 @@ public interface ExternalResourceDAO extends DAO<ExternalResource> {
 
     List<ExternalResource> findByPolicy(Policy policy);
 
-    List<ExternalResource> findAll();
-
-    ExternalResource save(ExternalResource resource);
-
     void deleteMapping(String schemaName);
-
-    void delete(String key);
 }

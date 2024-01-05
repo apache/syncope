@@ -18,18 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
 
 public interface SRARouteDAO extends DAO<SRARoute> {
-
-    SRARoute find(String key);
-
-    List<SRARoute> findAll();
-
-    SRARoute save(SRARoute route);
-
-    void delete(String key);
-
-    void delete(SRARoute route);
 }

@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -41,15 +40,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class AttrRepoTest extends AbstractTest {
+
+    private static boolean isSpecificConf(final AttrRepoConf conf, final Class<? extends AttrRepoConf> clazz) {
+        return ClassUtils.isAssignable(clazz, conf.getClass());
+    }
 
     @Autowired
     private AttrRepoDAO attrRepoDAO;
 
     @Test
     public void findAll() {
-        List<AttrRepo> modules = attrRepoDAO.findAll();
+        List<? extends AttrRepo> modules = attrRepoDAO.findAll();
         assertNotNull(modules);
         assertFalse(modules.isEmpty());
         assertTrue(modules.size() >= 4);
@@ -57,27 +60,23 @@ public class AttrRepoTest extends AbstractTest {
 
     @Test
     public void find() {
-        AttrRepo attrRepo = attrRepoDAO.find("DefaultLDAPAttrRepo");
-        assertNotNull(attrRepo);
+        AttrRepo attrRepo = attrRepoDAO.findById("DefaultLDAPAttrRepo").orElseThrow();
         assertTrue(attrRepo.getConf() instanceof LDAPAttrRepoConf);
 
-        attrRepo = attrRepoDAO.find("DefaultJDBCAttrRepo");
-        assertNotNull(attrRepo);
+        attrRepo = attrRepoDAO.findById("DefaultJDBCAttrRepo").orElseThrow();
         assertTrue(attrRepo.getConf() instanceof JDBCAttrRepoConf);
 
-        attrRepo = attrRepoDAO.find("DefaultStubAttrRepo");
-        assertNotNull(attrRepo);
+        attrRepo = attrRepoDAO.findById("DefaultStubAttrRepo").orElseThrow();
         assertTrue(attrRepo.getConf() instanceof StubAttrRepoConf);
         assertEquals(1, attrRepo.getItems().size());
 
-        attrRepo = attrRepoDAO.find("DefaultSyncopeAttrRepo");
-        assertNotNull(attrRepo);
+        attrRepo = attrRepoDAO.findById("DefaultSyncopeAttrRepo").orElseThrow();
         assertTrue(attrRepo.getConf() instanceof SyncopeAttrRepoConf);
     }
 
     @Test
     public void findByType() {
-        List<AttrRepo> attrRepos = attrRepoDAO.findAll();
+        List<? extends AttrRepo> attrRepos = attrRepoDAO.findAll();
         assertTrue(attrRepos.stream().anyMatch(
                 attrRepo -> isSpecificConf(attrRepo.getConf(), LDAPAttrRepoConf.class)
                 && attrRepo.getKey().equals("DefaultLDAPAttrRepo")));
@@ -90,6 +89,32 @@ public class AttrRepoTest extends AbstractTest {
         assertTrue(attrRepos.stream().anyMatch(
                 attrRepo -> isSpecificConf(attrRepo.getConf(), StubAttrRepoConf.class)
                 && attrRepo.getKey().equals("DefaultStubAttrRepo")));
+    }
+
+    private void saveAttrRepo(final String key, final AttrRepoConf conf) {
+        AttrRepo attrRepo = entityFactory.newEntity(AttrRepo.class);
+        attrRepo.setKey(key);
+        attrRepo.setDescription("An attr repo");
+        attrRepo.setState(AttrRepoState.ACTIVE);
+        attrRepo.setConf(conf);
+
+        Item keyMapping = new Item();
+        keyMapping.setIntAttrName("uid");
+        keyMapping.setExtAttrName("username");
+        attrRepo.getItems().add(keyMapping);
+
+        Item fullnameMapping = new Item();
+        fullnameMapping.setIntAttrName("cn");
+        fullnameMapping.setExtAttrName("fullname");
+        attrRepo.getItems().add(fullnameMapping);
+
+        attrRepo = attrRepoDAO.save(attrRepo);
+        entityManager.flush();
+
+        assertNotNull(attrRepo);
+        assertNotNull(attrRepo.getKey());
+        assertEquals(attrRepo, attrRepoDAO.findById(attrRepo.getKey()).orElseThrow());
+        assertEquals(2, attrRepo.getItems().size());
     }
 
     @Test
@@ -134,8 +159,7 @@ public class AttrRepoTest extends AbstractTest {
 
     @Test
     public void updateWithLDAPRepo() {
-        AttrRepo module = attrRepoDAO.find("DefaultLDAPAttrRepo");
-        assertNotNull(module);
+        AttrRepo module = attrRepoDAO.findById("DefaultLDAPAttrRepo").orElseThrow();
         AttrRepoConf conf = module.getConf();
         LDAPAttrRepoConf.class.cast(conf).setBaseDn("dc=example2,dc=org");
         LDAPAttrRepoConf.class.cast(conf).setSearchFilter("cn={user2}");
@@ -145,16 +169,14 @@ public class AttrRepoTest extends AbstractTest {
         assertNotNull(module);
         assertNotNull(module.getKey());
 
-        AttrRepo found = attrRepoDAO.find(module.getKey());
-        assertNotNull(found);
+        AttrRepo found = attrRepoDAO.findById(module.getKey()).orElseThrow();
         assertEquals("dc=example2,dc=org", LDAPAttrRepoConf.class.cast(found.getConf()).getBaseDn());
         assertEquals("cn={user2}", LDAPAttrRepoConf.class.cast(found.getConf()).getSearchFilter());
     }
 
     @Test
     public void updateWithJDBCRepo() {
-        AttrRepo module = attrRepoDAO.find("DefaultJDBCAttrRepo");
-        assertNotNull(module);
+        AttrRepo module = attrRepoDAO.findById("DefaultJDBCAttrRepo").orElseThrow();
         AttrRepoConf conf = module.getConf();
         JDBCAttrRepoConf.class.cast(conf).setSql("SELECT * FROM otherTable WHERE name=?");
         module.setConf(conf);
@@ -162,32 +184,27 @@ public class AttrRepoTest extends AbstractTest {
         module = attrRepoDAO.save(module);
         assertNotNull(module);
         assertNotNull(module.getKey());
-        AttrRepo found = attrRepoDAO.find(module.getKey());
-        assertNotNull(found);
+        AttrRepo found = attrRepoDAO.findById(module.getKey()).orElseThrow();
         assertEquals("SELECT * FROM otherTable WHERE name=?", JDBCAttrRepoConf.class.cast(found.getConf()).getSql());
     }
 
     @Test
     public void updateWithStubRepo() {
-        AttrRepo module = attrRepoDAO.find("DefaultStubAttrRepo");
-        assertNotNull(module);
+        AttrRepo module = attrRepoDAO.findById("DefaultStubAttrRepo").orElseThrow();
         assertEquals(1, StubAttrRepoConf.class.cast(module.getConf()).getAttributes().size());
         AttrRepoConf conf = module.getConf();
         StubAttrRepoConf.class.cast(conf).getAttributes().put("attr3", UUID.randomUUID().toString());
         module.setConf(conf);
 
         module = attrRepoDAO.save(module);
-        assertNotNull(module);
         assertNotNull(module.getKey());
-        AttrRepo found = attrRepoDAO.find(module.getKey());
-        assertNotNull(found);
+        AttrRepo found = attrRepoDAO.findById(module.getKey()).orElseThrow();
         assertEquals(2, StubAttrRepoConf.class.cast(found.getConf()).getAttributes().size());
     }
 
     @Test
     public void updateWithSyncopeRepo() {
-        AttrRepo module = attrRepoDAO.find("DefaultSyncopeAttrRepo");
-        assertNotNull(module);
+        AttrRepo module = attrRepoDAO.findById("DefaultSyncopeAttrRepo").orElseThrow();
 
         AttrRepoConf conf = module.getConf();
         SyncopeAttrRepoConf.class.cast(conf).setDomain("Two");
@@ -196,49 +213,16 @@ public class AttrRepoTest extends AbstractTest {
         module = attrRepoDAO.save(module);
         assertNotNull(module);
         assertNotNull(module.getKey());
-        AttrRepo found = attrRepoDAO.find(module.getKey());
-        assertNotNull(found);
+        AttrRepo found = attrRepoDAO.findById(module.getKey()).orElseThrow();
         assertEquals("Two", SyncopeAttrRepoConf.class.cast(found.getConf()).getDomain());
     }
 
     @Test
     public void delete() {
-        AttrRepo attrRepo = attrRepoDAO.find("DefaultSyncopeAttrRepo");
-        assertNotNull(attrRepo);
+        assertTrue(attrRepoDAO.findById("DefaultSyncopeAttrRepo").isPresent());
 
-        attrRepoDAO.delete("DefaultSyncopeAttrRepo");
+        attrRepoDAO.deleteById("DefaultSyncopeAttrRepo");
 
-        attrRepo = attrRepoDAO.find("DefaultSyncopeAttrRepo");
-        assertNull(attrRepo);
-    }
-
-    private void saveAttrRepo(final String key, final AttrRepoConf conf) {
-        AttrRepo attrRepo = entityFactory.newEntity(AttrRepo.class);
-        attrRepo.setKey(key);
-        attrRepo.setDescription("An attr repo");
-        attrRepo.setState(AttrRepoState.ACTIVE);
-        attrRepo.setConf(conf);
-
-        Item keyMapping = new Item();
-        keyMapping.setIntAttrName("uid");
-        keyMapping.setExtAttrName("username");
-        attrRepo.getItems().add(keyMapping);
-
-        Item fullnameMapping = new Item();
-        fullnameMapping.setIntAttrName("cn");
-        fullnameMapping.setExtAttrName("fullname");
-        attrRepo.getItems().add(fullnameMapping);
-
-        attrRepo = attrRepoDAO.save(attrRepo);
-        entityManager().flush();
-
-        assertNotNull(attrRepo);
-        assertNotNull(attrRepo.getKey());
-        assertEquals(attrRepo, attrRepoDAO.find(attrRepo.getKey()));
-        assertEquals(2, attrRepo.getItems().size());
-    }
-
-    private static boolean isSpecificConf(final AttrRepoConf conf, final Class<? extends AttrRepoConf> clazz) {
-        return ClassUtils.isAssignable(clazz, conf.getClass());
+        assertTrue(attrRepoDAO.findById("DefaultSyncopeAttrRepo").isEmpty());
     }
 }

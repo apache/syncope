@@ -85,20 +85,19 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     @SuppressWarnings("unchecked")
     protected Pair<C, List<LogicActions>> beforeCreate(final C input) {
-        Realm realm = realmDAO.findByFullPath(input.getRealm());
-        if (realm == null) {
+        Realm realm = realmDAO.findByFullPath(input.getRealm()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(input.getRealm());
-            throw sce;
-        }
+            return sce;
+        });
 
         AnyType anyType = null;
         if (input instanceof UserCR) {
             anyType = anyTypeDAO.findUser();
         } else if (input instanceof GroupCR) {
             anyType = anyTypeDAO.findGroup();
-        } else if (input instanceof AnyObjectCR) {
-            anyType = anyTypeDAO.find(((AnyObjectCR) input).getType());
+        } else if (input instanceof AnyObjectCR anyObjectCR) {
+            anyType = anyTypeDAO.findById(anyObjectCR.getType()).orElse(null);
         }
         if (anyType == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
@@ -121,12 +120,11 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     @SuppressWarnings("unchecked")
     protected Pair<U, List<LogicActions>> beforeUpdate(final U input, final String realmPath) {
-        Realm realm = realmDAO.findByFullPath(realmPath);
-        if (realm == null) {
+        Realm realm = realmDAO.findByFullPath(realmPath).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(realmPath);
-            throw sce;
-        }
+            return sce;
+        });
 
         U update = input;
 
@@ -142,12 +140,11 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     @SuppressWarnings("unchecked")
     protected Pair<TO, List<LogicActions>> beforeDelete(final TO input) {
-        Realm realm = realmDAO.findByFullPath(input.getRealm());
-        if (realm == null) {
+        Realm realm = realmDAO.findByFullPath(input.getRealm()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(input.getRealm());
-            throw sce;
-        }
+            return sce;
+        });
 
         TO any = input;
 

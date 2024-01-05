@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.Bus;
@@ -117,11 +116,11 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
         MediaType mediaType = MediaType.valueOf(messageContext.getHttpServletRequest().getContentType());
         String boundary = mediaType.getParameters().get(RESTHeaders.BOUNDARY_PARAMETER);
 
-        if (batchDAO.find(boundary) != null) {
+        batchDAO.findById(boundary).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.EntityExists);
             sce.getElements().add("Batch with boundary " + boundary + " already processing");
-            throw sce;
-        }
+            return sce;
+        });
 
         // parse batch request
         List<BatchRequestItem> batchRequestItems;
@@ -170,7 +169,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
         MediaType mediaType = MediaType.valueOf(messageContext.getHttpServletRequest().getContentType());
         String boundary = mediaType.getParameters().get(RESTHeaders.BOUNDARY_PARAMETER);
 
-        Batch batch = Optional.ofNullable(batchDAO.find(boundary)).
+        Batch batch = batchDAO.findById(boundary).
                 orElseThrow(() -> new NotFoundException("Batch " + boundary));
 
         if (batch.getResults() == null) {
@@ -185,7 +184,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
                 type(RESTHeaders.multipartMixedWith(boundary)).
                 build();
 
-        batchDAO.delete(boundary);
+        batchDAO.deleteById(boundary);
 
         return response;
     }

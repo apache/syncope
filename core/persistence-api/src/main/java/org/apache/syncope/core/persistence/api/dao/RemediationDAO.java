@@ -27,13 +27,11 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 
 public interface RemediationDAO extends DAO<Remediation> {
 
-    Remediation find(String key);
+    long count(OffsetDateTime before, OffsetDateTime after);
 
     List<Remediation> findByAnyType(AnyType anyType);
 
     List<Remediation> findByPullTask(PullTask pullTask);
-
-    int count(OffsetDateTime before, OffsetDateTime after);
 
     List<Remediation> findAll(
             OffsetDateTime before,
@@ -41,10 +39,4 @@ public interface RemediationDAO extends DAO<Remediation> {
             int page,
             int itemsPerPage,
             List<OrderByClause> orderByClauses);
-
-    Remediation save(Remediation remediation);
-
-    void delete(Remediation remediation);
-
-    void delete(String key);
 }

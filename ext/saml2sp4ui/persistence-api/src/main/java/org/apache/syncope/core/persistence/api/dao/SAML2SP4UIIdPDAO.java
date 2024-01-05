@@ -18,18 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 
 public interface SAML2SP4UIIdPDAO extends DAO<SAML2SP4UIIdP> {
 
-    SAML2SP4UIIdP find(String key);
-
     SAML2SP4UIIdP findByEntityID(String entityID);
-
-    List<SAML2SP4UIIdP> findAll();
-
-    SAML2SP4UIIdP save(SAML2SP4UIIdP idp);
-
-    void delete(String key);
 }

@@ -22,7 +22,6 @@ import org.apache.syncope.common.lib.policy.AuthPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
-import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
@@ -69,15 +68,10 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
                 authPolicyConf = clientApp.getRealm().getAuthPolicy().getConf();
                 waClientApp.setAuthPolicy(policyDataBinder.getPolicyTO(clientApp.getRealm().getAuthPolicy()));
             }
-            if (authPolicyConf instanceof DefaultAuthPolicyConf) {
-                ((DefaultAuthPolicyConf) authPolicyConf).getAuthModules().forEach(key -> {
-                    AuthModule authModule = authModuleDAO.find(key);
-                    if (authModule == null) {
-                        LOG.warn("AuthModule " + authModule + " not found");
-                    } else {
-                        waClientApp.getAuthModules().add(authModuleDataBinder.getAuthModuleTO(authModule));
-                    }
-                });
+            if (authPolicyConf instanceof DefaultAuthPolicyConf defaultAuthPolicyConf) {
+                defaultAuthPolicyConf.getAuthModules().forEach(key -> authModuleDAO.findById(key).ifPresentOrElse(
+                        module -> waClientApp.getAuthModules().add(authModuleDataBinder.getAuthModuleTO(module)),
+                        () -> LOG.warn("AuthModule " + key + " not found")));
             }
 
             if (clientApp.getAccessPolicy() != null) {

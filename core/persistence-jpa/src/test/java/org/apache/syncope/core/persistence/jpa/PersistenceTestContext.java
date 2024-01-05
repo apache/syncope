@@ -19,12 +19,16 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
+import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingDataSource;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
@@ -42,6 +46,8 @@ import org.springframework.core.io.Resource;
 @Import(PersistenceContext.class)
 @Configuration(proxyBeanMethods = false)
 public class PersistenceTestContext {
+
+    public static final ThreadLocal<String> TEST_DOMAIN = ThreadLocal.withInitial(() -> SyncopeConstants.MASTER_DOMAIN);
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
@@ -112,5 +118,21 @@ public class PersistenceTestContext {
     @Bean
     public ConnectorManager connectorManager() {
         return new DummyConnectorManager();
+    }
+
+    @Bean
+    public DomainRoutingDataSource domainRoutingDataSource(final DomainHolder domainHolder) {
+        Map<Object, Object> targetDataSources = new HashMap<>();
+        domainHolder.getDomains().forEach((domain, dataSource) -> targetDataSources.put(domain, dataSource));
+        DomainRoutingDataSource routingSA = new DomainRoutingDataSource() {
+
+            @Override
+            protected Object determineCurrentLookupKey() {
+                return TEST_DOMAIN.get();
+            }
+        };
+        routingSA.setDefaultTargetDataSource(domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
+        routingSA.setTargetDataSources(targetDataSources);
+        return routingSA;
     }
 }

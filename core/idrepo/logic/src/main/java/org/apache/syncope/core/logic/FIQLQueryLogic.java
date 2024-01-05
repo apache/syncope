@@ -62,11 +62,8 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public FIQLQueryTO read(final String key) {
-        FIQLQuery fiqlQuery = fiqlQueryDAO.find(key);
-        if (fiqlQuery == null) {
-            LOG.error("Could not find fiqlQuery '" + key + "'");
-            throw new NotFoundException(key);
-        }
+        FIQLQuery fiqlQuery = fiqlQueryDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("FIQLQuery " + key));
 
         securityChecks(fiqlQuery.getOwner().getUsername());
 
@@ -76,7 +73,10 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<FIQLQueryTO> list(final String target) {
-        return fiqlQueryDAO.findByOwner(userDAO.findByUsername(AuthContextUtils.getUsername()), target).stream().
+        return fiqlQueryDAO.findByOwner(
+                userDAO.findByUsername(AuthContextUtils.getUsername()).
+                        orElseThrow(() -> new NotFoundException("User " + AuthContextUtils.getUsername())), target).
+                stream().
                 map(binder::getFIQLQueryTO).collect(Collectors.toList());
     }
 
@@ -87,11 +87,8 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
 
     @PreAuthorize("isAuthenticated()")
     public FIQLQueryTO update(final FIQLQueryTO fiqlQueryTO) {
-        FIQLQuery fiqlQuery = fiqlQueryDAO.find(fiqlQueryTO.getKey());
-        if (fiqlQuery == null) {
-            LOG.error("Could not find fiqlQuery '" + fiqlQueryTO.getKey() + "'");
-            throw new NotFoundException(fiqlQueryTO.getKey());
-        }
+        FIQLQuery fiqlQuery = fiqlQueryDAO.findById(fiqlQueryTO.getKey()).
+                orElseThrow(() -> new NotFoundException("FIQLQuery " + fiqlQueryTO.getKey()));
 
         securityChecks(fiqlQuery.getOwner().getUsername());
 
@@ -100,16 +97,13 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
 
     @PreAuthorize("isAuthenticated()")
     public FIQLQueryTO delete(final String key) {
-        FIQLQuery fiqlQuery = fiqlQueryDAO.find(key);
-        if (fiqlQuery == null) {
-            LOG.error("Could not find fiqlQuery '" + key + "'");
-            throw new NotFoundException(key);
-        }
+        FIQLQuery fiqlQuery = fiqlQueryDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("FIQLQuery " + key));
 
         securityChecks(fiqlQuery.getOwner().getUsername());
 
         FIQLQueryTO deleted = binder.getFIQLQueryTO(fiqlQuery);
-        fiqlQueryDAO.delete(key);
+        fiqlQueryDAO.deleteById(key);
         return deleted;
     }
 
@@ -121,17 +115,17 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof FIQLQueryTO) {
-                    key = ((FIQLQueryTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof FIQLQueryTO fIQLQueryTO) {
+                    key = fIQLQueryTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getFIQLQueryTO(fiqlQueryDAO.find(key));
+                return binder.getFIQLQueryTO(fiqlQueryDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

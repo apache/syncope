@@ -70,10 +70,8 @@ public class SAML2SP4UIIdPLogic extends AbstractSAML2SP4UILogic {
     @PreAuthorize("hasRole('" + SAML2SP4UIEntitlement.IDP_READ + "')")
     @Transactional(readOnly = true)
     public SAML2SP4UIIdPTO read(final String key) {
-        SAML2SP4UIIdP idp = idpDAO.find(key);
-        if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + key + '\'');
-        }
+        SAML2SP4UIIdP idp = idpDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("SAML 2.0 IdP " + key));
 
         return binder.getIdPTO(idp);
     }
@@ -97,10 +95,8 @@ public class SAML2SP4UIIdPLogic extends AbstractSAML2SP4UILogic {
 
     @PreAuthorize("hasRole('" + SAML2SP4UIEntitlement.IDP_UPDATE + "')")
     public void update(final SAML2SP4UIIdPTO saml2IdpTO) {
-        SAML2SP4UIIdP idp = idpDAO.find(saml2IdpTO.getKey());
-        if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + saml2IdpTO.getKey() + '\'');
-        }
+        SAML2SP4UIIdP idp = idpDAO.findById(saml2IdpTO.getKey()).
+                orElseThrow(() -> new NotFoundException("SAML 2.0 IdP " + saml2IdpTO.getKey()));
 
         idp = binder.update(idp, saml2IdpTO);
         saml2ClientCacheLogin.removeAll(idp.getEntityID());
@@ -109,12 +105,10 @@ public class SAML2SP4UIIdPLogic extends AbstractSAML2SP4UILogic {
 
     @PreAuthorize("hasRole('" + SAML2SP4UIEntitlement.IDP_DELETE + "')")
     public void delete(final String key) {
-        SAML2SP4UIIdP idp = idpDAO.find(key);
-        if (idp == null) {
-            throw new NotFoundException("SAML 2.0 IdP '" + key + '\'');
-        }
+        SAML2SP4UIIdP idp = idpDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("SAML 2.0 IdP " + key));
 
-        idpDAO.delete(key);
+        idpDAO.deleteById(key);
         saml2ClientCacheLogin.removeAll(idp.getEntityID());
         saml2ClientCacheLogout.removeAll(idp.getEntityID());
     }
@@ -137,8 +131,7 @@ public class SAML2SP4UIIdPLogic extends AbstractSAML2SP4UILogic {
 
         if (key != null) {
             try {
-                SAML2SP4UIIdP idp = idpDAO.find(key);
-                return binder.getIdPTO(idp);
+                return binder.getIdPTO(idpDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

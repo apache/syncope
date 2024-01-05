@@ -34,7 +34,7 @@ public class ExpiredBatchCleanup extends AbstractSchedTaskJobDelegate<SchedTask>
             throws JobExecutionException {
 
         if (!dryRun) {
-            int deleted = batchDAO.deleteExpired();
+            long deleted = batchDAO.deleteExpired();
             LOG.debug("Successfully deleted {} expired batch requests", deleted);
         }
 

@@ -19,20 +19,18 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import jakarta.persistence.EntityManager;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExtImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@SpringJUnitConfig(classes = { PersistenceTestContext.class })
+@SpringJUnitConfig(classes = { MasterDomain.class, PersistenceTestContext.class })
 @DirtiesContext
 public abstract class AbstractTest {
 
@@ -42,22 +40,16 @@ public abstract class AbstractTest {
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
-    protected EntityManager entityManager() {
-        EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(
-                EntityManagerFactoryUtils.findEntityManagerFactory(
-                        ApplicationContextProvider.getBeanFactory(), AuthContextUtils.getDomain()));
-        if (entityManager == null) {
-            throw new IllegalStateException("Could not find EntityManager for domain " + AuthContextUtils.getDomain());
-        }
+    @Autowired
+    protected EntityManager entityManager;
 
-        return entityManager;
+    protected <T extends PlainAttr<?>> Optional<T> findPlainAttr(final String key, final Class<T> reference) {
+        return Optional.ofNullable(
+                reference.cast(entityManager.find(PlainSchemaRepoExtImpl.getEntityReference(reference), key)));
     }
 
-    protected <T extends PlainAttr<?>> T findPlainAttr(final String key, final Class<T> reference) {
-        return reference.cast(entityManager().find(JPAPlainAttrDAO.getEntityReference(reference), key));
-    }
-
-    protected <T extends PlainAttrValue> T findPlainAttrValue(final String key, final Class<T> reference) {
-        return reference.cast(entityManager().find(JPAPlainAttrValueDAO.getEntityReference(reference), key));
+    protected <T extends PlainAttrValue> Optional<T> findPlainAttrValue(final String key, final Class<T> reference) {
+        return Optional.ofNullable(
+                reference.cast(entityManager.find(JPAPlainAttrValueDAO.getEntityReference(reference), key)));
     }
 }

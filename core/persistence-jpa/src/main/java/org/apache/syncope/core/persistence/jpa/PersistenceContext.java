@@ -18,12 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.ValidationMode;
 import jakarta.validation.Validator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import javax.sql.DataSource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
@@ -55,7 +61,6 @@ import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -85,66 +90,101 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.DefaultPlain
 import org.apache.syncope.core.persistence.jpa.content.KeymasterConfParamLoader;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentExporter;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentLoader;
-import org.apache.syncope.core.persistence.jpa.dao.JPAAccessTokenDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyMatchDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAAnyObjectDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAAnyTypeClassDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAAnyTypeDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAApplicationDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAAttrRepoDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAAuditConfDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAAuthModuleDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAAuthProfileDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPABatchDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPACASSPClientAppDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAConnInstanceDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPADelegationDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPADerSchemaDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPADynRealmDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAEntityCacheDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAExternalResourceDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAFIQLQueryDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAGroupDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAImplementationDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAJobStatusDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAMailTemplateDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPANotificationDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCJWKSDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPersistenceInfoDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAPlainSchemaDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAPolicyDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPARealmDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPARelationshipTypeDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPARemediationDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAReportDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAReportExecDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPARoleDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPASAML2IdPEntityDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPASAML2SPClientAppDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPASAML2SPEntityDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPASRARouteDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPASecurityQuestionDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPATaskDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPATaskExecDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAUserDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAVirSchemaDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAWAConfigDAO;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeClassRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeClassRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ApplicationRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ApplicationRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuthProfileRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuthProfileRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.BatchRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.BatchRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.CASSPClientAppRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.CASSPClientAppRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ConnInstanceRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ConnInstanceRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.DelegationRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.DelegationRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.DerSchemaRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.DerSchemaRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.DynRealmRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.DynRealmRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ExternalResourceRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ExternalResourceRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.FIQLQueryRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.FIQLQueryRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.GroupRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.GroupRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ImplementationRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ImplementationRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.JobStatusRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.MailTemplateRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.NotificationRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.NotificationRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.OIDCRPClientAppRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.OIDCRPClientAppRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PolicyRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PolicyRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RealmRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RealmRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RelationshipTypeRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RelationshipTypeRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RemediationRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RemediationRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ReportExecRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ReportExecRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ReportRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RoleRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RoleRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.SAML2IdPEntityRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.SAML2SPClientAppRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.SAML2SPClientAppRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.SAML2SPEntityRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.SRARouteRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.SecurityQuestionRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.SecurityQuestionRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.TaskExecRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.TaskExecRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.TaskRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.TaskRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.VirSchemaRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.VirSchemaRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.WAConfigRepo;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.JPAEntityFactory;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAClientAppUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPolicyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskUtilsFactory;
+import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
-import org.apache.syncope.core.persistence.jpa.spring.DomainTransactionInterceptorInjector;
+import org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean;
+import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingDataSource;
 import org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUnitPostProcessor;
+import org.apache.syncope.core.persistence.jpa.spring.OpenJpaVendorAdapter;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
@@ -154,6 +194,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
+import org.springframework.jndi.JndiObjectFactoryBean;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.SharedEntityManagerCreator;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @EnableConfigurationProperties(PersistenceProperties.class)
@@ -162,31 +208,12 @@ public class PersistenceContext {
 
     private static final Logger OPENJPA_LOG = LoggerFactory.getLogger("org.apache.openjpa");
 
-    @Bean
-    public static BeanFactoryPostProcessor domainTransactionInterceptorInjector() {
-        return new DomainTransactionInterceptorInjector();
-    }
-
     @ConditionalOnMissingBean
     @Bean
-    public SearchCondVisitor searchCondVisitor() {
-        return new SearchCondVisitor();
-    }
+    public CommonEntityManagerFactoryConf commonEMFConf(
+            final PersistenceProperties persistenceProperties,
+            final List<JndiObjectFactoryBean> dataSources) {
 
-    @Bean
-    public Validator localValidatorFactoryBean() {
-        return new LocalValidatorFactoryBean();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public PlainAttrValidationManager plainAttrValidationManager() {
-        return new DefaultPlainAttrValidationManager();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public CommonEntityManagerFactoryConf commonEMFConf(final PersistenceProperties persistenceProperties) {
         CommonEntityManagerFactoryConf commonEMFConf = new CommonEntityManagerFactoryConf();
         commonEMFConf.setPackagesToScan("org.apache.syncope.core.persistence.jpa.entity");
         commonEMFConf.setValidationMode(ValidationMode.NONE);
@@ -214,7 +241,85 @@ public class PersistenceContext {
         jpaPropertyMap.put("openjpa.RemoteCommitProvider", persistenceProperties.getRemoteCommitProvider());
 
         commonEMFConf.setJpaPropertyMap(jpaPropertyMap);
+
+        dataSources.forEach(ds -> commonEMFConf.getDomains().put(
+                StringUtils.substringBetween(ds.getJndiName(), "java:comp/env/jdbc/syncope", "DataSource"),
+                (DataSource) ds.getObject()));
+
         return commonEMFConf;
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public DomainRoutingDataSource domainRoutingDataSource(final DomainHolder domainHolder) {
+        Map<Object, Object> targetDataSources = new HashMap<>();
+        domainHolder.getDomains().forEach((domain, dataSource) -> targetDataSources.put(domain, dataSource));
+        DomainRoutingDataSource routingSA = new DomainRoutingDataSource();
+        routingSA.setDefaultTargetDataSource(domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
+        routingSA.setTargetDataSources(targetDataSources);
+        return routingSA;
+    }
+
+    @ConditionalOnMissingBean
+    @Bean(name = { "entityManagerFactory", "domainEntityManagerFactory" })
+    public DomainEntityManagerFactoryBean domainEntityManagerFactory(
+            final PersistenceProperties props,
+            final DomainRoutingDataSource domainRoutingDataSource,
+            final CommonEntityManagerFactoryConf commonEMFConf) {
+
+        OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
+        vendorAdapter.setShowSql(false);
+        vendorAdapter.setGenerateDdl(true);
+        vendorAdapter.setDatabasePlatform(props.getDomain().get(0).getDatabasePlatform());
+
+        DomainEntityManagerFactoryBean masterEntityManagerFactory = new DomainEntityManagerFactoryBean();
+        masterEntityManagerFactory.setMappingResources(props.getDomain().get(0).getOrm());
+        masterEntityManagerFactory.setPersistenceUnitName("Syncope");
+        masterEntityManagerFactory.setDataSource(domainRoutingDataSource);
+        masterEntityManagerFactory.setJpaVendorAdapter(vendorAdapter);
+        masterEntityManagerFactory.setCommonEntityManagerFactoryConf(commonEMFConf);
+        masterEntityManagerFactory.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener());
+
+        if (props.getMetaDataFactory() != null) {
+            masterEntityManagerFactory.setJpaPropertyMap(Map.of(
+                    "openjpa.MetaDataFactory",
+                    props.getMetaDataFactory().replace("##orm##", props.getDomain().get(0).getOrm())));
+        }
+
+        return masterEntityManagerFactory;
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PlatformTransactionManager domainTransactionManager(
+            final DomainEntityManagerFactoryBean domainEntityManagerFactory) {
+
+        return new JpaTransactionManager(domainEntityManagerFactory.getObject());
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public TransactionTemplate domainTransactionTemplate(
+            final PlatformTransactionManager domainTransactionManager) {
+
+        return new TransactionTemplate(domainTransactionManager);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SearchCondVisitor searchCondVisitor() {
+        return new SearchCondVisitor();
+    }
+
+    @Bean
+    public Validator localValidatorFactoryBean() {
+        return new LocalValidatorFactoryBean();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PlainAttrValidationManager plainAttrValidationManager() {
+        return new DefaultPlainAttrValidationManager();
     }
 
     @ConditionalOnMissingBean
@@ -225,6 +330,7 @@ public class PersistenceContext {
             final Environment env) {
 
         return new XMLContentLoader(
+                persistenceProperties,
                 resourceLoader.getResource(persistenceProperties.getViewsXML()),
                 resourceLoader.getResource(persistenceProperties.getIndexesXML()),
                 env);
@@ -232,8 +338,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public XMLContentExporter xmlContentExporter(final DomainHolder domainHolder, final RealmDAO realmDAO) {
-        return new XMLContentExporter(domainHolder, realmDAO);
+    public XMLContentExporter xmlContentExporter(
+            final DomainHolder domainHolder,
+            final RealmDAO realmDAO,
+            final EntityManagerFactory domainEntityManagerFactory) {
+
+        return new XMLContentExporter(domainHolder, realmDAO, domainEntityManagerFactory);
     }
 
     @ConditionalOnMissingBean
@@ -307,26 +417,25 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public EntityCacheDAO entityCacheDAO() {
-        return new JPAEntityCacheDAO();
+    public EntityManager domainEntityManager(final DomainEntityManagerFactoryBean entityManagerFactoryBean) {
+        return SharedEntityManagerCreator.createSharedEntityManager(entityManagerFactoryBean.getObject());
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public PersistenceInfoDAO persistenceInfoDAO() {
-        return new JPAPersistenceInfoDAO();
+    public JpaRepositoryFactory jpaRepositoryFactory(final EntityManager domainEntityManager) {
+        return new JpaRepositoryFactory(domainEntityManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AccessTokenDAO accessTokenDAO() {
-        return new JPAAccessTokenDAO();
-    }
+    public AccessTokenDAO accessTokenDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
 
-    @ConditionalOnMissingBean
-    @Bean
-    public ApplicationDAO applicationDAO(final RoleDAO roleDAO, final @Lazy UserDAO userDAO) {
-        return new JPAApplicationDAO(roleDAO, userDAO);
+        return jpaRepositoryFactory.getRepository(
+                AccessTokenRepo.class,
+                new AccessTokenRepoExtImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean
@@ -353,20 +462,25 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public AnyObjectDAO anyObjectDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
-            final @Lazy GroupDAO groupDAO) {
+            final @Lazy GroupDAO groupDAO,
+            final EntityManager domainEntityManager) {
 
-        return new JPAAnyObjectDAO(
-                anyUtilsFactory,
-                plainSchemaDAO,
-                derSchemaDAO,
-                dynRealmDAO,
-                userDAO,
-                groupDAO);
+        return jpaRepositoryFactory.getRepository(
+                AnyObjectRepo.class,
+                new AnyObjectRepoExtImpl(
+                        anyUtilsFactory,
+                        plainSchemaDAO,
+                        derSchemaDAO,
+                        dynRealmDAO,
+                        userDAO,
+                        groupDAO,
+                        domainEntityManager));
     }
 
     @ConditionalOnMissingBean
@@ -380,7 +494,9 @@ public class PersistenceContext {
             final PlainSchemaDAO schemaDAO,
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final EntityManagerFactory domainEntityManagerFactory,
+            final EntityManager domainEntityManager) {
 
         return new JPAAnySearchDAO(
                 realmDAO,
@@ -391,324 +507,518 @@ public class PersistenceContext {
                 schemaDAO,
                 entityFactory,
                 anyUtilsFactory,
-                validator);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public AnyTypeDAO anyTypeDAO(final RemediationDAO remediationDAO) {
-        return new JPAAnyTypeDAO(remediationDAO);
+                validator,
+                domainEntityManagerFactory,
+                domainEntityManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public AnyTypeClassDAO anyTypeClassDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final AnyTypeDAO anyTypeDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO,
             final @Lazy GroupDAO groupDAO,
-            final ExternalResourceDAO resourceDAO) {
+            final ExternalResourceDAO resourceDAO,
+            final EntityManager domainEntityManager) {
 
-        return new JPAAnyTypeClassDAO(anyTypeDAO, plainSchemaDAO, derSchemaDAO, virSchemaDAO, groupDAO, resourceDAO);
+        return jpaRepositoryFactory.getRepository(
+                AnyTypeClassRepo.class,
+                new AnyTypeClassRepoExtImpl(
+                        anyTypeDAO,
+                        plainSchemaDAO,
+                        derSchemaDAO,
+                        virSchemaDAO,
+                        groupDAO,
+                        resourceDAO,
+                        domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AuditConfDAO auditConfDAO() {
-        return new JPAAuditConfDAO();
+    public AnyTypeDAO anyTypeDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final RemediationDAO remediationDAO,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                AnyTypeRepo.class,
+                new AnyTypeRepoExtImpl(remediationDAO, domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthModuleDAO authModuleDAO(final PolicyDAO policyDAO) {
-        return new JPAAuthModuleDAO(policyDAO);
+    public ApplicationDAO applicationDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final RoleDAO roleDAO,
+            final @Lazy UserDAO userDAO,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                ApplicationRepo.class,
+                new ApplicationRepoExtImpl(roleDAO, userDAO, domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrRepoDAO attrRepoDAO() {
-        return new JPAAttrRepoDAO();
+    public AuditConfDAO auditConfDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                AuditConfRepo.class,
+                new AuditConfRepoExtImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthProfileDAO authProfileDAO() {
-        return new JPAAuthProfileDAO();
+    public AttrRepoDAO attrRepoDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                AttrRepoRepo.class,
+                new AttrRepoRepoExtImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public BatchDAO batchDAO() {
-        return new JPABatchDAO();
+    public AuthModuleDAO authModuleDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final PolicyDAO policyDAO,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                AuthModuleRepo.class,
+                new AuthModuleRepoExtImpl(policyDAO, domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public CASSPClientAppDAO casSPClientAppDAO() {
-        return new JPACASSPClientAppDAO();
+    public AuthProfileDAO authProfileDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                AuthProfileRepo.class,
+                new AuthProfileRepoExtImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public ConnInstanceDAO connInstanceDAO(final @Lazy ExternalResourceDAO resourceDAO) {
-        return new JPAConnInstanceDAO(resourceDAO);
+    public BatchDAO batchDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                BatchRepo.class,
+                new BatchRepoExtImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public DelegationDAO delegationDAO() {
-        return new JPADelegationDAO();
+    public CASSPClientAppDAO casSPClientAppDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                CASSPClientAppRepo.class,
+                new CASSPClientAppRepoExtImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public FIQLQueryDAO fiqlQueryDAO() {
-        return new JPAFIQLQueryDAO();
+    public ConnInstanceDAO connInstanceDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final @Lazy ExternalResourceDAO resourceDAO,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                ConnInstanceRepo.class,
+                new ConnInstanceRepoExtImpl(resourceDAO, domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public DerSchemaDAO derSchemaDAO(final @Lazy ExternalResourceDAO resourceDAO) {
-        return new JPADerSchemaDAO(resourceDAO);
+    public DelegationDAO delegationDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                DelegationRepo.class,
+                new DelegationRepoExtImpl(domainEntityManager));
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public DerSchemaDAO derSchemaDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final @Lazy ExternalResourceDAO resourceDAO,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                DerSchemaRepo.class,
+                new DerSchemaRepoExtImpl(resourceDAO, domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
     public DynRealmDAO dynRealmDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final ApplicationEventPublisher publisher,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
             final AnySearchDAO searchDAO,
             final AnyMatchDAO anyMatchDAO,
-            final SearchCondVisitor searchCondVisitor) {
+            final SearchCondVisitor searchCondVisitor,
+            final EntityManager domainEntityManager) {
 
-        return new JPADynRealmDAO(
-                publisher,
-                userDAO,
-                groupDAO,
-                anyObjectDAO,
-                searchDAO,
-                anyMatchDAO,
-                searchCondVisitor);
+        return jpaRepositoryFactory.getRepository(
+                DynRealmRepo.class,
+                new DynRealmRepoExtImpl(
+                        publisher,
+                        userDAO,
+                        groupDAO,
+                        anyObjectDAO,
+                        searchDAO,
+                        anyMatchDAO,
+                        searchCondVisitor,
+                        domainEntityManager));
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public EntityCacheDAO entityCacheDAO(final EntityManagerFactory domainEntityManagerFactory) {
+        return new JPAEntityCacheDAO(domainEntityManagerFactory);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public FIQLQueryDAO fiqlQueryDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                FIQLQueryRepo.class,
+                new FIQLQueryRepoExtImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
     public GroupDAO groupDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final ApplicationEventPublisher publisher,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final AnyMatchDAO anyMatchDAO,
-            final PlainAttrDAO plainAttrDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
             final AnySearchDAO anySearchDAO,
-            final SearchCondVisitor searchCondVisitor) {
+            final SearchCondVisitor searchCondVisitor,
+            final EntityManager domainEntityManager) {
 
-        return new JPAGroupDAO(
-                anyUtilsFactory,
-                publisher,
-                plainSchemaDAO,
-                derSchemaDAO,
-                dynRealmDAO,
-                anyMatchDAO,
-                plainAttrDAO,
-                userDAO,
-                anyObjectDAO,
-                anySearchDAO,
-                searchCondVisitor);
+        return jpaRepositoryFactory.getRepository(
+                GroupRepo.class,
+                new GroupRepoExtImpl(
+                        anyUtilsFactory,
+                        publisher,
+                        plainSchemaDAO,
+                        derSchemaDAO,
+                        dynRealmDAO,
+                        anyMatchDAO,
+                        userDAO,
+                        anyObjectDAO,
+                        anySearchDAO,
+                        searchCondVisitor,
+                        domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
     public ImplementationDAO implementationDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final @Lazy ExternalResourceDAO resourceDAO,
-            final @Lazy EntityCacheDAO entityCacheDAO) {
+            final @Lazy EntityCacheDAO entityCacheDAO,
+            final EntityManager domainEntityManager) {
 
-        return new JPAImplementationDAO(resourceDAO, entityCacheDAO);
+        return jpaRepositoryFactory.getRepository(
+                ImplementationRepo.class,
+                new ImplementationRepoExtImpl(resourceDAO, entityCacheDAO, domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public JobStatusDAO jobStatusDAO() {
-        return new JPAJobStatusDAO();
+    public JobStatusDAO jobStatusDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(JobStatusRepo.class);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public MailTemplateDAO mailTemplateDAO() {
-        return new JPAMailTemplateDAO();
+    public MailTemplateDAO mailTemplateDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(MailTemplateRepo.class);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public NotificationDAO notificationDAO(final TaskDAO taskDAO) {
-        return new JPANotificationDAO(taskDAO);
+    public NotificationDAO notificationDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final TaskDAO taskDAO,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                NotificationRepo.class,
+                new NotificationRepoExtImpl(taskDAO, domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public OIDCJWKSDAO oidcJWKSDAO() {
-        return new JPAOIDCJWKSDAO();
+    public OIDCJWKSDAO oidcJWKSDAO(final EntityManager domainEntityManager) {
+        return new JPAOIDCJWKSDAO(domainEntityManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public OIDCRPClientAppDAO oidcRPClientAppDAO() {
-        return new JPAOIDCRPClientAppDAO();
+    public OIDCRPClientAppDAO oidcRPClientAppDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                OIDCRPClientAppRepo.class,
+                new OIDCRPClientAppRepoExtImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public PlainAttrDAO plainAttrDAO() {
-        return new JPAPlainAttrDAO();
+    public PersistenceInfoDAO persistenceInfoDAO(final EntityManagerFactory domainEntityManagerFactory) {
+        return new JPAPersistenceInfoDAO(domainEntityManagerFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public PlainAttrValueDAO plainAttrValueDAO() {
-        return new JPAPlainAttrValueDAO();
+    public PlainAttrValueDAO plainAttrValueDAO(final EntityManager domainEntityManager) {
+        return new JPAPlainAttrValueDAO(domainEntityManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public PlainSchemaDAO plainSchemaDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final AnyUtilsFactory anyUtilsFactory,
-            final PlainAttrDAO plainAttrDAO,
-            final @Lazy ExternalResourceDAO resourceDAO) {
+            final @Lazy ExternalResourceDAO resourceDAO,
+            final EntityManager domainEntityManager) {
 
-        return new JPAPlainSchemaDAO(anyUtilsFactory, plainAttrDAO, resourceDAO);
+        return jpaRepositoryFactory.getRepository(
+                PlainSchemaRepo.class,
+                new PlainSchemaRepoExtImpl(anyUtilsFactory, resourceDAO, domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
     public PolicyDAO policyDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final @Lazy RealmDAO realmDAO,
             final @Lazy ExternalResourceDAO resourceDAO,
             final @Lazy CASSPClientAppDAO casSPClientAppDAO,
             final @Lazy OIDCRPClientAppDAO oidcRPClientAppDAO,
             final @Lazy SAML2SPClientAppDAO saml2SPClientAppDAO,
-            final @Lazy EntityCacheDAO entityCacheDAO) {
+            final @Lazy EntityCacheDAO entityCacheDAO,
+            final EntityManager domainEntityManager) {
 
-        return new JPAPolicyDAO(
-                realmDAO,
-                resourceDAO,
-                casSPClientAppDAO,
-                oidcRPClientAppDAO,
-                saml2SPClientAppDAO,
-                entityCacheDAO);
+        return jpaRepositoryFactory.getRepository(
+                PolicyRepo.class,
+                new PolicyRepoExtImpl(
+                        realmDAO,
+                        resourceDAO,
+                        casSPClientAppDAO,
+                        oidcRPClientAppDAO,
+                        saml2SPClientAppDAO,
+                        entityCacheDAO,
+                        domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public RealmDAO realmDAO(final @Lazy RoleDAO roleDAO, final ApplicationEventPublisher publisher) {
-        return new JPARealmDAO(roleDAO, publisher);
+    public RealmDAO realmDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final @Lazy RoleDAO roleDAO,
+            final ApplicationEventPublisher publisher,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                RealmRepo.class,
+                new RealmRepoExtImpl(roleDAO, publisher, domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public RelationshipTypeDAO relationshipTypeDAO() {
-        return new JPARelationshipTypeDAO();
+    public RelationshipTypeDAO relationshipTypeDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                RelationshipTypeRepo.class,
+                new RelationshipTypeRepoExtImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public RemediationDAO remediationDAO() {
-        return new JPARemediationDAO();
+    public RemediationDAO remediationDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                RemediationRepo.class,
+                new RemediationRepoExtImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public ReportDAO reportDAO() {
-        return new JPAReportDAO();
+    public ReportDAO reportDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(ReportRepo.class);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public ReportExecDAO reportExecDAO() {
-        return new JPAReportExecDAO();
+    public ReportExecDAO reportExecDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                ReportExecRepo.class,
+                new ReportExecRepoExtImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
     public ExternalResourceDAO resourceDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final TaskDAO taskDAO,
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PolicyDAO policyDAO,
             final VirSchemaDAO virSchemaDAO,
-            final RealmDAO realmDAO) {
+            final RealmDAO realmDAO,
+            final EntityManager domainEntityManager) {
 
-        return new JPAExternalResourceDAO(taskDAO, anyObjectDAO, userDAO, groupDAO, policyDAO, virSchemaDAO, realmDAO);
+        return jpaRepositoryFactory.getRepository(
+                ExternalResourceRepo.class,
+                new ExternalResourceRepoExtImpl(
+                        taskDAO,
+                        anyObjectDAO,
+                        userDAO,
+                        groupDAO,
+                        policyDAO,
+                        virSchemaDAO,
+                        realmDAO,
+                        domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
     public RoleDAO roleDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final ApplicationEventPublisher publisher,
             final @Lazy AnyMatchDAO anyMatchDAO,
             final @Lazy AnySearchDAO anySearchDAO,
             final DelegationDAO delegationDAO,
-            final SearchCondVisitor searchCondVisitor) {
+            final SearchCondVisitor searchCondVisitor,
+            final EntityManager domainEntityManager) {
 
-        return new JPARoleDAO(anyMatchDAO, publisher, anySearchDAO, delegationDAO, searchCondVisitor);
+        return jpaRepositoryFactory.getRepository(
+                RoleRepo.class,
+                new RoleRepoExtImpl(
+                        publisher,
+                        anyMatchDAO,
+                        anySearchDAO,
+                        delegationDAO,
+                        searchCondVisitor,
+                        domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public SAML2SPClientAppDAO saml2SPClientAppDAO() {
-        return new JPASAML2SPClientAppDAO();
+    public SAML2IdPEntityDAO saml2IdPEntityDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(SAML2IdPEntityRepo.class);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public SAML2IdPEntityDAO saml2IdPEntityDAO() {
-        return new JPASAML2IdPEntityDAO();
+    public SAML2SPClientAppDAO saml2SPClientAppDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                SAML2SPClientAppRepo.class,
+                new SAML2SPClientAppRepoExtImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public SAML2SPEntityDAO saml2SPEntityDAO() {
-        return new JPASAML2SPEntityDAO();
+    public SAML2SPEntityDAO saml2SPEntityDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(SAML2SPEntityRepo.class);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public SecurityQuestionDAO securityQuestionDAO(final UserDAO userDAO) {
-        return new JPASecurityQuestionDAO(userDAO);
+    public SecurityQuestionDAO securityQuestionDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final UserDAO userDAO,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                SecurityQuestionRepo.class,
+                new SecurityQuestionRepoExtImpl(userDAO, domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public SRARouteDAO sraRouteDAO() {
-        return new JPASRARouteDAO();
+    public SRARouteDAO sraRouteDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(SRARouteRepo.class);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public TaskDAO taskDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final RealmDAO realmDAO,
             final RemediationDAO remediationDAO,
             final TaskUtilsFactory taskUtilsFactory,
-            final SecurityProperties securityProperties) {
+            final SecurityProperties securityProperties,
+            final EntityManager domainEntityManager) {
 
-        return new JPATaskDAO(realmDAO, remediationDAO, taskUtilsFactory, securityProperties);
+        return jpaRepositoryFactory.getRepository(
+                TaskRepo.class,
+                new TaskRepoExtImpl(
+                        realmDAO,
+                        remediationDAO,
+                        taskUtilsFactory,
+                        securityProperties,
+                        domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public TaskExecDAO taskExecDAO(final TaskDAO taskDAO, final TaskUtilsFactory taskUtilsFactory) {
-        return new JPATaskExecDAO(taskDAO, taskUtilsFactory);
+    public TaskExecDAO taskExecDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final TaskDAO taskDAO,
+            final TaskUtilsFactory taskUtilsFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                TaskExecRepo.class,
+                new TaskExecRepoExtImpl(taskDAO, taskUtilsFactory, domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
     public UserDAO userDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final SecurityProperties securityProperties,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
@@ -718,30 +1028,40 @@ public class PersistenceContext {
             final AccessTokenDAO accessTokenDAO,
             final @Lazy GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
-            final FIQLQueryDAO fiqlQueryDAO) {
+            final FIQLQueryDAO fiqlQueryDAO,
+            final EntityManager domainEntityManager) {
 
-        return new JPAUserDAO(
-                anyUtilsFactory,
-                plainSchemaDAO,
-                derSchemaDAO,
-                dynRealmDAO,
-                roleDAO,
-                accessTokenDAO,
-                groupDAO,
-                delegationDAO,
-                fiqlQueryDAO,
-                securityProperties);
+        return jpaRepositoryFactory.getRepository(
+                UserRepo.class,
+                new UserRepoExtImpl(
+                        anyUtilsFactory,
+                        plainSchemaDAO,
+                        derSchemaDAO,
+                        dynRealmDAO,
+                        roleDAO,
+                        accessTokenDAO,
+                        groupDAO,
+                        delegationDAO,
+                        fiqlQueryDAO,
+                        securityProperties,
+                        domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public VirSchemaDAO virSchemaDAO(final @Lazy ExternalResourceDAO resourceDAO) {
-        return new JPAVirSchemaDAO(resourceDAO);
+    public VirSchemaDAO virSchemaDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final @Lazy ExternalResourceDAO resourceDAO,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                VirSchemaRepo.class,
+                new VirSchemaRepoExtImpl(resourceDAO, domainEntityManager));
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public WAConfigDAO waConfigDAO() {
-        return new JPAWAConfigDAO();
+    public WAConfigDAO waConfigDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(WAConfigRepo.class);
     }
 }

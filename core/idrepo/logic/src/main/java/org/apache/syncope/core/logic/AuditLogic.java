@@ -24,7 +24,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -116,18 +115,17 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_READ + "')")
     @Transactional(readOnly = true)
     public AuditConfTO read(final String key) {
-        return Optional.ofNullable(auditConfDAO.find(key)).map(binder::getAuditTO).
+        return auditConfDAO.findById(key).map(binder::getAuditTO).
                 orElseThrow(() -> new NotFoundException("Audit " + key));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_SET + "')")
     public void set(final AuditConfTO auditTO) {
-        AuditConf audit = Optional.ofNullable(auditConfDAO.find(auditTO.getKey())).
-                orElseGet(() -> {
-                    AuditConf ac = entityFactory.newEntity(AuditConf.class);
-                    ac.setKey(auditTO.getKey());
-                    return ac;
-                });
+        AuditConf audit = auditConfDAO.findById(auditTO.getKey()).orElse(null);
+        if (audit == null) {
+            audit = entityFactory.newEntity(AuditConf.class);
+            audit.setKey(auditTO.getKey());
+        }
         audit.setActive(auditTO.isActive());
         audit = auditConfDAO.save(audit);
 
@@ -136,7 +134,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_DELETE + "')")
     public void delete(final String key) {
-        AuditConf audit = Optional.ofNullable(auditConfDAO.find(key)).
+        AuditConf audit = auditConfDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Audit " + key));
         auditConfDAO.delete(audit);
 
@@ -261,7 +259,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_SEARCH + "')")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<AuditEntry>> search(
+    public Pair<Long, List<AuditEntry>> search(
             final String entityKey,
             final int page,
             final int size,
@@ -274,7 +272,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             final OffsetDateTime after,
             final List<OrderByClause> orderBy) {
 
-        int count = auditConfDAO.countEntries(entityKey, type, category, subcategory, events, result, before, after);
+        long count = auditConfDAO.countEntries(entityKey, type, category, subcategory, events, result, before, after);
         List<AuditEntry> matching = auditConfDAO.searchEntries(
                 entityKey, page, size, type, category, subcategory, events, result, before, after, orderBy);
         return Pair.of(count, matching);
@@ -312,17 +310,17 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof AuditConfTO) {
-                    key = ((AuditConfTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof AuditConfTO auditConfTO) {
+                    key = auditConfTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getAuditTO(auditConfDAO.find(key));
+                return binder.getAuditTO(auditConfDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

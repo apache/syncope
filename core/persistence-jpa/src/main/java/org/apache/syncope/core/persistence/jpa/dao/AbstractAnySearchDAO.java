@@ -60,9 +60,13 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
-public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO {
+public abstract class AbstractAnySearchDAO implements AnySearchDAO {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(AnySearchDAO.class);
 
     private static final String[] ORDER_BY_NOT_ALLOWED = {
         "serialVersionUID", "password", "securityQuestion", "securityAnswer", "token", "tokenExpireTime"
@@ -199,10 +203,8 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     protected Pair<PlainSchema, PlainAttrValue> check(final AttrCond cond, final AnyTypeKind kind) {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
-        PlainSchema schema = plainSchemaDAO.find(cond.getSchema());
-        if (schema == null) {
-            throw new IllegalArgumentException("Invalid schema " + cond.getSchema());
-        }
+        PlainSchema schema = plainSchemaDAO.findById(cond.getSchema()).
+                orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema()));
 
         PlainAttrValue attrValue = schema.isUniqueConstraint()
                 ? anyUtils.newPlainAttrUniqueValue()

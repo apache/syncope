@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -69,8 +68,8 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_UPDATE + "')")
     public PolicyTO update(final PolicyType type, final PolicyTO policyTO) {
-        Policy policy = Optional.ofNullable(policyDAO.<Policy>find(policyTO.getKey())).
-                orElseThrow(() -> new NotFoundException("Policy " + policyTO.getKey() + " not found"));
+        Policy policy = policyDAO.findById(policyTO.getKey()).
+                orElseThrow(() -> new NotFoundException("Policy " + policyTO.getKey()));
 
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
         if (policyUtils.getType() != type) {
@@ -87,15 +86,15 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
     public <T extends PolicyTO> List<T> list(final PolicyType type) {
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(type);
 
-        return policyDAO.find(policyUtils.policyClass()).stream().
+        return policyDAO.findAll(policyUtils.policyClass()).stream().
                 <T>map(binder::getPolicyTO).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_READ + "')")
     @Transactional(readOnly = true)
     public <T extends PolicyTO> T read(final PolicyType type, final String key) {
-        Policy policy = Optional.ofNullable(policyDAO.<Policy>find(key)).
-                orElseThrow(() -> new NotFoundException("Policy " + key + " not found"));
+        Policy policy = policyDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Policy " + key));
 
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
         if (type != null && policyUtils.getType() != type) {
@@ -109,8 +108,8 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_DELETE + "')")
     public <T extends PolicyTO> T delete(final PolicyType type, final String key) {
-        Policy policy = Optional.ofNullable(policyDAO.<Policy>find(key)).
-                orElseThrow(() -> new NotFoundException("Policy " + key + " not found"));
+        Policy policy = policyDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Policy " + key));
 
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
         if (type != null && policyUtils.getType() != type) {
@@ -137,16 +136,16 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
             final String key;
             final PolicyType type;
 
-            if (args[0] instanceof PolicyType) {
-                type = (PolicyType) args[0];
+            if (args[0] instanceof PolicyType policyType) {
+                type = policyType;
             } else {
                 throw new RuntimeException("Invalid Policy type");
             }
 
-            if (args[1] instanceof String) {
-                key = (String) args[1];
-            } else if (args[1] instanceof PolicyTO) {
-                key = ((PolicyTO) args[1]).getKey();
+            if (args[1] instanceof String string) {
+                key = string;
+            } else if (args[1] instanceof PolicyTO policyTO) {
+                key = policyTO.getKey();
             } else {
                 throw new RuntimeException("Invalid ClientApp key");
             }

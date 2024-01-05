@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DelegationTO;
@@ -60,11 +59,11 @@ public class DelegationDataBinderImpl implements DelegationDataBinder {
     public Delegation create(final DelegationTO delegationTO) {
         Delegation delegation = entityFactory.newEntity(Delegation.class);
 
-        User delegating = Optional.ofNullable(userDAO.find(delegationTO.getDelegating())).
+        User delegating = userDAO.findById(delegationTO.getDelegating()).
                 orElseThrow(() -> new NotFoundException("Delegating User " + delegationTO.getDelegating()));
         delegation.setDelegating(delegating);
 
-        User delegated = Optional.ofNullable(userDAO.find(delegationTO.getDelegated())).
+        User delegated = userDAO.findById(delegationTO.getDelegated()).
                 orElseThrow(() -> new NotFoundException("Delegated User " + delegationTO.getDelegated()));
         delegation.setDelegated(delegated);
 
@@ -81,12 +80,12 @@ public class DelegationDataBinderImpl implements DelegationDataBinder {
             if (roleTO == null) {
                 LOG.error("Null {}", RoleTO.class.getSimpleName());
             } else {
-                Role role = roleDAO.find(roleTO);
-                if (role == null) {
-                    SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRole);
-                    sce.getElements().add("Role " + roleTO + " not found");
-                    throw sce;
-                }
+                Role role = roleDAO.findById(roleTO).
+                        orElseThrow(() -> {
+                            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRole);
+                            sce.getElements().add("Role " + roleTO + " not found");
+                            return sce;
+                        });
 
                 delegation.add(role);
             }

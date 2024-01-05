@@ -50,16 +50,16 @@ public class DefaultAuditManager implements AuditManager {
     protected static Object maskSensitive(final Object object) {
         Object masked;
 
-        if (object instanceof UserTO) {
-            masked = SerializationUtils.clone((UserTO) object);
+        if (object instanceof UserTO userTO) {
+            masked = SerializationUtils.clone(userTO);
             if (((UserTO) masked).getPassword() != null) {
                 ((UserTO) masked).setPassword(MASKED_VALUE);
             }
             if (((UserTO) masked).getSecurityAnswer() != null) {
                 ((UserTO) masked).setSecurityAnswer(MASKED_VALUE);
             }
-        } else if (object instanceof UserCR) {
-            masked = SerializationUtils.clone((UserCR) object);
+        } else if (object instanceof UserCR userCR) {
+            masked = SerializationUtils.clone(userCR);
             if (((UserCR) masked).getPassword() != null) {
                 ((UserCR) masked).setPassword(MASKED_VALUE);
             }
@@ -95,8 +95,8 @@ public class DefaultAuditManager implements AuditManager {
         auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS));
         auditEntry.setDate(OffsetDateTime.now());
 
-        AuditConf auditConf = auditConfDAO.find(auditEntry.getLogger().toAuditKey());
-        boolean auditRequested = auditConf != null && auditConf.isActive();
+        Optional<? extends AuditConf> auditConf = auditConfDAO.findById(auditEntry.getLogger().toAuditKey());
+        boolean auditRequested = auditConf.isPresent() && auditConf.get().isActive();
 
         if (auditRequested) {
             return true;
@@ -104,8 +104,8 @@ public class DefaultAuditManager implements AuditManager {
 
         auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.FAILURE));
 
-        auditConf = auditConfDAO.find(auditEntry.getLogger().toAuditKey());
-        auditRequested = auditConf != null && auditConf.isActive();
+        auditConf = auditConfDAO.findById(auditEntry.getLogger().toAuditKey());
+        auditRequested = auditConf.isPresent() && auditConf.get().isActive();
 
         return auditRequested;
     }
@@ -140,9 +140,7 @@ public class DefaultAuditManager implements AuditManager {
 
         AuditLoggerName auditLoggerName = new AuditLoggerName(type, category, subcategory, event, condition);
 
-        Optional.ofNullable(auditConfDAO.find(auditLoggerName.toAuditKey())).
-                filter(AuditConf::isActive).ifPresent(audit -> {
-
+        auditConfDAO.findById(auditLoggerName.toAuditKey()).filter(AuditConf::isActive).ifPresent(audit -> {
             Throwable throwable = output instanceof Throwable
                     ? (Throwable) output
                     : null;

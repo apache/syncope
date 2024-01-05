@@ -200,8 +200,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             resource.getOrgUnit().setSyncToken(ConnObjectUtils.toString(
                     connector.getLatestSyncToken(new ObjectClass(resource.getOrgUnit().getObjectClass()))));
         } else {
-            AnyType anyType = Optional.ofNullable(anyTypeDAO.find(anyTypeKey)).
-                    orElseThrow(() -> new NotFoundException("AnyType '" + anyTypeKey + '\''));
+            AnyType anyType = anyTypeDAO.findById(anyTypeKey).
+                    orElseThrow(() -> new NotFoundException("AnyType " + anyTypeKey));
             Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                     orElseThrow(() -> new NotFoundException(
                     "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
@@ -229,8 +229,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
             resource.getOrgUnit().setSyncToken(null);
         } else {
-            AnyType anyType = Optional.ofNullable(anyTypeDAO.find(anyTypeKey)).
-                    orElseThrow(() -> new NotFoundException("AnyType '" + anyTypeKey + '\''));
+            AnyType anyType = anyTypeDAO.findById(anyTypeKey).
+                    orElseThrow(() -> new NotFoundException("AnyType " + anyTypeKey));
             Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                     orElseThrow(() -> new NotFoundException(
                     "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
@@ -259,7 +259,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         connectorManager.unregisterConnector(resource);
 
         ResourceTO deleted = binder.getResourceTO(resource);
-        resourceDAO.delete(key);
+        resourceDAO.deleteById(key);
         return deleted;
     }
 
@@ -281,8 +281,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     protected Triple<AnyType, ExternalResource, Provision> getProvision(
             final String anyTypeKey, final String resourceKey) {
 
-        AnyType anyType = Optional.ofNullable(anyTypeDAO.find(anyTypeKey)).
-                orElseThrow(() -> new NotFoundException("AnyType '" + anyTypeKey + '\''));
+        AnyType anyType = anyTypeDAO.findById(anyTypeKey).
+                orElseThrow(() -> new NotFoundException("AnyType " + anyTypeKey));
 
         ExternalResource resource = Optional.ofNullable(resourceDAO.authFind(resourceKey)).
                 orElseThrow(() -> new NotFoundException("Resource '" + resourceKey + '\''));
@@ -400,10 +400,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         ObjectClass objectClass;
         OperationOptions options;
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
-            resource = resourceDAO.find(key);
-            if (resource == null) {
-                throw new NotFoundException("Resource '" + key + '\'');
-            }
+            resource = resourceDAO.findById(key).
+                    orElseThrow(() -> new NotFoundException("Resource " + key));
             if (resource.getOrgUnit() == null) {
                 throw new NotFoundException("Realm provisioning for resource '" + key + '\'');
             }
@@ -421,7 +419,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
             Stream<Item> mapItems = Stream.concat(
                     provision.getMapping().getItems().stream(),
-                    virSchemaDAO.find(resource.getKey(), triple.getLeft().getKey()).
+                    virSchemaDAO.findByResourceAndAnyType(resource.getKey(), triple.getLeft().getKey()).
                             stream().map(VirSchema::asLinkingMappingItem));
             options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new));
         }
@@ -455,8 +453,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public void check(final ResourceTO resourceTO) {
-        ConnInstance connInstance = Optional.ofNullable(connInstanceDAO.find(resourceTO.getConnector())).
-                orElseThrow(() -> new NotFoundException("Connector '" + resourceTO.getConnector() + '\''));
+        ConnInstance connInstance = connInstanceDAO.findById(resourceTO.getConnector()).
+                orElseThrow(() -> new NotFoundException("Connector " + resourceTO.getConnector()));
 
         connectorManager.createConnector(
                 connectorManager.buildConnInstanceOverride(
@@ -475,17 +473,17 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof ResourceTO) {
-                    key = ((ResourceTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof ResourceTO resourceTO) {
+                    key = resourceTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getResourceTO(resourceDAO.find(key));
+                return binder.getResourceTO(resourceDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

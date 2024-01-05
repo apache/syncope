@@ -74,7 +74,7 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
         latestAlerts.getObject().clear();
         latestAlerts.getObject().addAll(lastRemediations);
 
-        int latestAlertSize = getLatestAlertsSize();
+        long latestAlertSize = getLatestAlertsSize();
         linkAlertsNumber.setDefaultModelObject(latestAlertSize);
         target.add(linkAlertsNumber);
 
@@ -88,11 +88,11 @@ public class RemediationsWidget extends ExtAlertWidget<RemediationTO> {
     }
 
     @Override
-    protected int getLatestAlertsSize() {
+    protected long getLatestAlertsSize() {
         return SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_LIST)
                 && SyncopeConsoleSession.get().owns(IdMEntitlement.REMEDIATION_READ)
                 ? remediationRestClient.countRemediations()
-                : 0;
+                : 0L;
     }
 
     @Override

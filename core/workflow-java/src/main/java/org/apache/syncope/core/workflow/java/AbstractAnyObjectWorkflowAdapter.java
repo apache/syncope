@@ -20,7 +20,7 @@ package org.apache.syncope.core.workflow.java;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
@@ -74,7 +74,8 @@ public abstract class AbstractAnyObjectWorkflowAdapter
     public WorkflowResult<String> create(final AnyObjectCR anyObjectCR, final String creator, final String context) {
         WorkflowResult<String> result = doCreate(anyObjectCR, creator, context);
 
-        AnyObject anyObject = anyObjectDAO.find(result.getResult());
+        AnyObject anyObject = anyObjectDAO.findById(result.getResult()).
+                orElseThrow(() -> new IllegalStateException("Could not find the AnyObject just created"));
 
         // finally publish events for all groups affected by this operation, via membership
         anyObject.getMemberships().stream().forEach(m -> publisher.publishEvent(
@@ -93,7 +94,9 @@ public abstract class AbstractAnyObjectWorkflowAdapter
         WorkflowResult<AnyObjectUR> result = doUpdate(
                 anyObjectDAO.authFind(anyObjectUR.getKey()), anyObjectUR, updater, context);
 
-        AnyObject anyObject = anyObjectDAO.find(anyObjectUR.getKey());
+        AnyObject anyObject = anyObjectDAO.findById(anyObjectUR.getKey()).
+                orElseThrow(() -> new IllegalStateException("Could not find the AnyObject just updated"));
+
         // ensure that requester's administration rights are still valid
         Set<String> authRealms = new HashSet<>();
         authRealms.addAll(AuthContextUtils.getAuthorizations().
@@ -108,7 +111,7 @@ public abstract class AbstractAnyObjectWorkflowAdapter
 
         // finally publish events for all groups affected by this operation, via membership
         result.getResult().getMemberships().stream().map(MembershipUR::getGroup).distinct().
-                map(groupDAO::find).filter(Objects::nonNull).
+                map(groupDAO::findById).filter(Optional::isPresent).map(Optional::get).
                 forEach(group -> publisher.publishEvent(new EntityLifecycleEvent<>(
                 this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain())));
 

@@ -57,7 +57,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class AnySearchTest extends AbstractTest {
 
     @Autowired
@@ -87,7 +87,7 @@ public class AnySearchTest extends AbstractTest {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.findByFullPath("/even/two"));
+        role.add(realmDAO.findByFullPath("/even/two").orElseThrow());
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 
@@ -100,7 +100,7 @@ public class AnySearchTest extends AbstractTest {
         role = roleDAO.saveAndRefreshDynMemberships(role);
         assertNotNull(role);
 
-        entityManager().flush();
+        entityManager.flush();
 
         // 2. search user by this dynamic role
         RoleCond roleCond = new RoleCond();
@@ -115,11 +115,9 @@ public class AnySearchTest extends AbstractTest {
     @Test
     public void searchAsGroupOwner() {
         // 1. define rossini as member of director
-        User rossini = userDAO.findByUsername("rossini");
-        assertNotNull(rossini);
+        User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
-        Group group = groupDAO.findByName("director");
-        assertNotNull(group);
+        Group group = groupDAO.findByName("director").orElseThrow();
 
         UMembership membership = entityFactory.newEntity(UMembership.class);
         membership.setLeftEnd(rossini);
@@ -129,7 +127,7 @@ public class AnySearchTest extends AbstractTest {
         userDAO.save(rossini);
         assertNotNull(rossini);
 
-        entityManager().flush();
+        entityManager.flush();
 
         // 2. search all users with root realm entitlements: all users are returned, including rossini
         AnyCond anyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
@@ -154,8 +152,8 @@ public class AnySearchTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE95() {
-        groupDAO.findAll(1, 100).forEach(group -> groupDAO.delete(group.getKey()));
-        entityManager().flush();
+        groupDAO.findAll(1, 100).forEach(group -> groupDAO.deleteById(group.getKey()));
+        entityManager.flush();
 
         AttrCond coolLeafCond = new AttrCond(AttrCond.Type.EQ);
         coolLeafCond.setSchema("cool");
@@ -202,26 +200,25 @@ public class AnySearchTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE1512() {
-        Group group = groupDAO.findByName("root");
-        assertNotNull(group);
+        Group group = groupDAO.findByName("root").orElseThrow();
 
         // non unique
         GPlainAttr title = entityFactory.newEntity(GPlainAttr.class);
         title.setOwner(group);
-        title.setSchema(plainSchemaDAO.find("title"));
+        title.setSchema(plainSchemaDAO.findById("title").orElseThrow());
         title.add(validator, "syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         group.add(title);
 
         // unique
         GPlainAttr originalName = entityFactory.newEntity(GPlainAttr.class);
         originalName.setOwner(group);
-        originalName.setSchema(plainSchemaDAO.find("originalName"));
+        originalName.setSchema(plainSchemaDAO.findById("originalName").orElseThrow());
         originalName.add(validator, "syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         group.add(originalName);
 
         groupDAO.save(group);
 
-        entityManager().flush();
+        entityManager.flush();
 
         AttrCond titleCond = new AttrCond(AttrCond.Type.EQ);
         titleCond.setSchema("title");
@@ -256,19 +253,18 @@ public class AnySearchTest extends AbstractTest {
         assertEquals("verdi", users.get(0).getUsername());
 
         // 1. set rossini's email address for conditions as per SYNCOPE-1790
-        User rossini = userDAO.findByUsername("rossini");
-        assertNotNull(rossini);
+        User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
         UPlainAttr mail = entityFactory.newEntity(UPlainAttr.class);
         mail.setOwner(rossini);
-        mail.setSchema(plainSchemaDAO.find("email"));
+        mail.setSchema(plainSchemaDAO.findById("email").orElseThrow());
         mail.add(validator, "bisverdi@syncope.org", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         rossini.add(mail);
 
         userDAO.save(rossini);
-        entityManager().flush();
+        entityManager.flush();
 
-        rossini = userDAO.findByUsername("rossini");
+        rossini = userDAO.findByUsername("rossini").orElseThrow();
         assertEquals(
                 "bisverdi@syncope.org",
                 rossini.getPlainAttr("email").map(a -> a.getValuesAsStrings().get(0)).orElseThrow());

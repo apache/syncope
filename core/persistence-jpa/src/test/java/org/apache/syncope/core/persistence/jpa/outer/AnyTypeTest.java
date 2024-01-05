@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.outer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -32,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class AnyTypeTest extends AbstractTest {
 
     @Autowired
@@ -43,8 +42,7 @@ public class AnyTypeTest extends AbstractTest {
 
     @Test
     public void manyToMany() {
-        AnyTypeClass other = anyTypeClassDAO.find("other");
-        assertNotNull(other);
+        AnyTypeClass other = anyTypeClassDAO.findById("other").orElseThrow();
 
         AnyType user = anyTypeDAO.findUser();
         assertTrue(user.getClasses().contains(other));
@@ -55,7 +53,7 @@ public class AnyTypeTest extends AbstractTest {
         group.add(other);
         anyTypeDAO.save(group);
 
-        entityManager().flush();
+        entityManager.flush();
 
         user = anyTypeDAO.findUser();
         assertTrue(user.getClasses().contains(other));
@@ -65,9 +63,9 @@ public class AnyTypeTest extends AbstractTest {
         assertTrue(group.getClasses().contains(other));
         int groupClassesBefore = group.getClasses().size();
 
-        anyTypeClassDAO.delete("other");
+        anyTypeClassDAO.deleteById("other");
 
-        entityManager().flush();
+        entityManager.flush();
 
         user = anyTypeDAO.findUser();
         assertEquals(userClassesBefore, user.getClasses().size() + 1);

@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
-public interface AnySearchDAO extends DAO<Any<?>> {
+public interface AnySearchDAO {
 
     /**
      * @param base Realm to start searching from

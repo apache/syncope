@@ -291,7 +291,9 @@ public class ResourceStatusDirectoryPanel
 
         @Override
         public long size() {
-            return Optional.ofNullable(fiql).map(s -> restClient.count(SyncopeConstants.ROOT_REALM, s, type)).orElse(0);
+            return Optional.ofNullable(fiql).
+                    map(s -> restClient.count(SyncopeConstants.ROOT_REALM, s, type)).
+                    orElse(0L);
         }
     }
 }

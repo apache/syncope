@@ -26,8 +26,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface DelegationDAO extends DAO<Delegation> {
 
-    Delegation find(String key);
-
     Optional<String> findValidFor(String delegating, String delegated);
 
     List<String> findValidDelegating(String delegated);
@@ -36,13 +34,5 @@ public interface DelegationDAO extends DAO<Delegation> {
 
     List<Delegation> findByDelegated(User user);
 
-    List<Delegation> findByRole(Role role);
-
-    List<Delegation> findAll();
-
-    Delegation save(Delegation delegation);
-
-    void delete(Delegation delegation);
-
-    void delete(String key);
+    List<Delegation> findByRoles(Role role);
 }

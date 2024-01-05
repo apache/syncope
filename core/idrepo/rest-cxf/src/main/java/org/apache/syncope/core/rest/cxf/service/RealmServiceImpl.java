@@ -45,7 +45,7 @@ public class RealmServiceImpl extends AbstractService implements RealmService {
 
     @Override
     public PagedResult<RealmTO> search(final RealmQuery query) {
-        Pair<Integer, List<RealmTO>> result = logic.search(
+        Pair<Long, List<RealmTO>> result = logic.search(
                 Optional.ofNullable(query.getKeyword()).map(k -> k.replace('*', '%')).orElse(null),
                 query.getBase(),
                 query.getPage(),

@@ -45,6 +45,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrVal
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -408,12 +409,18 @@ public class JPAAnyUtils implements AnyUtils {
     public Set<ExternalResource> getAllResources(final Any<?> any) {
         Set<ExternalResource> resources = new HashSet<>();
 
-        if (any instanceof User) {
-            resources.addAll(userDAO.findAllResources((User) any));
-        } else if (any instanceof Group) {
-            resources.addAll(((Group) any).getResources());
-        } else if (any instanceof AnyObject) {
-            resources.addAll(anyObjectDAO.findAllResources((AnyObject) any));
+        switch (any) {
+            case User user ->
+                resources.addAll(userDAO.findAllResources(user));
+
+            case Group group ->
+                resources.addAll(group.getResources());
+
+            case AnyObject anyObject ->
+                resources.addAll(anyObjectDAO.findAllResources(anyObject));
+
+            default -> {
+            }
         }
 
         return resources;
@@ -427,7 +434,7 @@ public class JPAAnyUtils implements AnyUtils {
             final PlainSchema schema,
             final String value) {
 
-        Any any = dao().find(key);
+        Any any = dao().findById(key).orElseThrow(() -> new NotFoundException(anyTypeKind + " " + key));
 
         Set<AnyTypeClass> typeOwnClasses = new HashSet<>();
         typeOwnClasses.addAll(any.getType().getClasses());

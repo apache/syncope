@@ -87,14 +87,15 @@ public class ConnObjectUtils {
     public static String getPassword(final Object pwd) {
         StringBuilder result = new StringBuilder();
 
-        if (pwd instanceof GuardedString) {
-            result.append(SecurityUtil.decrypt((GuardedString) pwd));
-        } else if (pwd instanceof GuardedByteArray) {
-            result.append(Arrays.toString(SecurityUtil.decrypt((GuardedByteArray) pwd)));
-        } else if (pwd instanceof String) {
-            result.append((String) pwd);
-        } else {
-            result.append(pwd.toString());
+        switch (pwd) {
+            case GuardedString guardedString ->
+                result.append(SecurityUtil.decrypt(guardedString));
+            case GuardedByteArray guardedByteArray ->
+                result.append(Arrays.toString(SecurityUtil.decrypt(guardedByteArray)));
+            case String string ->
+                result.append(string);
+            default ->
+                result.append(pwd.toString());
         }
 
         return result.toString();
@@ -120,8 +121,8 @@ public class ConnObjectUtils {
                     attr.getValue().stream().filter(Objects::nonNull).forEach(value -> {
                         if (value instanceof GuardedString || value instanceof GuardedByteArray) {
                             attrTO.getValues().add(getPassword(value));
-                        } else if (value instanceof byte[]) {
-                            attrTO.getValues().add(Base64.getEncoder().encodeToString((byte[]) value));
+                        } else if (value instanceof byte[] bytea) {
+                            attrTO.getValues().add(Base64.getEncoder().encodeToString(bytea));
                         } else {
                             attrTO.getValues().add(value.toString());
                         }
@@ -201,12 +202,13 @@ public class ConnObjectUtils {
 
             // add resource policies
             userCR.getResources().stream().
-                    map(resourceDAO::find).
-                    filter(r -> r != null && r.getPasswordPolicy() != null).
+                    map(resourceDAO::findById).
+                    filter(Optional::isPresent).map(Optional::get).
+                    filter(r -> r.getPasswordPolicy() != null).
                     forEach(r -> passwordPolicies.add(r.getPasswordPolicy()));
 
             // add realm policies
-            Optional.ofNullable(realmDAO.findByFullPath(userCR.getRealm())).
+            realmDAO.findByFullPath(userCR.getRealm()).
                     ifPresent(realm -> realmDAO.findAncestors(realm).stream().
                     filter(ancestor -> ancestor.getPasswordPolicy() != null
                     && !passwordPolicies.contains(ancestor.getPasswordPolicy())).

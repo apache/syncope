@@ -50,10 +50,8 @@ public class AttrRepoLogic extends AbstractTransactionalLogic<AttrRepoTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.ATTR_REPO_UPDATE + "')")
     public AttrRepoTO update(final AttrRepoTO attrRepoTO) {
-        AttrRepo attrRepo = attrRepoDAO.find(attrRepoTO.getKey());
-        if (attrRepo == null) {
-            throw new NotFoundException("AttrRepo " + attrRepoTO.getKey() + " not found");
-        }
+        AttrRepo attrRepo = attrRepoDAO.findById(attrRepoTO.getKey()).
+                orElseThrow(() -> new NotFoundException("AttrRepo " + attrRepoTO.getKey()));
 
         return binder.getAttrRepoTO(attrRepoDAO.save(binder.update(attrRepo, attrRepoTO)));
     }
@@ -67,20 +65,16 @@ public class AttrRepoLogic extends AbstractTransactionalLogic<AttrRepoTO> {
     @PreAuthorize("hasRole('" + AMEntitlement.ATTR_REPO_READ + "')")
     @Transactional(readOnly = true)
     public AttrRepoTO read(final String key) {
-        AttrRepo attrRepo = attrRepoDAO.find(key);
-        if (attrRepo == null) {
-            throw new NotFoundException("AttrRepo " + key + " not found");
-        }
+        AttrRepo attrRepo = attrRepoDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("AttrRepo " + key));
 
         return binder.getAttrRepoTO(attrRepo);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.ATTR_REPO_DELETE + "')")
     public AttrRepoTO delete(final String key) {
-        AttrRepo attrRepo = attrRepoDAO.find(key);
-        if (attrRepo == null) {
-            throw new NotFoundException("AttrRepo " + key + " not found");
-        }
+        AttrRepo attrRepo = attrRepoDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("AttrRepo " + key));
 
         AttrRepoTO deleted = binder.getAttrRepoTO(attrRepo);
         attrRepoDAO.delete(attrRepo);
@@ -107,7 +101,7 @@ public class AttrRepoLogic extends AbstractTransactionalLogic<AttrRepoTO> {
         }
 
         try {
-            return binder.getAttrRepoTO(attrRepoDAO.find(key));
+            return binder.getAttrRepoTO(attrRepoDAO.findById(key).orElseThrow());
         } catch (Throwable ignore) {
             LOG.debug("Unresolved reference", ignore);
             throw new UnresolvedReferenceException(ignore);

@@ -62,7 +62,7 @@ public class ApplicationDataBinderImpl implements ApplicationDataBinder {
             if (privilegeTO == null) {
                 LOG.error("Null {}", PrivilegeTO.class.getSimpleName());
             } else {
-                Privilege privilege = applicationDAO.findPrivilege(privilegeTO.getKey());
+                Privilege privilege = applicationDAO.findPrivilege(privilegeTO.getKey()).orElse(null);
                 if (privilege == null) {
                     privilege = entityFactory.newEntity(Privilege.class);
                     privilege.setKey(privilegeTO.getKey());

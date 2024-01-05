@@ -18,18 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 
 public interface AuthModuleDAO extends DAO<AuthModule> {
-
-    AuthModule find(String key);
-
-    List<AuthModule> findAll();
-
-    AuthModule save(AuthModule authModule);
-
-    void delete(String key);
-
-    void delete(AuthModule authModule);
 }

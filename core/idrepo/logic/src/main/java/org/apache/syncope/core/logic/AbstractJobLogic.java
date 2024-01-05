@@ -101,7 +101,8 @@ abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactiona
                 jobTO.setStatus("UNKNOWN");
                 if (jobTO.isRunning()) {
                     try {
-                        jobTO.setStatus(Optional.ofNullable(jobStatusDAO.find(jobTO.getRefDesc())).
+                        jobTO.setStatus(Optional.ofNullable(jobStatusDAO.findById(jobTO.getRefDesc())).
+                                filter(Optional::isPresent).map(Optional::get).
                                 map(JobStatus::getStatus).
                                 orElse(jobTO.getStatus()));
                     } catch (NoSuchBeanDefinitionException e) {

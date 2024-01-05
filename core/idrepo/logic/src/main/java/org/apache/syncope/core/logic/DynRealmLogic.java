@@ -45,12 +45,8 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.DYNREALM_READ + "')")
     @Transactional(readOnly = true)
     public DynRealmTO read(final String key) {
-        DynRealm dynRealm = dynRealmDAO.find(key);
-        if (dynRealm == null) {
-            LOG.error("Could not find dynamic realm '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        DynRealm dynRealm = dynRealmDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("DynRealm " + key));
 
         return binder.getDynRealmTO(dynRealm);
     }
@@ -67,26 +63,19 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.DYNREALM_UPDATE + "')")
     public DynRealmTO update(final DynRealmTO dynRealmTO) {
-        DynRealm dynRealm = dynRealmDAO.find(dynRealmTO.getKey());
-        if (dynRealm == null) {
-            LOG.error("Could not find dynamic realm '" + dynRealmTO.getKey() + '\'');
-            throw new NotFoundException(dynRealmTO.getKey());
-        }
+        DynRealm dynRealm = dynRealmDAO.findById(dynRealmTO.getKey()).
+                orElseThrow(() -> new NotFoundException("DynRealm " + dynRealmTO.getKey()));
 
         return binder.getDynRealmTO(binder.update(dynRealm, dynRealmTO));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.DYNREALM_DELETE + "')")
     public DynRealmTO delete(final String key) {
-        DynRealm dynRealm = dynRealmDAO.find(key);
-        if (dynRealm == null) {
-            LOG.error("Could not find dynamic realm '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        DynRealm dynRealm = dynRealmDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("DynRealm " + key));
 
         DynRealmTO deleted = binder.getDynRealmTO(dynRealm);
-        dynRealmDAO.delete(key);
+        dynRealmDAO.deleteById(key);
         return deleted;
     }
 
@@ -98,17 +87,17 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof DynRealmTO) {
-                    key = ((DynRealmTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof DynRealmTO dynRealmTO) {
+                    key = dynRealmTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getDynRealmTO(dynRealmDAO.find(key));
+                return binder.getDynRealmTO(dynRealmDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

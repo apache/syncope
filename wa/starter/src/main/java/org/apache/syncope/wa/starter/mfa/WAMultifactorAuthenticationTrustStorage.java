@@ -106,7 +106,7 @@ public class WAMultifactorAuthenticationTrustStorage extends BaseMultifactorAuth
             return Set.of();
         }
 
-        int count = waRestClient.getService(MfaTrustStorageService.class).
+        long count = waRestClient.getService(MfaTrustStorageService.class).
                 search(new MfaTrustedDeviceQuery.Builder().page(1).size(0).build()).getTotalCount();
 
         Set<MultifactorAuthenticationTrustRecord> result = new HashSet<>();

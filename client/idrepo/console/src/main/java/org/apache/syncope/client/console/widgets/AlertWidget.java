@@ -53,12 +53,12 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
 
         setOutputMarkupId(true);
 
-        final LoadableDetachableModel<Integer> size = new LoadableDetachableModel<>() {
+        final LoadableDetachableModel<Long> size = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 7474274077691068779L;
 
             @Override
-            protected Integer load() {
+            protected Long load() {
                 return getLatestAlertsSize();
             }
         };
@@ -100,7 +100,7 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
         add(latestAlertsList);
     }
 
-    protected int getLatestAlertsSize() {
+    protected long getLatestAlertsSize() {
         return latestAlerts.getObject().size();
     }
 

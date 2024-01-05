@@ -19,13 +19,13 @@
 package org.apache.syncope.core.logic;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,21 +33,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class AuthProfileLogic extends AbstractAuthProfileLogic {
 
-    public AuthProfileLogic(final AuthProfileDAO authProfileDAO, final AuthProfileDataBinder binder) {
-        super(authProfileDAO, binder);
+    public AuthProfileLogic(
+            final AuthProfileDataBinder binder,
+            final AuthProfileDAO authProfileDAO,
+            final EntityFactory entityFactory) {
+
+        super(binder, authProfileDAO, entityFactory);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_DELETE + "') ")
     public void delete(final String key) {
-        authProfileDAO.delete(key);
+        authProfileDAO.deleteById(key);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_READ + "') ")
     @Transactional(readOnly = true)
     public AuthProfileTO read(final String key) {
-        return Optional.ofNullable(authProfileDAO.find(key)).
+        return authProfileDAO.findById(key).
                 map(binder::getAuthProfileTO).
-                orElseThrow(() -> new NotFoundException(key + " not found"));
+                orElseThrow(() -> new NotFoundException("AuthProfile " + key));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_CREATE + "') ")
@@ -57,16 +61,16 @@ public class AuthProfileLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_UPDATE + "') ")
     public void update(final AuthProfileTO authProfileTO) {
-        AuthProfile authProfile = Optional.ofNullable(authProfileDAO.find(authProfileTO.getKey())).
-                orElseThrow(() -> new NotFoundException(authProfileTO.getKey() + " not found"));
+        AuthProfile authProfile = authProfileDAO.findById(authProfileTO.getKey()).
+                orElseThrow(() -> new NotFoundException("AuthProfile " + authProfileTO.getKey()));
         binder.update(authProfile, authProfileTO);
         authProfileDAO.save(authProfile);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_LIST + "')")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<AuthProfileTO>> list(final int page, final int size) {
-        int count = authProfileDAO.count();
+    public Pair<Long, List<AuthProfileTO>> list(final int page, final int size) {
+        long count = authProfileDAO.count();
 
         List<AuthProfileTO> result = authProfileDAO.findAll(page, size).
                 stream().

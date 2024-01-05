@@ -33,15 +33,7 @@ public interface AuditConfDAO extends DAO<AuditConf> {
 
     String AUDIT_ENTRY_EVENT_DATE_COLUMN = "EVENT_DATE";
 
-    AuditConf find(String key);
-
-    List<AuditConf> findAll();
-
-    AuditConf save(AuditConf auditConf);
-
-    void delete(AuditConf auditConf);
-
-    int countEntries(
+    long countEntries(
             String entityKey,
             AuditElements.EventCategoryType type,
             String category,

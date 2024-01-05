@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -32,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class AnyTypeClassTest extends AbstractTest {
 
     @Autowired
@@ -43,8 +42,7 @@ public class AnyTypeClassTest extends AbstractTest {
 
     @Test
     public void find() {
-        AnyTypeClass minimalGroup = anyTypeClassDAO.find("minimal group");
-        assertNotNull(minimalGroup);
+        AnyTypeClass minimalGroup = anyTypeClassDAO.findById("minimal group").orElseThrow();
 
         assertFalse(minimalGroup.getPlainSchemas().isEmpty());
         assertFalse(minimalGroup.getDerSchemas().isEmpty());
@@ -53,7 +51,7 @@ public class AnyTypeClassTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<AnyTypeClass> list = anyTypeClassDAO.findAll();
+        List<? extends AnyTypeClass> list = anyTypeClassDAO.findAll();
         assertFalse(list.isEmpty());
     }
 
@@ -61,7 +59,7 @@ public class AnyTypeClassTest extends AbstractTest {
     public void save() {
         AnyTypeClass newClass = entityFactory.newEntity(AnyTypeClass.class);
         newClass.setKey("new class");
-        newClass.add(plainSchemaDAO.find("firstname"));
+        newClass.add(plainSchemaDAO.findById("firstname").orElseThrow());
 
         newClass = anyTypeClassDAO.save(newClass);
         assertNotNull(newClass);
@@ -72,10 +70,10 @@ public class AnyTypeClassTest extends AbstractTest {
 
     @Test
     public void delete() {
-        AnyTypeClass minimalUser = anyTypeClassDAO.find("minimal user");
+        AnyTypeClass minimalUser = anyTypeClassDAO.findById("minimal user").orElseThrow();
         assertNotNull(minimalUser);
 
-        anyTypeClassDAO.delete(minimalUser.getKey());
-        assertNull(anyTypeClassDAO.find("minimal user"));
+        anyTypeClassDAO.deleteById(minimalUser.getKey());
+        assertTrue(anyTypeClassDAO.findById("minimal user").isEmpty());
     }
 }

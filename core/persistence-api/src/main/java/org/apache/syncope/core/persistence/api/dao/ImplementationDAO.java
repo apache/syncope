@@ -23,15 +23,7 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 
 public interface ImplementationDAO extends DAO<Implementation> {
 
-    Implementation find(String key);
-
     List<Implementation> findByType(String type);
 
     List<Implementation> findByTypeAndKeyword(String type, String keyword);
-
-    List<Implementation> findAll();
-
-    Implementation save(Implementation implementation);
-
-    void delete(String key);
 }

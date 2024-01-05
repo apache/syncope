@@ -123,10 +123,8 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
             throws JobExecutionException {
 
         this.taskType = taskType;
-        task = (T) taskDAO.find(taskType, taskKey);
-        if (task == null) {
-            throw new JobExecutionException("Task " + taskKey + " not found");
-        }
+        task = (T) taskDAO.findById(taskType, taskKey).
+                orElseThrow(() -> new JobExecutionException("Task " + taskKey));
 
         if (!task.isActive()) {
             LOG.info("Task {} not active, aborting...", taskKey);

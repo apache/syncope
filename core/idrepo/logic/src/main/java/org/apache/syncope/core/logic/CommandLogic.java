@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -87,7 +86,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_READ + "')")
     @Transactional(readOnly = true)
     public CommandTO read(final String key) {
-        Implementation impl = Optional.ofNullable(implementationDAO.find(key)).
+        Implementation impl = implementationDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Implementation " + key));
 
         try {
@@ -103,7 +102,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.COMMAND_RUN + "')")
     @SuppressWarnings("unchecked")
     public String run(final CommandTO command) {
-        Implementation impl = Optional.ofNullable(implementationDAO.find(command.getKey())).
+        Implementation impl = implementationDAO.findById(command.getKey()).
                 orElseThrow(() -> new NotFoundException("Implementation " + command.getKey()));
 
         Command<CommandArgs> runnable;

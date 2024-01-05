@@ -19,24 +19,15 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 
 public interface AccessTokenDAO extends DAO<AccessToken> {
 
-    AccessToken find(String key);
-
-    AccessToken findByOwner(String username);
-
-    int count();
+    Optional<AccessToken> findByOwner(String username);
 
     List<AccessToken> findAll(int page, int itemsPerPage, List<OrderByClause> orderByClauses);
 
-    AccessToken save(AccessToken accessToken);
-
-    void delete(String key);
-
-    void delete(AccessToken accessToken);
-
-    int deleteExpired();
+    long deleteExpired();
 }

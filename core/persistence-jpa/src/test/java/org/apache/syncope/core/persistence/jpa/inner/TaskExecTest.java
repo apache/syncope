@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class TaskExecTest extends AbstractTest {
 
     @Autowired
@@ -50,7 +50,8 @@ public class TaskExecTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = (PropagationTask) taskDAO.findById(
+                TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
         OffsetDateTime startedBefore = OffsetDateTime.of(2015, 12, 18, 0, 0, 0, 0, FormatUtils.DEFAULT_OFFSET);
@@ -62,7 +63,8 @@ public class TaskExecTest extends AbstractTest {
 
     @Test
     public void findLatestStarted() {
-        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = (PropagationTask) taskDAO.findById(
+                TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
         TaskExec<?> latestStarted = taskExecDAO.findLatestStarted(TaskType.PROPAGATION, task);
@@ -72,7 +74,8 @@ public class TaskExecTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE214() {
-        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = (PropagationTask) taskDAO.findById(
+                TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
         String faultyMessage = "A faulty message";

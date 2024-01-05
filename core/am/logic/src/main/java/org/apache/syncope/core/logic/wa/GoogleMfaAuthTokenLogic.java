@@ -35,15 +35,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
 
-    protected final EntityFactory entityFactory;
-
     public GoogleMfaAuthTokenLogic(
-            final EntityFactory entityFactory,
+            final AuthProfileDataBinder binder,
             final AuthProfileDAO authProfileDAO,
-            final AuthProfileDataBinder binder) {
+            final EntityFactory entityFactory) {
 
-        super(authProfileDAO, binder);
-        this.entityFactory = entityFactory;
+        super(binder, authProfileDAO, entityFactory);
     }
 
     protected void removeTokenAndSave(final AuthProfile profile, final Predicate<GoogleMfaAuthToken> criteria) {
@@ -90,11 +87,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void store(final String owner, final GoogleMfaAuthToken token) {
-        AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
-            AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
-            authProfile.setOwner(owner);
-            return authProfile;
-        });
+        AuthProfile profile = authProfile(owner);
 
         List<GoogleMfaAuthToken> tokens = profile.getGoogleMfaAuthTokens();
         tokens.removeIf(t -> t.getOtp() == token.getOtp());

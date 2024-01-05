@@ -70,7 +70,7 @@ public class AuditServiceImpl extends AbstractService implements AuditService {
 
     @Override
     public PagedResult<AuditEntry> search(final AuditQuery auditQuery) {
-        Pair<Integer, List<AuditEntry>> result = logic.search(
+        Pair<Long, List<AuditEntry>> result = logic.search(
                 auditQuery.getEntityKey(),
                 auditQuery.getPage(),
                 auditQuery.getSize(),

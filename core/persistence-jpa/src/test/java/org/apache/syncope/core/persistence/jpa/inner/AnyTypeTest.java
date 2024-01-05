@@ -21,8 +21,8 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class AnyTypeTest extends AbstractTest {
 
     @Autowired
@@ -58,15 +58,14 @@ public class AnyTypeTest extends AbstractTest {
         assertEquals(AnyTypeKind.GROUP.name(), groupType.getKey());
         assertFalse(groupType.getClasses().isEmpty());
 
-        AnyType otherType = anyTypeDAO.find("PRINTER");
-        assertNotNull(otherType);
+        AnyType otherType = anyTypeDAO.findById("PRINTER").orElseThrow();
         assertEquals(AnyTypeKind.ANY_OBJECT, otherType.getKind());
         assertEquals("PRINTER", otherType.getKey());
     }
 
     @Test
     public void findAll() {
-        List<AnyType> list = anyTypeDAO.findAll();
+        List<? extends AnyType> list = anyTypeDAO.findAll();
         assertFalse(list.isEmpty());
     }
 
@@ -75,8 +74,8 @@ public class AnyTypeTest extends AbstractTest {
         AnyType newType = entityFactory.newEntity(AnyType.class);
         newType.setKey("new type");
         newType.setKind(AnyTypeKind.ANY_OBJECT);
-        newType.add(anyTypeClassDAO.find("generic membership"));
-        newType.add(anyTypeClassDAO.find("csv"));
+        newType.add(anyTypeClassDAO.findById("generic membership").orElseThrow());
+        newType.add(anyTypeClassDAO.findById("csv").orElseThrow());
 
         newType = anyTypeDAO.save(newType);
         assertNotNull(newType);
@@ -90,7 +89,7 @@ public class AnyTypeTest extends AbstractTest {
             newType.setKey("new type");
             newType.setKind(AnyTypeKind.USER);
             anyTypeDAO.save(newType);
-            entityManager().flush();
+            entityManager.flush();
         });
     }
 
@@ -101,21 +100,21 @@ public class AnyTypeTest extends AbstractTest {
             newType.setKey("group");
             newType.setKind(AnyTypeKind.ANY_OBJECT);
             anyTypeDAO.save(newType);
-            entityManager().flush();
+            entityManager.flush();
         });
     }
 
     @Test
     public void delete() {
-        AnyType otherType = anyTypeDAO.find("PRINTER");
+        AnyType otherType = anyTypeDAO.findById("PRINTER").orElseThrow();
         assertNotNull(otherType);
 
-        anyTypeDAO.delete(otherType.getKey());
-        assertNull(anyTypeDAO.find("PRINTER"));
+        anyTypeDAO.deleteById(otherType.getKey());
+        assertTrue(anyTypeDAO.findById("PRINTER").isEmpty());
     }
 
     @Test
     public void deleteInvalid() {
-        assertThrows(IllegalArgumentException.class, () -> anyTypeDAO.delete(AnyTypeKind.USER.name()));
+        assertThrows(IllegalArgumentException.class, () -> anyTypeDAO.deleteById(AnyTypeKind.USER.name()));
     }
 }

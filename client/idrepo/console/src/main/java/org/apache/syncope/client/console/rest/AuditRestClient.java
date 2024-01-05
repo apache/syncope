@@ -99,7 +99,7 @@ public class AuditRestClient extends BaseRestClient {
         return getService(AuditService.class).search(query).getResult();
     }
 
-    public int count(
+    public long count(
             final String key,
             final AuditElements.EventCategoryType type,
             final String category,

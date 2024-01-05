@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -36,7 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class RelationshipTypeTest extends AbstractTest {
 
     @Autowired
@@ -47,14 +46,13 @@ public class RelationshipTypeTest extends AbstractTest {
 
     @Test
     public void find() {
-        RelationshipType inclusion = relationshipTypeDAO.find("inclusion");
-        assertNotNull(inclusion);
+        RelationshipType inclusion = relationshipTypeDAO.findById("inclusion").orElseThrow();
         assertEquals("inclusion", inclusion.getKey());
     }
 
     @Test
     public void findAll() {
-        List<RelationshipType> list = relationshipTypeDAO.findAll();
+        List<? extends RelationshipType> list = relationshipTypeDAO.findAll();
         assertFalse(list.isEmpty());
     }
 
@@ -80,28 +78,26 @@ public class RelationshipTypeTest extends AbstractTest {
 
     @Test
     public void delete() {
-        RelationshipType type = relationshipTypeDAO.find("neighborhood");
-        assertNotNull(type);
+        RelationshipType type = relationshipTypeDAO.findById("neighborhood").orElseThrow();
 
-        relationshipTypeDAO.delete(type.getKey());
-        assertNull(relationshipTypeDAO.find("neighborhood"));
+        relationshipTypeDAO.deleteById(type.getKey());
+
+        assertTrue(relationshipTypeDAO.findById("neighborhood").isEmpty());
     }
 
     @Test
     public void deleteOnAnyObject() {
-        RelationshipType neighborhood = relationshipTypeDAO.find("neighborhood");
-        assertNotNull(neighborhood);
+        RelationshipType neighborhood = relationshipTypeDAO.findById("neighborhood").orElseThrow();
 
-        AnyObject anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
-        assertNotNull(anyObject);
+        AnyObject anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
         assertNotNull(anyObject.getRelationships(neighborhood));
         assertFalse(anyObject.getRelationships(neighborhood).isEmpty());
 
-        relationshipTypeDAO.delete("neighborhood");
+        relationshipTypeDAO.deleteById("neighborhood");
 
-        entityManager().flush();
+        entityManager.flush();
 
-        anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
+        anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
         assertNotNull(anyObject);
         assertTrue(anyObject.getRelationships().isEmpty());
     }

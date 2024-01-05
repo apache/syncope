@@ -57,47 +57,47 @@ public class NumbersInfo implements BaseBean {
         }
     }
 
-    private int totalUsers;
+    private long totalUsers;
 
-    private final Map<String, Integer> usersByRealm = new HashMap<>();
+    private final Map<String, Long> usersByRealm = new HashMap<>();
 
-    private final Map<String, Integer> usersByStatus = new HashMap<>();
+    private final Map<String, Long> usersByStatus = new HashMap<>();
 
-    private int totalGroups;
+    private long totalGroups;
 
-    private final Map<String, Integer> groupsByRealm = new HashMap<>();
+    private final Map<String, Long> groupsByRealm = new HashMap<>();
 
     private String anyType1;
 
-    private Integer totalAny1;
+    private Long totalAny1;
 
-    private final Map<String, Integer> any1ByRealm = new HashMap<>();
+    private final Map<String, Long> any1ByRealm = new HashMap<>();
 
     private String anyType2;
 
-    private Integer totalAny2;
+    private Long totalAny2;
 
-    private final Map<String, Integer> any2ByRealm = new HashMap<>();
+    private final Map<String, Long> any2ByRealm = new HashMap<>();
 
-    private int totalResources;
+    private long totalResources;
 
-    private int totalRoles;
+    private long totalRoles;
 
     private final Map<String, Boolean> confCompleteness = new HashMap<>();
 
-    public int getTotalUsers() {
+    public long getTotalUsers() {
         return totalUsers;
     }
 
-    public void setTotalUsers(final int totalUsers) {
+    public void setTotalUsers(final long totalUsers) {
         this.totalUsers = totalUsers;
     }
 
-    public int getTotalGroups() {
+    public long getTotalGroups() {
         return totalGroups;
     }
 
-    public void setTotalGroups(final int totalGroups) {
+    public void setTotalGroups(final long totalGroups) {
         this.totalGroups = totalGroups;
     }
 
@@ -109,11 +109,11 @@ public class NumbersInfo implements BaseBean {
         this.anyType1 = anyType1;
     }
 
-    public Integer getTotalAny1() {
+    public Long getTotalAny1() {
         return totalAny1;
     }
 
-    public void setTotalAny1(final Integer totalAny1) {
+    public void setTotalAny1(final Long totalAny1) {
         this.totalAny1 = totalAny1;
     }
 
@@ -125,47 +125,47 @@ public class NumbersInfo implements BaseBean {
         this.anyType2 = anyType2;
     }
 
-    public Integer getTotalAny2() {
+    public Long getTotalAny2() {
         return totalAny2;
     }
 
-    public void setTotalAny2(final Integer totalAny2) {
+    public void setTotalAny2(final Long totalAny2) {
         this.totalAny2 = totalAny2;
     }
 
-    public int getTotalResources() {
+    public long getTotalResources() {
         return totalResources;
     }
 
-    public void setTotalResources(final int totalResources) {
+    public void setTotalResources(final long totalResources) {
         this.totalResources = totalResources;
     }
 
-    public int getTotalRoles() {
+    public long getTotalRoles() {
         return totalRoles;
     }
 
-    public void setTotalRoles(final int totalRoles) {
+    public void setTotalRoles(final long totalRoles) {
         this.totalRoles = totalRoles;
     }
 
-    public Map<String, Integer> getUsersByRealm() {
+    public Map<String, Long> getUsersByRealm() {
         return usersByRealm;
     }
 
-    public Map<String, Integer> getUsersByStatus() {
+    public Map<String, Long> getUsersByStatus() {
         return usersByStatus;
     }
 
-    public Map<String, Integer> getGroupsByRealm() {
+    public Map<String, Long> getGroupsByRealm() {
         return groupsByRealm;
     }
 
-    public Map<String, Integer> getAny1ByRealm() {
+    public Map<String, Long> getAny1ByRealm() {
         return any1ByRealm;
     }
 
-    public Map<String, Integer> getAny2ByRealm() {
+    public Map<String, Long> getAny2ByRealm() {
         return any2ByRealm;
     }
 

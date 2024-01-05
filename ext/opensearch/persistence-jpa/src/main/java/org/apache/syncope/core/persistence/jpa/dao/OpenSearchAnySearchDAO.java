@@ -27,11 +27,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -57,7 +55,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -135,11 +132,8 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 if (goRealm.isPresent()) {
                     groupOwners.add(goRealm.get().getRight());
                 } else if (realmPath.startsWith("/")) {
-                    Realm realm = Optional.ofNullable(realmDAO.findByFullPath(realmPath)).orElseThrow(() -> {
-                        SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                        noRealm.getElements().add("Invalid realm specified: " + realmPath);
-                        return noRealm;
-                    });
+                    Realm realm = realmDAO.findByFullPath(realmPath).
+                            orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + realmPath));
 
                     realmDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
                             forEach(descendant -> queries.add(
@@ -147,15 +141,14 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                                     field("realm").value(FieldValue.of(descendant)).build()).
                                     build()));
                 } else {
-                    DynRealm dynRealm = dynRealmDAO.find(realmPath);
-                    if (dynRealm == null) {
-                        LOG.warn("Ignoring invalid dynamic realm {}", realmPath);
-                    } else {
-                        dynRealmKeys.add(dynRealm.getKey());
-                        queries.add(new Query.Builder().term(QueryBuilders.term().
-                                field("dynRealm").value(FieldValue.of(dynRealm.getKey())).build()).
-                                build());
-                    }
+                    dynRealmDAO.findById(realmPath).ifPresentOrElse(
+                            dynRealm -> {
+                                dynRealmKeys.add(dynRealm.getKey());
+                                queries.add(new Query.Builder().term(QueryBuilders.term().
+                                        field("dynRealm").value(FieldValue.of(dynRealm.getKey())).build()).
+                                        build());
+                            },
+                            () -> LOG.warn("Ignoring invalid dynamic realm {}", realmPath));
                 }
             });
         } else {
@@ -248,7 +241,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
             Field anyField = anyUtils.getField(fieldName);
             if (anyField == null) {
-                PlainSchema schema = plainSchemaDAO.find(fieldName);
+                PlainSchema schema = plainSchemaDAO.findById(fieldName).orElse(null);
                 if (schema != null) {
                     sortName = fieldName;
                 }
@@ -569,12 +562,12 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
             case EQ:
                 FieldValue fieldValue;
-                if (value instanceof Double) {
-                    fieldValue = FieldValue.of((Double) value);
-                } else if (value instanceof Long) {
-                    fieldValue = FieldValue.of((Long) value);
-                } else if (value instanceof Boolean) {
-                    fieldValue = FieldValue.of((Boolean) value);
+                if (value instanceof Double aDouble) {
+                    fieldValue = FieldValue.of(aDouble);
+                } else if (value instanceof Long aLong) {
+                    fieldValue = FieldValue.of(aLong);
+                } else if (value instanceof Boolean aBoolean) {
+                    fieldValue = FieldValue.of(aBoolean);
                 } else {
                     fieldValue = FieldValue.of(value.toString());
                 }
@@ -621,7 +614,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected Query getQuery(final AnyCond cond, final AnyTypeKind kind) {
         if (JAXRSService.PARAM_REALM.equals(cond.getSchema()) && cond.getExpression().startsWith("/")) {
-            Realm realm = Optional.ofNullable(realmDAO.findByFullPath(cond.getExpression())).
+            Realm realm = realmDAO.findByFullPath(cond.getExpression()).
                     orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + cond.getExpression()));
             cond.setExpression(realm.getKey());
         }

@@ -61,7 +61,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -168,7 +167,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final boolean recursive,
             final boolean details) {
 
-        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+        Realm base = realmDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> authRealms = RealmUtils.getEffective(
@@ -240,8 +239,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         List<String> authStatuses = List.of(confParamOps.get(AuthContextUtils.getDomain(),
                 "authentication.statuses", new String[] {}, String[].class));
         if (!authStatuses.contains(updated.getEntity().getStatus())) {
-            Optional.ofNullable(accessTokenDAO.findByOwner(updated.getEntity().getUsername())).
-                    map(AccessToken::getKey).ifPresent(accessTokenDAO::delete);
+            accessTokenDAO.findByOwner(updated.getEntity().getUsername()).ifPresent(accessTokenDAO::delete);
         }
 
         return updated;
@@ -372,8 +370,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 build();
         ProvisioningResult<UserTO> result = selfUpdate(userUR, nullPriorityAsync);
 
-        Optional.ofNullable(accessTokenDAO.findByOwner(result.getEntity().getUsername())).
-                map(AccessToken::getKey).ifPresent(accessTokenDAO::delete);
+        accessTokenDAO.findByOwner(result.getEntity().getUsername()).ifPresent(accessTokenDAO::delete);
 
         return result;
     }
@@ -390,11 +387,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         Realm realm = null;
         if (StringUtils.isNotBlank(query.getRealm())) {
-            realm = Optional.ofNullable(realmDAO.findByFullPath(query.getRealm())).
+            realm = realmDAO.findByFullPath(query.getRealm()).
                     orElseThrow(() -> new NotFoundException("Realm " + query.getRealm()));
         }
         Set<ExternalResource> resources = query.getResources().stream().
-                map(resourceDAO::find).filter(Objects::nonNull).collect(Collectors.toSet());
+                map(resourceDAO::findById).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
         if (realm == null && resources.isEmpty()) {
             sce.getElements().add("Nothing to check");
             throw sce;
@@ -432,7 +429,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional
     public void requestPasswordReset(final String username, final String securityAnswer) {
-        User user = Optional.ofNullable(userDAO.findByUsername(username)).
+        User user = userDAO.findByUsername(username).
                 orElseThrow(() -> new NotFoundException("User " + username));
 
         if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
@@ -448,7 +445,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional
     public void confirmPasswordReset(final String token, final String password) {
-        User user = Optional.ofNullable(userDAO.findByToken(token)).
+        User user = userDAO.findByToken(token).
                 orElseThrow(() -> new NotFoundException("User with token " + token));
 
         provisioningManager.confirmPasswordReset(
@@ -496,7 +493,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         UserTO deletedTO;
-        if (userDAO.find(before.getLeft().getKey()) == null) {
+        if (userDAO.findById(before.getLeft().getKey()) == null) {
             deletedTO = new UserTO();
             deletedTO.setKey(before.getLeft().getKey());
         } else {
@@ -634,14 +631,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             key = userDAO.findKey((String) args[0]);
         } else if (!"confirmPasswordReset".equals(method.getName()) && ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof UserTO) {
-                    key = ((UserTO) args[i]).getKey();
-                } else if (args[i] instanceof UserUR) {
-                    key = ((UserUR) args[i]).getKey();
-                } else if (args[i] instanceof StatusR) {
-                    key = ((StatusR) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof UserTO userTO) {
+                    key = userTO.getKey();
+                } else if (args[i] instanceof UserUR userUR) {
+                    key = userUR.getKey();
+                } else if (args[i] instanceof StatusR statusR) {
+                    key = statusR.getKey();
                 }
             }
         }

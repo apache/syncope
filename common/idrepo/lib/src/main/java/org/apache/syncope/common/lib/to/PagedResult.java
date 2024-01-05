@@ -41,7 +41,7 @@ public class PagedResult<T extends BaseBean> implements BaseBean {
 
     private int size;
 
-    private int totalCount;
+    private long totalCount;
 
     public URI getPrev() {
         return prev;
@@ -81,11 +81,11 @@ public class PagedResult<T extends BaseBean> implements BaseBean {
         this.size = size;
     }
 
-    public int getTotalCount() {
+    public long getTotalCount() {
         return totalCount;
     }
 
-    public void setTotalCount(final int totalCount) {
+    public void setTotalCount(final long totalCount) {
         this.totalCount = totalCount;
     }
 

@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class SAML2SPTest extends AbstractClientAppTest {
 
     @Autowired
@@ -42,7 +42,8 @@ public class SAML2SPTest extends AbstractClientAppTest {
 
     @Test
     public void find() {
-        int beforeCount = saml2spDAO.findAll().size();
+        long beforeCount = saml2spDAO.count();
+
         SAML2SPClientApp sp = entityFactory.newEntity(SAML2SPClientApp.class);
         sp.setName("SAML2");
         sp.setClientAppId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
@@ -69,16 +70,16 @@ public class SAML2SPTest extends AbstractClientAppTest {
         assertNotNull(sp);
         assertNotNull(sp.getKey());
 
-        int afterCount = saml2spDAO.findAll().size();
+        long afterCount = saml2spDAO.count();
         assertEquals(afterCount, beforeCount + 1);
 
-        sp = saml2spDAO.findByEntityId(sp.getEntityId());
+        sp = saml2spDAO.findByEntityId(sp.getEntityId()).orElseThrow();
         assertNotNull(sp);
 
-        sp = saml2spDAO.findByName(sp.getName());
+        sp = saml2spDAO.findByName(sp.getName()).orElseThrow();
         assertNotNull(sp);
 
-        sp = saml2spDAO.findByClientAppId(sp.getClientAppId());
+        sp = saml2spDAO.findByClientAppId(sp.getClientAppId()).orElseThrow();
         assertNotNull(sp);
 
         assertFalse(sp.getSigningSignatureAlgorithms().isEmpty());
@@ -87,6 +88,6 @@ public class SAML2SPTest extends AbstractClientAppTest {
         assertFalse(sp.getEncryptionKeyAlgorithms().isEmpty());
 
         saml2spDAO.deleteByEntityId(sp.getEntityId());
-        assertNull(saml2spDAO.findByName(sp.getName()));
+        assertTrue(saml2spDAO.findByName(sp.getName()).isEmpty());
     }
 }

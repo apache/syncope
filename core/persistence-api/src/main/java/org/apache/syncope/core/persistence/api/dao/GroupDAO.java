@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -35,7 +36,7 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     String findKey(String name);
 
-    Group findByName(String name);
+    Optional<? extends Group> findByName(String name);
 
     /**
      * Checks if the calling user is authorized to access the Group matching the provided key, under the given
@@ -47,7 +48,7 @@ public interface GroupDAO extends AnyDAO<Group> {
      */
     void securityChecks(Set<String> authRealms, String key, String realm);
 
-    Map<String, Integer> countByRealm();
+    Map<String, Long> countByRealm();
 
     List<String> findKeysByNamePattern(String pattern);
 

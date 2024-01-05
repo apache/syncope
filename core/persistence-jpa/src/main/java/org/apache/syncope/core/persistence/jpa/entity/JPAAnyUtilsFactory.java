@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -43,7 +43,7 @@ public class JPAAnyUtilsFactory implements AnyUtilsFactory {
 
     protected final EntityFactory entityFactory;
 
-    protected final Map<AnyTypeKind, AnyUtils> instances = new HashMap<>(3);
+    protected final Map<AnyTypeKind, AnyUtils> instances = new ConcurrentHashMap<>(3);
 
     protected AnyUtils linkedAccountInstance;
 
@@ -61,35 +61,29 @@ public class JPAAnyUtilsFactory implements AnyUtilsFactory {
 
     @Override
     public AnyUtils getInstance(final AnyTypeKind anyTypeKind) {
-        AnyUtils instance;
-        synchronized (instances) {
-            instance = instances.get(anyTypeKind);
-            if (instance == null) {
-                instance = new JPAAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, anyTypeKind, false);
-                ApplicationContextProvider.getBeanFactory().autowireBean(instance);
-                instances.put(anyTypeKind, instance);
-            }
-        }
-
-        return instance;
+        return instances.computeIfAbsent(anyTypeKind, k -> {
+            JPAAnyUtils instance = new JPAAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, anyTypeKind, false);
+            ApplicationContextProvider.getBeanFactory().autowireBean(instance);
+            return instance;
+        });
     }
 
     @Override
     public AnyUtils getInstance(final Any<?> any) {
-        AnyTypeKind type = null;
+        AnyTypeKind anyTypeKind = null;
         if (any instanceof User) {
-            type = AnyTypeKind.USER;
+            anyTypeKind = AnyTypeKind.USER;
         } else if (any instanceof Group) {
-            type = AnyTypeKind.GROUP;
+            anyTypeKind = AnyTypeKind.GROUP;
         } else if (any instanceof AnyObject) {
-            type = AnyTypeKind.ANY_OBJECT;
+            anyTypeKind = AnyTypeKind.ANY_OBJECT;
         }
 
-        if (type == null) {
+        if (anyTypeKind == null) {
             throw new IllegalArgumentException("Any type not supported: " + any.getClass().getName());
         }
 
-        return getInstance(type);
+        return getInstance(anyTypeKind);
     }
 
     @Override

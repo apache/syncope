@@ -93,10 +93,8 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
                     FlowableEntitlement.USER_REQUEST_LIST,
                     "Listing user requests not allowed");
         } else {
-            User user = userDAO.find(userKey);
-            if (user == null) {
-                throw new NotFoundException("User " + userKey);
-            }
+            User user = userDAO.findById(userKey).
+                    orElseThrow(() -> new NotFoundException("User " + userKey));
 
             securityChecks(user.getUsername(),
                     FlowableEntitlement.USER_REQUEST_LIST,
@@ -112,14 +110,18 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
             final WorkflowTaskExecInput inputVariables) {
 
         // check if BPMN process exists
-        bpmnProcessManager.exportProcess(bpmnProcess, BpmnProcessFormat.XML, NullOutputStream.NULL_OUTPUT_STREAM);
+        bpmnProcessManager.exportProcess(bpmnProcess, BpmnProcessFormat.XML, NullOutputStream.INSTANCE);
 
         return userRequestHandler.start(bpmnProcess, user, inputVariables);
     }
 
     @PreAuthorize("isAuthenticated()")
     public UserRequest startRequest(final String bpmnProcess, final WorkflowTaskExecInput inputVariables) {
-        return doStart(bpmnProcess, userDAO.findByUsername(AuthContextUtils.getUsername()), inputVariables);
+        return doStart(
+                bpmnProcess,
+                userDAO.findByUsername(AuthContextUtils.getUsername()).
+                        orElseThrow(() -> new NotFoundException("Authenticated user")),
+                inputVariables);
     }
 
     @PreAuthorize("hasRole('" + FlowableEntitlement.USER_REQUEST_START + "')")
@@ -145,7 +147,9 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
     public void cancelRequest(final String executionId, final String reason) {
         Pair<ProcessInstance, String> parsed = userRequestHandler.parse(executionId);
 
-        securityChecks(userDAO.find(parsed.getRight()).getUsername(),
+        securityChecks(
+                userDAO.findUsername(parsed.getRight()).
+                        orElseThrow(() -> new NotFoundException("User " + parsed.getRight())),
                 FlowableEntitlement.USER_REQUEST_CANCEL,
                 "Canceling " + executionId + " not allowed");
 
@@ -176,10 +180,8 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
                     FlowableEntitlement.USER_REQUEST_FORM_LIST,
                     "Listing forms not allowed");
         } else {
-            User user = userDAO.find(userKey);
-            if (user == null) {
-                throw new NotFoundException("User " + userKey);
-            }
+            User user = userDAO.findById(userKey).
+                    orElseThrow(() -> new NotFoundException("User " + userKey));
 
             securityChecks(user.getUsername(),
                     FlowableEntitlement.USER_REQUEST_FORM_LIST,
@@ -239,7 +241,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         UserTO userTO;
-        if (userDAO.find(wfResult.getResult().getKey()) == null) {
+        if (userDAO.findById(wfResult.getResult().getKey()).isEmpty()) {
             userTO = new UserTO();
             userTO.setKey(wfResult.getResult().getKey());
         } else {

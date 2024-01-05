@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.identityconnectors.common.security.GuardedString;
@@ -88,8 +87,7 @@ public class LDAPPasswordPullActions implements PullActions {
             final ProvisioningReport result) throws JobExecutionException {
 
         if (entity instanceof UserTO) {
-            User user = userDAO.find(entity.getKey());
-            if (user != null) {
+            userDAO.findById(entity.getKey()).ifPresent(user -> {
                 GuardedString passwordAttr = AttributeUtil.getPasswordValue(delta.getObject().getAttributes());
                 if (passwordAttr != null) {
                     parseEncodedPassword(SecurityUtil.decrypt(passwordAttr)).ifPresent(encoded -> {
@@ -99,7 +97,7 @@ public class LDAPPasswordPullActions implements PullActions {
                         user.setEncodedPassword(encodedHexStr, encoded.getRight());
                     });
                 }
-            }
+            });
         }
     }
 }

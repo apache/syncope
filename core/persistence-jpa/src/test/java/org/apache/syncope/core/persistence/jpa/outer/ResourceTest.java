@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.outer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -49,7 +48,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class ResourceTest extends AbstractTest {
 
     @Autowired
@@ -71,26 +70,27 @@ public class ResourceTest extends AbstractTest {
     public void createWithPasswordPolicy() {
         final String resourceName = "resourceWithPasswordPolicy";
 
-        PasswordPolicy policy = policyDAO.find("986d1236-3ac5-4a19-810c-5ab21d79cba1");
+        PasswordPolicy policy = policyDAO.findById("986d1236-3ac5-4a19-810c-5ab21d79cba1", PasswordPolicy.class).
+                orElseThrow();
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey(resourceName);
         resource.setPasswordPolicy(policy);
 
-        ConnInstance connector = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
+        ConnInstance connector = connInstanceDAO.findById("88a7a819-dab5-46b4-9b90-0b9769eabdb8").orElseThrow();
         assertNotNull(connector);
         resource.setConnector(connector);
 
         ExternalResource actual = resourceDAO.save(resource);
         assertNotNull(actual);
 
-        actual = resourceDAO.find(actual.getKey());
+        actual = resourceDAO.findById(actual.getKey()).orElseThrow();
         assertNotNull(actual);
         assertNotNull(actual.getPasswordPolicy());
 
-        resourceDAO.delete(resourceName);
-        assertNull(resourceDAO.find(resourceName));
+        resourceDAO.deleteById(resourceName);
+        assertTrue(resourceDAO.findById(resourceName).isEmpty());
 
-        assertNotNull(policyDAO.find("986d1236-3ac5-4a19-810c-5ab21d79cba1"));
+        assertTrue(policyDAO.findById("986d1236-3ac5-4a19-810c-5ab21d79cba1").isPresent());
     }
 
     @Test
@@ -99,8 +99,7 @@ public class ResourceTest extends AbstractTest {
         resource.setKey("ws-target-resource-save");
 
         // specify the connector
-        ConnInstance connector = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
-        assertNotNull(connector);
+        ConnInstance connector = connInstanceDAO.findById("88a7a819-dab5-46b4-9b90-0b9769eabdb8").orElseThrow();
 
         resource.setConnector(connector);
 
@@ -137,30 +136,26 @@ public class ResourceTest extends AbstractTest {
 
         // save the resource
         ExternalResource actual = resourceDAO.save(resource);
-        entityManager().flush();
+        entityManager.flush();
         assertNotNull(actual);
         assertNotNull(actual.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping());
 
-        entityManager().flush();
-        resourceDAO.detach(actual);
-        connInstanceDAO.detach(connector);
+        entityManager.flush();
+        entityManager.detach(actual);
+        entityManager.detach(connector);
 
         // assign the new resource to an user
-        User user = userDAO.findByUsername("rossini");
-        assertNotNull(user);
-
+        User user = userDAO.findByUsername("rossini").orElseThrow();
         user.add(actual);
 
-        entityManager().flush();
+        entityManager.flush();
 
         // retrieve resource
-        resource = resourceDAO.find(actual.getKey());
-        assertNotNull(resource);
-        resourceDAO.refresh(resource);
+        resource = resourceDAO.findById(actual.getKey()).orElseThrow();
+        entityManager.refresh(resource);
 
         // check connector
-        connector = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
-        assertNotNull(connector);
+        connector = connInstanceDAO.findById("88a7a819-dab5-46b4-9b90-0b9769eabdb8").orElseThrow();
         assertNotNull(connector.getResources());
 
         assertNotNull(resource.getConnector());
@@ -173,16 +168,14 @@ public class ResourceTest extends AbstractTest {
         assertEquals(5, items.size());
 
         // check user
-        user = userDAO.findByUsername("rossini");
-        assertNotNull(user);
+        user = userDAO.findByUsername("rossini").orElseThrow();
         assertNotNull(user.getResources());
         assertTrue(user.getResources().contains(actual));
     }
 
     @Test
     public void delete() {
-        ExternalResource resource = resourceDAO.find("resource-testdb");
-        assertNotNull(resource);
+        ExternalResource resource = resourceDAO.findById("resource-testdb").orElseThrow();
 
         // -------------------------------------
         // Get originally associated connector
@@ -206,36 +199,33 @@ public class ResourceTest extends AbstractTest {
         assertFalse(propagationTasks.isEmpty());
 
         // delete resource
-        resourceDAO.delete(resource.getKey());
+        resourceDAO.deleteById(resource.getKey());
 
         // close the transaction
-        entityManager().flush();
+        entityManager.flush();
 
         // resource must be removed
-        ExternalResource actual = resourceDAO.find("resource-testdb");
-        assertNull(actual);
+        assertTrue(resourceDAO.findById("resource-testdb").isEmpty());
 
         // resource must be not referenced any more from users
-        userKeys.stream().map(userDAO::find).forEach(user -> {
+        userKeys.stream().map(u -> userDAO.findById(u).orElseThrow()).forEach(user -> {
             assertNotNull(user);
             userDAO.findAllResources(user).
                     forEach(r -> assertFalse(r.getKey().equalsIgnoreCase(resource.getKey())));
         });
 
         // resource must be not referenced any more from the connector
-        ConnInstance actualConnector = connInstanceDAO.find(connector.getKey());
-        assertNotNull(actualConnector);
+        ConnInstance actualConnector = connInstanceDAO.findById(connector.getKey()).orElseThrow();
         actualConnector.getResources().
                 forEach(res -> assertFalse(res.getKey().equalsIgnoreCase(resource.getKey())));
 
         // there must be no tasks
-        propagationTasks.forEach(task -> assertTrue(taskDAO.find(task.getKey()).isEmpty()));
+        propagationTasks.forEach(task -> assertTrue(taskDAO.findById(task.getKey()).isEmpty()));
     }
 
     @Test
     public void issue243() {
-        ExternalResource csv = resourceDAO.find("resource-csv");
-        assertNotNull(csv);
+        ExternalResource csv = resourceDAO.findById("resource-csv").orElseThrow();
 
         int origMapItems = csv.getProvisionByAnyType(
                 AnyTypeKind.USER.name()).get().getMapping().getItems().size();
@@ -247,10 +237,9 @@ public class ResourceTest extends AbstractTest {
         csv.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().add(newMapItem);
 
         resourceDAO.save(csv);
-        entityManager().flush();
+        entityManager.flush();
 
-        csv = resourceDAO.find("resource-csv");
-        assertNotNull(csv);
+        csv = resourceDAO.findById("resource-csv").orElseThrow();
         assertEquals(
                 origMapItems + 1,
                 csv.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().size());

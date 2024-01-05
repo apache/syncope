@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -26,7 +28,6 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -34,13 +35,16 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONAnySearchDAO;
-import org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONAuditConfDAO;
-import org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONPlainSchemaDAO;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepoExtMyJSONImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExtMyJSONImpl;
 import org.apache.syncope.core.persistence.jpa.entity.MyJPAJSONEntityFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 
 @ConditionalOnExpression("#{'${provisioning.quartz.sql}' matches '.*mysql.*'}")
 public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
@@ -53,8 +57,8 @@ public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
 
     @ConditionalOnMissingBean(name = "myJPAJSONAnyDAO")
     @Bean
-    public JPAJSONAnyDAO anyDAO(final @Lazy PlainSchemaDAO plainSchemaDAO) {
-        return new MyJPAJSONAnyDAO(plainSchemaDAO);
+    public JPAJSONAnyDAO anyDAO(final @Lazy PlainSchemaDAO plainSchemaDAO, final EntityManager domainEntityManager) {
+        return new MyJPAJSONAnyDAO(plainSchemaDAO, domainEntityManager);
     }
 
     @ConditionalOnMissingBean(name = "myJPAJSONAnySearchDAO")
@@ -68,7 +72,9 @@ public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
             final @Lazy PlainSchemaDAO schemaDAO,
             final @Lazy EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final EntityManagerFactory domainEntityManagerFactory,
+            final EntityManager domainEntityManager) {
 
         return new MyJPAJSONAnySearchDAO(
                 realmDAO,
@@ -79,22 +85,32 @@ public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
                 schemaDAO,
                 entityFactory,
                 anyUtilsFactory,
-                validator);
+                validator,
+                domainEntityManagerFactory,
+                domainEntityManager);
     }
 
     @ConditionalOnMissingBean(name = "myJPAJSONAuditConfDAO")
     @Bean
-    public AuditConfDAO auditConfDAO() {
-        return new MyJPAJSONAuditConfDAO();
+    public AuditConfDAO auditConfDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager domainEntityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                AuditConfRepo.class,
+                new AuditConfRepoExtMyJSONImpl(domainEntityManager));
     }
 
     @ConditionalOnMissingBean(name = "myJPAJSONPlainSchemaDAO")
     @Bean
     public PlainSchemaDAO plainSchemaDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final AnyUtilsFactory anyUtilsFactory,
-            final @Lazy PlainAttrDAO plainAttrDAO,
-            final @Lazy ExternalResourceDAO resourceDAO) {
+            final @Lazy ExternalResourceDAO resourceDAO,
+            final EntityManager domainEntityManager) {
 
-        return new MyJPAJSONPlainSchemaDAO(anyUtilsFactory, plainAttrDAO, resourceDAO);
+        return jpaRepositoryFactory.getRepository(
+                PlainSchemaRepo.class,
+                new PlainSchemaRepoExtMyJSONImpl(anyUtilsFactory, resourceDAO, domainEntityManager));
     }
 }

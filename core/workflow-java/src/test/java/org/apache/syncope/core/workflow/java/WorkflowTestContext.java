@@ -70,7 +70,7 @@ public class WorkflowTestContext {
             UserCR userCR = ic.getArgument(1);
 
             user.setUsername(userCR.getUsername());
-            user.setRealm(realmDAO.findByFullPath(userCR.getRealm()));
+            user.setRealm(realmDAO.findByFullPath(userCR.getRealm()).orElseThrow());
             user.setCreator("admin");
             user.setCreationDate(OffsetDateTime.now());
             user.setCipherAlgorithm(CipherAlgorithm.SHA256);

@@ -51,7 +51,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class ResourceDataBinderTest extends AbstractTest {
 
     @BeforeAll
@@ -83,7 +83,7 @@ public class ResourceDataBinderTest extends AbstractTest {
 
     @Test
     public void issue42() {
-        PlainSchema userId = plainSchemaDAO.find("userId");
+        PlainSchema userId = plainSchemaDAO.findById("userId").orElseThrow();
 
         Set<Item> beforeUserIdMappings = new HashSet<>();
         for (ExternalResource res : resourceDAO.findAll()) {
@@ -121,17 +121,17 @@ public class ResourceDataBinderTest extends AbstractTest {
 
         ExternalResource resource = resourceDataBinder.create(resourceTO);
         resource = resourceDAO.save(resource);
-        entityManager().flush();
+        entityManager.flush();
         assertNotNull(resource);
         assertNotNull(resource.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping());
         assertEquals(1, resource.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().size());
 
-        ExternalResource actual = resourceDAO.find("resource-issue42");
-        entityManager().flush();
+        ExternalResource actual = resourceDAO.findById("resource-issue42").orElseThrow();
+        entityManager.flush();
         assertNotNull(actual);
         assertEquals(resource, actual);
 
-        userId = plainSchemaDAO.find("userId");
+        userId = plainSchemaDAO.findById("userId").orElseThrow();
 
         Set<Item> afterUserIdMappings = new HashSet<>();
         for (ExternalResource res : resourceDAO.findAll()) {

@@ -58,7 +58,7 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
     @Override
     public void before(final PropagationTaskInfo taskInfo) {
         if (AnyTypeKind.USER == taskInfo.getAnyTypeKind()) {
-            User user = userDAO.find(taskInfo.getEntityKey());
+            User user = userDAO.findById(taskInfo.getEntityKey()).orElse(null);
             if (user == null || user.getPassword() == null) {
                 return;
             }

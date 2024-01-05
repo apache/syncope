@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.outer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -54,7 +53,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class PlainSchemaTest extends AbstractTest {
 
     @Autowired
@@ -90,7 +89,7 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void checkIdUniqueness() {
-        assertNotNull(derSchemaDAO.find("cn"));
+        assertNotNull(derSchemaDAO.findById("cn").orElseThrow());
 
         PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey("cn");
@@ -98,7 +97,7 @@ public class PlainSchemaTest extends AbstractTest {
         plainSchemaDAO.save(schema);
 
         try {
-            entityManager().flush();
+            entityManager.flush();
             fail("This should not happen");
         } catch (Exception e) {
             assertTrue(e instanceof EntityExistsException || e.getCause() instanceof EntityExistsException);
@@ -117,7 +116,7 @@ public class PlainSchemaTest extends AbstractTest {
     public void deleteFullname() {
         // fullname is mapped as ConnObjectKey for ws-target-resource-2, need to swap it otherwise validation errors 
         // will be raised
-        resourceDAO.find("ws-target-resource-2").
+        resourceDAO.findById("ws-target-resource-2").orElseThrow().
                 getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().
                 forEach(item -> {
                     if ("fullname".equals(item.getIntAttrName())) {
@@ -128,37 +127,34 @@ public class PlainSchemaTest extends AbstractTest {
                 });
 
         // search for user schema fullname
-        PlainSchema schema = plainSchemaDAO.find("fullname");
-        assertNotNull(schema);
+        PlainSchema schema = plainSchemaDAO.findById("fullname").orElseThrow();
 
         // check for associated mappings
         List<Item> mapItems = getMappingItems("fullname");
         assertFalse(mapItems.isEmpty());
 
         // delete user schema fullname
-        plainSchemaDAO.delete("fullname");
+        plainSchemaDAO.deleteById("fullname");
 
-        entityManager().flush();
+        entityManager.flush();
 
         // check for schema deletion
-        schema = plainSchemaDAO.find("fullname");
-        assertNull(schema);
+        assertTrue(plainSchemaDAO.findById("fullname").isEmpty());
 
         // check for mappings deletion
         mapItems = getMappingItems("fullname");
         assertTrue(mapItems.isEmpty());
 
-        assertNull(findPlainAttr("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class));
-        assertNull(findPlainAttr(UUID.randomUUID().toString(), UPlainAttr.class));
-        assertFalse(userDAO.findByUsername("rossini").getPlainAttr("fullname").isPresent());
-        assertFalse(userDAO.findByUsername("vivaldi").getPlainAttr("fullname").isPresent());
+        assertTrue(findPlainAttr("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class).isEmpty());
+        assertTrue(findPlainAttr(UUID.randomUUID().toString(), UPlainAttr.class).isEmpty());
+        assertFalse(userDAO.findByUsername("rossini").orElseThrow().getPlainAttr("fullname").isPresent());
+        assertFalse(userDAO.findByUsername("vivaldi").orElseThrow().getPlainAttr("fullname").isPresent());
     }
 
     @Test
     public void deleteSurname() {
         // search for user schema surname
-        PlainSchema schema = plainSchemaDAO.find("surname");
-        assertNotNull(schema);
+        PlainSchema schema = plainSchemaDAO.findById("surname").orElseThrow();
 
         // check for associated mappings
         List<Item> mapItems = getMappingItems("surname");
@@ -168,24 +164,24 @@ public class PlainSchemaTest extends AbstractTest {
         assertEquals(2, schema.getLabels().size());
 
         // delete user schema surname
-        plainSchemaDAO.delete("surname");
+        plainSchemaDAO.deleteById("surname");
 
-        entityManager().flush();
+        entityManager.flush();
 
         // check for schema deletion
-        schema = plainSchemaDAO.find("surname");
-        assertNull(schema);
+        assertTrue(plainSchemaDAO.findById("surname").isEmpty());
     }
 
     @Test
     public void deleteFirstname() {
-        int pre = resourceDAO.find("resource-db-pull").
+        int pre = resourceDAO.findById("resource-db-pull").orElseThrow().
                 getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().size();
 
-        plainSchemaDAO.delete("firstname");
-        assertNull(plainSchemaDAO.find("firstname"));
+        plainSchemaDAO.deleteById("firstname");
 
-        assertEquals(pre - 1, resourceDAO.find("resource-db-pull").
+        assertTrue(plainSchemaDAO.findById("firstname").isEmpty());
+
+        assertEquals(pre - 1, resourceDAO.findById("resource-db-pull").orElseThrow().
                 getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().size());
     }
 }

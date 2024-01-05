@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
@@ -44,11 +45,11 @@ import org.springframework.transaction.PlatformTransactionManager;
  */
 public class DomainProcessEngineFactoryBean implements FactoryBean<DomainProcessEngine>, SyncopeCoreLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DomainProcessEngineFactoryBean.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(DomainProcessEngineFactoryBean.class);
 
-    private final ApplicationContext ctx;
+    protected final ApplicationContext ctx;
 
-    private DomainProcessEngine engine;
+    protected DomainProcessEngine engine;
 
     public DomainProcessEngineFactoryBean(final ApplicationContext ctx) {
         this.ctx = ctx;
@@ -59,10 +60,10 @@ public class DomainProcessEngineFactoryBean implements FactoryBean<DomainProcess
         return 300;
     }
 
-    private ProcessEngine build(final String domain, final DataSource datasource) {
+    protected ProcessEngine build(final DataSource datasource) {
         PlatformTransactionManager transactionManager = ctx.getBean(
-                domain + "TransactionManager", PlatformTransactionManager.class);
-        Object entityManagerFactory = ctx.getBean(domain + "EntityManagerFactory");
+                "domainTransactionManager", PlatformTransactionManager.class);
+        Object entityManagerFactory = ctx.getBean("domainEntityManagerFactory");
 
         SpringProcessEngineConfiguration conf = ctx.getBean(SpringProcessEngineConfiguration.class);
         conf.setDataSource(datasource);
@@ -89,7 +90,7 @@ public class DomainProcessEngineFactoryBean implements FactoryBean<DomainProcess
     @Override
     public void load(final String domain, final DataSource datasource) {
         try {
-            Objects.requireNonNull(getObject()).getEngines().put(domain, build(domain, datasource));
+            Objects.requireNonNull(getObject()).getEngines().put(domain, build(datasource));
         } catch (Exception e) {
             LOG.error("Could not setup Flowable for {}", domain, e);
         }
@@ -101,7 +102,7 @@ public class DomainProcessEngineFactoryBean implements FactoryBean<DomainProcess
             Map<String, ProcessEngine> engines = new HashMap<>();
 
             ctx.getBean(DomainHolder.class).getDomains().forEach(
-                    (domain, datasource) -> engines.put(domain, build(domain, datasource)));
+                    (domain, datasource) -> engines.put(domain, build(datasource)));
 
             engine = new DomainProcessEngine(engines);
         }
@@ -121,8 +122,6 @@ public class DomainProcessEngineFactoryBean implements FactoryBean<DomainProcess
 
     @PreDestroy
     public void preDestroy() {
-        if (engine != null) {
-            engine.close();
-        }
+        Optional.ofNullable(engine).ifPresent(DomainProcessEngine::close);
     }
 }

@@ -135,7 +135,13 @@ public abstract class AbstractPullResultHandler
                     "No provision found on " + profile.getTask().getResource()
                     + " for " + delta.getObject().getObjectClass()));
 
-            Result latestResult = doHandle(delta, provision, anyTypeDAO.find(provision.getAnyType()).getKind());
+            String anyType = provision.getAnyType();
+            Result latestResult = doHandle(
+                    delta,
+                    provision,
+                    anyTypeDAO.findById(anyType).
+                            orElseThrow(() -> new NotFoundException("AnyType " + anyType)).
+                            getKind());
 
             LOG.debug("Successfully handled {}", delta);
 
@@ -764,7 +770,7 @@ public abstract class AbstractPullResultHandler
                     }
                 } else {
                     // update VirAttrCache
-                    virSchemaDAO.find(
+                    virSchemaDAO.findByResourceAndAnyType(
                             profile.getTask().getResource().getKey(),
                             matches.get(0).getAny().getType().getKey()).
                             forEach(vs -> {
@@ -886,7 +892,7 @@ public abstract class AbstractPullResultHandler
 
                     default:
                     // keep matches unmodified
-                }
+                    }
             }
 
             // users, groups and any objects
@@ -967,7 +973,8 @@ public abstract class AbstractPullResultHandler
 
         Remediation remediation = entityFactory.newEntity(Remediation.class);
 
-        remediation.setAnyType(anyTypeDAO.find(anyType));
+        remediation.setAnyType(anyTypeDAO.findById(anyType).
+                orElseThrow(() -> new NotFoundException("AnyType " + anyType)));
         remediation.setOperation(anyUR == null ? ResourceOperation.CREATE : ResourceOperation.UPDATE);
         if (StringUtils.isNotBlank(anyKey)) {
             remediation.setPayload(anyKey);
@@ -979,9 +986,8 @@ public abstract class AbstractPullResultHandler
         remediation.setError(result.getMessage());
         remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName(delta.getObject().getName().getNameValue());
-        if (taskDAO.exists(TaskType.PULL, profile.getTask().getKey())) {
-            remediation.setPullTask((PullTask) taskDAO.find(TaskType.PULL, profile.getTask().getKey()));
-        }
+        remediation.setPullTask(taskDAO.findById(TaskType.PULL, profile.getTask().getKey()).
+                map(PullTask.class::cast).orElse(null));
 
         remediation = remediationDAO.save(remediation);
 

@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class StreamPushJobDelegateTest extends AbstractTest {
 
     @Autowired
@@ -104,26 +104,26 @@ public class StreamPushJobDelegateTest extends AbstractTest {
             Map<String, String> row = reader.next();
 
             assertEquals(results.get(i).getName(), row.get("username"));
-            assertEquals(userDAO.findByUsername(row.get("username")).getStatus(), row.get("status"));
+            assertEquals(userDAO.findByUsername(row.get("username")).orElseThrow().getStatus(), row.get("status"));
 
             switch (row.get("username")) {
-                case "rossini":
+                case "rossini" -> {
                     assertEquals(StringUtils.EMPTY, row.get("email"));
                     assertTrue(row.get("loginDate").contains(";"));
-                    break;
+                }
 
-                case "verdi":
+                case "verdi" -> {
                     assertEquals("verdi@syncope.org", row.get("email"));
                     assertEquals(StringUtils.EMPTY, row.get("loginDate"));
-                    break;
+                }
 
-                case "bellini":
+                case "bellini" -> {
                     assertEquals(StringUtils.EMPTY, row.get("email"));
                     assertFalse(row.get("loginDate").contains(";"));
-                    break;
+                }
 
-                default:
-                    break;
+                default -> {
+                }
             }
         }
     }

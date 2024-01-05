@@ -187,7 +187,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         }
 
         if (enabled != null) {
-            User user = userDAO.find(userUR.getKey());
+            User user = userDAO.findById(userUR.getKey()).
+                    orElseThrow(() -> new IllegalStateException("Could not find the AnyObject just updated"));
 
             UserWorkflowResult<String> enableUpdate = null;
             if (user.isSuspended() == null) {

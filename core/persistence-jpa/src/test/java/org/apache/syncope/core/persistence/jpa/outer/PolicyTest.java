@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class PolicyTest extends AbstractClientAppTest {
 
     @Autowired
@@ -47,8 +47,7 @@ public class PolicyTest extends AbstractClientAppTest {
 
     @Test
     public void authPolicyCanBeNull() {
-        Realm realm = realmDAO.findByFullPath("/odd");
-        assertNotNull(realm);
+        Realm realm = realmDAO.findByFullPath("/odd").orElseThrow();
 
         // Create new client app and assign policy
         OIDCRPClientApp rp = entityFactory.newEntity(OIDCRPClientApp.class);
@@ -61,7 +60,7 @@ public class PolicyTest extends AbstractClientAppTest {
 
         assertDoesNotThrow(() -> {
             oidcRelyingPartyDAO.save(rp);
-            entityManager().flush();
+            entityManager.flush();
         });
     }
 
@@ -87,7 +86,7 @@ public class PolicyTest extends AbstractClientAppTest {
         policyDAO.delete(accessPolicy);
         policyDAO.delete(attrPolicy);
         policyDAO.delete(ticketExpirationPolicy);
-        entityManager().flush();
+        entityManager.flush();
 
         realm = realmDAO.getRoot();
         assertNull(realm.getAuthPolicy());
@@ -122,10 +121,9 @@ public class PolicyTest extends AbstractClientAppTest {
         policyDAO.delete(accessPolicy);
         policyDAO.delete(authPolicy);
         policyDAO.delete(ticketExpirationPolicy);
-        entityManager().flush();
+        entityManager.flush();
 
-        rp = oidcRelyingPartyDAO.find(rp.getKey());
-        assertNotNull(rp);
+        rp = oidcRelyingPartyDAO.findById(rp.getKey()).orElseThrow();
         assertNull(rp.getAuthPolicy());
         assertNull(rp.getAccessPolicy());
         assertNull(rp.getTicketExpirationPolicy());

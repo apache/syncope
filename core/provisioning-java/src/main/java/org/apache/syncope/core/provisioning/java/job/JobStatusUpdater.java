@@ -55,7 +55,7 @@ public class JobStatusUpdater {
     public void update(final JobStatusEvent event) {
         if (event.getJobStatus() == null) {
             LOG.debug("Deleting status for job '{}'", event.getJobRefDesc());
-            jobStatusDAO.delete(event.getJobRefDesc());
+            jobStatusDAO.deleteById(event.getJobRefDesc());
         } else {
             LOG.debug("Updating job '{}' with status '{}'", event.getJobRefDesc(), event.getJobStatus());
             JobStatus jobStatus = entityFactory.newEntity(JobStatus.class);

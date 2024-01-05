@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import jakarta.persistence.EntityManager;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -31,8 +32,10 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.jpa.dao.OpenSearchAnySearchDAO;
-import org.apache.syncope.core.persistence.jpa.dao.OpenSearchAuditConfDAO;
-import org.apache.syncope.core.persistence.jpa.dao.OpenSearchRealmDAO;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepoExtOpenSearchImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RealmRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RealmRepoExtOpenSearchImpl;
 import org.apache.syncope.ext.opensearch.client.OpenSearchProperties;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -40,6 +43,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 
 @Configuration(proxyBeanMethods = false)
 public class OpenSearchPersistenceContext {
@@ -76,20 +80,31 @@ public class OpenSearchPersistenceContext {
     @ConditionalOnMissingBean(name = "openSearchRealmDAO")
     @Bean
     public RealmDAO realmDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final @Lazy RoleDAO roleDAO,
             final ApplicationEventPublisher publisher,
+            final EntityManager domainEntityManager,
             final OpenSearchProperties props,
             final OpenSearchClient client) {
 
-        return new OpenSearchRealmDAO(roleDAO, publisher, client, props.getIndexMaxResultWindow());
+        return jpaRepositoryFactory.getRepository(
+                RealmRepo.class,
+                new RealmRepoExtOpenSearchImpl(
+                        roleDAO,
+                        publisher,
+                        domainEntityManager,
+                        client, props.getIndexMaxResultWindow()));
     }
 
     @ConditionalOnMissingBean(name = "openSearchAuditConfDAO")
     @Bean
     public AuditConfDAO auditConfDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
             final OpenSearchProperties props,
             final OpenSearchClient client) {
 
-        return new OpenSearchAuditConfDAO(client, props.getIndexMaxResultWindow());
+        return jpaRepositoryFactory.getRepository(
+                AuditConfRepo.class,
+                new AuditConfRepoExtOpenSearchImpl(client, props.getIndexMaxResultWindow()));
     }
 }

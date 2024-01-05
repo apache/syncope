@@ -28,9 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
 public interface TaskExecDAO extends DAO<TaskExec<?>> {
 
-    <T extends Task<T>> TaskExec<T> find(TaskType type, String key);
-
-    Optional<TaskExec<?>> find(String key);
+    <T extends Task<T>> Optional<TaskExec<T>> findById(TaskType type, String key);
 
     List<TaskExec<?>> findRecent(int max);
 
@@ -38,7 +36,7 @@ public interface TaskExecDAO extends DAO<TaskExec<?>> {
 
     TaskExec<?> findLatestEnded(TaskType type, Task<?> task);
 
-    int count(Task<?> task, OffsetDateTime before, OffsetDateTime after);
+    long count(Task<?> task, OffsetDateTime before, OffsetDateTime after);
 
     List<TaskExec<?>> findAll(
             Task<?> task,

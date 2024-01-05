@@ -48,7 +48,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class UserDataBinderTest extends AbstractTest {
 
     @BeforeAll
@@ -88,7 +88,9 @@ public class UserDataBinderTest extends AbstractTest {
         userUR.getMemberships().add(new MembershipUR.Builder("ece66293-8f31-4a84-8e8d-23da36e70846").
                 plainAttr(new Attr.Builder("obscure").value("testvalue2").build()).build());
 
-        assertThrows(InvalidEntityException.class, () -> dataBinder.update(userDAO.find(userUR.getKey()), userUR));
+        assertThrows(
+                InvalidEntityException.class,
+                () -> dataBinder.update(userDAO.findById(userUR.getKey()).orElseThrow(), userUR));
     }
 
     @Test
@@ -103,9 +105,9 @@ public class UserDataBinderTest extends AbstractTest {
         userUR.getMemberships().add(new MembershipUR.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").
                 plainAttr(new Attr.Builder("obscure").value("testvalue2").build()).build());
 
-        dataBinder.update(userDAO.find(userUR.getKey()), userUR);
+        dataBinder.update(userDAO.findById(userUR.getKey()).orElseThrow(), userUR);
 
-        User user = userDAO.find(userUR.getKey());
+        User user = userDAO.findById(userUR.getKey()).orElseThrow();
         UMembership newM = user.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1").get();
         assertEquals(1, user.getPlainAttrs(newM).size());
 

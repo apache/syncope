@@ -18,16 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 
 public interface MailTemplateDAO extends DAO<MailTemplate> {
-
-    MailTemplate find(String key);
-
-    List<MailTemplate> findAll();
-
-    MailTemplate save(MailTemplate template);
-
-    void delete(String key);
 }

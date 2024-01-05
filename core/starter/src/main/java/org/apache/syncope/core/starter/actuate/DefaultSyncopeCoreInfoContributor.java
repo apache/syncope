@@ -255,12 +255,12 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             numbersInfo.setTotalGroups(groupDAO.count());
             numbersInfo.getGroupsByRealm().putAll(groupDAO.countByRealm());
 
-            Map<AnyType, Integer> anyObjectNumbers = anyObjectDAO.countByType();
+            Map<AnyType, Long> anyObjectNumbers = anyObjectDAO.countByType();
             int i = 0;
-            for (Iterator<Map.Entry<AnyType, Integer>> itor = anyObjectNumbers.entrySet().iterator();
+            for (Iterator<Map.Entry<AnyType, Long>> itor = anyObjectNumbers.entrySet().iterator();
                     i < 2 && itor.hasNext(); i++) {
 
-                Map.Entry<AnyType, Integer> entry = itor.next();
+                Map.Entry<AnyType, Long> entry = itor.next();
                 if (i == 0) {
                     numbersInfo.setAnyType1(entry.getKey().getKey());
                     numbersInfo.setTotalAny1(entry.getValue());
@@ -279,9 +279,9 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             numbersInfo.getConfCompleteness().put(
                     NumbersInfo.ConfItem.RESOURCE.name(), numbersInfo.getTotalResources() > 0);
             numbersInfo.getConfCompleteness().put(
-                    NumbersInfo.ConfItem.ACCOUNT_POLICY.name(), !policyDAO.find(AccountPolicy.class).isEmpty());
+                    NumbersInfo.ConfItem.ACCOUNT_POLICY.name(), !policyDAO.findAll(AccountPolicy.class).isEmpty());
             numbersInfo.getConfCompleteness().put(
-                    NumbersInfo.ConfItem.PASSWORD_POLICY.name(), !policyDAO.find(PasswordPolicy.class).isEmpty());
+                    NumbersInfo.ConfItem.PASSWORD_POLICY.name(), !policyDAO.findAll(PasswordPolicy.class).isEmpty());
             numbersInfo.getConfCompleteness().put(
                     NumbersInfo.ConfItem.NOTIFICATION.name(), !notificationDAO.findAll().isEmpty());
             numbersInfo.getConfCompleteness().put(

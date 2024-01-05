@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class ImplementationTest extends AbstractTest {
 
     @Autowired
@@ -41,7 +41,7 @@ public class ImplementationTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Implementation> implementations = implementationDAO.findAll();
+        List<? extends Implementation> implementations = implementationDAO.findAll();
         assertFalse(implementations.isEmpty());
 
         assertEquals(19, implementations.size());

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -47,16 +48,22 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> implements JPAJSONAnyDAO {
+abstract class AbstractJPAJSONAnyDAO implements JPAJSONAnyDAO {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(JPAJSONAnyDAO.class);
 
     protected final PlainSchemaDAO plainSchemaDAO;
 
-    protected AbstractJPAJSONAnyDAO(final PlainSchemaDAO plainSchemaDAO) {
+    protected final EntityManager entityManager;
+
+    protected AbstractJPAJSONAnyDAO(final PlainSchemaDAO plainSchemaDAO, final EntityManager entityManager) {
         this.plainSchemaDAO = plainSchemaDAO;
+        this.entityManager = entityManager;
     }
 
     protected String view(final String table) {
@@ -118,14 +125,9 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
 
     protected <A extends Any<?>> List<A> buildResult(final AnyUtils anyUtils, final List<Object> queryResult) {
         List<A> result = new ArrayList<>();
-        queryResult.forEach(anyKey -> {
-            A any = anyUtils.<A>dao().find(anyKey.toString());
-            if (any == null) {
-                LOG.error("Could not find any for key {}", anyKey);
-            } else {
-                result.add(any);
-            }
-        });
+        queryResult.forEach(anyKey -> anyUtils.<A>dao().findById(anyKey.toString()).ifPresentOrElse(
+                result::add,
+                () -> LOG.error("Could not find any for key {}", anyKey)));
         return result;
     }
 
@@ -144,7 +146,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
             return List.of();
         }
 
-        Query query = entityManager().createNativeQuery(
+        Query query = entityManager.createNativeQuery(
                 queryBegin(table)
                 + "WHERE " + attrValueMatch(anyUtils, schema, attrValue, ignoreCaseMatch));
         query.setParameter(1, schema.getKey());
@@ -213,7 +215,7 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
             queryParams.addAll(parameters);
         });
 
-        Query query = entityManager().createNativeQuery(
+        Query query = entityManager.createNativeQuery(
                 "SELECT DISTINCT id FROM " + table + " u WHERE id IN " + actualClauses.toString());
         for (int i = 0; i < queryParams.size(); i++) {
             query.setParameter(i + 1, queryParams.get(i));
@@ -295,7 +297,8 @@ abstract class AbstractJPAJSONAnyDAO extends AbstractDAO<AbstractEntity> impleme
         for (int i = 0; i < identifiers.size(); i++) {
             if (!used.contains(identifiers.get(i))) {
                 // verify schema existence and get schema type
-                PlainSchema schema = plainSchemaDAO.find(identifiers.get(i));
+                PlainSchema schema = plainSchemaDAO.findById(identifiers.get(i)).orElse(null);
+
                 if (schema == null) {
                     LOG.error("Invalid schema '{}', ignoring", identifiers.get(i));
                 } else {

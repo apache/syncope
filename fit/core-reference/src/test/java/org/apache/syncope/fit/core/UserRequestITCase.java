@@ -167,7 +167,7 @@ public class UserRequestITCase extends AbstractITCase {
     public void cancel() {
         PagedResult<UserRequestForm> forms =
                 USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
-        int preForms = forms.getTotalCount();
+        long preForms = forms.getTotalCount();
 
         UserTO user = createUser(UserITCase.getUniqueSample("twoLevelsApproval@tirasa.net")).getEntity();
         assertNotNull(user);
@@ -199,7 +199,7 @@ public class UserRequestITCase extends AbstractITCase {
     public void userSelection() {
         PagedResult<UserRequestForm> forms =
                 USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
-        int preForms = forms.getTotalCount();
+        long preForms = forms.getTotalCount();
 
         UserTO user = createUser(UserITCase.getUniqueSample("userSelection@tirasa.net")).getEntity();
         assertNotNull(user);
@@ -276,7 +276,7 @@ public class UserRequestITCase extends AbstractITCase {
     @Test
     public void addVariablesToUserRequestAtStart() {
         PagedResult<UserRequestForm> forms = USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
-        int preForms = forms.getTotalCount();
+        long preForms = forms.getTotalCount();
 
         UserTO user = createUser(UserITCase.getUniqueSample("addVariables@tirasa.net")).getEntity();
         assertNotNull(user);

@@ -45,13 +45,13 @@ import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.persistence.jpa.dao.JPARoleDAO;
+import org.apache.syncope.core.persistence.jpa.dao.repo.RoleRepoExt;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class RoleTest extends AbstractTest {
 
     @Autowired
@@ -76,26 +76,23 @@ public class RoleTest extends AbstractTest {
     private PlainAttrValidationManager validator;
 
     /**
-     * Static copy of {@link org.apache.syncope.core.persistence.jpa.dao.JPAUserDAO} method with same signature:
-     * required for avoiding creating new transaction - good for general use case but bad for the way how
+     * Static copy of {@link org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExtImpl} method with same
+     * signature:required for avoiding creating new transaction - good for general use case but bad for the way how
      * this test class is architected.
      */
+    @SuppressWarnings("unchecked")
     private List<Role> findDynRoles(final User user) {
-        Query query = entityManager().createNativeQuery(
-                "SELECT role_id FROM " + JPARoleDAO.DYNMEMB_TABLE + " WHERE any_id=?");
+        Query query = entityManager.createNativeQuery(
+                "SELECT role_id FROM " + RoleRepoExt.DYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, user.getKey());
 
         List<Role> result = new ArrayList<>();
-        for (Object key : query.getResultList()) {
-            String actualKey = key instanceof Object[]
-                    ? (String) ((Object[]) key)[0]
-                    : ((String) key);
-
-            Role role = roleDAO.find(actualKey);
-            if (role != null && !result.contains(role)) {
-                result.add(role);
-            }
-        }
+        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
+                ? (String) ((Object[]) resultKey)[0]
+                : ((String) resultKey)).
+                forEach(roleKey -> roleDAO.findById(roleKey.toString()).
+                filter(role -> !result.contains(role)).
+                ifPresent(result::add));
         return result;
     }
 
@@ -104,12 +101,12 @@ public class RoleTest extends AbstractTest {
         // 0. create user matching the condition below
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two"));
-        user.add(anyTypeClassDAO.find("other"));
+        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
+        user.add(anyTypeClassDAO.findById("other").orElseThrow());
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
-        attr.setSchema(plainSchemaDAO.find("cool"));
+        attr.setSchema(plainSchemaDAO.findById("cool").orElseThrow());
         attr.add(validator, "true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         user.add(attr);
 
@@ -121,7 +118,7 @@ public class RoleTest extends AbstractTest {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.findByFullPath("/even/two"));
+        role.add(realmDAO.findByFullPath("/even/two").orElseThrow());
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 
@@ -134,11 +131,10 @@ public class RoleTest extends AbstractTest {
         Role actual = roleDAO.saveAndRefreshDynMemberships(role);
         assertNotNull(actual);
 
-        entityManager().flush();
+        entityManager.flush();
 
         // 2. verify that dynamic membership is there
-        actual = roleDAO.find(actual.getKey());
-        assertNotNull(actual);
+        actual = roleDAO.findById(actual.getKey()).orElseThrow();
         assertNotNull(actual.getDynMembership());
         assertNotNull(actual.getDynMembership().getKey());
         assertEquals(actual, actual.getDynMembership().getRole());
@@ -148,18 +144,17 @@ public class RoleTest extends AbstractTest {
         assertEquals(2, members.size());
         assertEquals(Set.of("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey), new HashSet<>(members));
 
-        user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
-        assertNotNull(user);
+        user = userDAO.findById("c9b2dec2-00a7-4855-97c0-d854842b4b24").orElseThrow();
         Collection<Role> dynRoleMemberships = findDynRoles(user);
         assertEquals(1, dynRoleMemberships.size());
         assertTrue(dynRoleMemberships.contains(actual.getDynMembership().getRole()));
 
         // 4. delete the new user and verify that dynamic membership was updated
-        userDAO.delete(newUserKey);
+        userDAO.deleteById(newUserKey);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        actual = roleDAO.find(actual.getKey());
+        actual = roleDAO.findById(actual.getKey()).orElseThrow();
         members = roleDAO.findDynMembers(actual);
         assertEquals(1, members.size());
         assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.get(0));
@@ -169,9 +164,9 @@ public class RoleTest extends AbstractTest {
 
         roleDAO.delete(actual);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        assertNull(entityManager().find(JPADynRoleMembership.class, dynMembershipKey));
+        assertNull(entityManager.find(JPADynRoleMembership.class, dynMembershipKey));
 
         dynRoleMemberships = findDynRoles(user);
         assertTrue(dynRoleMemberships.isEmpty());
@@ -183,7 +178,7 @@ public class RoleTest extends AbstractTest {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.findByFullPath("/even/two"));
+        role.add(realmDAO.findByFullPath("/even/two").orElseThrow());
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 
@@ -193,7 +188,7 @@ public class RoleTest extends AbstractTest {
         // 1. create user and assign that role
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two"));
+        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
         user.add(role);
 
         user = userDAO.save(user);
@@ -202,20 +197,19 @@ public class RoleTest extends AbstractTest {
         // 2. remove role
         roleDAO.delete(role);
 
-        entityManager().flush();
+        entityManager.flush();
 
         // 3. verify that role was removed from user
-        user = userDAO.find(user.getKey());
-        assertNotNull(user);
+        user = userDAO.findById(user.getKey()).orElseThrow();
         assertTrue(user.getRoles().isEmpty());
     }
 
     @Test
     public void deleteCascadeOnDelegations() {
-        User bellini = userDAO.findByUsername("bellini");
-        User rossini = userDAO.findByUsername("rossini");
+        User bellini = userDAO.findByUsername("bellini").orElseThrow();
+        User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
-        Role reviewer = roleDAO.find("User reviewer");
+        Role reviewer = roleDAO.findById("User reviewer").orElseThrow();
 
         Delegation delegation = entityFactory.newEntity(Delegation.class);
         delegation.setDelegating(bellini);
@@ -224,16 +218,16 @@ public class RoleTest extends AbstractTest {
         delegation.add(reviewer);
         delegation = delegationDAO.save(delegation);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        delegation = delegationDAO.find(delegation.getKey());
+        delegation = delegationDAO.findById(delegation.getKey()).orElseThrow();
 
-        assertEquals(List.of(delegation), delegationDAO.findByRole(reviewer));
+        assertEquals(List.of(delegation), delegationDAO.findByRoles(reviewer));
 
-        roleDAO.delete(reviewer.getKey());
+        roleDAO.delete(reviewer);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        assertTrue(delegationDAO.find(delegation.getKey()).getRoles().isEmpty());
+        assertTrue(delegationDAO.findById(delegation.getKey()).orElseThrow().getRoles().isEmpty());
     }
 }

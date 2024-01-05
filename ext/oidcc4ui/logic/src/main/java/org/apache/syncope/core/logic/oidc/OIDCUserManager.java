@@ -22,7 +22,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -129,8 +128,9 @@ public class OIDCUserManager {
 
     protected List<Implementation> getTransformers(final Item item) {
         return item.getTransformers().stream().
-                map(implementationDAO::find).
-                filter(Objects::nonNull).
+                map(implementationDAO::findById).
+                filter(Optional::isPresent).
+                map(Optional::get).
                 collect(Collectors.toList());
     }
 
@@ -162,13 +162,13 @@ public class OIDCUserManager {
 
             if (intAttrName != null && intAttrName.getField() != null) {
                 switch (intAttrName.getField()) {
-                    case "username":
+                    case "username" -> {
                         if (!values.isEmpty()) {
                             userTO.setUsername(values.get(0));
                         }
-                        break;
+                    }
 
-                    default:
+                    default ->
                         LOG.warn("Unsupported: {}", intAttrName.getField());
                 }
             } else if (intAttrName != null && intAttrName.getSchemaType() != null) {

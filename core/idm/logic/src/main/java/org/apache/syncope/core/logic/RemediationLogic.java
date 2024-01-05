@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -73,14 +72,14 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_LIST + "')")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<RemediationTO>> list(
+    public Pair<Long, List<RemediationTO>> list(
             final OffsetDateTime before,
             final OffsetDateTime after,
             final int page,
             final int size,
             final List<OrderByClause> orderByClauses) {
 
-        int count = remediationDAO.count(before, after);
+        long count = remediationDAO.count(before, after);
 
         List<RemediationTO> result = remediationDAO.findAll(before, after, page, size, orderByClauses).stream().
                 map(binder::getRemediationTO).collect(Collectors.toList());
@@ -91,8 +90,8 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_READ + "')")
     @Transactional(readOnly = true)
     public RemediationTO read(final String key) {
-        Remediation remediation = Optional.ofNullable(remediationDAO.find(key)).
-                orElseThrow(() -> new NotFoundException(key));
+        Remediation remediation = remediationDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Remediation " + key));
 
         return binder.getRemediationTO(remediation);
     }
@@ -100,10 +99,9 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_DELETE + "')")
     @Transactional
     public void delete(final String key) {
-        Optional.ofNullable(remediationDAO.find(key)).
-                orElseThrow(() -> new NotFoundException(key));
+        remediationDAO.findById(key).orElseThrow(() -> new NotFoundException("Remediation " + key));
 
-        remediationDAO.delete(key);
+        remediationDAO.deleteById(key);
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_REMEDY + "')")
@@ -122,7 +120,7 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
                 result = anyObjectLogic.create((AnyObjectCR) anyCR, nullPriorityAsync);
         }
 
-        remediationDAO.delete(key);
+        remediationDAO.deleteById(key);
 
         return result;
     }
@@ -143,7 +141,7 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
                 result = anyObjectLogic.update((AnyObjectUR) anyUR, nullPriorityAsync);
         }
 
-        remediationDAO.delete(key);
+        remediationDAO.deleteById(key);
 
         return result;
     }
@@ -164,7 +162,7 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
                 result = anyObjectLogic.delete(anyKey, nullPriorityAsync);
         }
 
-        remediationDAO.delete(key);
+        remediationDAO.deleteById(key);
 
         return result;
     }
@@ -177,17 +175,17 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof RemediationTO) {
-                    key = ((RemediationTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof RemediationTO remediationTO) {
+                    key = remediationTO.getKey();
                 }
             }
         }
 
         if (StringUtils.isNotBlank(key)) {
             try {
-                return binder.getRemediationTO(remediationDAO.find(key));
+                return binder.getRemediationTO(remediationDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

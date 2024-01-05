@@ -18,16 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.ConfParam;
 
 public interface ConfParamDAO extends DAO<ConfParam> {
-
-    List<ConfParam> findAll();
-
-    ConfParam find(String key);
-
-    ConfParam save(ConfParam confParam);
-
-    void delete(String key);
 }

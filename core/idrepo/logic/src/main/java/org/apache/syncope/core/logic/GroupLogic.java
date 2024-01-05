@@ -23,7 +23,6 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -153,7 +152,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             return List.of();
         }
 
-        return userDAO.findAllGroups(userDAO.findByUsername(AuthContextUtils.getUsername())).stream().
+        return userDAO.findAllGroups(
+                userDAO.findByUsername(AuthContextUtils.getUsername()).
+                        orElseThrow(() -> new NotFoundException("User " + AuthContextUtils.getUsername()))).stream().
                 map(group -> binder.getGroupTO(group, true)).collect(Collectors.toList());
     }
 
@@ -167,7 +168,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             final boolean recursive,
             final boolean details) {
 
-        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+        Realm base = realmDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> authRealms = RealmUtils.getEffective(
@@ -399,10 +400,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             + "and hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     @Transactional
     public ExecTO provisionMembers(final String key, final ProvisionAction action) {
-        Group group = groupDAO.find(key);
-        if (group == null) {
-            throw new NotFoundException("Group " + key);
-        }
+        Group group = groupDAO.findById(key).orElseThrow(() -> new NotFoundException("Group " + key));
 
         Implementation jobDelegate = implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                 filter(impl -> GroupMemberProvisionTaskJobDelegate.class.getName().equals(impl.getBody())).
@@ -466,12 +464,12 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof GroupTO) {
-                    key = ((GroupTO) args[i]).getKey();
-                } else if (args[i] instanceof GroupUR) {
-                    key = ((GroupUR) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof GroupTO groupTO) {
+                    key = groupTO.getKey();
+                } else if (args[i] instanceof GroupUR groupUR) {
+                    key = groupUR.getKey();
                 }
             }
         }

@@ -20,11 +20,12 @@ package org.apache.syncope.core.persistence.jpa;
 
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIEntityFactory;
-import org.apache.syncope.core.persistence.jpa.dao.JPASAML2SP4UIIdPDAO;
+import org.apache.syncope.core.persistence.jpa.dao.repo.SAML2SP4UIIdPDAORepo;
 import org.apache.syncope.core.persistence.jpa.entity.JPASAML2SP4UIEntityFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 
 @Configuration(proxyBeanMethods = false)
 public class SAML2SP4UIPersistenceContext {
@@ -37,7 +38,7 @@ public class SAML2SP4UIPersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SAML2SP4UIIdPDAO saml2SP4UIIdPDAO() {
-        return new JPASAML2SP4UIIdPDAO();
+    public SAML2SP4UIIdPDAO saml2SP4UIIdPDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(SAML2SP4UIIdPDAORepo.class);
     }
 }

@@ -26,7 +26,7 @@ public class AuthProfileRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -7379778542101161274L;
 
-    public int count() {
+    public long count() {
         return getService(AuthProfileService.class).list(1, 1).getTotalCount();
     }
 

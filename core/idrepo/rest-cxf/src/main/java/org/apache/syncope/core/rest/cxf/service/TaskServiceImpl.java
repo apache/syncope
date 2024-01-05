@@ -74,7 +74,7 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     @SuppressWarnings("unchecked")
     @Override
     public <T extends TaskTO> PagedResult<T> search(final TaskQuery query) {
-        Pair<Integer, List<T>> result = logic.search(
+        Pair<Long, List<T>> result = logic.search(
                 query.getType(),
                 query.getResource(),
                 query.getNotification(),

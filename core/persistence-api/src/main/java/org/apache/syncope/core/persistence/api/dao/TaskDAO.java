@@ -38,13 +38,9 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 
 public interface TaskDAO extends DAO<Task<?>> {
 
-    boolean exists(TaskType type, String key);
-
-    <T extends Task<T>> T find(TaskType type, String key);
+    <T extends Task<T>> Optional<T> findById(TaskType type, String key);
 
     <T extends SchedTask> Optional<T> findByName(TaskType type, String name);
-
-    Optional<Task<?>> find(String key);
 
     List<SchedTask> findByDelegate(Implementation delegate);
 
@@ -72,7 +68,7 @@ public interface TaskDAO extends DAO<Task<?>> {
             int itemsPerPage,
             List<OrderByClause> orderByClauses);
 
-    int count(
+    long count(
             TaskType type,
             ExternalResource resource,
             Notification notification,
@@ -83,12 +79,10 @@ public interface TaskDAO extends DAO<Task<?>> {
 
     void delete(TaskType type, String key);
 
-    void delete(Task<?> task);
-
     void deleteAll(ExternalResource resource, TaskType type);
 
     List<PropagationTaskTO> purgePropagations(
             OffsetDateTime since,
             List<ExecStatus> statuses,
-            List<ExternalResource> externalResources);
+            List<String> resources);
 }

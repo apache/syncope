@@ -76,43 +76,40 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             anyTypeClass.setKey(anyTypeClassTO.getKey());
         }
 
-        plainSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).
+        plainSchemaDAO.findByAnyTypeClassIn(List.of(anyTypeClass)).
                 forEach(schema -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getPlainSchemas().clear();
-        anyTypeClassTO.getPlainSchemas().forEach(schemaName -> {
-            PlainSchema schema = plainSchemaDAO.find(schemaName);
+        anyTypeClassTO.getPlainSchemas().forEach(key -> {
+            PlainSchema schema = plainSchemaDAO.findById(key).orElse(null);
             if (schema == null || schema.getAnyTypeClass() != null) {
-                LOG.debug("Invalid or already in use" + PlainSchema.class.getSimpleName()
-                        + "{}, ignoring...", schemaName);
+                LOG.debug("Invalid or already in use" + PlainSchema.class.getSimpleName() + "{}, ignoring...", key);
             } else {
                 anyTypeClass.add(schema);
             }
         });
 
-        derSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).
+        derSchemaDAO.findByAnyTypeClassIn(List.of(anyTypeClass)).
                 forEach((schema) -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getDerSchemas().clear();
-        anyTypeClassTO.getDerSchemas().forEach(schemaName -> {
-            DerSchema schema = derSchemaDAO.find(schemaName);
+        anyTypeClassTO.getDerSchemas().forEach(key -> {
+            DerSchema schema = derSchemaDAO.findById(key).orElse(null);
             if (schema == null || schema.getAnyTypeClass() != null) {
-                LOG.debug("Invalid or already in use" + DerSchema.class.getSimpleName()
-                        + "{}, ignoring...", schemaName);
+                LOG.debug("Invalid or already in use" + DerSchema.class.getSimpleName() + "{}, ignoring...", key);
             } else {
                 anyTypeClass.add(schema);
             }
         });
 
-        virSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).
+        virSchemaDAO.findByAnyTypeClassIn(List.of(anyTypeClass)).
                 forEach(schema -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getVirSchemas().clear();
-        anyTypeClassTO.getVirSchemas().forEach(schemaName -> {
-            VirSchema schema = virSchemaDAO.find(schemaName);
+        anyTypeClassTO.getVirSchemas().forEach(key -> {
+            VirSchema schema = virSchemaDAO.findById(key).orElse(null);
             if (schema == null || schema.getAnyTypeClass() != null) {
-                LOG.debug("Invalid or already in use" + VirSchema.class.getSimpleName()
-                        + "{}, ignoring...", schemaName);
+                LOG.debug("Invalid or already in use" + VirSchema.class.getSimpleName() + "{}, ignoring...", key);
             } else {
                 anyTypeClass.add(schema);
             }

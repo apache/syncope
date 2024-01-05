@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class WAConfigTest extends AbstractTest {
 
     @Autowired
@@ -42,7 +43,18 @@ public class WAConfigTest extends AbstractTest {
 
     @BeforeEach
     public void beforeEach() {
-        entityManager().createQuery("DELETE FROM " + JPAWAConfigEntry.class.getSimpleName()).executeUpdate();
+        entityManager.createQuery("DELETE FROM " + JPAWAConfigEntry.class.getSimpleName()).executeUpdate();
+    }
+
+    private WAConfigEntry create(final String name, final List<String> value) {
+        WAConfigEntry entry = entityFactory.newEntity(WAConfigEntry.class);
+        entry.setKey(name);
+        entry.setValues(value);
+        entry = configDAO.save(entry);
+        assertNotNull(entry);
+        assertNotNull(entry.getKey());
+        assertTrue(configDAO.findById(entry.getKey()).isPresent());
+        return entry;
     }
 
     @Test
@@ -79,19 +91,7 @@ public class WAConfigTest extends AbstractTest {
         entry = configDAO.save(entry);
         assertNotNull(entry);
         assertNotNull(entry.getKey());
-        WAConfigEntry found = configDAO.find(entry.getKey());
-        assertNotNull(found);
+        WAConfigEntry found = configDAO.findById(entry.getKey()).orElseThrow();
         assertEquals(List.of("v1"), found.getValues());
-    }
-
-    private WAConfigEntry create(final String name, final List<String> value) {
-        WAConfigEntry entry = entityFactory.newEntity(WAConfigEntry.class);
-        entry.setKey(name);
-        entry.setValues(value);
-        configDAO.save(entry);
-        assertNotNull(entry);
-        assertNotNull(entry.getKey());
-        assertNotNull(configDAO.find(entry.getKey()));
-        return entry;
     }
 }

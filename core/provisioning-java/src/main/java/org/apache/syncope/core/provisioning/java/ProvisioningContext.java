@@ -46,7 +46,6 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -200,8 +199,8 @@ public class ProvisioningContext {
     @Resource(name = "MasterDataSource")
     private DataSource masterDataSource;
 
-    @Resource(name = "MasterTransactionManager")
-    private PlatformTransactionManager masterTransactionManager;
+    @Resource(name = "domainTransactionManager")
+    private PlatformTransactionManager domainTransactionManager;
 
     @ConditionalOnMissingBean
     @Bean
@@ -296,7 +295,7 @@ public class ProvisioningContext {
         scheduler.setWaitForJobsToCompleteOnShutdown(props.getQuartz().isWaitForJobsToCompleteOnShutdown());
         scheduler.setOverwriteExistingJobs(true);
         scheduler.setDataSource(masterDataSource);
-        scheduler.setTransactionManager(masterTransactionManager);
+        scheduler.setTransactionManager(domainTransactionManager);
         scheduler.setJobFactory(new SyncopeSpringBeanJobFactory());
 
         Properties quartzProperties = new Properties();
@@ -747,7 +746,6 @@ public class ProvisioningContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrDAO plainAttrDAO,
             final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
@@ -766,7 +764,6 @@ public class ProvisioningContext {
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrDAO,
                 plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
@@ -907,7 +904,6 @@ public class ProvisioningContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrDAO plainAttrDAO,
             final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
@@ -926,7 +922,6 @@ public class ProvisioningContext {
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrDAO,
                 plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
@@ -1149,7 +1144,6 @@ public class ProvisioningContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrDAO plainAttrDAO,
             final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
@@ -1174,7 +1168,6 @@ public class ProvisioningContext {
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrDAO,
                 plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,

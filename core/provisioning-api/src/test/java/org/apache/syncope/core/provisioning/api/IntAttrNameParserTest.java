@@ -34,6 +34,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -90,43 +91,46 @@ public class IntAttrNameParserTest extends AbstractTest {
                     ? ReflectionUtils.findField(getClass(), "anyUtils")
                     : null;
         });
-        lenient().when(plainSchemaDAO.find(anyString())).thenAnswer(ic -> {
+        lenient().when(plainSchemaDAO.findById(anyString())).thenAnswer(ic -> {
             String schemaName = ic.getArgument(0);
             switch (schemaName) {
-                case "email":
-                case "firstname":
-                case "location":
+                case "email", "firstname", "location" -> {
                     PlainSchema schema = mock(PlainSchema.class);
                     lenient().when(schema.getKey()).thenReturn(schemaName);
                     lenient().when(schema.getType()).thenReturn(AttrSchemaType.String);
-                    return schema;
-
-                default:
-                    return null;
+                    return Optional.of(schema);
+                }
+                default -> {
+                    return Optional.empty();
+                }
             }
         });
-        lenient().when(derSchemaDAO.find(anyString())).thenAnswer(ic -> {
+        lenient().when(derSchemaDAO.findById(anyString())).thenAnswer(ic -> {
             String schemaName = ic.getArgument(0);
             switch (schemaName) {
-                case "cn":
+                case "cn" -> {
                     DerSchema schema = mock(DerSchema.class);
                     lenient().when(schema.getKey()).thenReturn(ic.getArgument(0));
-                    return schema;
+                    return Optional.of(schema);
+                }
 
-                default:
-                    return null;
+                default -> {
+                    return Optional.empty();
+                }
             }
         });
-        lenient().when(virSchemaDAO.find(anyString())).thenAnswer(ic -> {
+        lenient().when(virSchemaDAO.findById(anyString())).thenAnswer(ic -> {
             String schemaName = ic.getArgument(0);
             switch (schemaName) {
-                case "rvirtualdata":
+                case "rvirtualdata" -> {
                     VirSchema schema = mock(VirSchema.class);
                     lenient().when(schema.getKey()).thenReturn(ic.getArgument(0));
-                    return schema;
+                    return Optional.of(schema);
+                }
 
-                default:
-                    return null;
+                default -> {
+                    return Optional.empty();
+                }
             }
         });
 

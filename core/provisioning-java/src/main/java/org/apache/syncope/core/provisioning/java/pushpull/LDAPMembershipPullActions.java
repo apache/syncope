@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
@@ -153,12 +154,14 @@ public class LDAPMembershipPullActions implements PullActions {
             return;
         }
 
-        groupDAO.findUMemberships(groupDAO.find(entity.getKey())).forEach(uMembership -> {
-            Set<String> memb = membershipsBefore.computeIfAbsent(
-                    uMembership.getLeftEnd().getKey(),
-                    k -> Collections.synchronizedSet(new HashSet<>()));
-            memb.add(entity.getKey());
-        });
+        groupDAO.findUMemberships(groupDAO.findById(entity.getKey()).
+                orElseThrow(() -> new NotFoundException("Group " + entity.getKey()))).
+                forEach(uMembership -> {
+                    Set<String> memb = membershipsBefore.computeIfAbsent(
+                            uMembership.getLeftEnd().getKey(),
+                            k -> Collections.synchronizedSet(new HashSet<>()));
+                    memb.add(entity.getKey());
+                });
     }
 
     /**

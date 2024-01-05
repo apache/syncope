@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -35,7 +36,7 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     String findKey(String type, String name);
 
-    AnyObject findByName(String type, String name);
+    Optional<? extends AnyObject> findByName(String type, String name);
 
     List<AnyObject> findByName(String name);
 
@@ -56,9 +57,9 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
      *
      * @return the number of instances for each type
      */
-    Map<AnyType, Integer> countByType();
+    Map<AnyType, Long> countByType();
 
-    Map<String, Integer> countByRealm(AnyType anyType);
+    Map<String, Long> countByRealm(AnyType anyType);
 
     AMembership findMembership(String key);
 

@@ -34,15 +34,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
 
-    protected final EntityFactory entityFactory;
-
     public GoogleMfaAuthAccountLogic(
-            final EntityFactory entityFactory,
+            final AuthProfileDataBinder binder,
             final AuthProfileDAO authProfileDAO,
-            final AuthProfileDataBinder binder) {
+            final EntityFactory entityFactory) {
 
-        super(authProfileDAO, binder);
-        this.entityFactory = entityFactory;
+        super(binder, authProfileDAO, entityFactory);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -95,11 +92,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void create(final String owner, final GoogleMfaAuthAccount account) {
-        AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
-            AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
-            authProfile.setOwner(owner);
-            return authProfile;
-        });
+        AuthProfile profile = authProfile(owner);
 
         List<GoogleMfaAuthAccount> accounts = profile.getGoogleMfaAuthAccounts();
         accounts.add(account);
