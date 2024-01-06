@@ -38,7 +38,7 @@ public interface AnyRepoExt<A extends Any<?>> {
 
     List<A> findByKeys(List<String> keys);
 
-    OffsetDateTime findLastChange(String key);
+    Optional<OffsetDateTime> findLastChange(String key);
 
     A authFind(String key);
 

@@ -37,7 +37,7 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     List<A> findByKeys(List<String> keys);
 
-    OffsetDateTime findLastChange(String key);
+    Optional<OffsetDateTime> findLastChange(String key);
 
     A authFind(String key);
 

@@ -148,12 +148,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
     }
 
     protected OffsetDateTime findLastChange(final String key) {
-        OffsetDateTime lastChange = getAnyDAO().findLastChange(key);
-        if (lastChange == null) {
-            throw new NotFoundException("User, Group or Any Object for " + key);
-        }
-
-        return lastChange;
+        return getAnyDAO().findLastChange(key).
+                orElseThrow(() -> new NotFoundException("User, Group or Any Object for " + key));
     }
 
     protected Response doUpdate(final UR updateReq) {

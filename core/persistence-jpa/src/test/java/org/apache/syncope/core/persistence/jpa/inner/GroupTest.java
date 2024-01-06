@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -62,6 +63,14 @@ public class GroupTest extends AbstractTest {
         assertNotNull(group);
         assertEquals(1, group.getTypeExtensions().size());
         assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).get().getAuxClasses().size());
+    }
+
+    @Test
+    public void findLastChange() {
+        OffsetDateTime lastChange = groupDAO.findLastChange("8fb2d51e-c605-4e80-a72b-13ffecf1aa9a").orElseThrow();
+        assertEquals(OffsetDateTime.parse("2010-10-20T11:00+01:00"), lastChange);
+
+        assertTrue(groupDAO.findLastChange("notfound").isEmpty());
     }
 
     @Test

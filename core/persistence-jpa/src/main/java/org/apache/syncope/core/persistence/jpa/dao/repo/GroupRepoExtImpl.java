@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -132,7 +133,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Transactional(readOnly = true)
     @Override
-    public OffsetDateTime findLastChange(final String key) {
+    public Optional<OffsetDateTime> findLastChange(final String key) {
         return findLastChange(key, JPAGroup.TABLE);
     }
 

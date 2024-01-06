@@ -27,14 +27,12 @@ import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RemediationTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.beans.RemediationQuery;
 import org.apache.syncope.common.rest.api.service.RemediationService;
 import org.apache.syncope.core.logic.RemediationLogic;
-import org.apache.syncope.core.persistence.api.dao.AnyDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,22 +40,14 @@ public class RemediationServiceImpl extends AbstractService implements Remediati
 
     protected final RemediationLogic logic;
 
-    protected final UserDAO userDAO;
-
-    protected final GroupDAO groupDAO;
-
-    protected final AnyObjectDAO anyObjectDAO;
+    protected final AnyUtilsFactory anyUtilsFactory;
 
     public RemediationServiceImpl(
             final RemediationLogic logic,
-            final UserDAO userDAO,
-            final GroupDAO groupDAO,
-            final AnyObjectDAO anyObjectDAO) {
+            final AnyUtilsFactory anyUtilsFactory) {
 
         this.logic = logic;
-        this.userDAO = userDAO;
-        this.groupDAO = groupDAO;
-        this.anyObjectDAO = anyObjectDAO;
+        this.anyUtilsFactory = anyUtilsFactory;
     }
 
     @Override
@@ -91,24 +81,14 @@ public class RemediationServiceImpl extends AbstractService implements Remediati
     private void check(final String key, final String anyKey) {
         RemediationTO remediation = logic.read(key);
 
-        AnyDAO<?> anyDAO;
-        switch (remediation.getAnyType()) {
-            case "USER":
-                anyDAO = userDAO;
-                break;
+        AnyTypeKind anyTypeKind = AnyTypeKind.USER.name().equals(remediation.getAnyType())
+                ? AnyTypeKind.USER
+                : AnyTypeKind.GROUP.name().equals(remediation.getAnyType())
+                ? AnyTypeKind.GROUP
+                : AnyTypeKind.ANY_OBJECT;
 
-            case "GROUP":
-                anyDAO = groupDAO;
-                break;
-
-            default:
-                anyDAO = anyObjectDAO;
-        }
-
-        OffsetDateTime etag = anyDAO.findLastChange(anyKey);
-        if (etag == null) {
-            throw new NotFoundException(remediation.getAnyType() + " for " + key);
-        }
+        OffsetDateTime etag = anyUtilsFactory.getInstance(anyTypeKind).dao().findLastChange(anyKey).
+                orElseThrow(() -> new NotFoundException(remediation.getAnyType() + " for " + key));
         checkETag(String.valueOf(etag.toInstant().toEpochMilli()));
     }
 

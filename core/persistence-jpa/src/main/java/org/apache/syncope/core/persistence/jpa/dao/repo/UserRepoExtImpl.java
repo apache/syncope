@@ -123,7 +123,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
     @Transactional(readOnly = true)
     @Override
-    public OffsetDateTime findLastChange(final String key) {
+    public Optional<OffsetDateTime> findLastChange(final String key) {
         return findLastChange(key, JPAUser.TABLE);
     }
 

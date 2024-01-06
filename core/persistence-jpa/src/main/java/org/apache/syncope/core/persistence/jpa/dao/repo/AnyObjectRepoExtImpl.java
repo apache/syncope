@@ -142,7 +142,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
     @Transactional(readOnly = true)
     @Override
-    public OffsetDateTime findLastChange(final String key) {
+    public Optional<OffsetDateTime> findLastChange(final String key) {
         return findLastChange(key, JPAAnyObject.TABLE);
     }
 

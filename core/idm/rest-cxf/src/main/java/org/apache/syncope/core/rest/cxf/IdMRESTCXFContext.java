@@ -26,9 +26,7 @@ import org.apache.syncope.core.logic.ConnectorLogic;
 import org.apache.syncope.core.logic.ReconciliationLogic;
 import org.apache.syncope.core.logic.RemediationLogic;
 import org.apache.syncope.core.logic.ResourceLogic;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.rest.cxf.service.ConnectorServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ReconciliationServiceImpl;
@@ -60,11 +58,9 @@ public class IdMRESTCXFContext {
     @Bean
     public RemediationService remediationService(
             final RemediationLogic remediationLogic,
-            final UserDAO userDAO,
-            final GroupDAO groupDAO,
-            final AnyObjectDAO anyObjectDAO) {
+            final AnyUtilsFactory anyUtilsFactory) {
 
-        return new RemediationServiceImpl(remediationLogic, userDAO, groupDAO, anyObjectDAO);
+        return new RemediationServiceImpl(remediationLogic, anyUtilsFactory);
     }
 
     @ConditionalOnMissingBean

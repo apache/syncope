@@ -19,12 +19,9 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +36,6 @@ import org.apache.commons.jexl3.parser.Parser;
 import org.apache.commons.jexl3.parser.ParserConstants;
 import org.apache.commons.jexl3.parser.Token;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.openjpa.persistence.OpenJPAPersistence;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -123,28 +119,22 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
         return result;
     }
 
-    protected OffsetDateTime findLastChange(final String key, final String table) {
-        OffsetDateTime creationDate = null;
-        OffsetDateTime lastChangeDate = null;
+    protected Optional<OffsetDateTime> findLastChange(final String key, final String table) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?");
+        query.setParameter(1, key);
 
-        try (Connection conn = (Connection) OpenJPAPersistence.cast(
-                entityManager).getConnection()) {
+        try {
+            Object[] result = (Object[]) query.getSingleResult();
 
-            try (PreparedStatement stmt =
-                    conn.prepareStatement("SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?")) {
-                stmt.setString(1, key);
+            OffsetDateTime creationDate = (OffsetDateTime) result[0];
+            OffsetDateTime lastChangeDate = (OffsetDateTime) result[1];
 
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    creationDate = rs.getObject(1, OffsetDateTime.class);
-                    lastChangeDate = rs.getObject(2, OffsetDateTime.class);
-                }
-            }
-        } catch (SQLException e) {
-            LOG.error("While reading {} from {}", key, table, e);
+            return Optional.ofNullable(lastChangeDate).or(() -> Optional.ofNullable(creationDate));
+        } catch (NoResultException e) {
+            LOG.debug("No row found in table {} for key {}", table, key, e);
+            return Optional.empty();
         }
-
-        return Optional.ofNullable(lastChangeDate).orElse(creationDate);
     }
 
     protected abstract void securityChecks(A any);

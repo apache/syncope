@@ -217,7 +217,7 @@ public class UserTest extends AbstractTest {
 
         assertNotNull(userDAO.findLastChange(actual.getKey()));
         assertTrue(actual.getLastChangeDate().truncatedTo(ChronoUnit.SECONDS).
-                isEqual(userDAO.findLastChange(actual.getKey()).truncatedTo(ChronoUnit.SECONDS)));
+                isEqual(userDAO.findLastChange(actual.getKey()).orElseThrow().truncatedTo(ChronoUnit.SECONDS)));
     }
 
     @Test
