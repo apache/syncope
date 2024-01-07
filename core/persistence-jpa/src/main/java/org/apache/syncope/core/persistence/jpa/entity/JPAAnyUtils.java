@@ -132,7 +132,7 @@ public class JPAAnyUtils implements AnyUtils {
 
     protected final boolean linkedAccount;
 
-    protected JPAAnyUtils(
+    public JPAAnyUtils(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,

@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
@@ -80,6 +81,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.ClientAppUtilsFactory;
@@ -171,6 +173,7 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.VirSchemaRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.VirSchemaRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.WAConfigRepo;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtils;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.JPAEntityFactory;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAClientAppUtilsFactory;
@@ -185,6 +188,7 @@ import org.apache.syncope.core.persistence.jpa.spring.OpenJpaVendorAdapter;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
@@ -386,15 +390,59 @@ public class PersistenceContext {
         return new JPAEntityFactory();
     }
 
-    @ConditionalOnMissingBean
-    @Bean
-    public AnyUtilsFactory anyUtilsFactory(
+    @Bean(name = "userAnyUtils")
+    public AnyUtils userAnyUtils(
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
             final @Lazy EntityFactory entityFactory) {
 
-        return new JPAAnyUtilsFactory(userDAO, groupDAO, anyObjectDAO, entityFactory);
+        return new JPAAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.USER, false);
+    }
+
+    @Bean(name = "linkedAccountAnyUtils")
+    public AnyUtils linkedAccountAnyUtils(
+            final @Lazy UserDAO userDAO,
+            final @Lazy GroupDAO groupDAO,
+            final @Lazy AnyObjectDAO anyObjectDAO,
+            final @Lazy EntityFactory entityFactory) {
+
+        return new JPAAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.USER, true);
+    }
+
+    @Bean(name = "groupAnyUtils")
+    public AnyUtils groupAnyUtils(
+            final @Lazy UserDAO userDAO,
+            final @Lazy GroupDAO groupDAO,
+            final @Lazy AnyObjectDAO anyObjectDAO,
+            final @Lazy EntityFactory entityFactory) {
+
+        return new JPAAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.GROUP, false);
+    }
+
+    @Bean(name = "anyObjectAnyUtils")
+    public AnyUtils anyObjectAnyUtils(
+            final @Lazy UserDAO userDAO,
+            final @Lazy GroupDAO groupDAO,
+            final @Lazy AnyObjectDAO anyObjectDAO,
+            final @Lazy EntityFactory entityFactory) {
+
+        return new JPAAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.ANY_OBJECT, false);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AnyUtilsFactory anyUtilsFactory(
+            @Qualifier("userAnyUtils")
+            final AnyUtils userAnyUtils,
+            @Qualifier("linkedAccountAnyUtils")
+            final AnyUtils linkedAccountAnyUtils,
+            @Qualifier("groupAnyUtils")
+            final AnyUtils groupAnyUtils,
+            @Qualifier("anyObjectAnyUtils")
+            final AnyUtils anyObjectAnyUtils) {
+
+        return new JPAAnyUtilsFactory(userAnyUtils, linkedAccountAnyUtils, groupAnyUtils, anyObjectAnyUtils);
     }
 
     @ConditionalOnMissingBean
@@ -469,7 +517,8 @@ public class PersistenceContext {
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
-            final EntityManager domainEntityManager) {
+            final EntityManager domainEntityManager,
+            final DomainRoutingDataSource domainDataSource) {
 
         return jpaRepositoryFactory.getRepository(
                 AnyObjectRepo.class,
@@ -480,7 +529,8 @@ public class PersistenceContext {
                         dynRealmDAO,
                         userDAO,
                         groupDAO,
-                        domainEntityManager));
+                        domainEntityManager,
+                        domainDataSource));
     }
 
     @ConditionalOnMissingBean
@@ -720,7 +770,8 @@ public class PersistenceContext {
             final @Lazy AnyObjectDAO anyObjectDAO,
             final AnySearchDAO anySearchDAO,
             final SearchCondVisitor searchCondVisitor,
-            final EntityManager domainEntityManager) {
+            final EntityManager domainEntityManager,
+            final DomainRoutingDataSource domainDataSource) {
 
         return jpaRepositoryFactory.getRepository(
                 GroupRepo.class,
@@ -735,7 +786,8 @@ public class PersistenceContext {
                         anyObjectDAO,
                         anySearchDAO,
                         searchCondVisitor,
-                        domainEntityManager));
+                        domainEntityManager,
+                        domainDataSource));
     }
 
     @ConditionalOnMissingBean
@@ -1029,7 +1081,8 @@ public class PersistenceContext {
             final @Lazy GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
-            final EntityManager domainEntityManager) {
+            final EntityManager domainEntityManager,
+            final DomainRoutingDataSource domainDataSource) {
 
         return jpaRepositoryFactory.getRepository(
                 UserRepo.class,
@@ -1044,7 +1097,8 @@ public class PersistenceContext {
                         delegationDAO,
                         fiqlQueryDAO,
                         securityProperties,
-                        domainEntityManager));
+                        domainEntityManager,
+                        domainDataSource));
     }
 
     @ConditionalOnMissingBean

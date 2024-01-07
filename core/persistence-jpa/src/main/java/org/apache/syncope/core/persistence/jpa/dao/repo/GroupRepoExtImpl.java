@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -45,7 +46,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -98,20 +98,22 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             final AnyObjectDAO anyObjectDAO,
             final AnySearchDAO searchDAO,
             final SearchCondVisitor searchCondVisitor,
-            final EntityManager entityManager) {
+            final EntityManager entityManager,
+            final DataSource dataSource) {
 
-        super(anyUtilsFactory, plainSchemaDAO, derSchemaDAO, dynRealmDAO, entityManager);
+        super(
+                plainSchemaDAO,
+                derSchemaDAO,
+                dynRealmDAO,
+                entityManager,
+                dataSource,
+                anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         this.publisher = publisher;
         this.anyMatchDAO = anyMatchDAO;
         this.userDAO = userDAO;
         this.anyObjectDAO = anyObjectDAO;
         this.anySearchDAO = searchDAO;
         this.searchCondVisitor = searchCondVisitor;
-    }
-
-    @Override
-    protected AnyUtils init() {
-        return anyUtilsFactory.getInstance(AnyTypeKind.GROUP);
     }
 
     @Transactional(readOnly = true)
@@ -140,7 +142,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Override
     public Map<String, Long> countByRealm() {
         Query query = entityManager.createQuery(
-                "SELECT e.realm, COUNT(e) FROM " + anyUtils().anyClass().getSimpleName() + " e GROUP BY e.realm");
+                "SELECT e.realm, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e GROUP BY e.realm");
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -198,7 +200,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             return List.of();
         }
 
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(anyUtils().anyClass().getSimpleName())
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(anyUtils.anyClass().getSimpleName())
                 .append(" e WHERE e.userOwner=:owner ");
         userDAO.findAllGroupKeys(owner).forEach(groupKey -> queryString
                 .append("OR e.groupOwner.id='").append(groupKey).append("' "));
@@ -218,7 +220,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         }
 
         TypedQuery<Group> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e WHERE e.groupOwner=:owner", Group.class);
+                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e WHERE e.groupOwner=:owner", Group.class);
         query.setParameter("owner", owner);
 
         return query.getResultList();
@@ -247,7 +249,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Override
     public List<Group> findAll(final int page, final int itemsPerPage) {
         TypedQuery<Group> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", Group.class);
+                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e ORDER BY e.id", Group.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 

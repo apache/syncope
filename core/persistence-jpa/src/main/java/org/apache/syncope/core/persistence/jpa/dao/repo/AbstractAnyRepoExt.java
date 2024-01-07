@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
@@ -32,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
+import javax.sql.DataSource;
 import org.apache.commons.jexl3.parser.Parser;
 import org.apache.commons.jexl3.parser.ParserConstants;
 import org.apache.commons.jexl3.parser.Token;
@@ -47,7 +47,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
@@ -60,14 +59,13 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt<A> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyRepoExt.class);
-
-    protected final AnyUtilsFactory anyUtilsFactory;
 
     protected final PlainSchemaDAO plainSchemaDAO;
 
@@ -77,31 +75,24 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
 
     protected final EntityManager entityManager;
 
-    private AnyUtils anyUtils;
+    protected final JdbcTemplate jdbcTemplate;
+
+    protected final AnyUtils anyUtils;
 
     protected AbstractAnyRepoExt(
-            final AnyUtilsFactory anyUtilsFactory,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
-            final EntityManager entityManager) {
+            final EntityManager entityManager,
+            final DataSource dataSource,
+            final AnyUtils anyUtils) {
 
-        this.anyUtilsFactory = anyUtilsFactory;
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
         this.dynRealmDAO = dynRealmDAO;
         this.entityManager = entityManager;
-    }
-
-    protected abstract AnyUtils init();
-
-    protected AnyUtils anyUtils() {
-        synchronized (this) {
-            if (anyUtils == null) {
-                anyUtils = init();
-            }
-        }
-        return anyUtils;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.anyUtils = anyUtils;
     }
 
     @SuppressWarnings("unchecked")
@@ -120,21 +111,18 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
     }
 
     protected Optional<OffsetDateTime> findLastChange(final String key, final String table) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?");
-        query.setParameter(1, key);
+        return jdbcTemplate.query(
+                "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?",
+                rs -> {
+                    if (rs.next()) {
+                        OffsetDateTime creationDate = rs.getObject(1, OffsetDateTime.class);
+                        OffsetDateTime lastChangeDate = rs.getObject(2, OffsetDateTime.class);
+                        return Optional.ofNullable(lastChangeDate).or(() -> Optional.ofNullable(creationDate));
+                    }
 
-        try {
-            Object[] result = (Object[]) query.getSingleResult();
-
-            OffsetDateTime creationDate = (OffsetDateTime) result[0];
-            OffsetDateTime lastChangeDate = (OffsetDateTime) result[1];
-
-            return Optional.ofNullable(lastChangeDate).or(() -> Optional.ofNullable(creationDate));
-        } catch (NoResultException e) {
-            LOG.debug("No row found in table {} for key {}", table, key, e);
-            return Optional.empty();
-        }
+                    return Optional.empty();
+                },
+                key);
     }
 
     protected abstract void securityChecks(A any);
@@ -142,7 +130,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
     @Transactional(readOnly = true)
     @Override
     public List<A> findByKeys(final List<String> keys) {
-        Class<A> entityClass = anyUtils().anyClass();
+        Class<A> entityClass = anyUtils.anyClass();
         TypedQuery<A> query = entityManager.createQuery(
                 "SELECT e FROM " + entityClass.getSimpleName() + " e WHERE e.id IN (:keys)", entityClass);
         query.setParameter("keys", keys);
@@ -151,7 +139,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
 
     @SuppressWarnings("unchecked")
     protected Optional<A> find(final String key) {
-        return Optional.ofNullable((A) entityManager.find(anyUtils().anyClass(), key));
+        return Optional.ofNullable((A) entityManager.find(anyUtils.anyClass(), key));
     }
 
     @Transactional(readOnly = true)
@@ -197,8 +185,8 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
         }
 
         String entityName = schema.isUniqueConstraint()
-                ? anyUtils().plainAttrUniqueValueClass().getName()
-                : anyUtils().plainAttrValueClass().getName();
+                ? anyUtils.plainAttrUniqueValueClass().getName()
+                : anyUtils.plainAttrValueClass().getName();
         Query query = findByPlainAttrValueQuery(entityName, ignoreCaseMatch);
         query.setParameter("schemaKey", schema.getKey());
         query.setParameter("stringValue", attrValue.getStringValue());
@@ -396,8 +384,8 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
             }
 
             querystring.append("SELECT a.owner_id ").
-                    append("FROM ").append(anyUtils().plainAttrClass().getSimpleName().substring(3)).append(" a, ").
-                    append(anyUtils().plainAttrValueClass().getSimpleName().substring(3)).append(" v, ").
+                    append("FROM ").append(anyUtils.plainAttrClass().getSimpleName().substring(3)).append(" a, ").
+                    append(anyUtils.plainAttrValueClass().getSimpleName().substring(3)).append(" v, ").
                     append(PlainSchema.class.getSimpleName()).append(" s ").
                     append("WHERE ").append(clause);
 
@@ -422,7 +410,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
     @Override
     public List<A> findByResource(final ExternalResource resource) {
         Query query = entityManager.
-                createQuery("SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e "
+                createQuery("SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e "
                         + "WHERE :resource MEMBER OF e.resources");
         query.setParameter("resource", resource);
 
@@ -459,13 +447,16 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
 
         // schemas given by type extensions
         Map<Group, List<? extends AnyTypeClass>> typeExtensionClasses = new HashMap<>();
-        if (any instanceof User user) {
-            user.getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().
-                    forEach(typeExt -> typeExtensionClasses.put(memb.getRightEnd(), typeExt.getAuxClasses())));
-        } else if (any instanceof AnyObject anyObject) {
-            anyObject.getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().stream().
-                    filter(typeExt -> any.getType().equals(typeExt.getAnyType())).
-                    forEach(typeExt -> typeExtensionClasses.put(memb.getRightEnd(), typeExt.getAuxClasses())));
+        switch (any) {
+            case User user ->
+                user.getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().
+                        forEach(typeExt -> typeExtensionClasses.put(memb.getRightEnd(), typeExt.getAuxClasses())));
+            case AnyObject anyObject ->
+                anyObject.getMemberships().forEach(memb -> memb.getRightEnd().getTypeExtensions().stream().
+                        filter(typeExt -> any.getType().equals(typeExt.getAnyType())).
+                        forEach(typeExt -> typeExtensionClasses.put(memb.getRightEnd(), typeExt.getAuxClasses())));
+            default -> {
+            }
         }
 
         typeExtensionClasses.entrySet().stream().map(entry -> {

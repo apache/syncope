@@ -18,54 +18,49 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 public class JPAAnyUtilsFactory implements AnyUtilsFactory {
 
-    protected final UserDAO userDAO;
+    protected final AnyUtils userAnyUtils;
 
-    protected final GroupDAO groupDAO;
+    protected final AnyUtils linkedAccountAnyUtils;
 
-    protected final AnyObjectDAO anyObjectDAO;
+    protected final AnyUtils groupAnyUtils;
 
-    protected final EntityFactory entityFactory;
-
-    protected final Map<AnyTypeKind, AnyUtils> instances = new ConcurrentHashMap<>(3);
-
-    protected AnyUtils linkedAccountInstance;
+    protected final AnyUtils anyObjectAnyUtils;
 
     public JPAAnyUtilsFactory(
-            final UserDAO userDAO,
-            final GroupDAO groupDAO,
-            final AnyObjectDAO anyObjectDAO,
-            final EntityFactory entityFactory) {
+            final AnyUtils userAnyUtils,
+            final AnyUtils linkedAccountAnyUtils,
+            final AnyUtils groupAnyUtils,
+            final AnyUtils anyObjectAnyUtils) {
 
-        this.userDAO = userDAO;
-        this.groupDAO = groupDAO;
-        this.anyObjectDAO = anyObjectDAO;
-        this.entityFactory = entityFactory;
+        this.userAnyUtils = userAnyUtils;
+        this.linkedAccountAnyUtils = linkedAccountAnyUtils;
+        this.groupAnyUtils = groupAnyUtils;
+        this.anyObjectAnyUtils = anyObjectAnyUtils;
     }
 
     @Override
     public AnyUtils getInstance(final AnyTypeKind anyTypeKind) {
-        return instances.computeIfAbsent(anyTypeKind, k -> {
-            JPAAnyUtils instance = new JPAAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, anyTypeKind, false);
-            ApplicationContextProvider.getBeanFactory().autowireBean(instance);
-            return instance;
-        });
+        switch (anyTypeKind) {
+            case ANY_OBJECT:
+                return anyObjectAnyUtils;
+
+            case GROUP:
+                return groupAnyUtils;
+
+            case USER:
+            default:
+                return userAnyUtils;
+        }
     }
 
     @Override
@@ -88,12 +83,6 @@ public class JPAAnyUtilsFactory implements AnyUtilsFactory {
 
     @Override
     public AnyUtils getLinkedAccountInstance() {
-        synchronized (this) {
-            if (linkedAccountInstance == null) {
-                linkedAccountInstance = new JPAAnyUtils(
-                        userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.USER, true);
-            }
-        }
-        return linkedAccountInstance;
+        return linkedAccountAnyUtils;
     }
 }

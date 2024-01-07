@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -42,7 +43,6 @@ import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -88,20 +88,22 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
             final SecurityProperties securityProperties,
-            final EntityManager entityManager) {
+            final EntityManager entityManager,
+            final DataSource dataSource) {
 
-        super(anyUtilsFactory, plainSchemaDAO, derSchemaDAO, dynRealmDAO, entityManager);
+        super(
+                plainSchemaDAO,
+                derSchemaDAO,
+                dynRealmDAO,
+                entityManager,
+                dataSource,
+                anyUtilsFactory.getInstance(AnyTypeKind.USER));
         this.roleDAO = roleDAO;
         this.accessTokenDAO = accessTokenDAO;
         this.groupDAO = groupDAO;
         this.delegationDAO = delegationDAO;
         this.fiqlQueryDAO = fiqlQueryDAO;
         this.securityProperties = securityProperties;
-    }
-
-    @Override
-    protected AnyUtils init() {
-        return anyUtilsFactory.getInstance(AnyTypeKind.USER);
     }
 
     @Transactional(readOnly = true)
@@ -146,7 +148,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Override
     public Map<String, Long> countByRealm() {
         Query query = entityManager.createQuery(
-                "SELECT e.realm, COUNT(e) FROM " + anyUtils().anyClass().getSimpleName() + " e GROUP BY e.realm");
+                "SELECT e.realm, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e GROUP BY e.realm");
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -158,7 +160,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Override
     public Map<String, Long> countByStatus() {
         Query query = entityManager.createQuery(
-                "SELECT e.status, COUNT(e) FROM " + anyUtils().anyClass().getSimpleName() + " e GROUP BY e.status");
+                "SELECT e.status, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e GROUP BY e.status");
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -218,7 +220,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Override
     public List<User> findAll(final int page, final int itemsPerPage) {
         TypedQuery<User> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", User.class);
+                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e ORDER BY e.id", User.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 

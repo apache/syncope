@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -44,7 +45,6 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -78,23 +78,25 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
-            final EntityManager entityManager) {
+            final EntityManager entityManager,
+            final DataSource dataSource) {
 
-        super(anyUtilsFactory, plainSchemaDAO, derSchemaDAO, dynRealmDAO, entityManager);
+        super(
+                plainSchemaDAO,
+                derSchemaDAO,
+                dynRealmDAO,
+                entityManager,
+                dataSource,
+                anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
-    }
-
-    @Override
-    protected AnyUtils init() {
-        return anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
     }
 
     @Transactional(readOnly = true)
     @Override
     public Optional<? extends AnyObject> findByName(final String type, final String name) {
         TypedQuery<AnyObject> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e "
+                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e "
                 + "WHERE e.type.id = :type AND e.name = :name",
                 AnyObject.class);
         query.setParameter("type", type);
@@ -114,7 +116,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     public List<AnyObject> findByName(final String name) {
         TypedQuery<AnyObject> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e WHERE e.name = :name",
+                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e WHERE e.name = :name",
                 AnyObject.class);
         query.setParameter("name", name);
 
@@ -149,7 +151,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     public Map<AnyType, Long> countByType() {
         Query query = entityManager.createQuery(
-                "SELECT e.type, COUNT(e) AS countByType FROM " + anyUtils().anyClass().getSimpleName() + " e "
+                "SELECT e.type, COUNT(e) AS countByType FROM " + anyUtils.anyClass().getSimpleName() + " e "
                 + "GROUP BY e.type ORDER BY countByType DESC");
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -163,7 +165,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     public Map<String, Long> countByRealm(final AnyType anyType) {
         Query query = entityManager.createQuery(
-                "SELECT e.realm, COUNT(e) FROM " + anyUtils().anyClass().getSimpleName() + " e "
+                "SELECT e.realm, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e "
                 + "WHERE e.type=:type GROUP BY e.realm");
         query.setParameter("type", anyType);
 
@@ -242,7 +244,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     public List<AnyObject> findAll(final int page, final int itemsPerPage) {
         TypedQuery<AnyObject> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", AnyObject.class);
+                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e ORDER BY e.id", AnyObject.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 
