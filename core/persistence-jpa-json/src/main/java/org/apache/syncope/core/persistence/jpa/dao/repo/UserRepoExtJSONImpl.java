@@ -22,6 +22,7 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.sql.DataSource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
@@ -57,9 +58,11 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
             final FIQLQueryDAO fiqlQueryDAO,
             final JPAJSONAnyDAO anyDAO,
             final SecurityProperties securityProperties,
-            final EntityManager entityManager) {
+            final EntityManager entityManager,
+            final DataSource dataSource) {
 
-        super(anyUtilsFactory,
+        super(
+                anyUtilsFactory,
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
@@ -69,7 +72,8 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
                 delegationDAO,
                 fiqlQueryDAO,
                 securityProperties,
-                entityManager);
+                entityManager,
+                dataSource);
         this.anyDAO = anyDAO;
     }
 
@@ -80,7 +84,7 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
             final boolean ignoreCaseMatch) {
 
         return anyDAO.findByPlainAttrValue(
-                JPAJSONUser.TABLE, anyUtils(), schema, attrValue, ignoreCaseMatch);
+                JPAJSONUser.TABLE, anyUtils, schema, attrValue, ignoreCaseMatch);
     }
 
     @Override
@@ -90,7 +94,7 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
             final boolean ignoreCaseMatch) {
 
         return anyDAO.findByPlainAttrUniqueValue(
-                JPAJSONUser.TABLE, anyUtils(), schema, attrUniqueValue, ignoreCaseMatch);
+                JPAJSONUser.TABLE, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
     }
 
     @Override
@@ -99,7 +103,7 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
             final String value,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO.findByDerAttrValue(JPAJSONUser.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
+        return anyDAO.findByDerAttrValue(JPAJSONUser.TABLE, anyUtils, schema, value, ignoreCaseMatch);
     }
 
     @Override
@@ -119,13 +123,13 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
 
     @Override
     public User save(final User user) {
-        anyDAO.checkBeforeSave(JPAJSONUser.TABLE, anyUtils(), user);
+        anyDAO.checkBeforeSave(JPAJSONUser.TABLE, anyUtils, user);
         return super.save(user);
     }
 
     @Override
     public Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(final User user) {
-        anyDAO.checkBeforeSave(JPAJSONUser.TABLE, anyUtils(), user);
+        anyDAO.checkBeforeSave(JPAJSONUser.TABLE, anyUtils, user);
         return super.saveAndGetDynGroupMembs(user);
     }
 }

@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
+import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -53,11 +54,13 @@ public class GroupRepoExtJSONImpl extends GroupRepoExtImpl {
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
             final AnySearchDAO searchDAO,
-            final SearchCondVisitor searchCondVisitor,
             final JPAJSONAnyDAO anyDAO,
-            final EntityManager entityManager) {
+            final SearchCondVisitor searchCondVisitor,
+            final EntityManager entityManager,
+            final DataSource dataSource) {
 
-        super(anyUtilsFactory,
+        super(
+                anyUtilsFactory,
                 publisher,
                 plainSchemaDAO,
                 derSchemaDAO,
@@ -67,7 +70,8 @@ public class GroupRepoExtJSONImpl extends GroupRepoExtImpl {
                 anyObjectDAO,
                 searchDAO,
                 searchCondVisitor,
-                entityManager);
+                entityManager,
+                dataSource);
         this.anyDAO = anyDAO;
     }
 
@@ -78,7 +82,7 @@ public class GroupRepoExtJSONImpl extends GroupRepoExtImpl {
             final boolean ignoreCaseMatch) {
 
         return anyDAO.findByPlainAttrValue(
-                JPAGroup.TABLE, anyUtils(), schema, attrValue, ignoreCaseMatch);
+                JPAGroup.TABLE, anyUtils, schema, attrValue, ignoreCaseMatch);
     }
 
     @Override
@@ -88,7 +92,7 @@ public class GroupRepoExtJSONImpl extends GroupRepoExtImpl {
             final boolean ignoreCaseMatch) {
 
         return anyDAO.findByPlainAttrUniqueValue(
-                JPAGroup.TABLE, anyUtils(), schema, attrUniqueValue, ignoreCaseMatch);
+                JPAGroup.TABLE, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
     }
 
     @Override
@@ -97,12 +101,12 @@ public class GroupRepoExtJSONImpl extends GroupRepoExtImpl {
             final String value,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO.findByDerAttrValue(JPAGroup.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
+        return anyDAO.findByDerAttrValue(JPAGroup.TABLE, anyUtils, schema, value, ignoreCaseMatch);
     }
 
     @Override
     public Group save(final Group group) {
-        anyDAO.checkBeforeSave(JPAGroup.TABLE, anyUtils(), group);
+        anyDAO.checkBeforeSave(JPAGroup.TABLE, anyUtils, group);
         return entityManager.merge(group);
     }
 }

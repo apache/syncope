@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.JSONAnyObjectRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.JSONGroupRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.JSONUserRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExtJSONImpl;
+import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingDataSource;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationEventPublisher;
@@ -64,7 +65,8 @@ public abstract class JPAJSONPersistenceContext {
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy JPAJSONAnyDAO anyDAO,
-            final EntityManager domainEntityManager) {
+            final EntityManager domainEntityManager,
+            final DomainRoutingDataSource domainDataSource) {
 
         return jpaRepositoryFactory.getRepository(
                 JSONAnyObjectRepo.class,
@@ -76,7 +78,8 @@ public abstract class JPAJSONPersistenceContext {
                         userDAO,
                         groupDAO,
                         anyDAO,
-                        domainEntityManager));
+                        domainEntityManager,
+                        domainDataSource));
     }
 
     @ConditionalOnMissingBean(name = "jpaJSONGroupDAO")
@@ -92,9 +95,10 @@ public abstract class JPAJSONPersistenceContext {
             final @Lazy UserDAO userDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
             final @Lazy AnySearchDAO anySearchDAO,
-            final SearchCondVisitor searchCondVisitor,
             final @Lazy JPAJSONAnyDAO anyDAO,
-            final EntityManager domainEntityManager) {
+            final SearchCondVisitor searchCondVisitor,
+            final EntityManager domainEntityManager,
+            final DomainRoutingDataSource domainDataSource) {
 
         return jpaRepositoryFactory.getRepository(
                 JSONGroupRepo.class,
@@ -108,9 +112,10 @@ public abstract class JPAJSONPersistenceContext {
                         userDAO,
                         anyObjectDAO,
                         anySearchDAO,
-                        searchCondVisitor,
                         anyDAO,
-                        domainEntityManager));
+                        searchCondVisitor,
+                        domainEntityManager,
+                        domainDataSource));
     }
 
     @ConditionalOnMissingBean(name = "jpaJSONPlainAttrValueDAO")
@@ -134,7 +139,8 @@ public abstract class JPAJSONPersistenceContext {
             final @Lazy FIQLQueryDAO fiqlQueryDAO,
             final @Lazy JPAJSONAnyDAO anyDAO,
             final SecurityProperties securityProperties,
-            final EntityManager domainEntityManager) {
+            final EntityManager domainEntityManager,
+            final DomainRoutingDataSource domainDataSource) {
 
         return jpaRepositoryFactory.getRepository(JSONUserRepo.class,
                 new UserRepoExtJSONImpl(
@@ -149,6 +155,7 @@ public abstract class JPAJSONPersistenceContext {
                         fiqlQueryDAO,
                         anyDAO,
                         securityProperties,
-                        domainEntityManager));
+                        domainEntityManager,
+                        domainDataSource));
     }
 }

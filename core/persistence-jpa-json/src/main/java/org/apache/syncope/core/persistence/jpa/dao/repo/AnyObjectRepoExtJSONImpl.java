@@ -22,6 +22,7 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.sql.DataSource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -49,9 +50,17 @@ public class AnyObjectRepoExtJSONImpl extends AnyObjectRepoExtImpl {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final JPAJSONAnyDAO anyDAO,
-            final EntityManager entityManager) {
+            final EntityManager entityManager,
+            final DataSource dataSource) {
 
-        super(anyUtilsFactory, plainSchemaDAO, derSchemaDAO, dynRealmDAO, userDAO, groupDAO, entityManager);
+        super(anyUtilsFactory,
+                plainSchemaDAO,
+                derSchemaDAO,
+                dynRealmDAO,
+                userDAO,
+                groupDAO,
+                entityManager,
+                dataSource);
         this.anyDAO = anyDAO;
     }
 
@@ -62,7 +71,7 @@ public class AnyObjectRepoExtJSONImpl extends AnyObjectRepoExtImpl {
             final boolean ignoreCaseMatch) {
 
         return anyDAO.findByPlainAttrValue(
-                JPAJSONAnyObject.TABLE, anyUtils(), schema, attrValue, ignoreCaseMatch);
+                JPAJSONAnyObject.TABLE, anyUtils, schema, attrValue, ignoreCaseMatch);
     }
 
     @Override
@@ -72,7 +81,7 @@ public class AnyObjectRepoExtJSONImpl extends AnyObjectRepoExtImpl {
             final boolean ignoreCaseMatch) {
 
         return anyDAO.findByPlainAttrUniqueValue(
-                JPAJSONAnyObject.TABLE, anyUtils(), schema, attrUniqueValue, ignoreCaseMatch);
+                JPAJSONAnyObject.TABLE, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
     }
 
     @Override
@@ -81,7 +90,7 @@ public class AnyObjectRepoExtJSONImpl extends AnyObjectRepoExtImpl {
             final String value,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO.findByDerAttrValue(JPAJSONAnyObject.TABLE, anyUtils(), schema, value, ignoreCaseMatch);
+        return anyDAO.findByDerAttrValue(JPAJSONAnyObject.TABLE, anyUtils, schema, value, ignoreCaseMatch);
     }
 
     @Override
@@ -99,7 +108,7 @@ public class AnyObjectRepoExtJSONImpl extends AnyObjectRepoExtImpl {
 
     @Override
     public AnyObject save(final AnyObject anyObject) {
-        anyDAO.checkBeforeSave(JPAJSONAnyObject.TABLE, anyUtils(), anyObject);
+        anyDAO.checkBeforeSave(JPAJSONAnyObject.TABLE, anyUtils, anyObject);
         return super.save(anyObject);
     }
 }
