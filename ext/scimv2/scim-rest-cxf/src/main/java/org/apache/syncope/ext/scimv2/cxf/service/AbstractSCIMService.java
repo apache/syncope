@@ -94,26 +94,30 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
 
     protected AnyDAO<?> anyDAO(final Resource type) {
         switch (type) {
-            case User:
+            case User -> {
                 return userDAO;
+            }
 
-            case Group:
+            case Group -> {
                 return groupDAO;
+            }
 
-            default:
+            default ->
                 throw new UnsupportedOperationException();
         }
     }
 
     protected AbstractAnyLogic<?, ?, ?> anyLogic(final Resource type) {
         switch (type) {
-            case User:
+            case User -> {
                 return userLogic;
+            }
 
-            case Group:
+            case Group -> {
                 return groupLogic;
+            }
 
-            default:
+            default ->
                 throw new UnsupportedOperationException();
         }
     }
@@ -131,10 +135,8 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
     }
 
     protected ResponseBuilder checkETag(final Resource resource, final String key) {
-        OffsetDateTime lastChange = anyDAO(resource).findLastChange(key);
-        if (lastChange == null) {
-            throw new NotFoundException("Resource" + key + " not found");
-        }
+        OffsetDateTime lastChange = anyDAO(resource).findLastChange(key).
+                orElseThrow(() -> new NotFoundException("Resource" + key + " not found"));
 
         return messageContext.getRequest().
                 evaluatePreconditions(new EntityTag(String.valueOf(lastChange.toInstant().toEpochMilli()), true));
@@ -193,15 +195,13 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
 
         result.getRight().forEach(anyTO -> {
             SCIMResource resource = null;
-            if (anyTO instanceof UserTO) {
-                resource = binder.toSCIMUser(
-                        (UserTO) anyTO,
+            if (anyTO instanceof UserTO userTO) {
+                resource = binder.toSCIMUser(userTO,
                         uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString(),
                         request.getAttributes(),
                         request.getExcludedAttributes());
-            } else if (anyTO instanceof GroupTO) {
-                resource = binder.toSCIMGroup(
-                        (GroupTO) anyTO,
+            } else if (anyTO instanceof GroupTO groupTO) {
+                resource = binder.toSCIMGroup(groupTO,
                         uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString(),
                         request.getAttributes(),
                         request.getExcludedAttributes());
