@@ -435,7 +435,7 @@ under the License.
     <commons-jexl.version>3.3</commons-jexl.version>
     <commons-text.version>1.11.0</commons-text.version>
 
-    <pac4j.version>6.0.0</pac4j.version>
+    <pac4j.version>6.0.1</pac4j.version>
 
     <cas.version>7.0.0</cas.version>
     <cas-client.version>4.0.3</cas-client.version>
