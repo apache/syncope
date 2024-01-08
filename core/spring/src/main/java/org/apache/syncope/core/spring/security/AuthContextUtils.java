@@ -118,9 +118,9 @@ public final class AuthContextUtils {
             LOG.debug("Error during execution under authentication {}", authentication, e);
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;
-            } else {
-                throw new RuntimeException(e);
             }
+
+            throw new RuntimeException(e);
         } finally {
             SecurityContextHolder.getContext().setAuthentication(original);
         }
@@ -149,6 +149,13 @@ public final class AuthContextUtils {
                 properties.getAdminUser(),
                 EntitlementsHolder.getInstance().getValues(),
                 callable);
+    }
+
+    public static void runAsAdmin(final String domain, final Runnable runnable) {
+        callAsAdmin(domain, () -> {
+            runnable.run();
+            return null;
+        });
     }
 
     /**

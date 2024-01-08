@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -414,14 +413,15 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         T taskTO = taskUtils.newTaskTO();
         taskTO.setKey(task.getKey());
 
-        Optional.ofNullable(taskExecDAO.findLatestStarted(taskUtils.getType(), task)).ifPresentOrElse(
-                latestExec -> {
-                    taskTO.setLatestExecStatus(latestExec.getStatus());
-                    taskTO.setStart(latestExec.getStart());
-                    taskTO.setEnd(latestExec.getEnd());
-                    taskTO.setLastExecutor(latestExec.getExecutor());
-                },
-                () -> taskTO.setLatestExecStatus(StringUtils.EMPTY));
+        taskTO.setLatestExecStatus(StringUtils.EMPTY);
+//        taskExecDAO.findLatestStarted(taskUtils.getType(), task).ifPresentOrElse(
+//                latestExec -> {
+//                    taskTO.setLatestExecStatus(latestExec.getStatus());
+//                    taskTO.setStart(latestExec.getStart());
+//                    taskTO.setEnd(latestExec.getEnd());
+//                    taskTO.setLastExecutor(latestExec.getExecutor());
+//                },
+//                () -> taskTO.setLatestExecStatus(StringUtils.EMPTY));
 
         if (details) {
             task.getExecs().stream().

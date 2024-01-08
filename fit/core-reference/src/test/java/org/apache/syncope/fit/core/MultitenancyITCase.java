@@ -197,7 +197,7 @@ public class MultitenancyITCase extends AbstractITCase {
             assertNotNull(resource);
 
             // pull
-            ExecTO execution = AbstractTaskITCase.execProvisioningTask(
+            ExecTO execution = AbstractTaskITCase.execSchedTask(
                     ADMIN_CLIENT.getService(TaskService.class), TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
 
             // verify execution status

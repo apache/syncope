@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao.repo;
+package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
+import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -56,9 +57,9 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPATicketExpiration
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PolicyRepoExtImpl implements PolicyRepoExt {
+public class JPAPolicyDAO implements PolicyDAO {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(PolicyRepoExt.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(PolicyDAO.class);
 
     protected static <T extends Policy> Class<? extends AbstractPolicy> getEntityReference(final Class<T> reference) {
         return AccountPolicy.class.isAssignableFrom(reference)
@@ -96,7 +97,7 @@ public class PolicyRepoExtImpl implements PolicyRepoExt {
 
     protected final EntityManager entityManager;
 
-    public PolicyRepoExtImpl(
+    public JPAPolicyDAO(
             final RealmDAO realmDAO,
             final ExternalResourceDAO resourceDAO,
             final CASSPClientAppDAO casSPClientAppDAO,
@@ -115,6 +116,11 @@ public class PolicyRepoExtImpl implements PolicyRepoExt {
     }
 
     @Override
+    public Optional<? extends Policy> findById(final String key) {
+        return Optional.ofNullable(entityManager.find(AbstractPolicy.class, key));
+    }
+
+    @Override
     public <T extends Policy> Optional<T> findById(final String key, final Class<T> reference) {
         TypedQuery<T> query = entityManager.createQuery(
                 "SELECT e FROM " + getEntityReference(reference).getSimpleName() + " e WHERE e.id=:key", reference);
@@ -127,6 +133,20 @@ public class PolicyRepoExtImpl implements PolicyRepoExt {
             LOG.debug("{} with key {} not found", reference.getName(), key, e);
         }
         return Optional.ofNullable(result);
+    }
+
+    @Override
+    public long count() {
+        TypedQuery<Policy> query = entityManager.createQuery(
+                "SELECT COUNT(e) FROM " + AbstractPolicy.class.getSimpleName() + " e", Policy.class);
+        return ((Number) query.getSingleResult()).longValue();
+    }
+
+    @Override
+    public List<? extends Policy> findAll() {
+        TypedQuery<Policy> query = entityManager.createQuery(
+                "SELECT e FROM " + AbstractPolicy.class.getSimpleName() + " e", Policy.class);
+        return query.getResultList();
     }
 
     @Override
@@ -205,7 +225,7 @@ public class PolicyRepoExtImpl implements PolicyRepoExt {
     }
 
     @Override
-    public <P extends Policy> void delete(final P policy) {
+    public void delete(final Policy policy) {
         if (policy instanceof AccountPolicy) {
             realmDAO.findByPolicy(policy).forEach(realm -> realm.setAccountPolicy(null));
             resourceDAO.findByPolicy(policy).forEach(resource -> resource.setAccountPolicy(null));
@@ -241,5 +261,10 @@ public class PolicyRepoExtImpl implements PolicyRepoExt {
         }
 
         entityManager.remove(policy);
+    }
+
+    @Override
+    public void deleteById(final String key) {
+        findById(key).ifPresent(this::delete);
     }
 }

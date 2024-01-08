@@ -18,23 +18,14 @@
  */
 package org.apache.syncope.core.persistence.jpa.content;
 
-import jakarta.persistence.EntityManagerFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.Properties;
 import javax.sql.DataSource;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import org.apache.openjpa.jdbc.conf.JDBCConfiguration;
-import org.apache.openjpa.jdbc.meta.MappingRepository;
-import org.apache.openjpa.jdbc.meta.MappingTool;
-import org.apache.openjpa.lib.conf.Configurations;
-import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
-import org.apache.openjpa.persistence.OpenJPAPersistence;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
@@ -80,36 +71,9 @@ public class XMLContentLoader implements ContentLoader {
         return 400;
     }
 
-    protected void buildJPASchema() {
-        OpenJPAEntityManagerFactorySPI emfspi = (OpenJPAEntityManagerFactorySPI) OpenJPAPersistence.cast(
-                ApplicationContextProvider.getBeanFactory().getBean(EntityManagerFactory.class));
-        JDBCConfiguration jdbcConf = (JDBCConfiguration) emfspi.getConfiguration();
-
-        MappingRepository mappingRepo = jdbcConf.getMappingRepositoryInstance();
-        Collection<Class<?>> classes = mappingRepo.loadPersistentTypes(false, getClass().getClassLoader());
-
-        String action = "buildSchema(ForeignKeys=true)";
-        String props = Configurations.getProperties(action);
-        action = Configurations.getClassName(action);
-        MappingTool mappingTool = new MappingTool(jdbcConf, action, false, getClass().getClassLoader());
-        Configurations.configureInstance(mappingTool, jdbcConf, props, "SynchronizeMappings");
-
-        // initialize the schema
-        for (Class<?> cls : classes) {
-            mappingTool.run(cls);
-        }
-
-        mappingTool.record();
-    }
-
     @Override
     public void load(final String domain, final DataSource datasource) {
         LOG.debug("Loading data for domain [{}]", domain);
-
-        if (!SyncopeConstants.MASTER_DOMAIN.equals(domain)) {
-            // ensure that the SQL schema was built after JPA mappings
-            buildJPASchema();
-        }
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource);
         boolean existingData;

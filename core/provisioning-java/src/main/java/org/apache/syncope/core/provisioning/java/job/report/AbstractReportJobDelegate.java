@@ -40,6 +40,7 @@ import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -101,7 +102,8 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
 
     protected void setStatus(final String status) {
         Objects.requireNonNull(report, "Report cannot be undefined");
-        publisher.publishEvent(new JobStatusEvent(this, reportDataBinder.buildRefDesc(report), status));
+        publisher.publishEvent(new JobStatusEvent(
+                this, AuthContextUtils.getDomain(), reportDataBinder.buildRefDesc(report), status));
     }
 
     @Override

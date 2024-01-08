@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao.repo;
+package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ManyToOne;
@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
+import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -67,9 +68,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
-public class TaskRepoExtImpl implements TaskRepoExt {
+public class JPATaskDAO implements TaskDAO {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(TaskRepoExt.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(TaskDAO.class);
 
     protected final RealmDAO realmDAO;
 
@@ -81,7 +82,7 @@ public class TaskRepoExtImpl implements TaskRepoExt {
 
     protected final EntityManager entityManager;
 
-    public TaskRepoExtImpl(
+    public JPATaskDAO(
             final RealmDAO realmDAO,
             final RemediationDAO remediationDAO,
             final TaskUtilsFactory taskUtilsFactory,
@@ -96,15 +97,15 @@ public class TaskRepoExtImpl implements TaskRepoExt {
     }
 
     @Transactional(readOnly = true)
-    @SuppressWarnings("unchecked")
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends Task<T>> Optional<T> findById(final TaskType type, final String key) {
         return Optional.ofNullable((T) entityManager.find(taskUtilsFactory.getInstance(type).getTaskEntity(), key));
     }
 
     @Transactional(readOnly = true)
-    @SuppressWarnings("unchecked")
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends SchedTask> Optional<T> findByName(final TaskType type, final String name) {
         TaskUtils taskUtils = taskUtilsFactory.getInstance(type);
         TypedQuery<T> query = (TypedQuery<T>) entityManager.createQuery(
@@ -232,6 +233,11 @@ public class TaskRepoExtImpl implements TaskRepoExt {
 
         Query query = entityManager.createQuery(queryString.toString());
         return query.getResultList();
+    }
+
+    @Override
+    public List<? extends Task<?>> findAll() {
+        throw new UnsupportedOperationException();
     }
 
     @Transactional(readOnly = true)
@@ -379,8 +385,8 @@ public class TaskRepoExtImpl implements TaskRepoExt {
         return statement.toString();
     }
 
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public <T extends Task<T>> List<T> findAll(
             final TaskType type,
             final ExternalResource resource,
@@ -459,6 +465,11 @@ public class TaskRepoExtImpl implements TaskRepoExt {
     }
 
     @Override
+    public long count() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public long count(
             final TaskType type,
             final ExternalResource resource,
@@ -481,17 +492,17 @@ public class TaskRepoExtImpl implements TaskRepoExt {
             query.setParameter(i, parameters.get(i - 1));
         }
 
-        return ((Number) query.getSingleResult()).intValue();
+        return ((Number) query.getSingleResult()).longValue();
     }
 
     @Transactional(rollbackFor = { Throwable.class })
     @Override
-    public <T extends Task<T>> T save(final T task) {
+    public <T extends Task<?>> T save(final T task) {
         switch (task) {
-            case JPANotificationTask jPANotificationTask ->
-                jPANotificationTask.list2json();
-            case JPAPushTask jPAPushTask ->
-                jPAPushTask.map2json();
+            case JPANotificationTask jpaNotificationTask ->
+                jpaNotificationTask.list2json();
+            case JPAPushTask jpaPushTask ->
+                jpaPushTask.map2json();
             default -> {
             }
         }
@@ -499,8 +510,13 @@ public class TaskRepoExtImpl implements TaskRepoExt {
     }
 
     @Override
-    public void delete(final TaskType type, final String id) {
-        findById(type, id).ifPresent(this::delete);
+    public void delete(final TaskType type, final String key) {
+        findById(type, key).ifPresent(this::delete);
+    }
+
+    @Override
+    public void deleteById(final String key) {
+        findById(key).ifPresent(this::delete);
     }
 
     @Override

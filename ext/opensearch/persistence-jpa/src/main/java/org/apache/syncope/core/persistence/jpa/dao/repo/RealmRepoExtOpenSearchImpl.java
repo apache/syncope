@@ -103,7 +103,7 @@ public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
             LOG.error("While searching ES for one match", e);
         }
 
-        return null;
+        return Optional.empty();
     }
 
     protected List<String> search(final Query query) {

@@ -498,30 +498,30 @@ public class DefaultMappingManager implements MappingManager {
         return Pair.of(connObjectKeyValue[0], attributes);
     }
 
-    protected String decodePassword(final Account account) {
+    protected Optional<String> decodePassword(final Account account) {
         try {
-            return ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+            return Optional.of(ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm()));
         } catch (Exception e) {
             LOG.error("Could not decode password for {}", account, e);
-            return null;
+            return Optional.empty();
         }
     }
 
-    protected String getPasswordAttrValue(final Account account, final String defaultValue) {
-        String passwordAttrValue;
+    protected Optional<String> getPasswordAttrValue(final Account account, final String defaultValue) {
+        Optional<String> passwordAttrValue;
         if (account instanceof LinkedAccount) {
-            if (account.getPassword() != null) {
-                passwordAttrValue = decodePassword(account);
+            if (account.getPassword() == null) {
+                passwordAttrValue = Optional.of(defaultValue);
             } else {
-                passwordAttrValue = defaultValue;
+                passwordAttrValue = decodePassword(account);
             }
         } else {
             if (StringUtils.isNotBlank(defaultValue)) {
-                passwordAttrValue = defaultValue;
+                passwordAttrValue = Optional.of(defaultValue);
             } else if (account.canDecodeSecrets()) {
                 passwordAttrValue = decodePassword(account);
             } else {
-                passwordAttrValue = null;
+                passwordAttrValue = Optional.empty();
             }
         }
 
@@ -593,12 +593,10 @@ public class DefaultMappingManager implements MappingManager {
             if (item.isConnObjectKey()) {
                 result = Pair.of(objValues.isEmpty() ? null : objValues.iterator().next().toString(), null);
             } else if (item.isPassword() && any instanceof User) {
-                String passwordAttrValue = getPasswordAttrValue(passwordAccountGetter.apply((User) any), password);
-                if (passwordAttrValue == null) {
-                    result = null;
-                } else {
-                    result = Pair.of(null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
-                }
+                result = getPasswordAttrValue(passwordAccountGetter.apply((User) any), password).
+                        map(passwordAttrValue -> Pair.of(
+                        (String) null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()))).
+                        orElse(null);
             } else {
                 result = Pair.of(null, objValues.isEmpty()
                         ? AttributeBuilder.build(item.getExtAttrName())

@@ -34,5 +34,5 @@ public interface DAO<E extends Entity> {
 
     void delete(E entity);
 
-    void deleteById(String id);
+    void deleteById(String key);
 }

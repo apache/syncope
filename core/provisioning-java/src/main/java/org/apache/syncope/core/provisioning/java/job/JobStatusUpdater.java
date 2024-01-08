@@ -22,6 +22,7 @@ import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -35,33 +36,47 @@ public class JobStatusUpdater {
 
     protected final EntityFactory entityFactory;
 
+    protected boolean initCompleted = false;
+
     public JobStatusUpdater(final JobStatusDAO jobStatusDAO, final EntityFactory entityFactory) {
         this.jobStatusDAO = jobStatusDAO;
         this.entityFactory = entityFactory;
     }
 
+    public void initComplete() {
+        initCompleted = true;
+    }
+
     /**
-     * It's important to note that responding to job status updates
-     * must be done in async mode, and via a separate special thread executor
-     * that attempts to synchronize job execution serially by only making one thread
-     * active at a given time. Not doing so will force the event executor to launch
-     * separate threads per each status update, which would result in multiple concurrent
-     * INSERT operations on the database, and failing.
+     * It's important to note that responding to job status updates must be done in async mode, and via a separate
+     * special thread executor that attempts to synchronize job execution serially by only making one thread active at a
+     * given time. Not doing so will force the event executor to launch separate threads per each status update, which
+     * would result in multiple concurrent INSERT operations on the database, and failing.
      *
      * @param event the event
      */
     @Async("jobStatusUpdaterThreadExecutor")
     @EventListener
     public void update(final JobStatusEvent event) {
+        if (!initCompleted) {
+            LOG.debug("Core initialization not yet completed, discarding {}", event);
+            return;
+        }
+
         if (event.getJobStatus() == null) {
-            LOG.debug("Deleting status for job '{}'", event.getJobRefDesc());
-            jobStatusDAO.deleteById(event.getJobRefDesc());
+            LOG.debug("Deleting status for job '{}#{}'", event.getDomain(), event.getJobRefDesc());
+
+            AuthContextUtils.runAsAdmin(event.getDomain(), () -> jobStatusDAO.deleteById(event.getJobRefDesc()));
         } else {
-            LOG.debug("Updating job '{}' with status '{}'", event.getJobRefDesc(), event.getJobStatus());
-            JobStatus jobStatus = entityFactory.newEntity(JobStatus.class);
-            jobStatus.setKey(event.getJobRefDesc());
-            jobStatus.setStatus(event.getJobStatus());
-            jobStatusDAO.save(jobStatus);
+            LOG.debug("Updating job '{}#{}' with status '{}'",
+                    event.getDomain(), event.getJobRefDesc(), event.getJobStatus());
+
+            AuthContextUtils.runAsAdmin(event.getDomain(), () -> {
+                JobStatus jobStatus = entityFactory.newEntity(JobStatus.class);
+                jobStatus.setKey(event.getJobRefDesc());
+                jobStatus.setStatus(event.getJobStatus());
+                jobStatusDAO.save(jobStatus);
+            });
         }
     }
 }

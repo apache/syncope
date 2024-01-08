@@ -25,11 +25,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -106,8 +106,11 @@ public class DefaultConnectorManager implements ConnectorManager {
             final Optional<Collection<ConnectorCapability>> capabilitiesOverride) {
 
         ConnInstance override = entityFactory.newEntity(ConnInstance.class);
-        override.setAdminRealm(realmDAO.findByFullPath(connInstance.getAdminRealm()).
-                orElseThrow(() -> new NotFoundException("Realm " + connInstance.getAdminRealm())));
+        override.setAdminRealm(realmDAO.findByFullPath(connInstance.getAdminRealm()).orElseGet(() -> {
+            LOG.warn("Could not find admin Realm {}, reverting to {}",
+                    connInstance.getAdminRealm(), SyncopeConstants.ROOT_REALM);
+            return realmDAO.getRoot();
+        }));
         override.setConnectorName(connInstance.getConnectorName());
         override.setDisplayName(connInstance.getDisplayName());
         override.setBundleName(connInstance.getBundleName());

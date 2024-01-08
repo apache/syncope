@@ -35,9 +35,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.openjpa.jdbc.meta.MappingRepository;
 import org.apache.openjpa.jdbc.sql.OracleDictionary;
-import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
-import org.apache.openjpa.persistence.OpenJPAPersistence;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -122,9 +120,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return IS_ORACLE.computeIfAbsent(
                 AuthContextUtils.getDomain(),
                 k -> {
-                    OpenJPAEntityManagerFactory emf = OpenJPAPersistence.cast(entityManagerFactory);
-                    OpenJPAEntityManagerFactorySPI emfspi = (OpenJPAEntityManagerFactorySPI) OpenJPAPersistence.
-                            cast(emf);
+                    OpenJPAEntityManagerFactorySPI emfspi = entityManagerFactory.unwrap(
+                            OpenJPAEntityManagerFactorySPI.class);
                     return ((MappingRepository) emfspi.getConfiguration().
                             getMetaDataRepositoryInstance()).getDBDictionary() instanceof OracleDictionary;
                 });

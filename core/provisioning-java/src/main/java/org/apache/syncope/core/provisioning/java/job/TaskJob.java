@@ -64,7 +64,7 @@ public class TaskJob extends AbstractInterruptableJob {
         try {
             String domain = context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY);
             if (domainHolder.getDomains().containsKey(domain)) {
-                AuthContextUtils.callAsAdmin(domain, () -> {
+                AuthContextUtils.runAsAdmin(domain, () -> {
                     try {
                         ImplementationDAO implementationDAO =
                                 ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);
@@ -86,8 +86,6 @@ public class TaskJob extends AbstractInterruptableJob {
                         LOG.error("While executing task {}", taskKey, e);
                         throw new RuntimeException(e);
                     }
-
-                    return null;
                 });
             } else {
                 LOG.debug("Domain {} not found, skipping", domain);

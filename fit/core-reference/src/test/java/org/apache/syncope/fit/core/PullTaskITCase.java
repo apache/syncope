@@ -288,7 +288,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPre);
 
-            ExecTO exec = execProvisioningTask(TASK_SERVICE, TaskType.PULL, PULL_TASK_KEY, MAX_WAIT_SECONDS, false);
+            ExecTO exec = execSchedTask(TASK_SERVICE, TaskType.PULL, PULL_TASK_KEY, MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
 
             LOG.debug("Execution of task {}:\n{}", PULL_TASK_KEY, exec);
@@ -368,7 +368,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void dryRun() {
-        ExecTO execution = execProvisioningTask(TASK_SERVICE, TaskType.PULL, PULL_TASK_KEY, MAX_WAIT_SECONDS, true);
+        ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PULL, PULL_TASK_KEY, MAX_WAIT_SECONDS, true);
         assertEquals("SUCCESS", execution.getStatus());
     }
 
@@ -377,7 +377,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         UserTO userTO = null;
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         try {
-            ExecTO execution = execProvisioningTask(
+            ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, "83f7e85d-9774-43fe-adba-ccd856312994", MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
@@ -390,7 +390,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             jdbcTemplate.execute("UPDATE TEST SET status=TRUE WHERE id='testuser1'");
 
             // re-execute the same PullTask: now user must be active
-            execution = execProvisioningTask(
+            execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, "83f7e85d-9774-43fe-adba-ccd856312994", MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
@@ -411,7 +411,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ldapCleanup();
 
         // 0. pull
-        ExecTO execution = execProvisioningTask(
+        ExecTO execution = execSchedTask(
                 TASK_SERVICE, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", MAX_WAIT_SECONDS, false);
 
         // 1. verify execution status
@@ -484,7 +484,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 userDn.getValues().get(0), Collections.singletonMap("title", null));
 
         // SYNCOPE-317
-        execProvisioningTask(
+        execSchedTask(
                 TASK_SERVICE, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", MAX_WAIT_SECONDS, false);
 
         // 4. verify that LDAP group membership is pulled as Syncope membership
@@ -519,7 +519,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
                 groupDn.getValues().get(0), Map.of("uniquemember", "uid=admin,ou=system"));
 
-        execProvisioningTask(
+        execSchedTask(
                 TASK_SERVICE, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", MAX_WAIT_SECONDS, false);
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
@@ -620,7 +620,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertFalse(pullTask.isPerformDelete());
 
             // 4. pull
-            execProvisioningTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
+            execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
 
             if (IS_EXT_SEARCH_ENABLED) {
                 try {
@@ -690,7 +690,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(reconFilterBuilder.getKey(), task.getReconFilterBuilder());
 
             // 3. exec task
-            ExecTO execution = execProvisioningTask(
+            ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
@@ -773,7 +773,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     + "(1041, 'syncTokenWithErrors2', 'Surname2', "
                     + "false, 'syncTokenWithErrors1@syncope.apache.org', '2015-05-23 13:53:24.293')");
 
-            ExecTO exec = execProvisioningTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
+            ExecTO exec = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
 
             resForTest = RESOURCE_SERVICE.read(resForTest.getKey());
@@ -783,7 +783,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     + "SET email='syncTokenWithErrors2@syncope.apache.org', lastModification='2016-05-23 13:53:24.293' "
                     + "WHERE ID=1041");
 
-            exec = execProvisioningTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
+            exec = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
 
             resForTest = RESOURCE_SERVICE.read(resForTest.getKey());
@@ -836,7 +836,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         try {
             // 3. execute the pull task and verify that:
-            ExecTO execution = execProvisioningTask(
+            ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
@@ -990,7 +990,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         PagedResult<UserTO> result = null;
         try {
             // 2. run concurrent pull task
-            ExecTO execution = execProvisioningTask(
+            ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, pullTaskKey, 2 * MAX_WAIT_SECONDS, false);
 
             // 3. verify execution status
@@ -1064,7 +1064,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertFalse(actual.getTemplates().get(AnyTypeKind.USER.name()).getResources().isEmpty());
             assertFalse(((UserTO) actual.getTemplates().get(AnyTypeKind.USER.name())).getMemberships().isEmpty());
 
-            ExecTO execution = execProvisioningTask(
+            ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, actual.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
@@ -1090,7 +1090,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 + "('" + id + "', 'issuesyncope230', 'Surname230', false, 'syncope230@syncope.apache.org', NULL)");
 
         // 2. execute PullTask for resource-db-pull (table TESTPULL on external H2)
-        execProvisioningTask(
+        execSchedTask(
                 TASK_SERVICE, TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", MAX_WAIT_SECONDS, false);
 
         // 3. read e-mail address for user created by the PullTask first execution
@@ -1103,7 +1103,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         jdbcTemplate.execute("UPDATE TESTPULL SET email='updatedSYNCOPE230@syncope.apache.org' WHERE id='" + id + '\'');
 
         // 5. re-execute the PullTask
-        execProvisioningTask(
+        execSchedTask(
                 TASK_SERVICE, TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", MAX_WAIT_SECONDS, false);
 
         // 6. verify that the e-mail was updated
@@ -1177,7 +1177,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         USER_SERVICE.update(userUR);
 
-        execProvisioningTask(TASK_SERVICE, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
+        execSchedTask(TASK_SERVICE, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
 
         PullTaskTO executed = TASK_SERVICE.read(TaskType.PULL, task.getKey(), true);
         assertEquals(1, executed.getExecutions().size());
@@ -1201,7 +1201,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(1, result.getPropagationStatuses().size());
             assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
 
-            ExecTO taskExecTO = execProvisioningTask(
+            ExecTO taskExecTO = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, "986867e2-993b-430e-8feb-aa9abb4c1dcd", MAX_WAIT_SECONDS, false);
 
             assertNotNull(taskExecTO.getStatus());
@@ -1248,7 +1248,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         TASK_SERVICE.update(TaskType.PULL, task);
 
         // exec task: one user from CSV will match the user created above and template will be applied
-        ExecTO exec = execProvisioningTask(TASK_SERVICE, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
+        ExecTO exec = execSchedTask(TASK_SERVICE, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
 
         // check that template was successfully applied
         // 1. propagation to db
@@ -1315,7 +1315,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals(actual.getKey(), pullTask.getKey());
         assertEquals(actual.getJobDelegate(), pullTask.getJobDelegate());
 
-        ExecTO execution = execProvisioningTask(
+        ExecTO execution = execSchedTask(
                 TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
@@ -1402,7 +1402,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             pullTask = getObject(taskResponse.getLocation(), TaskService.class, PullTaskTO.class);
             assertNotNull(pullTask);
 
-            ExecTO execution = execProvisioningTask(
+            ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
@@ -1463,7 +1463,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertFalse(pullTask.getTemplates().isEmpty());
 
             // 3. exec the pull task
-            ExecTO execution = execProvisioningTask(
+            ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
@@ -1500,7 +1500,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals("pullFromLDAP2@syncope.apache.org", connObject.getAttr("mail").get().getValues().get(0));
 
             // 5. exec the pull task again
-            execution = execProvisioningTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
+            execution = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
             // the internal is updated...
@@ -1562,7 +1562,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             pullTask = getObject(taskResponse.getLocation(), TaskService.class, PullTaskTO.class);
             assertNotNull(pullTask);
 
-            ExecTO execution = execProvisioningTask(
+            ExecTO execution = execSchedTask(
                     TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
@@ -1581,7 +1581,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
                     userDn.getValues().get(0), Collections.singletonMap("mail", "pullFromLDAP_issue1656@"));
             // 3. Pull again from resource-ldap
-            execution = execProvisioningTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
+            execution = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
             assertTrue(execution.getMessage().contains("UPDATE FAILURE"));
             pullFromLDAP4issue1656 = USER_SERVICE.read("pullFromLDAP_issue1656");

@@ -67,8 +67,7 @@ public class TaskExecTest extends AbstractTest {
                 TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
-        TaskExec<?> latestStarted = taskExecDAO.findLatestStarted(TaskType.PROPAGATION, task);
-        assertNotNull(latestStarted);
+        TaskExec<?> latestStarted = taskExecDAO.findLatestStarted(TaskType.PROPAGATION, task).orElseThrow();
         assertEquals("e58ca1c7-178a-4012-8a71-8aa14eaf0655", latestStarted.getKey());
     }
 

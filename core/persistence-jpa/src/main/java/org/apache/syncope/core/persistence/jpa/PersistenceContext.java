@@ -95,9 +95,13 @@ import org.apache.syncope.core.persistence.jpa.content.XMLContentLoader;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyMatchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAEntityCacheDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAJobStatusDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCJWKSDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPersistenceInfoDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAPolicyDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPATaskDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPATaskExecDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepo;
@@ -136,7 +140,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.GroupRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.GroupRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.ImplementationRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.ImplementationRepoExtImpl;
-import org.apache.syncope.core.persistence.jpa.dao.repo.JobStatusRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.MailTemplateRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.NotificationRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.NotificationRepoExtImpl;
@@ -144,8 +147,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.OIDCRPClientAppRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.OIDCRPClientAppRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExtImpl;
-import org.apache.syncope.core.persistence.jpa.dao.repo.PolicyRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.PolicyRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.RealmRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.RealmRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.RelationshipTypeRepo;
@@ -164,10 +165,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.SAML2SPEntityRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.SRARouteRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.SecurityQuestionRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.SecurityQuestionRepoExtImpl;
-import org.apache.syncope.core.persistence.jpa.dao.repo.TaskExecRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.TaskExecRepoExtImpl;
-import org.apache.syncope.core.persistence.jpa.dao.repo.TaskRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.TaskRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.VirSchemaRepo;
@@ -367,9 +364,10 @@ public class PersistenceContext {
     public RuntimeDomainLoader runtimeDomainLoader(
             final DomainHolder domainHolder,
             final DomainRegistry domainRegistry,
+            final EntityManagerFactory domainEntityManagerFactory,
             final ConfigurableApplicationContext ctx) {
 
-        return new RuntimeDomainLoader(domainHolder, domainRegistry, ctx);
+        return new RuntimeDomainLoader(domainHolder, domainRegistry, domainEntityManagerFactory, ctx);
     }
 
     @ConditionalOnMissingBean
@@ -805,8 +803,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public JobStatusDAO jobStatusDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
-        return jpaRepositoryFactory.getRepository(JobStatusRepo.class);
+    public JobStatusDAO jobStatusDAO() {
+        return new JPAJobStatusDAO();
     }
 
     @ConditionalOnMissingBean
@@ -872,7 +870,6 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public PolicyDAO policyDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
             final @Lazy RealmDAO realmDAO,
             final @Lazy ExternalResourceDAO resourceDAO,
             final @Lazy CASSPClientAppDAO casSPClientAppDAO,
@@ -881,16 +878,14 @@ public class PersistenceContext {
             final @Lazy EntityCacheDAO entityCacheDAO,
             final EntityManager domainEntityManager) {
 
-        return jpaRepositoryFactory.getRepository(
-                PolicyRepo.class,
-                new PolicyRepoExtImpl(
-                        realmDAO,
-                        resourceDAO,
-                        casSPClientAppDAO,
-                        oidcRPClientAppDAO,
-                        saml2SPClientAppDAO,
-                        entityCacheDAO,
-                        domainEntityManager));
+        return new JPAPolicyDAO(
+                realmDAO,
+                resourceDAO,
+                casSPClientAppDAO,
+                oidcRPClientAppDAO,
+                saml2SPClientAppDAO,
+                entityCacheDAO,
+                domainEntityManager);
     }
 
     @ConditionalOnMissingBean
@@ -1037,34 +1032,23 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public TaskDAO taskDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
             final RealmDAO realmDAO,
             final RemediationDAO remediationDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final SecurityProperties securityProperties,
             final EntityManager domainEntityManager) {
 
-        return jpaRepositoryFactory.getRepository(
-                TaskRepo.class,
-                new TaskRepoExtImpl(
-                        realmDAO,
-                        remediationDAO,
-                        taskUtilsFactory,
-                        securityProperties,
-                        domainEntityManager));
+        return new JPATaskDAO(realmDAO, remediationDAO, taskUtilsFactory, securityProperties, domainEntityManager);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public TaskExecDAO taskExecDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
             final TaskDAO taskDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final EntityManager domainEntityManager) {
 
-        return jpaRepositoryFactory.getRepository(
-                TaskExecRepo.class,
-                new TaskExecRepoExtImpl(taskDAO, taskUtilsFactory, domainEntityManager));
+        return new JPATaskExecDAO(taskDAO, taskUtilsFactory, domainEntityManager);
     }
 
     @ConditionalOnMissingBean

@@ -75,8 +75,6 @@ public interface TaskDAO extends DAO<Task<?>> {
             AnyTypeKind anyTypeKind,
             String entityKey);
 
-    <T extends Task<T>> T save(T task);
-
     void delete(TaskType type, String key);
 
     void deleteAll(ExternalResource resource, TaskType type);

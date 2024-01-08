@@ -32,7 +32,6 @@ import org.apache.openjpa.event.RemoteCommitEventManager;
 import org.apache.openjpa.event.RemoteCommitProvider;
 import org.apache.openjpa.event.TCPRemoteCommitProvider;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
-import org.apache.openjpa.persistence.OpenJPAPersistence;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +52,7 @@ public class JPAPersistenceInfoDAO implements PersistenceInfoDAO {
     public Map<String, Object> info() {
         Map<String, Object> result = new LinkedHashMap<>();
 
-        OpenJPAEntityManagerFactorySPI emfspi =
-                (OpenJPAEntityManagerFactorySPI) OpenJPAPersistence.cast(entityManagerFactory);
+        OpenJPAEntityManagerFactorySPI emfspi = entityManagerFactory.unwrap(OpenJPAEntityManagerFactorySPI.class);
         OpenJPAConfiguration conf = emfspi.getConfiguration();
 
         Map<String, Object> properties = emfspi.getProperties();

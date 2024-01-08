@@ -24,14 +24,21 @@ public class JobStatusEvent extends ApplicationEvent {
 
     private static final long serialVersionUID = 373067530016978592L;
 
+    private final String domain;
+
     private final String jobRefDesc;
 
     private final String jobStatus;
 
-    public JobStatusEvent(final Object source, final String jobRefDesc, final String jobStatus) {
+    public JobStatusEvent(final Object source, final String domain, final String jobRefDesc, final String jobStatus) {
         super(source);
+        this.domain = domain;
         this.jobRefDesc = jobRefDesc;
         this.jobStatus = jobStatus;
+    }
+
+    public String getDomain() {
+        return domain;
     }
 
     public String getJobRefDesc() {
@@ -45,7 +52,8 @@ public class JobStatusEvent extends ApplicationEvent {
     @Override
     public String toString() {
         return "JobStatusEvent{"
-                + "jobRefDesc=" + jobRefDesc
+                + "domain=" + domain
+                + ", jobRefDesc=" + jobRefDesc
                 + ", jobStatus=" + jobStatus
                 + '}';
     }

@@ -23,6 +23,7 @@ import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.apache.syncope.core.provisioning.java.job.JobStatusUpdater;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,10 +64,7 @@ public class SyncopeCoreStart extends KeymasterStart implements Ordered {
                     domainHolder.getDomains().forEach((domain, datasource) -> {
                         LOG.debug("[{}] Starting init on domain '{}'", loaderName, domain);
 
-                        AuthContextUtils.callAsAdmin(domain, () -> {
-                            loader.load(domain, datasource);
-                            return null;
-                        });
+                        AuthContextUtils.runAsAdmin(domain, () -> loader.load(domain, datasource));
 
                         LOG.debug("[{}] Init completed on domain '{}'", loaderName, domain);
                     });
@@ -75,5 +73,7 @@ public class SyncopeCoreStart extends KeymasterStart implements Ordered {
                 });
 
         super.onApplicationEvent(event);
+
+        event.getApplicationContext().getBean(JobStatusUpdater.class).initComplete();
     }
 }

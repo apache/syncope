@@ -66,6 +66,7 @@ import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContex
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
@@ -86,7 +87,9 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
@@ -96,10 +99,14 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
@@ -107,12 +114,14 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -163,6 +172,7 @@ import org.apache.syncope.common.rest.api.service.wa.MfaTrustStorageService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
 import org.apache.syncope.fit.AbstractITCase.KeymasterInitializer;
+import org.apache.syncope.fit.core.AbstractTaskITCase;
 import org.apache.syncope.fit.core.CoreITContext;
 import org.apache.syncope.fit.core.UserITCase;
 import org.junit.jupiter.api.BeforeAll;
@@ -391,7 +401,54 @@ public abstract class AbstractITCase {
 
     protected static boolean IS_FLOWABLE_ENABLED = false;
 
+    protected static boolean IS_ELASTICSEARCH_ENABLED = false;
+
+    protected static boolean IS_OPENSEARCH_ENABLED = false;
+
     protected static boolean IS_EXT_SEARCH_ENABLED = false;
+
+    private static void initExtSearch(
+            final ImplementationService implementationService,
+            final TaskService taskService,
+            final String delegateClass) {
+
+        String delegateKey = StringUtils.substringAfterLast(delegateClass, ".");
+
+        List<SchedTaskTO> schedTasks = taskService.<SchedTaskTO>search(
+                new TaskQuery.Builder(TaskType.SCHEDULED).build()).getResult();
+        if (schedTasks.stream().anyMatch(t -> delegateKey.equals(t.getJobDelegate()))) {
+            return;
+        }
+
+        ImplementationTO delegate = null;
+        try {
+            delegate = implementationService.read(IdRepoImplementationType.TASKJOB_DELEGATE, delegateKey);
+        } catch (SyncopeClientException e) {
+            if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
+                delegate = new ImplementationTO();
+                delegate.setKey(delegateKey);
+                delegate.setEngine(ImplementationEngine.JAVA);
+                delegate.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
+                delegate.setBody(delegateClass);
+                Response response = implementationService.create(delegate);
+                delegate = implementationService.read(
+                        delegate.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                assertNotNull(delegate);
+            }
+        }
+        assertNotNull(delegate);
+
+        SchedTaskTO schedTask = new SchedTaskTO();
+        schedTask.setJobDelegate(delegate.getKey());
+        schedTask.setName(delegateKey);
+
+        Response response = taskService.create(TaskType.SCHEDULED, schedTask);
+
+        ExecTO exec = AbstractTaskITCase.execSchedTask(
+                taskService, TaskType.SCHEDULED, response.getHeaderString(RESTHeaders.RESOURCE_KEY),
+                MAX_WAIT_SECONDS, false);
+        assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
+    }
 
     @BeforeAll
     public static void anonymousSetup() throws IOException {
@@ -433,8 +490,35 @@ public abstract class AbstractITCase {
         IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
 
         JsonNode anySearchDAO = beans.findValues("anySearchDAO").get(0);
-        IS_EXT_SEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch")
-                || anySearchDAO.get("type").asText().contains("OpenSearch");
+        IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
+        IS_OPENSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("OpenSearch");
+        IS_EXT_SEARCH_ENABLED = IS_ELASTICSEARCH_ENABLED || IS_OPENSEARCH_ENABLED;
+
+        if (!IS_EXT_SEARCH_ENABLED) {
+            return;
+        }
+
+        SyncopeClientFactoryBean masterCF = new SyncopeClientFactoryBean().setAddress(ADDRESS);
+        SyncopeClientFactoryBean twoCF = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two");
+        String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
+        if (StringUtils.isNotBlank(envContentType)) {
+            masterCF.setContentType(envContentType);
+            twoCF.setContentType(envContentType);
+        }
+        SyncopeClient masterSC = masterCF.create(ADMIN_UNAME, ADMIN_PWD);
+        ImplementationService masterIS = masterSC.getService(ImplementationService.class);
+        TaskService masterTS = masterSC.getService(TaskService.class);
+        SyncopeClient twoSC = twoCF.create(ADMIN_UNAME, "password2");
+        ImplementationService twoIS = twoSC.getService(ImplementationService.class);
+        TaskService twoTS = twoSC.getService(TaskService.class);
+
+        if (IS_ELASTICSEARCH_ENABLED) {
+            initExtSearch(masterIS, masterTS, "org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex");
+            initExtSearch(twoIS, twoTS, "org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex");
+        } else if (IS_OPENSEARCH_ENABLED) {
+            initExtSearch(masterIS, masterTS, "org.apache.syncope.core.provisioning.java.job.OpenSearchReindex");
+            initExtSearch(twoIS, twoTS, "org.apache.syncope.core.provisioning.java.job.OpenSearchReindex");
+        }
     }
 
     @BeforeAll

@@ -18,6 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import jakarta.persistence.EntityManagerFactory;
+import java.util.Collection;
+import org.apache.openjpa.jdbc.conf.JDBCConfiguration;
+import org.apache.openjpa.jdbc.meta.MappingRepository;
+import org.apache.openjpa.jdbc.meta.MappingTool;
+import org.apache.openjpa.lib.conf.Configurations;
+import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
@@ -49,6 +56,26 @@ public class TestInitializer implements InitializingBean {
         this.ctx = ctx;
     }
 
+    protected void initJPASchema() {
+        OpenJPAEntityManagerFactorySPI emfspi = ctx.getBean(EntityManagerFactory.class).
+                unwrap(OpenJPAEntityManagerFactorySPI.class);
+        JDBCConfiguration jdbcConf = (JDBCConfiguration) emfspi.getConfiguration();
+
+        MappingRepository mappingRepo = jdbcConf.getMappingRepositoryInstance();
+        Collection<Class<?>> classes = mappingRepo.loadPersistentTypes(false, getClass().getClassLoader());
+
+        String action = "buildSchema(ForeignKeys=true)";
+        String props = Configurations.getProperties(action);
+        action = Configurations.getClassName(action);
+        MappingTool mappingTool = new MappingTool(jdbcConf, action, false, getClass().getClassLoader());
+        Configurations.configureInstance(mappingTool, jdbcConf, props, "SynchronizeMappings");
+
+        // initialize the schema
+        classes.forEach(mappingTool::run);
+
+        mappingTool.record();
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         ApplicationContextProvider.setApplicationContext(ctx);
@@ -61,12 +88,11 @@ public class TestInitializer implements InitializingBean {
                 domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
 
         if (domainHolder.getDomains().containsKey("Two")) {
-            AuthContextUtils.callAsAdmin("Two", () -> {
-                contentLoader.load(
-                        "Two",
-                        domainHolder.getDomains().get("Two"));
-                return null;
-            });
+            initJPASchema();
+
+            AuthContextUtils.runAsAdmin("Two", () -> contentLoader.load(
+                    "Two",
+                    domainHolder.getDomains().get("Two")));
         }
     }
 }

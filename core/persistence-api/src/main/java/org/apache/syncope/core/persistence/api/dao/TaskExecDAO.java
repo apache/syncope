@@ -32,9 +32,9 @@ public interface TaskExecDAO extends DAO<TaskExec<?>> {
 
     List<TaskExec<?>> findRecent(int max);
 
-    TaskExec<?> findLatestStarted(TaskType type, Task<?> task);
+    Optional<? extends TaskExec<?>> findLatestStarted(TaskType type, Task<?> task);
 
-    TaskExec<?> findLatestEnded(TaskType type, Task<?> task);
+    Optional<? extends TaskExec<?>> findLatestEnded(TaskType type, Task<?> task);
 
     long count(Task<?> task, OffsetDateTime before, OffsetDateTime after);
 
@@ -46,11 +46,7 @@ public interface TaskExecDAO extends DAO<TaskExec<?>> {
             int itemsPerPage,
             List<OrderByClause> orderByClauses);
 
-    <T extends Task<T>> TaskExec<T> save(TaskExec<T> execution);
-
     <T extends Task<T>> void saveAndAdd(TaskType type, String taskKey, TaskExec<T> execution);
 
     <T extends Task<T>> void delete(TaskType type, String key);
-
-    <T extends Task<T>> void delete(TaskExec<T> execution);
 }

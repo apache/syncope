@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao.repo;
+package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -28,15 +28,17 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
+import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTaskExec;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
-public class TaskExecRepoExtImpl implements TaskExecRepoExt {
+public class JPATaskExecDAO implements TaskExecDAO {
 
     protected final TaskDAO taskDAO;
 
@@ -44,7 +46,7 @@ public class TaskExecRepoExtImpl implements TaskExecRepoExt {
 
     protected final EntityManager entityManager;
 
-    public TaskExecRepoExtImpl(
+    public JPATaskExecDAO(
             final TaskDAO taskDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final EntityManager entityManager) {
@@ -109,26 +111,26 @@ public class TaskExecRepoExtImpl implements TaskExecRepoExt {
     }
 
     @SuppressWarnings("unchecked")
-    protected TaskExec<?> findLatest(final TaskType type, final Task<?> task, final String field) {
+    protected Optional<? extends TaskExec<?>> findLatest(final TaskType type, final Task<?> task, final String field) {
         Query query = entityManager.createQuery(
                 "SELECT e FROM " + taskUtilsFactory.getInstance(type).getTaskExecEntity().getSimpleName() + " e "
-                + "WHERE e.task=:task ORDER BY e." + field + " DESC");
-        query.setParameter("task", task);
+                + "WHERE e.task.id=:task ORDER BY e." + field + " DESC");
+        query.setParameter("task", task.getKey());
         query.setMaxResults(1);
 
         List<Object> result = query.getResultList();
-        return result == null || result.isEmpty()
-                ? null
-                : (TaskExec<?>) result.get(0);
+        return CollectionUtils.isEmpty(result)
+                ? Optional.empty()
+                : Optional.of((TaskExec<?>) result.get(0));
     }
 
     @Override
-    public TaskExec<?> findLatestStarted(final TaskType type, final Task<?> task) {
+    public Optional<? extends TaskExec<?>> findLatestStarted(final TaskType type, final Task<?> task) {
         return findLatest(type, task, "start");
     }
 
     @Override
-    public TaskExec<?> findLatestEnded(final TaskType type, final Task<?> task) {
+    public Optional<? extends TaskExec<?>> findLatestEnded(final TaskType type, final Task<?> task) {
         return findLatest(type, task, "end");
     }
 
@@ -151,6 +153,11 @@ public class TaskExecRepoExtImpl implements TaskExecRepoExt {
     }
 
     @Override
+    public long count() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public long count(
             final Task<?> task,
             final OffsetDateTime before,
@@ -167,7 +174,7 @@ public class TaskExecRepoExtImpl implements TaskExecRepoExt {
             query.setParameter("after", after);
         }
 
-        return ((Number) query.getSingleResult()).intValue();
+        return ((Number) query.getSingleResult()).longValue();
     }
 
     protected String toOrderByStatement(final List<OrderByClause> orderByClauses) {
@@ -186,6 +193,11 @@ public class TaskExecRepoExtImpl implements TaskExecRepoExt {
             statement.insert(0, " ORDER BY ");
         }
         return statement.toString();
+    }
+
+    @Override
+    public List<? extends TaskExec<?>> findAll() {
+        throw new UnsupportedOperationException();
     }
 
     @SuppressWarnings("unchecked")
@@ -223,7 +235,7 @@ public class TaskExecRepoExtImpl implements TaskExecRepoExt {
 
     @Transactional(rollbackFor = { Throwable.class })
     @Override
-    public <T extends Task<T>> TaskExec<T> save(final TaskExec<T> execution) {
+    public <S extends TaskExec<?>> S save(final S execution) {
         return entityManager.merge(execution);
     }
 
@@ -245,11 +257,14 @@ public class TaskExecRepoExtImpl implements TaskExecRepoExt {
     }
 
     @Override
-    public <T extends Task<T>> void delete(final TaskExec<T> execution) {
-        if (execution.getTask() != null) {
-            execution.getTask().getExecs().remove(execution);
-        }
+    public void delete(final TaskExec<?> execution) {
+        Optional.ofNullable(execution.getTask()).ifPresent(task -> task.getExecs().remove(execution));
 
         entityManager.remove(execution);
+    }
+
+    @Override
+    public void deleteById(final String key) {
+        findById(key).ifPresent(this::delete);
     }
 }

@@ -59,8 +59,8 @@ public class ReconciliationLogicTest extends AbstractTest {
         CSVPullSpec spec = new CSVPullSpec.Builder(AnyTypeKind.USER.name(), "username").build();
         InputStream csv = getClass().getResourceAsStream("/test1.csv");
 
-        List<ProvisioningReport> results =
-                AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> reconciliationLogic.pull(spec, csv));
+        List<ProvisioningReport> results = AuthContextUtils.callAsAdmin(
+                SyncopeConstants.MASTER_DOMAIN, () -> reconciliationLogic.pull(spec, csv));
         assertEquals(2, results.size());
 
         assertEquals(AnyTypeKind.USER.name(), results.get(0).getAnyType());
@@ -70,7 +70,7 @@ public class ReconciliationLogicTest extends AbstractTest {
         assertEquals(ResourceOperation.CREATE, results.get(0).getOperation());
         assertEquals(ProvisioningReport.Status.SUCCESS, results.get(0).getStatus());
 
-        AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
+        AuthContextUtils.runAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
             UserTO donizetti = userLogic.read(results.get(0).getKey());
             assertNotNull(donizetti);
             assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValues().get(0));
@@ -80,8 +80,6 @@ public class ReconciliationLogicTest extends AbstractTest {
             assertNotNull(cimarosa);
             assertEquals("Domenico Cimarosa", cimarosa.getPlainAttr("fullname").get().getValues().get(0));
             assertEquals(2, cimarosa.getPlainAttr("loginDate").get().getValues().size());
-
-            return null;
         });
     }
 
@@ -103,9 +101,9 @@ public class ReconciliationLogicTest extends AbstractTest {
         PipedInputStream in = new PipedInputStream();
         PipedOutputStream os = new PipedOutputStream(in);
 
-        List<ProvisioningReport> results = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
-            return reconciliationLogic.push(null, 1, 1, List.of(), SyncopeConstants.ROOT_REALM, spec, os);
-        });
+        List<ProvisioningReport> results = AuthContextUtils.callAsAdmin(
+                SyncopeConstants.MASTER_DOMAIN,
+                () -> reconciliationLogic.push(null, 1, 1, List.of(), SyncopeConstants.ROOT_REALM, spec, os));
         assertEquals(search.getLeft(), results.size());
 
         MappingIterator<Map<String, String>> reader =

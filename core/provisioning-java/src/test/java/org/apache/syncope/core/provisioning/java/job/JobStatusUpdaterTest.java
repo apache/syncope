@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.job;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
@@ -43,11 +44,12 @@ public class JobStatusUpdaterTest extends AbstractTest {
         String refDesc = "JobRefDesc-" + SecureRandomUtils.generateRandomNumber();
 
         JobStatusUpdater jobStatusUpdater = new JobStatusUpdater(jobStatusDAO, entityFactory);
+        jobStatusUpdater.initComplete();
 
-        jobStatusUpdater.update(new JobStatusEvent(this, refDesc, "Started"));
+        jobStatusUpdater.update(new JobStatusEvent(this, SyncopeConstants.MASTER_DOMAIN, refDesc, "Started"));
         assertTrue(jobStatusDAO.findById(refDesc).isPresent());
 
-        jobStatusUpdater.update(new JobStatusEvent(this, refDesc, null));
-        assertTrue(jobStatusDAO.findById(refDesc).isPresent());
+        jobStatusUpdater.update(new JobStatusEvent(this, SyncopeConstants.MASTER_DOMAIN, refDesc, null));
+        assertTrue(jobStatusDAO.findById(refDesc).isEmpty());
     }
 }

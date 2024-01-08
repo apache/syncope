@@ -74,7 +74,7 @@ public class RealmRepoExtElasticsearchImpl extends RealmRepoExtImpl {
     protected Optional<Realm> findById(final String key) {
         return Optional.ofNullable(entityManager.find(JPARealm.class, key));
     }
-    
+
     @Transactional(readOnly = true)
     @Override
     public Optional<Realm> findByFullPath(final String fullPath) {
@@ -103,7 +103,7 @@ public class RealmRepoExtElasticsearchImpl extends RealmRepoExtImpl {
             LOG.error("While searching ES for one match", e);
         }
 
-        return null;
+        return Optional.empty();
     }
 
     protected List<String> search(final Query query) {

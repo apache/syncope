@@ -103,14 +103,13 @@ public class LogicInvocationHandler {
                         before,
                         output,
                         input);
-                AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(), () -> {
+                AuthContextUtils.runAsAdmin(AuthContextUtils.getDomain(), () -> {
                     try {
                         notificationManager.createTasks(afterHandlingEvent);
                         auditManager.audit(afterHandlingEvent);
                     } catch (Throwable t) {
                         LOG.error("While managing Audit and Notifications", t);
                     }
-                    return null;
                 });
             }
         }

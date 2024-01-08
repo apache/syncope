@@ -125,7 +125,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertFalse(GROUP_SERVICE.read("29f96485-729e-4d31-88a1-6fc60e4677f3").
                 getResources().contains(RESOURCE_NAME_LDAP));
 
-        execProvisioningTask(
+        execSchedTask(
                 TASK_SERVICE, TaskType.PUSH, "fd905ba5-9d56-4f51-83e2-859096a67b75", MAX_WAIT_SECONDS, false);
 
         assertNotNull(RESOURCE_SERVICE.readConnObject(
@@ -151,7 +151,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // ------------------------------------------
         // Unmatching --> Assign --> dryRuyn
         // ------------------------------------------
-        execProvisioningTask(
+        execSchedTask(
                 TASK_SERVICE, TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1", MAX_WAIT_SECONDS, true);
         assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='vivaldi'").size());
         assertFalse(USER_SERVICE.read("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").
@@ -214,7 +214,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // ------------------------------------------
         // Matching --> Deprovision --> dryRuyn
         // ------------------------------------------
-        execProvisioningTask(
+        execSchedTask(
                 TASK_SERVICE, TaskType.PUSH, "c46edc3a-a18b-4af2-b707-f4a415507496", MAX_WAIT_SECONDS, true);
         assertTrue(USER_SERVICE.read("1417acbe-cbf6-4277-9372-e75e04f97000").
                 getResources().contains(RESOURCE_NAME_TESTDB2));
@@ -248,7 +248,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // ------------------------------------------
         // Matching --> Link
         // ------------------------------------------
-        execProvisioningTask(
+        execSchedTask(
                 TASK_SERVICE, TaskType.PUSH, "51318433-cce4-4f71-8f45-9534b6c9c819", MAX_WAIT_SECONDS, false);
         assertTrue(USER_SERVICE.read("74cd8ece-715a-44a4-a736-e17b46c4e7e6").
                 getResources().contains(RESOURCE_NAME_TESTDB2));
@@ -296,7 +296,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             assertNotNull(sendVivaldi);
 
             // 3. execute push: vivaldi is found on ldap
-            execProvisioningTask(TASK_SERVICE, TaskType.PUSH, sendVivaldi.getKey(), MAX_WAIT_SECONDS, false);
+            execSchedTask(TASK_SERVICE, TaskType.PUSH, sendVivaldi.getKey(), MAX_WAIT_SECONDS, false);
 
             ReconStatus status = RECONCILIATION_SERVICE.status(
                     new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey("vivaldi").build());
@@ -314,7 +314,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
             // 5. execute push again: propagation task for CREATE will be generated, but that will fail
             // as task executor is not able any more to identify the entry to UPDATE
-            execProvisioningTask(TASK_SERVICE, TaskType.PUSH, sendVivaldi.getKey(), MAX_WAIT_SECONDS, false);
+            execSchedTask(TASK_SERVICE, TaskType.PUSH, sendVivaldi.getKey(), MAX_WAIT_SECONDS, false);
 
             status = RECONCILIATION_SERVICE.status(
                     new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey("vivaldi").build());
@@ -345,7 +345,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         PushTaskTO pushTask = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
         assertNotNull(pushTask);
 
-        ExecTO exec = execProvisioningTask(TASK_SERVICE, TaskType.PUSH, pushTask.getKey(), MAX_WAIT_SECONDS, false);
+        ExecTO exec = execSchedTask(TASK_SERVICE, TaskType.PUSH, pushTask.getKey(), MAX_WAIT_SECONDS, false);
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
 
         // 2. check
@@ -372,7 +372,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         String pushTaskKey = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
 
         // 2. run concurrent pull task
-        ExecTO execution = execProvisioningTask(TASK_SERVICE, TaskType.PUSH, pushTaskKey, MAX_WAIT_SECONDS, false);
+        ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PUSH, pushTaskKey, MAX_WAIT_SECONDS, false);
 
         // 3. verify execution status
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
@@ -457,7 +457,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             assertNotNull(push);
 
             // execute the new task
-            ExecTO exec = execProvisioningTask(TASK_SERVICE, TaskType.PUSH, push.getKey(), MAX_WAIT_SECONDS, false);
+            ExecTO exec = execSchedTask(TASK_SERVICE, TaskType.PUSH, push.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
         } finally {
             GROUP_SERVICE.delete(groupTO.getKey());
@@ -506,7 +506,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         notification = getObject(responseNotification.getLocation(), NotificationService.class, NotificationTO.class);
         assertNotNull(notification);
 
-        execProvisioningTask(TASK_SERVICE, TaskType.PUSH, actual.getKey(), MAX_WAIT_SECONDS, false);
+        execSchedTask(TASK_SERVICE, TaskType.PUSH, actual.getKey(), MAX_WAIT_SECONDS, false);
 
         NotificationTaskTO taskTO = findNotificationTask(notification.getKey(), 50);
         assertNotNull(taskTO);

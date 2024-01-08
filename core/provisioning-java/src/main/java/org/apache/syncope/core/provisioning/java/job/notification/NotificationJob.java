@@ -77,15 +77,13 @@ public class NotificationJob extends AbstractInterruptableJob {
                 orElse(securityProperties.getAdminUser());
         for (String domain : domainHolder.getDomains().keySet()) {
             try {
-                AuthContextUtils.callAsAdmin(domain, () -> {
+                AuthContextUtils.runAsAdmin(domain, () -> {
                     try {
                         delegate.execute(executor);
                     } catch (Exception e) {
                         LOG.error("While sending out notifications", e);
                         throw new RuntimeException(e);
                     }
-
-                    return null;
                 });
             } catch (RuntimeException e) {
                 LOG.error("While sending out notifications", e);

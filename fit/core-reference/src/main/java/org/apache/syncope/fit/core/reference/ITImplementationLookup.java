@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.logic.job.MacroRunJobDelegate;
-import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.AlwaysTrueValidator;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidator;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator;
@@ -68,6 +67,8 @@ import org.apache.syncope.core.spring.policy.DefaultPasswordRule;
 import org.apache.syncope.core.spring.policy.HaveIBeenPwnedPasswordRule;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 
 /**
@@ -194,26 +195,14 @@ public class ITImplementationLookup implements ImplementationLookup {
 
     private final UserWorkflowAdapter uwf;
 
-    private final AnySearchDAO anySearchDAO;
-
     private final EnableFlowableForTestUsers enableFlowableForTestUsers;
-
-    private final ElasticsearchInit elasticsearchInit;
-
-    private final OpenSearchInit openSearchInit;
 
     public ITImplementationLookup(
             final UserWorkflowAdapter uwf,
-            final AnySearchDAO anySearchDAO,
-            final EnableFlowableForTestUsers enableFlowableForTestUsers,
-            final ElasticsearchInit elasticsearchInit,
-            final OpenSearchInit openSearchInit) {
+            final EnableFlowableForTestUsers enableFlowableForTestUsers) {
 
         this.uwf = uwf;
-        this.anySearchDAO = anySearchDAO;
         this.enableFlowableForTestUsers = enableFlowableForTestUsers;
-        this.elasticsearchInit = elasticsearchInit;
-        this.openSearchInit = openSearchInit;
     }
 
     @Override
@@ -221,30 +210,13 @@ public class ITImplementationLookup implements ImplementationLookup {
         return Integer.MAX_VALUE;
     }
 
+    protected static final Logger LOG = LoggerFactory.getLogger(ITImplementationLookup.class);
+
     @Override
     public void load(final String domain, final DataSource datasource) {
         // in case the Flowable extension is enabled, enable modifications for test users
         if (enableFlowableForTestUsers != null && AopUtils.getTargetClass(uwf).getName().contains("Flowable")) {
-            AuthContextUtils.callAsAdmin(domain, () -> {
-                enableFlowableForTestUsers.init(datasource);
-                return null;
-            });
-        }
-
-        // in case the Elasticsearch extension is enabled, reinit a clean index for all available domains
-        if (elasticsearchInit != null && AopUtils.getTargetClass(anySearchDAO).getName().contains("Elasticsearch")) {
-            AuthContextUtils.callAsAdmin(domain, () -> {
-                elasticsearchInit.init();
-                return null;
-            });
-        }
-
-        // in case the OpenSearch extension is enabled, reinit a clean index for all available domains
-        if (openSearchInit != null && AopUtils.getTargetClass(anySearchDAO).getName().contains("OpenSearch")) {
-            AuthContextUtils.callAsAdmin(domain, () -> {
-                openSearchInit.init();
-                return null;
-            });
+            AuthContextUtils.runAsAdmin(domain, () -> enableFlowableForTestUsers.init(datasource));
         }
     }
 

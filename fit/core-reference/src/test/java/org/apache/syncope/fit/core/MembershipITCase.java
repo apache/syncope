@@ -275,7 +275,7 @@ public class MembershipITCase extends AbstractITCase {
             newTask = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
             assertNotNull(newTask);
 
-            ExecTO execution = AbstractTaskITCase.execProvisioningTask(
+            ExecTO execution = AbstractTaskITCase.execSchedTask(
                     TASK_SERVICE, TaskType.PULL, newTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 

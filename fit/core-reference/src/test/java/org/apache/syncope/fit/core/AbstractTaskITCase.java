@@ -115,7 +115,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         return taskTO.get().getExecutions().get(taskTO.get().getExecutions().size() - 1);
     }
 
-    public static ExecTO execProvisioningTask(
+    public static ExecTO execSchedTask(
             final TaskService taskService, final TaskType type, final String taskKey,
             final int maxWaitSeconds, final boolean dryRun) {
 
@@ -141,7 +141,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         taskKeys.forEach(taskKey -> {
             futures.add(service.submit(() -> {
                 try {
-                    return execProvisioningTask(taskService, type, taskKey, maxWaitSeconds, dryRun);
+                    return execSchedTask(taskService, type, taskKey, maxWaitSeconds, dryRun);
                 } catch (Exception e) {
                     ExecTO failure = new ExecTO();
                     failure.setRefKey(taskKey);

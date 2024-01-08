@@ -223,7 +223,7 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             PLATFORM_INFO.getImplementationTypes().clear();
             PLATFORM_INFO.getImplementationTypes().addAll(ImplementationTypesHolder.getInstance().getValues().keySet());
 
-            AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(), () -> {
+            AuthContextUtils.runAsAdmin(AuthContextUtils.getDomain(), () -> {
                 PLATFORM_INFO.getAnyTypes().clear();
                 PLATFORM_INFO.getAnyTypes().addAll(anyTypeDAO.findAll().stream().
                         map(AnyType::getKey).collect(Collectors.toList()));
@@ -239,7 +239,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
                 PLATFORM_INFO.getResources().clear();
                 PLATFORM_INFO.getResources().addAll(resourceDAO.findAll().stream().
                         map(ExternalResource::getKey).collect(Collectors.toList()));
-                return null;
             });
         }
     }

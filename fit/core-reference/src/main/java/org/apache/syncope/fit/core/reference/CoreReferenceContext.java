@@ -21,12 +21,9 @@ package org.apache.syncope.fit.core.reference;
 import com.nimbusds.jose.JOSEException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.logic.IdRepoLogicContext;
-import org.apache.syncope.core.logic.TaskLogic;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -42,24 +39,6 @@ import org.springframework.context.annotation.Lazy;
 public class CoreReferenceContext {
 
     @Bean
-    public ElasticsearchInit elasticsearchInit(
-            final ImplementationDAO implementationDAO,
-            final EntityFactory entityFactory,
-            final TaskLogic taskLogic) {
-
-        return new ElasticsearchInit(implementationDAO, entityFactory, taskLogic);
-    }
-
-    @Bean
-    public OpenSearchInit openSearchInit(
-            final ImplementationDAO implementationDAO,
-            final EntityFactory entityFactory,
-            final TaskLogic taskLogic) {
-
-        return new OpenSearchInit(implementationDAO, entityFactory, taskLogic);
-    }
-
-    @Bean
     public EnableFlowableForTestUsers enableFlowableForTestUsers(final UserDAO userDAO) {
         return new EnableFlowableForTestUsers(userDAO);
     }
@@ -67,13 +46,9 @@ public class CoreReferenceContext {
     @Bean
     public ImplementationLookup implementationLookup(
             final UserWorkflowAdapter uwf,
-            final AnySearchDAO anySearchDAO,
-            final EnableFlowableForTestUsers enableFlowableForTestUsers,
-            final ElasticsearchInit elasticsearchInit,
-            final OpenSearchInit openSearchInit) {
+            final EnableFlowableForTestUsers enableFlowableForTestUsers) {
 
-        return new ITImplementationLookup(
-                uwf, anySearchDAO, enableFlowableForTestUsers, elasticsearchInit, openSearchInit);
+        return new ITImplementationLookup(uwf, enableFlowableForTestUsers);
     }
 
     @Bean
