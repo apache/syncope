@@ -26,10 +26,9 @@ import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
-import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingDataSource;
+import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -63,17 +62,6 @@ public class DomainConfFactory implements DomainRegistry {
         beanFactory().registerSingleton(name, bean);
     }
 
-    protected void unregisterBeanDefinition(final String name) {
-        if (beanFactory().containsBeanDefinition(name)) {
-            beanFactory().removeBeanDefinition(name);
-        }
-    }
-
-    protected void registerBeanDefinition(final String name, final BeanDefinition beanDefinition) {
-        unregisterBeanDefinition(name);
-        beanFactory().registerBeanDefinition(name, beanDefinition);
-    }
-
     @Override
     public void register(final Domain domain) {
         HikariConfig hikariConfig = new HikariConfig();
@@ -87,7 +75,7 @@ public class DomainConfFactory implements DomainRegistry {
         hikariConfig.setMinimumIdle(domain.getPoolMinIdle());
 
         // domainDataSource
-        registerBeanDefinition(
+        beanFactory().registerBeanDefinition(
                 domain.getKey() + "DataSource",
                 BeanDefinitionBuilder.rootBeanDefinition(JndiObjectFactoryBean.class).
                         addPropertyValue("jndiName", "java:comp/env/jdbc/syncope" + domain.getKey() + "DataSource").
@@ -95,12 +83,8 @@ public class DomainConfFactory implements DomainRegistry {
                         getBeanDefinition());
         DataSource initedDataSource = beanFactory().getBean(domain.getKey() + "DataSource", DataSource.class);
 
-        DomainHolder domainHolder = beanFactory().getBean(DomainHolder.class);
-        domainHolder.getDomains().put(domain.getKey(), initedDataSource);
+        beanFactory().getBean(DomainHolder.class).getDomains().put(domain.getKey(), initedDataSource);
 
-        DomainRoutingDataSource domainRoutingDataSource = beanFactory().getBean(DomainRoutingDataSource.class);
-        domainRoutingDataSource.add(domain.getKey(), initedDataSource);
-        
         // domainResourceDatabasePopulator
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
         databasePopulator.setContinueOnError(true);
@@ -116,14 +100,18 @@ public class DomainConfFactory implements DomainRegistry {
         dataSourceInitializer.setDatabasePopulator(databasePopulator);
         registerSingleton(domain.getKey().toLowerCase() + "DataSourceInitializer", dataSourceInitializer);
 
+        // DomainRoutingEntityManagerFactory#domain
+        beanFactory().getBean(DomainRoutingEntityManagerFactory.class).
+                domain(domain, initedDataSource, ctx.getEnvironment().getProperty("openjpaMetaDataFactory"));
+
         // domainContentXML
-        registerBeanDefinition(domain.getKey() + "ContentXML",
+        beanFactory().registerBeanDefinition(domain.getKey() + "ContentXML",
                 BeanDefinitionBuilder.rootBeanDefinition(ByteArrayInputStream.class).
                         addConstructorArgValue(domain.getContent().getBytes()).
                         getBeanDefinition());
 
         // domainKeymasterConfParamsJSON
-        registerBeanDefinition(domain.getKey() + "KeymasterConfParamsJSON",
+        beanFactory().registerBeanDefinition(domain.getKey() + "KeymasterConfParamsJSON",
                 BeanDefinitionBuilder.rootBeanDefinition(ByteArrayInputStream.class).
                         addConstructorArgValue(domain.getKeymasterConfParams().getBytes()).
                         getBeanDefinition());
@@ -133,11 +121,14 @@ public class DomainConfFactory implements DomainRegistry {
     public void unregister(final String domain) {
         // domainKeymasterConfParamsJSON
         unregisterSingleton(domain + "KeymasterConfParamsJSON");
-        unregisterBeanDefinition(domain + "KeymasterConfParamsJSON");
+        beanFactory().removeBeanDefinition(domain + "KeymasterConfParamsJSON");
 
         // domainContentXML
         unregisterSingleton(domain + "ContentXML");
-        unregisterBeanDefinition(domain + "ContentXML");
+        beanFactory().removeBeanDefinition(domain + "ContentXML");
+
+        // DomainRoutingEntityManagerFactory#remove
+        beanFactory().getBean(DomainRoutingEntityManagerFactory.class).remove(domain);
 
         // domainDataSourceInitializer
         unregisterSingleton(domain.toLowerCase() + "DataSourceInitializer");
@@ -147,12 +138,8 @@ public class DomainConfFactory implements DomainRegistry {
 
         // domainDataSource
         unregisterSingleton(domain + "DataSource");
-        unregisterBeanDefinition(domain + "DataSource");
+        beanFactory().removeBeanDefinition(domain + "DataSource");
 
-        DomainHolder domainHolder = beanFactory().getBean(DomainHolder.class);
-        domainHolder.getDomains().remove(domain);
-
-        DomainRoutingDataSource domainRoutingDataSource = beanFactory().getBean(DomainRoutingDataSource.class);
-        domainRoutingDataSource.remove(domain);
+        beanFactory().getBean(DomainHolder.class).getDomains().remove(domain);
     }
 }

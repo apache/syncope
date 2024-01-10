@@ -63,13 +63,12 @@ public class DomainProcessEngineFactoryBean implements FactoryBean<DomainProcess
     protected ProcessEngine build(final DataSource datasource) {
         PlatformTransactionManager transactionManager = ctx.getBean(
                 "domainTransactionManager", PlatformTransactionManager.class);
-        Object entityManagerFactory = ctx.getBean("domainEntityManagerFactory");
 
         SpringProcessEngineConfiguration conf = ctx.getBean(SpringProcessEngineConfiguration.class);
         conf.setDataSource(datasource);
         conf.setTransactionManager(transactionManager);
         conf.setTransactionsExternallyManaged(true);
-        conf.setJpaEntityManagerFactory(entityManagerFactory);
+        conf.setJpaEntityManagerFactory(ctx.getBean("entityManagerFactory"));
         if (conf.getBeans() == null) {
             conf.setBeans(new SpringBeanFactoryProxyMap(ctx));
         }

@@ -41,15 +41,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Tag("multitenancy")
 public class MultitenancyTest extends AbstractTest {
 
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
-    private RealmDAO realmDAO;
-
-    @Autowired
-    private UserDAO userDAO;
-
     static {
         PersistenceTestContext.TEST_DOMAIN.set("Two");
     }
@@ -58,6 +49,15 @@ public class MultitenancyTest extends AbstractTest {
     public static void restoreDomain() {
         PersistenceTestContext.TEST_DOMAIN.set(SyncopeConstants.MASTER_DOMAIN);
     }
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private RealmDAO realmDAO;
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Test
     public void readPlainSchemas() {

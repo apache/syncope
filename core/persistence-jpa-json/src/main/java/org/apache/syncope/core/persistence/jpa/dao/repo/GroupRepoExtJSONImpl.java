@@ -19,9 +19,9 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.List;
 import java.util.Optional;
-import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -57,7 +57,7 @@ public class GroupRepoExtJSONImpl extends GroupRepoExtImpl {
             final JPAJSONAnyDAO anyDAO,
             final SearchCondVisitor searchCondVisitor,
             final EntityManager entityManager,
-            final DataSource dataSource) {
+            final EntityManagerFactory entityManagerFactory) {
 
         super(
                 anyUtilsFactory,
@@ -71,7 +71,7 @@ public class GroupRepoExtJSONImpl extends GroupRepoExtImpl {
                 searchDAO,
                 searchCondVisitor,
                 entityManager,
-                dataSource);
+                entityManagerFactory);
         this.anyDAO = anyDAO;
     }
 

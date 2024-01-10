@@ -18,16 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
-import jakarta.persistence.EntityManagerFactory;
-import java.util.Collection;
-import org.apache.openjpa.jdbc.conf.JDBCConfiguration;
-import org.apache.openjpa.jdbc.meta.MappingRepository;
-import org.apache.openjpa.jdbc.meta.MappingTool;
-import org.apache.openjpa.lib.conf.Configurations;
-import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
+import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -42,38 +36,22 @@ public class TestInitializer implements InitializingBean {
 
     private final ContentLoader contentLoader;
 
+    protected final DomainRoutingEntityManagerFactory entityManagerFactory;
+
     private final ConfigurableApplicationContext ctx;
 
     public TestInitializer(
             final StartupDomainLoader domainLoader,
             final DomainHolder domainHolder,
             final ContentLoader contentLoader,
+            final DomainRoutingEntityManagerFactory entityManagerFactory,
             final ConfigurableApplicationContext ctx) {
 
         this.domainLoader = domainLoader;
         this.domainHolder = domainHolder;
         this.contentLoader = contentLoader;
+        this.entityManagerFactory = entityManagerFactory;
         this.ctx = ctx;
-    }
-
-    protected void initJPASchema() {
-        OpenJPAEntityManagerFactorySPI emfspi = ctx.getBean(EntityManagerFactory.class).
-                unwrap(OpenJPAEntityManagerFactorySPI.class);
-        JDBCConfiguration jdbcConf = (JDBCConfiguration) emfspi.getConfiguration();
-
-        MappingRepository mappingRepo = jdbcConf.getMappingRepositoryInstance();
-        Collection<Class<?>> classes = mappingRepo.loadPersistentTypes(false, getClass().getClassLoader());
-
-        String action = "buildSchema(ForeignKeys=true)";
-        String props = Configurations.getProperties(action);
-        action = Configurations.getClassName(action);
-        MappingTool mappingTool = new MappingTool(jdbcConf, action, false, getClass().getClassLoader());
-        Configurations.configureInstance(mappingTool, jdbcConf, props, "SynchronizeMappings");
-
-        // initialize the schema
-        classes.forEach(mappingTool::run);
-
-        mappingTool.record();
     }
 
     @Override
@@ -88,7 +66,7 @@ public class TestInitializer implements InitializingBean {
                 domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
 
         if (domainHolder.getDomains().containsKey("Two")) {
-            initJPASchema();
+            AuthContextUtils.runAsAdmin("Two", () -> entityManagerFactory.initJPASchema());
 
             AuthContextUtils.runAsAdmin("Two", () -> contentLoader.load(
                     "Two",

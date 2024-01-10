@@ -19,10 +19,10 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.sql.DataSource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -51,16 +51,17 @@ public class AnyObjectRepoExtJSONImpl extends AnyObjectRepoExtImpl {
             final GroupDAO groupDAO,
             final JPAJSONAnyDAO anyDAO,
             final EntityManager entityManager,
-            final DataSource dataSource) {
+            final EntityManagerFactory entityManagerFactory) {
 
-        super(anyUtilsFactory,
+        super(
+                anyUtilsFactory,
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
                 userDAO,
                 groupDAO,
                 entityManager,
-                dataSource);
+                entityManagerFactory);
         this.anyDAO = anyDAO;
     }
 

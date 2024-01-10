@@ -273,11 +273,11 @@ public class SelfKeymasterContext {
     @Bean
     public NetworkServiceDAO networkServiceDAO(
             final JpaRepositoryFactory jpaRepositoryFactory,
-            final EntityManager domainEntityManager) {
+            final EntityManager entityManager) {
 
         return jpaRepositoryFactory.getRepository(
                 NetworkServiceRepo.class,
-                new NetworkServiceRepoExtImpl(domainEntityManager));
+                new NetworkServiceRepoExtImpl(entityManager));
     }
 
     @Bean

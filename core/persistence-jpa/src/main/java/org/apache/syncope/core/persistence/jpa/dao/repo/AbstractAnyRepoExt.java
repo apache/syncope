@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
@@ -36,6 +37,7 @@ import org.apache.commons.jexl3.parser.Parser;
 import org.apache.commons.jexl3.parser.ParserConstants;
 import org.apache.commons.jexl3.parser.Token;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -75,7 +77,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
 
     protected final EntityManager entityManager;
 
-    protected final JdbcTemplate jdbcTemplate;
+    protected final EntityManagerFactory entityManagerFactory;
 
     protected final AnyUtils anyUtils;
 
@@ -84,14 +86,14 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
             final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final EntityManager entityManager,
-            final DataSource dataSource,
+            final EntityManagerFactory entityManagerFactory,
             final AnyUtils anyUtils) {
 
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
         this.dynRealmDAO = dynRealmDAO;
         this.entityManager = entityManager;
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.entityManagerFactory = entityManagerFactory;
         this.anyUtils = anyUtils;
     }
 
@@ -111,7 +113,8 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
     }
 
     protected Optional<OffsetDateTime> findLastChange(final String key, final String table) {
-        return jdbcTemplate.query(
+        OpenJPAEntityManagerFactorySPI emf = entityManagerFactory.unwrap(OpenJPAEntityManagerFactorySPI.class);
+        return new JdbcTemplate((DataSource) emf.getConfiguration().getConnectionFactory()).query(
                 "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?",
                 rs -> {
                     if (rs.next()) {

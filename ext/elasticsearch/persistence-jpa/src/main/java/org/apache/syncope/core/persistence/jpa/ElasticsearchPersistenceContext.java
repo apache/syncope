@@ -83,7 +83,7 @@ public class ElasticsearchPersistenceContext {
             final JpaRepositoryFactory jpaRepositoryFactory,
             final @Lazy RoleDAO roleDAO,
             final ApplicationEventPublisher publisher,
-            final EntityManager domainEntityManager,
+            final EntityManager entityManager,
             final ElasticsearchProperties props,
             final ElasticsearchClient client) {
 
@@ -92,7 +92,7 @@ public class ElasticsearchPersistenceContext {
                 new RealmRepoExtElasticsearchImpl(
                         roleDAO,
                         publisher,
-                        domainEntityManager,
+                        entityManager,
                         client, props.getIndexMaxResultWindow()));
     }
 

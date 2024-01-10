@@ -19,10 +19,10 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.sql.DataSource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
@@ -59,7 +59,7 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
             final JPAJSONAnyDAO anyDAO,
             final SecurityProperties securityProperties,
             final EntityManager entityManager,
-            final DataSource dataSource) {
+            final EntityManagerFactory entityManagerFactory) {
 
         super(
                 anyUtilsFactory,
@@ -73,7 +73,7 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
                 fiqlQueryDAO,
                 securityProperties,
                 entityManager,
-                dataSource);
+                entityManagerFactory);
         this.anyDAO = anyDAO;
     }
 

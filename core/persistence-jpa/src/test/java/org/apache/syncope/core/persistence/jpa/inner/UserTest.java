@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -212,12 +211,6 @@ public class UserTest extends AbstractTest {
 
         User actual = userDAO.save(user);
         assertNotNull(actual);
-
-        entityManager.flush();
-
-        assertNotNull(userDAO.findLastChange(actual.getKey()));
-        assertTrue(actual.getLastChangeDate().truncatedTo(ChronoUnit.SECONDS).
-                isEqual(userDAO.findLastChange(actual.getKey()).orElseThrow().truncatedTo(ChronoUnit.SECONDS)));
     }
 
     @Test

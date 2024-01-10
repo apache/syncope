@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
@@ -34,7 +35,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.sql.DataSource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -79,14 +79,14 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final EntityManager entityManager,
-            final DataSource dataSource) {
+            final EntityManagerFactory entityManagerFactory) {
 
         super(
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
                 entityManager,
-                dataSource,
+                entityManagerFactory,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;

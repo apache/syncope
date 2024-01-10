@@ -36,7 +36,7 @@ public class JPAJobStatusDAO implements JobStatusDAO {
 
     protected static EntityManagerFactory entityManagerFactory() {
         return EntityManagerFactoryUtils.findEntityManagerFactory(
-                ApplicationContextProvider.getBeanFactory(), "Syncope");
+                ApplicationContextProvider.getBeanFactory(), null);
     }
 
     protected static EntityManager entityManager() {

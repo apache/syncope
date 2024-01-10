@@ -116,8 +116,8 @@ public final class AuthContextUtils {
             return callable.call();
         } catch (Exception e) {
             LOG.debug("Error during execution under authentication {}", authentication, e);
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
+            if (e instanceof RuntimeException runtimeException) {
+                throw runtimeException;
             }
 
             throw new RuntimeException(e);

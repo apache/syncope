@@ -94,8 +94,8 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final PlainAttrValidationManager validator,
-            final EntityManagerFactory domainEntityManagerFactory,
-            final EntityManager domainEntityManager) {
+            final EntityManagerFactory entityManagerFactory,
+            final EntityManager entityManager) {
 
         super(
                 realmDAO,
@@ -107,8 +107,8 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 entityFactory,
                 anyUtilsFactory,
                 validator,
-                domainEntityManagerFactory,
-                domainEntityManager);
+                entityManagerFactory,
+                entityManager);
     }
 
     @Override

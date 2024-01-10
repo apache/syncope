@@ -83,7 +83,7 @@ public class OpenSearchPersistenceContext {
             final JpaRepositoryFactory jpaRepositoryFactory,
             final @Lazy RoleDAO roleDAO,
             final ApplicationEventPublisher publisher,
-            final EntityManager domainEntityManager,
+            final EntityManager entityManager,
             final OpenSearchProperties props,
             final OpenSearchClient client) {
 
@@ -92,7 +92,7 @@ public class OpenSearchPersistenceContext {
                 new RealmRepoExtOpenSearchImpl(
                         roleDAO,
                         publisher,
-                        domainEntityManager,
+                        entityManager,
                         client, props.getIndexMaxResultWindow()));
     }
 

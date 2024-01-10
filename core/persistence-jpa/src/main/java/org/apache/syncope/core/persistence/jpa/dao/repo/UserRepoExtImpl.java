@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
@@ -31,7 +32,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.sql.DataSource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -89,14 +89,14 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final FIQLQueryDAO fiqlQueryDAO,
             final SecurityProperties securityProperties,
             final EntityManager entityManager,
-            final DataSource dataSource) {
+            final EntityManagerFactory entityManagerFactory) {
 
         super(
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
                 entityManager,
-                dataSource,
+                entityManagerFactory,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER));
         this.roleDAO = roleDAO;
         this.accessTokenDAO = accessTokenDAO;

@@ -18,19 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
-import jakarta.persistence.EntityManagerFactory;
-import java.util.Collection;
 import java.util.Comparator;
-import org.apache.openjpa.jdbc.conf.JDBCConfiguration;
-import org.apache.openjpa.jdbc.meta.MappingRepository;
-import org.apache.openjpa.jdbc.meta.MappingTool;
-import org.apache.openjpa.lib.conf.Configurations;
-import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
@@ -46,12 +40,12 @@ public class RuntimeDomainLoader implements DomainWatcher {
 
     protected final DomainRegistry domainRegistry;
 
-    protected final EntityManagerFactory entityManagerFactory;
+    protected final DomainRoutingEntityManagerFactory entityManagerFactory;
 
     public RuntimeDomainLoader(
             final DomainHolder domainHolder,
             final DomainRegistry domainRegistry,
-            final EntityManagerFactory entityManagerFactory,
+            final DomainRoutingEntityManagerFactory entityManagerFactory,
             final ConfigurableApplicationContext ctx) {
 
         this.domainHolder = domainHolder;
@@ -64,25 +58,6 @@ public class RuntimeDomainLoader implements DomainWatcher {
         }
     }
 
-    protected void initJPASchema() {
-        OpenJPAEntityManagerFactorySPI emfspi = entityManagerFactory.unwrap(OpenJPAEntityManagerFactorySPI.class);
-        JDBCConfiguration jdbcConf = (JDBCConfiguration) emfspi.getConfiguration();
-
-        MappingRepository mappingRepo = jdbcConf.getMappingRepositoryInstance();
-        Collection<Class<?>> classes = mappingRepo.loadPersistentTypes(false, getClass().getClassLoader());
-
-        String action = "buildSchema(ForeignKeys=true)";
-        String props = Configurations.getProperties(action);
-        action = Configurations.getClassName(action);
-        MappingTool mappingTool = new MappingTool(jdbcConf, action, false, getClass().getClassLoader());
-        Configurations.configureInstance(mappingTool, jdbcConf, props, "SynchronizeMappings");
-
-        // initialize the schema
-        classes.forEach(mappingTool::run);
-
-        mappingTool.record();
-    }
-
     @Override
     public void added(final Domain domain) {
         if (domainHolder.getDomains().containsKey(domain.getKey())) {
@@ -92,7 +67,7 @@ public class RuntimeDomainLoader implements DomainWatcher {
 
             domainRegistry.register(domain);
 
-            AuthContextUtils.runAsAdmin(domain.getKey(), () -> initJPASchema());
+            AuthContextUtils.runAsAdmin(domain.getKey(), () -> entityManagerFactory.initJPASchema());
 
             ApplicationContextProvider.getBeanFactory().getBeansOfType(SyncopeCoreLoader.class).values().
                     stream().sorted(Comparator.comparing(SyncopeCoreLoader::getOrder)).

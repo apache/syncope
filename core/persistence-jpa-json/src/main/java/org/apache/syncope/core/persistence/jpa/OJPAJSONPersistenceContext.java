@@ -57,8 +57,8 @@ public class OJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
 
     @ConditionalOnMissingBean(name = "oJPAJSONAnyDAO")
     @Bean
-    public JPAJSONAnyDAO anyDAO(final @Lazy PlainSchemaDAO plainSchemaDAO, final EntityManager domainEntityManager) {
-        return new OJPAJSONAnyDAO(plainSchemaDAO, domainEntityManager);
+    public JPAJSONAnyDAO anyDAO(final @Lazy PlainSchemaDAO plainSchemaDAO, final EntityManager entityManager) {
+        return new OJPAJSONAnyDAO(plainSchemaDAO, entityManager);
     }
 
     @ConditionalOnMissingBean(name = "oJPAJSONAnySearchDAO")
@@ -73,8 +73,8 @@ public class OJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
             final @Lazy EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final PlainAttrValidationManager validator,
-            final EntityManagerFactory domainEntityManagerFactory,
-            final EntityManager domainEntityManager) {
+            final EntityManagerFactory entityManagerFactory,
+            final EntityManager entityManager) {
 
         return new OJPAJSONAnySearchDAO(
                 realmDAO,
@@ -86,19 +86,19 @@ public class OJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
                 entityFactory,
                 anyUtilsFactory,
                 validator,
-                domainEntityManagerFactory,
-                domainEntityManager);
+                entityManagerFactory,
+                entityManager);
     }
 
     @ConditionalOnMissingBean(name = "oJPAJSONAuditConfDAO")
     @Bean
     public AuditConfDAO auditConfDAO(
             final JpaRepositoryFactory jpaRepositoryFactory,
-            final EntityManager domainEntityManager) {
+            final EntityManager entityManager) {
 
         return jpaRepositoryFactory.getRepository(
                 AuditConfRepo.class,
-                new AuditConfRepoExtOJSONImpl(domainEntityManager));
+                new AuditConfRepoExtOJSONImpl(entityManager));
     }
 
     @ConditionalOnMissingBean(name = "oJPAJSONPlainSchemaDAO")
@@ -107,10 +107,10 @@ public class OJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
             final JpaRepositoryFactory jpaRepositoryFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy ExternalResourceDAO resourceDAO,
-            final EntityManager domainEntityManager) {
+            final EntityManager entityManager) {
 
         return jpaRepositoryFactory.getRepository(
                 PlainSchemaRepo.class,
-                new PlainSchemaRepoExtOJSONImpl(anyUtilsFactory, resourceDAO, domainEntityManager));
+                new PlainSchemaRepoExtOJSONImpl(anyUtilsFactory, resourceDAO, entityManager));
     }
 }
