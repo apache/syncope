@@ -435,10 +435,10 @@ under the License.
     <commons-jexl.version>3.3</commons-jexl.version>
     <commons-text.version>1.11.0</commons-text.version>
 
-    <pac4j.version>6.0.0</pac4j.version>
+    <pac4j.version>6.0.1</pac4j.version>
 
     <cas.version>7.0.0</cas.version>
-    <cas-client.version>4.0.3</cas-client.version>
+    <cas-client.version>4.0.4</cas-client.version>
 
     <h2.version>2.2.224</h2.version>
 
@@ -464,7 +464,7 @@ under the License.
 
     <antlr4.version>4.13.1</antlr4.version>
 
-    <curator.version>5.5.0</curator.version>
+    <curator.version>5.6.0</curator.version>
     <zookeeper.version>3.9.1</zookeeper.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
@@ -1581,7 +1581,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.2.3</version>
+          <version>3.2.5</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -1591,7 +1591,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.2.3</version>
+          <version>3.2.5</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <runOrder>alphabetical</runOrder>
