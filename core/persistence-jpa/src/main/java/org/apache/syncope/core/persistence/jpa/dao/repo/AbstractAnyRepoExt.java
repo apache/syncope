@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
@@ -77,8 +76,6 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
 
     protected final EntityManager entityManager;
 
-    protected final EntityManagerFactory entityManagerFactory;
-
     protected final AnyUtils anyUtils;
 
     protected AbstractAnyRepoExt(
@@ -86,14 +83,12 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
             final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory,
             final AnyUtils anyUtils) {
 
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
         this.dynRealmDAO = dynRealmDAO;
         this.entityManager = entityManager;
-        this.entityManagerFactory = entityManagerFactory;
         this.anyUtils = anyUtils;
     }
 
@@ -113,7 +108,8 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
     }
 
     protected Optional<OffsetDateTime> findLastChange(final String key, final String table) {
-        OpenJPAEntityManagerFactorySPI emf = entityManagerFactory.unwrap(OpenJPAEntityManagerFactorySPI.class);
+        OpenJPAEntityManagerFactorySPI emf = entityManager.getEntityManagerFactory().
+                unwrap(OpenJPAEntityManagerFactorySPI.class);
         return new JdbcTemplate((DataSource) emf.getConfiguration().getConnectionFactory()).query(
                 "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?",
                 rs -> {
@@ -141,7 +137,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
     }
 
     @SuppressWarnings("unchecked")
-    protected Optional<A> find(final String key) {
+    protected Optional<A> findById(final String key) {
         return Optional.ofNullable((A) entityManager.find(anyUtils.anyClass(), key));
     }
 
@@ -152,9 +148,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
             throw new NotFoundException("Null key");
         }
 
-        A any = find(key).
-                orElseThrow(() -> new NotFoundException(StringUtils.substringBefore(
-                StringUtils.substringAfter(getClass().getSimpleName(), "JPA"), "DAO") + ' ' + key));
+        A any = findById(key).orElseThrow(() -> new NotFoundException(anyUtils.anyTypeKind().name() + ' ' + key));
 
         securityChecks(any);
 
@@ -402,7 +396,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
             Query query = entityManager.createNativeQuery(querystring.toString());
 
             for (Object anyKey : query.getResultList()) {
-                find(anyKey.toString()).filter(any -> !result.contains(any)).ifPresent(result::add);
+                findById(anyKey.toString()).filter(any -> !result.contains(any)).ifPresent(result::add);
             }
         }
 
@@ -501,6 +495,6 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
 
     @Override
     public void deleteById(final String key) {
-        find(key).ifPresent(this::delete);
+        findById(key).ifPresent(this::delete);
     }
 }

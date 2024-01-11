@@ -87,7 +87,7 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
                 orElseThrow(() -> new NotFoundException("Application " + key));
 
         ApplicationTO deleted = binder.getApplicationTO(application);
-        applicationDAO.deleteById(key);
+        applicationDAO.delete(application);
         return deleted;
     }
 

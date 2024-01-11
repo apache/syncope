@@ -170,7 +170,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                         ? keyword == null
                                 ? virSchemaDAO.findAll()
                                 : virSchemaDAO.findByIdLike(keyword)
-                        : virSchemaDAO.findByAnyTypeClassIn(classes);
+                        : virSchemaDAO.findByAnyTypeClasses(classes);
                 result = virSchemas.stream().map(schema -> (T) binder.getVirSchemaTO(schema.getKey())).
                         collect(Collectors.toList());
                 break;
@@ -180,7 +180,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                         ? keyword == null
                                 ? derSchemaDAO.findAll()
                                 : derSchemaDAO.findByIdLike(keyword)
-                        : derSchemaDAO.findByAnyTypeClassIn(classes);
+                        : derSchemaDAO.findByAnyTypeClasses(classes);
                 result = derSchemas.stream().map(schema -> (T) binder.getDerSchemaTO(schema.getKey())).
                         collect(Collectors.toList());
                 break;
@@ -191,7 +191,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                         ? keyword == null
                                 ? plainSchemaDAO.findAll()
                                 : plainSchemaDAO.findByIdLike(keyword)
-                        : plainSchemaDAO.findByAnyTypeClassIn(classes);
+                        : plainSchemaDAO.findByAnyTypeClasses(classes);
                 result = plainSchemas.stream().map(schema -> (T) binder.getPlainSchemaTO(schema.getKey())).
                         collect(Collectors.toList());
         }

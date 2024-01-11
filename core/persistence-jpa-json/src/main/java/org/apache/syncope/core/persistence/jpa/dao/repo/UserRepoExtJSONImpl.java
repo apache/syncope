@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -58,8 +57,7 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
             final FIQLQueryDAO fiqlQueryDAO,
             final JPAJSONAnyDAO anyDAO,
             final SecurityProperties securityProperties,
-            final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManager entityManager) {
 
         super(
                 anyUtilsFactory,
@@ -72,8 +70,7 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
                 delegationDAO,
                 fiqlQueryDAO,
                 securityProperties,
-                entityManager,
-                entityManagerFactory);
+                entityManager);
         this.anyDAO = anyDAO;
     }
 

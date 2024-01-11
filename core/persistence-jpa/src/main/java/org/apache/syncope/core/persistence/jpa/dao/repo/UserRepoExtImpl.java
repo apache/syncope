@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
@@ -45,7 +44,6 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -88,15 +86,13 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
             final SecurityProperties securityProperties,
-            final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManager entityManager) {
 
         super(
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
                 entityManager,
-                entityManagerFactory,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER));
         this.roleDAO = roleDAO;
         this.accessTokenDAO = accessTokenDAO;
@@ -317,8 +313,9 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Override
     public Collection<Group> findAllGroups(final User user) {
         Set<Group> result = new HashSet<>();
-        result.addAll(user.getMemberships().stream().
-                map(Membership::getRightEnd).collect(Collectors.toSet()));
+        Optional.ofNullable(user.getMemberships()).
+                ifPresent(memberships -> result.addAll(memberships.stream().
+                map(UMembership::getRightEnd).collect(Collectors.toSet())));
         result.addAll(findDynGroups(user.getKey()));
 
         return result;

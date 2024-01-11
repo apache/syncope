@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -65,8 +64,7 @@ public abstract class JPAJSONPersistenceContext {
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy JPAJSONAnyDAO anyDAO,
-            final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManager entityManager) {
 
         return jpaRepositoryFactory.getRepository(
                 JSONAnyObjectRepo.class,
@@ -78,8 +76,7 @@ public abstract class JPAJSONPersistenceContext {
                         userDAO,
                         groupDAO,
                         anyDAO,
-                        entityManager,
-                        entityManagerFactory));
+                        entityManager));
     }
 
     @ConditionalOnMissingBean(name = "jpaJSONGroupDAO")
@@ -97,8 +94,7 @@ public abstract class JPAJSONPersistenceContext {
             final @Lazy AnySearchDAO anySearchDAO,
             final @Lazy JPAJSONAnyDAO anyDAO,
             final SearchCondVisitor searchCondVisitor,
-            final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManager entityManager) {
 
         return jpaRepositoryFactory.getRepository(
                 JSONGroupRepo.class,
@@ -114,8 +110,7 @@ public abstract class JPAJSONPersistenceContext {
                         anySearchDAO,
                         anyDAO,
                         searchCondVisitor,
-                        entityManager,
-                        entityManagerFactory));
+                        entityManager));
     }
 
     @ConditionalOnMissingBean(name = "jpaJSONPlainAttrValueDAO")
@@ -139,8 +134,7 @@ public abstract class JPAJSONPersistenceContext {
             final @Lazy FIQLQueryDAO fiqlQueryDAO,
             final @Lazy JPAJSONAnyDAO anyDAO,
             final SecurityProperties securityProperties,
-            final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManager entityManager) {
 
         return jpaRepositoryFactory.getRepository(JSONUserRepo.class,
                 new UserRepoExtJSONImpl(
@@ -155,7 +149,6 @@ public abstract class JPAJSONPersistenceContext {
                         fiqlQueryDAO,
                         anyDAO,
                         securityProperties,
-                        entityManager,
-                        entityManagerFactory));
+                        entityManager));
     }
 }

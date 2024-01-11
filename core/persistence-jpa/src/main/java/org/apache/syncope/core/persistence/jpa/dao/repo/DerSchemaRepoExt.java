@@ -18,9 +18,14 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
+import java.util.Collection;
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 
 public interface DerSchemaRepoExt {
+
+    List<? extends DerSchema> findByAnyTypeClasses(Collection<AnyTypeClass> anyTypeClasses);
 
     DerSchema save(DerSchema schema);
 

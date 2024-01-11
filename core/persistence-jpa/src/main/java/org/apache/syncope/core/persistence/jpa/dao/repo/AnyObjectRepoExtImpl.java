@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
@@ -47,7 +46,6 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -78,15 +76,13 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
-            final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManager entityManager) {
 
         super(
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
                 entityManager,
-                entityManagerFactory,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
@@ -336,8 +332,9 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     public Collection<Group> findAllGroups(final AnyObject anyObject) {
         Set<Group> result = new HashSet<>();
-        result.addAll(anyObject.getMemberships().stream().
-                map(Membership::getRightEnd).collect(Collectors.toSet()));
+        Optional.ofNullable(anyObject.getMemberships()).
+                ifPresent(memberships -> result.addAll(memberships.stream().
+                map(AMembership::getRightEnd).collect(Collectors.toSet())));
         result.addAll(findDynGroups(anyObject.getKey()));
 
         return result;

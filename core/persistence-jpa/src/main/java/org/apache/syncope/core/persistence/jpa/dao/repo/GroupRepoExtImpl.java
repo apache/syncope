@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
@@ -98,15 +97,13 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             final AnyObjectDAO anyObjectDAO,
             final AnySearchDAO searchDAO,
             final SearchCondVisitor searchCondVisitor,
-            final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManager entityManager) {
 
         super(
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
                 entityManager,
-                entityManagerFactory,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         this.publisher = publisher;
         this.anyMatchDAO = anyMatchDAO;
@@ -214,7 +211,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Transactional(readOnly = true)
     @Override
     public List<Group> findOwnedByGroup(final String groupKey) {
-        Group owner = find(groupKey).orElse(null);
+        Group owner = findById(groupKey).orElse(null);
         if (owner == null) {
             return List.of();
         }
@@ -686,7 +683,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
-        return find(key).map(Any::getResources).
+        return findById(key).map(Any::getResources).
                 orElse(List.of()).
                 stream().map(ExternalResource::getKey).collect(Collectors.toList());
     }

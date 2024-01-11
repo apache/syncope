@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -48,14 +49,20 @@ public class ImplementationRepoExtImpl implements ImplementationRepoExt {
 
     @Override
     public List<Implementation> findByTypeAndKeyword(final String type, final String keyword) {
-        TypedQuery<Implementation> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAImplementation.class.getSimpleName() + " e "
-                + "WHERE e.type=:type "
-                + "AND e.id LIKE :keyword "
-                + "ORDER BY e.id ASC",
-                Implementation.class);
+        StringBuilder queryString = new StringBuilder(
+                "SELECT e FROM ").append(JPAImplementation.class.getSimpleName()).append(" e ").
+                append("WHERE e.type=:type ");
+        if (StringUtils.isNotBlank(keyword)) {
+            queryString.append("AND e.id LIKE :keyword ");
+        }
+        queryString.append("ORDER BY e.id ASC");
+
+        TypedQuery<Implementation> query = entityManager.createQuery(queryString.toString(), Implementation.class);
         query.setParameter("type", type);
-        query.setParameter("keyword", keyword);
+        if (StringUtils.isNotBlank(keyword)) {
+            query.setParameter("keyword", keyword);
+        }
+
         return query.getResultList();
     }
 

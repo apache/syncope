@@ -21,10 +21,12 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -79,11 +81,17 @@ public class PlainSchemaRepoExtImpl implements PlainSchemaRepoExt {
     }
 
     @Override
-    public List<PlainSchema> findByKeyword(final String keyword) {
+    public List<? extends PlainSchema> findByAnyTypeClasses(final Collection<AnyTypeClass> anyTypeClasses) {
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(JPAPlainSchema.class.getSimpleName()).
+                append(" e WHERE ");
+        anyTypeClasses.forEach(anyTypeClass -> queryString.
+                append("e.anyTypeClass.id='").
+                append(anyTypeClass.getKey()).append("' OR "));
+
         TypedQuery<PlainSchema> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAPlainSchema.class.getSimpleName() + " e"
-                + " WHERE e.id LIKE :keyword", PlainSchema.class);
-        query.setParameter("keyword", keyword);
+                queryString.substring(0, queryString.length() - 4), PlainSchema.class);
+
         return query.getResultList();
     }
 

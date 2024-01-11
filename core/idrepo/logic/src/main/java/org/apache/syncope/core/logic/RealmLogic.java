@@ -145,7 +145,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         }
 
         String fullPath = StringUtils.appendIfMissing(parent.getFullPath(), "/") + realmTO.getName();
-        if (realmDAO.findByFullPath(fullPath) != null) {
+        if (realmDAO.findByFullPath(fullPath).isPresent()) {
             throw new DuplicateException(fullPath);
         }
 

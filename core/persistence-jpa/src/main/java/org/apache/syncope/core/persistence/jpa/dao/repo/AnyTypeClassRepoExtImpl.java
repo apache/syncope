@@ -93,13 +93,13 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
             return;
         }
 
-        for (PlainSchema schema : plainSchemaDAO.findByAnyTypeClassIn(List.of(anyTypeClass))) {
+        for (PlainSchema schema : plainSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass))) {
             schema.setAnyTypeClass(null);
         }
-        for (DerSchema schema : derSchemaDAO.findByAnyTypeClassIn(List.of(anyTypeClass))) {
+        for (DerSchema schema : derSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass))) {
             schema.setAnyTypeClass(null);
         }
-        for (VirSchema schema : virSchemaDAO.findByAnyTypeClassIn(List.of(anyTypeClass))) {
+        for (VirSchema schema : virSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass))) {
             schema.setAnyTypeClass(null);
         }
 

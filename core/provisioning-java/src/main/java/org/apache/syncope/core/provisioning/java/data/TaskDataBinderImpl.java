@@ -273,11 +273,12 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         } else if (taskTO instanceof MacroTaskTO macroTaskTO) {
             MacroTask macroTask = (MacroTask) task;
 
-            Implementation jobDelegate = macroTaskTO.getJobDelegate() == null
+            Implementation jobDelegate = (macroTaskTO.getJobDelegate() == null
                     ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                             filter(impl -> MACRO_RUN_JOB_DELEGATE.equals(impl.getBody())).
-                            findFirst().orElse(null)
-                    : implementationDAO.findById(macroTaskTO.getJobDelegate()).orElse(null);
+                            findFirst()
+                    : implementationDAO.findById(macroTaskTO.getJobDelegate())).
+                    orElse(null);
             if (jobDelegate == null) {
                 jobDelegate = entityFactory.newEntity(Implementation.class);
                 jobDelegate.setKey(StringUtils.substringAfterLast(MACRO_RUN_JOB_DELEGATE, "."));
@@ -413,15 +414,14 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         T taskTO = taskUtils.newTaskTO();
         taskTO.setKey(task.getKey());
 
-        taskTO.setLatestExecStatus(StringUtils.EMPTY);
-//        taskExecDAO.findLatestStarted(taskUtils.getType(), task).ifPresentOrElse(
-//                latestExec -> {
-//                    taskTO.setLatestExecStatus(latestExec.getStatus());
-//                    taskTO.setStart(latestExec.getStart());
-//                    taskTO.setEnd(latestExec.getEnd());
-//                    taskTO.setLastExecutor(latestExec.getExecutor());
-//                },
-//                () -> taskTO.setLatestExecStatus(StringUtils.EMPTY));
+        taskExecDAO.findLatestStarted(taskUtils.getType(), task).ifPresentOrElse(
+                latestExec -> {
+                    taskTO.setLatestExecStatus(latestExec.getStatus());
+                    taskTO.setStart(latestExec.getStart());
+                    taskTO.setEnd(latestExec.getEnd());
+                    taskTO.setLastExecutor(latestExec.getExecutor());
+                },
+                () -> taskTO.setLatestExecStatus(StringUtils.EMPTY));
 
         if (details) {
             task.getExecs().stream().

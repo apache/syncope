@@ -568,12 +568,9 @@ abstract class AbstractAnyDataBinder {
         }
 
         // 2. resources
-        anyCR.getResources().forEach(resourceKey -> {
-            resourceDAO.findById(resourceKey).ifPresentOrElse(
-                    any::add,
-                    () -> LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...",
-                            resourceKey));
-        });
+        anyCR.getResources().forEach(resource -> resourceDAO.findById(resource).ifPresentOrElse(
+                any::add,
+                () -> LOG.debug("Invalid {} {}, ignoring...", ExternalResource.class.getSimpleName(), resource)));
 
         requiredValuesMissing = checkMandatoryOnResources(any, anyUtils.getAllResources(any));
         if (!requiredValuesMissing.isEmpty()) {

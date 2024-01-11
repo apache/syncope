@@ -60,10 +60,10 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_LIST + "')")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<CommandTO>> search(final int page, final int size, final String keyword) {
+    public Pair<Long, List<CommandTO>> search(final int page, final int size, final String keyword) {
         List<Implementation> result = implementationDAO.findByTypeAndKeyword(IdRepoImplementationType.COMMAND, keyword);
 
-        int count = result.size();
+        long count = result.size();
 
         List<CommandTO> commands = result.stream().
                 skip((page - 1) * size).

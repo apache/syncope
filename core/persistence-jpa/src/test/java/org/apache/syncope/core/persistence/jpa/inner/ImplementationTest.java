@@ -40,6 +40,13 @@ public class ImplementationTest extends AbstractTest {
     private ImplementationDAO implementationDAO;
 
     @Test
+    public void findById() {
+        Implementation impl = implementationDAO.findById("ExpiredBatchCleanup").orElseThrow();
+        assertEquals(IdRepoImplementationType.TASKJOB_DELEGATE, impl.getType());
+        assertEquals(ImplementationEngine.JAVA, impl.getEngine());
+    }
+
+    @Test
     public void findAll() {
         List<? extends Implementation> implementations = implementationDAO.findAll();
         assertFalse(implementations.isEmpty());

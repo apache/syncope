@@ -40,7 +40,7 @@ public class CommandServiceImpl extends AbstractService implements CommandServic
     @Override
     public PagedResult<CommandTO> search(final CommandQuery query) {
         String keyword = query.getKeyword() == null ? null : query.getKeyword().replace('*', '%');
-        Pair<Integer, List<CommandTO>> result = logic.search(query.getPage(), query.getSize(), keyword);
+        Pair<Long, List<CommandTO>> result = logic.search(query.getPage(), query.getSize(), keyword);
         return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
     }
 

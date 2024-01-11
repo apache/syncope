@@ -18,13 +18,15 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
+import java.util.Collection;
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public interface PlainSchemaRepoExt {
 
-    List<PlainSchema> findByKeyword(String keyword);
+    List<? extends PlainSchema> findByAnyTypeClasses(Collection<AnyTypeClass> anyTypeClasses);
 
     <T extends PlainAttr<?>> List<T> findAttrs(PlainSchema schema, Class<T> reference);
 

@@ -478,8 +478,7 @@ public class PersistenceContext {
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
-            final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManager entityManager) {
 
         return jpaRepositoryFactory.getRepository(
                 AnyObjectRepo.class,
@@ -490,8 +489,7 @@ public class PersistenceContext {
                         dynRealmDAO,
                         userDAO,
                         groupDAO,
-                        entityManager,
-                        entityManagerFactory));
+                        entityManager));
     }
 
     @ConditionalOnMissingBean
@@ -731,8 +729,7 @@ public class PersistenceContext {
             final @Lazy AnyObjectDAO anyObjectDAO,
             final AnySearchDAO anySearchDAO,
             final SearchCondVisitor searchCondVisitor,
-            final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManager entityManager) {
 
         return jpaRepositoryFactory.getRepository(
                 GroupRepo.class,
@@ -747,8 +744,7 @@ public class PersistenceContext {
                         anyObjectDAO,
                         anySearchDAO,
                         searchCondVisitor,
-                        entityManager,
-                        entityManagerFactory));
+                        entityManager));
     }
 
     @ConditionalOnMissingBean
@@ -1028,8 +1024,7 @@ public class PersistenceContext {
             final @Lazy GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
-            final EntityManager entityManager,
-            final EntityManagerFactory entityManagerFactory) {
+            final EntityManager entityManager) {
 
         return jpaRepositoryFactory.getRepository(
                 UserRepo.class,
@@ -1044,8 +1039,7 @@ public class PersistenceContext {
                         delegationDAO,
                         fiqlQueryDAO,
                         securityProperties,
-                        entityManager,
-                        entityManagerFactory));
+                        entityManager));
     }
 
     @ConditionalOnMissingBean

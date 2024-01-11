@@ -18,10 +18,14 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
+import java.util.Collection;
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 
 public interface VirSchemaRepoExt {
+
+    List<? extends VirSchema> findByAnyTypeClasses(Collection<AnyTypeClass> anyTypeClasses);
 
     List<VirSchema> findByResourceAndAnyType(String resource, String anyType);
 

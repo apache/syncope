@@ -84,7 +84,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
         Role role = roleDAO.findById(key).orElseThrow(() -> new NotFoundException("Role " + key));
 
         RoleTO deleted = binder.getRoleTO(role);
-        roleDAO.deleteById(key);
+        roleDAO.delete(role);
         return deleted;
     }
 

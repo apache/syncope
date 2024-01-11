@@ -19,7 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import java.util.Collection;
+import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPADerSchema;
 
@@ -32,6 +36,21 @@ public class DerSchemaRepoExtImpl implements DerSchemaRepoExt {
     public DerSchemaRepoExtImpl(final ExternalResourceDAO resourceDAO, final EntityManager entityManager) {
         this.resourceDAO = resourceDAO;
         this.entityManager = entityManager;
+    }
+
+    @Override
+    public List<? extends DerSchema> findByAnyTypeClasses(final Collection<AnyTypeClass> anyTypeClasses) {
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(JPADerSchema.class.getSimpleName()).
+                append(" e WHERE ");
+        anyTypeClasses.forEach(anyTypeClass -> queryString.
+                append("e.anyTypeClass.id='").
+                append(anyTypeClass.getKey()).append("' OR "));
+
+        TypedQuery<DerSchema> query = entityManager.createQuery(
+                queryString.substring(0, queryString.length() - 4), DerSchema.class);
+
+        return query.getResultList();
     }
 
     @Override
