@@ -35,7 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface UserDAO extends AnyDAO<User> {
 
-    String findKey(String username);
+    Optional<String> findKey(String username);
 
     Optional<String> findUsername(String key);
 

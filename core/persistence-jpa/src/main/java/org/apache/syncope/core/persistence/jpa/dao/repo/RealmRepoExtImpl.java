@@ -325,10 +325,10 @@ public class RealmRepoExtImpl implements RealmRepoExt {
         }
 
         @SuppressWarnings("unchecked")
-        List<Object> raw = query.getResultList();
-        return raw.stream().map(key -> key instanceof Object[]
-                ? (String) ((Object[]) key)[0]
-                : ((String) key)).collect(Collectors.toList());
+        List<Object> result = query.getResultList();
+        return result.stream().
+                map(Object::toString).
+                collect(Collectors.toList());
     }
 
     @Override

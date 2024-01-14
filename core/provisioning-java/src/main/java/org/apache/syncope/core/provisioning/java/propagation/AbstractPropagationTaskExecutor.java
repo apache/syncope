@@ -779,7 +779,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         PropagationTask task = Optional.ofNullable(taskInfo.getKey()).
-                map(key -> taskDAO.findById(TaskType.PROPAGATION, key)).
+                flatMap(key -> taskDAO.findById(TaskType.PROPAGATION, key)).
                 map(PropagationTask.class::cast).
                 orElseGet(() -> {
                     PropagationTask t = taskUtilsFactory.getInstance(TaskType.PROPAGATION).newTask();

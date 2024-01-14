@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
@@ -115,19 +116,16 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Transactional(readOnly = true)
     @Override
-    public String findKey(final String name) {
+    public Optional<String> findKey(final String name) {
         Query query = entityManager.createNativeQuery("SELECT id FROM " + JPAGroup.TABLE + " WHERE name=?");
         query.setParameter(1, name);
 
-        String key = null;
-
-        for (Object resultKey : query.getResultList()) {
-            key = resultKey instanceof Object[]
-                    ? (String) ((Object[]) resultKey)[0]
-                    : ((String) resultKey);
+        try {
+            return Optional.of(query.getSingleResult().toString());
+        } catch (NoResultException e) {
+            LOG.debug("No key matching name {}", name, e);
+            return Optional.empty();
         }
-
-        return key;
     }
 
     @Transactional(readOnly = true)
@@ -408,38 +406,33 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Transactional(readOnly = true)
     @Override
-    @SuppressWarnings("unchecked")
     public List<String> findAMembers(final String groupKey) {
         Query query = entityManager.createNativeQuery(
                 "SELECT anyObject_id FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
         query.setParameter(1, groupKey);
 
-        List<String> result = new ArrayList<>();
-        query.getResultList().stream().map(key -> key instanceof Object[]
-                ? (String) ((Object[]) key)[0]
-                : ((String) key)).
-                forEach(item -> result.add((String) item));
-        return result;
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().
+                map(Object::toString).
+                collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     @Override
-    @SuppressWarnings("unchecked")
     public List<String> findUMembers(final String groupKey) {
         Query query = entityManager.createNativeQuery(
                 "SELECT user_id FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
         query.setParameter(1, groupKey);
 
-        List<String> result = new ArrayList<>();
-        query.getResultList().stream().map(key -> key instanceof Object[]
-                ? (String) ((Object[]) key)[0]
-                : ((String) key)).
-                forEach(item -> result.add((String) item));
-        return result;
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().
+                map(Object::toString).
+                collect(Collectors.toList());
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<String> findADynMembers(final Group group) {
         List<String> result = new ArrayList<>();
 
@@ -449,11 +442,12 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             query.setParameter(1, group.getKey());
             query.setParameter(2, memb.getAnyType().getKey());
 
-            query.getResultList().stream().map(key -> key instanceof Object[]
-                    ? (String) ((Object[]) key)[0]
-                    : ((String) key)).
-                    filter(anyObject -> !result.contains((String) anyObject)).
-                    forEach(anyObject -> result.add((String) anyObject));
+            @SuppressWarnings("unchecked")
+            List<Object> queryResult = query.getResultList();
+            result.addAll(queryResult.stream().
+                    map(Object::toString).
+                    filter(anyObject -> !result.contains(anyObject)).
+                    collect(Collectors.toList()));
         });
 
         return result;
@@ -518,10 +512,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Transactional
     @Override
     public Pair<Set<String>, Set<String>> refreshDynMemberships(final AnyObject anyObject) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT group_id FROM " + ADYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, anyObject.getKey());
-
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         findWithADynMemberships(anyObject.getType()).forEach(memb -> {
@@ -582,7 +572,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<String> findUDynMembers(final Group group) {
         if (group.getUDynMembership() == null) {
             return List.of();
@@ -592,12 +581,11 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 "SELECT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
-        List<String> result = new ArrayList<>();
-        query.getResultList().stream().map(key -> key instanceof Object[]
-                ? (String) ((Object[]) key)[0]
-                : ((String) key)).
-                forEach(user -> result.add((String) user));
-        return result;
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().
+                map(Object::toString).
+                collect(Collectors.toList());
     }
 
     @Override
@@ -619,10 +607,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Transactional
     @Override
     public Pair<Set<String>, Set<String>> refreshDynMemberships(final User user) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT group_id FROM " + UDYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, user.getKey());
-
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         findWithUDynMemberships().forEach(memb -> {
@@ -689,7 +673,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     }
 
     @Override
-    public Group save(final Group group) {
+    public <S extends Group> S save(final S group) {
         return entityManager.merge(group);
     }
 }

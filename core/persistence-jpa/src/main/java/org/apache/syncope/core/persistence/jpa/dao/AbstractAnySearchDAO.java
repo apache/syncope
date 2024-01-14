@@ -26,7 +26,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -290,7 +289,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
         List<String> groups = SyncopeConstants.UUID_PATTERN.matcher(cond.getGroup()).matches()
                 ? List.of(cond.getGroup())
                 : cond.getGroup().indexOf('%') == -1
-                ? Optional.ofNullable(groupDAO.findKey(cond.getGroup())).map(List::of).orElseGet(List::of)
+                ? groupDAO.findKey(cond.getGroup()).map(List::of).orElseGet(List::of)
                 : groupDAO.findKeysByNamePattern(cond.getGroup());
 
         if (groups.isEmpty()) {
@@ -320,7 +319,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
                 ? Set.of()
                 : SyncopeConstants.UUID_PATTERN.matcher(cond.getMember()).matches()
                 ? Set.of(cond.getMember())
-                : Optional.ofNullable(userDAO.findKey(cond.getMember())).map(Set::of).
+                : userDAO.findKey(cond.getMember()).map(Set::of).
                         orElseGet(() -> anyObjectDAO.findByName(cond.getMember()).stream().
                         map(AnyObject::getKey).collect(Collectors.toSet()));
 

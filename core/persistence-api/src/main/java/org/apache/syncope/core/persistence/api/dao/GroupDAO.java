@@ -34,7 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface GroupDAO extends AnyDAO<Group> {
 
-    String findKey(String name);
+    Optional<String> findKey(String name);
 
     Optional<? extends Group> findByName(String name);
 

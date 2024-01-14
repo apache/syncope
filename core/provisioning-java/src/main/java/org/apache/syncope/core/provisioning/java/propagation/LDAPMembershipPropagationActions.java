@@ -121,7 +121,8 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
 
             // for each user group assigned to the resource of this task, compute and add the group's 
             // connector object link
-            userDAO.findAllGroups(user).stream().
+            userDAO.findAllGroupKeys(user).stream().
+                    map(groupDAO::findById).filter(Optional::isPresent).map(Optional::get).
                     filter(group -> group.getResources().contains(taskInfo.getResource())).
                     forEach(group -> {
                         String groupConnObjectLink = evaluateGroupConnObjectLink(

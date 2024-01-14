@@ -41,6 +41,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrVal
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -238,7 +239,8 @@ public class JPAAnyMatchDAO implements AnyMatchDAO {
 
         final String group = SyncopeConstants.UUID_PATTERN.matcher(cond.getGroup()).matches()
                 ? cond.getGroup()
-                : groupDAO.findKey(cond.getGroup());
+                : groupDAO.findKey(cond.getGroup()).
+                        orElseThrow(() -> new NotFoundException("Group " + cond.getGroup()));
 
         boolean found = any.getMembership(group).isPresent()
                 || (any instanceof User

@@ -102,7 +102,7 @@ public class GroupRepoExtJSONImpl extends GroupRepoExtImpl {
     }
 
     @Override
-    public Group save(final Group group) {
+    public <S extends Group> S save(final S group) {
         anyDAO.checkBeforeSave(JPAGroup.TABLE, anyUtils, group);
         return entityManager.merge(group);
     }

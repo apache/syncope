@@ -19,10 +19,10 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -104,19 +104,16 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
     @Transactional(readOnly = true)
     @Override
-    public String findKey(final String username) {
+    public Optional<String> findKey(final String username) {
         Query query = entityManager.createNativeQuery("SELECT id FROM " + JPAUser.TABLE + " WHERE username=?");
         query.setParameter(1, username);
 
-        String key = null;
-
-        for (Object resultKey : query.getResultList()) {
-            key = resultKey instanceof Object[]
-                    ? (String) ((Object[]) resultKey)[0]
-                    : ((String) resultKey);
+        try {
+            return Optional.of(query.getSingleResult().toString());
+        } catch (NoResultException e) {
+            LOG.debug("No key matching username {}", username, e);
+            return Optional.empty();
         }
-
-        return key;
     }
 
     @Transactional(readOnly = true)
@@ -131,14 +128,12 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         Query query = entityManager.createNativeQuery("SELECT username FROM " + JPAUser.TABLE + " WHERE id=?");
         query.setParameter(1, key);
 
-        String username = null;
-        for (Object resultKey : query.getResultList()) {
-            username = resultKey instanceof Object[]
-                    ? (String) ((Object[]) resultKey)[0]
-                    : ((String) resultKey);
+        try {
+            return Optional.of(query.getSingleResult().toString());
+        } catch (NoResultException e) {
+            LOG.debug("No username matching id {}", key, e);
+            return Optional.empty();
         }
-
-        return Optional.ofNullable(username);
     }
 
     @Override
@@ -238,8 +233,9 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     }
 
     @Override
-    public User save(final User user) {
-        return doSave(user).getLeft();
+    @SuppressWarnings("unchecked")
+    public <S extends User> S save(final S user) {
+        return (S) doSave(user).getLeft();
     }
 
     @Override
@@ -275,47 +271,42 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    @SuppressWarnings("unchecked")
     public List<Role> findDynRoles(final String key) {
         Query query = entityManager.createNativeQuery(
                 "SELECT role_id FROM " + RoleRepoExt.DYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, key);
 
-        List<Role> result = new ArrayList<>();
-        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
-                ? (String) ((Object[]) resultKey)[0]
-                : ((String) resultKey)).
-                forEach(roleKey -> roleDAO.findById(roleKey.toString()).
-                filter(role -> !result.contains(role)).
-                ifPresent(result::add));
-        return result;
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().
+                map(roleKey -> roleDAO.findById(roleKey.toString())).
+                filter(Optional::isPresent).map(Optional::get).
+                distinct().
+                collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    @SuppressWarnings("unchecked")
     public List<Group> findDynGroups(final String key) {
         Query query = entityManager.createNativeQuery(
                 "SELECT group_id FROM " + GroupRepoExt.UDYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, key);
 
-        List<Group> result = new ArrayList<>();
-        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
-                ? (String) ((Object[]) resultKey)[0]
-                : ((String) resultKey)).
-                forEach(groupKey -> groupDAO.findById(groupKey.toString()).
-                filter(group -> !result.contains(group)).
-                ifPresent(result::add));
-        return result;
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().
+                map(groupKey -> groupDAO.findById(groupKey.toString())).
+                filter(Optional::isPresent).map(Optional::get).
+                distinct().
+                collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final User user) {
         Set<Group> result = new HashSet<>();
-        Optional.ofNullable(user.getMemberships()).
-                ifPresent(memberships -> result.addAll(memberships.stream().
-                map(UMembership::getRightEnd).collect(Collectors.toSet())));
+        result.addAll(user.getMemberships().stream().
+                map(UMembership::getRightEnd).collect(Collectors.toSet()));
         result.addAll(findDynGroups(user.getKey()));
 
         return result;

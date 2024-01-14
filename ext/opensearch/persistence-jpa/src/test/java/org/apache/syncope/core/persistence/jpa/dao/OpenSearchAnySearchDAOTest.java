@@ -170,7 +170,7 @@ public class OpenSearchAnySearchDAOTest {
 
         when(entityFactory.newEntity(PlainSchema.class)).thenReturn(new JPAPlainSchema());
 
-        when(groupDAO.findKey("groupKey")).thenReturn("groupKey");
+        when(groupDAO.findKey("groupKey")).thenReturn(Optional.of("groupKey"));
 
         try (MockedStatic<OpenSearchUtils> utils = Mockito.mockStatic(OpenSearchUtils.class)) {
             utils.when(() -> OpenSearchUtils.getAnyIndex(

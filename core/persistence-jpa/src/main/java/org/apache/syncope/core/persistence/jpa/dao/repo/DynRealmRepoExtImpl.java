@@ -20,9 +20,9 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -77,20 +77,19 @@ public class DynRealmRepoExtImpl implements DynRealmRepoExt {
         this.entityManager = entityManager;
     }
 
-    @SuppressWarnings("unchecked")
     protected List<String> clearDynMembers(final DynRealm dynRealm) {
         Query find = entityManager.createNativeQuery(
                 "SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE dynRealm_id=?");
         find.setParameter(1, dynRealm.getKey());
 
-        List<String> cleared = new ArrayList<>();
-        find.getResultList().stream().map(key -> key instanceof Object[]
-                ? (String) ((Object[]) key)[0]
-                : ((String) key)).
-                forEach(key -> cleared.add((String) key));
+        @SuppressWarnings("unchecked")
+        List<Object> result = find.getResultList();
+        List<String> cleared = result.stream().
+                map(Object::toString).
+                collect(Collectors.toList());
 
-        Query delete = entityManager.
-                createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE dynRealm_id=?");
+        @SuppressWarnings("unchecked")
+        Query delete = entityManager.createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE dynRealm_id=?");
         delete.setParameter(1, dynRealm.getKey());
         delete.executeUpdate();
 

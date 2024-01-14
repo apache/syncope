@@ -226,11 +226,12 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         String actualKey = anyKey;
         if (!SyncopeConstants.UUID_PATTERN.matcher(anyKey).matches()) {
-            actualKey = dao instanceof UserDAO
+            actualKey = (dao instanceof UserDAO
                     ? ((UserDAO) dao).findKey(anyKey)
                     : dao instanceof GroupDAO
                             ? ((GroupDAO) dao).findKey(anyKey)
-                            : ((AnyObjectDAO) dao).findKey(provision.getAnyType(), anyKey);
+                            : ((AnyObjectDAO) dao).findKey(provision.getAnyType(), anyKey)).
+                    orElse(null);
         }
         Any<?> any = dao.authFind(actualKey);
         if (any == null) {

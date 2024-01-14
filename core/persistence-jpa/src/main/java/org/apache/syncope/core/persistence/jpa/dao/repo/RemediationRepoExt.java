@@ -33,4 +33,6 @@ public interface RemediationRepoExt {
             int page,
             int itemsPerPage,
             List<OrderByClause> orderByClauses);
+
+    void deleteById(String key);
 }

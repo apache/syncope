@@ -24,11 +24,13 @@ import jakarta.persistence.TypedQuery;
 import java.lang.reflect.Field;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.jpa.entity.JPARemediation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
 public class RemediationRepoExtImpl implements RemediationRepoExt {
@@ -126,5 +128,11 @@ public class RemediationRepoExtImpl implements RemediationRepoExt {
         }
 
         return query.getResultList();
+    }
+
+    @Transactional
+    @Override
+    public void deleteById(final String key) {
+        Optional.ofNullable(entityManager.find(JPARemediation.class, key)).ifPresent(entityManager::remove);
     }
 }

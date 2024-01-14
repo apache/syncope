@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -37,7 +38,7 @@ public interface GroupRepoExt extends AnyRepoExt<Group> {
 
     String ADYNMEMB_TABLE = "ADynGroupMembers";
 
-    String findKey(String name);
+    Optional<String> findKey(String name);
 
     /**
      * Checks if the calling user is authorized to access the Group matching the provided key, under the given
@@ -129,4 +130,10 @@ public interface GroupRepoExt extends AnyRepoExt<Group> {
      * @return merged group
      */
     Group saveAndRefreshDynMemberships(Group group);
+
+    @Override
+    <S extends Group> S save(S group);
+
+    @Override
+    void delete(Group group);
 }

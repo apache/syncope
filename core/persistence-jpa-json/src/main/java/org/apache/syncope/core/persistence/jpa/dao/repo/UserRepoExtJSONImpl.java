@@ -119,7 +119,7 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
     }
 
     @Override
-    public User save(final User user) {
+    public <S extends User> S save(final S user) {
         anyDAO.checkBeforeSave(JPAJSONUser.TABLE, anyUtils, user);
         return super.save(user);
     }

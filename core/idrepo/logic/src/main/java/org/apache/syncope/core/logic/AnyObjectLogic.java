@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -97,7 +96,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
 
     @Transactional(readOnly = true)
     public AnyObjectTO read(final String type, final String name) {
-        return Optional.ofNullable(anyObjectDAO.findKey(type, name)).
+        return anyObjectDAO.findKey(type, name).
                 map(binder::getAnyObjectTO).
                 orElseThrow(() -> new NotFoundException("AnyObject " + type + " " + name));
     }

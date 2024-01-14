@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.commons.jexl3.parser.Parser;
 import org.apache.commons.jexl3.parser.ParserConstants;
@@ -49,6 +50,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -92,19 +94,17 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
         this.anyUtils = anyUtils;
     }
 
-    @SuppressWarnings("unchecked")
     protected List<String> findAllKeys(final String table, final int page, final int itemsPerPage) {
         Query query = entityManager.createNativeQuery(
                 "SELECT id FROM " + table + " ORDER BY id", String.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 
-        List<String> result = new ArrayList<>();
-        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
-                ? (String) ((Object[]) resultKey)[0]
-                : ((String) resultKey)).
-                forEach(actualKey -> result.add(actualKey.toString()));
-        return result;
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().
+                map(Object::toString).
+                collect(Collectors.toList());
     }
 
     protected Optional<OffsetDateTime> findLastChange(final String key, final String table) {
@@ -477,20 +477,19 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
 
     @Transactional(readOnly = true)
     @Override
-    @SuppressWarnings("unchecked")
     public List<String> findDynRealms(final String key) {
         Query query = entityManager.createNativeQuery(
                 "SELECT dynRealm_id FROM " + DynRealmRepoExt.DYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, key);
 
-        List<String> result = new ArrayList<>();
-        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
-                ? (String) ((Object[]) resultKey)[0]
-                : ((String) resultKey)).
-                forEach(actualKey -> dynRealmDAO.findById(actualKey.toString()).
-                filter(dynRealm -> !result.contains(dynRealm.getKey())).
-                ifPresent(dynRealm -> result.add(dynRealm.getKey())));
-        return result;
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().
+                map(roleKey -> dynRealmDAO.findById(roleKey.toString())).
+                filter(Optional::isPresent).map(Optional::get).
+                map(DynRealm::getKey).
+                distinct().
+                collect(Collectors.toList());
     }
 
     @Override

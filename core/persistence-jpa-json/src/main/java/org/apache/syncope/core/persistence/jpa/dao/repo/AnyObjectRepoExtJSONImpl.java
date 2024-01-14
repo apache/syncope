@@ -105,7 +105,7 @@ public class AnyObjectRepoExtJSONImpl extends AnyObjectRepoExtImpl {
     }
 
     @Override
-    public AnyObject save(final AnyObject anyObject) {
+    public <S extends AnyObject> S save(final S anyObject) {
         anyDAO.checkBeforeSave(JPAJSONAnyObject.TABLE, anyUtils, anyObject);
         return super.save(anyObject);
     }

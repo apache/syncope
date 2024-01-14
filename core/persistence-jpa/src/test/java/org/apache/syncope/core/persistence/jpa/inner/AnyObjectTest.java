@@ -64,7 +64,9 @@ public class AnyObjectTest extends AbstractTest {
 
     @Test
     public void findKey() {
-        assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", anyObjectDAO.findKey("PRINTER", "HP LJ 1300n"));
+        assertEquals(
+                "fc6dbc3a-6c07-4965-8781-921e7401a4a5",
+                anyObjectDAO.findKey("PRINTER", "HP LJ 1300n").orElseThrow());
     }
 
     @Test

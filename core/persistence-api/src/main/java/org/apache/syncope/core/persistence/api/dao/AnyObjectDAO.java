@@ -34,7 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
-    String findKey(String type, String name);
+    Optional<String> findKey(String type, String name);
 
     Optional<? extends AnyObject> findByName(String type, String name);
 

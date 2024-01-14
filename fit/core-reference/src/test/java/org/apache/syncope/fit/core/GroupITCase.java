@@ -932,8 +932,7 @@ public class GroupITCase extends AbstractITCase {
         assumeFalse(IS_EXT_SEARCH_ENABLED);
 
         // 1. create group without resources
-        GroupCR groupCR = getBasicSample("forProvision");
-        GroupTO groupTO = createGroup(groupCR).getEntity();
+        GroupTO groupTO = createGroup(getBasicSample("forProvision")).getEntity();
 
         // 2. create user with such group assigned
         UserCR userCR = UserITCase.getUniqueSample("forProvision@syncope.apache.org");

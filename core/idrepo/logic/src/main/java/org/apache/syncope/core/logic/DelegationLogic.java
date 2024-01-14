@@ -57,7 +57,8 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
 
     protected void securityChecks(final String delegating, final String entitlement) {
         if (!AuthContextUtils.getAuthorizations().keySet().contains(entitlement)
-                && (delegating == null || !delegating.equals(userDAO.findKey(AuthContextUtils.getUsername())))) {
+                && (delegating == null || !delegating.equals(userDAO.findKey(AuthContextUtils.getUsername()).
+                        orElseThrow(() -> new NotFoundException("Could not find authenticated user"))))) {
 
             throw new DelegatedAdministrationException(
                     SyncopeConstants.ROOT_REALM, AnyTypeKind.USER.name(), delegating);
@@ -81,7 +82,7 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
         Stream<DelegationTO> delegations = delegationDAO.findAll().stream().map(binder::getDelegationTO);
 
         if (!AuthContextUtils.getAuthorizations().keySet().contains(IdRepoEntitlement.DELEGATION_LIST)) {
-            String authUserKey = userDAO.findKey(AuthContextUtils.getUsername());
+            String authUserKey = userDAO.findKey(AuthContextUtils.getUsername()).orElse(null);
             delegations = delegations.filter(delegation -> delegation.getDelegating().equals(authUserKey));
         }
 
@@ -93,12 +94,12 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
         if (delegationTO.getDelegating() != null
                 && !SyncopeConstants.UUID_PATTERN.matcher(delegationTO.getDelegating()).matches()) {
 
-            delegationTO.setDelegating(userDAO.findKey(delegationTO.getDelegating()));
+            delegationTO.setDelegating(userDAO.findKey(delegationTO.getDelegating()).orElse(null));
         }
         if (delegationTO.getDelegated() != null
                 && !SyncopeConstants.UUID_PATTERN.matcher(delegationTO.getDelegated()).matches()) {
 
-            delegationTO.setDelegated(userDAO.findKey(delegationTO.getDelegated()));
+            delegationTO.setDelegated(userDAO.findKey(delegationTO.getDelegated()).orElse(null));
         }
 
         securityChecks(delegationTO.getDelegating(), IdRepoEntitlement.DELEGATION_CREATE);

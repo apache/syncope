@@ -34,7 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public interface AnyObjectRepoExt extends AnyRepoExt<AnyObject> {
 
-    String findKey(String type, String name);
+    Optional<String> findKey(String type, String name);
 
     Optional<? extends AnyObject> findByName(String type, String name);
 
@@ -74,4 +74,10 @@ public interface AnyObjectRepoExt extends AnyRepoExt<AnyObject> {
     Collection<ExternalResource> findAllResources(AnyObject anyObject);
 
     Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(AnyObject anyObject);
+
+    @Override
+    <S extends AnyObject> S save(S anyObject);
+
+    @Override
+    void delete(AnyObject anyObject);
 }

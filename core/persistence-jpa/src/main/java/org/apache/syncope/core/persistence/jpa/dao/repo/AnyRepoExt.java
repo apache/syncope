@@ -91,7 +91,7 @@ public interface AnyRepoExt<A extends Any<?>> {
 
     Collection<String> findAllResourceKeys(String key);
 
-    A save(A any);
+    <S extends A> S save(S any);
 
     void deleteById(String key);
 

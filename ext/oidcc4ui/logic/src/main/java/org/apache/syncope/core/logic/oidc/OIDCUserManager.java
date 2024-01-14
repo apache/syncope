@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
@@ -231,7 +232,8 @@ public class OIDCUserManager {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String update(final String username, final OIDCC4UIProvider op, final OIDCLoginResponse responseTO) {
-        UserTO userTO = binder.getUserTO(userDAO.findKey(username));
+        UserTO userTO = binder.getUserTO(userDAO.findKey(username).
+                orElseThrow(() -> new NotFoundException("User " + username)));
         UserTO original = SerializationUtils.clone(userTO);
 
         fill(op, responseTO, userTO);

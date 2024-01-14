@@ -162,7 +162,7 @@ public class AuthDataAccessor {
 
         String delegatingKey = SyncopeConstants.UUID_PATTERN.matcher(details.getDelegatedBy()).matches()
                 ? details.getDelegatedBy()
-                : userDAO.findKey(details.getDelegatedBy());
+                : userDAO.findKey(details.getDelegatedBy()).orElse(null);
         if (delegatingKey == null) {
             throw new SessionAuthenticationException(
                     "Delegating user " + details.getDelegatedBy() + " cannot be found");

@@ -97,6 +97,58 @@ abstract class AbstractAnyDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAnyDataBinder.class);
 
+    protected static void fillTO(
+            final AnyTO anyTO,
+            final String realmFullPath,
+            final Collection<? extends AnyTypeClass> auxClasses,
+            final Collection<? extends PlainAttr<?>> plainAttrs,
+            final Map<DerSchema, String> derAttrs,
+            final Map<VirSchema, List<String>> virAttrs,
+            final Collection<? extends ExternalResource> resources) {
+
+        anyTO.setRealm(realmFullPath);
+
+        anyTO.getAuxClasses().addAll(auxClasses.stream().map(AnyTypeClass::getKey).collect(Collectors.toList()));
+
+        plainAttrs.forEach(plainAttr -> anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
+                values(plainAttr.getValuesAsStrings()).build()));
+
+        derAttrs.forEach((schema, value) -> anyTO.getDerAttrs().
+                add(new Attr.Builder(schema.getKey()).value(value).build()));
+
+        virAttrs.forEach((schema, values) -> anyTO.getVirAttrs().
+                add(new Attr.Builder(schema.getKey()).values(values).build()));
+
+        anyTO.getResources().addAll(resources.stream().map(ExternalResource::getKey).collect(Collectors.toSet()));
+    }
+
+    protected static RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
+        return new RelationshipTO.Builder(relationshipType).
+                otherEnd(otherEnd.getType().getKey(), otherEnd.getKey(), otherEnd.getName()).
+                build();
+    }
+
+    protected static MembershipTO getMembershipTO(
+            final Collection<? extends PlainAttr<?>> plainAttrs,
+            final Map<DerSchema, String> derAttrs,
+            final Map<VirSchema, List<String>> virAttrs,
+            final Membership<? extends Any<?>> membership) {
+
+        MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey()).
+                groupName(membership.getRightEnd().getName()).build();
+
+        plainAttrs.forEach(plainAttr -> membershipTO.getPlainAttrs().
+                add(new Attr.Builder(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
+
+        derAttrs.forEach((schema, value) -> membershipTO.getDerAttrs().
+                add(new Attr.Builder(schema.getKey()).value(value).build()));
+
+        virAttrs.forEach((schema, values) -> membershipTO.getVirAttrs().
+                add(new Attr.Builder(schema.getKey()).values(values).build()));
+
+        return membershipTO;
+    }
+
     protected final AnyTypeDAO anyTypeDAO;
 
     protected final RealmDAO realmDAO;
@@ -613,63 +665,5 @@ abstract class AbstractAnyDataBinder {
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
         }
-    }
-
-    protected static void fillTO(
-            final AnyTO anyTO,
-            final String realmFullPath,
-            final Collection<? extends AnyTypeClass> auxClasses,
-            final Collection<? extends PlainAttr<?>> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
-            final Map<VirSchema, List<String>> virAttrs,
-            final Collection<? extends ExternalResource> resources) {
-
-        anyTO.setRealm(realmFullPath);
-
-        anyTO.getAuxClasses().addAll(auxClasses.stream().map(AnyTypeClass::getKey).collect(Collectors.toList()));
-
-        plainAttrs
-                .forEach(plainAttr -> anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey())
-                .values(plainAttr.getValuesAsStrings()).build()));
-
-        derAttrs.forEach((schema, value) -> anyTO.getDerAttrs()
-                .add(new Attr.Builder(schema.getKey()).value(value).build()));
-
-        virAttrs.forEach((schema, values) -> anyTO.getVirAttrs()
-                .add(new Attr.Builder(schema.getKey()).values(values).build()));
-
-        anyTO.getResources().addAll(resources.stream().map(ExternalResource::getKey).collect(Collectors.toSet()));
-    }
-
-    protected static RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
-        return new RelationshipTO.Builder(relationshipType).
-                otherEnd(otherEnd.getType().getKey(), otherEnd.getKey(), otherEnd.getName()).
-                build();
-    }
-
-    protected static MembershipTO getMembershipTO(
-            final Collection<? extends PlainAttr<?>> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
-            final Map<VirSchema, List<String>> virAttrs,
-            final Membership<? extends Any<?>> membership) {
-
-        MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey())
-                .groupName(membership.getRightEnd().getName())
-                .build();
-
-        plainAttrs.forEach(plainAttr -> membershipTO.getPlainAttrs()
-                .add(new Attr.Builder(plainAttr.getSchema().getKey())
-                        .values(plainAttr.getValuesAsStrings()).
-                        build()));
-
-        derAttrs.forEach((schema, value) -> membershipTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).
-                value(value).
-                build()));
-
-        virAttrs.forEach((schema, values) -> membershipTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).
-                values(values).
-                build()));
-
-        return membershipTO;
     }
 }

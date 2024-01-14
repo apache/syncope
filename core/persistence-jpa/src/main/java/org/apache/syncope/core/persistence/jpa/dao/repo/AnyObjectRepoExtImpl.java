@@ -121,21 +121,18 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
     @Transactional(readOnly = true)
     @Override
-    public String findKey(final String type, final String name) {
+    public Optional<String> findKey(final String type, final String name) {
         Query query = entityManager.createNativeQuery(
                 "SELECT id FROM " + JPAAnyObject.TABLE + " WHERE type_id=? AND name=?");
         query.setParameter(1, type);
         query.setParameter(2, name);
 
-        String key = null;
-
-        for (Object resultKey : query.getResultList()) {
-            key = resultKey instanceof Object[]
-                    ? (String) ((Object[]) resultKey)[0]
-                    : ((String) resultKey);
+        try {
+            return Optional.of(query.getSingleResult().toString());
+        } catch (NoResultException e) {
+            LOG.debug("No key matching type {} and name {}", type, name, e);
+            return Optional.empty();
         }
-
-        return key;
     }
 
     @Transactional(readOnly = true)
@@ -262,8 +259,9 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     }
 
     @Override
-    public AnyObject save(final AnyObject anyObject) {
-        return doSave(anyObject).getLeft();
+    @SuppressWarnings("unchecked")
+    public <S extends AnyObject> S save(final S anyObject) {
+        return (S) doSave(anyObject).getLeft();
     }
 
     @Override
@@ -289,52 +287,28 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         return query.getResultList();
     }
 
-    @Override
-    public void delete(final AnyObject anyObject) {
-        groupDAO.removeDynMemberships(anyObject);
-        dynRealmDAO.removeDynMemberships(anyObject.getKey());
-
-        findARelationships(anyObject).forEach(relationship -> {
-            relationship.getLeftEnd().getRelationships().remove(relationship);
-            save(relationship.getLeftEnd());
-
-            entityManager.remove(relationship);
-        });
-        findURelationships(anyObject).forEach(relationship -> {
-            relationship.getLeftEnd().getRelationships().remove(relationship);
-            userDAO.save(relationship.getLeftEnd());
-
-            entityManager.remove(relationship);
-        });
-
-        entityManager.remove(anyObject);
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    @SuppressWarnings("unchecked")
     public List<Group> findDynGroups(final String key) {
         Query query = entityManager.createNativeQuery(
                 "SELECT group_id FROM " + GroupRepoExt.ADYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, key);
 
-        List<Group> result = new ArrayList<>();
-        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
-                ? (String) ((Object[]) resultKey)[0]
-                : ((String) resultKey)).
-                forEach(groupKey -> groupDAO.findById(groupKey.toString()).
-                filter(group -> !result.contains(group)).
-                ifPresent(result::add));
-        return result;
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().
+                map(groupKey -> groupDAO.findById(groupKey.toString())).
+                filter(Optional::isPresent).map(Optional::get).
+                distinct().
+                collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final AnyObject anyObject) {
         Set<Group> result = new HashSet<>();
-        Optional.ofNullable(anyObject.getMemberships()).
-                ifPresent(memberships -> result.addAll(memberships.stream().
-                map(AMembership::getRightEnd).collect(Collectors.toSet())));
+        result.addAll(anyObject.getMemberships().stream().
+                map(AMembership::getRightEnd).collect(Collectors.toSet()));
         result.addAll(findDynGroups(anyObject.getKey()));
 
         return result;
@@ -360,5 +334,26 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
         return findAllResources(authFind(key)).stream().map(ExternalResource::getKey).collect(Collectors.toList());
+    }
+
+    @Override
+    public void delete(final AnyObject anyObject) {
+        groupDAO.removeDynMemberships(anyObject);
+        dynRealmDAO.removeDynMemberships(anyObject.getKey());
+
+        findARelationships(anyObject).forEach(relationship -> {
+            relationship.getLeftEnd().getRelationships().remove(relationship);
+            save(relationship.getLeftEnd());
+
+            entityManager.remove(relationship);
+        });
+        findURelationships(anyObject).forEach(relationship -> {
+            relationship.getLeftEnd().getRelationships().remove(relationship);
+            userDAO.save(relationship.getLeftEnd());
+
+            entityManager.remove(relationship);
+        });
+
+        entityManager.remove(anyObject);
     }
 }

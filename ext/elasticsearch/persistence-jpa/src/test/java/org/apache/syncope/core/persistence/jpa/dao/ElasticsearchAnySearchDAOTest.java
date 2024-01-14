@@ -169,7 +169,7 @@ public class ElasticsearchAnySearchDAOTest {
 
         when(entityFactory.newEntity(PlainSchema.class)).thenReturn(new JPAPlainSchema());
 
-        when(groupDAO.findKey("groupKey")).thenReturn("groupKey");
+        when(groupDAO.findKey("groupKey")).thenReturn(Optional.of("groupKey"));
 
         try (MockedStatic<ElasticsearchUtils> utils = Mockito.mockStatic(ElasticsearchUtils.class)) {
             utils.when(() -> ElasticsearchUtils.getAnyIndex(

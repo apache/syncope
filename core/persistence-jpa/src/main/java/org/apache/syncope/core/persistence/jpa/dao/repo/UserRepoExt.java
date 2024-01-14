@@ -34,7 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface UserRepoExt extends AnyRepoExt<User> {
 
-    String findKey(String username);
+    Optional<String> findKey(String username);
 
     Optional<String> findUsername(String key);
 
@@ -80,4 +80,10 @@ public interface UserRepoExt extends AnyRepoExt<User> {
     List<LinkedAccount> findLinkedAccountsByPrivilege(Privilege privilege);
 
     Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(User user);
+
+    @Override
+    <S extends User> S save(S user);
+
+    @Override
+    void delete(User user);
 }

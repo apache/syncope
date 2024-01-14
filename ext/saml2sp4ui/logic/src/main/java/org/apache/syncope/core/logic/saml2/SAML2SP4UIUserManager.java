@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -247,7 +248,8 @@ public class SAML2SP4UIUserManager {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String update(final String username, final SAML2SP4UIIdP idp, final SAML2LoginResponse loginResponse) {
-        UserTO userTO = binder.getUserTO(userDAO.findKey(username));
+        UserTO userTO = binder.getUserTO(userDAO.findKey(username).
+                orElseThrow(() -> new NotFoundException("User " + username)));
         UserTO original = SerializationUtils.clone(userTO);
 
         fill(idp.getKey(), loginResponse, userTO);

@@ -345,7 +345,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
     public ProvisioningResult<UserTO> selfStatus(final StatusR statusR, final boolean nullPriorityAsync) {
-        statusR.setKey(userDAO.findKey(AuthContextUtils.getUsername()));
+        statusR.setKey(userDAO.findKey(AuthContextUtils.getUsername()).
+                orElseThrow(() -> new NotFoundException("Could not find authenticated user")));
         Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
 
         return afterUpdate(
@@ -628,7 +629,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         String key = null;
 
         if ("requestPasswordReset".equals(method.getName())) {
-            key = userDAO.findKey((String) args[0]);
+            key = userDAO.findKey((String) args[0]).orElse(null);
         } else if (!"confirmPasswordReset".equals(method.getName()) && ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof String string) {

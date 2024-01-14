@@ -21,8 +21,8 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -87,8 +87,7 @@ public class RoleRepoExtImpl implements RoleRepoExt {
                     AnyTypeKind.USER);
 
             matching.forEach(user -> {
-                Query insert = entityManager.
-                        createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
+                Query insert = entityManager.createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
                 insert.setParameter(1, user.getKey());
                 insert.setParameter(2, merged.getKey());
                 insert.executeUpdate();
@@ -120,29 +119,25 @@ public class RoleRepoExtImpl implements RoleRepoExt {
         entityManager.remove(role);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<String> findDynMembers(final Role role) {
         if (role.getDynMembership() == null) {
             return List.of();
         }
 
-        Query query = entityManager.
-                createNativeQuery("SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
+        Query query = entityManager.createNativeQuery("SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
         query.setParameter(1, role.getKey());
 
-        List<String> result = new ArrayList<>();
-        query.getResultList().stream().map(key -> key instanceof Object[]
-                ? (String) ((Object[]) key)[0]
-                : ((String) key)).
-                forEach(user -> result.add((String) user));
-        return result;
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().
+                map(Object::toString).
+                collect(Collectors.toList());
     }
 
     @Override
     public void clearDynMembers(final Role role) {
-        Query delete = entityManager.
-                createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
+        Query delete = entityManager.createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
         delete.setParameter(1, role.getKey());
         delete.executeUpdate();
     }

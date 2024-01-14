@@ -452,14 +452,9 @@ public class JPATaskDAO implements TaskDAO {
 
         @SuppressWarnings("unchecked")
         List<Object> raw = query.getResultList();
-        raw.stream().map(key -> key instanceof Object[]
-                ? (String) ((Object[]) key)[0]
-                : ((String) key)).forEach(key -> {
-
-            findById(type, key).ifPresentOrElse(
-                    task -> result.add((T) task),
-                    () -> LOG.error("Could not find task with key {}, even if returned by native query", key));
-        });
+        raw.forEach(key -> findById(type, key.toString()).ifPresentOrElse(
+                task -> result.add((T) task),
+                () -> LOG.error("Could not find task with key {}, even if returned by native query", key)));
 
         return result;
     }

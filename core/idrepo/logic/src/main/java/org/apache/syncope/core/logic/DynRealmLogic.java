@@ -106,5 +106,4 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
 
         throw new UnresolvedReferenceException();
     }
-
 }
