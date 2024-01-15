@@ -546,10 +546,6 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional
     @Override
     public Pair<Set<String>, Set<String>> refreshDynMemberships(final AnyObject anyObject) {
-        Query query = entityManager().createNativeQuery(
-                "SELECT group_id FROM " + JPAGroupDAO.ADYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, anyObject.getKey());
-
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         findWithADynMemberships(anyObject.getType()).forEach(memb -> {
@@ -645,10 +641,6 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional
     @Override
     public Pair<Set<String>, Set<String>> refreshDynMemberships(final User user) {
-        Query query = entityManager().createNativeQuery(
-                "SELECT group_id FROM " + JPAGroupDAO.UDYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, user.getKey());
-
         Set<String> before = new HashSet<>();
         Set<String> after = new HashSet<>();
         findWithUDynMemberships().forEach(memb -> {
