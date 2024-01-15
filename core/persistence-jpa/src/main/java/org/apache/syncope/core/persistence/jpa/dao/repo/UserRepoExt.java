@@ -38,6 +38,8 @@ public interface UserRepoExt extends AnyRepoExt<User> {
 
     Optional<String> findUsername(String key);
 
+    Optional<? extends User> findByToken(String token);
+
     /**
      * Checks if the calling user is authorized to access the User matching the provided key, under the given
      * realm.

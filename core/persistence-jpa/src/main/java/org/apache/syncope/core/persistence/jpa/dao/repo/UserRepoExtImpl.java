@@ -136,6 +136,21 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         }
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<? extends User> findByToken(final String token) {
+        TypedQuery<User> query = entityManager.createQuery(
+                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e WHERE e.token LIKE :token", User.class);
+        query.setParameter("token", token);
+
+        try {
+            return Optional.of(query.getSingleResult());
+        } catch (NoResultException e) {
+            LOG.debug("No user found with token {}", token, e);
+            return Optional.empty();
+        }
+    }
+
     @Override
     public Map<String, Long> countByRealm() {
         Query query = entityManager.createQuery(
