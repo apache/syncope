@@ -59,8 +59,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class SyncopeServiceImpl extends AbstractService implements SyncopeService {
 
-    private static final String CONTENT_XML = "Content.xml";
-
     protected final SyncopeLogic logic;
 
     protected final VirtualThreadPoolTaskExecutor batchExecutor;
@@ -116,11 +114,11 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
         MediaType mediaType = MediaType.valueOf(messageContext.getHttpServletRequest().getContentType());
         String boundary = mediaType.getParameters().get(RESTHeaders.BOUNDARY_PARAMETER);
 
-        batchDAO.findById(boundary).orElseThrow(() -> {
+        if (batchDAO.findById(boundary).isPresent()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.EntityExists);
             sce.getElements().add("Batch with boundary " + boundary + " already processing");
-            return sce;
-        });
+            throw sce;
+        }
 
         // parse batch request
         List<BatchRequestItem> batchRequestItems;
@@ -196,7 +194,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
         return Response.ok(sout).
                 type(MediaType.TEXT_XML).
                 header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=" + AuthContextUtils.getDomain() + CONTENT_XML).
+                        "attachment; filename=" + AuthContextUtils.getDomain() + "Content.xml").
                 build();
     }
 }

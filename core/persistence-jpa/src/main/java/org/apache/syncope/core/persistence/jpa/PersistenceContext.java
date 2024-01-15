@@ -92,6 +92,7 @@ import org.apache.syncope.core.persistence.jpa.content.XMLContentExporter;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentLoader;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyMatchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPABatchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAEntityCacheDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAJobStatusDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCJWKSDAO;
@@ -127,9 +128,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthProfileRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthProfileRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthProfileRepoExtImpl;
-import org.apache.syncope.core.persistence.jpa.dao.repo.BatchRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.BatchRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.BatchRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.CASSPClientAppRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.CASSPClientAppRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.CASSPClientAppRepoExtImpl;
@@ -696,17 +694,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public BatchRepoExt batchRepoExt(final EntityManager entityManager) {
-        return new BatchRepoExtImpl(entityManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public BatchDAO batchDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final BatchRepoExt batchRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(BatchRepo.class, batchRepoExt);
+    public BatchDAO batchDAO(final EntityManager entityManager) {
+        return new JPABatchDAO(entityManager);
     }
 
     @ConditionalOnMissingBean

@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.FIQLQuery;
 import org.apache.syncope.core.provisioning.api.data.FIQLQueryDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,14 +44,23 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
 
     protected final UserDAO userDAO;
 
+    protected final SecurityProperties securityProperties;
+
     public FIQLQueryLogic(
             final FIQLQueryDataBinder binder,
             final FIQLQueryDAO fiqlQueryDAO,
-            final UserDAO userDAO) {
+            final UserDAO userDAO,
+            final SecurityProperties securityProperties) {
 
         this.binder = binder;
         this.fiqlQueryDAO = fiqlQueryDAO;
         this.userDAO = userDAO;
+        this.securityProperties = securityProperties;
+    }
+
+    protected boolean skip() {
+        return securityProperties.getAdminUser().equals(AuthContextUtils.getUsername())
+                || securityProperties.getAnonymousUser().equals(AuthContextUtils.getUsername());
     }
 
     protected void securityChecks(final String owner) {
@@ -62,6 +72,10 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public FIQLQueryTO read(final String key) {
+        if (skip()) {
+            throw new NotFoundException("FIQLQuery " + key);
+        }
+
         FIQLQuery fiqlQuery = fiqlQueryDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("FIQLQuery " + key));
 
@@ -73,6 +87,10 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<FIQLQueryTO> list(final String target) {
+        if (skip()) {
+            return List.of();
+        }
+
         return fiqlQueryDAO.findByOwner(
                 userDAO.findByUsername(AuthContextUtils.getUsername()).
                         orElseThrow(() -> new NotFoundException("User " + AuthContextUtils.getUsername())), target).
@@ -82,11 +100,19 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
 
     @PreAuthorize("isAuthenticated()")
     public FIQLQueryTO create(final FIQLQueryTO fiqlQueryTO) {
+        if (skip()) {
+            throw new NotFoundException("FIQLQuery " + fiqlQueryTO.getKey());
+        }
+
         return binder.getFIQLQueryTO(fiqlQueryDAO.save(binder.create(fiqlQueryTO)));
     }
 
     @PreAuthorize("isAuthenticated()")
     public FIQLQueryTO update(final FIQLQueryTO fiqlQueryTO) {
+        if (skip()) {
+            throw new NotFoundException("FIQLQuery " + fiqlQueryTO.getKey());
+        }
+
         FIQLQuery fiqlQuery = fiqlQueryDAO.findById(fiqlQueryTO.getKey()).
                 orElseThrow(() -> new NotFoundException("FIQLQuery " + fiqlQueryTO.getKey()));
 
@@ -97,6 +123,10 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
 
     @PreAuthorize("isAuthenticated()")
     public FIQLQueryTO delete(final String key) {
+        if (skip()) {
+            throw new NotFoundException("FIQLQuery " + key);
+        }
+
         FIQLQuery fiqlQuery = fiqlQueryDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("FIQLQuery " + key));
 
