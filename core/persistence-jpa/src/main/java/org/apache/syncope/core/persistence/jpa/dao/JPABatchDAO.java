@@ -49,7 +49,6 @@ public class JPABatchDAO implements BatchDAO {
     public long count() {
         Query query = entityManager.createQuery(
                 "SELECT COUNT(e) FROM " + JPABatch.class.getSimpleName() + " e");
-
         return ((Number) query.getSingleResult()).longValue();
     }
 

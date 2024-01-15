@@ -876,8 +876,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public JobStatusDAO jobStatusDAO() {
-        return new JPAJobStatusDAO();
+    public JobStatusDAO jobStatusDAO(final EntityManager entityManager) {
+        return new JPAJobStatusDAO(entityManager);
     }
 
     @ConditionalOnMissingBean

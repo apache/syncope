@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
@@ -27,60 +26,49 @@ import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.persistence.jpa.entity.JPAJobStatus;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(rollbackFor = Throwable.class)
 public class JPAJobStatusDAO implements JobStatusDAO {
 
-    protected static EntityManagerFactory entityManagerFactory() {
-        return EntityManagerFactoryUtils.findEntityManagerFactory(
-                ApplicationContextProvider.getBeanFactory(), null);
-    }
+    protected final EntityManager entityManager;
 
-    protected static EntityManager entityManager() {
-        return Optional.ofNullable(EntityManagerFactoryUtils.getTransactionalEntityManager(entityManagerFactory())).
-                orElseThrow(() -> new IllegalStateException(
-                "Could not find EntityManager for domain " + AuthContextUtils.getDomain()));
+    public JPAJobStatusDAO(final EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     @Transactional(readOnly = true)
     @Override
     public Optional<? extends JobStatus> findById(final String key) {
-        return Optional.ofNullable(entityManager().find(JPAJobStatus.class, key));
+        return Optional.ofNullable(entityManager.find(JPAJobStatus.class, key));
     }
 
     @Transactional(readOnly = true)
     @Override
     public long count() {
-        Query query = entityManager().createQuery(
+        Query query = entityManager.createQuery(
                 "SELECT COUNT(e) FROM " + JPAJobStatus.class.getSimpleName() + " e");
-
         return ((Number) query.getSingleResult()).longValue();
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<? extends JobStatus> findAll() {
-        TypedQuery<JobStatus> query = entityManager().createQuery(
+        TypedQuery<JobStatus> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAJobStatus.class.getSimpleName() + " e", JobStatus.class);
         return query.getResultList();
     }
 
-    @Transactional
     @Override
     public <S extends JobStatus> S save(final S jobStatus) {
-        return entityManager().merge(jobStatus);
+        return entityManager.merge(jobStatus);
     }
 
-    @Transactional
     @Override
     public void delete(final JobStatus jobStatus) {
-        entityManager().remove(jobStatus);
+        entityManager.remove(jobStatus);
     }
 
-    @Transactional
     @Override
     public void deleteById(final String key) {
         findById(key).ifPresent(this::delete);

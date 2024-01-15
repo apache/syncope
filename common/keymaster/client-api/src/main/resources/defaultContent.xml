@@ -25,14 +25,19 @@ under the License.
   <AnyType_AnyTypeClass anyType_id="USER" anyTypeClass_id="BaseUser"/>
 
   <AnyType id="GROUP" kind="GROUP"/>
-        
-  <!-- Actual plain schemas -->
+
   <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
                   body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
   <SyncopeSchema id="email"/>
   <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                validator_id="EmailAddressValidator"/>
+
+  <Implementation id="BinaryValidator" type="VALIDATOR" engine="JAVA"
+                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator"/>
+
+  <Implementation id="MacroRunJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.logic.job.MacroRunJobDelegate"/>
 
   <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
@@ -43,7 +48,11 @@ under the License.
                   body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>
   <SchedTask id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
              jobDelegate_id="ExpiredAccessTokenCleanup" cronExpression="0 0/5 * * * ?"/>
-  
+  <Implementation id="ExpiredBatchCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup"/>
+  <SchedTask id="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" name="Expired Batch Operations Cleanup Task"  active="1"
+             jobDelegate_id="ExpiredBatchCleanup" cronExpression="0 0/5 * * * ?"/>
+
   <!-- Password reset notifications -->
   <MailTemplate id="requestPasswordReset"
                 textTemplate="Hi,
