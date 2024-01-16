@@ -19,40 +19,80 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div class="brand-link text-bg-danger d-flex" style="height: 57px;">
+    <div class="sidebar-brand bg-red d-flex">
       <span>
         <img src="ui-commons/img/logo-mini.png" alt="Apache Syncope Logo" class="brand-image" style="max-height: none; opacity: .8;"/>
-        <span class="brand-text fw-light">Apache Syncope</span>
+        <span class="brand-text fw-light text-white">Apache Syncope</span>
       </span>
     </div>
 
     <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="user-panel mt-2 pb-2 mb-2 d-flex">
+      <div class="sidebar-wrapper" data-overlayscrollbars="host">
+          <div class="os-size-observer os-size-observer-appear"><div class="os-size-observer-listener ltr"></div></div>
+
+          <div data-overlayscrollbars-viewport="scrollbarHidden">
+              <!-- Sidebar Menu -->
+              <nav class="mt-2">
+                  <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu"
+                      data-accordion="false">
+                      <li class="nav-item" wicket:id="dashboardLI"><a href="#" wicket:id="home" class="nav-link"><i
+                              class="fa fa-id-card nav-icon"></i>
+                          <p>
+                              <wicket:message key="home"/>
+                          </p>
+                      </a></li>
+                      <li wicket:id="profileLI" class="nav-item">
+                          <a id="profileLink" href="#" class="nav-link"><i class="nav-icon fa fa-user"></i>
+                              <p>
+                                  <wicket:message key="profile"/>
+                              </p>
+                              <i class="nav-arrow fas fa-angle-left right"></i></a>
+                          <ul wicket:id="profileUL" class="nav nav-treeview">
+                              <li class="nav-item" wicket:id="edituserLI"><a href="#" class="nav-link"
+                                                                             wicket:id="edituser"><i
+                                      class="nav-icon fa fa-edit"></i>
+                                  <p>
+                                      <wicket:message key="edituser"/>
+                                  </p>
+                              </a></li>
+                              <li class="nav-item" wicket:id="editchangepasswordLI"><a href="#" class="nav-link"
+                                                                                       wicket:id="editchangepassword"><i
+                                      class="nav-icon fas fa-key"></i>
+                                  <p>
+                                      <wicket:message key="editchangepassword"/>
+                                  </p>
+                              </a></li>
+                              <li class="nav-item" wicket:id="editsecurityquestionLI"><a href="#" class="nav-link"
+                                                                                         wicket:id="editsecurityquestion"><i
+                                      class="nav-icon fa fa-lock"></i>
+                                  <p>
+                                      <wicket:message key="editsecurityquestion"/>
+                                  </p>
+                              </a></li>
+                          </ul>
+                      </li>
+
+                      <wicket:container wicket:id="extPages">
+                          <li class="nav-item" wicket:id="extPageLI">
+                              <a href="#" class="nav-link" wicket:id="extPage"><i wicket:id="extPageIcon"></i>
+                                  <p wicket:id="extPageLabel"/></a>
+                          </li>
+                      </wicket:container>
+                  </ul>
+              </nav>
+          </div>
+          <div class="os-scrollbar os-scrollbar-horizontal os-theme-light os-scrollbar-auto-hide os-scrollbar-handle-interactive os-scrollbar-track-interactive os-scrollbar-cornerless os-scrollbar-unusable os-scrollbar-auto-hide-hidden">
+              <div class="os-scrollbar-track">
+                  <div class="os-scrollbar-handle" style="width: 100%;"></div>
+              </div>
+          </div>
+          <div class="os-scrollbar os-scrollbar-vertical os-theme-light os-scrollbar-auto-hide os-scrollbar-handle-interactive os-scrollbar-track-interactive os-scrollbar-visible os-scrollbar-cornerless os-scrollbar-auto-hide-hidden">
+              <div class="os-scrollbar-track">
+                  <div class="os-scrollbar-handle" style="height: 39.633%;"></div>
+              </div>
+          </div>
       </div>
-
-      <!-- Sidebar Menu -->
-      <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <li class="nav-item" wicket:id="dashboardLI"><a href="#" wicket:id="home" class="nav-link"><i class="fa fa-id-card nav-icon"></i><p><wicket:message key="home"/></p></a></li>
-          <li wicket:id="profileLI" class="nav-item has-treeview">
-            <a id="profileLink" href="#" class="nav-link"><i class="nav-icon fa fa-user"></i><p><wicket:message key="profile"/></p> <i class="nav-arrow fas fa-angle-left right"></i></a>
-            <ul wicket:id="profileUL" class="nav nav-treeview">
-              <li class="nav-item" wicket:id="edituserLI"><a href="#" class="nav-link" wicket:id="edituser"><i class="nav-icon fa fa-edit"></i><p><wicket:message key="edituser"/></p></a></li>
-              <li class="nav-item" wicket:id="editchangepasswordLI"><a href="#" class="nav-link" wicket:id="editchangepassword"><i class="nav-icon fas fa-key"></i><p><wicket:message key="editchangepassword"/></p></a></li>
-              <li class="nav-item" wicket:id="editsecurityquestionLI"><a href="#" class="nav-link" wicket:id="editsecurityquestion"><i class="nav-icon fa fa-lock"></i><p><wicket:message key="editsecurityquestion"/></p></a></li>
-            </ul>
-          </li>
-
-          <wicket:container wicket:id="extPages">
-            <li class="nav-item" wicket:id="extPageLI">
-              <a href="#" class="nav-link" wicket:id="extPage"><i wicket:id="extPageIcon"></i><p wicket:id="extPageLabel"/></a>
-            </li>
-          </wicket:container>
-        </ul>
-      </nav>
       <!-- /.sidebar-menu -->
-    </div>
     <!-- /.sidebar -->
   </wicket:panel>
 </html>

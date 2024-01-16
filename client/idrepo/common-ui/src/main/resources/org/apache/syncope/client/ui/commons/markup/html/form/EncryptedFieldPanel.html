@@ -23,10 +23,9 @@ under the License.
       <span wicket:id="externalAction"/>
     </wicket:enclosure>
     <div class="input-group">
-      <span class="input-group-btn">  
-        <button type="button" class="btn btn-warning btn-flat"
-                wicket:message="confirm:confirmMessage"
-                onclick="var pwd = $(this).parent().next('input');
+      <button type="button" class="btn btn-warning btn-flat input-group-text"
+              wicket:message="confirm:confirmMessage"
+              onclick="var pwd = $(this).next('input');
                     var children = $(this).children();
                     var confirmMessage = $(this).attr('confirm');
                     if (pwd.is('[readonly]')) {
@@ -45,22 +44,19 @@ under the License.
                       }
                     }
                 "><i class="fa fa-lock"></i></button>
-      </span>
       <input type="password" class="form-control" wicket:id="encryptedField" readonly="true"/>
-      <span class="input-group-btn">  
-        <button type="button" class="btn btn-success btn-flat"
-                onmousedown="var pwd = $(this).parent().prev('input');
+      <button type="button" class="btn btn-success btn-flat input-group-text"
+              onmousedown="var pwd = $(this).prev('input');
                     if (!pwd.is('[readonly]')) {
                       pwd.attr('type', 'text');
                       $(this).children().attr('class', 'fa fa-eye-slash');
                     }"
-                onmouseup="var pwd = $(this).parent().prev('input');
+              onmouseup="var pwd = $(this).prev('input');
                     if (!pwd.is('[readonly]')) {
                       pwd.attr('type', 'password');
                       $(this).children().attr('class', 'fa fa-eye');
                     }"
-                ><i class="fa fa-eye"></i></button>
-      </span>
+      ><i class="fa fa-eye"></i></button>
     </div>
   </wicket:extend>
 </html>

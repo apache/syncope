@@ -58,7 +58,7 @@ under the License.
         <img class="login-logo" src="ui-commons/img/logo-green.png" />
 
         <span wicket:id="feedback" role="alert"/>
-        <div class="box bg-danger mb-3" style="padding: 5px;text-align: center;" wicket:id="exceptionMessage"/>
+        <div class="bg-red mb-3 text-white" style="padding: 5px;text-align: center;" wicket:id="exceptionMessage"/>
 
         <form class="form-signin" wicket:id="login">
           <fieldset class="form-group">
@@ -76,7 +76,7 @@ under the License.
               <select class="form-control form-select select2bs4 select2-hidden-accessible" wicket:id="domain"/>
             </div>
 
-            <button wicket:id="submit" type="submit" class="btn btn-lg btn-primary btn-block btn-signin bg-danger"></button>
+            <button wicket:id="submit" type="submit" class="btn btn-lg btn-primary btn-block btn-signin bg-red"></button>
           </fieldset>
 
           <div wicket:id="ssoLogins">

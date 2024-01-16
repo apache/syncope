@@ -40,7 +40,18 @@ if (typeof copyToClipboard === 'undefined') {
     document.execCommand('SelectAll');
     document.execCommand("copy", false, null);
 
-    if ($.browser.mozilla && !$.browser.chrome) {
+    var matched, browser;
+
+    matched = jQuery.uaMatch( navigator.userAgent );
+    browser = {};
+
+    if ( matched.browser ) {
+      browser[ matched.browser ] = true;
+      browser.version = matched.version;
+    }
+
+
+    if (browser.mozilla && !browser.chrome) {
       try {
         var range = document.createRange();
         range.selectNodeContents(temp);
@@ -73,6 +84,23 @@ if (typeof copyToClipboard === 'undefined') {
       copyToClipboard(el, tag_value_to_copy, fake_textarea_selector, feedback_selector);
     }
   }
+
+  jQuery.uaMatch = function( ua ) {
+    ua = ua.toLowerCase();
+
+    var match = /(chrome)[ \/]([\w.]+)/.exec( ua ) ||
+        /(webkit)[ \/]([\w.]+)/.exec( ua ) ||
+        /(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
+        /(msie)[\s?]([\w.]+)/.exec( ua ) ||
+        /(trident)(?:.*? rv:([\w.]+)|)/.exec( ua ) ||
+        ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) ||
+        [];
+
+    return {
+      browser: match[ 1 ] || "",
+      version: match[ 2 ] || "0"
+    };
+  };
 }
 
 

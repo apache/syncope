@@ -40,7 +40,7 @@ public class MustChangePassword extends AbstractChangePassword {
         super(parameters);
 
         setDomain(parameters);
-        disableSidebar();
+        disableSidebarAndNavbar();
     }
 
     @Override

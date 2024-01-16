@@ -17,7 +17,8 @@
  * under the License.
  */
 
-$background_console_darker: rgb(104, 145, 162);
+$background_console_darker: #207e33;
+$syncope_default_green: #28a745;
 $background_console_dark: #00a65a;
 $background_console_white: #eee;
 
@@ -64,16 +65,15 @@ body {
 
 .btn {
   &.btn-signin {
-    background-color: $background_console_darker;
-
+    background-color: $syncope_default_green!important;
     &:hover, &:active, &:focus {
-      background-color: $background_console_dark;
+      background-color: $background_console_darker!important;
     }
   }
 
   &.btn-sso {
     &:hover, &:active, &:focus {
-      background-color: $background_console_dark;
+      background-color: $background_console_darker!important;
     }
   }
 }

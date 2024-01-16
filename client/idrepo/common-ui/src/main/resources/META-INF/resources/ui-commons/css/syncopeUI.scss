@@ -23,6 +23,10 @@ pre {
   @include white_space_pre_wrap;
 }
 
+body {
+  font-family: "Source Sans Pro",-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol'!important;
+}
+
 #veil {
   display: none;
   color: #28a745 !important;
@@ -238,6 +242,16 @@ a {
 
 .nav-link {
   color: #28a745;
+  &:hover, &:active, &:focus {
+    color: #146c43;
+  }
+}
+
+.breadcrumb-item>a {
+  color: #28a745;
+  &:hover, &:active, &:focus {
+    color: #146c43!important;
+  }
 }
 
 a:hover, .nav-link:hover {
@@ -416,7 +430,7 @@ td.checkGroupColumn {
 
 .pwstrengthProgress {
   position: absolute;
-  bottom: 0px;
+  margin-top: 4.8%;
   width: 100%;
 }
 
@@ -703,6 +717,24 @@ div.listview-actions a {
 .page-header {
   padding-bottom: 9px;
   border-bottom: 1px solid #dee2e6;
+}
+
+.page-link {
+  color: #28a745;
+  &:hover, &:active, &:focus {
+    color: #28a745!important;
+  }
+}
+
+.active>.page-link,.page-link.active {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: #fff;
+  &:hover, &:active, &:focus {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+  }
 }
 
 span.highlight .attribute label {
@@ -1121,6 +1153,10 @@ h3.card-title {
   float: right;
 }
 
+.card-title {
+  font-weight: bold!important;
+}
+
 /* Form wrappers
 ============================================================================= */
 
@@ -1223,6 +1259,30 @@ select[name=rowsChooser] {
 
 .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
   color: #28a745;
+}
+
+.nav-link > a {
+  #color: #343a40
+}
+
+.bg-green {
+  background-color: #28a745;
+}
+
+.bg-red {
+  background-color: #dc3545!important;
+}
+
+.text-white {
+  color: white;
+}
+
+.elevation-4 {
+  box-shadow: 0 14px 28px rgba(0,0,0,.25),0 10px 10px rgba(0,0,0,.22)!important;
+}
+
+.bg-body-secondary {
+  background-color: #ffffff!important;
 }
 
 @media screen and (max-width: 500px) {
