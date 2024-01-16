@@ -18,11 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
+import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAccessToken;
-import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface AccessTokenRepo
-        extends ListCrudRepository<JPAAccessToken, String>, AccessTokenRepoExt, AccessTokenDAO {
+        extends PagingAndSortingRepository<JPAAccessToken, String>, AccessTokenDAO {
 
+    @Modifying
+    @Query("DELETE FROM JPAAccessToken e WHERE e.expirationTime < ?1")
+    @Override
+    int deleteExpired(OffsetDateTime now);
 }

@@ -71,6 +71,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements GroupRepoExt {
@@ -276,9 +277,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                         true,
                         Set.of(merged.getRealm().getFullPath()),
                         cond,
-                        page,
-                        AnyDAO.DEFAULT_PAGE_SIZE,
-                        List.of(),
+                        PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
                         AnyTypeKind.USER);
 
                 matching.forEach(user -> {
@@ -304,9 +303,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                         true,
                         Set.of(merged.getRealm().getFullPath()),
                         cond,
-                        page,
-                        AnyDAO.DEFAULT_PAGE_SIZE,
-                        List.of(),
+                        PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
                         AnyTypeKind.ANY_OBJECT);
 
                 matching.forEach(any -> {

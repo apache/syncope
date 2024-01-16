@@ -30,20 +30,20 @@ public class ListResponse<R extends SCIMResource> extends SCIMBean {
 
     private final List<String> schemas = List.of(Resource.ListResponse.schema());
 
-    private final int totalResults;
+    private final long totalResults;
 
     @JsonProperty("Resources")
     private final List<R> resources = new ArrayList<>();
 
-    private final int startIndex;
+    private final long startIndex;
 
-    private final int itemsPerPage;
+    private final long itemsPerPage;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public ListResponse(
-            @JsonProperty("totalResults") final int totalResults,
-            @JsonProperty("startIndex") final int startIndex,
-            @JsonProperty("itemsPerPage") final int itemsPerPage) {
+            @JsonProperty("totalResults") final long totalResults,
+            @JsonProperty("startIndex") final long startIndex,
+            @JsonProperty("itemsPerPage") final long itemsPerPage) {
 
         this.totalResults = totalResults;
         this.startIndex = startIndex;
@@ -54,7 +54,7 @@ public class ListResponse<R extends SCIMResource> extends SCIMBean {
         return schemas;
     }
 
-    public int getTotalResults() {
+    public long getTotalResults() {
         return totalResults;
     }
 
@@ -62,11 +62,11 @@ public class ListResponse<R extends SCIMResource> extends SCIMBean {
         return resources;
     }
 
-    public int getStartIndex() {
+    public long getStartIndex() {
         return startIndex;
     }
 
-    public int getItemsPerPage() {
+    public long getItemsPerPage() {
         return itemsPerPage;
     }
 }

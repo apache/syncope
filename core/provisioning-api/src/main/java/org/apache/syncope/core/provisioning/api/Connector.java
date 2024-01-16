@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -41,6 +40,7 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
+import org.springframework.data.domain.Sort;
 
 /**
  * Entry point for making requests on underlying connector bundles.
@@ -238,7 +238,7 @@ public interface Connector {
             SearchResultsHandler handler,
             int pageSize,
             String pagedResultsCookie,
-            List<OrderByClause> orderBy,
+            List<Sort.Order> orderBy,
             OperationOptions options) {
 
         OperationOptionsBuilder builder = new OperationOptionsBuilder().setPageSize(pageSize).setPagedResultsOffset(-1);
@@ -246,7 +246,7 @@ public interface Connector {
             builder.setPagedResultsCookie(pagedResultsCookie);
         }
         builder.setSortKeys(orderBy.stream().
-                map(clause -> new SortKey(clause.getField(), clause.getDirection() == OrderByClause.Direction.ASC)).
+                map(clause -> new SortKey(clause.getProperty(), clause.getDirection() == Sort.Direction.ASC)).
                 collect(Collectors.toList()));
 
         builder.setAttributesToGet(options.getAttributesToGet());

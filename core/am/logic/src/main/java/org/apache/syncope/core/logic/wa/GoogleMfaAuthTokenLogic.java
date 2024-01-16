@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +54,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final LocalDateTime expirationDate) {
-        authProfileDAO.findAll(-1, -1).forEach(profile -> removeTokenAndSave(
+        authProfileDAO.findAll(Pageable.unpaged()).forEach(profile -> removeTokenAndSave(
                 profile, token -> token.getIssueDate().compareTo(expirationDate) >= 0));
     }
 
@@ -73,13 +74,13 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final int otp) {
-        authProfileDAO.findAll(-1, -1).forEach(profile -> removeTokenAndSave(
+        authProfileDAO.findAll(Pageable.unpaged()).forEach(profile -> removeTokenAndSave(
                 profile, token -> token.getOtp() == otp));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void deleteAll() {
-        authProfileDAO.findAll(-1, -1).forEach(profile -> {
+        authProfileDAO.findAll(Pageable.unpaged()).forEach(profile -> {
             profile.setGoogleMfaAuthTokens(List.of());
             authProfileDAO.save(profile);
         });
@@ -111,7 +112,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<GoogleMfaAuthToken> list() {
-        return authProfileDAO.findAll(-1, -1).stream().
+        return authProfileDAO.findAll(Pageable.unpaged()).stream().
                 map(AuthProfile::getGoogleMfaAuthTokens).
                 flatMap(List::stream).
                 collect(Collectors.toList());

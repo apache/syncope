@@ -93,9 +93,7 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
 
     @Override
     public PagedResult<AnyObjectTO> search(final AnyQuery anyQuery) {
-        if (StringUtils.isBlank(anyQuery.getFiql())
-                || -1 == anyQuery.getFiql().indexOf(SpecialAttr.TYPE.toString())) {
-
+        if (StringUtils.isBlank(anyQuery.getFiql()) || -1 == anyQuery.getFiql().indexOf(SpecialAttr.TYPE.toString())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
             sce.getElements().add(SpecialAttr.TYPE.toString() + " is required in the FIQL string");
             throw sce;

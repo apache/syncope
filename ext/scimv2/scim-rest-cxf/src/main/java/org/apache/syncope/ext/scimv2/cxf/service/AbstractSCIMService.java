@@ -26,7 +26,6 @@ import jakarta.ws.rs.core.UriInfo;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -43,7 +42,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
@@ -53,6 +51,9 @@ import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 abstract class AbstractSCIMService<R extends SCIMResource> {
 
@@ -143,10 +144,7 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
     }
 
     @SuppressWarnings("unchecked")
-    protected ListResponse<R> doSearch(
-            final Resource type,
-            final SCIMSearchRequest request) {
-
+    protected ListResponse<R> doSearch(final Resource type, final SCIMSearchRequest request) {
         if (type == null) {
             throw new UnsupportedOperationException();
         }
@@ -163,37 +161,34 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
 
         int itemsPerPage = request.getCount() <= 1 ? AnyDAO.DEFAULT_PAGE_SIZE : request.getCount();
 
-        List<OrderByClause> sort;
+        List<Sort.Order> sort;
         if (request.getSortBy() == null) {
             sort = List.of();
         } else {
-            OrderByClause clause = new OrderByClause();
-            clause.setField(visitor.createAttrCond(request.getSortBy()).getSchema());
-            clause.setDirection(request.getSortOrder() == null || request.getSortOrder() == SortOrder.ascending
-                    ? OrderByClause.Direction.ASC
-                    : OrderByClause.Direction.DESC);
-            sort = List.of(clause);
+            sort = List.of(new Sort.Order(
+                    request.getSortOrder() == null || request.getSortOrder() == SortOrder.ascending
+                    ? Sort.Direction.ASC
+                    : Sort.Direction.DESC,
+                    visitor.createAttrCond(request.getSortBy()).getSchema()));
         }
 
-        Pair<Integer, ? extends List<? extends AnyTO>> result = anyLogic(type).search(
+        Page<? extends AnyTO> result = anyLogic(type).search(
                 StringUtils.isBlank(request.getFilter())
                 ? null
                 : SearchCondConverter.convert(visitor, request.getFilter()),
-                startIndex,
-                itemsPerPage,
-                sort,
+                PageRequest.of(startIndex, itemsPerPage, Sort.by(sort)),
                 SyncopeConstants.ROOT_REALM,
                 true,
                 false);
 
-        if (result.getLeft() > confManager.get().getGeneralConf().getFilterMaxResults()) {
+        if (result.getTotalElements() > confManager.get().getGeneralConf().getFilterMaxResults()) {
             throw new BadRequestException(ErrorType.tooMany, "Too many results found");
         }
 
         ListResponse<R> response = new ListResponse<>(
-                result.getLeft(), startIndex == 1 ? 1 : startIndex - 1, itemsPerPage);
+                result.getTotalElements(), startIndex == 1 ? 1 : startIndex - 1, itemsPerPage);
 
-        result.getRight().forEach(anyTO -> {
+        result.get().forEach(anyTO -> {
             SCIMResource resource = null;
             if (anyTO instanceof UserTO userTO) {
                 resource = binder.toSCIMUser(userTO,

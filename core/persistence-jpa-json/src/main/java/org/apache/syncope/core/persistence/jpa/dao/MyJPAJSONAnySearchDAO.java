@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -46,6 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.springframework.data.domain.Sort;
 
 public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
@@ -137,7 +137,7 @@ public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final SearchSupport svs,
             final OrderBySupport obs,
             final OrderBySupport.Item item,
-            final OrderByClause clause,
+            final Sort.Order clause,
             final PlainSchema schema,
             final String fieldName) {
 

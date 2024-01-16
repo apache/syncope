@@ -49,6 +49,7 @@ import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 public class RealmRepoExtImpl implements RealmRepoExt {
@@ -182,12 +183,7 @@ public class RealmRepoExtImpl implements RealmRepoExt {
     }
 
     @Override
-    public List<Realm> findDescendants(
-            final String base,
-            final String keyword,
-            final int page,
-            final int itemsPerPage) {
-
+    public List<Realm> findDescendants(final String base, final String keyword, final Pageable pageable) {
         List<Object> parameters = new ArrayList<>();
 
         StringBuilder queryString = buildDescendantQuery(base, keyword, parameters);
@@ -198,10 +194,10 @@ public class RealmRepoExtImpl implements RealmRepoExt {
             query.setParameter(i, parameters.get(i - 1));
         }
 
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-        if (itemsPerPage > 0) {
-            query.setMaxResults(itemsPerPage);
+        // page starts from 1, while setFirtResult() starts from 0
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageSize() * (pageable.getPageNumber() - 1));
+            query.setMaxResults(pageable.getPageSize());
         }
 
         return query.getResultList();
@@ -357,7 +353,7 @@ public class RealmRepoExtImpl implements RealmRepoExt {
             return;
         }
 
-        findDescendants(realm.getFullPath(), null, -1, -1).forEach(toBeDeleted -> {
+        findDescendants(realm.getFullPath(), null, Pageable.unpaged()).forEach(toBeDeleted -> {
             roleDAO.findByRealms(toBeDeleted).forEach(role -> role.getRealms().remove(toBeDeleted));
 
             toBeDeleted.setParent(null);

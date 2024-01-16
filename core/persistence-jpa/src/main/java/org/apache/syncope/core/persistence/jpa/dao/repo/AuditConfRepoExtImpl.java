@@ -31,10 +31,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 public class AuditConfRepoExtImpl implements AuditConfRepoExt {
@@ -184,8 +184,6 @@ public class AuditConfRepoExtImpl implements AuditConfRepoExt {
     @Override
     public List<AuditEntry> searchEntries(
             final String entityKey,
-            final int page,
-            final int itemsPerPage,
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
@@ -193,7 +191,7 @@ public class AuditConfRepoExtImpl implements AuditConfRepoExt {
             final AuditElements.Result result,
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final List<OrderByClause> orderBy) {
+            final Pageable pageable) {
 
         List<Object> parameters = new ArrayList<>();
         String queryString = "SELECT " + select()
@@ -207,17 +205,19 @@ public class AuditConfRepoExtImpl implements AuditConfRepoExt {
                         before(before, parameters).
                         after(after, parameters).
                         build();
-        if (!orderBy.isEmpty()) {
-            queryString += " ORDER BY " + orderBy.stream().
-                    map(clause -> clause.getField() + ' ' + clause.getDirection().name()).
+        if (!pageable.getSort().isEmpty()) {
+            queryString += " ORDER BY " + pageable.getSort().stream().
+                    map(clause -> clause.getProperty() + ' ' + clause.getDirection().name()).
                     collect(Collectors.joining(","));
         }
 
         Query query = entityManager.createNativeQuery(queryString);
         fillWithParameters(query, parameters);
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-        if (itemsPerPage >= 0) {
-            query.setMaxResults(itemsPerPage);
+
+        // page starts from 1, while setFirtResult() starts from 0
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageSize() * (pageable.getPageNumber() - 1));
+            query.setMaxResults(pageable.getPageSize());
         }
 
         @SuppressWarnings("unchecked")

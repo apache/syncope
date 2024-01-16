@@ -20,8 +20,9 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
+import org.springframework.data.domain.Pageable;
 
 public interface AuthProfileRepoExt {
 
-    List<AuthProfile> findAll(int page, int itemsPerPage);
+    List<AuthProfile> findAll(Pageable pageable);
 }

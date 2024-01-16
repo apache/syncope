@@ -26,25 +26,23 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.flowable.api.DropdownValueProvider;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 public class PrintersValueProvider implements DropdownValueProvider {
 
     private static final SearchCond PRINTER_COND;
 
-    private static final List<OrderByClause> ORDER_BY;
+    private static final List<Sort.Order> ORDER_BY;
 
     static {
         AnyTypeCond anyTypeCond = new AnyTypeCond();
         anyTypeCond.setAnyTypeKey("PRINTER");
         PRINTER_COND = SearchCond.getLeaf(anyTypeCond);
 
-        OrderByClause orderByNameAsc = new OrderByClause();
-        orderByNameAsc.setField("name");
-        orderByNameAsc.setDirection(OrderByClause.Direction.ASC);
+        Sort.Order orderByNameAsc = new Sort.Order(Sort.Direction.ASC, "name");
         ORDER_BY = List.of(orderByNameAsc);
     }
 

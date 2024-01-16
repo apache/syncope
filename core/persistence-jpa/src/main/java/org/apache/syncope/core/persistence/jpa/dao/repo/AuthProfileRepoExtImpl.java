@@ -23,6 +23,7 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthProfile;
+import org.springframework.data.domain.Pageable;
 
 public class AuthProfileRepoExtImpl implements AuthProfileRepoExt {
 
@@ -33,16 +34,15 @@ public class AuthProfileRepoExtImpl implements AuthProfileRepoExt {
     }
 
     @Override
-    public List<AuthProfile> findAll(final int page, final int itemsPerPage) {
+    public List<AuthProfile> findAll(final Pageable pageable) {
         TypedQuery<AuthProfile> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAAuthProfile.class.getSimpleName() + " e ORDER BY e.owner ASC",
                 AuthProfile.class);
 
         // page starts from 1, while setFirtResult() starts from 0
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-        if (itemsPerPage >= 0) {
-            query.setMaxResults(itemsPerPage);
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageSize() * (pageable.getPageNumber() - 1));
+            query.setMaxResults(pageable.getPageSize());
         }
 
         return query.getResultList();

@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +46,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<GoogleMfaAuthAccount> list() {
-        return authProfileDAO.findAll(-1, -1).
+        return authProfileDAO.findAll(Pageable.unpaged()).
                 stream().
                 map(AuthProfile::getGoogleMfaAuthAccounts).
                 filter(Objects::nonNull).
@@ -63,7 +64,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final long id) {
-        authProfileDAO.findAll(-1, -1).
+        authProfileDAO.findAll(Pageable.unpaged()).
                 stream().
                 filter(Objects::nonNull).
                 filter(profile -> profile.
@@ -84,7 +85,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void deleteAll() {
-        authProfileDAO.findAll(-1, -1).forEach(profile -> {
+        authProfileDAO.findAll(Pageable.unpaged()).forEach(profile -> {
             profile.setGoogleMfaAuthAccounts(List.of());
             authProfileDAO.save(profile);
         });
@@ -126,7 +127,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public GoogleMfaAuthAccount read(final long id) {
-        return authProfileDAO.findAll(-1, -1).
+        return authProfileDAO.findAll(Pageable.unpaged()).
                 stream().
                 map(AuthProfile::getGoogleMfaAuthAccounts).
                 filter(Objects::nonNull).

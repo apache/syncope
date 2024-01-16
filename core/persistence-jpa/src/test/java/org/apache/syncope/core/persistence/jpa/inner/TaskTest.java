@@ -35,7 +35,6 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -47,6 +46,8 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -60,9 +61,6 @@ public class TaskTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private UserDAO userDAO;
 
     @Test
     public void findByName() {
@@ -80,7 +78,8 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void findPaginated() {
-        List<PropagationTask> tasks = taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, 1, 2, List.of());
+        List<PropagationTask> tasks = taskDAO.findAll(
+                TaskType.PROPAGATION, null, null, null, null, PageRequest.of(1, 2));
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
 
@@ -88,7 +87,7 @@ public class TaskTest extends AbstractTest {
             assertNotNull(task);
         }
 
-        tasks = taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, 2, 2, List.of());
+        tasks = taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, PageRequest.of(2, 2));
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
 
@@ -96,7 +95,7 @@ public class TaskTest extends AbstractTest {
             assertNotNull(task);
         }
 
-        tasks = taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, 1000, 2, List.of());
+        tasks = taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, PageRequest.of(1000, 2));
         assertNotNull(tasks);
         assertTrue(tasks.isEmpty());
 
@@ -164,7 +163,7 @@ public class TaskTest extends AbstractTest {
 
         resource = resourceDAO.findById(resource.getKey()).orElseThrow();
         assertFalse(taskDAO.<PropagationTask>findAll(
-                TaskType.PROPAGATION, resource, null, null, null, -1, -1, List.of()).
+                TaskType.PROPAGATION, resource, null, null, null, Pageable.unpaged()).
                 contains(task));
     }
 }

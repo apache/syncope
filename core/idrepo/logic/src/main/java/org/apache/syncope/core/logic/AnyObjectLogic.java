@@ -45,16 +45,18 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -103,9 +105,9 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<Integer, List<AnyObjectTO>> search(
+    public Page<AnyObjectTO> search(
             final SearchCond searchCond,
-            final int page, final int size, final List<OrderByClause> orderBy,
+            final Pageable pageable,
             final String realm,
             final boolean recursive,
             final boolean details) {
@@ -121,15 +123,15 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
                 AuthContextUtils.getAuthorizations().get(AnyEntitlement.SEARCH.getFor(searchCond.hasAnyTypeCond())),
                 realm);
 
-        int count = searchDAO.count(base, recursive, authRealms, searchCond, AnyTypeKind.ANY_OBJECT);
+        long count = searchDAO.count(base, recursive, authRealms, searchCond, AnyTypeKind.ANY_OBJECT);
 
         List<AnyObject> matching = searchDAO.search(
-                base, recursive, authRealms, searchCond, page, size, orderBy, AnyTypeKind.ANY_OBJECT);
+                base, recursive, authRealms, searchCond, pageable, AnyTypeKind.ANY_OBJECT);
         List<AnyObjectTO> result = matching.stream().
                 map(anyObject -> binder.getAnyObjectTO(anyObject, details)).
                 collect(Collectors.toList());
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     public ProvisioningResult<AnyObjectTO> create(final AnyObjectCR createReq, final boolean nullPriorityAsync) {

@@ -48,7 +48,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -61,6 +60,9 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
 public abstract class AbstractAnySearchDAO implements AnySearchDAO {
@@ -184,9 +186,15 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
 
     @Override
     public <T extends Any<?>> List<T> search(
-            final SearchCond cond, final List<OrderByClause> orderBy, final AnyTypeKind kind) {
+            final SearchCond cond, final List<Sort.Order> orderBy, final AnyTypeKind kind) {
 
-        return search(realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, cond, -1, -1, orderBy, kind);
+        return search(
+                realmDAO.getRoot(),
+                true,
+                SyncopeConstants.FULL_ADMIN_REALMS,
+                cond,
+                Pageable.unpaged(Sort.by(orderBy)),
+                kind);
     }
 
     protected abstract <T extends Any<?>> List<T> doSearch(
@@ -194,9 +202,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             boolean recursive,
             Set<String> adminRealms,
             SearchCond searchCondition,
-            int page,
-            int itemsPerPage,
-            List<OrderByClause> orderBy,
+            Pageable pageable,
             AnyTypeKind kind);
 
     protected Pair<PlainSchema, PlainAttrValue> check(final AttrCond cond, final AnyTypeKind kind) {
@@ -352,9 +358,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             final boolean recursive,
             final Set<String> adminRealms,
             final SearchCond cond,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderBy,
+            final Pageable pageable,
             final AnyTypeKind kind) {
 
         if (CollectionUtils.isEmpty(adminRealms)) {
@@ -368,18 +372,24 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             return List.of();
         }
 
-        List<OrderByClause> effectiveOrderBy;
-        if (orderBy.isEmpty()) {
-            OrderByClause keyClause = new OrderByClause();
-            keyClause.setField(kind == AnyTypeKind.USER ? "username" : "name");
-            keyClause.setDirection(OrderByClause.Direction.ASC);
-            effectiveOrderBy = List.of(keyClause);
+        List<Sort.Order> effectiveOrderBy;
+        if (pageable.getSort().isEmpty()) {
+            effectiveOrderBy = List.of(
+                    new Sort.Order(Sort.Direction.ASC, kind == AnyTypeKind.USER ? "username" : "name"));
         } else {
-            effectiveOrderBy = orderBy.stream().
-                    filter(clause -> !ArrayUtils.contains(ORDER_BY_NOT_ALLOWED, clause.getField())).
+            effectiveOrderBy = pageable.getSort().stream().
+                    filter(clause -> !ArrayUtils.contains(ORDER_BY_NOT_ALLOWED, clause.getProperty())).
                     collect(Collectors.toList());
         }
 
-        return doSearch(base, recursive, adminRealms, cond, page, itemsPerPage, effectiveOrderBy, kind);
+        return doSearch(
+                base,
+                recursive,
+                adminRealms,
+                cond,
+                pageable.isUnpaged()
+                ? Pageable.unpaged(Sort.by(effectiveOrderBy))
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(effectiveOrderBy)),
+                kind);
     }
 }

@@ -21,10 +21,11 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
+import org.springframework.data.domain.Pageable;
 
 public interface AuthProfileDAO extends DAO<AuthProfile> {
 
     Optional<? extends AuthProfile> findByOwner(String owner);
 
-    List<AuthProfile> findAll(int page, int itemsPerPage);
+    List<AuthProfile> findAll(Pageable pageable);
 }

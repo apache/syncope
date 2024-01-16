@@ -35,6 +35,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -66,10 +67,10 @@ public class MultitenancyTest extends AbstractTest {
 
     @Test
     public void readRealm() {
-        assertEquals(1, realmDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, -1, -1).size());
+        assertEquals(1, realmDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged()).size());
         assertEquals(
                 realmDAO.getRoot(),
-                realmDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, -1, -1).get(0));
+                realmDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged()).get(0));
     }
 
     @Test

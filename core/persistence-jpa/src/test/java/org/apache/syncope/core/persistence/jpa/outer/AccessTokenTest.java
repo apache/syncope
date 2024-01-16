@@ -23,12 +23,17 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -36,6 +41,53 @@ public class AccessTokenTest extends AbstractTest {
 
     @Autowired
     private AccessTokenDAO accessTokenDAO;
+
+    private void create(final String key, final long minusSeconds) {
+        AccessToken accessToken = entityFactory.newEntity(AccessToken.class);
+        accessToken.setKey(key);
+        accessToken.setBody("pointless body");
+        accessToken.setExpirationTime(OffsetDateTime.now().minusSeconds(minusSeconds));
+        accessToken.setOwner(UUID.randomUUID().toString());
+
+        accessTokenDAO.save(accessToken);
+    }
+
+    @Test
+    public void findAll() {
+        for (long i = 0; i < 5; i++) {
+            create(String.valueOf(6 - i), i);
+        }
+        entityManager.flush();
+
+        assertEquals(5, accessTokenDAO.count());
+
+        Page<? extends AccessToken> page =
+                accessTokenDAO.findAll(PageRequest.of(0, 2, Sort.by("expirationTime").descending()));
+        assertEquals(5, page.getTotalElements());
+        assertEquals(2, page.getNumberOfElements());
+
+        List<? extends AccessToken> list = page.get().collect(Collectors.toList());
+        assertEquals(2, list.size());
+        assertEquals("6", list.get(0).getKey());
+        assertEquals("5", list.get(1).getKey());
+
+        page = accessTokenDAO.findAll(PageRequest.of(1, 2, Sort.by("expirationTime").descending()));
+        assertEquals(5, page.getTotalElements());
+        assertEquals(2, page.getNumberOfElements());
+
+        list = page.get().collect(Collectors.toList());
+        assertEquals(2, list.size());
+        assertEquals("4", list.get(0).getKey());
+        assertEquals("3", list.get(1).getKey());
+
+        page = accessTokenDAO.findAll(PageRequest.of(2, 2, Sort.by("expirationTime").descending()));
+        assertEquals(5, page.getTotalElements());
+        assertEquals(1, page.getNumberOfElements());
+
+        list = page.get().collect(Collectors.toList());
+        assertEquals(1, list.size());
+        assertEquals("2", list.get(0).getKey());
+    }
 
     @Test
     public void crud() {
@@ -54,7 +106,8 @@ public class AccessTokenTest extends AbstractTest {
         assertNotNull(accessToken);
         assertEquals("bellini", accessToken.getOwner());
 
-        accessTokenDAO.deleteExpired();
+        int deleted = accessTokenDAO.deleteExpired(OffsetDateTime.now());
+        assertEquals(1, deleted);
 
         entityManager.flush();
 

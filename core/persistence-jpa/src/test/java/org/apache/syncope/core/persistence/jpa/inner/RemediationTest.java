@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -56,7 +57,7 @@ public class RemediationTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Remediation> remediations = remediationDAO.findAll(null, null, 1, 1, List.of());
+        List<Remediation> remediations = remediationDAO.findAll(null, null, Pageable.unpaged());
         assertTrue(remediations.isEmpty());
     }
 

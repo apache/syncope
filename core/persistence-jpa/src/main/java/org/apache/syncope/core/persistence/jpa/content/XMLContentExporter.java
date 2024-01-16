@@ -80,6 +80,7 @@ import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.support.JdbcUtils;
@@ -365,7 +366,7 @@ public class XMLContentExporter implements ContentExporter {
         if (tableName.equalsIgnoreCase(JPARealm.TABLE)) {
             List<Map<String, String>> realmRows = new ArrayList<>(rows);
             rows.clear();
-            realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, null, -1, -1).
+            realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, null, Pageable.unpaged()).
                     forEach(realm -> realmRows.stream().filter(row -> {
 
                 String id = Optional.ofNullable(row.get("ID")).orElseGet(() -> row.get("id"));

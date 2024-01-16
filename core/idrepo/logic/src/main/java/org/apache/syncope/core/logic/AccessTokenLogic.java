@@ -21,8 +21,6 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
@@ -31,13 +29,14 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> {
@@ -105,17 +104,8 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ACCESS_TOKEN_LIST + "')")
-    public Pair<Long, List<AccessTokenTO>> list(
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses) {
-
-        Long count = accessTokenDAO.count();
-
-        List<AccessTokenTO> result = accessTokenDAO.findAll(page, size, orderByClauses).stream().
-                map(binder::getAccessTokenTO).collect(Collectors.toList());
-
-        return Pair.of(count, result);
+    public Page<AccessTokenTO> list(final Pageable pageable) {
+        return accessTokenDAO.findAll(pageable).map(binder::getAccessTokenTO);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ACCESS_TOKEN_DELETE + "')")

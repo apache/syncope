@@ -80,6 +80,7 @@ import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -486,7 +487,8 @@ public class InboundMatcher {
 
             case "name" -> {
                 if (orgUnit.isIgnoreCaseMatch()) {
-                    result.addAll(realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, connObjectKey, -1, -1));
+                    result.addAll(
+                            realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, connObjectKey, Pageable.unpaged()));
                 } else {
                     result.addAll(realmDAO.findByName(connObjectKey).stream().collect(Collectors.toList()));
                 }

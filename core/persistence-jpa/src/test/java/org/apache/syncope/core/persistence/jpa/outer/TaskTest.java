@@ -45,7 +45,6 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
@@ -62,6 +61,8 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -98,17 +99,13 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void readMultipleOrderBy() {
-        List<OrderByClause> orderByClauses = new ArrayList<>();
-        OrderByClause clause1 = new OrderByClause();
-        clause1.setField("start");
-        OrderByClause clause2 = new OrderByClause();
-        clause2.setField("latestExecStatus");
-        OrderByClause clause3 = new OrderByClause();
-        clause3.setField("connObjectKey");
-        orderByClauses.add(clause1);
-        orderByClauses.add(clause2);
-        orderByClauses.add(clause3);
-        assertFalse(taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, -1, -1, orderByClauses).isEmpty());
+        List<Sort.Order> orderByClauses = new ArrayList<>();
+        orderByClauses.add(new Sort.Order(Sort.DEFAULT_DIRECTION, "start"));
+        orderByClauses.add(new Sort.Order(Sort.DEFAULT_DIRECTION, "latestExecStatus"));
+        orderByClauses.add(new Sort.Order(Sort.DEFAULT_DIRECTION, "connObjectKey"));
+        assertFalse(taskDAO.findAll(
+                TaskType.PROPAGATION, null, null, null, null, Pageable.unpaged(Sort.by(orderByClauses))).
+                isEmpty());
     }
 
     @Test
@@ -136,7 +133,7 @@ public class TaskTest extends AbstractTest {
         entityManager.flush();
 
         assertTrue(taskDAO.<PropagationTask>findAll(
-                TaskType.PROPAGATION, resource, null, null, null, -1, -1, List.of()).
+                TaskType.PROPAGATION, resource, null, null, null, Pageable.unpaged()).
                 contains(task));
     }
 

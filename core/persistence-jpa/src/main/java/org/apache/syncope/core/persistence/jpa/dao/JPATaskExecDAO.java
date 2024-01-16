@@ -26,14 +26,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTaskExec;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
@@ -177,11 +179,11 @@ public class JPATaskExecDAO implements TaskExecDAO {
         return ((Number) query.getSingleResult()).longValue();
     }
 
-    protected String toOrderByStatement(final List<OrderByClause> orderByClauses) {
+    protected String toOrderByStatement(final Stream<Sort.Order> orderByClauses) {
         StringBuilder statement = new StringBuilder();
 
         orderByClauses.forEach(clause -> {
-            String field = clause.getField().trim();
+            String field = clause.getProperty().trim();
             if (ReflectionUtils.findField(AbstractTaskExec.class, field) != null) {
                 statement.append("e.").append(field).append(' ').append(clause.getDirection().name());
             }
@@ -206,12 +208,10 @@ public class JPATaskExecDAO implements TaskExecDAO {
             final Task<?> task,
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderByClauses) {
+            final Pageable pageable) {
 
         StringBuilder queryString = query(new StringBuilder("SELECT e FROM "), task, before, after).
-                append(toOrderByStatement(orderByClauses));
+                append(toOrderByStatement(pageable.getSort().stream()));
 
         Query query = entityManager.createQuery(queryString.toString());
         query.setParameter("task", task);
@@ -223,10 +223,9 @@ public class JPATaskExecDAO implements TaskExecDAO {
         }
 
         // page starts from 1, while setFirtResult() starts from 0
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-        if (itemsPerPage >= 0) {
-            query.setMaxResults(itemsPerPage);
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageSize() * (pageable.getPageNumber() - 1));
+            query.setMaxResults(pageable.getPageSize());
         }
 
         List<Object> result = query.getResultList();

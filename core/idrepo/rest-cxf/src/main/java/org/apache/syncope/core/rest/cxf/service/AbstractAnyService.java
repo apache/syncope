@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -58,6 +57,9 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR extends AnyUR>
         extends AbstractSearchService implements AnyService<TO> {
@@ -123,22 +125,20 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
     @Override
     public PagedResult<TO> search(final AnyQuery anyQuery) {
         String realm = StringUtils.prependIfMissing(anyQuery.getRealm(), SyncopeConstants.ROOT_REALM);
-
         SearchCond searchCond = StringUtils.isBlank(anyQuery.getFiql())
                 ? null
                 : getSearchCond(anyQuery.getFiql(), realm);
-
         try {
-            Pair<Integer, List<TO>> result = getAnyLogic().search(
+            Page<TO> result = getAnyLogic().search(
                     searchCond,
-                    anyQuery.getPage(),
-                    anyQuery.getSize(),
-                    getOrderByClauses(anyQuery.getOrderBy()),
+                    PageRequest.of(
+                            anyQuery.getPage(),
+                            anyQuery.getSize(),
+                            Sort.by(getOrderByClauses(anyQuery.getOrderBy()))),
                     realm,
                     anyQuery.getRecursive(),
                     anyQuery.getDetails());
-
-            return buildPagedResult(result.getRight(), anyQuery.getPage(), anyQuery.getSize(), result.getLeft());
+            return buildPagedResult(result);
         } catch (IllegalArgumentException e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
             sce.getElements().add(anyQuery.getFiql());

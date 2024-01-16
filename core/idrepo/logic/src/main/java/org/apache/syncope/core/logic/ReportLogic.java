@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -46,10 +45,10 @@ import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
@@ -58,6 +57,8 @@ import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -242,23 +243,21 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     @Override
-    public Pair<Long, List<ExecTO>> listExecutions(
+    public Page<ExecTO> listExecutions(
             final String key,
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses) {
+            final Pageable pageable) {
 
         Report report = reportDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Report " + key));
 
         long count = reportExecDAO.count(report, before, after);
 
-        List<ExecTO> result = reportExecDAO.findAll(report, before, after, page, size, orderByClauses).stream().
+        List<ExecTO> result = reportExecDAO.findAll(report, before, after, pageable).stream().
                 map(reportExec -> binder.getExecTO(reportExec)).collect(Collectors.toList());
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")
@@ -291,7 +290,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         List<BatchResponseItem> batchResponseItems = new ArrayList<>();
 
-        reportExecDAO.findAll(report, before, after, -1, -1, List.of()).forEach(exec -> {
+        reportExecDAO.findAll(report, before, after, Pageable.unpaged()).forEach(exec -> {
             BatchResponseItem item = new BatchResponseItem();
             item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(exec.getKey()));
             batchResponseItems.add(item);

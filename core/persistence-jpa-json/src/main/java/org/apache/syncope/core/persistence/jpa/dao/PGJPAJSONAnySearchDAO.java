@@ -49,7 +49,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
@@ -63,6 +62,8 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
@@ -116,7 +117,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final SearchSupport svs,
             final OrderBySupport obs,
             final OrderBySupport.Item item,
-            final OrderByClause clause,
+            final Sort.Order clause,
             final PlainSchema schema,
             final String fieldName) {
 
@@ -135,7 +136,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final SearchSupport svs,
             final OrderBySupport.Item item,
             final String fieldName,
-            final OrderByClause clause) {
+            final Sort.Order clause) {
 
         item.select = svs.table().alias() + '.' + fieldName;
         item.where = StringUtils.EMPTY;
@@ -677,9 +678,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final boolean recursive,
             final Set<String> adminRealms,
             final SearchCond cond,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderBy,
+            final Pageable pageable,
             final AnyTypeKind kind) {
 
         try {
@@ -696,7 +695,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             Pair<StringBuilder, Set<String>> queryInfo = getQuery(effectiveCond, parameters, svs);
 
             // 2. take into account realms and ordering
-            OrderBySupport obs = parseOrderBy(svs, orderBy);
+            OrderBySupport obs = parseOrderBy(svs, pageable.getSort().get());
 
             StringBuilder queryString = new StringBuilder("SELECT ").append(svs.table().alias()).append(".id");
             obs.items.forEach(item -> queryString.append(',').append(item.select));
@@ -713,10 +712,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             Query query = entityManager.createNativeQuery(queryString.toString());
 
             // 4. page starts from 1, while setFirtResult() starts from 0
-            query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-            if (itemsPerPage >= 0) {
-                query.setMaxResults(itemsPerPage);
+            if (pageable.isPaged()) {
+                query.setFirstResult(pageable.getPageSize() * (pageable.getPageNumber() - 1));
+                query.setMaxResults(pageable.getPageSize());
             }
 
             // 5. populate the search query with parameter values

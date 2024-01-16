@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -49,9 +48,9 @@ import org.apache.syncope.core.logic.init.AuditLoader;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
@@ -65,6 +64,8 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
@@ -259,10 +260,8 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_SEARCH + "')")
     @Transactional(readOnly = true)
-    public Pair<Long, List<AuditEntry>> search(
+    public Page<AuditEntry> search(
             final String entityKey,
-            final int page,
-            final int size,
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
@@ -270,12 +269,14 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             final AuditElements.Result result,
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final List<OrderByClause> orderBy) {
+            final Pageable pageable) {
 
         long count = auditConfDAO.countEntries(entityKey, type, category, subcategory, events, result, before, after);
+
         List<AuditEntry> matching = auditConfDAO.searchEntries(
-                entityKey, page, size, type, category, subcategory, events, result, before, after, orderBy);
-        return Pair.of(count, matching);
+                entityKey, type, category, subcategory, events, result, before, after, pageable);
+
+        return new SyncopePage<>(matching, pageable, count);
     }
 
     @PreAuthorize("isAuthenticated()")

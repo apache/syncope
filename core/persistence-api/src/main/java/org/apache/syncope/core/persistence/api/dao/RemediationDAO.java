@@ -20,10 +20,10 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.springframework.data.domain.Pageable;
 
 public interface RemediationDAO extends DAO<Remediation> {
 
@@ -36,7 +36,5 @@ public interface RemediationDAO extends DAO<Remediation> {
     List<Remediation> findAll(
             OffsetDateTime before,
             OffsetDateTime after,
-            int page,
-            int itemsPerPage,
-            List<OrderByClause> orderByClauses);
+            Pageable pageable);
 }

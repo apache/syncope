@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -40,7 +41,6 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -64,6 +64,8 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
@@ -243,7 +245,7 @@ public class JPATaskDAO implements TaskDAO {
     @Transactional(readOnly = true)
     @Override
     public <T extends Task<T>> List<T> findAll(final TaskType type) {
-        return findAll(type, null, null, null, null, -1, -1, List.of());
+        return findAll(type, null, null, null, null, Pageable.unpaged());
     }
 
     protected int setParameter(final List<Object> parameters, final Object parameter) {
@@ -325,7 +327,7 @@ public class JPATaskDAO implements TaskDAO {
             String realmKeysArg = AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.TASK_LIST).stream().
                     map(realmDAO::findByFullPath).
                     filter(Optional::isPresent).
-                    flatMap(r -> realmDAO.findDescendants(r.get().getFullPath(), null, -1, -1).stream()).
+                    flatMap(r -> realmDAO.findDescendants(r.get().getFullPath(), null, Pageable.unpaged()).stream()).
                     map(Realm::getKey).
                     distinct().
                     map(realmKey -> "?" + setParameter(parameters, realmKey)).
@@ -339,7 +341,7 @@ public class JPATaskDAO implements TaskDAO {
 
     protected String toOrderByStatement(
             final Class<? extends Task<?>> beanClass,
-            final List<OrderByClause> orderByClauses) {
+            final Stream<Sort.Order> orderByClauses) {
 
         StringBuilder statement = new StringBuilder();
 
@@ -347,7 +349,7 @@ public class JPATaskDAO implements TaskDAO {
 
         StringBuilder subStatement = new StringBuilder();
         orderByClauses.forEach(clause -> {
-            String field = clause.getField().trim();
+            String field = clause.getProperty().trim();
             switch (field) {
                 case "latestExecStatus":
                     field = "status";
@@ -393,17 +395,15 @@ public class JPATaskDAO implements TaskDAO {
             final Notification notification,
             final AnyTypeKind anyTypeKind,
             final String entityKey,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderByClauses) {
+            final Pageable pageable) {
 
         List<Object> parameters = new ArrayList<>();
 
-        boolean orderByTaskExecInfo = orderByClauses.stream().
-                anyMatch(clause -> clause.getField().equals("start")
-                || clause.getField().equals("end")
-                || clause.getField().equals("latestExecStatus")
-                || clause.getField().equals("status"));
+        boolean orderByTaskExecInfo = pageable.getSort().stream().
+                anyMatch(clause -> clause.getProperty().equals("start")
+                || clause.getProperty().equals("end")
+                || clause.getProperty().equals("latestExecStatus")
+                || clause.getProperty().equals("status"));
 
         StringBuilder queryString = buildFindAllQuery(
                 type,
@@ -434,7 +434,8 @@ public class JPATaskDAO implements TaskDAO {
             queryString.insert(0, "SELECT T.id FROM (").append(") T");
         }
 
-        queryString.append(toOrderByStatement(taskUtilsFactory.getInstance(type).getTaskEntity(), orderByClauses));
+        queryString.append(toOrderByStatement(
+                taskUtilsFactory.getInstance(type).getTaskEntity(), pageable.getSort().get()));
 
         Query query = entityManager.createNativeQuery(queryString.toString());
 
@@ -442,10 +443,10 @@ public class JPATaskDAO implements TaskDAO {
             query.setParameter(i, parameters.get(i - 1));
         }
 
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-        if (itemsPerPage > 0) {
-            query.setMaxResults(itemsPerPage);
+        // page starts from 1, while setFirtResult() starts from 0
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageSize() * (pageable.getPageNumber() - 1));
+            query.setMaxResults(pageable.getPageSize());
         }
 
         List<T> result = new ArrayList<>();
@@ -525,7 +526,7 @@ public class JPATaskDAO implements TaskDAO {
 
     @Override
     public void deleteAll(final ExternalResource resource, final TaskType type) {
-        findAll(type, resource, null, null, null, -1, -1, List.of()).
+        findAll(type, resource, null, null, null, Pageable.unpaged()).
                 stream().map(Task<?>::getKey).forEach(key -> delete(type, key));
     }
 

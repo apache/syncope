@@ -26,6 +26,7 @@ import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
@@ -42,9 +43,10 @@ import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 
 public abstract class AbstractService implements JAXRSService {
 
@@ -174,28 +176,35 @@ public abstract class AbstractService implements JAXRSService {
         }
     }
 
-    protected List<OrderByClause> getOrderByClauses(final String orderBy) {
+    protected List<Sort.Order> getOrderByClauses(final String orderBy) {
         if (StringUtils.isBlank(orderBy)) {
             return List.of();
         }
 
-        List<OrderByClause> result = new ArrayList<>();
+        List<Sort.Order> result = new ArrayList<>();
 
         for (String clause : orderBy.split(",")) {
             String[] elems = clause.trim().split(" ");
 
             if (elems.length > 0 && StringUtils.isNotBlank(elems[0])) {
-                OrderByClause obc = new OrderByClause();
-                obc.setField(elems[0].trim());
+                Sort.Direction direction = Sort.DEFAULT_DIRECTION;
                 if (elems.length > 1 && StringUtils.isNotBlank(elems[1])) {
-                    obc.setDirection(elems[1].trim().equalsIgnoreCase(OrderByClause.Direction.ASC.name())
-                            ? OrderByClause.Direction.ASC : OrderByClause.Direction.DESC);
+                    direction = elems[1].trim().equalsIgnoreCase(Sort.Direction.ASC.name())
+                            ? Sort.Direction.ASC : Sort.Direction.DESC;
                 }
-                result.add(obc);
+                result.add(new Sort.Order(direction, elems[0].trim()));
             }
         }
 
         return result;
+    }
+
+    protected <T extends BaseBean> PagedResult<T> buildPagedResult(final Page<T> page) {
+        return buildPagedResult(
+                page.get().collect(Collectors.toList()),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements());
     }
 
     /**

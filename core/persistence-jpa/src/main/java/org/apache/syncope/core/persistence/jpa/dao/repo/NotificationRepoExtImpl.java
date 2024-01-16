@@ -19,12 +19,12 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import java.util.List;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
+import org.springframework.data.domain.Pageable;
 
 public class NotificationRepoExtImpl implements NotificationRepoExt {
 
@@ -51,7 +51,7 @@ public class NotificationRepoExtImpl implements NotificationRepoExt {
         }
 
         taskDAO.findAll(
-                TaskType.NOTIFICATION, null, notification, null, null, -1, -1, List.of()).
+                TaskType.NOTIFICATION, null, notification, null, null, Pageable.unpaged()).
                 stream().map(Task::getKey).forEach(taskDAO::deleteById);
 
         entityManager.remove(notification);

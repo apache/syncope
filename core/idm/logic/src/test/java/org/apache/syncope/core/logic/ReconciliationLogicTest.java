@@ -32,7 +32,6 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -43,6 +42,8 @@ import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -85,8 +86,8 @@ public class ReconciliationLogicTest extends AbstractTest {
 
     @Test
     public void pushToCSV() throws IOException {
-        Pair<Integer, List<UserTO>> search = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN,
-                () -> userLogic.search(null, 1, 100, List.of(), SyncopeConstants.ROOT_REALM, true, false));
+        Page<UserTO> search = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN,
+                () -> userLogic.search(null, PageRequest.of(1, 100), SyncopeConstants.ROOT_REALM, true, false));
         assertNotNull(search);
 
         CSVPushSpec spec = new CSVPushSpec.Builder(AnyTypeKind.USER.name()).ignorePaging(true).
@@ -103,8 +104,8 @@ public class ReconciliationLogicTest extends AbstractTest {
 
         List<ProvisioningReport> results = AuthContextUtils.callAsAdmin(
                 SyncopeConstants.MASTER_DOMAIN,
-                () -> reconciliationLogic.push(null, 1, 1, List.of(), SyncopeConstants.ROOT_REALM, spec, os));
-        assertEquals(search.getLeft(), results.size());
+                () -> reconciliationLogic.push(null, PageRequest.of(1, 1), SyncopeConstants.ROOT_REALM, spec, os));
+        assertEquals(search.getTotalElements(), results.size());
 
         MappingIterator<Map<String, String>> reader =
                 new CsvMapper().readerFor(Map.class).with(CsvSchema.emptySchema().withHeader()).readValues(in);
@@ -113,28 +114,28 @@ public class ReconciliationLogicTest extends AbstractTest {
             Map<String, String> row = reader.next();
 
             assertEquals(results.get(i).getName(), row.get("username"));
-            assertEquals(search.getRight().stream().filter(user -> row.get("username").equals(user.getUsername())).
+            assertEquals(search.get().filter(user -> row.get("username").equals(user.getUsername())).
                     findFirst().get().getStatus(),
                     row.get("status"));
 
             switch (row.get("username")) {
-                case "rossini":
+                case "rossini" -> {
                     assertEquals(spec.getNullValue(), row.get("email"));
                     assertTrue(row.get("loginDate").contains(spec.getArrayElementSeparator()));
-                    break;
+                }
 
-                case "verdi":
+                case "verdi" -> {
                     assertEquals("verdi@syncope.org", row.get("email"));
                     assertEquals(spec.getNullValue(), row.get("loginDate"));
-                    break;
+                }
 
-                case "bellini":
+                case "bellini" -> {
                     assertEquals(spec.getNullValue(), row.get("email"));
                     assertFalse(row.get("loginDate").contains(spec.getArrayElementSeparator()));
-                    break;
+                }
 
-                default:
-                    break;
+                default -> {
+                }
             }
         }
     }

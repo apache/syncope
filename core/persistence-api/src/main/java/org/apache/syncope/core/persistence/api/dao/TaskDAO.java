@@ -25,7 +25,6 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -35,6 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
+import org.springframework.data.domain.Pageable;
 
 public interface TaskDAO extends DAO<Task<?>> {
 
@@ -64,9 +64,7 @@ public interface TaskDAO extends DAO<Task<?>> {
             Notification notification,
             AnyTypeKind anyTypeKind,
             String entityKey,
-            int page,
-            int itemsPerPage,
-            List<OrderByClause> orderByClauses);
+            Pageable pageable);
 
     long count(
             TaskType type,

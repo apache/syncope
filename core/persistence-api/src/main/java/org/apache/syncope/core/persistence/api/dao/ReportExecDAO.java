@@ -20,9 +20,9 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import org.springframework.data.domain.Pageable;
 
 public interface ReportExecDAO extends DAO<ReportExec> {
 
@@ -38,7 +38,5 @@ public interface ReportExecDAO extends DAO<ReportExec> {
             Report report,
             OffsetDateTime before,
             OffsetDateTime after,
-            int page,
-            int itemsPerPage,
-            List<OrderByClause> orderByClauses);
+            Pageable pageable);
 }

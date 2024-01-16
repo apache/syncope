@@ -46,6 +46,7 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -195,7 +196,7 @@ public class ResourceTest extends AbstractTest {
 
         // Get tasks
         List<PropagationTask> propagationTasks = taskDAO.findAll(
-                TaskType.PROPAGATION, resource, null, null, null, -1, -1, List.of());
+                TaskType.PROPAGATION, resource, null, null, null, Pageable.unpaged());
         assertFalse(propagationTasks.isEmpty());
 
         // delete resource

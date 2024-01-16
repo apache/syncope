@@ -25,6 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.springframework.data.domain.Pageable;
 
 public interface RealmDAO extends DAO<Realm> {
 
@@ -42,7 +43,7 @@ public interface RealmDAO extends DAO<Realm> {
 
     long countDescendants(String base, String keyword);
 
-    List<Realm> findDescendants(String base, String keyword, int page, int itemsPerPage);
+    List<Realm> findDescendants(String base, String keyword, Pageable pageable);
 
     List<String> findDescendants(String base, String prefix);
 

@@ -59,7 +59,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -68,6 +67,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
@@ -78,6 +78,8 @@ import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -160,9 +162,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
-    public Pair<Integer, List<UserTO>> search(
+    public Page<UserTO> search(
             final SearchCond searchCond,
-            final int page, final int size, final List<OrderByClause> orderBy,
+            final Pageable pageable,
             final String realm,
             final boolean recursive,
             final boolean details) {
@@ -175,15 +177,15 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         SearchCond effectiveCond = searchCond == null ? userDAO.getAllMatchingCond() : searchCond;
 
-        int count = searchDAO.count(base, recursive, authRealms, effectiveCond, AnyTypeKind.USER);
+        long count = searchDAO.count(base, recursive, authRealms, effectiveCond, AnyTypeKind.USER);
 
         List<User> matching = searchDAO.search(
-                base, recursive, authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.USER);
+                base, recursive, authRealms, effectiveCond, pageable, AnyTypeKind.USER);
         List<UserTO> result = matching.stream().
                 map(user -> binder.getUserTO(user, details)).
                 collect(Collectors.toList());
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")

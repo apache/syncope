@@ -28,7 +28,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -52,7 +51,6 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
@@ -63,6 +61,7 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
@@ -78,6 +77,8 @@ import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -201,15 +202,13 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")
     @Transactional(readOnly = true)
-    public <T extends TaskTO> Pair<Long, List<T>> search(
+    public <T extends TaskTO> Page<T> search(
             final TaskType type,
             final String resource,
             final String notification,
             final AnyTypeKind anyTypeKind,
             final String entityKey,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses,
+            final Pageable pageable,
             final boolean details) {
 
         try {
@@ -240,13 +239,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     notificationObj,
                     anyTypeKind,
                     entityKey,
-                    page,
-                    size,
-                    orderByClauses).stream().
+                    pageable).stream().
                     <T>map(task -> binder.getTaskTO(task, taskUtilsFactory.getInstance(type), details)).
                     collect(Collectors.toList());
 
-            return Pair.of(count, result);
+            return new SyncopePage<>(result, pageable, count);
         } catch (IllegalArgumentException | InvalidDataAccessApiUsageException e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
             sce.getElements().add(e.getMessage());
@@ -393,13 +390,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
     @Override
-    public Pair<Long, List<ExecTO>> listExecutions(
+    public Page<ExecTO> listExecutions(
             final String key,
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses) {
+            final Pageable pageable) {
 
         Task<?> task = taskDAO.findById(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
@@ -409,10 +404,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         long count = taskExecDAO.count(task, before, after);
 
-        List<ExecTO> result = taskExecDAO.findAll(task, before, after, page, size, orderByClauses).stream().
+        List<ExecTO> result = taskExecDAO.findAll(task, before, after, pageable).stream().
                 map(exec -> binder.getExecTO(exec)).collect(Collectors.toList());
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")
@@ -461,7 +456,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         List<BatchResponseItem> batchResponseItems = new ArrayList<>();
 
-        taskExecDAO.findAll(task, before, after, -1, -1, List.of()).forEach(exec -> {
+        taskExecDAO.findAll(task, before, after, Pageable.unpaged()).forEach(exec -> {
             BatchResponseItem item = new BatchResponseItem();
             item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(exec.getKey()));
             batchResponseItems.add(item);

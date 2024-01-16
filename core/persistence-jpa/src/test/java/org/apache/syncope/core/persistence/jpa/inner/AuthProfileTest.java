@@ -40,6 +40,7 @@ import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -62,7 +63,7 @@ public class AuthProfileTest extends AbstractTest {
         Optional<? extends AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
 
-        assertFalse(authProfileDAO.findAll(-1, -1).isEmpty());
+        assertFalse(authProfileDAO.findAll(Pageable.unpaged()).isEmpty());
 
         AuthProfile authProfile = result.get();
         result = authProfileDAO.findById(authProfile.getKey());
@@ -99,7 +100,7 @@ public class AuthProfileTest extends AbstractTest {
         Optional<? extends AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
 
-        assertFalse(authProfileDAO.findAll(-1, -1).isEmpty());
+        assertFalse(authProfileDAO.findAll(Pageable.unpaged()).isEmpty());
 
         AuthProfile authProfile = result.get();
         result = authProfileDAO.findById(authProfile.getKey());
@@ -121,7 +122,7 @@ public class AuthProfileTest extends AbstractTest {
         Optional<? extends AuthProfile> result = authProfileDAO.findByOwner(id);
         assertTrue(result.isPresent());
 
-        assertFalse(authProfileDAO.findAll(-1, -1).isEmpty());
+        assertFalse(authProfileDAO.findAll(Pageable.unpaged()).isEmpty());
 
         AuthProfile authProfile = result.get();
         result = authProfileDAO.findById(authProfile.getKey());

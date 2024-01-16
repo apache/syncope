@@ -37,15 +37,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
 public class AuditConfRepoExtElasticsearchImpl implements AuditConfRepoExt {
@@ -156,9 +158,9 @@ public class AuditConfRepoExtElasticsearchImpl implements AuditConfRepoExt {
         }
     }
 
-    protected List<SortOptions> sortBuilders(final List<OrderByClause> orderBy) {
-        return orderBy.stream().map(clause -> {
-            String sortField = clause.getField();
+    protected List<SortOptions> sortBuilders(final Stream<Sort.Order> orderBy) {
+        return orderBy.map(clause -> {
+            String sortField = clause.getProperty();
             if ("EVENT_DATE".equalsIgnoreCase(sortField)) {
                 sortField = "message.date";
             }
@@ -166,8 +168,7 @@ public class AuditConfRepoExtElasticsearchImpl implements AuditConfRepoExt {
             return new SortOptions.Builder().field(
                     new FieldSort.Builder().
                             field(sortField).
-                            order(clause.getDirection() == OrderByClause.Direction.ASC
-                                    ? SortOrder.Asc : SortOrder.Desc).
+                            order(clause.getDirection() == Sort.Direction.ASC ? SortOrder.Asc : SortOrder.Desc).
                             build()).
                     build();
         }).collect(Collectors.toList());
@@ -176,8 +177,6 @@ public class AuditConfRepoExtElasticsearchImpl implements AuditConfRepoExt {
     @Override
     public List<AuditEntry> searchEntries(
             final String entityKey,
-            final int page,
-            final int itemsPerPage,
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
@@ -185,16 +184,16 @@ public class AuditConfRepoExtElasticsearchImpl implements AuditConfRepoExt {
             final AuditElements.Result result,
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final List<OrderByClause> orderBy) {
+            final Pageable pageable) {
 
         SearchRequest request = new SearchRequest.Builder().
                 index(ElasticsearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(getQuery(entityKey, type, category, subcategory, events, result, before, after)).
                 fields(f -> f.field("message")).
-                from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
-                size(itemsPerPage < 0 ? indexMaxResultWindow : itemsPerPage).
-                sort(sortBuilders(orderBy)).
+                from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * (pageable.getPageNumber() - 1)).
+                size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
+                sort(sortBuilders(pageable.getSort().get())).
                 build();
 
         List<Hit<ObjectNode>> esResult = null;

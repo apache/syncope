@@ -20,8 +20,6 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import jakarta.ws.rs.core.Response;
 import java.time.OffsetDateTime;
-import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -33,6 +31,9 @@ import org.apache.syncope.common.rest.api.service.RemediationService;
 import org.apache.syncope.core.logic.RemediationLogic;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -52,13 +53,14 @@ public class RemediationServiceImpl extends AbstractService implements Remediati
 
     @Override
     public PagedResult<RemediationTO> list(final RemediationQuery query) {
-        Pair<Long, List<RemediationTO>> result = logic.list(
+        Page<RemediationTO> result = logic.list(
                 query.getBefore(),
                 query.getAfter(),
-                query.getPage(),
-                query.getSize(),
-                getOrderByClauses(query.getOrderBy()));
-        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
+                PageRequest.of(
+                        query.getPage(),
+                        query.getSize(),
+                        Sort.by(getOrderByClauses(query.getOrderBy()))));
+        return buildPagedResult(result);
     }
 
     @Override

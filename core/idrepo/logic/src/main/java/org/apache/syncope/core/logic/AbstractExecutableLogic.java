@@ -20,15 +20,15 @@ package org.apache.syncope.core.logic;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 public abstract class AbstractExecutableLogic<T extends EntityTO> extends AbstractJobLogic<T> {
@@ -43,13 +43,11 @@ public abstract class AbstractExecutableLogic<T extends EntityTO> extends Abstra
 
     public abstract ExecTO execute(String key, OffsetDateTime startAt, boolean dryRun);
 
-    public abstract Pair<Long, List<ExecTO>> listExecutions(
+    public abstract Page<ExecTO> listExecutions(
             String key,
             OffsetDateTime before,
             OffsetDateTime after,
-            int page,
-            int size,
-            List<OrderByClause> orderByClauses);
+            Pageable pageable);
 
     public abstract List<ExecTO> listRecentExecutions(int max);
 

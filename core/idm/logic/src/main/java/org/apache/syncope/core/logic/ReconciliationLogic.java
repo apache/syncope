@@ -62,7 +62,6 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -106,6 +105,8 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.quartz.JobExecutionException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -580,9 +581,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     public List<ProvisioningReport> push(
             final SearchCond searchCond,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderBy,
+            final Pageable pageable,
             final String realm,
             final CSVPushSpec spec,
             final OutputStream os) {
@@ -617,16 +616,17 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         if (spec.getIgnorePaging()) {
             matching = new ArrayList<>();
 
-            int count = anySearchDAO.count(base, true, adminRealms, effectiveCond, anyType.getKind());
-            int pages = (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
+            long count = anySearchDAO.count(base, true, adminRealms, effectiveCond, anyType.getKind());
+            long pages = (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
             for (int p = 1; p <= pages; p++) {
-                matching.addAll(anySearchDAO.search(base, true, adminRealms, effectiveCond,
-                        p, AnyDAO.DEFAULT_PAGE_SIZE, orderBy, anyType.getKind()));
+                matching.addAll(anySearchDAO.search(
+                        base, true, adminRealms, effectiveCond,
+                        PageRequest.of(p, AnyDAO.DEFAULT_PAGE_SIZE, pageable.getSort()),
+                        anyType.getKind()));
             }
         } else {
-            matching = anySearchDAO.search(
-                    base, true, adminRealms, effectiveCond, page, size, orderBy, anyType.getKind());
+            matching = anySearchDAO.search(base, true, adminRealms, effectiveCond, pageable, anyType.getKind());
         }
 
         List<String> columns = new ArrayList<>();

@@ -20,14 +20,16 @@ package org.apache.syncope.core.logic;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,14 +71,14 @@ public class AuthProfileLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_LIST + "')")
     @Transactional(readOnly = true)
-    public Pair<Long, List<AuthProfileTO>> list(final int page, final int size) {
+    public Page<AuthProfileTO> list(final Pageable pageable) {
         long count = authProfileDAO.count();
 
-        List<AuthProfileTO> result = authProfileDAO.findAll(page, size).
+        List<AuthProfileTO> result = authProfileDAO.findAll(pageable).
                 stream().
                 map(binder::getAuthProfileTO).
                 collect(Collectors.toList());
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 }

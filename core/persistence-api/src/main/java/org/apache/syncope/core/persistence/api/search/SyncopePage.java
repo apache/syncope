@@ -16,51 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao.search;
+package org.apache.syncope.core.persistence.api.search;
 
-import java.io.Serializable;
-import java.util.Optional;
+import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
-public class OrderByClause implements Serializable {
+public class SyncopePage<T> extends PageImpl<T> {
 
-    private static final long serialVersionUID = -1741826744085524716L;
+    private static final long serialVersionUID = 3590869979849219972L;
 
-    public enum Direction {
+    private final long total;
 
-        ASC,
-        DESC
-
-    }
-
-    private String field;
-
-    private Direction direction;
-
-    public String getField() {
-        return field;
-    }
-
-    public void setField(final String field) {
-        this.field = field;
-    }
-
-    public Direction getDirection() {
-        return Optional.ofNullable(direction).orElse(Direction.ASC);
-    }
-
-    public void setDirection(final Direction direction) {
-        this.direction = direction;
+    public SyncopePage(final List<T> content, final Pageable pageable, final long total) {
+        super(content, pageable, total);
+        this.total = total;
     }
 
     @Override
-    public int hashCode() {
-        return new HashCodeBuilder().
-                append(field).
-                append(direction).
-                build();
+    public long getTotalElements() {
+        return total;
+    }
+
+    @Override
+    public int getTotalPages() {
+        return getSize() == 0 ? 1 : (int) Math.ceil(total / (double) getSize());
     }
 
     @Override
@@ -74,18 +56,19 @@ public class OrderByClause implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final OrderByClause other = (OrderByClause) obj;
+        @SuppressWarnings("unchecked")
+        SyncopePage<T> other = (SyncopePage<T>) obj;
         return new EqualsBuilder().
-                append(field, other.field).
-                append(direction, other.direction).
+                appendSuper(super.equals(obj)).
+                append(total, total).
                 build();
     }
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this).
-                append(field).
-                append(direction).
+    public int hashCode() {
+        return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
+                append(total).
                 build();
     }
 }

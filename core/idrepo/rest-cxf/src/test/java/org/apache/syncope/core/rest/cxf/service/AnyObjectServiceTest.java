@@ -22,8 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -40,10 +38,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
@@ -76,11 +73,13 @@ import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.rest.cxf.AddETagFilter;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -130,7 +129,7 @@ public class AnyObjectServiceTest {
 
             AnyObjectLogic logic = mock(AnyObjectLogic.class);
             when(logic.search(
-                    any(SearchCond.class), anyInt(), anyInt(), anyList(), anyString(), anyBoolean(), anyBoolean())).
+                    any(SearchCond.class), any(Pageable.class), anyString(), anyBoolean(), anyBoolean())).
                     thenAnswer(ic -> {
                         AnyObjectTO printer1 = new AnyObjectTO();
                         printer1.setKey(UUID.randomUUID().toString());
@@ -144,7 +143,7 @@ public class AnyObjectServiceTest {
                         printer2.setType("PRINTER");
                         printer2.getPlainAttrs().add(new Attr.Builder("location").value("there").build());
 
-                        return Pair.of(2, Arrays.asList(printer1, printer2));
+                        return new SyncopePage<>(List.of(printer1, printer2), ic.getArgument(1), 2);
                     });
             when(logic.create(any(AnyObjectCR.class), anyBoolean())).thenAnswer(ic -> {
                 AnyObjectTO anyObjectTO = new AnyObjectTO();
@@ -191,10 +190,10 @@ public class AnyObjectServiceTest {
                     AnyObjectService.class,
                     new SingletonResourceProvider(service, true));
 
-            sf.setInInterceptors(Arrays.asList(gzipInInterceptor, validationInInterceptor));
-            sf.setOutInterceptors(Arrays.asList(gzipOutInterceptor));
+            sf.setInInterceptors(List.of(gzipInInterceptor, validationInInterceptor));
+            sf.setOutInterceptors(List.of(gzipOutInterceptor));
 
-            sf.setProviders(Arrays.asList(dateParamConverterProvider, jsonProvider, xmlProvider, yamlProvider,
+            sf.setProviders(List.of(dateParamConverterProvider, jsonProvider, xmlProvider, yamlProvider,
                     exceptionMapper, searchContextProvider, addETagFilter));
 
             SERVER = sf.create();
@@ -204,7 +203,7 @@ public class AnyObjectServiceTest {
     }
 
     private WebClient client(final MediaType mediaType) {
-        WebClient client = WebClient.create(LOCAL_ADDRESS, Arrays.asList(
+        WebClient client = WebClient.create(LOCAL_ADDRESS, List.of(
                 dateParamConverterProvider, jsonProvider, xmlProvider, yamlProvider));
         WebClient.getConfig(client).getRequestContext().put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
         return client.accept(mediaType).type(mediaType).path("anyObjects");

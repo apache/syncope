@@ -24,10 +24,12 @@ import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import java.util.stream.Stream;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReportExec;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.ReflectionUtils;
 
 public class ReportExecRepoExtImpl implements ReportExecRepoExt {
@@ -108,15 +110,15 @@ public class ReportExecRepoExtImpl implements ReportExecRepoExt {
         return ((Number) query.getSingleResult()).intValue();
     }
 
-    protected String toOrderByStatement(final List<OrderByClause> orderByClauses) {
+    protected String toOrderByStatement(final Stream<Sort.Order> orderByClauses) {
         StringBuilder statement = new StringBuilder();
 
-        for (OrderByClause clause : orderByClauses) {
-            String field = clause.getField().trim();
+        orderByClauses.forEach(clause -> {
+            String field = clause.getProperty().trim();
             if (ReflectionUtils.findField(JPAReportExec.class, field) != null) {
                 statement.append("e.").append(field).append(' ').append(clause.getDirection().name());
             }
-        }
+        });
 
         if (statement.length() == 0) {
             statement.append(" ORDER BY e.id DESC");
@@ -131,12 +133,10 @@ public class ReportExecRepoExtImpl implements ReportExecRepoExt {
             final Report report,
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderByClauses) {
+            final Pageable pageable) {
 
         StringBuilder queryString = query(new StringBuilder("SELECT e FROM "), before, after).
-                append(toOrderByStatement(orderByClauses));
+                append(toOrderByStatement(pageable.getSort().stream()));
 
         TypedQuery<ReportExec> query = entityManager.createQuery(queryString.toString(), ReportExec.class);
         query.setParameter("report", report);
@@ -148,10 +148,9 @@ public class ReportExecRepoExtImpl implements ReportExecRepoExt {
         }
 
         // page starts from 1, while setFirtResult() starts from 0
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-        if (itemsPerPage >= 0) {
-            query.setMaxResults(itemsPerPage);
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageSize() * (pageable.getPageNumber() - 1));
+            query.setMaxResults(pageable.getPageSize());
         }
 
         return query.getResultList();

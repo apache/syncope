@@ -37,7 +37,6 @@ import org.apache.syncope.core.flowable.api.BpmnProcessManager;
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -47,6 +46,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,12 +83,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<UserRequest>> listRequests(
-            final String userKey,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses) {
-
+    public Page<UserRequest> listRequests(final String userKey, final Pageable pageable) {
         if (userKey == null) {
             securityChecks(null,
                     FlowableEntitlement.USER_REQUEST_LIST,
@@ -101,7 +97,7 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
                     "Listing requests for user" + user.getUsername() + " not allowed");
         }
 
-        return userRequestHandler.getUserRequests(userKey, page, size, orderByClauses);
+        return userRequestHandler.getUserRequests(userKey, pageable);
     }
 
     protected UserRequest doStart(
@@ -198,15 +194,10 @@ public class UserRequestLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<UserRequestForm>> listForms(
-            final String userKey,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses) {
-
+    public Page<UserRequestForm> listForms(final String userKey, final Pageable pageable) {
         evaluateKey(userKey);
 
-        return userRequestHandler.getForms(userKey, page, size, orderByClauses);
+        return userRequestHandler.getForms(userKey, pageable);
     }
 
     @PreAuthorize("isAuthenticated()")

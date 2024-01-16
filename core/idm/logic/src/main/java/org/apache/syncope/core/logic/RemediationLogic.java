@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
@@ -38,9 +37,11 @@ import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.data.RemediationDataBinder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,19 +73,17 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_LIST + "')")
     @Transactional(readOnly = true)
-    public Pair<Long, List<RemediationTO>> list(
+    public Page<RemediationTO> list(
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses) {
+            final Pageable pageable) {
 
         long count = remediationDAO.count(before, after);
 
-        List<RemediationTO> result = remediationDAO.findAll(before, after, page, size, orderByClauses).stream().
+        List<RemediationTO> result = remediationDAO.findAll(before, after, pageable).stream().
                 map(binder::getRemediationTO).collect(Collectors.toList());
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_READ + "')")

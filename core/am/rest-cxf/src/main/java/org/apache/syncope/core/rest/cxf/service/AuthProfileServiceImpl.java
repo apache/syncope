@@ -20,13 +20,13 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
-import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.core.logic.AuthProfileLogic;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -64,7 +64,7 @@ public class AuthProfileServiceImpl extends AbstractService implements AuthProfi
 
     @Override
     public PagedResult<AuthProfileTO> list(final int page, final int size) {
-        Pair<Long, List<AuthProfileTO>> result = logic.list(page, size);
-        return buildPagedResult(result.getRight(), page, size, result.getLeft());
+        Page<AuthProfileTO> result = logic.list(PageRequest.of(page < 1 ? 1 : page, size < 1 ? 1 : size));
+        return buildPagedResult(result);
     }
 }

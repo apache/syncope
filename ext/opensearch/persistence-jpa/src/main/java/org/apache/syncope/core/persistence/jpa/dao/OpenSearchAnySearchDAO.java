@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -45,7 +46,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
@@ -77,6 +77,8 @@ import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
 import org.opensearch.client.opensearch.core.CountRequest;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.search.Hit;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -226,10 +228,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         }
     }
 
-    protected List<SortOptions> sortBuilders(
-            final AnyTypeKind kind,
-            final List<OrderByClause> orderBy) {
-
+    protected List<SortOptions> sortBuilders(final AnyTypeKind kind, final Stream<Sort.Order> orderBy) {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
         List<SortOptions> options = new ArrayList<>();
@@ -237,7 +236,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
             String sortName = null;
 
             // Manage difference among external key attribute and internal JPA @Id
-            String fieldName = "key".equals(clause.getField()) ? "id" : clause.getField();
+            String fieldName = "key".equals(clause.getProperty()) ? "id" : clause.getProperty();
 
             Field anyField = anyUtils.getField(fieldName);
             if (anyField == null) {
@@ -255,8 +254,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 options.add(new SortOptions.Builder().field(
                         new FieldSort.Builder().
                                 field(sortName).
-                                order(clause.getDirection() == OrderByClause.Direction.ASC
-                                        ? SortOrder.Asc : SortOrder.Desc).
+                                order(clause.getDirection() == Sort.Direction.ASC ? SortOrder.Asc : SortOrder.Desc).
                                 build()).
                         build());
             }
@@ -270,18 +268,16 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
             final boolean recursive,
             final Set<String> adminRealms,
             final SearchCond cond,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderBy,
+            final Pageable pageable,
             final AnyTypeKind kind) {
 
         SearchRequest request = new SearchRequest.Builder().
                 index(OpenSearchUtils.getAnyIndex(AuthContextUtils.getDomain(), kind)).
                 searchType(SearchType.QueryThenFetch).
                 query(getQuery(base, recursive, adminRealms, cond, kind)).
-                from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
-                size(itemsPerPage < 0 ? indexMaxResultWindow : itemsPerPage).
-                sort(sortBuilders(kind, orderBy)).
+                from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * (pageable.getPageNumber() - 1)).
+                size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
+                sort(sortBuilders(kind, pageable.getSort().get())).
                 build();
         LOG.debug("Search JSON request: {}", request);
 

@@ -22,7 +22,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.springframework.data.domain.Pageable;
 
 public interface AuditConfRepoExt {
 
@@ -38,8 +38,6 @@ public interface AuditConfRepoExt {
 
     List<AuditEntry> searchEntries(
             String entityKey,
-            int page,
-            int itemsPerPage,
             AuditElements.EventCategoryType type,
             String category,
             String subcategory,
@@ -47,5 +45,5 @@ public interface AuditConfRepoExt {
             AuditElements.Result result,
             OffsetDateTime before,
             OffsetDateTime after,
-            List<OrderByClause> orderBy);
+            Pageable pageable);
 }

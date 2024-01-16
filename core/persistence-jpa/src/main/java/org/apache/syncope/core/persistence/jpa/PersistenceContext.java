@@ -102,8 +102,6 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAPolicyDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPATaskDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPATaskExecDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepoExtImpl;
@@ -475,17 +473,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AccessTokenRepoExt accessTokenRepoExt(final EntityManager entityManager) {
-        return new AccessTokenRepoExtImpl(entityManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public AccessTokenDAO accessTokenDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final AccessTokenRepoExt accessTokenRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(AccessTokenRepo.class, accessTokenRepoExt);
+    public AccessTokenDAO accessTokenDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(AccessTokenRepo.class);
     }
 
     @ConditionalOnMissingBean

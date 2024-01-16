@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.command.CommandOutput;
 import org.apache.syncope.common.lib.command.CommandTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.beans.CommandQuery;
 import org.apache.syncope.common.rest.api.service.CommandService;
 import org.apache.syncope.core.logic.CommandLogic;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,8 +40,8 @@ public class CommandServiceImpl extends AbstractService implements CommandServic
     @Override
     public PagedResult<CommandTO> search(final CommandQuery query) {
         String keyword = query.getKeyword() == null ? null : query.getKeyword().replace('*', '%');
-        Pair<Long, List<CommandTO>> result = logic.search(query.getPage(), query.getSize(), keyword);
-        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
+        Page<CommandTO> result = logic.search(keyword, PageRequest.of(query.getPage(), query.getSize()));
+        return buildPagedResult(result);
     }
 
     @Override

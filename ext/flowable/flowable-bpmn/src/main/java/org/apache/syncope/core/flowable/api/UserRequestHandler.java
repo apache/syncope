@@ -18,18 +18,18 @@
  */
 package org.apache.syncope.core.flowable.api;
 
-import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 public interface UserRequestHandler {
@@ -38,13 +38,10 @@ public interface UserRequestHandler {
      * Get the running user requests matching the provided parameters.
      *
      * @param userKey user key (optional)
-     * @param page result page
-     * @param size items per page
-     * @param orderByClauses sort conditions
+     * @param pageable paging information
      * @return total number of user requests, list of user requests matching the provided parameters
      */
-    Pair<Integer, List<UserRequest>> getUserRequests(
-            String userKey, int page, int size, List<OrderByClause> orderByClauses);
+    Page<UserRequest> getUserRequests(String userKey, Pageable pageable);
 
     /**
      * Starts a new user request, for the given BPMN process and user.
@@ -100,13 +97,10 @@ public interface UserRequestHandler {
      * Get the forms matching the provided parameters.
      *
      * @param userKey user key (optional)
-     * @param page result page
-     * @param size items per page
-     * @param orderByClauses sort conditions
+     * @param pageable paging information
      * @return total number of forms, list of forms matching the provided parameters
      */
-    Pair<Integer, List<UserRequestForm>> getForms(
-            String userKey, int page, int size, List<OrderByClause> orderByClauses);
+    Page<UserRequestForm> getForms(String userKey, Pageable pageable);
 
     /**
      * Claim a form for a given object.

@@ -77,7 +77,7 @@ public abstract class AbstractQuery implements Serializable {
     @Parameter(name = JAXRSService.PARAM_PAGE, description = "page", schema =
             @Schema(minimum = "1", implementation = Integer.class, defaultValue = "1"))
     public Integer getPage() {
-        return page;
+        return page < 1 ? 1 : page;
     }
 
     @Min(1)
@@ -90,7 +90,7 @@ public abstract class AbstractQuery implements Serializable {
     @Parameter(name = JAXRSService.PARAM_SIZE, description = "items per page", schema =
             @Schema(minimum = "1", implementation = Integer.class, defaultValue = "25"))
     public Integer getSize() {
-        return size;
+        return size < 1 ? 1 : size;
     }
 
     @Min(1)

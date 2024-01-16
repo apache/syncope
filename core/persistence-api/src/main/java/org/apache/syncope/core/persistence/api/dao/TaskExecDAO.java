@@ -22,9 +22,9 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.springframework.data.domain.Pageable;
 
 public interface TaskExecDAO extends DAO<TaskExec<?>> {
 
@@ -42,9 +42,7 @@ public interface TaskExecDAO extends DAO<TaskExec<?>> {
             Task<?> task,
             OffsetDateTime before,
             OffsetDateTime after,
-            int page,
-            int itemsPerPage,
-            List<OrderByClause> orderByClauses);
+            Pageable pageable);
 
     <T extends Task<T>> void saveAndAdd(TaskType type, String taskKey, TaskExec<T> execution);
 

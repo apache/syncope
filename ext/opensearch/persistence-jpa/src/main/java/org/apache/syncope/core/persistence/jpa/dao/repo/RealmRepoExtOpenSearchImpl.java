@@ -43,6 +43,7 @@ import org.opensearch.client.opensearch.core.CountRequest;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.search.Hit;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
@@ -192,18 +193,13 @@ public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
     }
 
     @Override
-    public List<Realm> findDescendants(
-            final String base,
-            final String keyword,
-            final int page,
-            final int itemsPerPage) {
-
+    public List<Realm> findDescendants(final String base, final String keyword, final Pageable pageable) {
         SearchRequest request = new SearchRequest.Builder().
                 index(OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(buildDescendantQuery(base, keyword)).
-                from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
-                size(itemsPerPage < 0 ? indexMaxResultWindow : itemsPerPage).
+                from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * (pageable.getPageNumber() - 1)).
+                size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
                 sort(ES_SORT_OPTIONS_REALM).
                 build();
 

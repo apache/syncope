@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.Bus;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.http.DestinationRegistry;
@@ -53,6 +52,9 @@ import org.apache.syncope.core.rest.cxf.batch.BatchProcess;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.task.VirtualThreadPoolTaskExecutor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -87,9 +89,11 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
     public PagedResult<GroupTO> searchAssignableGroups(
             final String realm, final String term, final int page, final int size) {
 
-        Pair<Integer, List<GroupTO>> result = logic.searchAssignableGroups(
-                StringUtils.prependIfMissing(realm, SyncopeConstants.ROOT_REALM), term, page, size);
-        return buildPagedResult(result.getRight(), page, size, result.getLeft());
+        Page<GroupTO> result = logic.searchAssignableGroups(
+                StringUtils.prependIfMissing(realm, SyncopeConstants.ROOT_REALM),
+                term,
+                PageRequest.of(page < 1 ? 1 : page, size < 1 ? 1 : size, Sort.by(Sort.Direction.ASC, "name")));
+        return buildPagedResult(result);
     }
 
     @Override

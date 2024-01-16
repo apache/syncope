@@ -29,6 +29,7 @@ import org.apache.syncope.core.logic.api.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +44,7 @@ public class TestCommand implements Command<TestCommandArgs> {
     private AnyObjectLogic anyObjectLogic;
 
     private Optional<RealmTO> getRealm(final String fullPath) {
-        return realmLogic.search(null, fullPath, -1, -1).getRight().stream().
+        return realmLogic.search(null, fullPath, Pageable.unpaged()).get().
                 filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
     }
 

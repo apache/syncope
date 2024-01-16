@@ -44,10 +44,10 @@ import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -73,6 +73,9 @@ import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -147,21 +150,16 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<Integer, List<UserRequest>> getUserRequests(
-            final String userKey,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses) {
-
+    public Page<UserRequest> getUserRequests(final String userKey, final Pageable pageable) {
         StringBuilder query = createProcessInstanceQuery(userKey);
         Integer count = countProcessInstances(query);
 
-        if (!orderByClauses.isEmpty()) {
+        if (!pageable.getSort().isEmpty()) {
             query.append(" ORDER BY");
 
-            for (OrderByClause clause : orderByClauses) {
+            for (Sort.Order clause : pageable.getSort()) {
                 boolean sorted = true;
-                switch (clause.getField().trim()) {
+                switch (clause.getProperty().trim()) {
                     case "bpmnProcess" ->
                         query.append(" PROC_DEF_ID_");
 
@@ -172,12 +170,12 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                         query.append(" PROC_INST_ID_");
 
                     default -> {
-                        LOG.warn("User request sort request by {}: unsupported, ignoring", clause.getField().trim());
+                        LOG.warn("User request sort request by {}: unsupported, ignoring", clause.getProperty().trim());
                         sorted = false;
                     }
                 }
                 if (sorted) {
-                    if (clause.getDirection() == OrderByClause.Direction.ASC) {
+                    if (clause.getDirection() == Sort.Direction.ASC) {
                         query.append(" ASC,");
                     } else {
                         query.append(" DESC,");
@@ -189,12 +187,13 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         }
 
         List<UserRequest> result = engine.getRuntimeService().createNativeProcessInstanceQuery().
-                sql(query.toString()).
-                listPage(size * (page <= 0 ? 0 : page - 1), size).stream().
+                sql(query.toString()).listPage(
+                pageable.getPageSize() * (pageable.getPageNumber() <= 0 ? 0 : pageable.getPageNumber() - 1),
+                pageable.getPageSize()).stream().
                 map(this::getUserRequest).
                 collect(Collectors.toList());
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     protected User lazyLoad(final User user) {
@@ -481,12 +480,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<Integer, List<UserRequestForm>> getForms(
-            final String userKey,
-            final int page,
-            final int size,
-            final List<OrderByClause> ob) {
-
+    public Page<UserRequestForm> getForms(final String userKey, final Pageable pageable) {
         TaskQuery query = engine.getTaskService().createTaskQuery().taskWithFormKey();
         if (userKey != null) {
             query.processInstanceBusinessKeyLike(FlowableRuntimeUtils.getProcBusinessKey("%", userKey));
@@ -494,16 +488,14 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         String authUser = AuthContextUtils.getUsername();
         return adminUser.equals(authUser)
-                ? getForms(query, page, size, ob)
-                : getForms(query.or().taskCandidateUser(authUser).taskAssignee(authUser).endOr(), page, size, ob);
+                ? getForms(query, pageable)
+                : getForms(query.or().taskCandidateUser(authUser).taskAssignee(authUser).endOr(), pageable);
     }
 
-    protected Pair<Integer, List<UserRequestForm>> getForms(
-            final TaskQuery query, final int page, final int size, final List<OrderByClause> orderByClauses) {
-
-        for (OrderByClause clause : orderByClauses) {
+    protected Page<UserRequestForm> getForms(final TaskQuery query, final Pageable pageable) {
+        for (Sort.Order clause : pageable.getSort()) {
             boolean sorted = true;
-            switch (clause.getField().trim()) {
+            switch (clause.getProperty().trim()) {
                 case "bpmnProcess":
                     query.orderByProcessDefinitionId();
                     break;
@@ -529,11 +521,11 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                     break;
 
                 default:
-                    LOG.warn("Form sort request by {}: unsupported, ignoring", clause.getField().trim());
+                    LOG.warn("Form sort request by {}: unsupported, ignoring", clause.getProperty().trim());
                     sorted = false;
             }
             if (sorted) {
-                if (clause.getDirection() == OrderByClause.Direction.ASC) {
+                if (clause.getDirection() == Sort.Direction.ASC) {
                     query.asc();
                 } else {
                     query.desc();
@@ -541,13 +533,15 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             }
         }
 
-        List<UserRequestForm> result = query.listPage(size * (page <= 0 ? 0 : page - 1), size).stream().
+        List<UserRequestForm> result = query.listPage(
+                pageable.getPageSize() * (pageable.getPageNumber() <= 0 ? 0 : pageable.getPageNumber() - 1),
+                pageable.getPageSize()).stream().
                 map(task -> task instanceof HistoricTaskInstance
                 ? FlowableUserRequestHandler.this.getForm((HistoricTaskInstance) task)
                 : FlowableUserRequestHandler.this.getForm(task)).
                 collect(Collectors.toList());
 
-        return Pair.of((int) query.count(), result);
+        return new SyncopePage<>(result, pageable, query.count());
     }
 
     protected Pair<Task, TaskFormData> parseTask(final String taskId) {

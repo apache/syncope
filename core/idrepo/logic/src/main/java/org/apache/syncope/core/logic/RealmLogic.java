@@ -46,6 +46,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -54,6 +55,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,11 +104,10 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public Pair<Long, List<RealmTO>> search(
+    public Page<RealmTO> search(
             final String keyword,
             final String base,
-            final int page,
-            final int size) {
+            final Pageable pageable) {
 
         Realm baseRealm = base == null
                 ? realmDAO.getRoot()
@@ -113,16 +115,15 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         long count = realmDAO.countDescendants(baseRealm.getFullPath(), keyword);
 
-        List<Realm> result = realmDAO.findDescendants(baseRealm.getFullPath(), keyword, page, size);
-
-        return Pair.of(
-                count,
-                result.stream().map(realm -> binder.getRealmTO(
+        List<RealmTO> result = realmDAO.findDescendants(baseRealm.getFullPath(), keyword, pageable).stream().
+                map(realm -> binder.getRealmTO(
                 realm,
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_SEARCH).stream().
                         anyMatch(auth -> realm.getFullPath().startsWith(auth)))).
-                        sorted(Comparator.comparing(RealmTO::getFullPath)).
-                        collect(Collectors.toList()));
+                sorted(Comparator.comparing(RealmTO::getFullPath)).
+                collect(Collectors.toList());
+
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REALM_CREATE + "')")

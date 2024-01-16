@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -92,7 +93,7 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Realm> list = realmDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, -1, -1);
+        List<Realm> list = realmDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged());
         assertNotNull(list);
         assertFalse(list.isEmpty());
         list.forEach(Assertions::assertNotNull);

@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +46,7 @@ public class WebAuthnRegistrationLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<WebAuthnAccount> list() {
-        return authProfileDAO.findAll(-1, -1).stream().
+        return authProfileDAO.findAll(Pageable.unpaged()).stream().
                 map(profile -> new WebAuthnAccount.Builder().
                 credentials(profile.getWebAuthnDeviceCredentials()).build()).
                 collect(Collectors.toList());

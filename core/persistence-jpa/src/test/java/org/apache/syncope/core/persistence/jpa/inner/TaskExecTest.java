@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -56,7 +57,7 @@ public class TaskExecTest extends AbstractTest {
 
         OffsetDateTime startedBefore = OffsetDateTime.of(2015, 12, 18, 0, 0, 0, 0, FormatUtils.DEFAULT_OFFSET);
 
-        List<TaskExec<?>> execs = taskExecDAO.findAll(task, startedBefore, null, -1, -1, List.of());
+        List<TaskExec<?>> execs = taskExecDAO.findAll(task, startedBefore, null, Pageable.unpaged());
         assertNotNull(execs);
         assertEquals(1, execs.size());
     }

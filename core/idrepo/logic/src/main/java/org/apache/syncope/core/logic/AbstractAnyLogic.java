@@ -36,12 +36,13 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.logic.api.LogicActions;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends AnyUR>
         extends AbstractResourceAssociator<TO> {
@@ -212,9 +213,9 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     public abstract TO read(String key);
 
-    public abstract Pair<Integer, List<TO>> search(
+    public abstract Page<TO> search(
             SearchCond searchCond,
-            int page, int size, List<OrderByClause> orderBy,
+            Pageable pageable,
             String realm,
             boolean recursive,
             boolean details);

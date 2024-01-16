@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -56,7 +57,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
@@ -72,6 +72,8 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 /**
  * Search engine implementation for users, groups and any objects, based on self-updating SQL views.
@@ -231,9 +233,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final boolean recursive,
             final Set<String> adminRealms,
             final SearchCond cond,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderBy,
+            final Pageable pageable,
             final AnyTypeKind kind) {
 
         try {
@@ -253,7 +253,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             LOG.debug("Query: {}, parameters: {}", queryString, parameters);
 
             // 2. take into account realms and ordering
-            OrderBySupport obs = parseOrderBy(svs, orderBy);
+            OrderBySupport obs = parseOrderBy(svs, pageable.getSort().get());
             if (queryString.charAt(0) == '(') {
                 queryString.insert(0, buildSelect(obs));
             } else {
@@ -271,10 +271,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             Query query = entityManager.createNativeQuery(queryString.toString());
 
             // 4. page starts from 1, while setFirtResult() starts from 0
-            query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-            if (itemsPerPage >= 0) {
-                query.setMaxResults(itemsPerPage);
+            if (pageable.isPaged()) {
+                query.setFirstResult(pageable.getPageSize() * (pageable.getPageNumber() - 1));
+                query.setMaxResults(pageable.getPageSize());
             }
 
             // 5. populate the search query with parameter values
@@ -298,8 +297,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     protected void fillWithParameters(final Query query, final List<Object> parameters) {
         for (int i = 0; i < parameters.size(); i++) {
-            if (parameters.get(i) instanceof Boolean) {
-                query.setParameter(i + 1, ((Boolean) parameters.get(i)) ? 1 : 0);
+            if (parameters.get(i) instanceof Boolean aBoolean) {
+                query.setParameter(i + 1, aBoolean ? 1 : 0);
             } else {
                 query.setParameter(i + 1, parameters.get(i));
             }
@@ -433,7 +432,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final SearchSupport svs,
             final OrderBySupport obs,
             final OrderBySupport.Item item,
-            final OrderByClause clause,
+            final Sort.Order clause,
             final PlainSchema schema,
             final String fieldName) {
 
@@ -468,7 +467,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final SearchSupport svs,
             final OrderBySupport.Item item,
             final String fieldName,
-            final OrderByClause clause) {
+            final Sort.Order clause) {
 
         item.select = svs.field().alias() + '.' + fieldName;
         item.where = StringUtils.EMPTY;
@@ -477,7 +476,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     protected void parseOrderByForCustom(
             final SearchSupport svs,
-            final OrderByClause clause,
+            final Sort.Order clause,
             final OrderBySupport.Item item,
             final OrderBySupport obs) {
 
@@ -486,7 +485,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     protected OrderBySupport parseOrderBy(
             final SearchSupport svs,
-            final List<OrderByClause> orderBy) {
+            final Stream<Sort.Order> orderBy) {
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(svs.anyTypeKind);
 
@@ -500,8 +499,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             parseOrderByForCustom(svs, clause, item, obs);
 
             if (item.isEmpty()) {
-                if (anyUtils.getField(clause.getField()) == null) {
-                    Optional<? extends PlainSchema> schema = plainSchemaDAO.findById(clause.getField());
+                if (anyUtils.getField(clause.getProperty()) == null) {
+                    Optional<? extends PlainSchema> schema = plainSchemaDAO.findById(clause.getProperty());
                     if (schema.isPresent()) {
                         if (schema.get().isUniqueConstraint()) {
                             orderByUniquePlainSchemas.add(schema.get().getKey());
@@ -516,11 +515,11 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                                     ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas));
                             throw invalidSearch;
                         }
-                        parseOrderByForPlainSchema(svs, obs, item, clause, schema.get(), clause.getField());
+                        parseOrderByForPlainSchema(svs, obs, item, clause, schema.get(), clause.getProperty());
                     }
                 } else {
                     // Manage difference among external key attribute and internal JPA @Id
-                    String fieldName = "key".equals(clause.getField()) ? "id" : clause.getField();
+                    String fieldName = "key".equals(clause.getProperty()) ? "id" : clause.getProperty();
 
                     // Adjust field name to column name
                     if (ArrayUtils.contains(RELATIONSHIP_FIELDS, fieldName)) {
@@ -996,20 +995,17 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             switch (cond.getType()) {
 
-                case ISNULL:
+                case ISNULL ->
                     query.append(column).append(not
                             ? " IS NOT NULL"
                             : " IS NULL");
-                    break;
 
-                case ISNOTNULL:
+                case ISNOTNULL ->
                     query.append(column).append(not
                             ? " IS NULL"
                             : " IS NOT NULL");
-                    break;
 
-                case ILIKE:
-                case LIKE:
+                case ILIKE, LIKE -> {
                     if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
                         query.append(column);
                         if (not) {
@@ -1033,10 +1029,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         query.append(" 1=2");
                         LOG.error("LIKE is only compatible with string or enum schemas");
                     }
-                    break;
-
-                case IEQ:
-                case EQ:
+                }
+                case IEQ, EQ -> {
                     query.append(column);
                     if (not) {
                         query.append("<>");
@@ -1049,9 +1043,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     } else {
                         query.append('?').append(setParameter(parameters, attrValue.getValue()));
                     }
-                    break;
+                }
 
-                case GE:
+                case GE -> {
                     query.append(column);
                     if (not) {
                         query.append('<');
@@ -1059,9 +1053,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         query.append(">=");
                     }
                     query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                    break;
-
-                case GT:
+                }
+                case GT -> {
                     query.append(column);
                     if (not) {
                         query.append("<=");
@@ -1069,9 +1062,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         query.append('>');
                     }
                     query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                    break;
+                }
 
-                case LE:
+                case LE -> {
                     query.append(column);
                     if (not) {
                         query.append('>');
@@ -1079,9 +1072,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         query.append("<=");
                     }
                     query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                    break;
+                }
 
-                case LT:
+                case LT -> {
                     query.append(column);
                     if (not) {
                         query.append(">=");
@@ -1089,9 +1082,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         query.append('<');
                     }
                     query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                    break;
+                }
 
-                default:
+                default -> {
+                }
             }
         }
     }

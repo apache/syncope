@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -41,7 +40,6 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -55,6 +53,8 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -136,7 +136,7 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(
                 realmDAO.getRoot(), true,
                 Set.of(SyncopeConstants.ROOT_REALM),
-                SearchCond.getLeaf(anyCond), 1, 100, Collections.emptyList(), AnyTypeKind.USER);
+                SearchCond.getLeaf(anyCond), PageRequest.of(1, 100), AnyTypeKind.USER);
         assertNotNull(users);
         assertTrue(users.stream().anyMatch(user -> rossini.getKey().equals(user.getKey())));
 
@@ -144,7 +144,7 @@ public class AnySearchTest extends AbstractTest {
         users = searchDAO.search(
                 group.getRealm(), true,
                 Set.of(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())),
-                SearchCond.getLeaf(anyCond), 1, 100, Collections.emptyList(), AnyTypeKind.USER);
+                SearchCond.getLeaf(anyCond), PageRequest.of(1, 100), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals(rossini.getKey(), users.get(0).getKey());
@@ -180,15 +180,9 @@ public class AnySearchTest extends AbstractTest {
         SearchCond searchCondition = SearchCond.getOr(
                 SearchCond.getLeaf(usernameLeafCond), SearchCond.getLeaf(idRightCond));
 
-        List<OrderByClause> orderByClauses = new ArrayList<>();
-        OrderByClause orderByClause = new OrderByClause();
-        orderByClause.setField("surname");
-        orderByClause.setDirection(OrderByClause.Direction.DESC);
-        orderByClauses.add(orderByClause);
-        orderByClause = new OrderByClause();
-        orderByClause.setField("firstname");
-        orderByClause.setDirection(OrderByClause.Direction.ASC);
-        orderByClauses.add(orderByClause);
+        List<Sort.Order> orderByClauses = new ArrayList<>();
+        orderByClauses.add(new Sort.Order(Sort.Direction.DESC, "surname"));
+        orderByClauses.add(new Sort.Order(Sort.Direction.ASC, "firstname"));
 
         try {
             searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);

@@ -60,6 +60,8 @@ import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> implements SyncopePushExecutor {
 
@@ -203,7 +205,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
 
             // Never push the root realm
             List<Realm> realms = realmDAO.findDescendants(
-                    profile.getTask().getSourceRealm().getFullPath(), null, -1, -1).stream().
+                    profile.getTask().getSourceRealm().getFullPath(), null, Pageable.unpaged()).stream().
                     filter(realm -> realm.getParent() != null).collect(Collectors.toList());
             boolean result = true;
             for (int i = 0; i < realms.size() && result; i++) {
@@ -267,9 +269,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
                         true,
                         Set.of(profile.getTask().getSourceRealm().getFullPath()),
                         cond,
-                        page,
-                        AnyDAO.DEFAULT_PAGE_SIZE,
-                        List.of(),
+                        PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
                         anyType.getKind());
                 result = doHandle(anys, dispatcher, pushTask.getResource());
             }
