@@ -275,6 +275,7 @@ under the License.
               <jvmArguments>
                 -Djavax.net.ssl.trustStore=${basedir}/../../../fit/wa-reference/src/test/resources/keystore.jks -Djavax.net.ssl.trustStorePassword=password
                 -Dwicket.core.settings.general.configuration-type=development
+                -XX:+AllowEnhancedClassRedefinition -XX:HotswapAgent=fatjar
                 -Xdebug -Xrunjdwp:transport=dt_socket,address=8004,server=y,suspend=n
               </jvmArguments>
               <profiles>
