@@ -73,7 +73,6 @@ under the License.
       div.toggle-menu div.header {
         background-color: rgba(0, 0, 0, 0);
         position: relative;
-        font-size: 1.5em;
         padding-bottom: 5px;
         border-bottom: 1px solid #aaa;
       }
@@ -118,10 +117,10 @@ under the License.
           <div class="copy-clipboard-feedback" style="display: none"> 
             <wicket:message key="copy_to_clipboard.feedback"/>
           </div>
-          <label wicket:id="label" class="label-with-key" onclick="doCopyToClipboard(this)"/>
+          <label wicket:id="label" class="form-label label-with-key" onclick="doCopyToClipboard(this)"/>
 
         </div>
-        <div class="close card-tools">
+        <div class="close btn-close card-tools">
           <a wicket:id="close" href="#"><i class="fas fa-times"></i></a>
         </div>
       </div>

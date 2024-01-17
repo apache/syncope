@@ -34,8 +34,8 @@ under the License.
     <span wicket:id="feedback"></span>
 
     <script id="errorTemplate" type="text/x-kendo-template">
-      <div class="alert alert-danger alert-dismissible" style="margin-bottom: 0px; min-width: 370px">
-      <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+      <div class="alert bg-danger alert-dismissible" style="margin-bottom: 0px; min-width: 370px">
+      <button aria-hidden="true" data-bs-dismiss="alert" class="close btn-close" type="button">×</button>
       <h4><i class="icon fa fa-ban"></i> <wicket:message key="error"/>!</h4>
       #= message #     
       </div>
@@ -43,7 +43,7 @@ under the License.
     
     <script id="warningTemplate" type="text/x-kendo-template">
       <div class="alert alert-warning alert-dismissible" style="margin-bottom: 0px; min-width: 370px">
-      <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+      <button aria-hidden="true" data-bs-dismiss="alert" class="close btn-close" type="button">×</button>
       <h4><i class="icon fa fa-exclamation-triangle"></i> <wicket:message key="warning"/>!</h4>
       #= message #     
       </div>
@@ -51,7 +51,7 @@ under the License.
 
     <script id="successTemplate" type="text/x-kendo-template">
       <div class="alert alert-success alert-dismissible" style="margin-bottom: 0px; min-width: 370px">
-      <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+      <button aria-hidden="true" data-bs-dismiss="alert" class="close btn-close" type="button">×</button>
       <h4><i class="icon fa fa-check"></i> <wicket:message key="success"/>!</h4>
       #= message #
       </div>
@@ -59,7 +59,7 @@ under the License.
 
     <script id="infoTemplate" type="text/x-kendo-template">
       <div class="alert alert-info alert-dismissible" style="margin-bottom: 0px; min-width: 370px">
-      <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
+      <button aria-hidden="true" data-bs-dismiss="alert" class="close btn-close" type="button">×</button>
       <h4><i class="icon fa fa-info-circle"></i> <wicket:message key="information"/></h4>
       #= message #
       </div>

@@ -1,0 +1,106 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+<wicket:panel>
+    <div class="card card-gray mb-4">
+        <div class="card-header">
+            <h3 class="card-title">
+                <wicket:message key="system.info"/>
+            </h3>
+        </div>
+        <div class="card-body mt-3">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="row ms-2 me-2">
+                        <div class="info-box col-12 bg-gray">
+                            <span class="info-box-icon"><i class="fas fa-code-branch"></i></span>
+
+                            <div class="info-box-content">
+                                <span class="info-box-text"><wicket:message key="version"/></span>
+                                <span class="info-box-number" wicket:id="version" style="text-decoration: underline;"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row ms-2 me-2">
+                        <div class="info-box col-12 bg-info">
+                            <span class="info-box-icon"><i class="fas fa-network-wired"></i></span>
+
+                            <div class="info-box-content">
+                                <span class="info-box-text"><wicket:message key="hostname"/></span>
+                                <span class="info-box-number" wicket:id="hostname"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row ms-2 me-2">
+                        <div class="info-box col-12 text-bg-success">
+                            <span class="info-box-icon"><i class="fas fa-microchip"></i></span>
+
+                            <div class="info-box-content">
+                                <span class="info-box-text"><wicket:message key="processors"/></span>
+                                <span class="info-box-number" wicket:id="processors"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row ms-2 me-2">
+                        <div class="info-box col-12 text-bg-warning">
+                            <span class="info-box-icon"><i class="fas fa-desktop"></i></span>
+
+                            <div class="info-box-content">
+                                <span class="info-box-text"><wicket:message key="os"/></span>
+                                <span class="info-box-number" wicket:id="os"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row ms-2 me-2">
+                        <div class="info-box col-12 bg-primary">
+                            <span class="info-box-icon"><i class="fab fa-java"></i></span>
+
+                            <div class="info-box-content">
+                                <span class="info-box-text"><wicket:message key="jvm"/></span>
+                                <span class="info-box-number" wicket:id="jvm"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="ms-2 me-2">
+                        <wicket:message key="exportConfiguration"/>
+                    </h5>
+                    <hr class="mb-2 ms-2 me-2"/>
+
+                    <div class="row ms-2 me-2">
+                        <div class="info-box col-12 text-bg-danger">
+                            <span class="info-box-icon"><i class="fa fa-download"></i></span>
+
+                            <div class="info-box-content">
+                <span class="info-box-text col-3">
+                  <label><wicket:message key="tableThreshold"/></label>
+                  <input type="text" class="form-control" wicket:id="tableThreshold"/>
+                  <a wicket:id="dbExportLink"><wicket:message key="download"/></a>
+                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</wicket:panel>
+</html>

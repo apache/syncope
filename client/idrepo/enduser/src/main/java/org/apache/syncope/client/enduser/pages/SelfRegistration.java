@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-public class SelfRegistration extends BasePage {
+public class SelfRegistration extends BaseNoSidebarPage {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -43,7 +43,7 @@ public class SelfRegistration extends BasePage {
         super(parameters, SELF_REGISTRATION);
 
         setDomain(parameters);
-        disableSidebar();
+        disableSidebarAndNavbar();
 
         WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);

@@ -20,7 +20,7 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
     <form wicket:id="form">
-      <div class="input-group margin-bottom">
+      <div class="input-group mb-3">
         <span wicket:id="filter">[FILTER]</span>
         <span class="input-group-btn">
           <button type="button" class="btn btn-default btn-flat" wicket:id="search">
@@ -30,7 +30,7 @@ under the License.
       </div>
     </form>
     <wicket:enclosure child="field-label">
-      <div><label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/></div>
+      <div><label class="form-label" wicket:id="field-label">[LABEL]</label><span wicket:id="required"/></div>
       <span wicket:id="externalAction"/>
     </wicket:enclosure>
     <fieldset class="input-group">

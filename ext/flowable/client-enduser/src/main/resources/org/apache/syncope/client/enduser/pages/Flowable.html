@@ -19,9 +19,9 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
-    <section class="content" wicket:id="content">
-      <div class="box">
-        <div class="row clearfix">
+    <section class="container-fluid" wicket:id="content">
+      <div class="card card-outline">
+        <div class="card-body">
           <div class="col-md-12">
             <div class="col-md-6 col-md-offset-3">
               <div>
@@ -30,7 +30,9 @@ under the License.
               <div class="box-body">
                 <div class="box-header formcard">
                   <header class="card-container bg-danger">
-                    <h4><wicket:message key="bpmn.process.title">[BPMN_PROCESSES_TITLE]</wicket:message></h4>
+                    <label class="form-label card-header-style">
+                      <wicket:message key="bpmn.process.title">[BPMN_PROCESSES_TITLE]</wicket:message>
+                    </label>
                   </header>
                   <div class="card-container-body">
                     <div>
@@ -47,7 +49,9 @@ under the License.
               <div class="box-body">
                 <div class="box-header formcard">
                   <header class="card-container bg-danger">
-                    <h4><wicket:message key="requests.to.be.approved">[ACTIVE REQUEST]</wicket:message></h4>
+                    <label class="form-label card-header-style">
+                      <wicket:message key="requests.to.be.approved">[ACTIVE REQUEST]</wicket:message>
+                    </label>
                   </header>
                   <div class="card-container-body">
                     <div>

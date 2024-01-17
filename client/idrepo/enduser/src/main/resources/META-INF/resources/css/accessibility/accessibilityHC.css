@@ -225,9 +225,10 @@ div.infolabel,
 }
 
 
-.bg-red,
+.text-bg-danger,
 .callout.callout-danger,
-.alert-danger,
+.text-bg-danger,
+.bg-danger,
 .alert-error,
 .label-danger,
 .modal-danger .modal-body,
@@ -236,10 +237,10 @@ div.infolabel,
 .open>.dropdown-toggle.btn-danger {
   background-color: #942819 !important;
 }
-.bg-yellow {
+.text-bg-warning {
   background-color: #6F4706 !important;
 }
-.bg-green,
+.text-bg-success,
 .copy-clipboard-feedback,
 .btn-success,
 .callout.callout-success, 
@@ -251,7 +252,7 @@ div.infolabel,
 .bg-aqua {
   background-color: #004E61 !important;
 }
-.bg-yellow, 
+.text-bg-warning,
 .callout.callout-warning, 
 .alert-warning, 
 .label-warning, 

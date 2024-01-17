@@ -46,7 +46,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class SelfPasswordReset extends BasePage {
+public class SelfPasswordReset extends BaseNoSidebarPage {
 
     private static final long serialVersionUID = 164651008547631054L;
 
@@ -70,7 +70,7 @@ public class SelfPasswordReset extends BasePage {
         super(parameters, SELF_PWD_RESET);
 
         setDomain(parameters);
-        disableSidebar();
+        disableSidebarAndNavbar();
 
         captcha = new CaptchaPanel<>("captchaPanel");
         captcha.setOutputMarkupPlaceholderTag(true);

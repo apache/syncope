@@ -20,11 +20,9 @@ package org.apache.syncope.client.console.pages;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.time.Duration;
 import java.util.List;
 import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -36,13 +34,9 @@ import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.HttpResourceStream;
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
-import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -63,16 +57,12 @@ import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class BasePage extends BaseWebPage {
@@ -103,61 +93,6 @@ public class BasePage extends BaseWebPage {
             username += " (" + SyncopeConsoleSession.get().getDelegatedBy() + ")";
         }
         body.add(new Label("username", username));
-
-        // right sidebar
-        Pair<String, String> gitAndBuildInfo = SyncopeConsoleSession.get().gitAndBuildInfo();
-        Label version = new Label("version", gitAndBuildInfo.getRight());
-        String versionLink = StringUtils.isNotBlank(gitAndBuildInfo.getLeft())
-                && gitAndBuildInfo.getRight().endsWith("-SNAPSHOT")
-                ? "https://gitbox.apache.org/repos/asf?p=syncope.git;a=commit;h="
-                + gitAndBuildInfo.getLeft()
-                : "https://cwiki.apache.org/confluence/display/SYNCOPE/Maggiore";
-        version.add(new AttributeModifier("onclick", "window.open('" + versionLink + "', '_blank')"));
-        body.add(version);
-
-        SystemInfo systemInfo = SyncopeConsoleSession.get().getSystemInfo();
-        body.add(new Label("hostname", systemInfo.getHostname()));
-        body.add(new Label("processors", systemInfo.getAvailableProcessors()));
-        body.add(new Label("os", systemInfo.getOs()));
-        body.add(new Label("jvm", systemInfo.getJvm()));
-
-        Model<Integer> tableThresholdModel = Model.of(100);
-        body.add(new TextField<>("tableThreshold", tableThresholdModel).add(
-                new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
-            }
-        }));
-
-        Link<Void> dbExportLink = new Link<>("dbExportLink") {
-
-            private static final long serialVersionUID = -4331619903296515985L;
-
-            @Override
-            public void onClick() {
-                try {
-                    HttpResourceStream stream = new HttpResourceStream(new ResponseHolder(
-                            syncopeRestClient.exportInternalStorageContent(tableThresholdModel.getObject())));
-
-                    ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
-                    rsrh.setFileName(stream.getFilename() == null
-                            ? SyncopeConsoleSession.get().getDomain() + "Content.xml"
-                            : stream.getFilename());
-                    rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
-                    rsrh.setCacheDuration(Duration.ZERO);
-
-                    getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
-                } catch (Exception e) {
-                    SyncopeConsoleSession.get().onException(e);
-                }
-            }
-        };
-        MetaDataRoleAuthorizationStrategy.authorize(dbExportLink, WebPage.RENDER, IdRepoEntitlement.KEYMASTER);
-        body.add(dbExportLink);
 
         // menu
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("dashboard"));
