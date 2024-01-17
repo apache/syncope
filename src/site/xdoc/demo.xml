@@ -55,7 +55,7 @@ under the License.
 
       <subsection name="Available components">
         <div class="btn-group">
-          <button type="button" class="btn btn-large dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button type="button" class="btn btn-large dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Apache Syncope Core
           </button>
           <div class="dropdown-menu">
@@ -63,7 +63,7 @@ under the License.
           </div>                    
         </div>
         <div class="btn-group">
-          <button type="button" class="btn btn-large dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button type="button" class="btn btn-large dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Apache Syncope Console
           </button>
           <div class="dropdown-menu">
@@ -71,7 +71,7 @@ under the License.
           </div>
         </div>
         <div class="btn-group">
-          <button type="button" class="btn btn-large dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button type="button" class="btn btn-large dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Apache Syncope Enduser
           </button>
           <div class="dropdown-menu">
@@ -79,7 +79,7 @@ under the License.
           </div>
         </div>
         <div class="btn-group">
-          <button type="button" class="btn btn-large dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button type="button" class="btn btn-large dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Apache Syncope Web Access
           </button>
           <div class="dropdown-menu">

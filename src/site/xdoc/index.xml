@@ -49,10 +49,10 @@ under the License.
     
     <div class="row" style="margin-bottom: 20px;">
       <div class="col-sm-offset-5 col-sm-2 text-center">
-        <div class="btn-group" data-bs-toggle="buttons">
+        <div class="btn-group" data-toggle="buttons">
           <a class="btn btn-large btn-success center-block" style="width: 250px;" href="downloads">I want to build my IAM with<br/>Apache Syncope</a>
         </div>
-        <div class="btn-group" data-bs-toggle="buttons">
+        <div class="btn-group" data-toggle="buttons">
           <a class="btn btn-large btn-info center-block" style="width: 250px;" href="contributing">I want to contribute to<br/>Apache Syncope</a>
         </div>
       </div>
