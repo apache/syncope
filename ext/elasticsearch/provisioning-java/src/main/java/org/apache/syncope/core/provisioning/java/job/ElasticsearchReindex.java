@@ -37,14 +37,20 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 /**
  * Remove and rebuild all Elasticsearch indexes with information from existing users, groups and any objects.
@@ -88,6 +94,8 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
             LOG.error("Bulk request {} failed", executionId, failure);
         }
     }
+
+    protected static final Sort DEFAULT_SORT = Sort.by("id");
 
     @Autowired
     protected ElasticsearchClient client;
@@ -190,13 +198,13 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                 try (BulkIngester<Void> ingester = BulkIngester.of(b -> b.client(client).
                         maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
 
-                    for (int page = 1; page <= (users / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                        for (String user : userDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                            userDAO.findById(user).ifPresent(
-                                    u -> ingester.add(op -> op.index(idx -> idx.
+                    for (int page = 0; page <= (users / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
+                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+                        for (User user : userDAO.findAll(pageable)) {
+                            ingester.add(op -> op.index(idx -> idx.
                                     index(uindex).
-                                    id(user).
-                                    document(utils.document(u)))));
+                                    id(user.getKey()).
+                                    document(utils.document(user))));
                         }
                     }
                 } catch (Exception e) {
@@ -213,13 +221,13 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                 try (BulkIngester<Void> ingester = BulkIngester.of(b -> b.client(client).
                         maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
 
-                    for (int page = 1; page <= (groups / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                        for (String group : groupDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                            groupDAO.findById(group).ifPresent(
-                                    g -> ingester.add(op -> op.index(idx -> idx.
+                    for (int page = 0; page <= (groups / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
+                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+                        for (Group group : groupDAO.findAll(pageable)) {
+                            ingester.add(op -> op.index(idx -> idx.
                                     index(gindex).
-                                    id(group).
-                                    document(utils.document(g)))));
+                                    id(group.getKey()).
+                                    document(utils.document(group))));
                         }
                     }
                 } catch (Exception e) {
@@ -236,13 +244,13 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                 try (BulkIngester<Void> ingester = BulkIngester.of(b -> b.client(client).
                         maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
 
-                    for (int page = 1; page <= (anyObjects / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                        for (String anyObject : anyObjectDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                            anyObjectDAO.findById(anyObject).ifPresent(
-                                    a -> ingester.add(op -> op.index(idx -> idx.
+                    for (int page = 0; page <= (anyObjects / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
+                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+                        for (AnyObject anyObject : anyObjectDAO.findAll(pageable)) {
+                            ingester.add(op -> op.index(idx -> idx.
                                     index(aindex).
-                                    id(anyObject).
-                                    document(utils.document(a)))));
+                                    id(anyObject.getKey()).
+                                    document(utils.document(anyObject))));
                         }
                     }
                 } catch (Exception e) {

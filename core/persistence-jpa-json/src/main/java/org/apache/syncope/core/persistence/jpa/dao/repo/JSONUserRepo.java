@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAJSONUser;
-import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface JSONUserRepo
-        extends ListCrudRepository<JPAJSONUser, String>, UserRepoExt, UserDAO {
+        extends PagingAndSortingRepository<JPAJSONUser, String>, UserRepoBase, UserRepoExt {
 }

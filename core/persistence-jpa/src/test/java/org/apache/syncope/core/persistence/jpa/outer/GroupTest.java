@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrVal
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -51,6 +52,7 @@ import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -86,13 +88,50 @@ public class GroupTest extends AbstractTest {
     private AnyTypeClassDAO anyTypeClassDAO;
 
     @Autowired
+    private ExternalResourceDAO resourceDAO;
+
+    @Autowired
     private PlainAttrValidationManager validator;
+
+    @Test
+    public void findByResourcesContaining() {
+        List<Group> found = groupDAO.findByResourcesContaining(resourceDAO.findById("resource-csv").orElseThrow());
+        assertEquals(2, found.size());
+        assertTrue(found.contains(groupDAO.findById("0626100b-a4ba-4e00-9971-86fad52a6216").orElseThrow()));
+        assertTrue(found.contains(groupDAO.findById("ba9ed509-b1f5-48ab-a334-c8530a6422dc").orElseThrow()));
+
+        found = groupDAO.findByResourcesContaining(resourceDAO.findById("resource-testdb2").orElseThrow());
+        assertTrue(found.isEmpty());
+    }
+
+    @Test
+    public void uMemberships() {
+        List<UMembership> memberships = groupDAO.findUMemberships(
+                groupDAO.findById("37d15e4c-cdc1-460b-a591-8505c8133806").orElseThrow());
+        assertEquals(2, memberships.size());
+        assertTrue(memberships.stream().anyMatch(m -> "3d5e91f6-305e-45f9-ad30-4897d3d43bd9".equals(m.getKey())));
+        assertTrue(memberships.stream().anyMatch(m -> "d53f7657-2b22-4e10-a2cd-c3379a4d1a31".equals(m.getKey())));
+
+        assertEquals(
+                memberships.stream().map(m -> m.getLeftEnd().getKey()).collect(Collectors.toSet()),
+                groupDAO.findUMembers("37d15e4c-cdc1-460b-a591-8505c8133806").stream().collect(Collectors.toSet()));
+
+        assertTrue(groupDAO.existsUMembership(
+                "74cd8ece-715a-44a4-a736-e17b46c4e7e6", "37d15e4c-cdc1-460b-a591-8505c8133806"));
+        assertFalse(groupDAO.existsUMembership(
+                "74cd8ece-715a-44a4-a736-e17b46c4e7e6", "ece66293-8f31-4a84-8e8d-23da36e70846"));
+        assertFalse(groupDAO.existsUMembership(
+                "notfound", "ece66293-8f31-4a84-8e8d-23da36e70846"));
+        assertFalse(groupDAO.existsUMembership(
+                "74cd8ece-715a-44a4-a736-e17b46c4e7e6", "notfound"));
+
+        assertEquals(2, groupDAO.countUMembers("37d15e4c-cdc1-460b-a591-8505c8133806"));
+    }
 
     @Test
     public void saveWithTwoOwners() {
         assertThrows(InvalidEntityException.class, () -> {
             Group root = groupDAO.findByName("root").orElseThrow();
-            assertNotNull(root);
 
             User user = userDAO.findByUsername("rossini").orElseThrow();
 
@@ -107,7 +146,7 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
-    public void findByOwner() {
+    public void findOwnedByUser() {
         Group group = groupDAO.findById("ebf97068-aa4b-4a85-9f01-680e8c4cf227").orElseThrow();
 
         User user = userDAO.findById("823074dc-d280-436d-a7dd-07399fae48ec").orElseThrow();
@@ -118,6 +157,20 @@ public class GroupTest extends AbstractTest {
         assertFalse(ownedGroups.isEmpty());
         assertEquals(1, ownedGroups.size());
         assertTrue(ownedGroups.contains(group));
+    }
+
+    @Test
+    public void findOwnedByGroup() {
+        Group root = groupDAO.findByName("root").orElseThrow();
+        Group group = entityFactory.newEntity(Group.class);
+        group.setRealm(realmDAO.getRoot());
+        group.setName("error");
+        group.setGroupOwner(root);
+        group = groupDAO.save(group);
+        entityManager.flush();
+
+        List<Group> owned = groupDAO.findOwnedByGroup(root.getKey());
+        assertEquals(List.of(group), owned);
     }
 
     @Test

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
@@ -46,7 +45,6 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
@@ -90,53 +88,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<? extends AnyObject> findByName(final String type, final String name) {
-        TypedQuery<AnyObject> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e "
-                + "WHERE e.type.id = :type AND e.name = :name",
-                AnyObject.class);
-        query.setParameter("type", type);
-        query.setParameter("name", name);
-
-        AnyObject result = null;
-        try {
-            result = query.getSingleResult();
-        } catch (NoResultException e) {
-            LOG.debug("No any object found with name {}", name, e);
-        }
-
-        return Optional.ofNullable(result);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<AnyObject> findByName(final String name) {
-        TypedQuery<AnyObject> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e WHERE e.name = :name",
-                AnyObject.class);
-        query.setParameter("name", name);
-
-        return query.getResultList();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<String> findKey(final String type, final String name) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT id FROM " + JPAAnyObject.TABLE + " WHERE type_id=? AND name=?");
-        query.setParameter(1, type);
-        query.setParameter(2, name);
-
-        try {
-            return Optional.of(query.getSingleResult().toString());
-        } catch (NoResultException e) {
-            LOG.debug("No key matching type {} and name {}", type, name, e);
-            return Optional.empty();
-        }
-    }
-
-    @Transactional(readOnly = true)
-    @Override
     public Optional<OffsetDateTime> findLastChange(final String key) {
         return findLastChange(key, JPAAnyObject.TABLE);
     }
@@ -158,14 +109,14 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     public Map<String, Long> countByRealm(final AnyType anyType) {
         Query query = entityManager.createQuery(
-                "SELECT e.realm, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e "
-                + "WHERE e.type=:type GROUP BY e.realm");
+                "SELECT e.realm.fullPath, COUNT(e) FROM " + anyUtils.anyClass().getSimpleName() + " e "
+                + "WHERE e.type=:type GROUP BY e.realm.fullPath");
         query.setParameter("type", anyType);
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
         return results.stream().collect(Collectors.toMap(
-                result -> ((Realm) result[0]).getFullPath(),
+                result -> result[0].toString(),
                 result -> ((Number) result[1]).longValue()));
     }
 
@@ -232,21 +183,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         result.addAll(uquery.getResultList());
 
         return result;
-    }
-
-    @Override
-    public List<AnyObject> findAll(final int page, final int itemsPerPage) {
-        TypedQuery<AnyObject> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e ORDER BY e.id", AnyObject.class);
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-        query.setMaxResults(itemsPerPage);
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<String> findAllKeys(final int page, final int itemsPerPage) {
-        return findAllKeys(JPAAnyObject.TABLE, page, itemsPerPage);
     }
 
     protected Pair<AnyObject, Pair<Set<String>, Set<String>>> doSave(final AnyObject anyObject) {

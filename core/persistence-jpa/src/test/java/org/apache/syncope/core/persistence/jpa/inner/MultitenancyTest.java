@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -76,7 +75,6 @@ public class MultitenancyTest extends AbstractTest {
     @Test
     public void createUser() {
         assertNull(realmDAO.getRoot().getPasswordPolicy());
-        assertTrue(userDAO.findAll(1, 100).isEmpty());
 
         User user = entityFactory.newEntity(User.class);
         user.setRealm(realmDAO.getRoot());

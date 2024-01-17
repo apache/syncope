@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAJSONAnyObject;
-import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface JSONAnyObjectRepo
-        extends ListCrudRepository<JPAJSONAnyObject, String>, AnyObjectRepoExt, AnyObjectDAO {
-
+        extends PagingAndSortingRepository<JPAJSONAnyObject, String>, AnyObjectRepoBase, AnyObjectRepoExt {
 }

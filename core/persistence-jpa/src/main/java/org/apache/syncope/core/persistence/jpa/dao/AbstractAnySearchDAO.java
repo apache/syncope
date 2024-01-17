@@ -296,7 +296,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
                 ? List.of(cond.getGroup())
                 : cond.getGroup().indexOf('%') == -1
                 ? groupDAO.findKey(cond.getGroup()).map(List::of).orElseGet(List::of)
-                : groupDAO.findKeysByNamePattern(cond.getGroup());
+                : groupDAO.findKeysByNamePattern(cond.getGroup().toLowerCase());
 
         if (groups.isEmpty()) {
             throw new IllegalArgumentException("Could not find group(s) for " + cond.getGroup());

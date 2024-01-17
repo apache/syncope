@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.HashSet;
@@ -44,11 +42,9 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
@@ -104,51 +100,8 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<String> findKey(final String username) {
-        Query query = entityManager.createNativeQuery("SELECT id FROM " + JPAUser.TABLE + " WHERE username=?");
-        query.setParameter(1, username);
-
-        try {
-            return Optional.of(query.getSingleResult().toString());
-        } catch (NoResultException e) {
-            LOG.debug("No key matching username {}", username, e);
-            return Optional.empty();
-        }
-    }
-
-    @Transactional(readOnly = true)
-    @Override
     public Optional<OffsetDateTime> findLastChange(final String key) {
         return findLastChange(key, JPAUser.TABLE);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<String> findUsername(final String key) {
-        Query query = entityManager.createNativeQuery("SELECT username FROM " + JPAUser.TABLE + " WHERE id=?");
-        query.setParameter(1, key);
-
-        try {
-            return Optional.of(query.getSingleResult().toString());
-        } catch (NoResultException e) {
-            LOG.debug("No username matching id {}", key, e);
-            return Optional.empty();
-        }
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<? extends User> findByToken(final String token) {
-        TypedQuery<User> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e WHERE e.token LIKE :token", User.class);
-        query.setParameter("token", token);
-
-        try {
-            return Optional.of(query.getSingleResult());
-        } catch (NoResultException e) {
-            LOG.debug("No user found with token {}", token, e);
-            return Optional.empty();
-        }
     }
 
     @Override
@@ -221,21 +174,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Override
     public UMembership findMembership(final String key) {
         return entityManager.find(JPAUMembership.class, key);
-    }
-
-    @Override
-    public List<User> findAll(final int page, final int itemsPerPage) {
-        TypedQuery<User> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e ORDER BY e.id", User.class);
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-        query.setMaxResults(itemsPerPage);
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<String> findAllKeys(final int page, final int itemsPerPage) {
-        return findAllKeys(JPAUser.TABLE, page, itemsPerPage);
     }
 
     protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
@@ -359,53 +297,10 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Override
     public boolean linkedAccountExists(final String userKey, final String connObjectKeyValue) {
         Query query = entityManager.createNativeQuery(
-                "SELECT id FROM " + JPALinkedAccount.TABLE + " WHERE owner_id=? AND connObjectKeyValue=?");
+                "SELECT COUNT(id) FROM " + JPALinkedAccount.TABLE + " WHERE owner_id=? AND connObjectKeyValue=?");
         query.setParameter(1, userKey);
         query.setParameter(2, connObjectKeyValue);
 
-        return !query.getResultList().isEmpty();
-    }
-
-    @Override
-    public Optional<? extends LinkedAccount> findLinkedAccount(
-            final ExternalResource resource, final String connObjectKeyValue) {
-
-        TypedQuery<LinkedAccount> query = entityManager.createQuery(
-                "SELECT e FROM " + JPALinkedAccount.class.getSimpleName() + " e "
-                + "WHERE e.resource=:resource AND e.connObjectKeyValue=:connObjectKeyValue", LinkedAccount.class);
-        query.setParameter("resource", resource);
-        query.setParameter("connObjectKeyValue", connObjectKeyValue);
-
-        List<LinkedAccount> result = query.getResultList();
-        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<LinkedAccount> findLinkedAccounts(final String userKey) {
-        TypedQuery<LinkedAccount> query = entityManager.createQuery(
-                "SELECT e FROM " + JPALinkedAccount.class.getSimpleName() + " e "
-                + "WHERE e.owner.id=:userKey", LinkedAccount.class);
-        query.setParameter("userKey", userKey);
-        return query.getResultList();
-    }
-
-    @Override
-    public List<LinkedAccount> findLinkedAccountsByPrivilege(final Privilege privilege) {
-        TypedQuery<LinkedAccount> query = entityManager.createQuery(
-                "SELECT e FROM " + JPALinkedAccount.class.getSimpleName() + " e "
-                + "WHERE :privilege MEMBER OF e.privileges", LinkedAccount.class);
-        query.setParameter("privilege", privilege);
-        return query.getResultList();
-    }
-
-    @Override
-    public List<LinkedAccount> findLinkedAccountsByResource(final ExternalResource resource) {
-        TypedQuery<LinkedAccount> query = entityManager.createQuery(
-                "SELECT e FROM " + JPALinkedAccount.class.getSimpleName() + " e "
-                + "WHERE e.resource=:resource", LinkedAccount.class);
-        query.setParameter("resource", resource);
-
-        return query.getResultList();
+        return ((Number) query.getSingleResult()).longValue() > 0;
     }
 }

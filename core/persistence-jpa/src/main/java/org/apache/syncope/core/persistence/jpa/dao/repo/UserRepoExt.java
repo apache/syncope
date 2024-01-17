@@ -21,24 +21,15 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface UserRepoExt extends AnyRepoExt<User> {
-
-    Optional<String> findKey(String username);
-
-    Optional<String> findUsername(String key);
-
-    Optional<? extends User> findByToken(String token);
 
     /**
      * Checks if the calling user is authorized to access the User matching the provided key, under the given
@@ -71,17 +62,9 @@ public interface UserRepoExt extends AnyRepoExt<User> {
 
     Collection<ExternalResource> findAllResources(User user);
 
-    boolean linkedAccountExists(String userKey, String connObjectKeyValue);
-
-    Optional<? extends LinkedAccount> findLinkedAccount(ExternalResource resource, String connObjectKeyValue);
-
-    List<LinkedAccount> findLinkedAccounts(String userKey);
-
-    List<LinkedAccount> findLinkedAccountsByResource(ExternalResource resource);
-
-    List<LinkedAccount> findLinkedAccountsByPrivilege(Privilege privilege);
-
     Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(User user);
+
+    boolean linkedAccountExists(String userKey, String connObjectKeyValue);
 
     @Override
     <S extends User> S save(S user);

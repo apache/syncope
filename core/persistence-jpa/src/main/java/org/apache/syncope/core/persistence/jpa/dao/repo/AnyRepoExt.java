@@ -26,7 +26,6 @@ import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -35,8 +34,6 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 public interface AnyRepoExt<A extends Any<?>> {
 
     int DEFAULT_PAGE_SIZE = 500;
-
-    List<A> findByKeys(List<String> keys);
 
     Optional<OffsetDateTime> findLastChange(String key);
 
@@ -60,30 +57,10 @@ public interface AnyRepoExt<A extends Any<?>> {
      */
     List<A> findByDerAttrValue(DerSchema schema, String value, boolean ignoreCaseMatch);
 
-    List<A> findByResource(ExternalResource resource);
-
     /**
      * @return the search condition to match all entities
      */
     SearchCond getAllMatchingCond();
-
-    /**
-     * Find any objects without any limitation, according to given page and items per page.
-     *
-     * @param page search result page
-     * @param itemsPerPage items per search result page
-     * @return any objects of type {@link A} matching the provided conditions
-     */
-    List<A> findAll(int page, int itemsPerPage);
-
-    /**
-     * Find any objects' keys without any limitation, according to given page and items per page.
-     *
-     * @param page search result page
-     * @param itemsPerPage items per search result page
-     * @return any objects' keys matching the provided conditions
-     */
-    List<String> findAllKeys(int page, int itemsPerPage);
 
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
 

@@ -88,14 +88,19 @@ public class UserTest extends AbstractTest {
     }
 
     @Test
+    public void findUsername() {
+        assertEquals("puccini", userDAO.findUsername("823074dc-d280-436d-a7dd-07399fae48ec").orElseThrow());
+    }
+
+    @Test
+    public void findByToken() {
+        assertTrue(userDAO.findByToken("WRONG TOKEN").isEmpty());
+    }
+
+    @Test
     public void findAll() {
-        List<User> users = userDAO.findAll(1, 100);
+        List<? extends User> users = userDAO.findAll();
         assertEquals(5, users.size());
-
-        List<String> userKeys = userDAO.findAllKeys(1, 100);
-        assertNotNull(userKeys);
-
-        assertEquals(users.size(), userKeys.size());
     }
 
     @Test
@@ -103,25 +108,6 @@ public class UserTest extends AbstractTest {
         long count = userDAO.count();
         assertNotNull(count);
         assertEquals(5, count);
-    }
-
-    @Test
-    public void findAllByPageAndSize() {
-        // get first page
-        List<User> list = userDAO.findAll(1, 2);
-        assertEquals(2, list.size());
-
-        // get second page
-        list = userDAO.findAll(2, 2);
-        assertEquals(2, list.size());
-
-        // get second page with uncomplete set
-        list = userDAO.findAll(2, 3);
-        assertEquals(2, list.size());
-
-        // get unexistent page
-        list = userDAO.findAll(3, 2);
-        assertEquals(1, list.size());
     }
 
     @Test

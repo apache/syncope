@@ -204,6 +204,10 @@ public class UserTest extends AbstractTest {
 
         assertTrue(userDAO.linkedAccountExists(account.getOwner().getKey(), account.getConnObjectKeyValue()));
 
+        LinkedAccount found = userDAO.findLinkedAccount(
+                resourceDAO.findById("resource-ldap").orElseThrow(), "findLinkedAccount").orElseThrow();
+        assertEquals(account, found);
+
         List<LinkedAccount> accounts = userDAO.findLinkedAccountsByResource(
                 resourceDAO.findById("resource-ldap").orElseThrow());
         assertEquals(1, accounts.size());

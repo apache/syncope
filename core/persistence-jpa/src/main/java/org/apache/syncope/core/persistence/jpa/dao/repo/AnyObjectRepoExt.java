@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -33,12 +32,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public interface AnyObjectRepoExt extends AnyRepoExt<AnyObject> {
-
-    Optional<String> findKey(String type, String name);
-
-    Optional<? extends AnyObject> findByName(String type, String name);
-
-    List<AnyObject> findByName(String name);
 
     /**
      * Checks if the calling user is authorized to access the Any Object matching the provided key, under the given

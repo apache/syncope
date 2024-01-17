@@ -60,28 +60,23 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     List<UMembership> findUMemberships(Group group);
 
-    List<TypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
+    List<String> findAMembers(String groupKey);
+
+    List<String> findUMembers(String groupKey);
 
     boolean existsAMembership(String anyObjectKey, String groupKey);
 
     boolean existsUMembership(String userKey, String groupKey);
 
-    List<String> findAMembers(String groupKey);
-
-    List<String> findUMembers(String groupKey);
-
     List<String> findADynMembers(Group group);
 
-    int countAMembers(String groupKey);
+    long countAMembers(String groupKey);
 
-    int countUMembers(String groupKey);
+    long countUMembers(String groupKey);
 
-    int countADynMembers(Group group);
+    long countADynMembers(Group group);
 
-    int countUDynMembers(Group group);
-
-    @Override
-    Collection<String> findAllResourceKeys(String key);
+    long countUDynMembers(Group group);
 
     void clearADynMembers(Group group);
 
@@ -128,4 +123,9 @@ public interface GroupDAO extends AnyDAO<Group> {
      * @return merged group
      */
     Group saveAndRefreshDynMemberships(Group group);
+
+    List<TypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
+
+    @Override
+    Collection<String> findAllResourceKeys(String key);
 }

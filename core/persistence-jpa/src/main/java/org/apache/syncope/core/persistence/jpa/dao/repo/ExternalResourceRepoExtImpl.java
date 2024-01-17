@@ -237,15 +237,15 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
 
         realmDAO.findByResources(resource).
                 forEach(realm -> realm.getResources().remove(resource));
-        anyObjectDAO.findByResource(resource).
+        anyObjectDAO.findByResourcesContaining(resource).
                 forEach(anyObject -> anyObject.getResources().remove(resource));
         userDAO.findLinkedAccountsByResource(resource).forEach(account -> {
             account.getOwner().getLinkedAccounts().remove(account);
             account.setOwner(null);
         });
-        userDAO.findByResource(resource).
+        userDAO.findByResourcesContaining(resource).
                 forEach(user -> user.getResources().remove(resource));
-        groupDAO.findByResource(resource).
+        groupDAO.findByResourcesContaining(resource).
                 forEach(group -> group.getResources().remove(resource));
         policyDAO.findByResource(resource).
                 forEach(policy -> policy.getResources().remove(resource));

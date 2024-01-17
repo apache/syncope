@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,7 +50,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -94,19 +92,6 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
         this.anyUtils = anyUtils;
     }
 
-    protected List<String> findAllKeys(final String table, final int page, final int itemsPerPage) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT id FROM " + table + " ORDER BY id", String.class);
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-        query.setMaxResults(itemsPerPage);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(Object::toString).
-                collect(Collectors.toList());
-    }
-
     protected Optional<OffsetDateTime> findLastChange(final String key, final String table) {
         OpenJPAEntityManagerFactorySPI emf = entityManager.getEntityManagerFactory().
                 unwrap(OpenJPAEntityManagerFactorySPI.class);
@@ -125,16 +110,6 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
     }
 
     protected abstract void securityChecks(A any);
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<A> findByKeys(final List<String> keys) {
-        Class<A> entityClass = anyUtils.anyClass();
-        TypedQuery<A> query = entityManager.createQuery(
-                "SELECT e FROM " + entityClass.getSimpleName() + " e WHERE e.id IN (:keys)", entityClass);
-        query.setParameter("keys", keys);
-        return query.getResultList();
-    }
 
     @SuppressWarnings("unchecked")
     protected Optional<A> findById(final String key) {
@@ -401,17 +376,6 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
         }
 
         return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<A> findByResource(final ExternalResource resource) {
-        Query query = entityManager.
-                createQuery("SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e "
-                        + "WHERE :resource MEMBER OF e.resources");
-        query.setParameter("resource", resource);
-
-        return query.getResultList();
     }
 
     @Override

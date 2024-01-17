@@ -47,17 +47,6 @@ public class SyncopePage<T> extends PageImpl<T> {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        @SuppressWarnings("unchecked")
-        SyncopePage<T> other = (SyncopePage<T>) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(total, total).

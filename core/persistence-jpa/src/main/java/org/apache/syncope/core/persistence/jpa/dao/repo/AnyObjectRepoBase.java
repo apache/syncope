@@ -18,19 +18,28 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
-import java.time.OffsetDateTime;
-import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAccessToken;
-import org.springframework.data.jpa.repository.Modifying;
+import java.util.List;
+import java.util.Optional;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
-public interface AccessTokenRepo
-        extends PagingAndSortingRepository<JPAAccessToken, String>, AccessTokenDAO {
+public interface AnyObjectRepoBase extends AnyObjectDAO {
 
-    @Modifying
-    @Query("DELETE FROM #{#entityName} e WHERE e.expirationTime < :now")
+    @Query("SELECT e.id FROM #{#entityName} e WHERE e.type.id = :type AND e.name = :name")
     @Override
-    int deleteExpired(@Param("now") OffsetDateTime now);
+    Optional<String> findKey(@Param("type") String type, @Param("name") String name);
+
+    @Query("SELECT e FROM #{#entityName} e WHERE e.type.id = :type AND e.name = :name")
+    @Override
+    Optional<? extends AnyObject> findByName(@Param("type") String type, @Param("name") String name);
+
+    @Query("SELECT e FROM #{#entityName} e WHERE e.name = :name")
+    @Override
+    List<AnyObject> findByName(@Param("name") String name);
+
+    @Query("SELECT e FROM #{#entityName} e WHERE e.id IN (:keys)")
+    @Override
+    List<AnyObject> findByKeys(@Param("keys") List<String> keys);
 }

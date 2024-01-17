@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAJSONGroup;
-import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface JSONGroupRepo
-        extends ListCrudRepository<JPAJSONGroup, String>, GroupRepoExt, GroupDAO {
+        extends PagingAndSortingRepository<JPAJSONGroup, String>, GroupRepoBase, GroupRepoExt {
 }

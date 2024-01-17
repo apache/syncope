@@ -188,7 +188,7 @@ public class ResourceTest extends AbstractTest {
         // -------------------------------------
         // Get originally associated users
         // -------------------------------------
-        List<User> users = userDAO.findByResource(resource);
+        List<User> users = userDAO.findByResourcesContaining(resource);
         assertNotNull(users);
 
         Set<String> userKeys = users.stream().map(User::getKey).collect(Collectors.toSet());

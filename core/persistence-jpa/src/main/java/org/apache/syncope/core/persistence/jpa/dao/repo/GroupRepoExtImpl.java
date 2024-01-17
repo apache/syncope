@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.time.OffsetDateTime;
@@ -117,20 +116,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<String> findKey(final String name) {
-        Query query = entityManager.createNativeQuery("SELECT id FROM " + JPAGroup.TABLE + " WHERE name=?");
-        query.setParameter(1, name);
-
-        try {
-            return Optional.of(query.getSingleResult().toString());
-        } catch (NoResultException e) {
-            LOG.debug("No key matching name {}", name, e);
-            return Optional.empty();
-        }
-    }
-
-    @Transactional(readOnly = true)
-    @Override
     public Optional<OffsetDateTime> findLastChange(final String key) {
         return findLastChange(key, JPAGroup.TABLE);
     }
@@ -177,17 +162,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         securityChecks(authRealms, group.getKey(), group.getRealm().getFullPath());
     }
 
-    @Override
-    public List<String> findKeysByNamePattern(final String pattern) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT id FROM " + JPAGroup.TABLE + " WHERE LOWER(name) LIKE LOWER(?1)");
-        query.setParameter(1, pattern);
-
-        @SuppressWarnings("unchecked")
-        List<Object> raw = query.getResultList();
-        return raw.stream().map(Object::toString).collect(Collectors.toList());
-    }
-
     @Transactional(readOnly = true)
     @Override
     public List<Group> findOwnedByUser(final String userKey) {
@@ -198,25 +172,10 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(anyUtils.anyClass().getSimpleName())
                 .append(" e WHERE e.userOwner=:owner ");
-        userDAO.findAllGroupKeys(owner).forEach(groupKey -> queryString
-                .append("OR e.groupOwner.id='").append(groupKey).append("' "));
+        userDAO.findAllGroupKeys(owner).forEach(groupKey -> queryString.
+                append("OR e.groupOwner.id='").append(groupKey).append("' "));
 
         TypedQuery<Group> query = entityManager.createQuery(queryString.toString(), Group.class);
-        query.setParameter("owner", owner);
-
-        return query.getResultList();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<Group> findOwnedByGroup(final String groupKey) {
-        Group owner = findById(groupKey).orElse(null);
-        if (owner == null) {
-            return List.of();
-        }
-
-        TypedQuery<Group> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e WHERE e.groupOwner=:owner", Group.class);
         query.setParameter("owner", owner);
 
         return query.getResultList();
@@ -240,21 +199,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         query.setParameter("group", group);
 
         return query.getResultList();
-    }
-
-    @Override
-    public List<Group> findAll(final int page, final int itemsPerPage) {
-        TypedQuery<Group> query = entityManager.createQuery(
-                "SELECT e FROM " + anyUtils.anyClass().getSimpleName() + " e ORDER BY e.id", Group.class);
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-        query.setMaxResults(itemsPerPage);
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<String> findAllKeys(final int page, final int itemsPerPage) {
-        return findAllKeys(JPAGroup.TABLE, page, itemsPerPage);
     }
 
     protected SearchCond buildDynMembershipCond(final String baseCondFIQL) {
@@ -381,55 +325,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Transactional(readOnly = true)
     @Override
-    public boolean existsAMembership(final String anyObjectKey, final String groupKey) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAAMembership.TABLE + " WHERE group_id=? AND anyobject_it=?");
-        query.setParameter(1, groupKey);
-        query.setParameter(2, anyObjectKey);
-
-        return ((Number) query.getSingleResult()).intValue() > 0;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public boolean existsUMembership(final String userKey, final String groupKey) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(*) FROM " + JPAUMembership.TABLE + " WHERE group_id=? AND user_id=?");
-        query.setParameter(1, groupKey);
-        query.setParameter(2, userKey);
-
-        return ((Number) query.getSingleResult()).intValue() > 0;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<String> findAMembers(final String groupKey) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT anyObject_id FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
-        query.setParameter(1, groupKey);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(Object::toString).
-                collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<String> findUMembers(final String groupKey) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT user_id FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
-        query.setParameter(1, groupKey);
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(Object::toString).
-                collect(Collectors.toList());
-    }
-
-    @Override
     public List<String> findADynMembers(final Group group) {
         List<String> result = new ArrayList<>();
 
@@ -450,35 +345,39 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         return result;
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public int countAMembers(final String groupKey) {
+    public boolean existsAMembership(final String anyObjectKey, final String groupKey) {
         Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(anyObject_id) FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
+                "SELECT COUNT(*) FROM " + JPAAMembership.TABLE + " WHERE group_id=? AND anyobject_it=?");
         query.setParameter(1, groupKey);
+        query.setParameter(2, anyObjectKey);
 
-        return ((Number) query.getSingleResult()).intValue();
+        return ((Number) query.getSingleResult()).longValue() > 0;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean existsUMembership(final String userKey, final String groupKey) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM " + JPAUMembership.TABLE + " WHERE group_id=? AND user_id=?");
+        query.setParameter(1, groupKey);
+        query.setParameter(2, userKey);
+
+        return ((Number) query.getSingleResult()).longValue() > 0;
     }
 
     @Override
-    public int countUMembers(final String groupKey) {
-        Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(user_id) FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
-        query.setParameter(1, groupKey);
-
-        return ((Number) query.getSingleResult()).intValue();
-    }
-
-    @Override
-    public int countADynMembers(final Group group) {
+    public long countADynMembers(final Group group) {
         Query query = entityManager.createNativeQuery(
                 "SELECT COUNT(any_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
-        return ((Number) query.getSingleResult()).intValue();
+        return ((Number) query.getSingleResult()).longValue();
     }
 
     @Override
-    public int countUDynMembers(final Group group) {
+    public long countUDynMembers(final Group group) {
         if (group.getUDynMembership() == null) {
             return 0;
         }
@@ -487,13 +386,12 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 "SELECT COUNT(any_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
-        return ((Number) query.getSingleResult()).intValue();
+        return ((Number) query.getSingleResult()).longValue();
     }
 
     @Override
     public void clearADynMembers(final Group group) {
-        Query delete = entityManager.createNativeQuery("DELETE FROM " + ADYNMEMB_TABLE
-                + " WHERE group_id=?");
+        Query delete = entityManager.createNativeQuery("DELETE FROM " + ADYNMEMB_TABLE + " WHERE group_id=?");
         delete.setParameter(1, group.getKey());
         delete.executeUpdate();
     }
@@ -552,8 +450,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     public Set<String> removeDynMemberships(final AnyObject anyObject) {
         List<Group> dynGroups = anyObjectDAO.findDynGroups(anyObject.getKey());
 
-        Query delete = entityManager.createNativeQuery("DELETE FROM " + ADYNMEMB_TABLE
-                + " WHERE any_id=?");
+        Query delete = entityManager.createNativeQuery("DELETE FROM " + ADYNMEMB_TABLE + " WHERE any_id=?");
         delete.setParameter(1, anyObject.getKey());
         delete.executeUpdate();
 
@@ -574,8 +471,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             return List.of();
         }
 
-        Query query = entityManager.createNativeQuery(
-                "SELECT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
+        Query query = entityManager.createNativeQuery("SELECT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
         @SuppressWarnings("unchecked")
@@ -587,8 +483,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Override
     public void clearUDynMembers(final Group group) {
-        Query delete = entityManager.createNativeQuery("DELETE FROM " + UDYNMEMB_TABLE
-                + " WHERE group_id=?");
+        Query delete = entityManager.createNativeQuery("DELETE FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
         delete.setParameter(1, group.getKey());
         delete.executeUpdate();
     }

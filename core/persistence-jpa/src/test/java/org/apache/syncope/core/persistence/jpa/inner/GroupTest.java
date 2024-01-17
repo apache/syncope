@@ -47,13 +47,8 @@ public class GroupTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Group> groups = groupDAO.findAll(1, 100);
+        List<? extends Group> groups = groupDAO.findAll();
         assertEquals(16, groups.size());
-
-        List<String> groupKeys = groupDAO.findAllKeys(1, 100);
-        assertNotNull(groupKeys);
-
-        assertEquals(groups.size(), groupKeys.size());
     }
 
     @Test
@@ -62,6 +57,14 @@ public class GroupTest extends AbstractTest {
         assertNotNull(group);
         assertEquals(1, group.getTypeExtensions().size());
         assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).get().getAuxClasses().size());
+    }
+
+    @Test
+    public void findKeysByNamePattern() {
+        List<String> groups = groupDAO.findKeysByNamePattern("%child");
+        assertEquals(2, groups.size());
+        assertTrue(groups.contains("b1f7c12d-ec83-441f-a50e-1691daaedf3b"));
+        assertTrue(groups.contains("f779c0d4-633b-4be5-8f57-32eb478a3ca5"));
     }
 
     @Test

@@ -22,12 +22,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Map;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
@@ -45,6 +48,12 @@ public class AnyObjectTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Test
+    public void findAll() {
+        List<? extends AnyObject> anyObjects = anyObjectDAO.findAll();
+        assertEquals(3, anyObjects.size());
+    }
 
     @Test
     public void find() {
@@ -67,17 +76,33 @@ public class AnyObjectTest extends AbstractTest {
         assertEquals(
                 "fc6dbc3a-6c07-4965-8781-921e7401a4a5",
                 anyObjectDAO.findKey("PRINTER", "HP LJ 1300n").orElseThrow());
+
+        assertTrue(anyObjectDAO.findKey("PRINTER", "any").isEmpty());
     }
 
     @Test
-    public void findAll() {
-        List<AnyObject> anyObjects = anyObjectDAO.findAll(1, 100);
-        assertNotNull(anyObjects);
+    public void findByKeys() {
+        List<AnyObject> found = anyObjectDAO.findByKeys(List.of(
+                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8", "9e1d130c-d6a3-48b1-98b3-182477ed0688", "none"));
+        assertEquals(2, found.size());
+        assertTrue(found.contains(anyObjectDAO.findById("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElseThrow()));
+        assertTrue(found.contains(anyObjectDAO.findById("9e1d130c-d6a3-48b1-98b3-182477ed0688").orElseThrow()));
+    }
 
-        List<String> anyObjectKeys = anyObjectDAO.findAllKeys(1, 100);
-        assertNotNull(anyObjectKeys);
+    @Test
+    public void countByType() {
+        Map<AnyType, Long> byType = anyObjectDAO.countByType();
+        assertEquals(1, byType.size());
+        Long count = byType.get(anyTypeDAO.findById("PRINTER").orElseThrow());
+        assertEquals(3, count);
+    }
 
-        assertEquals(anyObjects.size(), anyObjectKeys.size());
+    @Test
+    public void countByRealm() {
+        Map<String, Long> byRealm = anyObjectDAO.countByRealm(anyTypeDAO.findById("PRINTER").orElseThrow());
+        assertEquals(2, byRealm.size());
+        Long count = byRealm.get(SyncopeConstants.ROOT_REALM);
+        assertEquals(2, count);
     }
 
     @Test

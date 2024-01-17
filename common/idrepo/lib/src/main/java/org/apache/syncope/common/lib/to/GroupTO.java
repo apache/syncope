@@ -45,13 +45,13 @@ public class GroupTO extends AnyTO {
 
     private String udynMembershipCond;
 
-    private int staticUserMembershipCount;
+    private long staticUserMembershipCount;
 
-    private int dynamicUserMembershipCount;
+    private long dynamicUserMembershipCount;
 
-    private int staticAnyObjectMembershipCount;
+    private long staticAnyObjectMembershipCount;
 
-    private int dynamicAnyObjectMembershipCount;
+    private long dynamicAnyObjectMembershipCount;
 
     private final Map<String, String> adynMembershipConds = new HashMap<>();
 
@@ -108,35 +108,35 @@ public class GroupTO extends AnyTO {
         this.udynMembershipCond = uDynMembershipCond;
     }
 
-    public int getStaticUserMembershipCount() {
+    public long getStaticUserMembershipCount() {
         return staticUserMembershipCount;
     }
 
-    public void setStaticUserMembershipCount(final int staticUserMembershipCount) {
+    public void setStaticUserMembershipCount(final long staticUserMembershipCount) {
         this.staticUserMembershipCount = staticUserMembershipCount;
     }
 
-    public int getDynamicUserMembershipCount() {
+    public long getDynamicUserMembershipCount() {
         return dynamicUserMembershipCount;
     }
 
-    public void setDynamicUserMembershipCount(final int dynamicUserMembershipCount) {
+    public void setDynamicUserMembershipCount(final long dynamicUserMembershipCount) {
         this.dynamicUserMembershipCount = dynamicUserMembershipCount;
     }
 
-    public int getStaticAnyObjectMembershipCount() {
+    public long getStaticAnyObjectMembershipCount() {
         return staticAnyObjectMembershipCount;
     }
 
-    public void setStaticAnyObjectMembershipCount(final int staticAnyObjectMembershipCount) {
+    public void setStaticAnyObjectMembershipCount(final long staticAnyObjectMembershipCount) {
         this.staticAnyObjectMembershipCount = staticAnyObjectMembershipCount;
     }
 
-    public int getDynamicAnyObjectMembershipCount() {
+    public long getDynamicAnyObjectMembershipCount() {
         return dynamicAnyObjectMembershipCount;
     }
 
-    public void setDynamicAnyObjectMembershipCount(final int dynamicAnyObjectMembershipCount) {
+    public void setDynamicAnyObjectMembershipCount(final long dynamicAnyObjectMembershipCount) {
         this.dynamicAnyObjectMembershipCount = dynamicAnyObjectMembershipCount;
     }
 

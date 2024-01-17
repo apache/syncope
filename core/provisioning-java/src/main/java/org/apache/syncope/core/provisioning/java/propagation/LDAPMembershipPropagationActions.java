@@ -100,7 +100,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
             final String connObjectLinkTemplate,
             final Set<String> connObjectLinks) {
 
-        List<Group> managedGroups = groupDAO.findByResource(resource);
+        List<Group> managedGroups = groupDAO.findByResourcesContaining(resource);
         managedGroups.forEach(group -> connObjectLinks.add(evaluateGroupConnObjectLink(connObjectLinkTemplate, group)));
     }
 
