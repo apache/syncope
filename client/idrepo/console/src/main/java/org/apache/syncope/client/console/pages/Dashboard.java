@@ -26,6 +26,7 @@ import org.apache.syncope.client.console.panels.DashboardAccessTokensPanel;
 import org.apache.syncope.client.console.panels.DashboardControlPanel;
 import org.apache.syncope.client.console.panels.DashboardExtensionsPanel;
 import org.apache.syncope.client.console.panels.DashboardOverviewPanel;
+import org.apache.syncope.client.console.panels.DashboardSystemPanel;
 import org.apache.syncope.client.console.widgets.BaseExtWidget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
@@ -77,6 +78,16 @@ public class Dashboard extends BasePage {
             @Override
             public Panel getPanel(final String panelId) {
                 return new DashboardControlPanel(panelId, getPageReference());
+            }
+        });
+
+        tabs.add(new AbstractTab(new ResourceModel("system")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new DashboardSystemPanel(panelId);
             }
         });
 

@@ -19,7 +19,7 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
     <wicket:enclosure child="field-label">
-      <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
+      <label wicket:id="field-label" class="form-label">[LABEL]</label><span wicket:id="required"/>
       <span wicket:id="externalAction"/>
     </wicket:enclosure>
 
@@ -42,7 +42,7 @@ under the License.
       <span wicket:id="view">
         <div class="input-group">
           <span wicket:id="panel">[form field]</span>
-          <div class="input-group-addon">
+          <div class="input-group-addon me-1 ms-2">
             <a wicket:id="drop"><i class="fa fa-minus"></i></a>
           </div>
           <span wicket:id="panelPlus">[plus]</span>

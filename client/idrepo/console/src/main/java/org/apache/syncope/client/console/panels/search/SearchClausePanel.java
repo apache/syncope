@@ -387,9 +387,10 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         field.add(operatorContainer);
 
         BootstrapToggleConfig config = new BootstrapToggleConfig().
+                withStyle("mt-1").
                 withOnStyle(BootstrapToggleConfig.Style.info).
                 withOffStyle(BootstrapToggleConfig.Style.warning).
-                withSize(BootstrapToggleConfig.Size.mini);
+                withSize(BootstrapToggleConfig.Size.small);
 
         operatorFragment.add(new BootstrapToggle("operator", new Model<>() {
 

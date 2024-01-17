@@ -81,7 +81,7 @@ under the License.
       <artifactId>ionicons</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.webjars</groupId>
+      <groupId>org.webjars.npm</groupId>
       <artifactId>bootbox</artifactId>
     </dependency>
     <dependency>

@@ -81,9 +81,9 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
                 }
 
                 if (warning) {
-                    tag.put("class", "badge badge-warning navbar-badge");
+                    tag.put("class", "navbar-badge badge text-bg-danger");
                 } else {
-                    tag.put("class", "badge badge-success navbar-badge");
+                    tag.put("class", "navbar-badge badge text-bg-success");
                 }
             }
         };

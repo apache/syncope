@@ -20,11 +20,12 @@
 /* Enduser color palette
 ============================================================================= */
 /* https://coolors.co/718a99-6a93ba-9cc9e7-a3ccf7-b9d8f7 */
-$palette_darker: #718a99;
+$palette_darker: #BD2130;
 $palette_dark: #6a93ba;
-$palette_base: #9cc9e7;
+$palette_base: #dc3545;
 $palette_light: #a3ccf7;
 $palette_lighter: #b9d8f7;
+$palette_white: #ffffff;
 
 $palette_error: #f79999;
 $palette_warning: #f7c899;
@@ -46,6 +47,7 @@ $palette_disabled: rgba(189, 201, 206, 0.73);
   display: -webkit-flex;
   display: flex;
 }
+
 @mixin flex_align_items($value) {
   -ms-flex-align: $value;
   -webkit-align-items: $value;
@@ -93,9 +95,6 @@ $desktop-width: 1024px;
 }
 
 
-
-
-
 /* General
 ============================================================================= */
 
@@ -124,31 +123,28 @@ body {
 }
 
 
-
-
-
 /* Login
 ============================================================================= */
 
 .btn {
   &.btn-signin {
-    background-color: $palette_dark;
-    color: #ffffff;
+    background-color: $palette_base !important;
 
     &:hover, &:active, &:focus {
-      background-color: $palette_base;
+      background-color: $palette_darker !important;
     }
   }
+
   &.btn-sso {
     &:hover, &:active, &:focus {
-      background-color: $palette_base;
+      background-color: $palette_white !important;
     }
   }
 }
 
 .form-signin {
   .form-control:focus {
-    border-color: $palette_dark;
+    border-color: $palette_base;
     @include shadow(inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px $palette_dark);
   }
 }
@@ -160,8 +156,6 @@ body {
     text-decoration: none;
   }
 }
-
-
 
 
 /* Wizard layout
@@ -188,6 +182,7 @@ body {
       #captcha_image {
         font-size: 1.6rem;
       }
+
       #captcha_message {
         font-size: 1.45rem;
       }
@@ -233,11 +228,11 @@ form .wizard-buttons {
     vertical-align: middle;
   }
 
-  .float-left {
+  .float-start {
     padding-left: 15px;
   }
 
-  .float-right {
+  .float-end {
     padding-right: 15px;
   }
 }
@@ -249,10 +244,10 @@ form .wizard-buttons {
     border-color: $palette_lighter;
 
     &:hover,
-      &.focus, 
-      &:focus,
-      &.active,
-      &:active {
+    &.focus,
+    &:focus,
+    &.active,
+    &:active {
       color: inherit;
       background-color: $palette_lighter;
       border-color: transparent;
@@ -266,6 +261,7 @@ form .wizard-buttons {
   padding: 15px;
   margin-bottom: 10px;
 }
+
 .callout-warning label {
   margin-bottom: 0;
 }
@@ -280,11 +276,10 @@ form .wizard-buttons {
   width: 100%;
   @include shadow(0 1px 1px rgba(0, 0, 0, 0.1));
 }
+
 .box.box-primary {
   border-top-color: $palette_dark;
 }
-
-
 
 
 /* Form elements
@@ -293,8 +288,8 @@ form .wizard-buttons {
 /* 
 * Disabled elements
 * ------------------------------ */
-.form-control[disabled], 
-.form-control[readonly], 
+.form-control[disabled],
+.form-control[readonly],
 fieldset[disabled] .form-control {
   background-color: $palette_disabled;
 }
@@ -307,14 +302,13 @@ fieldset[disabled] .form-control {
   > .dropdown-toggle {
     background: rgba(106, 147, 186, 0.34);
   }
+
   > .dropdown-menu {
     li.selected {
-      background: rgba(106, 147, 186, 0.34) !important; 
+      background: rgba(106, 147, 186, 0.34) !important;
     }
   }
 }
-
-
 
 
 /* 
@@ -322,7 +316,7 @@ fieldset[disabled] .form-control {
 * ------------------------------ */
 /* Basic styles */
 .checkbox label,
-.radio label { 
+.radio label {
   position: initial;
   display: inline-block;
   padding: 0 0 0 2em;
@@ -330,6 +324,7 @@ fieldset[disabled] .form-control {
   line-height: 1.5;
   cursor: default;
 }
+
 .checkbox label::before,
 .checkbox label::after,
 .radio label::before,
@@ -341,15 +336,17 @@ fieldset[disabled] .form-control {
   width: 1.5em;
   height: 1.5em;
 }
+
 .checkbox label::before,
 .radio label::before {
   content: " ";
   border: 2px solid #bdc3c7;
   border-radius: 20%;
 }
-.checkbox input[type=checkbox], 
-.checkbox-inline input[type=checkbox], 
-.radio input[type=radio], 
+
+.checkbox input[type=checkbox],
+.checkbox-inline input[type=checkbox],
+.radio input[type=radio],
 .radio-inline input[type=radio] {
   margin-left: 0;
 }
@@ -373,9 +370,11 @@ input {
     line-height: 1.5;
     text-align: center;
   }
+
   &[type="radio"] + label::before {
     border-radius: 50%;
   }
+
   &[type=radio] + label::after {
     content: " ";
     top: .25em;
@@ -393,9 +392,11 @@ input {
     background: $palette_dark;
     border-color: $palette_base;
   }
+
   &[type="checkbox"] + label::after, &[type=radio] + label::after {
     @include transform(scale(0));
   }
+
   &[type="checkbox"]:checked + label::after, &[type=radio]:checked + label::after {
     @include transform(scale(1));
   }
@@ -409,6 +410,7 @@ input {
     }
   }
 }
+
 .radio {
   label {
     &::before, &::after {
@@ -416,8 +418,6 @@ input {
     }
   }
 }
-
-
 
 
 /* 
@@ -429,8 +429,6 @@ option {
     background: $palette_base !important;
   }
 }
-
-
 
 
 /* Navbar
@@ -455,8 +453,8 @@ option {
 
     > li {
       > a {
-        &:focus, 
-          &:hover {
+        &:focus,
+        &:hover {
           background-color: $palette_light;
         }
       }
@@ -472,20 +470,20 @@ option {
     }
   }
 
-  .navbar-nav>.active>a,
-  .navbar-nav>.active>a:focus, 
-    .navbar-nav>.active>a:hover,
-    .navbar-nav>li>a:focus,
-    .navbar-nav>li>a:hover,
-    .navbar-toggle:focus, 
-    .navbar-toggle:hover {
+  .navbar-nav > .active > a,
+  .navbar-nav > .active > a:focus,
+  .navbar-nav > .active > a:hover,
+  .navbar-nav > li > a:focus,
+  .navbar-nav > li > a:hover,
+  .navbar-toggle:focus,
+  .navbar-toggle:hover {
     background-color: $palette_lighter;
   }
 
   .navbar-nav {
-    > .open > a, 
-    > .open > a:focus, 
-      > .open > a:hover {
+    > .open > a,
+    > .open > a:focus,
+    > .open > a:hover {
       background-color: $palette_light;
     }
 
@@ -495,6 +493,7 @@ option {
           &:not(:focus) {
             color: #ffffff;
           }
+
           @include transition(.25s all ease);
         }
       }
@@ -509,6 +508,7 @@ option {
             }
           }
         }
+
         &.open {
           .dropdown-menu {
             > li > a {
@@ -520,17 +520,17 @@ option {
     }
   }
 
-  &::before{
-    content:"";
-    display:inline-block;
-    position:absolute;
-    border:28px solid black;
-    border-color:transparent $palette_base transparent transparent;
+  &::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    border: 28px solid black;
+    border-color: transparent $palette_base transparent transparent;
     top: 0px;
     right: 0;
   }
 
-  &::after{
+  &::after {
     content: "";
     display: inline-block;
     position: absolute;
@@ -577,6 +577,7 @@ option {
       i {
         font-size: 26px;
       }
+
       &:hover {
         cursor: pointer;
       }
@@ -585,15 +586,8 @@ option {
 }
 
 
-
 /* Accessibility
 ============================================================================= */
-
-
-
-
-
-
 
 
 /* Password Reset / Confirm Password Reset / Must Change Password
@@ -609,6 +603,7 @@ option {
   .page-header {
     text-align: center;
   }
+
   form {
     text-align: center;
 

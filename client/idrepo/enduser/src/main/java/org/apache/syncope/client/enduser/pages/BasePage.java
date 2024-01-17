@@ -59,6 +59,8 @@ public class BasePage extends BaseWebPage {
     protected final Sidebar sidebar;
 
     protected final WebMarkupContainer contentWrapper;
+    
+    protected final WebMarkupContainer navbar;
 
     protected final AjaxLink<Void> collapse;
 
@@ -95,6 +97,11 @@ public class BasePage extends BaseWebPage {
         contentWrapper.setOutputMarkupPlaceholderTag(true);
         body.add(contentWrapper);
 
+        navbar = new WebMarkupContainer("navbar");
+        navbar.setOutputMarkupPlaceholderTag(true);
+        navbar.setOutputMarkupId(true);
+        body.add(navbar);
+
         //pageTitle
         addPageTitle(name);
 
@@ -112,15 +119,15 @@ public class BasePage extends BaseWebPage {
             }
         };
         collapse.setOutputMarkupPlaceholderTag(true);
-        body.add(collapse);
+        navbar.add(collapse);
 
         @SuppressWarnings("unchecked")
         Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) Session.get().
                 getAttribute(Constants.BEFORE_LOGOUT_PAGE);
         if (beforeLogout == null) {
-            body.add(new BookmarkablePageLink<>("logout", Logout.class));
+            navbar.add(new BookmarkablePageLink<>("logout", Logout.class));
         } else {
-            body.add(new AjaxLink<Page>("logout") {
+            navbar.add(new AjaxLink<Page>("logout") {
 
                 private static final long serialVersionUID = -7978723352517770644L;
 
@@ -145,9 +152,10 @@ public class BasePage extends BaseWebPage {
         contentWrapper.addOrReplace(new Label(EnduserConstants.PAGE_TITLE, new ResourceModel(title, title)));
     }
 
-    protected void disableSidebar() {
+    protected void disableSidebarAndNavbar() {
         sidebar.setVisible(false);
         collapse.setVisible(false);
+        navbar.setVisible(false);
         contentWrapper.add(new AttributeModifier("style", "margin-left: 0px"));
     }
 

@@ -109,6 +109,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         addButton(defaultModalCloseButton);
         setUseKeyboard(true);
         setFadeIn(true);
+        setBackdrop(Modal.Backdrop.STATIC);
     }
 
     public Form<T> getForm() {
@@ -305,7 +306,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
     }
 
     //--------------------------------------------------------
-    // Reqired for SYNCOPE-846
+    // Required for SYNCOPE-846
     //--------------------------------------------------------
     /**
      * Sets whether the close handler is used or not. Default is false.
@@ -353,6 +354,13 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         return addCloseHandlerScript(markupId, createBasicInitializerScript(markupId));
     }
 
+    @Override
+    protected String createBasicInitializerScript(final String markupId) {
+        return "bootstrap.Modal.getOrCreateInstance(document.getElementById('" + markupId + "'))"
+                + (showImmediately() ? ".show()" : "")
+                + ";";
+    }
+    
     /**
      * adds close handler to initializer script, if use of close handler has been defined.
      *

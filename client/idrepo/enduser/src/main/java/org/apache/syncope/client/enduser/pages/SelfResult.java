@@ -65,7 +65,7 @@ public class SelfResult extends BasePage {
             BookmarkablePageLink<WebPage> login =
                     new BookmarkablePageLink<>("login", Login.class);
             content.add(login.setOutputMarkupId(true));
-            disableSidebar();
+            disableSidebarAndNavbar();
         } else {
             content.add(BookmarkablePageLinkBuilder.build("login", page));
         }

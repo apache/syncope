@@ -48,7 +48,7 @@ public class SelfConfirmPasswordReset extends BasePage {
         super(parameters, CONFIRM_PASSWORD_RESET);
 
         setDomain(parameters);
-        disableSidebar();
+        disableSidebarAndNavbar();
 
         if (parameters == null || parameters.get("token").isEmpty()) {
             LOG.error("No token parameter found in the request url");

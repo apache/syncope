@@ -81,7 +81,7 @@ public class SRAStatisticsPanel extends Panel {
 
         SRAStatistics stats = sraStatisticsRestClient.get(instances, selected);
 
-        count = new NumberWidget("count", "bg-green", stats.getMeasurement("COUNT").orElse(0F),
+        count = new NumberWidget("count", "text-bg-success", stats.getMeasurement("COUNT").orElse(0F),
                 "count", "fas fa-pen-nib");
         add(count);
 
@@ -89,7 +89,7 @@ public class SRAStatisticsPanel extends Panel {
                 "total time", "fas fa-stopwatch");
         add(totalTime);
 
-        max = new NumberWidget("max", "bg-yellow", stats.getMeasurement("MAX").orElse(0F),
+        max = new NumberWidget("max", "text-bg-warning", stats.getMeasurement("MAX").orElse(0F),
                 "max", "fas fa-greater-than");
         add(max);
 
