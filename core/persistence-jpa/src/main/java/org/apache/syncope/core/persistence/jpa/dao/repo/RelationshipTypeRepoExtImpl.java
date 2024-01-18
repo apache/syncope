@@ -41,7 +41,7 @@ public class RelationshipTypeRepoExtImpl implements RelationshipTypeRepoExt {
         this.entityManager = entityManager;
     }
 
-    private Collection<? extends Relationship<?, ?>> findRelationshipsByType(final RelationshipType type) {
+    protected Collection<? extends Relationship<?, ?>> findRelationshipsByType(final RelationshipType type) {
         TypedQuery<ARelationship> aquery = entityManager.createQuery(
                 "SELECT e FROM " + JPAARelationship.class.getSimpleName() + " e WHERE e.type=:type",
                 ARelationship.class);

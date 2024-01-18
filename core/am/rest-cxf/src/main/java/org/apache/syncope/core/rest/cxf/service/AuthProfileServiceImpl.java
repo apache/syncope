@@ -64,7 +64,11 @@ public class AuthProfileServiceImpl extends AbstractService implements AuthProfi
 
     @Override
     public PagedResult<AuthProfileTO> list(final int page, final int size) {
-        Page<AuthProfileTO> result = logic.list(PageRequest.of(page < 1 ? 1 : page, size < 1 ? 1 : size));
-        return buildPagedResult(result);
+        Page<AuthProfileTO> result = logic.list(PageRequest.of(page < 1 ? 0 : page - 1, size < 1 ? 1 : size));
+        return buildPagedResult(
+                result.get().toList(),
+                result.getNumber() + 1,
+                result.getSize(),
+                result.getTotalElements());
     }
 }

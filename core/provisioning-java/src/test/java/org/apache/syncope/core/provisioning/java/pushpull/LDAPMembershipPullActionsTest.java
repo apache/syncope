@@ -154,7 +154,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         lenient().when(pullTask.getResource()).thenReturn(resource);
         lenient().when(resource.getProvisionByAnyType(anyString())).thenReturn(Optional.of(provision));
         lenient().when(provision.getMapping()).thenReturn(new Mapping());
-        lenient().when(anyTypeDAO.findUser()).thenAnswer(ic -> {
+        lenient().when(anyTypeDAO.getUser()).thenAnswer(ic -> {
             AnyType userAnyType = mock(AnyType.class);
             lenient().when(userAnyType.getKey()).thenReturn(AnyTypeKind.USER.name());
             return userAnyType;

@@ -186,7 +186,7 @@ public class PolicyTest extends AbstractTest {
         impl1 = implementationDAO.save(impl1);
 
         PullCorrelationRuleEntity rule1 = entityFactory.newEntity(PullCorrelationRuleEntity.class);
-        rule1.setAnyType(anyTypeDAO.findUser());
+        rule1.setAnyType(anyTypeDAO.getUser());
         rule1.setPullPolicy(pullPolicy);
         rule1.setImplementation(impl1);
         pullPolicy.add(rule1);
@@ -199,7 +199,7 @@ public class PolicyTest extends AbstractTest {
         impl2 = implementationDAO.save(impl2);
 
         PullCorrelationRuleEntity rule2 = entityFactory.newEntity(PullCorrelationRuleEntity.class);
-        rule2.setAnyType(anyTypeDAO.findGroup());
+        rule2.setAnyType(anyTypeDAO.getGroup());
         rule2.setPullPolicy(pullPolicy);
         rule2.setImplementation(impl2);
         pullPolicy.add(rule2);
@@ -230,7 +230,7 @@ public class PolicyTest extends AbstractTest {
         impl1 = implementationDAO.save(impl1);
 
         PushCorrelationRuleEntity rule1 = entityFactory.newEntity(PushCorrelationRuleEntity.class);
-        rule1.setAnyType(anyTypeDAO.findUser());
+        rule1.setAnyType(anyTypeDAO.getUser());
         rule1.setPushPolicy(pushPolicy);
         rule1.setImplementation(impl1);
         pushPolicy.add(rule1);
@@ -243,7 +243,7 @@ public class PolicyTest extends AbstractTest {
         impl2 = implementationDAO.save(impl2);
 
         PushCorrelationRuleEntity rule2 = entityFactory.newEntity(PushCorrelationRuleEntity.class);
-        rule2.setAnyType(anyTypeDAO.findGroup());
+        rule2.setAnyType(anyTypeDAO.getGroup());
         rule2.setPushPolicy(pushPolicy);
         rule2.setImplementation(impl2);
         pushPolicy.add(rule2);

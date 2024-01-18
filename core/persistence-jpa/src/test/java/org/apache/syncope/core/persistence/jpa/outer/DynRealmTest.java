@@ -65,7 +65,7 @@ public class DynRealmTest extends AbstractTest {
 
         DynRealmMembership memb = entityFactory.newEntity(DynRealmMembership.class);
         memb.setDynRealm(dynRealm);
-        memb.setAnyType(anyTypeDAO.findUser());
+        memb.setAnyType(anyTypeDAO.getUser());
         memb.setFIQLCond("cool==true");
 
         dynRealm.add(memb);

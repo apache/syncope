@@ -81,13 +81,6 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void findByConnInstance() {
-        List<ExternalResource> resources = resourceDAO.findByConnInstance("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
-        assertEquals(6, resources.size());
-        assertTrue(resources.contains(resourceDAO.findById("ws-target-resource-1").orElseThrow()));
-    }
-
-    @Test
     public void findWithOrgUnit() {
         ExternalResource resource = resourceDAO.findById("resource-ldap-orgunit").orElseThrow();
         assertNotNull(resource.getOrgUnit());

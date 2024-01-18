@@ -19,12 +19,9 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import java.util.List;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,24 +38,14 @@ public class AnyTypeRepoExtImpl implements AnyTypeRepoExt {
 
     @Transactional(readOnly = true)
     @Override
-    public AnyType findUser() {
+    public AnyType getUser() {
         return entityManager.find(JPAAnyType.class, AnyTypeKind.USER.name());
     }
 
     @Transactional(readOnly = true)
     @Override
-    public AnyType findGroup() {
+    public AnyType getGroup() {
         return entityManager.find(JPAAnyType.class, AnyTypeKind.GROUP.name());
-    }
-
-    @Override
-    public List<AnyType> findByTypeClass(final AnyTypeClass anyTypeClass) {
-        TypedQuery<AnyType> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAAnyType.class.getSimpleName() + " e WHERE :anyTypeClass MEMBER OF e.classes",
-                AnyType.class);
-        query.setParameter("anyTypeClass", anyTypeClass);
-
-        return query.getResultList();
     }
 
     @Override
@@ -68,7 +55,7 @@ public class AnyTypeRepoExtImpl implements AnyTypeRepoExt {
             return;
         }
 
-        if (anyType.equals(findUser()) || anyType.equals(findGroup())) {
+        if (anyType.equals(getUser()) || anyType.equals(getGroup())) {
             throw new IllegalArgumentException(key + " cannot be deleted");
         }
 

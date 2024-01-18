@@ -189,7 +189,7 @@ public class LDAPMembershipPullActions implements PullActions {
 
         getMembAttrValues(delta, profile.getConnector()).forEach(membValue -> {
             Optional<PullMatch> match = inboundMatcher.match(
-                    anyTypeDAO.findUser(),
+                    anyTypeDAO.getUser(),
                     membValue.toString(),
                     profile.getTask().getResource(),
                     profile.getConnector());

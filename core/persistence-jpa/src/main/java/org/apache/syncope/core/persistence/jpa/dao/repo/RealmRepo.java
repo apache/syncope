@@ -20,9 +20,9 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
-import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface RealmRepo
-        extends ListCrudRepository<JPARealm, String>, RealmRepoExt, RealmDAO {
+        extends PagingAndSortingRepository<JPARealm, String>, RealmRepoExt, RealmDAO {
 
 }

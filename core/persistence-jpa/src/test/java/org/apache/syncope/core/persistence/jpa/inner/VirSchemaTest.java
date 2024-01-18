@@ -70,7 +70,7 @@ public class VirSchemaTest extends AbstractTest {
         VirSchema virSchema = entityFactory.newEntity(VirSchema.class);
         virSchema.setKey("virtual");
         virSchema.setResource(resourceDAO.findById("resource-csv").orElseThrow());
-        virSchema.setAnyType(anyTypeDAO.findUser());
+        virSchema.setAnyType(anyTypeDAO.getUser());
         virSchema.setReadonly(true);
         virSchema.setExtAttrName("EXT_ATTR");
 

@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -68,6 +69,9 @@ public class PlainSchemaTest extends AbstractTest {
     @Autowired
     private ExternalResourceDAO resourceDAO;
 
+    @Autowired
+    private AnyTypeClassDAO anyTypeClassDAO;
+
     @BeforeAll
     public static void setAuthContext() {
         List<GrantedAuthority> authorities = Stream.concat(
@@ -85,6 +89,17 @@ public class PlainSchemaTest extends AbstractTest {
     @AfterAll
     public static void unsetAuthContext() {
         SecurityContextHolder.getContext().setAuthentication(null);
+    }
+
+    @Test
+    public void findByAnyTypeClasses() {
+        List<? extends PlainSchema> found = plainSchemaDAO.findByAnyTypeClasses(
+                List.of(anyTypeClassDAO.findById("minimal user").orElseThrow()));
+        assertEquals(5, found.size());
+
+        found = plainSchemaDAO.findByAnyTypeClasses(
+                List.of(anyTypeClassDAO.findById("other").orElseThrow()));
+        assertEquals(10, found.size());
     }
 
     @Test
@@ -127,7 +142,7 @@ public class PlainSchemaTest extends AbstractTest {
                 });
 
         // search for user schema fullname
-        PlainSchema schema = plainSchemaDAO.findById("fullname").orElseThrow();
+        plainSchemaDAO.findById("fullname").orElseThrow();
 
         // check for associated mappings
         List<Item> mapItems = getMappingItems("fullname");

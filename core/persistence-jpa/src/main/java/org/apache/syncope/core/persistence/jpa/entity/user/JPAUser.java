@@ -181,7 +181,7 @@ public class JPAUser
 
     @Override
     public AnyType getType() {
-        return ApplicationContextProvider.getBeanFactory().getBean(AnyTypeDAO.class).findUser();
+        return ApplicationContextProvider.getBeanFactory().getBean(AnyTypeDAO.class).getUser();
     }
 
     @Override

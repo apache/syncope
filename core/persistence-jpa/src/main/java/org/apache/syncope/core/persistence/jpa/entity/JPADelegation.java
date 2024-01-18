@@ -53,11 +53,10 @@ public class JPADelegation extends AbstractGeneratedKeyEntity implements Delegat
     private JPAUser delegated;
 
     @NotNull
-    @Column(name = "startDate", nullable = false)
-    private OffsetDateTime start;
+    @Column(nullable = false)
+    private OffsetDateTime startDate;
 
-    @Column(name = "endDate")
-    private OffsetDateTime end;
+    private OffsetDateTime endDate;
 
     @OneToMany
     private Set<JPARole> roles = new HashSet<>();
@@ -86,22 +85,22 @@ public class JPADelegation extends AbstractGeneratedKeyEntity implements Delegat
 
     @Override
     public OffsetDateTime getStart() {
-        return start;
+        return startDate;
     }
 
     @Override
     public void setStart(final OffsetDateTime start) {
-        this.start = start;
+        this.startDate = start;
     }
 
     @Override
     public OffsetDateTime getEnd() {
-        return end;
+        return endDate;
     }
 
     @Override
     public void setEnd(final OffsetDateTime end) {
-        this.end = end;
+        this.endDate = end;
     }
 
     @Override

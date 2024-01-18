@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -275,16 +274,6 @@ public class RealmRepoExtImpl implements RealmRepoExt {
         return result;
     }
 
-    @Override
-    public List<Realm> findByLogicActions(final Implementation logicActions) {
-        TypedQuery<Realm> query = entityManager.createQuery(
-                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e "
-                + "WHERE :logicActions MEMBER OF e.actions", Realm.class);
-        query.setParameter("logicActions", logicActions);
-
-        return query.getResultList();
-    }
-
     protected void findAncestors(final List<Realm> result, final Realm realm) {
         if (realm.getParent() != null && !result.contains(realm.getParent())) {
             result.add(realm.getParent());
@@ -307,24 +296,6 @@ public class RealmRepoExtImpl implements RealmRepoExt {
         query.setParameter("realm", realm);
 
         return query.getResultList();
-    }
-
-    @Override
-    public List<String> findAllKeys(final int page, final int itemsPerPage) {
-        Query query = entityManager.
-                createNativeQuery("SELECT id FROM " + JPARealm.TABLE + " ORDER BY fullPath");
-
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-        if (itemsPerPage > 0) {
-            query.setMaxResults(itemsPerPage);
-        }
-
-        @SuppressWarnings("unchecked")
-        List<Object> result = query.getResultList();
-        return result.stream().
-                map(Object::toString).
-                collect(Collectors.toList());
     }
 
     @Override

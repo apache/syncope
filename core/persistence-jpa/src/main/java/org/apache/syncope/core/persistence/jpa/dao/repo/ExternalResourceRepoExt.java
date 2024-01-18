@@ -33,12 +33,6 @@ public interface ExternalResourceRepoExt {
 
     boolean anyItemHaving(Implementation transformer);
 
-    List<ExternalResource> findByConnInstance(String connInstance);
-
-    List<ExternalResource> findByProvisionSorter(Implementation provisionSorter);
-
-    List<ExternalResource> findByPropagationActions(Implementation propagationActions);
-
     List<ExternalResource> findByPolicy(Policy policy);
 
     List<? extends ExternalResource> findAll();
@@ -47,6 +41,5 @@ public interface ExternalResourceRepoExt {
 
     void deleteById(String key);
 
-    void deleteMapping(String schemaName);
-
+    void deleteMapping(String schemaKey);
 }

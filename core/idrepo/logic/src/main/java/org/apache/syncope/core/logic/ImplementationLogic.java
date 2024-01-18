@@ -193,7 +193,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 break;
 
             case IdRepoImplementationType.LOGIC_ACTIONS:
-                inUse = !realmDAO.findByLogicActions(implementation).isEmpty();
+                inUse = !realmDAO.findByActionsContaining(implementation).isEmpty();
                 break;
 
             case IdMImplementationType.PROVISION_SORTER:
@@ -201,7 +201,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 break;
 
             case IdMImplementationType.PROPAGATION_ACTIONS:
-                inUse = !resourceDAO.findByPropagationActions(implementation).isEmpty();
+                inUse = !resourceDAO.findByPropagationActionsContaining(implementation).isEmpty();
                 break;
 
             case IdMImplementationType.PULL_ACTIONS:

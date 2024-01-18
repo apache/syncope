@@ -40,7 +40,7 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 
-public class PlainSchemaRepoExtImpl implements PlainSchemaRepoExt {
+public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements PlainSchemaRepoExt {
 
     protected static <T extends PlainAttr<?>> String getTable(final Class<T> plainAttrClass) {
         if (GPlainAttr.class.isAssignableFrom(plainAttrClass)) {
@@ -68,31 +68,19 @@ public class PlainSchemaRepoExtImpl implements PlainSchemaRepoExt {
 
     protected final ExternalResourceDAO resourceDAO;
 
-    protected final EntityManager entityManager;
-
     public PlainSchemaRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final ExternalResourceDAO resourceDAO,
             final EntityManager entityManager) {
 
+        super(entityManager);
         this.anyUtilsFactory = anyUtilsFactory;
         this.resourceDAO = resourceDAO;
-        this.entityManager = entityManager;
     }
 
     @Override
     public List<? extends PlainSchema> findByAnyTypeClasses(final Collection<AnyTypeClass> anyTypeClasses) {
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(JPAPlainSchema.class.getSimpleName()).
-                append(" e WHERE ");
-        anyTypeClasses.forEach(anyTypeClass -> queryString.
-                append("e.anyTypeClass.id='").
-                append(anyTypeClass.getKey()).append("' OR "));
-
-        TypedQuery<PlainSchema> query = entityManager.createQuery(
-                queryString.substring(0, queryString.length() - 4), PlainSchema.class);
-
-        return query.getResultList();
+        return findByAnyTypeClasses(anyTypeClasses, JPAPlainSchema.class.getSimpleName(), PlainSchema.class);
     }
 
     @Override

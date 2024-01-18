@@ -182,7 +182,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
             OIDCC4UIUserTemplate userTemplate = op.getUserTemplate();
             if (userTemplate == null) {
                 userTemplate = entityFactory.newEntity(OIDCC4UIUserTemplate.class);
-                userTemplate.setAnyType(anyTypeDAO.findUser());
+                userTemplate.setAnyType(anyTypeDAO.getUser());
                 userTemplate.setOP(op);
                 op.setUserTemplate(userTemplate);
             }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
@@ -26,9 +27,9 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface DelegationDAO extends DAO<Delegation> {
 
-    Optional<String> findValidFor(String delegating, String delegated);
+    Optional<String> findValidFor(String delegating, String delegated, OffsetDateTime now);
 
-    List<String> findValidDelegating(String delegated);
+    List<String> findValidDelegating(String delegated, OffsetDateTime now);
 
     List<Delegation> findByDelegating(User user);
 

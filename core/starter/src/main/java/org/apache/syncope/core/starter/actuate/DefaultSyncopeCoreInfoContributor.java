@@ -229,7 +229,7 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
                         map(AnyType::getKey).collect(Collectors.toList()));
 
                 PLATFORM_INFO.getUserClasses().clear();
-                PLATFORM_INFO.getUserClasses().addAll(anyTypeDAO.findUser().getClasses().stream().
+                PLATFORM_INFO.getUserClasses().addAll(anyTypeDAO.getUser().getClasses().stream().
                         map(AnyTypeClass::getKey).collect(Collectors.toList()));
 
                 PLATFORM_INFO.getAnyTypeClasses().clear();

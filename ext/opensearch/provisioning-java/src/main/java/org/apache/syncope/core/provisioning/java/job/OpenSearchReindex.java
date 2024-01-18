@@ -25,6 +25,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
@@ -126,15 +127,15 @@ public class OpenSearchReindex extends AbstractSchedTaskJobDelegate<SchedTask> {
                 long realms = realmDAO.count();
                 String rindex = OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain());
                 setStatus("Indexing " + realms + " realms under " + rindex + "...");
-                for (int page = 1; page <= (realms / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                for (int page = 0; page <= (realms / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
                     BulkRequest.Builder bulkRequest = new BulkRequest.Builder();
 
-                    for (String realm : realmDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                        realmDAO.findById(realm).ifPresent(
-                                r -> bulkRequest.operations(op -> op.index(idx -> idx.
+                    Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+                    for (Realm realm : realmDAO.findAll(pageable)) {
+                        bulkRequest.operations(op -> op.index(idx -> idx.
                                 index(rindex).
-                                id(realm).
-                                document(utils.document(r)))));
+                                id(realm.getKey()).
+                                document(utils.document(realm))));
                     }
 
                     try {

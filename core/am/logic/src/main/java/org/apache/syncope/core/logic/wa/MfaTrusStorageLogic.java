@@ -133,8 +133,7 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void delete(final OffsetDateTime expirationDate, final String recordKey) {
-        List<AuthProfile> profiles = authProfileDAO.findAll(Pageable.unpaged());
-        profiles.forEach(profile -> {
+        authProfileDAO.findAll(Pageable.unpaged(Sort.by("owner"))).forEach(profile -> {
             List<MfaTrustedDevice> devices = profile.getMfaTrustedDevices();
             if (devices != null) {
                 if (recordKey != null) {

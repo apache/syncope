@@ -33,8 +33,6 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 
 public interface AnyRepoExt<A extends Any<?>> {
 
-    int DEFAULT_PAGE_SIZE = 500;
-
     Optional<OffsetDateTime> findLastChange(String key);
 
     A authFind(String key);

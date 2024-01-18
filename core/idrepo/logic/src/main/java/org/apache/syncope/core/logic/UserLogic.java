@@ -19,6 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -149,7 +150,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         return Triple.of(
                 POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
-                POJOHelper.serialize(delegationDAO.findValidDelegating(authenticatedUser.getKey())), authenticatedUser);
+                POJOHelper.serialize(delegationDAO.findValidDelegating(
+                        authenticatedUser.getKey(), OffsetDateTime.now())),
+                authenticatedUser);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_READ + "')")

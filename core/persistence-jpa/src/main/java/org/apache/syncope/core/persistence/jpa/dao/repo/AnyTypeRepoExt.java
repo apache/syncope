@@ -18,17 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 
 public interface AnyTypeRepoExt {
 
-    AnyType findUser();
+    AnyType getUser();
 
-    AnyType findGroup();
-
-    List<AnyType> findByTypeClass(AnyTypeClass anyTypeClass);
+    AnyType getGroup();
 
     void deleteById(String key);
 }

@@ -124,8 +124,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthProfileRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.AuthProfileRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.AuthProfileRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.CASSPClientAppRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.CASSPClientAppRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.CASSPClientAppRepoExtImpl;
@@ -133,8 +131,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.ConnInstanceRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.ConnInstanceRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.ConnInstanceRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DelegationRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.DelegationRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.DelegationRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DerSchemaRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DerSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DerSchemaRepoExtImpl;
@@ -668,17 +664,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthProfileRepoExt authProfileRepoExt(final EntityManager entityManager) {
-        return new AuthProfileRepoExtImpl(entityManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public AuthProfileDAO authProfileDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final AuthProfileRepoExt authProfileRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(AuthProfileRepo.class, authProfileRepoExt);
+    public AuthProfileDAO authProfileDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(AuthProfileRepo.class);
     }
 
     @ConditionalOnMissingBean
@@ -722,17 +709,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DelegationRepoExt delegationRepoExt(final EntityManager entityManager) {
-        return new DelegationRepoExtImpl(entityManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public DelegationDAO delegationDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final DelegationRepoExt delegationRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(DelegationRepo.class, delegationRepoExt);
+    public DelegationDAO delegationDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(DelegationRepo.class);
     }
 
     @ConditionalOnMissingBean

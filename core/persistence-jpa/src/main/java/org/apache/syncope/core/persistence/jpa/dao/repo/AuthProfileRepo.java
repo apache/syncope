@@ -20,9 +20,9 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAuthProfile;
-import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface AuthProfileRepo
-        extends ListCrudRepository<JPAAuthProfile, String>, AuthProfileRepoExt, AuthProfileDAO {
+        extends PagingAndSortingRepository<JPAAuthProfile, String>, AuthProfileDAO {
 
 }

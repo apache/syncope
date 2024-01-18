@@ -180,7 +180,7 @@ public class GroupTest extends AbstractTest {
         group.setName("new");
 
         TypeExtension typeExt = entityFactory.newEntity(TypeExtension.class);
-        typeExt.setAnyType(anyTypeDAO.findUser());
+        typeExt.setAnyType(anyTypeDAO.getUser());
         typeExt.add(anyTypeClassDAO.findById("csv").orElseThrow());
         typeExt.add(anyTypeClassDAO.findById("other").orElseThrow());
 
@@ -193,7 +193,7 @@ public class GroupTest extends AbstractTest {
 
         group = groupDAO.findByName("new").orElseThrow();
         assertEquals(1, group.getTypeExtensions().size());
-        assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).get().getAuxClasses().size());
+        assertEquals(2, group.getTypeExtension(anyTypeDAO.getUser()).get().getAuxClasses().size());
     }
 
     @Test

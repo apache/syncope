@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -41,13 +42,29 @@ public class AnyTypeTest extends AbstractTest {
     private AnyTypeClassDAO anyTypeClassDAO;
 
     @Test
+    public void findByClassesContaining() {
+        List<AnyType> found = anyTypeDAO.findByClassesContaining(
+                anyTypeClassDAO.findById("minimal user").orElseThrow());
+        assertEquals(List.of(anyTypeDAO.getUser()), found);
+
+        found = anyTypeDAO.findByClassesContaining(anyTypeClassDAO.findById("other").orElseThrow());
+        assertEquals(List.of(anyTypeDAO.getUser()), found);
+
+        found = anyTypeDAO.findByClassesContaining(anyTypeClassDAO.findById("minimal group").orElseThrow());
+        assertEquals(List.of(anyTypeDAO.getGroup()), found);
+
+        found = anyTypeDAO.findByClassesContaining(anyTypeClassDAO.findById("minimal printer").orElseThrow());
+        assertEquals(List.of(anyTypeDAO.findById("PRINTER").orElseThrow()), found);
+    }
+
+    @Test
     public void manyToMany() {
         AnyTypeClass other = anyTypeClassDAO.findById("other").orElseThrow();
 
-        AnyType user = anyTypeDAO.findUser();
+        AnyType user = anyTypeDAO.getUser();
         assertTrue(user.getClasses().contains(other));
 
-        AnyType group = anyTypeDAO.findGroup();
+        AnyType group = anyTypeDAO.getGroup();
         assertFalse(group.getClasses().contains(other));
 
         group.add(other);
@@ -55,11 +72,11 @@ public class AnyTypeTest extends AbstractTest {
 
         entityManager.flush();
 
-        user = anyTypeDAO.findUser();
+        user = anyTypeDAO.getUser();
         assertTrue(user.getClasses().contains(other));
         int userClassesBefore = user.getClasses().size();
 
-        group = anyTypeDAO.findGroup();
+        group = anyTypeDAO.getGroup();
         assertTrue(group.getClasses().contains(other));
         int groupClassesBefore = group.getClasses().size();
 
@@ -67,10 +84,10 @@ public class AnyTypeTest extends AbstractTest {
 
         entityManager.flush();
 
-        user = anyTypeDAO.findUser();
+        user = anyTypeDAO.getUser();
         assertEquals(userClassesBefore, user.getClasses().size() + 1);
 
-        group = anyTypeDAO.findGroup();
+        group = anyTypeDAO.getGroup();
         assertEquals(groupClassesBefore, group.getClasses().size() + 1);
     }
 }

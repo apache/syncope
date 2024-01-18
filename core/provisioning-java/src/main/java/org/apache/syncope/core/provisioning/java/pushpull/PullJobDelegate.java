@@ -151,7 +151,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 group.setUserOwner(null);
             } else {
                 Optional<PullMatch> match = inboundMatcher.match(
-                        anyTypeDAO.findUser(),
+                        anyTypeDAO.getUser(),
                         ownerKey,
                         profile.getTask().getResource(),
                         profile.getConnector());
@@ -159,7 +159,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                     group.setUserOwner((User) match.get().getAny());
                 } else {
                     inboundMatcher.match(
-                            anyTypeDAO.findGroup(),
+                            anyTypeDAO.getGroup(),
                             ownerKey,
                             profile.getTask().getResource(),
                             profile.getConnector()).

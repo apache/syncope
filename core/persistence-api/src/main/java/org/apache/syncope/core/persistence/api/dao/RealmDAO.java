@@ -25,6 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface RealmDAO extends DAO<Realm> {
@@ -49,11 +50,11 @@ public interface RealmDAO extends DAO<Realm> {
 
     <T extends Policy> List<Realm> findByPolicy(T policy);
 
-    List<Realm> findByLogicActions(Implementation logicActions);
+    List<Realm> findByActionsContaining(Implementation logicActions);
 
     List<Realm> findAncestors(Realm realm);
 
     List<Realm> findChildren(Realm realm);
 
-    List<String> findAllKeys(int page, int itemsPerPage);
+    Page<? extends Realm> findAll(Pageable pageable);
 }

@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -31,30 +30,18 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAVirSchema;
 
-public class VirSchemaRepoExtImpl implements VirSchemaRepoExt {
+public class VirSchemaRepoExtImpl extends AbstractSchemaRepoExt implements VirSchemaRepoExt {
 
     protected final ExternalResourceDAO resourceDAO;
 
-    protected final EntityManager entityManager;
-
     public VirSchemaRepoExtImpl(final ExternalResourceDAO resourceDAO, final EntityManager entityManager) {
+        super(entityManager);
         this.resourceDAO = resourceDAO;
-        this.entityManager = entityManager;
     }
 
     @Override
     public List<? extends VirSchema> findByAnyTypeClasses(final Collection<AnyTypeClass> anyTypeClasses) {
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(JPAVirSchema.class.getSimpleName()).
-                append(" e WHERE ");
-        anyTypeClasses.forEach(anyTypeClass -> queryString.
-                append("e.anyTypeClass.id='").
-                append(anyTypeClass.getKey()).append("' OR "));
-
-        TypedQuery<VirSchema> query = entityManager.createQuery(
-                queryString.substring(0, queryString.length() - 4), VirSchema.class);
-
-        return query.getResultList();
+        return findByAnyTypeClasses(anyTypeClasses, JPAVirSchema.class.getSimpleName(), VirSchema.class);
     }
 
     @Override

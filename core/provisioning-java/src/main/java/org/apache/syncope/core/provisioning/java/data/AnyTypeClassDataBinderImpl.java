@@ -123,7 +123,8 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
         anyTypeClassTO.setKey(anyTypeClass.getKey());
 
         anyTypeClassTO.getInUseByTypes().addAll(
-                anyTypeDAO.findByTypeClass(anyTypeClass).stream().map(AnyType::getKey).collect(Collectors.toList()));
+                anyTypeDAO.findByClassesContaining(anyTypeClass).stream().
+                        map(AnyType::getKey).collect(Collectors.toList()));
 
         anyTypeClassTO.getPlainSchemas().addAll(
                 anyTypeClass.getPlainSchemas().stream().map(PlainSchema::getKey).collect(Collectors.toList()));

@@ -125,37 +125,6 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
                 count() > 0;
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public List<ExternalResource> findByConnInstance(final String connInstance) {
-        TypedQuery<ExternalResource> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAExternalResource.class.getSimpleName() + " e "
-                + "WHERE e.connector.id=:connInstance", ExternalResource.class);
-        query.setParameter("connInstance", connInstance);
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<ExternalResource> findByPropagationActions(final Implementation propagationActions) {
-        TypedQuery<ExternalResource> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAExternalResource.class.getSimpleName() + " e "
-                + "WHERE :propagationActions MEMBER OF e.propagationActions", ExternalResource.class);
-        query.setParameter("propagationActions", propagationActions);
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<ExternalResource> findByProvisionSorter(final Implementation provisionSorter) {
-        TypedQuery<ExternalResource> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAExternalResource.class.getSimpleName() + " e "
-                + "WHERE e.provisionSorter=:provisionSorter", ExternalResource.class);
-        query.setParameter("provisionSorter", provisionSorter);
-
-        return query.getResultList();
-    }
-
     protected StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
         StringBuilder query = new StringBuilder("SELECT e FROM ").
                 append(JPAExternalResource.class.getSimpleName()).
@@ -209,14 +178,14 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
     }
 
     @Override
-    public void deleteMapping(final String intAttrName) {
+    public void deleteMapping(final String schemaKey) {
         findAll().forEach(resource -> {
             AtomicBoolean removed = new AtomicBoolean(false);
 
             resource.getProvisions().forEach(provision -> removed.set(
                     removed.get()
                     || (provision.getMapping() != null
-                    && provision.getMapping().getItems().removeIf(item -> intAttrName.equals(item.getIntAttrName())))));
+                    && provision.getMapping().getItems().removeIf(item -> schemaKey.equals(item.getIntAttrName())))));
 
             if (removed.get()) {
                 entityManager.merge(resource);

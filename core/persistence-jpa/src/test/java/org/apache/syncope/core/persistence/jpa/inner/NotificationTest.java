@@ -50,7 +50,7 @@ public class NotificationTest extends AbstractTest {
         Notification notification = notificationDAO.findById("9e2b911c-25de-4c77-bcea-b86ed9451050").orElseThrow();
         assertNotNull(notification.getEvents());
         assertFalse(notification.getEvents().isEmpty());
-        assertNotNull(notification.getAbout(anyTypeDAO.findUser()));
+        assertNotNull(notification.getAbout(anyTypeDAO.getUser()));
         assertNotNull(notification.getRecipientsFIQL());
     }
 
@@ -69,7 +69,7 @@ public class NotificationTest extends AbstractTest {
         AnyAbout about = entityFactory.newEntity(AnyAbout.class);
         about.setNotification(notification);
         notification.add(about);
-        about.setAnyType(anyTypeDAO.findUser());
+        about.setAnyType(anyTypeDAO.getUser());
         about.set("fake search condition");
 
         notification.setRecipientsFIQL("fake recipients");
@@ -99,7 +99,7 @@ public class NotificationTest extends AbstractTest {
         AnyAbout about = entityFactory.newEntity(AnyAbout.class);
         about.setNotification(notification);
         notification.add(about);
-        about.setAnyType(anyTypeDAO.findUser());
+        about.setAnyType(anyTypeDAO.getUser());
         about.set("fake search condition");
 
         notification.setRecipientsFIQL("fake search condition");
@@ -130,7 +130,7 @@ public class NotificationTest extends AbstractTest {
         AnyAbout about = entityFactory.newEntity(AnyAbout.class);
         about.setNotification(notification);
         notification.add(about);
-        about.setAnyType(anyTypeDAO.findUser());
+        about.setAnyType(anyTypeDAO.getUser());
         about.set("fake search condition");
 
         notification.setRecipientAttrName("email");

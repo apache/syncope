@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import java.util.List;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.springframework.data.domain.Pageable;
@@ -41,13 +40,9 @@ public interface RealmRepoExt {
 
     <T extends Policy> List<Realm> findByPolicy(T policy);
 
-    List<Realm> findByLogicActions(Implementation logicActions);
-
     List<Realm> findAncestors(Realm realm);
 
     List<Realm> findChildren(Realm realm);
-
-    List<String> findAllKeys(int page, int itemsPerPage);
 
     Realm save(Realm realm);
 

@@ -46,13 +46,13 @@ public class AnyTypeTest extends AbstractTest {
 
     @Test
     public void find() {
-        AnyType userType = anyTypeDAO.findUser();
+        AnyType userType = anyTypeDAO.getUser();
         assertNotNull(userType);
         assertEquals(AnyTypeKind.USER, userType.getKind());
         assertEquals(AnyTypeKind.USER.name(), userType.getKey());
         assertFalse(userType.getClasses().isEmpty());
 
-        AnyType groupType = anyTypeDAO.findGroup();
+        AnyType groupType = anyTypeDAO.getGroup();
         assertNotNull(groupType);
         assertEquals(AnyTypeKind.GROUP, groupType.getKind());
         assertEquals(AnyTypeKind.GROUP.name(), groupType.getKey());

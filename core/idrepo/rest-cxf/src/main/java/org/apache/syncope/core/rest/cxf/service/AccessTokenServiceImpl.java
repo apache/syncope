@@ -22,7 +22,6 @@ import jakarta.ws.rs.core.Response;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -73,7 +72,7 @@ public class AccessTokenServiceImpl extends AbstractService implements AccessTok
         Sort sort = orderByClauses.isEmpty() ? Sort.by("expirationTime").descending() : Sort.by(orderByClauses);
         Page<AccessTokenTO> page = logic.list(PageRequest.of(query.getPage() - 1, query.getSize(), sort));
         return buildPagedResult(
-                page.get().collect(Collectors.toList()),
+                page.get().toList(),
                 page.getNumber() + 1,
                 page.getSize(),
                 page.getTotalElements());

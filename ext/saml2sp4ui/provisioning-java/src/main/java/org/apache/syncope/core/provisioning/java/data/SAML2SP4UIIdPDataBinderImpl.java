@@ -186,7 +186,7 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
             SAML2SP4UIUserTemplate userTemplate = idp.getUserTemplate();
             if (userTemplate == null) {
                 userTemplate = entityFactory.newEntity(SAML2SP4UIUserTemplate.class);
-                userTemplate.setAnyType(anyTypeDAO.findUser());
+                userTemplate.setAnyType(anyTypeDAO.getUser());
                 userTemplate.setIdP(idp);
                 idp.setUserTemplate(userTemplate);
             }

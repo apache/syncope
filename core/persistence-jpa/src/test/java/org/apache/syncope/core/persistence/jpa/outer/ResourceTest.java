@@ -30,15 +30,19 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -66,6 +70,47 @@ public class ResourceTest extends AbstractTest {
 
     @Autowired
     private PolicyDAO policyDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
+
+    @Test
+    public void findByConnInstance() {
+        List<ExternalResource> resources = resourceDAO.findByConnInstance("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
+        assertEquals(6, resources.size());
+        assertTrue(resources.contains(resourceDAO.findById("ws-target-resource-1").orElseThrow()));
+    }
+
+    @Test
+    public void findByProvisionSorter() {
+        Implementation impl = entityFactory.newEntity(Implementation.class);
+        impl.setType(IdMImplementationType.PROVISION_SORTER);
+        impl.setEngine(ImplementationEngine.GROOVY);
+        impl.setKey("ProvSorter");
+        impl = implementationDAO.save(impl);
+
+        entityManager.flush();
+
+        assertTrue(resourceDAO.findByProvisionSorter(impl).isEmpty());
+
+        ExternalResource csv = resourceDAO.findById("resource-csv").orElseThrow();
+        csv.setProvisionSorter(impl);
+        csv = resourceDAO.save(csv);
+
+        entityManager.flush();
+
+        assertEquals(List.of(csv), resourceDAO.findByProvisionSorter(impl));
+    }
+
+    @Test
+    public void findByPropagationActionsContaining() {
+        Implementation impl = implementationDAO.findById("GenerateRandomPasswordPropagationActions").orElseThrow();
+
+        assertEquals(
+                Set.of(resourceDAO.findById("resource-testdb2").orElseThrow(),
+                        resourceDAO.findById("resource-ldap").orElseThrow()),
+                resourceDAO.findByPropagationActionsContaining(impl).stream().collect(Collectors.toSet()));
+    }
 
     @Test
     public void createWithPasswordPolicy() {

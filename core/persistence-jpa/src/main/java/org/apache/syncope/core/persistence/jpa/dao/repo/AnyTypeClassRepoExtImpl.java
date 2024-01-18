@@ -103,7 +103,7 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
             schema.setAnyTypeClass(null);
         }
 
-        for (AnyType type : anyTypeDAO.findByTypeClass(anyTypeClass)) {
+        for (AnyType type : anyTypeDAO.findByClassesContaining(anyTypeClass)) {
             type.getClasses().remove(anyTypeClass);
         }
 

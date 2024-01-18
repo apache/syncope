@@ -84,7 +84,7 @@ public class StreamPushJobDelegateTest extends AbstractTest {
                     os)) {
 
                 return executor().push(
-                        anyTypeDAO.findUser(),
+                        anyTypeDAO.getUser(),
                         userDAO.findAll(),
                         List.of("username", "firstname", "surname", "email", "status", "loginDate"),
                         connector,

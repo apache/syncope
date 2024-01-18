@@ -94,9 +94,9 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
         AnyType anyType = null;
         if (input instanceof UserCR) {
-            anyType = anyTypeDAO.findUser();
+            anyType = anyTypeDAO.getUser();
         } else if (input instanceof GroupCR) {
-            anyType = anyTypeDAO.findGroup();
+            anyType = anyTypeDAO.getGroup();
         } else if (input instanceof AnyObjectCR anyObjectCR) {
             anyType = anyTypeDAO.findById(anyObjectCR.getType()).orElse(null);
         }

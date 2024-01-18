@@ -24,5 +24,4 @@ import org.springframework.data.repository.ListCrudRepository;
 
 public interface ReportExecRepo
         extends ListCrudRepository<JPAReportExec, String>, ReportExecRepoExt, ReportExecDAO {
-
 }

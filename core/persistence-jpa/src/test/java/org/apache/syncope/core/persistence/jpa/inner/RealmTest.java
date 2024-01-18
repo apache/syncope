@@ -97,6 +97,8 @@ public class RealmTest extends AbstractTest {
         assertNotNull(list);
         assertFalse(list.isEmpty());
         list.forEach(Assertions::assertNotNull);
+
+        assertEquals(4, realmDAO.findAll(Pageable.unpaged()).stream().count());
     }
 
     @Test

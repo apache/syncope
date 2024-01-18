@@ -58,7 +58,7 @@ public class VirSchemaTest extends AbstractTest {
         virSchema.setReadonly(true);
         virSchema.setExtAttrName("EXT_ATTR");
         virSchema.setResource(resource);
-        virSchema.setAnyType(anyTypeDAO.findUser());
+        virSchema.setAnyType(anyTypeDAO.getUser());
 
         virSchemaDAO.save(virSchema);
         entityManager.flush();

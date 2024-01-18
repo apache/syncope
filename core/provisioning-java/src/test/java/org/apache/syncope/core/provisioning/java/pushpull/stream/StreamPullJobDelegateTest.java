@@ -106,7 +106,7 @@ public class StreamPullJobDelegateTest extends AbstractTest {
                 assertEquals(columns, csvColumns);
 
                 return executor().pull(
-                        anyTypeDAO.findUser(),
+                        anyTypeDAO.getUser(),
                         "username",
                         columns,
                         ConflictResolutionAction.IGNORE,

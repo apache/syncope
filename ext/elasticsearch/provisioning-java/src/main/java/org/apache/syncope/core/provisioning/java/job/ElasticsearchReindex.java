@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
@@ -175,13 +176,13 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                 try (BulkIngester<Void> ingester = BulkIngester.of(b -> b.client(client).
                         maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
 
-                    for (int page = 1; page <= (realms / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                        for (String realm : realmDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
-                            realmDAO.findById(realm).ifPresent(
-                                    r -> ingester.add(op -> op.index(idx -> idx.
+                    for (int page = 0; page <= (realms / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
+                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+                        for (Realm realm : realmDAO.findAll(pageable)) {
+                            ingester.add(op -> op.index(idx -> idx.
                                     index(rindex).
-                                    id(realm).
-                                    document(utils.document(r)))));
+                                    id(realm.getKey()).
+                                    document(utils.document(realm))));
                         }
                     }
                 } catch (Exception e) {
