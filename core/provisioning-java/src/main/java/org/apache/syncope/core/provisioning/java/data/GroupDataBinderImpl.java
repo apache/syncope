@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -370,7 +369,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         TypeExtensionTO typeExtTO = new TypeExtensionTO();
         typeExtTO.setAnyType(typeExt.getAnyType().getKey());
         typeExtTO.getAuxClasses().addAll(
-                typeExt.getAuxClasses().stream().map(AnyTypeClass::getKey).collect(Collectors.toList()));
+                typeExt.getAuxClasses().stream().map(AnyTypeClass::getKey).toList());
         return typeExtTO;
     }
 

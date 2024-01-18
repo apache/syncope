@@ -446,7 +446,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
                 field("relationships").value(FieldValue.of(key)).build()).
-                build()).collect(Collectors.toList());
+                build()).toList();
 
         return queries.size() == 1
                 ? queries.get(0)
@@ -457,7 +457,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
                 field("memberships").value(FieldValue.of(key)).build()).
-                build()).collect(Collectors.toList());
+                build()).toList();
 
         return queries.size() == 1
                 ? queries.get(0)
@@ -486,7 +486,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
                 field("members").value(FieldValue.of(key)).build()).
-                build()).collect(Collectors.toList());
+                build()).toList();
 
         return queries.size() == 1
                 ? queries.get(0)

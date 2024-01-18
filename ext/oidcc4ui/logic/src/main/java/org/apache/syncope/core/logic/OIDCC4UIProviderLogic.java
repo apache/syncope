@@ -22,7 +22,6 @@ import com.nimbusds.oauth2.sdk.ParseException;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.Item;
@@ -90,7 +89,7 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<OIDCC4UIProviderTO> list() {
-        return opDAO.findAll().stream().map(binder::getOIDCProviderTO).collect(Collectors.toList());
+        return opDAO.findAll().stream().map(binder::getOIDCProviderTO).toList();
     }
 
     @PreAuthorize("hasRole('" + OIDCC4UIEntitlement.OP_READ + "')")

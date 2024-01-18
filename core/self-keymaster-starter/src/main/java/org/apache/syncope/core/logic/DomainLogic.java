@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -55,7 +54,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public List<Domain> list() {
-        return domainDAO.findAll().stream().map(DomainEntity::get).collect(Collectors.toList());
+        return domainDAO.findAll().stream().map(DomainEntity::get).toList();
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")

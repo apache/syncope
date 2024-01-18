@@ -113,7 +113,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setPrincipalAttributeId(conf.getPrincipalAttributeId());
         props.setPrincipalDnAttributeName(conf.getPrincipalDnAttributeName());
         props.setPrincipalAttributeList(authModuleTO.getItems().stream().
-                map(item -> item.getIntAttrName() + ":" + item.getExtAttrName()).collect(Collectors.toList()));
+                map(item -> item.getIntAttrName() + ":" + item.getExtAttrName()).toList());
         props.setAllowMultiplePrincipalAttributeValues(conf.isAllowMultiplePrincipalAttributeValues());
         props.setAdditionalAttributes(conf.getAdditionalAttributes());
         props.setAllowMissingPrincipalAttributeValue(conf.isAllowMissingPrincipalAttributeValue());
@@ -137,7 +137,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setFieldExpired(conf.getFieldExpired());
         props.setFieldPassword(conf.getFieldPassword());
         props.setPrincipalAttributeList(authModuleTO.getItems().stream().
-                map(item -> item.getIntAttrName() + ":" + item.getExtAttrName()).collect(Collectors.toList()));
+                map(item -> item.getIntAttrName() + ":" + item.getExtAttrName()).toList());
         fill(props, conf);
 
         return prefix("cas.authn.jdbc.query[].", WAConfUtils.asMap(props));

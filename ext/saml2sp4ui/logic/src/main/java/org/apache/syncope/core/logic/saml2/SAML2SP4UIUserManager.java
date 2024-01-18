@@ -119,7 +119,7 @@ public class SAML2SP4UIUserManager {
                 idp.getConnObjectKeyItem().get(), connObjectKeyValue, AnyTypeKind.USER, false, null).stream().
                 filter(match -> match.getAny() != null).
                 map(match -> ((User) match.getAny()).getUsername()).
-                collect(Collectors.toList());
+                toList();
     }
 
     protected List<SAML2SP4UIIdPActions> getActions(final SAML2SP4UIIdP idp) {

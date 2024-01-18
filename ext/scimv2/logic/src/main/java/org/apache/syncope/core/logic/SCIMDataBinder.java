@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -679,11 +678,11 @@ public class SCIMDataBinder {
 
         userTO.getMemberships().addAll(user.getGroups().stream().
                 map(group -> new MembershipTO.Builder(group.getValue()).build()).
-                collect(Collectors.toList()));
+                toList());
 
         userTO.getRoles().addAll(user.getRoles().stream().
                 map(Value::getValue).
-                collect(Collectors.toList()));
+                toList());
 
         return userTO;
     }

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -156,7 +155,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public List<ConnInstanceTO> list(final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : Locale.of(lang));
 
-        return connInstanceDAO.findAll().stream().map(binder::getConnInstanceTO).collect(Collectors.toList());
+        return connInstanceDAO.findAll().stream().map(binder::getConnInstanceTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
@@ -197,10 +196,10 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                     ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(bundle);
                     connBundleTO.getProperties().addAll(properties.getPropertyNames().stream().
                             map(propName -> binder.build(properties.getProperty(propName))).
-                            collect(Collectors.toList()));
+                            toList());
 
                     return connBundleTO;
-                }).collect(Collectors.toList())));
+                }).toList()));
 
         return connectorBundleTOs;
     }
@@ -233,10 +232,10 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                         schema.setType(AttrSchemaType.getAttrSchemaTypeByClass(attrInfo.getType()));
                         return schema;
                     }).
-                    collect(Collectors.toList()));
+                    toList());
 
             return connIdObjectClassTO;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")

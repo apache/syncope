@@ -24,7 +24,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.Attr;
@@ -256,7 +255,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                 }
 
                 return item;
-            }).collect(Collectors.toList());
+            }).toList();
         } else {
             batchResponseItems = updated.getPropagationStatuses().stream().
                     map(status -> {
@@ -279,7 +278,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                         }
 
                         return item;
-                    }).collect(Collectors.toList());
+                    }).toList();
         }
 
         String boundary = "deassociate_" + SecureRandomUtils.generateRandomUUID().toString();
@@ -345,7 +344,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                 }
 
                 return item;
-            }).collect(Collectors.toList());
+            }).toList();
         } else {
             batchResponseItems = updated.getPropagationStatuses().stream().
                     map(status -> {
@@ -368,7 +367,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                         }
 
                         return item;
-                    }).collect(Collectors.toList());
+                    }).toList();
         }
 
         String boundary = "associate_" + SecureRandomUtils.generateRandomUUID().toString();

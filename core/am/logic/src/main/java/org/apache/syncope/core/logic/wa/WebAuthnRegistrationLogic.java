@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic.wa;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
@@ -49,7 +48,7 @@ public class WebAuthnRegistrationLogic extends AbstractAuthProfileLogic {
         return authProfileDAO.findAll(Pageable.unpaged()).stream().
                 map(profile -> new WebAuthnAccount.Builder().
                 credentials(profile.getWebAuthnDeviceCredentials()).build()).
-                collect(Collectors.toList());
+                toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")

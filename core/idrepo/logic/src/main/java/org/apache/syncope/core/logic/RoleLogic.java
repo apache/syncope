@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -57,7 +56,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_LIST + "')")
     @Transactional(readOnly = true)
     public List<RoleTO> list() {
-        return roleDAO.findAll().stream().map(binder::getRoleTO).collect(Collectors.toList());
+        return roleDAO.findAll().stream().map(binder::getRoleTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_CREATE + "')")

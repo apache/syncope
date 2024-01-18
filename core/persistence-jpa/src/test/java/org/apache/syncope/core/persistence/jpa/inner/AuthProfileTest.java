@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
@@ -154,7 +153,7 @@ public class AuthProfileTest extends AbstractTest {
 
         List<ImpersonationAccount> accounts = IntStream.range(1, 10).
                 mapToObj(i -> new ImpersonationAccount.Builder().impersonated("impersonatee" + i).build()).
-                collect(Collectors.toList());
+                toList();
 
         authProfile.setImpersonationAccounts(accounts);
         authProfile = authProfileDAO.save(authProfile);

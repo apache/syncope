@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
@@ -160,7 +159,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                             relationship.getLeftEnd().getKey().equals(anyObject.getKey())
                             ? relationship.getRightEnd()
                             : anyObject)).
-                            collect(Collectors.toList()));
+                            toList());
 
             // memberships
             anyObjectTO.getMemberships().addAll(
@@ -168,13 +167,13 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     anyObject.getPlainAttrs(membership),
                     derAttrHandler.getValues(anyObject, membership),
                     virAttrHandler.getValues(anyObject, membership),
-                    membership)).collect(Collectors.toList()));
+                    membership)).toList());
 
             // dynamic memberships
             anyObjectTO.getDynMemberships().addAll(
                     anyObjectDAO.findDynGroups(anyObject.getKey()).stream().
                             map(group -> new MembershipTO.Builder(group.getKey()).groupName(group.getName()).build()).
-                            collect(Collectors.toList()));
+                            toList());
         }
 
         return anyObjectTO;

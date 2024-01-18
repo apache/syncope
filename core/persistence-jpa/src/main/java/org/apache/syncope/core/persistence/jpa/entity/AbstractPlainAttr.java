@@ -25,7 +25,6 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -101,7 +100,7 @@ public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractGenera
     public List<String> getValuesAsStrings() {
         List<String> result;
         if (getUniqueValue() == null) {
-            result = getValues().stream().map(PlainAttrValue::getValueAsString).collect(Collectors.toList());
+            result = getValues().stream().map(PlainAttrValue::getValueAsString).toList();
         } else {
             result = List.of(getUniqueValue().getValueAsString());
         }

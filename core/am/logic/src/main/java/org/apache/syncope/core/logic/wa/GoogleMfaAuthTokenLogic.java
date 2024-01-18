@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic.wa;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.core.logic.AbstractAuthProfileLogic;
@@ -115,7 +114,7 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
         return authProfileDAO.findAll(Pageable.unpaged()).stream().
                 map(AuthProfile::getGoogleMfaAuthTokens).
                 flatMap(List::stream).
-                collect(Collectors.toList());
+                toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")

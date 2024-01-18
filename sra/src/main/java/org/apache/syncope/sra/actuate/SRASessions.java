@@ -24,7 +24,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.AMSession;
 import org.apache.syncope.sra.SessionConfig;
 import org.apache.syncope.sra.security.cas.CASAuthenticationToken;
@@ -92,7 +91,7 @@ public class SRASessions {
     public List<AMSession> list() {
         return ((ConcurrentMap<Object, Object>) cacheManager.getCache(SessionConfig.DEFAULT_CACHE).getNativeCache()).
                 values().stream().map(MapSession.class::cast).map(SRASessions::map).
-                filter(Objects::nonNull).collect(Collectors.toList());
+                filter(Objects::nonNull).toList();
     }
 
     @ReadOperation

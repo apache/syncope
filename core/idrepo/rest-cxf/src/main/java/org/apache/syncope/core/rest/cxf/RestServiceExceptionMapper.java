@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.jaxrs.validation.ValidationExceptionMapper;
@@ -194,7 +193,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
             });
 
             return error;
-        }).collect(Collectors.toList());
+        }).toList();
 
         return builder.entity(errors);
     }

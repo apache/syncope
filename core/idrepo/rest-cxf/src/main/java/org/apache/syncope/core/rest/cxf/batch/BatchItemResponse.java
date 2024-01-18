@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class BatchItemResponse implements HttpServletResponse {
 
@@ -160,7 +159,7 @@ public class BatchItemResponse implements HttpServletResponse {
     @Override
     public Collection<String> getHeaders(final String name) {
         return headers.containsKey(name)
-                ? headers.get(name).stream().map(Object::toString).collect(Collectors.toList())
+                ? headers.get(name).stream().map(Object::toString).toList()
                 : List.of();
     }
 

@@ -268,13 +268,13 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final User user) {
-        return findAllGroups(user).stream().map(Group::getKey).collect(Collectors.toList());
+        return findAllGroups(user).stream().map(Group::getKey).toList();
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<String> findAllGroupNames(final User user) {
-        return findAllGroups(user).stream().map(Group::getName).collect(Collectors.toList());
+        return findAllGroups(user).stream().map(Group::getName).toList();
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -290,7 +290,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
-        return findAllResources(authFind(key)).stream().map(ExternalResource::getKey).collect(Collectors.toList());
+        return findAllResources(authFind(key)).stream().map(ExternalResource::getKey).toList();
     }
 
     @Transactional(readOnly = true)

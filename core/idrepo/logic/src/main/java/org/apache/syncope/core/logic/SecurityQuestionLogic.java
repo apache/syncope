@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -54,7 +53,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<SecurityQuestionTO> list() {
-        return securityQuestionDAO.findAll().stream().map(binder::getSecurityQuestionTO).collect(Collectors.toList());
+        return securityQuestionDAO.findAll().stream().map(binder::getSecurityQuestionTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.SECURITY_QUESTION_READ + "')")

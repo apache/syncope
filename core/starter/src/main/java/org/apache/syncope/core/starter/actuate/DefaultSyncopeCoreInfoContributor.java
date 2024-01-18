@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.JavaImplInfo;
@@ -199,7 +198,7 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
                 PLATFORM_INFO = new PlatformInfo();
 
                 PLATFORM_INFO.getConnIdLocations().addAll(bundleManager.getLocations().stream().
-                        map(URI::toASCIIString).collect(Collectors.toList()));
+                        map(URI::toASCIIString).toList());
 
                 ImplementationTypesHolder.getInstance().getValues().forEach((typeName, typeInterface) -> {
                     Set<String> classNames = implLookup.getClassNames(typeName);
@@ -226,19 +225,19 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             AuthContextUtils.runAsAdmin(AuthContextUtils.getDomain(), () -> {
                 PLATFORM_INFO.getAnyTypes().clear();
                 PLATFORM_INFO.getAnyTypes().addAll(anyTypeDAO.findAll().stream().
-                        map(AnyType::getKey).collect(Collectors.toList()));
+                        map(AnyType::getKey).toList());
 
                 PLATFORM_INFO.getUserClasses().clear();
                 PLATFORM_INFO.getUserClasses().addAll(anyTypeDAO.getUser().getClasses().stream().
-                        map(AnyTypeClass::getKey).collect(Collectors.toList()));
+                        map(AnyTypeClass::getKey).toList());
 
                 PLATFORM_INFO.getAnyTypeClasses().clear();
                 PLATFORM_INFO.getAnyTypeClasses().addAll(anyTypeClassDAO.findAll().stream().
-                        map(AnyTypeClass::getKey).collect(Collectors.toList()));
+                        map(AnyTypeClass::getKey).toList());
 
                 PLATFORM_INFO.getResources().clear();
                 PLATFORM_INFO.getResources().addAll(resourceDAO.findAll().stream().
-                        map(ExternalResource::getKey).collect(Collectors.toList()));
+                        map(ExternalResource::getKey).toList());
             });
         }
     }

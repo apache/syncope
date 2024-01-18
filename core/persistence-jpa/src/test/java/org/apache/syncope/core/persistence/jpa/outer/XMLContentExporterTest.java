@@ -25,7 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -57,7 +56,7 @@ public class XMLContentExporterTest extends AbstractTest {
 
         List<String> realms = IOUtils.readLines(
                 IOUtils.toInputStream(exported, StandardCharsets.UTF_8), StandardCharsets.UTF_8.name()).stream().
-                filter(row -> row.trim().startsWith("<Realm")).collect(Collectors.toList());
+                filter(row -> row.trim().startsWith("<Realm")).toList();
         assertEquals(4, realms.size());
         assertTrue(realms.get(0).contains("name=\"/\""));
         assertTrue(realms.get(1).contains("name=\"even\""));

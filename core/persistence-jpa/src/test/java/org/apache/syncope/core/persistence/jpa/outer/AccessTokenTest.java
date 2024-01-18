@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -66,7 +65,7 @@ public class AccessTokenTest extends AbstractTest {
         assertEquals(5, page.getTotalElements());
         assertEquals(2, page.getNumberOfElements());
 
-        List<? extends AccessToken> list = page.get().collect(Collectors.toList());
+        List<? extends AccessToken> list = page.get().toList();
         assertEquals(2, list.size());
         assertEquals("6", list.get(0).getKey());
         assertEquals("5", list.get(1).getKey());
@@ -75,7 +74,7 @@ public class AccessTokenTest extends AbstractTest {
         assertEquals(5, page.getTotalElements());
         assertEquals(2, page.getNumberOfElements());
 
-        list = page.get().collect(Collectors.toList());
+        list = page.get().toList();
         assertEquals(2, list.size());
         assertEquals("4", list.get(0).getKey());
         assertEquals("3", list.get(1).getKey());
@@ -84,7 +83,7 @@ public class AccessTokenTest extends AbstractTest {
         assertEquals(5, page.getTotalElements());
         assertEquals(1, page.getNumberOfElements());
 
-        list = page.get().collect(Collectors.toList());
+        list = page.get().toList();
         assertEquals(1, list.size());
         assertEquals("2", list.get(0).getKey());
     }

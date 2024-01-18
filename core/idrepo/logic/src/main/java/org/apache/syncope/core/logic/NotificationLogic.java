@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -71,7 +70,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_LIST + "')")
     @Transactional(readOnly = true)
     public List<NotificationTO> list() {
-        return notificationDAO.findAll().stream().map(binder::getNotificationTO).collect(Collectors.toList());
+        return notificationDAO.findAll().stream().map(binder::getNotificationTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.NOTIFICATION_CREATE + "')")

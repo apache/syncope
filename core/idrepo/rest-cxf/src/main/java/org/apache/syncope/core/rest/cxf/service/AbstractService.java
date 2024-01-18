@@ -26,7 +26,6 @@ import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
@@ -201,7 +200,7 @@ public abstract class AbstractService implements JAXRSService {
 
     protected <T extends BaseBean> PagedResult<T> buildPagedResult(final Page<T> page) {
         return buildPagedResult(
-                page.get().collect(Collectors.toList()),
+                page.get().toList(),
                 page.getNumber(),
                 page.getSize(),
                 page.getTotalElements());

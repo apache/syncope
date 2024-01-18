@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
@@ -209,11 +208,11 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                                     filter(Optional::isPresent).map(Optional::get)).forEach(anyTypeClass -> {
 
                         allowedSchemas.getPlainSchemas().addAll(anyTypeClass.getPlainSchemas().stream().
-                                map(PlainSchema::getKey).collect(Collectors.toList()));
+                                map(PlainSchema::getKey).toList());
                         allowedSchemas.getDerSchemas().addAll(anyTypeClass.getDerSchemas().stream().
-                                map(DerSchema::getKey).collect(Collectors.toList()));
+                                map(DerSchema::getKey).toList());
                         allowedSchemas.getVirSchemas().addAll(anyTypeClass.getVirSchemas().stream().
-                                map(VirSchema::getKey).collect(Collectors.toList()));
+                                map(VirSchema::getKey).toList());
                     });
 
                     populateMapping(
@@ -675,7 +674,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.getCapabilitiesOverride().addAll(resource.getCapabilitiesOverride());
 
         resourceTO.getPropagationActions().addAll(
-                resource.getPropagationActions().stream().map(Implementation::getKey).collect(Collectors.toList()));
+                resource.getPropagationActions().stream().map(Implementation::getKey).toList());
 
         return resourceTO;
     }

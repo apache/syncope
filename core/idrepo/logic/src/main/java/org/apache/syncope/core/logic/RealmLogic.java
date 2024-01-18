@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -121,7 +120,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_SEARCH).stream().
                         anyMatch(auth -> realm.getFullPath().startsWith(auth)))).
                 sorted(Comparator.comparing(RealmTO::getFullPath)).
-                collect(Collectors.toList());
+                toList();
 
         return new SyncopePage<>(result, pageable, count);
     }

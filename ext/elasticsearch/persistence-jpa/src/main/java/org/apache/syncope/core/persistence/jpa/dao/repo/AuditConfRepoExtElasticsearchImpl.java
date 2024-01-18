@@ -36,7 +36,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.audit.AuditEntry;
@@ -107,7 +106,7 @@ public class AuditConfRepoExtElasticsearchImpl implements AuditConfRepoExt {
         List<Query> eventQueries = events.stream().map(event -> new Query.Builder().
                 term(QueryBuilders.term().field("message.logger.event").value(event).build()).
                 build()).
-                collect(Collectors.toList());
+                toList();
         if (!eventQueries.isEmpty()) {
             queries.add(new Query.Builder().disMax(QueryBuilders.disMax().queries(eventQueries).build()).build());
         }
@@ -171,7 +170,7 @@ public class AuditConfRepoExtElasticsearchImpl implements AuditConfRepoExt {
                             order(clause.getDirection() == Sort.Direction.ASC ? SortOrder.Asc : SortOrder.Desc).
                             build()).
                     build();
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     @Override
@@ -207,6 +206,6 @@ public class AuditConfRepoExtElasticsearchImpl implements AuditConfRepoExt {
                 ? List.of()
                 : esResult.stream().
                         map(hit -> POJOHelper.convertValue(hit.source().get("message"), AuditEntry.class)).
-                        filter(Objects::nonNull).collect(Collectors.toList());
+                        filter(Objects::nonNull).toList();
     }
 }

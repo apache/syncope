@@ -88,7 +88,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             DynRealmCond dynRealmCond = new DynRealmCond();
             dynRealmCond.setDynRealm(key);
             return SearchCond.getLeaf(dynRealmCond);
-        }).collect(Collectors.toList());
+        }).toList();
         if (!dynRealmConds.isEmpty()) {
             result.add(SearchCond.getOr(dynRealmConds));
         }
@@ -106,7 +106,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
                 asc = membershipCond;
             }
             return SearchCond.getLeaf(asc);
-        }).collect(Collectors.toList());
+        }).toList();
         if (!groupOwnerConds.isEmpty()) {
             result.add(SearchCond.getOr(groupOwnerConds));
         }
@@ -340,11 +340,11 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
     protected <T extends Any<?>> List<T> buildResult(final List<Object> raw, final AnyTypeKind kind) {
         List<String> keys = raw.stream().
                 map(key -> key instanceof Object[] ? (String) ((Object[]) key)[0] : ((String) key)).
-                collect(Collectors.toList());
+                toList();
 
         // sort anys according to keys' sorting, as their ordering is same as raw, e.g. the actual sql query results
         List<Any<?>> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys).stream().
-                sorted(Comparator.comparing(any -> keys.indexOf(any.getKey()))).collect(Collectors.toList());
+                sorted(Comparator.comparing(any -> keys.indexOf(any.getKey()))).toList();
 
         keys.stream().filter(key -> !anys.stream().anyMatch(any -> key.equals(any.getKey()))).
                 forEach(key -> LOG.error("Could not find {} with id {}, even if returned by native query", kind, key));
@@ -379,7 +379,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
         } else {
             effectiveOrderBy = pageable.getSort().stream().
                     filter(clause -> !ArrayUtils.contains(ORDER_BY_NOT_ALLOWED, clause.getProperty())).
-                    collect(Collectors.toList());
+                    toList();
         }
 
         return doSearch(

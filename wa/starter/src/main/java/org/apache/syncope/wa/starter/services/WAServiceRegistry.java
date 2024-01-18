@@ -21,7 +21,6 @@ package org.apache.syncope.wa.starter.services;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -80,7 +79,7 @@ public class WAServiceRegistry extends AbstractServiceRegistry {
         return waRestClient.getService(WAClientAppService.class).list().stream().
                 map(registeredServiceMapper::toRegisteredService).
                 filter(Objects::nonNull).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override

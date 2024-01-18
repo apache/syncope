@@ -339,7 +339,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             result.addAll(queryResult.stream().
                     map(Object::toString).
                     filter(anyObject -> !result.contains(anyObject)).
-                    collect(Collectors.toList()));
+                    toList());
         });
 
         return result;
@@ -478,7 +478,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         List<Object> result = query.getResultList();
         return result.stream().
                 map(Object::toString).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override
@@ -561,7 +561,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     public Collection<String> findAllResourceKeys(final String key) {
         return findById(key).map(Any::getResources).
                 orElse(List.of()).
-                stream().map(ExternalResource::getKey).collect(Collectors.toList());
+                stream().map(ExternalResource::getKey).toList();
     }
 
     @Override

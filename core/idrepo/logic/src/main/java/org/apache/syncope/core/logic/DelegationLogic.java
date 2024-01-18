@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -86,7 +85,7 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
             delegations = delegations.filter(delegation -> delegation.getDelegating().equals(authUserKey));
         }
 
-        return delegations.collect(Collectors.toList());
+        return delegations.toList();
     }
 
     @PreAuthorize("isAuthenticated()")

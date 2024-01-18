@@ -186,7 +186,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 base, recursive, authRealms, effectiveCond, pageable, AnyTypeKind.USER);
         List<UserTO> result = matching.stream().
                 map(user -> binder.getUserTO(user, details)).
-                collect(Collectors.toList());
+                toList();
 
         return new SyncopePage<>(result, pageable, count);
     }
@@ -491,7 +491,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
             sce.getElements().addAll(ownedGroups.stream().
-                    map(group -> group.getKey() + ' ' + group.getName()).collect(Collectors.toList()));
+                    map(group -> group.getKey() + ' ' + group.getName()).toList());
             throw sce;
         }
 
@@ -532,7 +532,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         UserUR req = new UserUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 build();
 
         return binder.getUserTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
@@ -546,7 +546,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         UserUR req = new UserUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 build();
 
         return binder.getUserTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
@@ -562,7 +562,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         UserUR req = new UserUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 build();
 
         return update(req, nullPriorityAsync);
@@ -582,7 +582,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         UserUR req = new UserUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 build();
 
         if (changepwd) {

@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
@@ -226,7 +225,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 null,
                 anyObjectDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
-                        collect(Collectors.toList()));
+                        toList());
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();

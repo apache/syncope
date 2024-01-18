@@ -23,7 +23,6 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -113,7 +112,7 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
         return findAll().stream().
                 flatMap(resource -> resource.getProvisions().stream()).
                 filter(provision -> provision.getAuxClasses().contains(anyTypeClass.getKey())).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override
@@ -167,7 +166,7 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
         return query.getResultList().stream().filter(resource -> authRealms.stream().
                 anyMatch(realm -> resource.getConnector() != null
                 && resource.getConnector().getAdminRealm().getFullPath().startsWith(realm))).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Transactional(rollbackFor = { Throwable.class })

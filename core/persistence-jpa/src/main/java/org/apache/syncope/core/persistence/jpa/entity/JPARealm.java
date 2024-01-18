@@ -34,7 +34,6 @@ import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -249,7 +248,7 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
 
     @Override
     public List<String> getResourceKeys() {
-        return getResources().stream().map(ExternalResource::getKey).collect(Collectors.toList());
+        return getResources().stream().map(ExternalResource::getKey).toList();
     }
 
     @Override

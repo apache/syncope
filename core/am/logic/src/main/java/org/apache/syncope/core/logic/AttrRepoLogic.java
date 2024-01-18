@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -59,7 +58,7 @@ public class AttrRepoLogic extends AbstractTransactionalLogic<AttrRepoTO> {
     @PreAuthorize("hasRole('" + AMEntitlement.ATTR_REPO_LIST + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<AttrRepoTO> list() {
-        return attrRepoDAO.findAll().stream().map(binder::getAttrRepoTO).collect(Collectors.toList());
+        return attrRepoDAO.findAll().stream().map(binder::getAttrRepoTO).toList();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.ATTR_REPO_READ + "')")

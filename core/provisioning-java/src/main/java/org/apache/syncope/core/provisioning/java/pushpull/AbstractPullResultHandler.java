@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -900,7 +899,7 @@ public abstract class AbstractPullResultHandler
                     finalDelta,
                     matches.stream().
                             filter(match -> match.getMatchTarget() == MatchType.ANY).
-                            collect(Collectors.toList()),
+                            toList(),
                     anyTypeKind,
                     provision);
 
@@ -909,7 +908,7 @@ public abstract class AbstractPullResultHandler
                     finalDelta,
                     matches.stream().
                             filter(match -> match.getMatchTarget() == MatchType.LINKED_ACCOUNT).
-                            collect(Collectors.toList()), provision);
+                            toList(), provision);
 
             result = and(anys, linkedAccounts);
         } catch (IllegalStateException | IllegalArgumentException e) {

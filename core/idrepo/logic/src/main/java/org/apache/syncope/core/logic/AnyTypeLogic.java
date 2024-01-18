@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -67,7 +66,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_LIST + "')")
     @Transactional(readOnly = true)
     public List<AnyTypeTO> list() {
-        return anyTypeDAO.findAll().stream().map(binder::getAnyTypeTO).collect(Collectors.toList());
+        return anyTypeDAO.findAll().stream().map(binder::getAnyTypeTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_CREATE + "')")

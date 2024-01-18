@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -151,17 +150,17 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         roleTO.getEntitlements().addAll(role.getEntitlements());
 
         roleTO.getRealms().addAll(role.getRealms().stream().
-                map(Realm::getFullPath).collect(Collectors.toList()));
+                map(Realm::getFullPath).toList());
 
         roleTO.getDynRealms().addAll(role.getDynRealms().stream().
-                map(DynRealm::getKey).collect(Collectors.toList()));
+                map(DynRealm::getKey).toList());
 
         if (role.getDynMembership() != null) {
             roleTO.setDynMembershipCond(role.getDynMembership().getFIQLCond());
         }
 
         roleTO.getPrivileges().addAll(role.getPrivileges().stream().
-                map(Privilege::getKey).collect(Collectors.toList()));
+                map(Privilege::getKey).toList());
 
         return roleTO;
     }

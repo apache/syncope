@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -247,7 +246,7 @@ public interface Connector {
         }
         builder.setSortKeys(orderBy.stream().
                 map(clause -> new SortKey(clause.getProperty(), clause.getDirection() == Sort.Direction.ASC)).
-                collect(Collectors.toList()));
+                toList());
 
         builder.setAttributesToGet(options.getAttributesToGet());
 

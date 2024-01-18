@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.GroupCR;
@@ -261,7 +260,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 groupDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
-                        collect(Collectors.toList()));
+                        toList());
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();

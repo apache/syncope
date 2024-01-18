@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -124,14 +123,14 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
 
         anyTypeClassTO.getInUseByTypes().addAll(
                 anyTypeDAO.findByClassesContaining(anyTypeClass).stream().
-                        map(AnyType::getKey).collect(Collectors.toList()));
+                        map(AnyType::getKey).toList());
 
         anyTypeClassTO.getPlainSchemas().addAll(
-                anyTypeClass.getPlainSchemas().stream().map(PlainSchema::getKey).collect(Collectors.toList()));
+                anyTypeClass.getPlainSchemas().stream().map(PlainSchema::getKey).toList());
         anyTypeClassTO.getDerSchemas().addAll(
-                anyTypeClass.getDerSchemas().stream().map(DerSchema::getKey).collect(Collectors.toList()));
+                anyTypeClass.getDerSchemas().stream().map(DerSchema::getKey).toList());
         anyTypeClassTO.getVirSchemas().addAll(
-                anyTypeClass.getVirSchemas().stream().map(VirSchema::getKey).collect(Collectors.toList()));
+                anyTypeClass.getVirSchemas().stream().map(VirSchema::getKey).toList());
 
         return anyTypeClassTO;
     }

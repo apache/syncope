@@ -22,7 +22,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -77,7 +76,7 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
 
         return query.getResultList().stream().filter(connInstance -> authRealms.stream().
                 anyMatch(realm -> connInstance.getAdminRealm().getFullPath().startsWith(realm))).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override
@@ -93,7 +92,7 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
             return;
         }
 
-        connInstance.getResources().stream().map(ExternalResource::getKey).collect(Collectors.toList()).
+        connInstance.getResources().stream().map(ExternalResource::getKey).toList().
                 forEach(resourceDAO::deleteById);
 
         entityManager.remove(connInstance);

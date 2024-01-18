@@ -25,7 +25,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
@@ -70,7 +69,7 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
 
     @PreAuthorize("isAuthenticated()")
     public List<SRARouteTO> list() {
-        return routeDAO.findAll().stream().map(binder::getSRARouteTO).collect(Collectors.toList());
+        return routeDAO.findAll().stream().map(binder::getSRARouteTO).toList();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.SRA_ROUTE_CREATE + "')")

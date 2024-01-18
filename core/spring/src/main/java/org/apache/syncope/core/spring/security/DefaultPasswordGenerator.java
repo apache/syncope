@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -137,12 +136,12 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
 
             if (!ruleConf.getSpecialChars().isEmpty()) {
                 result.getSpecialChars().addAll(ruleConf.getSpecialChars().stream().
-                        filter(c -> !result.getSpecialChars().contains(c)).collect(Collectors.toList()));
+                        filter(c -> !result.getSpecialChars().contains(c)).toList());
             }
 
             if (!ruleConf.getIllegalChars().isEmpty()) {
                 result.getIllegalChars().addAll(ruleConf.getIllegalChars().stream().
-                        filter(c -> !result.getIllegalChars().contains(c)).collect(Collectors.toList()));
+                        filter(c -> !result.getIllegalChars().contains(c)).toList());
             }
 
             if (ruleConf.getRepeatSame() > result.getRepeatSame()) {
@@ -155,7 +154,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
 
             if (!ruleConf.getWordsNotPermitted().isEmpty()) {
                 result.getWordsNotPermitted().addAll(ruleConf.getWordsNotPermitted().stream().
-                        filter(w -> !result.getWordsNotPermitted().contains(w)).collect(Collectors.toList()));
+                        filter(w -> !result.getWordsNotPermitted().contains(w)).toList());
             }
         });
 
@@ -173,7 +172,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
     protected String generate(final DefaultPasswordRuleConf ruleConf) {
         List<CharacterRule> characterRules = DefaultPasswordRule.conf2Rules(ruleConf).stream().
                 filter(CharacterRule.class::isInstance).map(CharacterRule.class::cast).
-                collect(Collectors.toList());
+                toList();
         if (characterRules.isEmpty()) {
             int halfMinLength = ruleConf.getMinLength() / 2;
             characterRules = List.of(

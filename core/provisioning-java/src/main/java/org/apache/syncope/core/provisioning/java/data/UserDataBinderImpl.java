@@ -719,7 +719,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                             map(provision -> resource.getKey()).
                             orElse(null)).
                             filter(Objects::nonNull).
-                            collect(Collectors.toList()));
+                            toList());
         }
 
         return Pair.of(propByRes, propByLinkedAccount);
@@ -737,7 +737,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 new Attr.Builder(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
 
         accountTO.getPrivileges().addAll(account.getPrivileges().stream().
-                map(Privilege::getKey).collect(Collectors.toList()));
+                map(Privilege::getKey).toList());
 
         return accountTO;
     }
@@ -799,11 +799,11 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         if (details) {
             // roles
-            userTO.getRoles().addAll(user.getRoles().stream().map(Role::getKey).collect(Collectors.toList()));
+            userTO.getRoles().addAll(user.getRoles().stream().map(Role::getKey).toList());
 
             // dynamic roles
             userTO.getDynRoles().addAll(
-                    userDAO.findDynRoles(user.getKey()).stream().map(Role::getKey).collect(Collectors.toList()));
+                    userDAO.findDynRoles(user.getKey()).stream().map(Role::getKey).toList());
 
             // privileges
             userTO.getPrivileges().addAll(userDAO.findAllRoles(user).stream().
@@ -812,30 +812,30 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             // relationships
             userTO.getRelationships().addAll(user.getRelationships().stream().
                     map(relationship -> getRelationshipTO(relationship.getType().getKey(), relationship.getRightEnd())).
-                    collect(Collectors.toList()));
+                    toList());
 
             // memberships
             userTO.getMemberships().addAll(user.getMemberships().stream().
                     map(membership -> getMembershipTO(user.getPlainAttrs(membership),
                     derAttrHandler.getValues(user, membership),
                     virAttrHandler.getValues(user, membership),
-                    membership)).collect(Collectors.toList()));
+                    membership)).toList());
 
             // dynamic memberships
             userTO.getDynMemberships().addAll(userDAO.findDynGroups(user.getKey()).stream().
                     map(group -> new MembershipTO.Builder(group.getKey()).groupName(group.getName()).build()).
-                    collect(Collectors.toList()));
+                    toList());
 
             // linked accounts
             userTO.getLinkedAccounts().addAll(user.getLinkedAccounts().stream().
                     map(account -> getLinkedAccountTO(account, returnPasswordValue)).
-                    collect(Collectors.toList()));
+                    toList());
 
             // delegations
             userTO.getDelegatingDelegations().addAll(
-                    delegationDAO.findByDelegating(user).stream().map(Delegation::getKey).collect(Collectors.toList()));
+                    delegationDAO.findByDelegating(user).stream().map(Delegation::getKey).toList());
             userTO.getDelegatedDelegations().addAll(
-                    delegationDAO.findByDelegated(user).stream().map(Delegation::getKey).collect(Collectors.toList()));
+                    delegationDAO.findByDelegated(user).stream().map(Delegation::getKey).toList());
         }
 
         return userTO;

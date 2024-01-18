@@ -22,7 +22,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -132,7 +131,7 @@ public class RoleRepoExtImpl implements RoleRepoExt {
         List<Object> result = query.getResultList();
         return result.stream().
                 map(Object::toString).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override

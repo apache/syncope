@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
@@ -188,7 +187,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             profile.setConflictResolutionAction(conflictResolutionAction);
             profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
                     map(implementationDAO::findById).filter(Optional::isPresent).map(Optional::get).
-                    collect(Collectors.toList())));
+                    toList()));
             profile.setExecutor(executor);
 
             for (PullActions action : profile.getActions()) {

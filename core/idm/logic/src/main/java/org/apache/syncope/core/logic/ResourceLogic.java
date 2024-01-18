@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -275,7 +274,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_LIST + "')")
     @Transactional(readOnly = true)
     public List<ResourceTO> list() {
-        return resourceDAO.findAll().stream().map(binder::getResourceTO).collect(Collectors.toList());
+        return resourceDAO.findAll().stream().map(binder::getResourceTO).toList();
     }
 
     protected Triple<AnyType, ExternalResource, Provision> getProvision(

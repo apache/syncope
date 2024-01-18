@@ -95,7 +95,7 @@ public class JPATaskExecDAO implements TaskExecDAO {
         query.setMaxResults(max);
 
         List<Object> result = query.getResultList();
-        return result.stream().map(e -> (TaskExec<T>) e).collect(Collectors.toList());
+        return result.stream().map(e -> (TaskExec<T>) e).toList();
     }
 
     @Override
@@ -109,7 +109,7 @@ public class JPATaskExecDAO implements TaskExecDAO {
         return recent.stream().
                 sorted(Comparator.comparing(TaskExec<?>::getEnd).reversed()).
                 limit(max).
-                collect(Collectors.toList());
+                toList();
     }
 
     @SuppressWarnings("unchecked")

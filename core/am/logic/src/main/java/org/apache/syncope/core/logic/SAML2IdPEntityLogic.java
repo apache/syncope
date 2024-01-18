@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -48,7 +47,7 @@ public class SAML2IdPEntityLogic extends AbstractTransactionalLogic<SAML2IdPEnti
     public List<SAML2IdPEntityTO> list() {
         return saml2IdPEntityDAO.findAll().stream().
                 map(binder::getSAML2IdPEntityTO).
-                collect(Collectors.toList());
+                toList();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_IDP_ENTITY_GET + "') "

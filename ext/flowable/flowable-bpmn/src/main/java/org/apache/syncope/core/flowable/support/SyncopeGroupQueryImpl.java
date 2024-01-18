@@ -19,7 +19,6 @@
 package org.apache.syncope.core.flowable.support;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.flowable.idm.api.Group;
@@ -56,7 +55,7 @@ public class SyncopeGroupQueryImpl extends GroupQueryImpl {
             result = userDAO.findByUsername(userId).
                     map(user -> userDAO.findAllGroupNames(user).stream().
                     map(SyncopeGroupQueryImpl::fromSyncopeGroup).
-                    collect(Collectors.toList())).
+                    toList()).
                     orElse(List.of());
         }
     }

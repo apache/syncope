@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
@@ -58,7 +57,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
     @PreAuthorize("hasRole('" + IdRepoEntitlement.RELATIONSHIPTYPE_LIST + "')")
     @Transactional(readOnly = true)
     public List<RelationshipTypeTO> list() {
-        return relationshipTypeDAO.findAll().stream().map(binder::getRelationshipTypeTO).collect(Collectors.toList());
+        return relationshipTypeDAO.findAll().stream().map(binder::getRelationshipTypeTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.RELATIONSHIPTYPE_CREATE + "')")

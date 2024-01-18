@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.FIQLQueryTO;
@@ -95,7 +94,7 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
                 userDAO.findByUsername(AuthContextUtils.getUsername()).
                         orElseThrow(() -> new NotFoundException("User " + AuthContextUtils.getUsername())), target).
                 stream().
-                map(binder::getFIQLQueryTO).collect(Collectors.toList());
+                map(binder::getFIQLQueryTO).toList();
     }
 
     @PreAuthorize("isAuthenticated()")

@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -75,7 +74,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
     @Transactional(readOnly = true)
     public List<MailTemplateTO> list() {
         return mailTemplateDAO.findAll().stream().
-                map(template -> getMailTemplateTO(template.getKey())).collect(Collectors.toList());
+                map(template -> getMailTemplateTO(template.getKey())).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_CREATE + "')")
@@ -130,7 +129,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
         List<Notification> notifications = notificationDAO.findByTemplate(mailTemplate);
         if (!notifications.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InUse);
-            sce.getElements().addAll(notifications.stream().map(Notification::getKey).collect(Collectors.toList()));
+            sce.getElements().addAll(notifications.stream().map(Notification::getKey).toList());
             throw sce;
         }
 

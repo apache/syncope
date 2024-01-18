@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -109,7 +108,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
             final ProvisioningReport result) {
 
         List<String> ownedResources = getAnyUtils().getAllResources(any).stream().
-                map(ExternalResource::getKey).collect(Collectors.toList());
+                map(ExternalResource::getKey).toList();
 
         List<String> noPropResources = new ArrayList<>(ownedResources);
         noPropResources.remove(profile.getTask().getResource().getKey());

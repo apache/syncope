@@ -23,7 +23,6 @@ import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -81,7 +80,7 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
                     return null;
                 }).
                 filter(Objects::nonNull).
-                collect(Collectors.toList());
+                toList();
 
         List<MfaTrustedDevice> devices = (principal == null
                 ? authProfileDAO.findAll(Pageable.unpaged()).stream().
@@ -101,7 +100,7 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
                     return builder.build();
                 }).
                 filter(Objects::nonNull).
-                collect(Collectors.toList());
+                toList();
 
         List<MfaTrustedDevice> result = devices.stream().
                 limit(pageable.getPageSize()).
@@ -116,7 +115,7 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
                     }
                     return 0;
                 }).
-                collect(Collectors.toList());
+                toList();
 
         return new SyncopePage<>(result, pageable, devices.size());
     }

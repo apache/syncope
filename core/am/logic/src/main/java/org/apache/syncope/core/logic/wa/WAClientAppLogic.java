@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic.wa;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -64,18 +63,18 @@ public class WAClientAppLogic {
             switch (type) {
                 case OIDCRP:
                     clientApps.addAll(oidcRPClientAppDAO.findAll().stream().
-                            map(binder::getWAClientApp).collect(Collectors.toList()));
+                            map(binder::getWAClientApp).toList());
                     break;
 
                 case SAML2SP:
                     clientApps.addAll(saml2SPClientAppDAO.findAll().stream().
-                            map(binder::getWAClientApp).collect(Collectors.toList()));
+                            map(binder::getWAClientApp).toList());
                     break;
 
                 case CASSP:
                 default:
                     clientApps.addAll(casSPClientAppDAO.findAll().stream().
-                            map(binder::getWAClientApp).collect(Collectors.toList()));
+                            map(binder::getWAClientApp).toList());
             }
         });
 

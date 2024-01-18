@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.openjpa.conf.OpenJPAConfiguration;
 import org.apache.openjpa.event.RemoteCommitEventManager;
@@ -108,7 +107,7 @@ public class JPAPersistenceInfoDAO implements PersistenceInfoDAO {
                     map.put("port", address.getMiddle());
                     map.put("available", address.getRight());
                     return map;
-                }).collect(Collectors.toList()));
+                }).toList());
 
         return result;
     }

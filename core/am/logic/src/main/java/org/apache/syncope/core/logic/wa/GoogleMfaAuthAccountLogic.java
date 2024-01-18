@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic.wa;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.core.logic.AbstractAuthProfileLogic;
@@ -51,7 +50,7 @@ public class GoogleMfaAuthAccountLogic extends AbstractAuthProfileLogic {
                 map(AuthProfile::getGoogleMfaAuthAccounts).
                 filter(Objects::nonNull).
                 flatMap(List::stream).
-                collect(Collectors.toList());
+                toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")

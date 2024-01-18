@@ -25,7 +25,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
@@ -71,7 +70,7 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_LIST + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<Attr> list() {
-        return waConfigDAO.findAll().stream().map(binder::get).collect(Collectors.toList());
+        return waConfigDAO.findAll().stream().map(binder::get).toList();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_GET + "')")

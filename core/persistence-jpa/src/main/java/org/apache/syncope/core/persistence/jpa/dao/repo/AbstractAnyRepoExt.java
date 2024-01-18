@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.commons.jexl3.parser.Parser;
 import org.apache.commons.jexl3.parser.ParserConstants;
@@ -453,7 +452,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
                 filter(Optional::isPresent).map(Optional::get).
                 map(DynRealm::getKey).
                 distinct().
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override

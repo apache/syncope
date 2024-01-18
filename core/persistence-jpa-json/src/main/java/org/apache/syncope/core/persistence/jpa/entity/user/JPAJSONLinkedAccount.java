@@ -25,7 +25,6 @@ import jakarta.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
@@ -79,7 +78,7 @@ public class JPAJSONLinkedAccount extends JPALinkedAccount implements JSONAttrib
 
     @Override
     public List<? extends LAPlainAttr> getPlainAttrs() {
-        return plainAttrList.stream().collect(Collectors.toList());
+        return plainAttrList.stream().toList();
     }
 
     @Override

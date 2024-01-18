@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
@@ -118,7 +117,7 @@ public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
         try {
             return client.search(request, Void.class).hits().hits().stream().
                     map(Hit::id).
-                    collect(Collectors.toList());
+                    toList();
         } catch (Exception e) {
             LOG.error("While searching in OpenSearch", e);
             return List.of();
@@ -131,7 +130,7 @@ public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
                 new Query.Builder().term(QueryBuilders.term().
                         field("name").value(FieldValue.of(name)).build()).build());
         return result.stream().map(this::findById).
-                filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+                filter(Optional::isPresent).map(Optional::get).toList();
     }
 
     @Override
@@ -140,7 +139,7 @@ public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
                 new Query.Builder().term(QueryBuilders.term().
                         field("parent_id").value(FieldValue.of(realm.getKey())).build()).build());
         return result.stream().map(this::findById).
-                filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+                filter(Optional::isPresent).map(Optional::get).toList();
     }
 
     protected Query buildDescendantQuery(final String base, final String keyword) {
@@ -207,13 +206,13 @@ public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
         try {
             result = client.search(request, Void.class).hits().hits().stream().
                     map(Hit::id).
-                    collect(Collectors.toList());
+                    toList();
         } catch (Exception e) {
             LOG.error("While searching in OpenSearch", e);
         }
 
         return result.stream().map(this::findById).
-                filter(Optional::isPresent).map(Optional::get).collect(Collectors.toList());
+                filter(Optional::isPresent).map(Optional::get).toList();
     }
 
     @Override
@@ -243,7 +242,7 @@ public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
         try {
             result = client.search(request, Void.class).hits().hits().stream().
                     map(Hit::id).
-                    collect(Collectors.toList());
+                    toList();
         } catch (Exception e) {
             LOG.error("While searching in OpenSearch", e);
         }

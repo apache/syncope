@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
@@ -56,7 +55,7 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
     @Transactional(readOnly = true)
     public List<NetworkService> list(final NetworkService.Type serviceType) {
         return serviceDAO.findAll(serviceType).stream().
-                map(service -> toNetworkService(serviceType, service)).collect(Collectors.toList());
+                map(service -> toNetworkService(serviceType, service)).toList();
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")

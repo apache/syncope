@@ -19,7 +19,6 @@
 package org.apache.syncope.ext.elasticsearch.client;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import java.util.stream.Collectors;
 import org.apache.http.HttpHost;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -41,7 +40,7 @@ public class ElasticsearchClientContext {
     public ElasticsearchClientFactoryBean elasticsearchClientFactoryBean(final ElasticsearchProperties props) {
         return new ElasticsearchClientFactoryBean(
                 CollectionUtil.nullAsEmpty(props.getHosts()).stream().
-                        map(HttpHost::create).collect(Collectors.toList()));
+                        map(HttpHost::create).toList());
     }
 
     @ConditionalOnMissingBean

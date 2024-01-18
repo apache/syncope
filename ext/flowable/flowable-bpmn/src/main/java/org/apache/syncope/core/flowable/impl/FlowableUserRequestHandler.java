@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -191,7 +190,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                 pageable.getPageSize() * (pageable.getPageNumber() <= 0 ? 0 : pageable.getPageNumber() - 1),
                 pageable.getPageSize()).stream().
                 map(this::getUserRequest).
-                collect(Collectors.toList());
+                toList();
 
         return new SyncopePage<>(result, pageable, count);
     }
@@ -337,7 +336,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                 createHistoricDetailQuery().taskId(task.getId()).list().stream().
                 filter(HistoricFormPropertyEntity.class::isInstance).
                 map(HistoricFormPropertyEntity.class::cast).
-                collect(Collectors.toList());
+                toList();
 
         UserRequestForm formTO = getHistoricFormTO(
                 task.getProcessInstanceId(), task.getId(), task.getFormKey(), props);
@@ -395,7 +394,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             propertyTO.setName(prop.getPropertyId());
             propertyTO.setValue(prop.getPropertyValue());
             return propertyTO;
-        }).collect(Collectors.toList()));
+        }).toList());
 
         return formTO;
     }
@@ -459,7 +458,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                 }
             }
             return propertyTO;
-        }).collect(Collectors.toList()));
+        }).toList());
 
         return formTO;
     }
@@ -539,7 +538,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                 map(task -> task instanceof HistoricTaskInstance
                 ? FlowableUserRequestHandler.this.getForm((HistoricTaskInstance) task)
                 : FlowableUserRequestHandler.this.getForm(task)).
-                collect(Collectors.toList());
+                toList();
 
         return new SyncopePage<>(result, pageable, query.count());
     }
@@ -747,7 +746,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             }
             if (propByLinkedAccount != null) {
                 pwdResources.addAll(propByLinkedAccount.get(ResourceOperation.CREATE).stream().
-                        map(Pair::getLeft).collect(Collectors.toList()));
+                        map(Pair::getLeft).toList());
             }
             userUR.getPassword().getResources().addAll(pwdResources);
         }

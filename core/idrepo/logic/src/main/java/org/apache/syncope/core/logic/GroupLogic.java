@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -157,7 +156,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         return userDAO.findAllGroups(
                 userDAO.findByUsername(AuthContextUtils.getUsername()).
                         orElseThrow(() -> new NotFoundException("User " + AuthContextUtils.getUsername()))).stream().
-                map(group -> binder.getGroupTO(group, true)).collect(Collectors.toList());
+                map(group -> binder.getGroupTO(group, true)).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_SEARCH + "')")
@@ -184,7 +183,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
                 base, recursive, authRealms, effectiveCond, pageable, AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
                 map(group -> binder.getGroupTO(group, details)).
-                collect(Collectors.toList());
+                toList();
 
         return new SyncopePage<>(result, pageable, count);
     }
@@ -263,7 +262,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
             sce.getElements().addAll(ownedGroups.stream().
-                    map(g -> g.getKey() + ' ' + g.getName()).collect(Collectors.toList()));
+                    map(g -> g.getKey() + ' ' + g.getName()).toList());
             throw sce;
         }
 
@@ -298,7 +297,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         GroupUR req = new GroupUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 udynMembershipCond(groupTO.getUDynMembershipCond()).
                 adynMembershipConds(groupTO.getADynMembershipConds()).
                 build();
@@ -314,7 +313,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         GroupUR req = new GroupUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 udynMembershipCond(groupTO.getUDynMembershipCond()).
                 adynMembershipConds(groupTO.getADynMembershipConds()).
                 build();
@@ -332,7 +331,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         GroupUR req = new GroupUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 udynMembershipCond(groupTO.getUDynMembershipCond()).
                 adynMembershipConds(groupTO.getADynMembershipConds()).
                 build();
@@ -354,7 +353,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         GroupUR req = new GroupUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 udynMembershipCond(groupTO.getUDynMembershipCond()).
                 adynMembershipConds(groupTO.getADynMembershipConds()).
                 build();

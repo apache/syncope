@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.command.CommandArgs;
@@ -398,7 +397,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             provisioningTaskTO.setResource(provisioningTask.getResource().getKey());
 
             provisioningTaskTO.getActions().addAll(
-                    provisioningTask.getActions().stream().map(Implementation::getKey).collect(Collectors.toList()));
+                    provisioningTask.getActions().stream().map(Implementation::getKey).toList());
 
             provisioningTaskTO.setPerformCreate(provisioningTask.isPerformCreate());
             provisioningTaskTO.setPerformUpdate(provisioningTask.isPerformUpdate());

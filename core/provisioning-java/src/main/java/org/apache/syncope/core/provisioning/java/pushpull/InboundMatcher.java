@@ -330,7 +330,7 @@ public class InboundMatcher {
 
         List<PullMatch> result = anys.stream().
                 map(any -> new PullMatch(MatchType.ANY, any)).
-                collect(Collectors.toList());
+                toList();
 
         if (resource != null) {
             userDAO.findLinkedAccount(resource, finalConnObjectKeyValue).
@@ -352,7 +352,7 @@ public class InboundMatcher {
         try {
             result.addAll(anySearchDAO.search(rule.getSearchCond(syncDelta, provision), type).stream().
                     map(any -> rule.matching(any, syncDelta, provision)).
-                    collect(Collectors.toList()));
+                    toList());
         } catch (Throwable t) {
             LOG.error("While searching via {}", rule.getClass().getName(), t);
         }
@@ -490,7 +490,7 @@ public class InboundMatcher {
                     result.addAll(
                             realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, connObjectKey, Pageable.unpaged()));
                 } else {
-                    result.addAll(realmDAO.findByName(connObjectKey).stream().collect(Collectors.toList()));
+                    result.addAll(realmDAO.findByName(connObjectKey).stream().toList());
                 }
             }
 

@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
@@ -64,7 +63,7 @@ public class SAML2SP4UIIdPLogic extends AbstractSAML2SP4UILogic {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<SAML2SP4UIIdPTO> list() {
-        return idpDAO.findAll().stream().map(binder::getIdPTO).collect(Collectors.toList());
+        return idpDAO.findAll().stream().map(binder::getIdPTO).toList();
     }
 
     @PreAuthorize("hasRole('" + SAML2SP4UIEntitlement.IDP_READ + "')")

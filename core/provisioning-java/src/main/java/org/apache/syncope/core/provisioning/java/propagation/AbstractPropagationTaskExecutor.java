@@ -200,7 +200,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                                 ? missing.getValue()
                                 : missing.getValue().stream().
                                         filter(v -> !OperationalAttributes.PASSWORD_NAME.equals(v)).
-                                        collect(Collectors.toList()));
+                                        toList());
                     }
                 });
         Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, attrs)).

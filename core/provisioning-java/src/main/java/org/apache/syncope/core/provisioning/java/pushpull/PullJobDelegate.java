@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -306,7 +305,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         GroupPullResultHandler ghandler = buildGroupHandler();
         for (Provision provision : pullTask.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
-                collect(Collectors.toList())) {
+                toList()) {
 
             setStatus("Pulling " + provision.getObjectClass());
 
@@ -393,7 +392,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
         for (Provision provision : pullTask.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null && provision.getUidOnCreate() != null).
-                sorted(provisionSorter).collect(Collectors.toList())) {
+                sorted(provisionSorter).toList()) {
 
             try {
                 AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).

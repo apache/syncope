@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.types.BpmnProcessFormat;
@@ -93,7 +92,7 @@ public class FlowableBpmnProcessManager implements BpmnProcessManager {
                         defTO.setUserWorkflow(FlowableRuntimeUtils.WF_PROCESS_ID.equals(procDef.getKey()));
 
                         return defTO;
-                    }).collect(Collectors.toList());
+                    }).toList();
         } catch (FlowableException e) {
             throw new WorkflowException("While listing available process definitions", e);
         }

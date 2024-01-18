@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.text.ParseException;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.Item;
@@ -248,7 +247,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
 
         populateItems(op, opTO);
 
-        opTO.getActions().addAll(op.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
+        opTO.getActions().addAll(op.getActions().stream().map(Entity::getKey).toList());
 
         return opTO;
     }

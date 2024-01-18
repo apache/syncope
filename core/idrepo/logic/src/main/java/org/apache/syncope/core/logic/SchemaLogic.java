@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -172,7 +171,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                                 : virSchemaDAO.findByIdLike(keyword)
                         : virSchemaDAO.findByAnyTypeClasses(classes);
                 result = virSchemas.stream().map(schema -> (T) binder.getVirSchemaTO(schema.getKey())).
-                        collect(Collectors.toList());
+                        toList();
                 break;
 
             case DERIVED:
@@ -182,7 +181,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                                 : derSchemaDAO.findByIdLike(keyword)
                         : derSchemaDAO.findByAnyTypeClasses(classes);
                 result = derSchemas.stream().map(schema -> (T) binder.getDerSchemaTO(schema.getKey())).
-                        collect(Collectors.toList());
+                        toList();
                 break;
 
             case PLAIN:
@@ -193,7 +192,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                                 : plainSchemaDAO.findByIdLike(keyword)
                         : plainSchemaDAO.findByAnyTypeClasses(classes);
                 result = plainSchemas.stream().map(schema -> (T) binder.getPlainSchemaTO(schema.getKey())).
-                        collect(Collectors.toList());
+                        toList();
         }
 
         return result;

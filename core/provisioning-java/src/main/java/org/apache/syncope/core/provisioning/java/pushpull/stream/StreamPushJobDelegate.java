@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.Provision;
@@ -143,7 +142,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             profile.setExecutor(executor);
             profile.getActions().addAll(getPushActions(pushTaskTO.getActions().stream().
                     map(implementationDAO::findById).filter(Optional::isPresent).map(Optional::get).
-                    collect(Collectors.toList())));
+                    toList()));
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 
             PushResultHandlerDispatcher dispatcher = new PushResultHandlerDispatcher(profile, this);

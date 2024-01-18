@@ -40,7 +40,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -491,7 +490,7 @@ public class JPAUser
     public List<? extends LinkedAccount> getLinkedAccounts(final String resource) {
         return linkedAccounts.stream().
                 filter(account -> account.getResource().getKey().equals(resource)).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override

@@ -382,7 +382,7 @@ public class GroupTest extends AbstractTest {
         // 3. verify that expected any objects have the created group dynamically assigned
         List<String> members = groupDAO.findADynMembers(actual).stream().filter(
                 object -> "PRINTER".equals(anyObjectDAO.findById(object).
-                        orElseThrow().getType().getKey())).collect(Collectors.toList());
+                        orElseThrow().getType().getKey())).toList();
         assertEquals(2, members.size());
         assertEquals(
                 Set.of("fc6dbc3a-6c07-4965-8781-921e7401a4a5", newAnyObjectKey),
@@ -402,7 +402,7 @@ public class GroupTest extends AbstractTest {
         actual = groupDAO.findById(actual.getKey()).orElseThrow();
         members = groupDAO.findADynMembers(actual).stream().filter(
                 object -> "PRINTER".equals(anyObjectDAO.findById(object).
-                        orElseThrow().getType().getKey())).collect(Collectors.toList());
+                        orElseThrow().getType().getKey())).toList();
         assertEquals(1, members.size());
         assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", members.get(0));
 

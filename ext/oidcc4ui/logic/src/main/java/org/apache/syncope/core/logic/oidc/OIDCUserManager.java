@@ -107,7 +107,7 @@ public class OIDCUserManager {
                 connObjectKeyItem, connObjectKeyValue, AnyTypeKind.USER, false, null).stream().
                 filter(match -> match.getAny() != null).
                 map(match -> ((User) match.getAny()).getUsername()).
-                collect(Collectors.toList());
+                toList();
     }
 
     protected List<OIDCC4UIProviderActions> getActions(final OIDCC4UIProvider op) {

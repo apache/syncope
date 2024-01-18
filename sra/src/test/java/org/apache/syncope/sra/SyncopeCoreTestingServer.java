@@ -26,7 +26,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -79,7 +78,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         public List<SRARouteTO> list() {
             return ROUTES.values().stream().
                     sorted(Comparator.comparing(SRARouteTO::getKey)).
-                    collect(Collectors.toList());
+                    toList();
         }
 
         @Override

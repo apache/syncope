@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -127,7 +126,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
                 pageable,
                 AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
-                map(group -> groupDataBinder.getGroupTO(group, false)).collect(Collectors.toList());
+                map(group -> groupDataBinder.getGroupTO(group, false)).toList();
 
         return new SyncopePage<>(result, pageable, count);
     }

@@ -25,7 +25,6 @@ import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
@@ -220,7 +219,7 @@ public class RealmRepoExtImpl implements RealmRepoExt {
             query.setParameter(i, parameters.get(i - 1));
         }
 
-        return query.getResultList().stream().map(Realm::getKey).collect(Collectors.toList());
+        return query.getResultList().stream().map(Realm::getKey).toList();
     }
 
     protected <T extends Policy> List<Realm> findSamePolicyChildren(final Realm realm, final T policy) {

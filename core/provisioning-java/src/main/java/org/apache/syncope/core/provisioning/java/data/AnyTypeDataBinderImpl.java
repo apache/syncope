@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.data;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -145,7 +144,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                 }));
 
                 authorities.removeAll(authorities.stream().
-                        filter(authority -> removed.contains(authority.getAuthority())).collect(Collectors.toList()));
+                        filter(authority -> removed.contains(authority.getAuthority())).toList());
 
                 accessToken.setAuthorities(ENCRYPTOR.encode(
                         POJOHelper.serialize(authorities), CipherAlgorithm.AES).
@@ -166,7 +165,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
         anyTypeTO.setKey(anyType.getKey());
         anyTypeTO.setKind(anyType.getKind());
         anyTypeTO.getClasses().addAll(anyType.getClasses().stream().
-                map(AnyTypeClass::getKey).collect(Collectors.toList()));
+                map(AnyTypeClass::getKey).toList());
         return anyTypeTO;
     }
 }

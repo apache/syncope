@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java;
 import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -159,7 +158,7 @@ public class DefaultAuditManager implements AuditManager {
             if (input != null) {
                 auditEntry.getInputs().addAll(Arrays.stream(input).
                         map(DefaultAuditManager::maskSensitive).map(POJOHelper::serialize).
-                        collect(Collectors.toList()));
+                        toList());
             }
 
             Logger logger = LoggerFactory.getLogger(

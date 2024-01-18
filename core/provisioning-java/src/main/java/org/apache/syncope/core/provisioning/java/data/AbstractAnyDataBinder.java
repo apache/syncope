@@ -108,7 +108,7 @@ abstract class AbstractAnyDataBinder {
 
         anyTO.setRealm(realmFullPath);
 
-        anyTO.getAuxClasses().addAll(auxClasses.stream().map(AnyTypeClass::getKey).collect(Collectors.toList()));
+        anyTO.getAuxClasses().addAll(auxClasses.stream().map(AnyTypeClass::getKey).toList());
 
         plainAttrs.forEach(plainAttr -> anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
                 values(plainAttr.getValuesAsStrings()).build()));

@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.text.ParseException;
 import java.util.Base64;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.Item;
@@ -250,7 +249,7 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
 
         populateItems(idp, idpTO);
 
-        idpTO.getActions().addAll(idp.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
+        idpTO.getActions().addAll(idp.getActions().stream().map(Entity::getKey).toList());
 
         return idpTO;
     }

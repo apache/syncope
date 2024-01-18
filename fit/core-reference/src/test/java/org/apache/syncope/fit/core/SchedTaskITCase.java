@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -187,7 +186,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         AtomicReference<List<JobTO>> run = new AtomicReference<>();
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                run.set(TASK_SERVICE.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList()));
+                run.set(TASK_SERVICE.listJobs().stream().filter(JobTO::isRunning).toList());
                 return !run.get().isEmpty();
             } catch (Exception e) {
                 return false;
@@ -201,7 +200,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         run.set(List.of());
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                run.set(TASK_SERVICE.listJobs().stream().filter(JobTO::isRunning).collect(Collectors.toList()));
+                run.set(TASK_SERVICE.listJobs().stream().filter(JobTO::isRunning).toList());
                 return run.get().isEmpty();
             } catch (Exception e) {
                 return false;

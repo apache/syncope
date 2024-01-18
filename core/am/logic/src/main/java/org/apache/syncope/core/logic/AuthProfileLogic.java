@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
@@ -77,7 +76,7 @@ public class AuthProfileLogic extends AbstractAuthProfileLogic {
         List<AuthProfileTO> result = authProfileDAO.findAll(pageable).
                 stream().
                 map(binder::getAuthProfileTO).
-                collect(Collectors.toList());
+                toList();
 
         return new SyncopePage<>(result, pageable, count);
     }

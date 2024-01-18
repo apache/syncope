@@ -123,7 +123,7 @@ public class ElasticsearchUtils {
         builder.put("lastModifier", any.getLastModifier());
         builder.put("lastChangeContext", any.getLastChangeContext());
         builder.put("status", any.getStatus());
-        builder.put("auxClasses", any.getAuxClasses().stream().map(AnyTypeClass::getKey).collect(Collectors.toList()));
+        builder.put("auxClasses", any.getAuxClasses().stream().map(AnyTypeClass::getKey).toList());
         builder.put("resources", resources);
         builder.put("dynRealms", dynRealms);
 
@@ -151,10 +151,10 @@ public class ElasticsearchUtils {
 
             Set<String> members = new HashSet<>();
             members.addAll(groupDAO.findUMemberships(group).stream().
-                    map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList()));
+                    map(membership -> membership.getLeftEnd().getKey()).toList());
             members.addAll(groupDAO.findUDynMembers(group));
             members.addAll(groupDAO.findAMemberships(group).stream().
-                    map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList()));
+                    map(membership -> membership.getLeftEnd().getKey()).toList());
             members.addAll(groupDAO.findADynMembers(group));
             builder.put("members", members);
 
@@ -195,7 +195,7 @@ public class ElasticsearchUtils {
 
         for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
             List<Object> values = plainAttr.getValues().stream().
-                    map(PlainAttrValue::getValue).collect(Collectors.toList());
+                    map(PlainAttrValue::getValue).toList();
 
             Optional.ofNullable(plainAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 

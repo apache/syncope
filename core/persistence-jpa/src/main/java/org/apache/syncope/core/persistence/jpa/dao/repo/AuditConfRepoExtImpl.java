@@ -235,6 +235,6 @@ public class AuditConfRepoExtImpl implements AuditConfRepoExt {
                 value = row.toString();
             }
             return POJOHelper.deserialize(value, AuditEntry.class);
-        }).filter(Objects::nonNull).collect(Collectors.toList());
+        }).filter(Objects::nonNull).toList();
     }
 }

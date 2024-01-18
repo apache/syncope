@@ -21,7 +21,6 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.request.AnyCR;
@@ -81,7 +80,7 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
         long count = remediationDAO.count(before, after);
 
         List<RemediationTO> result = remediationDAO.findAll(before, after, pageable).stream().
-                map(binder::getRemediationTO).collect(Collectors.toList());
+                map(binder::getRemediationTO).toList();
 
         return new SyncopePage<>(result, pageable, count);
     }

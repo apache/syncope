@@ -124,7 +124,7 @@ public class PlainSchemaTest extends AbstractTest {
                 flatMap(resource -> resource.getProvisions().stream()).
                 flatMap(provision -> provision.getMapping().getItems().stream()).
                 filter(item -> intAttrName.equals(item.getIntAttrName())).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Test

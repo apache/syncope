@@ -402,7 +402,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 propByLinkedAccount,
                 userDAO.findAllResourceKeys(key).stream().
                         filter(resource -> !resources.contains(resource)).
-                        collect(Collectors.toList()));
+                        toList());
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();

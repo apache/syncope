@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -604,6 +603,6 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             WorkflowTask workflowTaskTO = new WorkflowTask();
             workflowTaskTO.setName(input);
             return workflowTaskTO;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 }

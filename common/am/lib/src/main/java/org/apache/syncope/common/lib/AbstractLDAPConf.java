@@ -21,7 +21,6 @@ package org.apache.syncope.common.lib;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class AbstractLDAPConf implements Serializable {
@@ -336,7 +335,7 @@ public abstract class AbstractLDAPConf implements Serializable {
      * Indicate the collection of attributes that are to be tagged and processed as binary
      * attributes by the underlying search resolver.
      */
-    private List<String> binaryAttributes = Stream.of("objectGUID", "objectSid").collect(Collectors.toList());
+    private List<String> binaryAttributes = Stream.of("objectGUID", "objectSid").toList();
 
     public String getSearchFilter() {
         return searchFilter;

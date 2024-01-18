@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -89,7 +88,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                 stream = saml2SPClientAppDAO.findAll().stream().map(binder::getClientAppTO);
         }
 
-        return stream.collect(Collectors.toList());
+        return stream.toList();
     }
 
     protected void checkType(final ClientAppType type, final ClientAppUtils clientAppUtils) {

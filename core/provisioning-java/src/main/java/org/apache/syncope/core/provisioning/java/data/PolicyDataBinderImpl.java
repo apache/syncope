@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
@@ -270,7 +269,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             passwordPolicyTO.setHistoryLength(passwordPolicy.getHistoryLength());
 
             passwordPolicyTO.getRules().addAll(
-                    passwordPolicy.getRules().stream().map(Implementation::getKey).collect(Collectors.toList()));
+                    passwordPolicy.getRules().stream().map(Implementation::getKey).toList());
         } else if (policy instanceof AccountPolicy) {
             AccountPolicy accountPolicy = AccountPolicy.class.cast(policy);
             AccountPolicyTO accountPolicyTO = new AccountPolicyTO();
@@ -280,10 +279,10 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             accountPolicyTO.setPropagateSuspension(accountPolicy.isPropagateSuspension());
 
             accountPolicyTO.getRules().addAll(
-                    accountPolicy.getRules().stream().map(Implementation::getKey).collect(Collectors.toList()));
+                    accountPolicy.getRules().stream().map(Implementation::getKey).toList());
 
             accountPolicyTO.getPassthroughResources().addAll(
-                    accountPolicy.getResources().stream().map(ExternalResource::getKey).collect(Collectors.toList()));
+                    accountPolicy.getResources().stream().map(ExternalResource::getKey).toList());
         } else if (policy instanceof PropagationPolicy) {
             PropagationPolicy propagationPolicy = PropagationPolicy.class.cast(policy);
             PropagationPolicyTO propagationPolicyTO = new PropagationPolicyTO();
@@ -347,12 +346,12 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
                 policyTO.getUsedByResources().addAll(
                         resourceDAO.findByPolicy(policy).stream().
-                                map(ExternalResource::getKey).collect(Collectors.toList()));
+                                map(ExternalResource::getKey).toList());
             }
 
             policyTO.getUsedByRealms().addAll(
                     realmDAO.findByPolicy(policy).stream().
-                            map(Realm::getFullPath).collect(Collectors.toList()));
+                            map(Realm::getFullPath).toList());
         }
 
         return policyTO;

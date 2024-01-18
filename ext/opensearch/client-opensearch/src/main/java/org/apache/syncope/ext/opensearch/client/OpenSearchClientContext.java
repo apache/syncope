@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.ext.opensearch.client;
 
-import java.util.stream.Collectors;
 import org.apache.http.HttpHost;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -41,7 +40,7 @@ public class OpenSearchClientContext {
     public OpenSearchClientFactoryBean openSearchClientFactoryBean(final OpenSearchProperties props) {
         return new OpenSearchClientFactoryBean(
                 CollectionUtil.nullAsEmpty(props.getHosts()).stream().
-                        map(HttpHost::create).collect(Collectors.toList()));
+                        map(HttpHost::create).toList());
     }
 
     @ConditionalOnMissingBean

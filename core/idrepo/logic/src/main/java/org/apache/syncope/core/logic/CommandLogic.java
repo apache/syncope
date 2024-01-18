@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.command.CommandTO;
@@ -80,7 +79,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
                     }
                 }).
                 filter(Objects::nonNull).
-                collect(Collectors.toList());
+                toList();
 
         return new SyncopePage<>(commands, pageable, count);
     }

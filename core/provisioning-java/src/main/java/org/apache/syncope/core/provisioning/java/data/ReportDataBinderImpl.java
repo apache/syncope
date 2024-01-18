@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -102,7 +101,7 @@ public class ReportDataBinderImpl extends AbstractExecutableDatabinder implement
         }
 
         reportTO.getExecutions().addAll(report.getExecs().stream().
-                map(this::getExecTO).collect(Collectors.toList()));
+                map(this::getExecTO).toList());
 
         String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(report).getName());
         try {

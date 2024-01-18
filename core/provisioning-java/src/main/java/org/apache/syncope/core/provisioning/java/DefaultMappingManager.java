@@ -679,7 +679,7 @@ public class DefaultMappingManager implements MappingManager {
                     references.addAll(groupableRelatable.getRelationships(relationshipType).stream().
                             filter(relationship -> anyType.equals(relationship.getRightEnd().getType())).
                             map(Relationship::getRightEnd).
-                            collect(Collectors.toList()));
+                            toList());
                 }
             } else if (intAttrName.getMembershipOfGroup() != null) {
                 membership = groupDAO.findByName(intAttrName.getMembershipOfGroup()).

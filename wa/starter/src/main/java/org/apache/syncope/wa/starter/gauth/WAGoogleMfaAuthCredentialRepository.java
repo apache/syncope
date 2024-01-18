@@ -51,7 +51,7 @@ public class WAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthenticator
     protected GoogleMfaAuthAccount mapGoogleMfaAuthAccount(final OneTimeTokenAccount otta) {
         return new GoogleMfaAuthAccount.Builder().
                 registrationDate(OffsetDateTime.now()).
-                scratchCodes(otta.getScratchCodes().stream().map(Number::intValue).collect(Collectors.toList())).
+                scratchCodes(otta.getScratchCodes().stream().map(Number::intValue).toList()).
                 validationCode(otta.getValidationCode()).
                 secretKey(otta.getSecretKey()).
                 id(otta.getId()).
@@ -114,7 +114,7 @@ public class WAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthenticator
             return service().read(username).
                     getResult().stream().
                     map(this::mapGoogleMfaAuthAccount).
-                    collect(Collectors.toList());
+                    toList();
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 LOG.info("Could not locate account for owner {}", username);
@@ -130,14 +130,14 @@ public class WAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthenticator
         return service().list().
                 getResult().stream().
                 map(this::mapGoogleMfaAuthAccount).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override
     public OneTimeTokenAccount save(final OneTimeTokenAccount otta) {
         GoogleMfaAuthAccount account = new GoogleMfaAuthAccount.Builder().
                 registrationDate(OffsetDateTime.now()).
-                scratchCodes(otta.getScratchCodes().stream().map(Number::intValue).collect(Collectors.toList())).
+                scratchCodes(otta.getScratchCodes().stream().map(Number::intValue).toList()).
                 validationCode(otta.getValidationCode()).
                 secretKey(otta.getSecretKey()).
                 name(otta.getName()).

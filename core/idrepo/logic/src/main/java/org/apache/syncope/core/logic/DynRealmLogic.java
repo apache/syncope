@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -53,7 +52,7 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
 
     @Transactional(readOnly = true)
     public List<DynRealmTO> list() {
-        return dynRealmDAO.findAll().stream().map(binder::getDynRealmTO).collect(Collectors.toList());
+        return dynRealmDAO.findAll().stream().map(binder::getDynRealmTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.DYNREALM_CREATE + "')")

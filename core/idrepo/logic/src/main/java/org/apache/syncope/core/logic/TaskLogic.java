@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -241,7 +240,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     entityKey,
                     pageable).stream().
                     <T>map(task -> binder.getTaskTO(task, taskUtilsFactory.getInstance(type), details)).
-                    collect(Collectors.toList());
+                    toList();
 
             return new SyncopePage<>(result, pageable, count);
         } catch (IllegalArgumentException | InvalidDataAccessApiUsageException e) {
@@ -405,7 +404,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         long count = taskExecDAO.count(task, before, after);
 
         List<ExecTO> result = taskExecDAO.findAll(task, before, after, pageable).stream().
-                map(exec -> binder.getExecTO(exec)).collect(Collectors.toList());
+                map(exec -> binder.getExecTO(exec)).toList();
 
         return new SyncopePage<>(result, pageable, count);
     }
@@ -427,7 +426,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     }
                 }).
                 filter(Objects::nonNull).
-                collect(Collectors.toList());
+                toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")

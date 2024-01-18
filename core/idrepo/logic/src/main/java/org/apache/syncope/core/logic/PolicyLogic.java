@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.PolicyTO;
@@ -87,7 +86,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(type);
 
         return policyDAO.findAll(policyUtils.policyClass()).stream().
-                <T>map(binder::getPolicyTO).collect(Collectors.toList());
+                <T>map(binder::getPolicyTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_READ + "')")

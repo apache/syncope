@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.ext.ContextProvider;
@@ -318,7 +317,7 @@ public class IdRepoRESTCXFContext {
         properties.put("convert.wadl.resources.to.dom", "false");
         restContainer.setProperties(properties);
 
-        restContainer.setServiceBeans(services.stream().map(Object.class::cast).collect(Collectors.toList()));
+        restContainer.setServiceBeans(services.stream().map(Object.class::cast).toList());
 
         restContainer.setProviders(List.of(
                 dateParamConverterProvider,

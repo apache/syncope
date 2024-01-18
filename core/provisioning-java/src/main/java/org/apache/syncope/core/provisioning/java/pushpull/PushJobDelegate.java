@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -206,7 +205,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
             // Never push the root realm
             List<Realm> realms = realmDAO.findDescendants(
                     profile.getTask().getSourceRealm().getFullPath(), null, Pageable.unpaged()).stream().
-                    filter(realm -> realm.getParent() != null).collect(Collectors.toList());
+                    filter(realm -> realm.getParent() != null).toList();
             boolean result = true;
             for (int i = 0; i < realms.size() && result; i++) {
                 try {
@@ -224,7 +223,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
 
         for (Provision provision : pushTask.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
-                collect(Collectors.toList())) {
+                toList()) {
 
             setStatus("Pushing " + provision.getAnyType());
 

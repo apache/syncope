@@ -258,7 +258,7 @@ public class DefaultPropagationManager implements PropagationManager {
             if (!pwdWFResult.getPropByRes().isEmpty()) {
                 Set<String> toBeExcluded = new HashSet<>(allResourceNames);
                 toBeExcluded.addAll(userUR.getResources().stream().
-                        map(AbstractPatchItem::getValue).collect(Collectors.toList()));
+                        map(AbstractPatchItem::getValue).toList());
                 toBeExcluded.removeAll(pwdResourceNames);
 
                 tasks.addAll(getUserUpdateTasks(pwdWFResult, true, toBeExcluded));
@@ -277,7 +277,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 tasks.addAll(getUserUpdateTasks(noPwdWFResult, false, pwdResourceNames));
             }
 
-            tasks = tasks.stream().distinct().collect(Collectors.toList());
+            tasks = tasks.stream().distinct().toList();
         }
 
         return tasks;

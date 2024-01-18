@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
@@ -65,7 +64,7 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_LIST + "')")
     @Transactional(readOnly = true)
     public List<ApplicationTO> list() {
-        return applicationDAO.findAll().stream().map(binder::getApplicationTO).collect(Collectors.toList());
+        return applicationDAO.findAll().stream().map(binder::getApplicationTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_CREATE + "')")

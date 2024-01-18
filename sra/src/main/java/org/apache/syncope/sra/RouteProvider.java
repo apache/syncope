@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -552,7 +551,7 @@ public class RouteProvider {
                         }
                     }).
                     filter(Objects::nonNull).
-                    collect(Collectors.toList()));
+                    toList());
         }
 
         return builder;
@@ -578,7 +577,7 @@ public class RouteProvider {
             routeTOs.addAll(client.getService(SRARouteService.class).list());
         }
 
-        return routeTOs.stream().map(this::toRoute).collect(Collectors.toList());
+        return routeTOs.stream().map(this::toRoute).toList();
     }
 
     public List<SRARouteTO> getRouteTOs() {

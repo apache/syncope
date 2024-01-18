@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Iterator;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
@@ -112,7 +111,7 @@ public class ApplicationDataBinderImpl implements ApplicationDataBinder {
         applicationTO.setKey(application.getKey());
         applicationTO.setDescription(application.getDescription());
         applicationTO.getPrivileges().addAll(
-                application.getPrivileges().stream().map(this::getPrivilegeTO).collect(Collectors.toList()));
+                application.getPrivileges().stream().map(this::getPrivilegeTO).toList());
 
         return applicationTO;
     }
