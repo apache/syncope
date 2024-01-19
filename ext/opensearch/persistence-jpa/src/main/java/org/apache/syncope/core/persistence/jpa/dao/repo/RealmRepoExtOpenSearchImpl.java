@@ -47,7 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
 
-    protected static final List<SortOptions> ES_SORT_OPTIONS_REALM = List.of(
+    protected static final List<SortOptions> REALM_SORT_OPTIONS = List.of(
             new SortOptions.Builder().
                     script(s -> s.type(ScriptSortType.Number).
                     script(t -> t.inline(i -> i.lang("painless").
@@ -111,7 +111,7 @@ public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
                 index(OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(query).
-                sort(ES_SORT_OPTIONS_REALM).
+                sort(REALM_SORT_OPTIONS).
                 build();
 
         try {
@@ -199,7 +199,7 @@ public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
                 query(buildDescendantQuery(base, keyword)).
                 from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * (pageable.getPageNumber() - 1)).
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
-                sort(ES_SORT_OPTIONS_REALM).
+                sort(REALM_SORT_OPTIONS).
                 build();
 
         List<String> result = List.of();
@@ -235,7 +235,7 @@ public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
                 query(query).
                 from(0).
                 size(indexMaxResultWindow).
-                sort(ES_SORT_OPTIONS_REALM).
+                sort(REALM_SORT_OPTIONS).
                 build();
 
         List<String> result = List.of();

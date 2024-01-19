@@ -47,11 +47,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class RealmRepoExtElasticsearchImpl extends RealmRepoExtImpl {
 
-    protected static final List<SortOptions> ES_SORT_OPTIONS_REALM = List.of(
+    protected static final List<SortOptions> REALM_SORT_OPTIONS = List.of(
             new SortOptions.Builder().
                     script(s -> s.type(ScriptSortType.Number).
                     script(t -> t.inline(i -> i.lang(ScriptLanguage.Painless).
-                    source("doc['fullPath'].value.chars().filter(ch -> ch == '/').count()"))).
+                    // not working with >= 8.12.0 - see
+                    // https://discuss.elastic.co/t/painless-sort-not-working-completely-on-8-12-0/351414
+                    //source("doc['fullPath'].value.chars().filter(ch -> ch == '/').count()"))).
+                    source("doc['fullPath'].value.length()"))).
                     order(SortOrder.Asc)).
                     build());
 
@@ -111,7 +114,7 @@ public class RealmRepoExtElasticsearchImpl extends RealmRepoExtImpl {
                 index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(query).
-                sort(ES_SORT_OPTIONS_REALM).
+                sort(REALM_SORT_OPTIONS).
                 build();
 
         try {
@@ -199,7 +202,7 @@ public class RealmRepoExtElasticsearchImpl extends RealmRepoExtImpl {
                 query(buildDescendantQuery(base, keyword)).
                 from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * (pageable.getPageNumber() - 1)).
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
-                sort(ES_SORT_OPTIONS_REALM).
+                sort(REALM_SORT_OPTIONS).
                 build();
 
         List<String> result = List.of();
@@ -235,7 +238,7 @@ public class RealmRepoExtElasticsearchImpl extends RealmRepoExtImpl {
                 query(query).
                 from(0).
                 size(indexMaxResultWindow).
-                sort(ES_SORT_OPTIONS_REALM).
+                sort(REALM_SORT_OPTIONS).
                 build();
 
         List<String> result = List.of();
