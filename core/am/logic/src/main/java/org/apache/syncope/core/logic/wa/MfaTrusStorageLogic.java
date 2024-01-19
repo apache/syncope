@@ -104,7 +104,7 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
 
         List<MfaTrustedDevice> result = devices.stream().
                 limit(pageable.getPageSize()).
-                skip(pageable.getPageSize() * (pageable.getPageNumber() <= 0 ? 0L : pageable.getPageNumber() - 1L)).
+                skip(pageable.getPageSize() * pageable.getPageNumber()).
                 sorted((o1, o2) -> {
                     int compare;
                     for (Comparator<MfaTrustedDevice> comparator : comparatorList) {

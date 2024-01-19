@@ -27,8 +27,6 @@ import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.core.logic.AuditLogic;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -81,10 +79,7 @@ public class AuditServiceImpl extends AbstractService implements AuditService {
                 auditQuery.getResult(),
                 auditQuery.getBefore(),
                 auditQuery.getAfter(),
-                PageRequest.of(
-                        auditQuery.getPage(),
-                        auditQuery.getSize(),
-                        Sort.by(getOrderByClauses(auditQuery.getOrderBy()))));
+                pageable(auditQuery));
 
         return buildPagedResult(result);
     }

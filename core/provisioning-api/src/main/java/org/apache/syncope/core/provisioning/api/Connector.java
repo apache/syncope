@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -226,7 +227,7 @@ public interface Connector {
      * @param pageSize requested page results page size
      * @param pagedResultsCookie an opaque cookie which is used by the connector to track its position in the set of
      * query results
-     * @param orderBy the sort keys which should be used for ordering the {@link ConnectorObject} returned by
+     * @param sort the sort keys which should be used for ordering the {@link ConnectorObject} returned by
      * search request
      * @param options ConnId's OperationOptions
      * @return search result
@@ -237,17 +238,14 @@ public interface Connector {
             SearchResultsHandler handler,
             int pageSize,
             String pagedResultsCookie,
-            List<Sort.Order> orderBy,
+            List<Sort.Order> sort,
             OperationOptions options) {
 
         OperationOptionsBuilder builder = new OperationOptionsBuilder().setPageSize(pageSize).setPagedResultsOffset(-1);
-        if (pagedResultsCookie != null) {
-            builder.setPagedResultsCookie(pagedResultsCookie);
-        }
-        builder.setSortKeys(orderBy.stream().
+        Optional.ofNullable(pagedResultsCookie).ifPresent(builder::setPagedResultsCookie);
+        builder.setSortKeys(sort.stream().
                 map(clause -> new SortKey(clause.getProperty(), clause.getDirection() == Sort.Direction.ASC)).
                 toList());
-
         builder.setAttributesToGet(options.getAttributesToGet());
 
         return search(objectClass, filter, handler, builder.build());

@@ -26,10 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.persistence.Query;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -228,20 +228,18 @@ public class GroupTest extends AbstractTest {
      * signature: required for avoiding creating of a new transaction - good for general use case but bad for the way
      * how this test class is architected.
      */
-    @SuppressWarnings("unchecked")
     public List<Group> findDynGroups(final User user) {
         Query query = entityManager.createNativeQuery(
                 "SELECT group_id FROM " + GroupRepoExt.UDYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, user.getKey());
 
-        List<Group> result = new ArrayList<>();
-        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
-                ? (String) ((Object[]) resultKey)[0]
-                : ((String) resultKey)).
-                forEach(groupKey -> groupDAO.findById(groupKey.toString()).
-                filter(group -> !result.contains(group)).
-                ifPresent(result::add));
-        return result;
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().
+                map(groupKey -> groupDAO.findById(groupKey.toString())).
+                filter(Optional::isPresent).map(Optional::get).
+                distinct().
+                collect(Collectors.toList());
     }
 
     @Test
@@ -322,20 +320,18 @@ public class GroupTest extends AbstractTest {
      * signature: required for avoiding creating of a new transaction - good for general use case but bad for the way
      * how this test class is architected.
      */
-    @SuppressWarnings("unchecked")
     public List<Group> findDynGroups(final AnyObject anyObject) {
         Query query = entityManager.createNativeQuery(
                 "SELECT group_id FROM " + GroupRepoExt.ADYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, anyObject.getKey());
 
-        List<Group> result = new ArrayList<>();
-        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
-                ? (String) ((Object[]) resultKey)[0]
-                : ((String) resultKey)).
-                forEach(groupKey -> groupDAO.findById(groupKey.toString()).
-                filter(group -> !result.contains(group)).
-                ifPresent(result::add));
-        return result;
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.stream().
+                map(groupKey -> groupDAO.findById(groupKey.toString())).
+                filter(Optional::isPresent).map(Optional::get).
+                distinct().
+                collect(Collectors.toList());
     }
 
     @Test

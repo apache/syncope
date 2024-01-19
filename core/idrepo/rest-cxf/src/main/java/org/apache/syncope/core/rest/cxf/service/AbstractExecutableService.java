@@ -34,8 +34,6 @@ import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 public abstract class AbstractExecutableService extends AbstractService implements ExecutableService {
 
@@ -47,10 +45,7 @@ public abstract class AbstractExecutableService extends AbstractService implemen
                 query.getKey(),
                 query.getBefore(),
                 query.getAfter(),
-                PageRequest.of(
-                        query.getPage(),
-                        query.getSize(),
-                        Sort.by(getOrderByClauses(query.getOrderBy()))));
+                pageable(query));
         return buildPagedResult(result);
     }
 

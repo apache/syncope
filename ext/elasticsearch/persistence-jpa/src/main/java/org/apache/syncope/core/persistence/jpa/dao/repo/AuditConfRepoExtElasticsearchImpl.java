@@ -190,7 +190,7 @@ public class AuditConfRepoExtElasticsearchImpl implements AuditConfRepoExt {
                 searchType(SearchType.QueryThenFetch).
                 query(getQuery(entityKey, type, category, subcategory, events, result, before, after)).
                 fields(f -> f.field("message")).
-                from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * (pageable.getPageNumber() - 1)).
+                from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * pageable.getPageNumber()).
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
                 sort(sortBuilders(pageable.getSort().get())).
                 build();

@@ -197,7 +197,7 @@ public class RealmRepoExtOpenSearchImpl extends RealmRepoExtImpl {
                 index(OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(buildDescendantQuery(base, keyword)).
-                from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * (pageable.getPageNumber() - 1)).
+                from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * pageable.getPageNumber()).
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
                 sort(REALM_SORT_OPTIONS).
                 build();

@@ -42,6 +42,7 @@ import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -124,11 +125,11 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
         membCond.setGroup(group);
         SearchCond searchCond = SearchCond.getLeaf(membCond);
         long count = userLogic.search(
-                searchCond, PageRequest.of(1, 1), SyncopeConstants.ROOT_REALM, true, false).getTotalElements();
-        for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                searchCond, PageRequest.of(0, 1), SyncopeConstants.ROOT_REALM, true, false).getTotalElements();
+        for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
             members.addAll(userLogic.search(
                     searchCond,
-                    PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
+                    PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DAO.DEFAULT_SORT),
                     SyncopeConstants.ROOT_REALM,
                     true,
                     false).

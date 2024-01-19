@@ -34,8 +34,6 @@ import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.logic.TaskLogic;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -82,10 +80,7 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
                 query.getNotification(),
                 query.getAnyTypeKind(),
                 query.getEntityKey(),
-                PageRequest.of(
-                        query.getPage(),
-                        query.getSize(),
-                        Sort.by(getOrderByClauses(query.getOrderBy()))),
+                pageable(query),
                 query.getDetails());
         return buildPagedResult(result);
     }

@@ -52,7 +52,7 @@ public class RealmRepoExtElasticsearchImpl extends RealmRepoExtImpl {
                     script(s -> s.type(ScriptSortType.Number).
                     script(t -> t.inline(i -> i.lang(ScriptLanguage.Painless).
                     // not working with >= 8.12.0 - see
-                    // https://discuss.elastic.co/t/painless-sort-not-working-completely-on-8-12-0/351414
+                    // https://discuss.elastic.co/t/painless-sort-not-working-in-call-cases-on-8-12-0/351414
                     //source("doc['fullPath'].value.chars().filter(ch -> ch == '/').count()"))).
                     source("doc['fullPath'].value.length()"))).
                     order(SortOrder.Asc)).
@@ -200,7 +200,7 @@ public class RealmRepoExtElasticsearchImpl extends RealmRepoExtImpl {
                 index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(buildDescendantQuery(base, keyword)).
-                from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * (pageable.getPageNumber() - 1)).
+                from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * pageable.getPageNumber()).
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
                 sort(REALM_SORT_OPTIONS).
                 build();

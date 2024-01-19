@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -51,7 +52,6 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 /**
  * Remove and rebuild all Elasticsearch indexes with information from existing users, groups and any objects.
@@ -95,8 +95,6 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
             LOG.error("Bulk request {} failed", executionId, failure);
         }
     }
-
-    protected static final Sort DEFAULT_SORT = Sort.by("id");
 
     @Autowired
     protected ElasticsearchClient client;
@@ -177,7 +175,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                         maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
 
                     for (int page = 0; page <= (realms / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
-                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DAO.DEFAULT_SORT);
                         for (Realm realm : realmDAO.findAll(pageable)) {
                             ingester.add(op -> op.index(idx -> idx.
                                     index(rindex).
@@ -200,7 +198,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                         maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
 
                     for (int page = 0; page <= (users / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
-                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DAO.DEFAULT_SORT);
                         for (User user : userDAO.findAll(pageable)) {
                             ingester.add(op -> op.index(idx -> idx.
                                     index(uindex).
@@ -223,7 +221,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                         maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
 
                     for (int page = 0; page <= (groups / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
-                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DAO.DEFAULT_SORT);
                         for (Group group : groupDAO.findAll(pageable)) {
                             ingester.add(op -> op.index(idx -> idx.
                                     index(gindex).
@@ -246,7 +244,7 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                         maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
 
                     for (int page = 0; page <= (anyObjects / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
-                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DEFAULT_SORT);
+                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DAO.DEFAULT_SORT);
                         for (AnyObject anyObject : anyObjectDAO.findAll(pageable)) {
                             ingester.add(op -> op.index(idx -> idx.
                                     index(aindex).

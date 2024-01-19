@@ -21,8 +21,11 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.springframework.data.domain.Sort;
 
 public interface DAO<E extends Entity> {
+
+    Sort DEFAULT_SORT = Sort.by("id");
 
     Optional<? extends E> findById(String key);
 

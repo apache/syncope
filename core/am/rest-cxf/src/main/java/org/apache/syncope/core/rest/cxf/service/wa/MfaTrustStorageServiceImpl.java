@@ -25,8 +25,6 @@ import org.apache.syncope.common.rest.api.service.wa.MfaTrustStorageService;
 import org.apache.syncope.core.logic.wa.MfaTrusStorageLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -44,10 +42,7 @@ public class MfaTrustStorageServiceImpl extends AbstractService implements MfaTr
                 query.getPrincipal(),
                 query.getId(),
                 query.getRecordDate(),
-                PageRequest.of(
-                        query.getPage(),
-                        query.getSize(),
-                        Sort.by(getOrderByClauses(query.getOrderBy()))));
+                pageable(query));
         return buildPagedResult(result);
     }
 

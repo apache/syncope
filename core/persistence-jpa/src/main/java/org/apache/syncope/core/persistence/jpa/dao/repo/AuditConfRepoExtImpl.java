@@ -214,9 +214,8 @@ public class AuditConfRepoExtImpl implements AuditConfRepoExt {
         Query query = entityManager.createNativeQuery(queryString);
         fillWithParameters(query, parameters);
 
-        // page starts from 1, while setFirtResult() starts from 0
         if (pageable.isPaged()) {
-            query.setFirstResult(pageable.getPageSize() * (pageable.getPageNumber() - 1));
+            query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
             query.setMaxResults(pageable.getPageSize());
         }
 

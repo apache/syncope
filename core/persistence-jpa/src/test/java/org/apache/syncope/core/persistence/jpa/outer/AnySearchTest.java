@@ -136,7 +136,7 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(
                 realmDAO.getRoot(), true,
                 Set.of(SyncopeConstants.ROOT_REALM),
-                SearchCond.getLeaf(anyCond), PageRequest.of(1, 100), AnyTypeKind.USER);
+                SearchCond.getLeaf(anyCond), PageRequest.of(0, 100), AnyTypeKind.USER);
         assertNotNull(users);
         assertTrue(users.stream().anyMatch(user -> rossini.getKey().equals(user.getKey())));
 
@@ -144,7 +144,7 @@ public class AnySearchTest extends AbstractTest {
         users = searchDAO.search(
                 group.getRealm(), true,
                 Set.of(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())),
-                SearchCond.getLeaf(anyCond), PageRequest.of(1, 100), AnyTypeKind.USER);
+                SearchCond.getLeaf(anyCond), PageRequest.of(0, 100), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals(rossini.getKey(), users.get(0).getKey());

@@ -57,8 +57,6 @@ import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR extends AnyUR>
         extends AbstractSearchService implements AnyService<TO> {
@@ -129,11 +127,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                 : getSearchCond(anyQuery.getFiql(), realm);
         try {
             Page<TO> result = getAnyLogic().search(
-                    searchCond,
-                    PageRequest.of(
-                            anyQuery.getPage(),
-                            anyQuery.getSize(),
-                            Sort.by(getOrderByClauses(anyQuery.getOrderBy()))),
+                    searchCond, pageable(anyQuery),
                     realm,
                     anyQuery.getRecursive(),
                     anyQuery.getDetails());

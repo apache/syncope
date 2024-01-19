@@ -32,8 +32,6 @@ import org.apache.syncope.core.logic.RemediationLogic;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -56,10 +54,7 @@ public class RemediationServiceImpl extends AbstractService implements Remediati
         Page<RemediationTO> result = logic.list(
                 query.getBefore(),
                 query.getAfter(),
-                PageRequest.of(
-                        query.getPage(),
-                        query.getSize(),
-                        Sort.by(getOrderByClauses(query.getOrderBy()))));
+                pageable(query));
         return buildPagedResult(result);
     }
 

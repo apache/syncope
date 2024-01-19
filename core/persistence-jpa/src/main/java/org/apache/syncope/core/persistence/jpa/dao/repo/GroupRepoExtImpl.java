@@ -215,7 +215,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             SearchCond cond = buildDynMembershipCond(merged.getUDynMembership().getFIQLCond());
             int count = anySearchDAO.count(
                     merged.getRealm(), true, Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.USER);
-            for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+            for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
                 List<User> matching = anySearchDAO.search(
                         merged.getRealm(),
                         true,
@@ -241,7 +241,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             SearchCond cond = buildDynMembershipCond(memb.getFIQLCond());
             int count = anySearchDAO.count(
                     merged.getRealm(), true, Set.of(merged.getRealm().getFullPath()), cond, AnyTypeKind.ANY_OBJECT);
-            for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+            for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
                 List<AnyObject> matching = anySearchDAO.search(
                         merged.getRealm(),
                         true,

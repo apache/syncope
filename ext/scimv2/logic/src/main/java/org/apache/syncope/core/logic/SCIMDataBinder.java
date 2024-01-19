@@ -1005,9 +1005,9 @@ public class SCIMDataBinder {
 
         if (output(attributes, excludedAttributes, "members")) {
             long count = userLogic.search(
-                    searchCond, PageRequest.of(1, 1), SyncopeConstants.ROOT_REALM, true, false).getTotalElements();
+                    searchCond, PageRequest.of(0, 1), SyncopeConstants.ROOT_REALM, true, false).getTotalElements();
 
-            for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+            for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
                 List<UserTO> users = userLogic.search(
                         searchCond,
                         PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),

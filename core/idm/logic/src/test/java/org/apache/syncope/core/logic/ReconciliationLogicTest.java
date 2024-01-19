@@ -87,7 +87,7 @@ public class ReconciliationLogicTest extends AbstractTest {
     @Test
     public void pushToCSV() throws IOException {
         Page<UserTO> search = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN,
-                () -> userLogic.search(null, PageRequest.of(1, 100), SyncopeConstants.ROOT_REALM, true, false));
+                () -> userLogic.search(null, PageRequest.of(0, 100), SyncopeConstants.ROOT_REALM, true, false));
         assertNotNull(search);
 
         CSVPushSpec spec = new CSVPushSpec.Builder(AnyTypeKind.USER.name()).ignorePaging(true).
@@ -104,7 +104,7 @@ public class ReconciliationLogicTest extends AbstractTest {
 
         List<ProvisioningReport> results = AuthContextUtils.callAsAdmin(
                 SyncopeConstants.MASTER_DOMAIN,
-                () -> reconciliationLogic.push(null, PageRequest.of(1, 1), SyncopeConstants.ROOT_REALM, spec, os));
+                () -> reconciliationLogic.push(null, PageRequest.of(0, 1), SyncopeConstants.ROOT_REALM, spec, os));
         assertEquals(search.getTotalElements(), results.size());
 
         MappingIterator<Map<String, String>> reader =

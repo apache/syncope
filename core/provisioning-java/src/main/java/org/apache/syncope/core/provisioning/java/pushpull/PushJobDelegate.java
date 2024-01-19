@@ -262,7 +262,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
                     cond,
                     anyType.getKind());
             boolean result = true;
-            for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1 && result; page++) {
+            for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) && result; page++) {
                 List<? extends Any<?>> anys = searchDAO.search(
                         profile.getTask().getSourceRealm(),
                         true,

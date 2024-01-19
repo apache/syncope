@@ -92,7 +92,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
         Page<GroupTO> result = logic.searchAssignableGroups(
                 StringUtils.prependIfMissing(realm, SyncopeConstants.ROOT_REALM),
                 term,
-                PageRequest.of(page < 1 ? 1 : page, size < 1 ? 1 : size, Sort.by(Sort.Direction.ASC, "name")));
+                PageRequest.of(page < 1 ? 0 : page - 1, size < 1 ? 1 : size, Sort.by(Sort.Direction.ASC, "name")));
         return buildPagedResult(result);
     }
 

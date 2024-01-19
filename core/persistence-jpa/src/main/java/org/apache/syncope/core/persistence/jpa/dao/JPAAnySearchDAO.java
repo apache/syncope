@@ -270,16 +270,15 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             // 3. prepare the search query
             Query query = entityManager.createNativeQuery(queryString.toString());
 
-            // 4. page starts from 1, while setFirtResult() starts from 0
             if (pageable.isPaged()) {
-                query.setFirstResult(pageable.getPageSize() * (pageable.getPageNumber() - 1));
+                query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
                 query.setMaxResults(pageable.getPageSize());
             }
 
-            // 5. populate the search query with parameter values
+            // 4. populate the search query with parameter values
             fillWithParameters(query, parameters);
 
-            // 6. Prepare the result (avoiding duplicates)
+            // 5. Prepare the result (avoiding duplicates)
             return buildResult(query.getResultList(), kind);
         } catch (SyncopeClientException e) {
             throw e;

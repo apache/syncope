@@ -392,7 +392,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             final String anyTypeKey,
             final int size,
             final String pagedResultsCookie,
-            final List<Sort.Order> orderBy) {
+            final List<Sort.Order> sort) {
 
         ExternalResource resource;
         Provision provision;
@@ -444,7 +444,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                     public void handleResult(final SearchResult sr) {
                         // do nothing
                     }
-                }, size, pagedResultsCookie, orderBy, options);
+                }, size, pagedResultsCookie, sort, options);
 
         return Pair.of(searchResult, connObjects);
     }

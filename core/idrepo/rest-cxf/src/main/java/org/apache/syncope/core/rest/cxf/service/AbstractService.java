@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AbstractQuery;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -45,6 +46,8 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 public abstract class AbstractService implements JAXRSService {
@@ -52,6 +55,38 @@ public abstract class AbstractService implements JAXRSService {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractService.class);
 
     protected static final String OPTIONS_ALLOW = "GET,POST,OPTIONS,HEAD";
+
+    protected static Sort sort(final String orderBy, final Sort defaultIfBlank) {
+        if (StringUtils.isBlank(orderBy)) {
+            return defaultIfBlank;
+        }
+
+        List<Sort.Order> clauses = new ArrayList<>();
+
+        for (String clause : orderBy.split(",")) {
+            String[] elems = clause.trim().split(" ");
+
+            if (elems.length > 0 && StringUtils.isNotBlank(elems[0])) {
+                Sort.Direction direction = Sort.DEFAULT_DIRECTION;
+                if (elems.length > 1 && StringUtils.isNotBlank(elems[1])) {
+                    direction = elems[1].trim().equalsIgnoreCase(Sort.Direction.ASC.name())
+                            ? Sort.Direction.ASC : Sort.Direction.DESC;
+                }
+                clauses.add(new Sort.Order(direction, elems[0].trim()));
+            }
+        }
+
+        return Sort.by(clauses);
+    }
+
+    protected static Pageable pageable(final AbstractQuery query, final Sort defaultIfOrderByIsBlank) {
+        // REST query values have page starting from 1 while Pageable starts from 0
+        return PageRequest.of(query.getPage() - 1, query.getSize(), sort(query.getOrderBy(), defaultIfOrderByIsBlank));
+    }
+
+    protected static Pageable pageable(final AbstractQuery query) {
+        return pageable(query, sort(query.getOrderBy(), Sort.unsorted()));
+    }
 
     @Context
     protected UriInfo uriInfo;
@@ -175,56 +210,21 @@ public abstract class AbstractService implements JAXRSService {
         }
     }
 
-    protected List<Sort.Order> getOrderByClauses(final String orderBy) {
-        if (StringUtils.isBlank(orderBy)) {
-            return List.of();
-        }
-
-        List<Sort.Order> result = new ArrayList<>();
-
-        for (String clause : orderBy.split(",")) {
-            String[] elems = clause.trim().split(" ");
-
-            if (elems.length > 0 && StringUtils.isNotBlank(elems[0])) {
-                Sort.Direction direction = Sort.DEFAULT_DIRECTION;
-                if (elems.length > 1 && StringUtils.isNotBlank(elems[1])) {
-                    direction = elems[1].trim().equalsIgnoreCase(Sort.Direction.ASC.name())
-                            ? Sort.Direction.ASC : Sort.Direction.DESC;
-                }
-                result.add(new Sort.Order(direction, elems[0].trim()));
-            }
-        }
-
-        return result;
-    }
-
-    protected <T extends BaseBean> PagedResult<T> buildPagedResult(final Page<T> page) {
-        return buildPagedResult(
-                page.get().toList(),
-                page.getNumber(),
-                page.getSize(),
-                page.getTotalElements());
-    }
-
     /**
-     * Builds a paged result out of a list of items and additional information.
+     * Builds a paged result out of page.
      *
      * @param <T> result type
-     * @param list bare list of items to be returned
-     * @param page current page
-     * @param size requested size
-     * @param totalCount total result size (not considering pagination)
+     * @param page page
      * @return paged result
      */
-    protected <T extends BaseBean> PagedResult<T> buildPagedResult(
-            final List<T> list, final int page, final int size, final long totalCount) {
-
+    protected <T extends BaseBean> PagedResult<T> buildPagedResult(final Page<T> page) {
         PagedResult<T> result = new PagedResult<>();
-        result.getResult().addAll(list);
+        result.getResult().addAll(page.get().toList());
 
-        result.setPage(page);
+        // PagedResult values expect page starting from 1 while Page starts from 0
+        result.setPage(page.getNumber() + 1);
         result.setSize(result.getResult().size());
-        result.setTotalCount(totalCount);
+        result.setTotalCount(page.getTotalElements());
 
         UriBuilder builder = uriInfo.getAbsolutePathBuilder();
         MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
@@ -233,13 +233,13 @@ public abstract class AbstractService implements JAXRSService {
         if (result.getPage() > 1) {
             result.setPrev(builder.
                     replaceQueryParam(PARAM_PAGE, result.getPage() - 1).
-                    replaceQueryParam(PARAM_SIZE, size).
+                    replaceQueryParam(PARAM_SIZE, page.getSize()).
                     build());
         }
-        if ((result.getPage() - 1) * size + result.getSize() < totalCount) {
+        if ((result.getPage() - 1) * page.getSize() + result.getSize() < page.getTotalElements()) {
             result.setNext(builder.
                     replaceQueryParam(PARAM_PAGE, result.getPage() + 1).
-                    replaceQueryParam(PARAM_SIZE, size).
+                    replaceQueryParam(PARAM_SIZE, page.getSize()).
                     build());
         }
 

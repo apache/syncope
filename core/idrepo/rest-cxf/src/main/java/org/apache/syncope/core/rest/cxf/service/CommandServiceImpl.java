@@ -25,7 +25,6 @@ import org.apache.syncope.common.rest.api.beans.CommandQuery;
 import org.apache.syncope.common.rest.api.service.CommandService;
 import org.apache.syncope.core.logic.CommandLogic;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,7 +39,7 @@ public class CommandServiceImpl extends AbstractService implements CommandServic
     @Override
     public PagedResult<CommandTO> search(final CommandQuery query) {
         String keyword = query.getKeyword() == null ? null : query.getKeyword().replace('*', '%');
-        Page<CommandTO> result = logic.search(keyword, PageRequest.of(query.getPage(), query.getSize()));
+        Page<CommandTO> result = logic.search(keyword, pageable(query));
         return buildPagedResult(result);
     }
 

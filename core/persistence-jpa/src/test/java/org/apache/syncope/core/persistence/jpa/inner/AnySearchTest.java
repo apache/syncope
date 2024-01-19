@@ -281,7 +281,7 @@ public class AnySearchTest extends AbstractTest {
 
         List<User> users = searchDAO.search(
                 realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, cond,
-                PageRequest.of(1, 2), AnyTypeKind.USER);
+                PageRequest.of(0, 2), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 
@@ -672,7 +672,7 @@ public class AnySearchTest extends AbstractTest {
                     true,
                     authRealms,
                     groupDAO.getAllMatchingCond(),
-                    PageRequest.of(1, 10),
+                    PageRequest.of(0, 10),
                     AnyTypeKind.GROUP);
             assertEquals(1, groups.size());
             assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.get(0).getKey());

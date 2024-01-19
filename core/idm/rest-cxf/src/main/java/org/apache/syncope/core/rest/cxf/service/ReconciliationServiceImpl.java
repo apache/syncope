@@ -51,8 +51,6 @@ import org.apache.syncope.core.persistence.api.search.FilterVisitor;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -157,7 +155,7 @@ public class ReconciliationServiceImpl extends AbstractSearchService implements 
 
         StreamingOutput sout = os -> logic.push(
                 searchCond,
-                PageRequest.of(query.getPage() - 1, query.getSize(), Sort.by(getOrderByClauses(query.getOrderBy()))),
+                pageable(query),
                 realm,
                 spec,
                 os);

@@ -30,8 +30,6 @@ import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.core.logic.UserRequestLogic;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -52,9 +50,7 @@ public class UserRequestServiceImpl extends AbstractService implements UserReque
             query.setUser(findActualKey(userDAO, query.getUser()));
         }
 
-        Page<UserRequest> result = logic.listRequests(
-                query.getUser(),
-                PageRequest.of(query.getPage(), query.getSize(), Sort.by(getOrderByClauses(query.getOrderBy()))));
+        Page<UserRequest> result = logic.listRequests(query.getUser(), pageable(query));
         return buildPagedResult(result);
     }
 
@@ -93,12 +89,7 @@ public class UserRequestServiceImpl extends AbstractService implements UserReque
             query.setUser(findActualKey(userDAO, query.getUser()));
         }
 
-        Page<UserRequestForm> result = logic.listForms(
-                query.getUser(),
-                PageRequest.of(
-                        query.getPage(),
-                        query.getSize(),
-                        Sort.by(getOrderByClauses(query.getOrderBy()))));
+        Page<UserRequestForm> result = logic.listForms(query.getUser(), pageable(query));
         return buildPagedResult(result);
     }
 

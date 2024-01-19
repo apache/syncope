@@ -187,7 +187,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         List<UserRequest> result = engine.getRuntimeService().createNativeProcessInstanceQuery().
                 sql(query.toString()).listPage(
-                pageable.getPageSize() * (pageable.getPageNumber() <= 0 ? 0 : pageable.getPageNumber() - 1),
+                pageable.getPageSize() * pageable.getPageNumber(),
                 pageable.getPageSize()).stream().
                 map(this::getUserRequest).
                 toList();
@@ -533,7 +533,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         }
 
         List<UserRequestForm> result = query.listPage(
-                pageable.getPageSize() * (pageable.getPageNumber() <= 0 ? 0 : pageable.getPageNumber() - 1),
+                pageable.getPageSize() * pageable.getPageNumber(),
                 pageable.getPageSize()).stream().
                 map(task -> task instanceof HistoricTaskInstance
                 ? FlowableUserRequestHandler.this.getForm((HistoricTaskInstance) task)

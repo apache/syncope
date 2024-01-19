@@ -67,7 +67,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
         long count = result.size();
 
         List<CommandTO> commands = result.stream().
-                skip((pageable.getPageNumber() - 1) * pageable.getPageSize()).
+                skip(pageable.getPageSize() * pageable.getPageNumber()).
                 limit(pageable.getPageSize()).
                 map(command -> {
                     try {

@@ -619,10 +619,10 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             long count = anySearchDAO.count(base, true, adminRealms, effectiveCond, anyType.getKind());
             long pages = (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
 
-            for (int p = 1; p <= pages; p++) {
+            for (int page = 0; page < pages; page++) {
                 matching.addAll(anySearchDAO.search(
                         base, true, adminRealms, effectiveCond,
-                        PageRequest.of(p, AnyDAO.DEFAULT_PAGE_SIZE, pageable.getSort()),
+                        PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, pageable.getSort()),
                         anyType.getKind()));
             }
         } else {
