@@ -160,18 +160,18 @@ public abstract class AbstractSearchPanel extends Panel {
         searchFormContainer.setOutputMarkupId(true);
         add(searchFormContainer);
 
-        Pair<IModel<List<String>>, IModel<Integer>> groupInfo =
+        Pair<IModel<List<String>>, IModel<Long>> groupInfo =
                 typeKind != AnyTypeKind.GROUP && SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH)
                 ? Pair.of(groupNames, new LoadableDetachableModel<>() {
 
                     private static final long serialVersionUID = 7362833782319137329L;
 
                     @Override
-                    protected Integer load() {
+                    protected Long load() {
                         return groupRestClient.count(SyncopeConstants.ROOT_REALM, null, null);
                     }
                 })
-                : Pair.of(groupNames, Model.of(0));
+                : Pair.of(groupNames, Model.of(0L));
         SearchClausePanel searchClausePanel = new SearchClausePanel("panel", "panel",
                 Model.of(new SearchClause()),
                 builder.required,

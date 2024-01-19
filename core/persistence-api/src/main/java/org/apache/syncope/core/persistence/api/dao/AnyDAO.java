@@ -30,6 +30,8 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
@@ -37,11 +39,9 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     List<A> findByKeys(List<String> keys);
 
-    OffsetDateTime findLastChange(String key);
+    Optional<OffsetDateTime> findLastChange(String key);
 
     A authFind(String key);
-
-    A find(String key);
 
     List<A> findByPlainAttrValue(PlainSchema schema, PlainAttrValue attrValue, boolean ignoreCaseMatch);
 
@@ -61,43 +61,16 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
      */
     List<A> findByDerAttrValue(DerSchema schema, String value, boolean ignoreCaseMatch);
 
-    List<A> findByResource(ExternalResource resource);
+    List<A> findByResourcesContaining(ExternalResource resource);
+
+    Page<? extends A> findAll(Pageable pageable);
 
     /**
      * @return the search condition to match all entities
      */
     SearchCond getAllMatchingCond();
 
-    /**
-     * @return the total number of any objects of type {@link A}
-     */
-    int count();
-
-    /**
-     * Find any objects without any limitation, according to given page and items per page.
-     *
-     * @param page search result page
-     * @param itemsPerPage items per search result page
-     * @return any objects of type {@link A} matching the provided conditions
-     */
-    List<A> findAll(int page, int itemsPerPage);
-
-    /**
-     * Find any objects' keys without any limitation, according to given page and items per page.
-     *
-     * @param page search result page
-     * @param itemsPerPage items per search result page
-     * @return any objects' keys matching the provided conditions
-     */
-    List<String> findAllKeys(int page, int itemsPerPage);
-
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
-
-    A save(A any);
-
-    void delete(String key);
-
-    void delete(A any);
 
     List<String> findDynRealms(String key);
 

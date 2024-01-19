@@ -22,37 +22,29 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.springframework.data.domain.Pageable;
 
 public interface TaskExecDAO extends DAO<TaskExec<?>> {
 
-    <T extends Task<T>> TaskExec<T> find(TaskType type, String key);
-
-    Optional<TaskExec<?>> find(String key);
+    <T extends Task<T>> Optional<TaskExec<T>> findById(TaskType type, String key);
 
     List<TaskExec<?>> findRecent(int max);
 
-    TaskExec<?> findLatestStarted(TaskType type, Task<?> task);
+    Optional<? extends TaskExec<?>> findLatestStarted(TaskType type, Task<?> task);
 
-    TaskExec<?> findLatestEnded(TaskType type, Task<?> task);
+    Optional<? extends TaskExec<?>> findLatestEnded(TaskType type, Task<?> task);
 
-    int count(Task<?> task, OffsetDateTime before, OffsetDateTime after);
+    long count(Task<?> task, OffsetDateTime before, OffsetDateTime after);
 
     List<TaskExec<?>> findAll(
             Task<?> task,
             OffsetDateTime before,
             OffsetDateTime after,
-            int page,
-            int itemsPerPage,
-            List<OrderByClause> orderByClauses);
-
-    <T extends Task<T>> TaskExec<T> save(TaskExec<T> execution);
+            Pageable pageable);
 
     <T extends Task<T>> void saveAndAdd(TaskType type, String taskKey, TaskExec<T> execution);
 
     <T extends Task<T>> void delete(TaskType type, String key);
-
-    <T extends Task<T>> void delete(TaskExec<T> execution);
 }

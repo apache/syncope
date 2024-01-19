@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
@@ -72,7 +73,8 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
                 collect(Collectors.toMap(Domain::getKey, Function.identity()));
 
         persistenceProperties.getDomain().stream().
-                filter(d -> !domainHolder.getDomains().containsKey(d.getKey())).forEach(domainProps -> {
+                filter(d -> !SyncopeConstants.MASTER_DOMAIN.equals(d.getKey())
+                && !domainHolder.getDomains().containsKey(d.getKey())).forEach(domainProps -> {
 
             if (keymasterDomains.containsKey(domainProps.getKey())) {
                 LOG.info("Domain {} initialization", domainProps.getKey());

@@ -37,28 +37,28 @@ public class AnyByRealmWidget extends BaseWidget {
 
     private static final int MAX_REALMS = 9;
 
-    private Map<String, Integer> usersByRealm;
+    private Map<String, Long> usersByRealm;
 
-    private Map<String, Integer> groupsByRealm;
+    private Map<String, Long> groupsByRealm;
 
     private String anyType1;
 
-    private Map<String, Integer> any1ByRealm;
+    private Map<String, Long> any1ByRealm;
 
     private String anyType2;
 
-    private Map<String, Integer> any2ByRealm;
+    private Map<String, Long> any2ByRealm;
 
     private final ChartJSPanel chart;
 
     public AnyByRealmWidget(
             final String id,
-            final Map<String, Integer> usersByRealm,
-            final Map<String, Integer> groupsByRealm,
+            final Map<String, Long> usersByRealm,
+            final Map<String, Long> groupsByRealm,
             final String anyType1,
-            final Map<String, Integer> any1ByRealm,
+            final Map<String, Long> any1ByRealm,
             final String anyType2,
-            final Map<String, Integer> any2ByRealm) {
+            final Map<String, Long> any2ByRealm) {
 
         super(id);
         this.usersByRealm = usersByRealm;
@@ -76,17 +76,17 @@ public class AnyByRealmWidget extends BaseWidget {
     }
 
     private Bar build(
-            final Map<String, Integer> usersByRealm,
-            final Map<String, Integer> groupsByRealm,
+            final Map<String, Long> usersByRealm,
+            final Map<String, Long> groupsByRealm,
             final String anyType1,
-            final Map<String, Integer> any1ByRealm,
+            final Map<String, Long> any1ByRealm,
             final String anyType2,
-            final Map<String, Integer> any2ByRealm) {
+            final Map<String, Long> any2ByRealm) {
 
-        List<Integer> userValues = new ArrayList<>();
-        List<Integer> groupValues = new ArrayList<>();
-        List<Integer> any1Values = new ArrayList<>();
-        List<Integer> any2Values = new ArrayList<>();
+        List<Long> userValues = new ArrayList<>();
+        List<Long> groupValues = new ArrayList<>();
+        List<Long> any1Values = new ArrayList<>();
+        List<Long> any2Values = new ArrayList<>();
 
         Set<String> realmSet = new HashSet<>();
         realmSet.addAll(usersByRealm.keySet());
@@ -148,12 +148,12 @@ public class AnyByRealmWidget extends BaseWidget {
     }
 
     public boolean refresh(
-            final Map<String, Integer> usersByRealm,
-            final Map<String, Integer> groupsByRealm,
+            final Map<String, Long> usersByRealm,
+            final Map<String, Long> groupsByRealm,
             final String anyType1,
-            final Map<String, Integer> any1ByRealm,
+            final Map<String, Long> any1ByRealm,
             final String anyType2,
-            final Map<String, Integer> any2ByRealm) {
+            final Map<String, Long> any2ByRealm) {
 
         if (!this.usersByRealm.equals(usersByRealm)
                 || !this.groupsByRealm.equals(groupsByRealm)

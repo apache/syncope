@@ -21,7 +21,9 @@ package org.apache.syncope.core.persistence.jpa;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
+import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -34,17 +36,21 @@ public class TestInitializer implements InitializingBean {
 
     private final ContentLoader contentLoader;
 
+    protected final DomainRoutingEntityManagerFactory entityManagerFactory;
+
     private final ConfigurableApplicationContext ctx;
 
     public TestInitializer(
             final StartupDomainLoader domainLoader,
             final DomainHolder domainHolder,
             final ContentLoader contentLoader,
+            final DomainRoutingEntityManagerFactory entityManagerFactory,
             final ConfigurableApplicationContext ctx) {
 
         this.domainLoader = domainLoader;
         this.domainHolder = domainHolder;
         this.contentLoader = contentLoader;
+        this.entityManagerFactory = entityManagerFactory;
         this.ctx = ctx;
     }
 
@@ -58,10 +64,13 @@ public class TestInitializer implements InitializingBean {
         contentLoader.load(
                 SyncopeConstants.MASTER_DOMAIN,
                 domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
+
         if (domainHolder.getDomains().containsKey("Two")) {
-            contentLoader.load(
+            AuthContextUtils.runAsAdmin("Two", () -> entityManagerFactory.initJPASchema());
+
+            AuthContextUtils.runAsAdmin("Two", () -> contentLoader.load(
                     "Two",
-                    domainHolder.getDomains().get("Two"));
+                    domainHolder.getDomains().get("Two")));
         }
     }
 }

@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.ws.rs.HttpMethod;
 import java.net.URI;
@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class SRARouteTest extends AbstractTest {
 
     @Autowired
@@ -46,17 +46,15 @@ public class SRARouteTest extends AbstractTest {
 
     @Test
     public void find() {
-        SRARoute route = routeDAO.find("ec7bada2-3dd6-460c-8441-65521d005ffa");
-        assertNotNull(route);
+        SRARoute route = routeDAO.findById("ec7bada2-3dd6-460c-8441-65521d005ffa").orElseThrow();
         assertEquals(1, route.getPredicates().size());
 
-        route = routeDAO.find(UUID.randomUUID().toString());
-        assertNull(route);
+        assertTrue(routeDAO.findById(UUID.randomUUID().toString()).isEmpty());
     }
 
     @Test
     public void findAll() {
-        List<SRARoute> routes = routeDAO.findAll();
+        List<? extends SRARoute> routes = routeDAO.findAll();
         assertNotNull(routes);
         assertEquals(1, routes.size());
     }
@@ -84,12 +82,10 @@ public class SRARouteTest extends AbstractTest {
 
     @Test
     public void delete() {
-        SRARoute route = routeDAO.find("ec7bada2-3dd6-460c-8441-65521d005ffa");
-        assertNotNull(route);
+        assertTrue(routeDAO.findById("ec7bada2-3dd6-460c-8441-65521d005ffa").isPresent());
 
-        routeDAO.delete("ec7bada2-3dd6-460c-8441-65521d005ffa");
+        routeDAO.deleteById("ec7bada2-3dd6-460c-8441-65521d005ffa");
 
-        route = routeDAO.find("ec7bada2-3dd6-460c-8441-65521d005ffa");
-        assertNull(route);
+        assertTrue(routeDAO.findById("ec7bada2-3dd6-460c-8441-65521d005ffa").isEmpty());
     }
 }

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic.wa;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
@@ -29,29 +28,27 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 public class WebAuthnRegistrationLogic extends AbstractAuthProfileLogic {
 
-    protected final EntityFactory entityFactory;
-
     public WebAuthnRegistrationLogic(
-            final EntityFactory entityFactory,
+            final AuthProfileDataBinder binder,
             final AuthProfileDAO authProfileDAO,
-            final AuthProfileDataBinder binder) {
+            final EntityFactory entityFactory) {
 
-        super(authProfileDAO, binder);
-        this.entityFactory = entityFactory;
+        super(binder, authProfileDAO, entityFactory);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<WebAuthnAccount> list() {
-        return authProfileDAO.findAll(-1, -1).stream().
+        return authProfileDAO.findAll(Pageable.unpaged()).stream().
                 map(profile -> new WebAuthnAccount.Builder().
                 credentials(profile.getWebAuthnDeviceCredentials()).build()).
-                collect(Collectors.toList());
+                toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -86,11 +83,8 @@ public class WebAuthnRegistrationLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void create(final String owner, final WebAuthnAccount account) {
-        AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
-            AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
-            authProfile.setOwner(owner);
-            return authProfile;
-        });
+        AuthProfile profile = authProfile(owner);
+
         profile.setWebAuthnDeviceCredentials(account.getCredentials());
         authProfileDAO.save(profile);
     }

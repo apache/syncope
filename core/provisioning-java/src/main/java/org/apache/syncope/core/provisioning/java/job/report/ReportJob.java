@@ -27,7 +27,6 @@ import org.apache.syncope.core.provisioning.api.job.JobDelegate;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.quartz.JobExecutionContext;
@@ -56,6 +55,9 @@ public class ReportJob extends AbstractInterruptableJob {
     private final Map<String, ReportJobDelegate> perContextReportJobDelegates = new ConcurrentHashMap<>();
 
     @Autowired
+    private ImplementationDAO implementationDAO;
+
+    @Autowired
     private DomainHolder domainHolder;
 
     private ReportJobDelegate delegate;
@@ -67,41 +69,37 @@ public class ReportJob extends AbstractInterruptableJob {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
+        String domain = context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY);
+        if (!domainHolder.getDomains().containsKey(domain)) {
+            LOG.debug("Domain {} not found, skipping", domain);
+            return;
+        }
+
         String reportKey = context.getMergedJobDataMap().getString(JobManager.REPORT_KEY);
         try {
-            String domain = context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY);
-            if (domainHolder.getDomains().containsKey(domain)) {
-                AuthContextUtils.callAsAdmin(domain, () -> {
-                    try {
-                        ImplementationDAO implementationDAO =
-                                ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);
-                        Implementation impl = implementationDAO.find(
-                                context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION));
-                        if (impl == null) {
-                            LOG.error("Could not find Implementation '{}', aborting",
-                                    context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION));
-                        } else {
-                            delegate = ImplementationManager.buildReportJobDelegate(
-                                    impl,
-                                    () -> perContextReportJobDelegates.get(impl.getKey()),
-                                    instance -> perContextReportJobDelegates.put(impl.getKey(), instance)).
-                                    orElseThrow(() -> new IllegalArgumentException(
-                                    "Could not instantiate " + impl.getBody()));
-                            delegate.execute(
-                                    reportKey,
-                                    context.getMergedJobDataMap().getBoolean(JobManager.DRY_RUN_JOBDETAIL_KEY),
-                                    context);
-                        }
-                    } catch (Exception e) {
-                        LOG.error("While executing report {}", reportKey, e);
-                        throw new RuntimeException(e);
+            AuthContextUtils.runAsAdmin(domain, () -> {
+                try {
+                    String implKey = context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION);
+                    Implementation impl = implementationDAO.findById(implKey).orElse(null);
+                    if (impl == null) {
+                        LOG.error("Could not find Implementation '{}', aborting", implKey);
+                    } else {
+                        delegate = ImplementationManager.buildReportJobDelegate(
+                                impl,
+                                () -> perContextReportJobDelegates.get(impl.getKey()),
+                                instance -> perContextReportJobDelegates.put(impl.getKey(), instance)).
+                                orElseThrow(() -> new IllegalArgumentException(
+                                "Could not instantiate " + impl.getBody()));
+                        delegate.execute(
+                                reportKey,
+                                context.getMergedJobDataMap().getBoolean(JobManager.DRY_RUN_JOBDETAIL_KEY),
+                                context);
                     }
-
-                    return null;
-                });
-            } else {
-                LOG.debug("Domain {} not found, skipping", domain);
-            }
+                } catch (Exception e) {
+                    LOG.error("While executing report {}", reportKey, e);
+                    throw new RuntimeException(e);
+                }
+            });
         } catch (RuntimeException e) {
             LOG.error("While executing report {}", reportKey, e);
             throw new JobExecutionException("While executing report " + reportKey, e);

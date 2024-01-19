@@ -80,11 +80,11 @@ import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.jdbc.support.MetaDataAccessException;
-import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -275,9 +275,16 @@ public class XMLContentExporter implements ContentExporter {
 
     protected final RealmDAO realmDAO;
 
-    public XMLContentExporter(final DomainHolder domainHolder, final RealmDAO realmDAO) {
+    protected final EntityManagerFactory entityManagerFactory;
+
+    public XMLContentExporter(
+            final DomainHolder domainHolder,
+            final RealmDAO realmDAO,
+            final EntityManagerFactory entityManagerFactory) {
+
         this.domainHolder = domainHolder;
         this.realmDAO = realmDAO;
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     @SuppressWarnings("unchecked")
@@ -359,7 +366,7 @@ public class XMLContentExporter implements ContentExporter {
         if (tableName.equalsIgnoreCase(JPARealm.TABLE)) {
             List<Map<String, String>> realmRows = new ArrayList<>(rows);
             rows.clear();
-            realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, null, -1, -1).
+            realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, null, Pageable.unpaged()).
                     forEach(realm -> realmRows.stream().filter(row -> {
 
                 String id = Optional.ofNullable(row.get("ID")).orElseGet(() -> row.get("id"));
@@ -401,8 +408,8 @@ public class XMLContentExporter implements ContentExporter {
         String schema = null;
         if (ApplicationContextProvider.getBeanFactory().containsBean(domain + "DatabaseSchema")) {
             Object schemaBean = ApplicationContextProvider.getBeanFactory().getBean(domain + "DatabaseSchema");
-            if (schemaBean instanceof String) {
-                schema = (String) schemaBean;
+            if (schemaBean instanceof String string) {
+                schema = string;
             }
         }
 
@@ -422,11 +429,8 @@ public class XMLContentExporter implements ContentExporter {
 
             LOG.debug("Tables to be exported {}", tableNames);
 
-            EntityManagerFactory emf = EntityManagerFactoryUtils.findEntityManagerFactory(
-                    ApplicationContextProvider.getBeanFactory(), domain);
-            Set<EntityType<?>> entityTypes = emf == null ? Set.of() : emf.getMetamodel().getEntities();
             BidiMap<String, EntityType<?>> entities = new DualHashBidiMap<>();
-            entityTypes.forEach(entity -> Optional.ofNullable(
+            entityManagerFactory.getMetamodel().getEntities().forEach(entity -> Optional.ofNullable(
                     entity.getBindableJavaType().getAnnotation(Table.class)).
                     ifPresent(table -> entities.put(table.name(), entity)));
 

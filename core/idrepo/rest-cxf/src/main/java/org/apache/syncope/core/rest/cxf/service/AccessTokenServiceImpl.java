@@ -21,7 +21,6 @@ package org.apache.syncope.core.rest.cxf.service;
 import jakarta.ws.rs.core.Response;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -29,6 +28,8 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AccessTokenQuery;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.core.logic.AccessTokenLogic;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -65,16 +66,12 @@ public class AccessTokenServiceImpl extends AbstractService implements AccessTok
 
     @Override
     public PagedResult<AccessTokenTO> list(final AccessTokenQuery query) {
-        Pair<Integer, List<AccessTokenTO>> result = logic.list(
-                query.getPage(),
-                query.getSize(),
-                getOrderByClauses(query.getOrderBy()));
-        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
+        Page<AccessTokenTO> result = logic.list(pageable(query, Sort.by("expirationTime").descending()));
+        return buildPagedResult(result);
     }
 
     @Override
     public void delete(final String key) {
         logic.delete(key);
     }
-
 }

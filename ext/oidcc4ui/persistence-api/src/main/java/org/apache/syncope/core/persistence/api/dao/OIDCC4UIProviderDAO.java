@@ -18,18 +18,10 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 
-public interface OIDCC4UIProviderDAO {
+public interface OIDCC4UIProviderDAO extends DAO<OIDCC4UIProvider> {
 
-    OIDCC4UIProvider find(String key);
-
-    OIDCC4UIProvider findByName(String name);
-
-    List<OIDCC4UIProvider> findAll();
-
-    OIDCC4UIProvider save(OIDCC4UIProvider op);
-
-    void delete(String key);
+    Optional<? extends OIDCC4UIProvider> findByName(String name);
 }

@@ -25,7 +25,6 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -35,16 +34,13 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
+import org.springframework.data.domain.Pageable;
 
 public interface TaskDAO extends DAO<Task<?>> {
 
-    boolean exists(TaskType type, String key);
-
-    <T extends Task<T>> T find(TaskType type, String key);
+    <T extends Task<T>> Optional<T> findById(TaskType type, String key);
 
     <T extends SchedTask> Optional<T> findByName(TaskType type, String name);
-
-    Optional<Task<?>> find(String key);
 
     List<SchedTask> findByDelegate(Implementation delegate);
 
@@ -68,27 +64,21 @@ public interface TaskDAO extends DAO<Task<?>> {
             Notification notification,
             AnyTypeKind anyTypeKind,
             String entityKey,
-            int page,
-            int itemsPerPage,
-            List<OrderByClause> orderByClauses);
+            Pageable pageable);
 
-    int count(
+    long count(
             TaskType type,
             ExternalResource resource,
             Notification notification,
             AnyTypeKind anyTypeKind,
             String entityKey);
 
-    <T extends Task<T>> T save(T task);
-
     void delete(TaskType type, String key);
-
-    void delete(Task<?> task);
 
     void deleteAll(ExternalResource resource, TaskType type);
 
     List<PropagationTaskTO> purgePropagations(
             OffsetDateTime since,
             List<ExecStatus> statuses,
-            List<ExternalResource> externalResources);
+            List<String> resources);
 }

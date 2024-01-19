@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -32,6 +31,7 @@ import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -59,6 +59,8 @@ import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> implements SyncopePushExecutor {
 
@@ -202,8 +204,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
 
             // Never push the root realm
             List<Realm> realms = realmDAO.findDescendants(
-                    profile.getTask().getSourceRealm().getFullPath(), null, -1, -1).stream().
-                    filter(realm -> realm.getParent() != null).collect(Collectors.toList());
+                    profile.getTask().getSourceRealm().getFullPath(), null, Pageable.unpaged()).stream().
+                    filter(realm -> realm.getParent() != null).toList();
             boolean result = true;
             for (int i = 0; i < realms.size() && result; i++) {
                 try {
@@ -221,11 +223,12 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
 
         for (Provision provision : pushTask.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
-                collect(Collectors.toList())) {
+                toList()) {
 
             setStatus("Pushing " + provision.getAnyType());
 
-            AnyType anyType = anyTypeDAO.find(provision.getAnyType());
+            AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
+                    orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));
 
             AnyDAO<?> anyDAO = anyUtilsFactory.getInstance(anyType.getKind()).dao();
 
@@ -259,15 +262,13 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
                     cond,
                     anyType.getKind());
             boolean result = true;
-            for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1 && result; page++) {
+            for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) && result; page++) {
                 List<? extends Any<?>> anys = searchDAO.search(
                         profile.getTask().getSourceRealm(),
                         true,
                         Set.of(profile.getTask().getSourceRealm().getFullPath()),
                         cond,
-                        page,
-                        AnyDAO.DEFAULT_PAGE_SIZE,
-                        List.of(),
+                        PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
                         anyType.getKind());
                 result = doHandle(anys, dispatcher, pushTask.getResource());
             }

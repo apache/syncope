@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class SecurityQuestionTest extends AbstractTest {
 
     @Autowired
@@ -39,21 +39,21 @@ public class SecurityQuestionTest extends AbstractTest {
 
     @Test
     public void test() {
-        User user = userDAO.findByUsername("bellini");
+        User user = userDAO.findByUsername("bellini").orElseThrow();
         assertNull(user.getSecurityQuestion());
         assertNull(user.getSecurityAnswer());
 
-        user.setSecurityQuestion(securityQuestionDAO.find("887028ea-66fc-41e7-b397-620d7ea6dfbb"));
+        user.setSecurityQuestion(securityQuestionDAO.findById("887028ea-66fc-41e7-b397-620d7ea6dfbb").orElseThrow());
         user.setSecurityAnswer("Rossi");
         userDAO.save(user);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        securityQuestionDAO.delete("887028ea-66fc-41e7-b397-620d7ea6dfbb");
+        securityQuestionDAO.deleteById("887028ea-66fc-41e7-b397-620d7ea6dfbb");
 
-        entityManager().flush();
+        entityManager.flush();
 
-        user = userDAO.findByUsername("bellini");
+        user = userDAO.findByUsername("bellini").orElseThrow();
 
         assertNull(user.getSecurityQuestion());
         assertNull(user.getSecurityAnswer());

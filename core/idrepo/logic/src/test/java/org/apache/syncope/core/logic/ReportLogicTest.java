@@ -51,7 +51,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class ReportLogicTest extends AbstractTest {
 
     public static class TestReportJobDelegate extends AbstractReportJobDelegate {

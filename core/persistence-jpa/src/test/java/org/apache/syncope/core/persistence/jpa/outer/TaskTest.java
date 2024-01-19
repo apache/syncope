@@ -45,8 +45,6 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
@@ -54,18 +52,20 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
+import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class TaskTest extends AbstractTest {
 
     @Autowired
@@ -78,9 +78,6 @@ public class TaskTest extends AbstractTest {
     private ExternalResourceDAO resourceDAO;
 
     @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
     private RealmDAO realmDAO;
 
     @Autowired
@@ -91,7 +88,8 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void read() {
-        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        Task<?> task = taskDAO.findById(
+                TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
         assertNotNull(task.getExecs());
@@ -101,26 +99,18 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void readMultipleOrderBy() {
-        List<OrderByClause> orderByClauses = new ArrayList<>();
-        OrderByClause clause1 = new OrderByClause();
-        clause1.setField("start");
-        OrderByClause clause2 = new OrderByClause();
-        clause2.setField("latestExecStatus");
-        OrderByClause clause3 = new OrderByClause();
-        clause3.setField("connObjectKey");
-        orderByClauses.add(clause1);
-        orderByClauses.add(clause2);
-        orderByClauses.add(clause3);
-        assertFalse(taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, -1, -1, orderByClauses).isEmpty());
+        List<Sort.Order> orderByClauses = new ArrayList<>();
+        orderByClauses.add(new Sort.Order(Sort.DEFAULT_DIRECTION, "start"));
+        orderByClauses.add(new Sort.Order(Sort.DEFAULT_DIRECTION, "latestExecStatus"));
+        orderByClauses.add(new Sort.Order(Sort.DEFAULT_DIRECTION, "connObjectKey"));
+        assertFalse(taskDAO.findAll(
+                TaskType.PROPAGATION, null, null, null, null, Pageable.unpaged(Sort.by(orderByClauses))).
+                isEmpty());
     }
 
     @Test
     public void savePropagationTask() {
-        ExternalResource resource = resourceDAO.find("ws-target-resource-1");
-        assertNotNull(resource);
-
-        User user = userDAO.findByUsername("verdi");
-        assertNotNull(user);
+        ExternalResource resource = resourceDAO.findById("ws-target-resource-1").orElseThrow();
 
         PropagationTask task = entityFactory.newEntity(PropagationTask.class);
         task.setResource(resource);
@@ -137,19 +127,20 @@ public class TaskTest extends AbstractTest {
         task = taskDAO.save(task);
         assertNotNull(task);
 
-        PropagationTask actual = taskDAO.find(TaskType.PROPAGATION, task.getKey());
+        Task<?> actual = taskDAO.findById(TaskType.PROPAGATION, task.getKey()).orElseThrow();
         assertEquals(task, actual);
 
-        entityManager().flush();
+        entityManager.flush();
 
         assertTrue(taskDAO.<PropagationTask>findAll(
-                TaskType.PROPAGATION, resource, null, null, null, -1, -1, List.of()).
+                TaskType.PROPAGATION, resource, null, null, null, Pageable.unpaged()).
                 contains(task));
     }
 
     @Test
     public void addPropagationTaskExecution() {
-        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = (PropagationTask) taskDAO.findById(
+                TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
         int executionNumber = task.getExecs().size();
@@ -162,9 +153,10 @@ public class TaskTest extends AbstractTest {
         task.add(execution);
 
         taskDAO.save(task);
-        entityManager().flush();
+        entityManager.flush();
 
-        task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        task = (PropagationTask) taskDAO.findById(
+                TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
         assertEquals(executionNumber + 1, task.getExecs().size());
@@ -172,7 +164,8 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void addPullTaskExecution() {
-        PullTask task = (PullTask) taskDAO.find(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c");
+        PullTask task = (PullTask) taskDAO.findById(
+                TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
         assertNotNull(task);
 
         int executionNumber = task.getExecs().size();
@@ -186,9 +179,10 @@ public class TaskTest extends AbstractTest {
         task.add(execution);
 
         taskDAO.save(task);
-        entityManager().flush();
+        entityManager.flush();
 
-        task = (PullTask) taskDAO.find(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c");
+        task = (PullTask) taskDAO.findById(
+                TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
         assertNotNull(task);
 
         assertEquals(executionNumber + 1, task.getExecs().size());
@@ -196,7 +190,8 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void addPushTaskExecution() {
-        PushTask task = (PushTask) taskDAO.find(TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1");
+        PushTask task = (PushTask) taskDAO.findById(
+                TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1").orElseThrow();
         assertNotNull(task);
 
         int executionNumber = task.getExecs().size();
@@ -210,9 +205,9 @@ public class TaskTest extends AbstractTest {
         task.add(execution);
 
         taskDAO.save(task);
-        entityManager().flush();
+        entityManager.flush();
 
-        task = (PushTask) taskDAO.find(TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1");
+        task = (PushTask) taskDAO.findById(TaskType.PUSH, "af558be4-9d2f-4359-bf85-a554e6e90be1").orElseThrow();
         assertNotNull(task);
 
         assertEquals(executionNumber + 1, task.getExecs().size());
@@ -222,25 +217,27 @@ public class TaskTest extends AbstractTest {
     public void deleteTask() {
         taskDAO.delete(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
 
-        entityManager().flush();
+        entityManager.flush();
 
-        assertTrue(taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c").isEmpty());
-        assertTrue(taskExecDAO.find("e58ca1c7-178a-4012-8a71-8aa14eaf0655").isEmpty());
+        assertTrue(taskDAO.findById("1e697572-b896-484c-ae7f-0c8f63fcbc6c").isEmpty());
+        assertTrue(taskExecDAO.findById("e58ca1c7-178a-4012-8a71-8aa14eaf0655").isEmpty());
     }
 
     @Test
     public void deleteTaskExecution() {
-        TaskExec<PropagationTask> execution =
-                taskExecDAO.find(TaskType.PROPAGATION, "e58ca1c7-178a-4012-8a71-8aa14eaf0655");
+        @SuppressWarnings("unchecked")
+        TaskExec<PropagationTask> execution = (TaskExec<PropagationTask>) taskExecDAO.findById(
+                TaskType.PROPAGATION, "e58ca1c7-178a-4012-8a71-8aa14eaf0655").orElseThrow();
         int executionNumber = execution.getTask().getExecs().size();
 
         taskExecDAO.delete(TaskType.PROPAGATION, "e58ca1c7-178a-4012-8a71-8aa14eaf0655");
 
-        entityManager().flush();
+        entityManager.flush();
 
-        assertTrue(taskExecDAO.find("e58ca1c7-178a-4012-8a71-8aa14eaf0655").isEmpty());
+        assertTrue(taskExecDAO.findById("e58ca1c7-178a-4012-8a71-8aa14eaf0655").isEmpty());
 
-        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = (PropagationTask) taskDAO.findById(
+                TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertEquals(task.getExecs().size(), executionNumber - 1);
     }
 
@@ -251,7 +248,7 @@ public class TaskTest extends AbstractTest {
         task.setDescription("PullTask description");
         task.setActive(true);
         task.setPullMode(PullMode.FULL_RECONCILIATION);
-        task.setJobDelegate(implementationDAO.find("PullJobDelegate"));
+        task.setJobDelegate(implementationDAO.findById("PullJobDelegate").orElseThrow());
         task.setDestinationRealm(realmDAO.getRoot());
         task.setCronExpression("BLA BLA");
         task.setMatchingRule(MatchingRule.UPDATE);
@@ -264,7 +261,7 @@ public class TaskTest extends AbstractTest {
         pullActions.setType(IdMImplementationType.PULL_ACTIONS);
         pullActions.setBody(PullActions.class.getName());
         pullActions = implementationDAO.save(pullActions);
-        entityManager().flush();
+        entityManager.flush();
 
         task.add(pullActions);
 
@@ -284,19 +281,19 @@ public class TaskTest extends AbstractTest {
         } catch (InvalidEntityException e) {
             assertNotNull(e);
         }
-        task.setResource(resourceDAO.find("ws-target-resource-1"));
+        task.setResource(resourceDAO.findById("ws-target-resource-1").orElseThrow());
 
         // this save() finally works
         task = (PullTask) taskDAO.save(task);
         assertNotNull(task);
 
-        PullTask actual = (PullTask) taskDAO.find(TaskType.PULL, task.getKey());
+        PullTask actual = (PullTask) taskDAO.findById(TaskType.PULL, task.getKey()).orElseThrow();
         assertEquals(task, actual);
     }
 
     @Test
     public void issueSYNCOPE144() {
-        ExternalResource resource = resourceDAO.find("ws-target-resource-1");
+        ExternalResource resource = resourceDAO.findById("ws-target-resource-1").orElseThrow();
         assertNotNull(resource);
 
         Implementation pullActions = entityFactory.newEntity(Implementation.class);
@@ -320,7 +317,7 @@ public class TaskTest extends AbstractTest {
         task = (PullTask) taskDAO.save(task);
         assertNotNull(task);
 
-        PullTask actual = (PullTask) taskDAO.find(TaskType.PULL, task.getKey());
+        PullTask actual = (PullTask) taskDAO.findById(TaskType.PULL, task.getKey()).orElseThrow();
         assertEquals(task, actual);
         assertEquals("issueSYNCOPE144", actual.getName());
         assertEquals("issueSYNCOPE144 Description", actual.getDescription());

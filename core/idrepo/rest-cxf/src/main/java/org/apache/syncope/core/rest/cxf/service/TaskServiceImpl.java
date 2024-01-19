@@ -23,7 +23,6 @@ import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
@@ -34,6 +33,7 @@ import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.logic.TaskLogic;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -74,17 +74,15 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     @SuppressWarnings("unchecked")
     @Override
     public <T extends TaskTO> PagedResult<T> search(final TaskQuery query) {
-        Pair<Integer, List<T>> result = logic.search(
+        Page<T> result = logic.search(
                 query.getType(),
                 query.getResource(),
                 query.getNotification(),
                 query.getAnyTypeKind(),
                 query.getEntityKey(),
-                query.getPage(),
-                query.getSize(),
-                getOrderByClauses(query.getOrderBy()),
+                pageable(query),
                 query.getDetails());
-        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
+        return buildPagedResult(result);
     }
 
     @Override

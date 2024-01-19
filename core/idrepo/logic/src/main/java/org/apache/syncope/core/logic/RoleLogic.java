@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -49,12 +48,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_READ + "')")
     @Transactional(readOnly = true)
     public RoleTO read(final String key) {
-        Role role = roleDAO.find(key);
-        if (role == null) {
-            LOG.error("Could not find role '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        Role role = roleDAO.findById(key).orElseThrow(() -> new NotFoundException("Role " + key));
 
         return binder.getRoleTO(role);
     }
@@ -62,7 +56,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_LIST + "')")
     @Transactional(readOnly = true)
     public List<RoleTO> list() {
-        return roleDAO.findAll().stream().map(binder::getRoleTO).collect(Collectors.toList());
+        return roleDAO.findAll().stream().map(binder::getRoleTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_CREATE + "')")
@@ -72,11 +66,8 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_UPDATE + "')")
     public RoleTO update(final RoleTO roleTO) {
-        Role role = roleDAO.find(roleTO.getKey());
-        if (role == null) {
-            LOG.error("Could not find role '" + roleTO.getKey() + '\'');
-            throw new NotFoundException(roleTO.getKey());
-        }
+        Role role = roleDAO.findById(roleTO.getKey()).
+                orElseThrow(() -> new NotFoundException("Role " + roleTO.getKey()));
 
         return binder.getRoleTO(binder.update(role, roleTO));
     }
@@ -89,26 +80,16 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
             throw sce;
         }
 
-        Role role = roleDAO.find(key);
-        if (role == null) {
-            LOG.error("Could not find role '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        Role role = roleDAO.findById(key).orElseThrow(() -> new NotFoundException("Role " + key));
 
         RoleTO deleted = binder.getRoleTO(role);
-        roleDAO.delete(key);
+        roleDAO.delete(role);
         return deleted;
     }
 
     @PreAuthorize("isAuthenticated()")
     public String getAnyLayout(final String key) {
-        Role role = roleDAO.find(key);
-        if (role == null) {
-            LOG.error("Could not find role '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        Role role = roleDAO.findById(key).orElseThrow(() -> new NotFoundException("Role " + key));
 
         String consoleLayout = role.getAnyLayout();
         if (StringUtils.isBlank(consoleLayout)) {
@@ -122,12 +103,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ROLE_UPDATE + "')")
     public void setAnyLayout(final String key, final String consoleLayout) {
-        Role role = roleDAO.find(key);
-        if (role == null) {
-            LOG.error("Could not find role '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        Role role = roleDAO.findById(key).orElseThrow(() -> new NotFoundException("Role " + key));
 
         role.setAnyLayout(consoleLayout);
         roleDAO.save(role);
@@ -141,17 +117,17 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof RoleTO) {
-                    key = ((RoleTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof RoleTO roleTO) {
+                    key = roleTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getRoleTO(roleDAO.find(key));
+                return binder.getRoleTO(roleDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

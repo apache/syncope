@@ -60,7 +60,9 @@ import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConf
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration;
+import org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -79,6 +81,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
             OpenApiAutoConfiguration.class,
             DataSourceAutoConfiguration.class,
             DataSourceTransactionManagerAutoConfiguration.class,
+            SqlInitializationAutoConfiguration.class,
+            HibernateJpaAutoConfiguration.class,
             JdbcTemplateAutoConfiguration.class,
             QuartzAutoConfiguration.class,
             TaskExecutionAutoConfiguration.class,

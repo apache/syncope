@@ -19,9 +19,6 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import jakarta.ws.rs.core.Response;
-import java.util.List;
-import java.util.Optional;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserRequest;
@@ -32,6 +29,7 @@ import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.core.logic.UserRequestLogic;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -49,12 +47,11 @@ public class UserRequestServiceImpl extends AbstractService implements UserReque
     @Override
     public PagedResult<UserRequest> listRequests(final UserRequestQuery query) {
         if (query.getUser() != null) {
-            query.setUser(Optional.ofNullable(findActualKey(userDAO, query.getUser())).orElse(query.getUser()));
+            query.setUser(findActualKey(userDAO, query.getUser()));
         }
 
-        Pair<Integer, List<UserRequest>> result = logic.listRequests(
-                query.getUser(), query.getPage(), query.getSize(), getOrderByClauses(query.getOrderBy()));
-        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
+        Page<UserRequest> result = logic.listRequests(query.getUser(), pageable(query));
+        return buildPagedResult(result);
     }
 
     @Override
@@ -89,12 +86,11 @@ public class UserRequestServiceImpl extends AbstractService implements UserReque
     @Override
     public PagedResult<UserRequestForm> listForms(final UserRequestQuery query) {
         if (query.getUser() != null) {
-            query.setUser(Optional.ofNullable(findActualKey(userDAO, query.getUser())).orElse(query.getUser()));
+            query.setUser(findActualKey(userDAO, query.getUser()));
         }
 
-        Pair<Integer, List<UserRequestForm>> result = logic.listForms(
-                query.getUser(), query.getPage(), query.getSize(), getOrderByClauses(query.getOrderBy()));
-        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
+        Page<UserRequestForm> result = logic.listForms(query.getUser(), pageable(query));
+        return buildPagedResult(result);
     }
 
     @Override

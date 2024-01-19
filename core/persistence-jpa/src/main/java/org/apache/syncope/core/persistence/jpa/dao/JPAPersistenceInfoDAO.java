@@ -18,33 +18,40 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.EntityManagerFactory;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.openjpa.conf.OpenJPAConfiguration;
 import org.apache.openjpa.event.RemoteCommitEventManager;
 import org.apache.openjpa.event.RemoteCommitProvider;
 import org.apache.openjpa.event.TCPRemoteCommitProvider;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
-import org.apache.openjpa.persistence.OpenJPAPersistence;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
-public class JPAPersistenceInfoDAO extends AbstractDAO<Entity> implements PersistenceInfoDAO {
+public class JPAPersistenceInfoDAO implements PersistenceInfoDAO {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(PersistenceInfoDAO.class);
+
+    protected final EntityManagerFactory entityManagerFactory;
+
+    public JPAPersistenceInfoDAO(final EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
+    }
 
     @Override
     public Map<String, Object> info() {
         Map<String, Object> result = new LinkedHashMap<>();
 
-        OpenJPAEntityManagerFactorySPI emfspi =
-                (OpenJPAEntityManagerFactorySPI) OpenJPAPersistence.cast(entityManagerFactory());
+        OpenJPAEntityManagerFactorySPI emfspi = entityManagerFactory.unwrap(OpenJPAEntityManagerFactorySPI.class);
         OpenJPAConfiguration conf = emfspi.getConfiguration();
 
         Map<String, Object> properties = emfspi.getProperties();
@@ -100,7 +107,7 @@ public class JPAPersistenceInfoDAO extends AbstractDAO<Entity> implements Persis
                     map.put("port", address.getMiddle());
                     map.put("available", address.getRight());
                     return map;
-                }).collect(Collectors.toList()));
+                }).toList());
 
         return result;
     }

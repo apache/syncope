@@ -98,7 +98,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
     public LinkedAccountModalPanel(
             final IModel<UserTO> model,
             final PageReference pageRef,
-            final boolean recounciliationOnly) {
+            final boolean reconciliationOnly) {
 
         super(BaseModal.CONTENT_ID, model);
 
@@ -220,7 +220,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
             }
         }, ActionLink.ActionType.VIEW, IdRepoEntitlement.USER_READ);
 
-        if (!recounciliationOnly) {
+        if (!reconciliationOnly) {
             builder.addAction(new ActionLink<>() {
 
                 private static final long serialVersionUID = 2555747430358755813L;
@@ -326,7 +326,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
         }, ActionLink.ActionType.RECONCILIATION_PULL,
                 String.format("%s,%s", IdRepoEntitlement.USER_READ, IdRepoEntitlement.TASK_EXECUTE));
 
-        if (!recounciliationOnly) {
+        if (!reconciliationOnly) {
             builder.addAction(new ActionLink<>() {
 
                 private static final long serialVersionUID = 2555747430358755813L;
@@ -379,7 +379,7 @@ public class LinkedAccountModalPanel extends Panel implements ModalPanel {
                                 new StringResourceModel("inner.create.linkedAccount", LinkedAccountModalPanel.this)));
             }
         };
-        list.addOrReplaceInnerObject(addAjaxLink.setEnabled(!recounciliationOnly).setVisible(!recounciliationOnly));
+        list.addOrReplaceInnerObject(addAjaxLink.setEnabled(!reconciliationOnly).setVisible(!reconciliationOnly));
 
         add(mlp.setFirstLevel(list));
     }

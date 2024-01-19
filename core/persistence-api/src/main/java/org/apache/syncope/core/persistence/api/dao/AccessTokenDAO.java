@@ -18,25 +18,17 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import java.time.OffsetDateTime;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface AccessTokenDAO extends DAO<AccessToken> {
 
-    AccessToken find(String key);
+    Optional<AccessToken> findByOwner(String username);
 
-    AccessToken findByOwner(String username);
+    Page<? extends AccessToken> findAll(Pageable pageable);
 
-    int count();
-
-    List<AccessToken> findAll(int page, int itemsPerPage, List<OrderByClause> orderByClauses);
-
-    AccessToken save(AccessToken accessToken);
-
-    void delete(String key);
-
-    void delete(AccessToken accessToken);
-
-    int deleteExpired();
+    int deleteExpired(OffsetDateTime now);
 }

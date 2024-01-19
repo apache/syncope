@@ -26,12 +26,9 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -47,10 +44,10 @@ import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
@@ -59,6 +56,8 @@ import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,7 +112,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_UPDATE + "')")
     public ReportTO update(final ReportTO reportTO) {
-        Report report = Optional.ofNullable(reportDAO.find(reportTO.getKey())).
+        Report report = reportDAO.findById(reportTO.getKey()).
                 orElseThrow(() -> new NotFoundException("Report " + reportTO.getKey()));
 
         binder.getReport(report, reportTO);
@@ -137,13 +136,13 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")
     @Transactional(readOnly = true)
     public List<ReportTO> list() {
-        return reportDAO.findAll().stream().map(binder::getReportTO).collect(Collectors.toList());
+        return reportDAO.findAll().stream().map(binder::getReportTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     @Transactional(readOnly = true)
     public ReportTO read(final String key) {
-        Report report = Optional.ofNullable(reportDAO.find(key)).
+        Report report = reportDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Report " + key));
         return binder.getReportTO(report);
     }
@@ -151,7 +150,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_EXECUTE + "')")
     @Override
     public ExecTO execute(final String key, final OffsetDateTime startAt, final boolean dryRun) {
-        Report report = Optional.ofNullable(reportDAO.find(key)).
+        Report report = reportDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Report " + key));
 
         if (!report.isActive()) {
@@ -192,8 +191,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     @Transactional(readOnly = true)
     public String getFilename(final String executionKey) {
-        ReportExec reportExec = Optional.ofNullable(reportExecDAO.find(executionKey)).
-                orElseThrow(() -> new NotFoundException("Report execution " + executionKey));
+        ReportExec reportExec = reportExecDAO.findById(executionKey).
+                orElseThrow(() -> new NotFoundException("ReportExec " + executionKey));
 
         return reportExec.getReport().getName()
                 + "."
@@ -206,8 +205,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             final OutputStream os,
             final String executionKey) {
 
-        ReportExec reportExec = Optional.ofNullable(reportExecDAO.find(executionKey)).
-                orElseThrow(() -> new NotFoundException("Report execution " + executionKey));
+        ReportExec reportExec = reportExecDAO.findById(executionKey).
+                orElseThrow(() -> new NotFoundException("ReportExec " + executionKey));
 
         if (reportExec.getExecResult() == null || !ReportJob.Status.SUCCESS.name().equals(reportExec.getStatus())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidReportExec);
@@ -232,7 +231,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_DELETE + "')")
     public ReportTO delete(final String key) {
-        Report report = Optional.ofNullable(reportDAO.find(key)).
+        Report report = reportDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Report " + key));
 
         ReportTO deletedReport = binder.getReportTO(report);
@@ -243,37 +242,35 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     @Override
-    public Pair<Integer, List<ExecTO>> listExecutions(
+    public Page<ExecTO> listExecutions(
             final String key,
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses) {
+            final Pageable pageable) {
 
-        Report report = Optional.ofNullable(reportDAO.find(key)).
+        Report report = reportDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Report " + key));
 
-        Integer count = reportExecDAO.count(report, before, after);
+        long count = reportExecDAO.count(report, before, after);
 
-        List<ExecTO> result = reportExecDAO.findAll(report, before, after, page, size, orderByClauses).stream().
-                map(reportExec -> binder.getExecTO(reportExec)).collect(Collectors.toList());
+        List<ExecTO> result = reportExecDAO.findAll(report, before, after, pageable).stream().
+                map(reportExec -> binder.getExecTO(reportExec)).toList();
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")
     @Override
     public List<ExecTO> listRecentExecutions(final int max) {
         return reportExecDAO.findRecent(max).stream().
-                map(reportExec -> binder.getExecTO(reportExec)).collect(Collectors.toList());
+                map(reportExec -> binder.getExecTO(reportExec)).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_DELETE + "')")
     @Override
     public ExecTO deleteExecution(final String executionKey) {
-        ReportExec reportExec = Optional.ofNullable(reportExecDAO.find(executionKey)).
-                orElseThrow(() -> new NotFoundException("Report execution " + executionKey));
+        ReportExec reportExec = reportExecDAO.findById(executionKey).
+                orElseThrow(() -> new NotFoundException("ReportExec " + executionKey));
 
         ExecTO reportExecToDelete = binder.getExecTO(reportExec);
         reportExecDAO.delete(reportExec);
@@ -287,12 +284,12 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             final OffsetDateTime before,
             final OffsetDateTime after) {
 
-        Report report = Optional.ofNullable(reportDAO.find(key)).
+        Report report = reportDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Report " + key));
 
         List<BatchResponseItem> batchResponseItems = new ArrayList<>();
 
-        reportExecDAO.findAll(report, before, after, -1, -1, List.of()).forEach(exec -> {
+        reportExecDAO.findAll(report, before, after, Pageable.unpaged()).forEach(exec -> {
             BatchResponseItem item = new BatchResponseItem();
             item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(exec.getKey()));
             batchResponseItems.add(item);
@@ -314,7 +311,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
         String key = JobNamer.getReportKeyFromJobName(jobKey.getName());
 
-        return Optional.ofNullable(reportDAO.find(key)).
+        return reportDAO.findById(key).
                 map(f -> Triple.of(JobType.REPORT, key, binder.buildRefDesc(f))).orElse(null);
     }
 
@@ -327,7 +324,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     @Override
     public JobTO getJob(final String key) {
-        Report report = Optional.ofNullable(reportDAO.find(key)).
+        Report report = reportDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Report " + key));
 
         JobTO jobTO = null;
@@ -349,7 +346,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_EXECUTE + "')")
     @Override
     public void actionJob(final String key, final JobAction action) {
-        Report report = Optional.ofNullable(reportDAO.find(key)).
+        Report report = reportDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Report " + key));
 
         doActionJob(JobNamer.getJobKey(report), action);
@@ -375,7 +372,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         if (key != null) {
             try {
-                return binder.getReportTO(reportDAO.find(key));
+                return binder.getReportTO(reportDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

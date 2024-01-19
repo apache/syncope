@@ -40,11 +40,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class DynRealmTest extends AbstractTest {
 
     @Autowired
-    private AnyMatchDAO anyMatcher;
+    private AnyMatchDAO anyMatchDAO;
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -65,7 +65,7 @@ public class DynRealmTest extends AbstractTest {
 
         DynRealmMembership memb = entityFactory.newEntity(DynRealmMembership.class);
         memb.setDynRealm(dynRealm);
-        memb.setAnyType(anyTypeDAO.findUser());
+        memb.setAnyType(anyTypeDAO.getUser());
         memb.setFIQLCond("cool==true");
 
         dynRealm.add(memb);
@@ -83,16 +83,15 @@ public class DynRealmTest extends AbstractTest {
         DynRealm actual = dynRealmDAO.saveAndRefreshDynMemberships(dynRealm);
         assertNotNull(actual);
 
-        entityManager().flush();
+        entityManager.flush();
 
         DynRealmCond dynRealmCond = new DynRealmCond();
         dynRealmCond.setDynRealm(actual.getKey());
         List<User> matching = searchDAO.search(SearchCond.getLeaf(dynRealmCond), AnyTypeKind.USER);
         assertNotNull(matching);
         assertFalse(matching.isEmpty());
-
         User user = matching.get(0);
-        assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(dynRealmCond)));
+        assertTrue(anyMatchDAO.matches(user, SearchCond.getLeaf(dynRealmCond)));
 
         assertTrue(userDAO.findDynRealms(user.getKey()).contains(actual.getKey()));
     }

@@ -21,28 +21,20 @@ package org.apache.syncope.core.logic;
 import jakarta.persistence.EntityManager;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.persistence.jpa.MasterDomain;
 import org.junit.jupiter.api.BeforeAll;
-import org.springframework.orm.jpa.EntityManagerFactoryUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-@SpringJUnitConfig(classes = { IdRepoLogicTestContext.class })
+@SpringJUnitConfig(classes = { MasterDomain.class, IdRepoLogicTestContext.class })
 public abstract class AbstractTest {
-
-    protected EntityManager entityManager() {
-        EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(
-                EntityManagerFactoryUtils.findEntityManagerFactory(
-                        ApplicationContextProvider.getBeanFactory(), AuthContextUtils.getDomain()));
-        if (entityManager == null) {
-            throw new IllegalStateException("Could not find EntityManager for domain " + AuthContextUtils.getDomain());
-        }
-
-        return entityManager;
-    }
 
     @BeforeAll
     public static void init() {
         EntitlementsHolder.getInstance().addAll(IdRepoEntitlement.values());
     }
+
+    @Autowired
+    protected EntityManager entityManager;
+
 }

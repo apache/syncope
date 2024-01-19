@@ -165,7 +165,7 @@ public final class BatchPayloadParser {
                         header = new ArrayList<>();
                         headers.put(headerName, header);
                     }
-                    header.addAll(Stream.of(headerValue.split(",")).map(String::trim).collect(Collectors.toList()));
+                    header.addAll(Stream.of(headerValue.split(",")).map(String::trim).toList());
                 } else {
                     isHeader = false;
                 }
@@ -203,7 +203,7 @@ public final class BatchPayloadParser {
                             bodyPart.stream().map(BatchPayloadLine::toString).collect(Collectors.joining()));
 
                     return item;
-                }).collect(Collectors.toList());
+                }).toList();
     }
 
     private BatchPayloadParser() {

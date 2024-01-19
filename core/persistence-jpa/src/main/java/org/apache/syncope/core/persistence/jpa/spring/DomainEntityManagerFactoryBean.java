@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.spring;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.spi.PersistenceUnitInfo;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
-import org.apache.openjpa.persistence.OpenJPAPersistence;
 import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
@@ -47,8 +46,6 @@ public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerF
         if (commonEMFConf.getPersistenceUnitPostProcessors() != null) {
             super.setPersistenceUnitPostProcessors(commonEMFConf.getPersistenceUnitPostProcessors());
         }
-
-        commonEMFConf.getDomains().put(this.getPersistenceUnitName(), this.getDataSource());
     }
 
     public void setConnectorManagerRemoteCommitListener(
@@ -61,7 +58,7 @@ public class DomainEntityManagerFactoryBean extends LocalContainerEntityManagerF
     protected void postProcessEntityManagerFactory(final EntityManagerFactory emf, final PersistenceUnitInfo pui) {
         super.postProcessEntityManagerFactory(emf, pui);
 
-        OpenJPAEntityManagerFactorySPI emfspi = (OpenJPAEntityManagerFactorySPI) OpenJPAPersistence.cast(emf);
+        OpenJPAEntityManagerFactorySPI emfspi = emf.unwrap(OpenJPAEntityManagerFactorySPI.class);
         emfspi.getConfiguration().getRemoteCommitEventManager().addListener(connectorManagerRemoteCommitListener);
     }
 }

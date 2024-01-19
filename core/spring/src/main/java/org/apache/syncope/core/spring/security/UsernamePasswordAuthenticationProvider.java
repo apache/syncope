@@ -115,13 +115,8 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                 username.set(authResult.getLeft().getUsername());
 
                 if (!authenticated) {
-                    AuthContextUtils.callAsAdmin(domain.getKey(), () -> {
-                        provisioningManager.internalSuspend(
-                                authResult.getLeft().getKey(),
-                                securityProperties.getAdminUser(),
-                                "Failed authentication");
-                        return null;
-                    });
+                    AuthContextUtils.runAsAdmin(domain.getKey(), () -> provisioningManager.internalSuspend(
+                            authResult.getLeft().getKey(), securityProperties.getAdminUser(), "Failed authentication"));
                 }
             }
             delegationKey.set(authResult.getRight());
@@ -161,16 +156,13 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
             LOG.debug("User {} successfully authenticated, with entitlements {}", username, token.getAuthorities());
         } else {
-            AuthContextUtils.callAsAdmin(domain, () -> {
-                dataAccessor.audit(
-                        username,
-                        delegationKey,
-                        Result.FAILURE,
-                        false,
-                        authentication,
-                        "Not authenticated");
-                return null;
-            });
+            AuthContextUtils.runAsAdmin(domain, () -> dataAccessor.audit(
+                    username,
+                    delegationKey,
+                    Result.FAILURE,
+                    false,
+                    authentication,
+                    "Not authenticated"));
 
             LOG.debug("User {} not authenticated", username);
 

@@ -47,7 +47,7 @@ public class EnableFlowableForTestUsers {
         LOG.debug("User workflow ID_ found: {}", procDef);
 
         AtomicInteger counter = new AtomicInteger(0);
-        userDAO.findAll(0, 1000).forEach(user -> {
+        userDAO.findAll().forEach(user -> {
             int value = counter.addAndGet(1);
             jdbcTemplate.update("INSERT INTO "
                     + "ACT_RU_EXECUTION(ID_,REV_,PROC_INST_ID_,BUSINESS_KEY_,PROC_DEF_ID_,ACT_ID_,"

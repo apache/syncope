@@ -20,7 +20,6 @@ package org.apache.syncope.core.workflow.java;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -244,7 +243,8 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
                 doCreate(userCR, disablePwdPolicyCheck, enabled, creator, context);
 
         // enforce password and account policies
-        User user = userDAO.find(result.getResult().getKey());
+        User user = userDAO.findById(result.getResult().getKey()).
+                orElseThrow(() -> new IllegalStateException("Could not find the User just created"));
         enforcePolicies(user, disablePwdPolicyCheck, disablePwdPolicyCheck ? null : userCR.getPassword());
         user = userDAO.save(user);
 
@@ -271,7 +271,8 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
     public UserWorkflowResult<Pair<UserUR, Boolean>> update(
             final UserUR userUR, final String updater, final String context) {
 
-        User user = userDAO.find(userUR.getKey());
+        User user = userDAO.findById(userUR.getKey()).
+                orElseThrow(() -> new IllegalStateException("Could not find the User just updated"));
 
         UserWorkflowResult<Pair<UserUR, Boolean>> result;
         // skip actual workflow operations in case only password change on resources was requested
@@ -317,7 +318,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
         // finally publish events for all groups affected by this operation, via membership
         result.getResult().getLeft().getMemberships().stream().map(MembershipUR::getGroup).distinct().
-                map(groupDAO::find).filter(Objects::nonNull).
+                map(groupDAO::findById).filter(Optional::isPresent).map(Optional::get).
                 forEach(group -> publisher.publishEvent(new EntityLifecycleEvent<>(
                 this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain())));
 

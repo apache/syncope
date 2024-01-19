@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -101,7 +100,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
         checkType(type);
 
         return implementationDAO.findByType(type).stream().
-                map(binder::getImplementationTO).collect(Collectors.toList());
+                map(binder::getImplementationTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_READ + "')")
@@ -109,12 +108,8 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
     public ImplementationTO read(final String type, final String key) {
         checkType(type);
 
-        Implementation implementation = implementationDAO.find(key);
-        if (implementation == null) {
-            LOG.error("Could not find implementation '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        Implementation implementation = implementationDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Implementation " + key));
 
         if (!implementation.getType().equals(type)) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
@@ -135,8 +130,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
 
         checkType(implementationTO.getType());
 
-        Implementation implementation = implementationDAO.find(implementationTO.getKey());
-        if (implementation != null) {
+        if (implementationDAO.findById(implementationTO.getKey()).isPresent()) {
             throw new DuplicateException(implementationTO.getKey());
         }
 
@@ -145,12 +139,8 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_UPDATE + "')")
     public ImplementationTO update(final ImplementationTO implementationTO) {
-        Implementation implementation = implementationDAO.find(implementationTO.getKey());
-        if (implementation == null) {
-            LOG.error("Could not find implementation '" + implementationTO.getKey() + '\'');
-
-            throw new NotFoundException(implementationTO.getKey());
-        }
+        Implementation implementation = implementationDAO.findById(implementationTO.getKey()).
+                orElseThrow(() -> new NotFoundException("Implementation " + implementationTO.getKey()));
 
         checkType(implementationTO.getType());
 
@@ -162,12 +152,8 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_DELETE + "')")
     public void delete(final String type, final String key) {
-        Implementation implementation = implementationDAO.find(key);
-        if (implementation == null) {
-            LOG.error("Could not find implementation '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        Implementation implementation = implementationDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Implementation " + key));
 
         if (!implementation.getType().equals(type)) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
@@ -194,7 +180,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 break;
 
             case IdRepoImplementationType.REPORT_DELEGATE:
-                inUse = !reportDAO.findByDelegate(implementation).isEmpty();
+                inUse = !reportDAO.findByJobDelegate(implementation).isEmpty();
                 break;
 
             case IdRepoImplementationType.COMMAND:
@@ -206,7 +192,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 break;
 
             case IdRepoImplementationType.LOGIC_ACTIONS:
-                inUse = !realmDAO.findByLogicActions(implementation).isEmpty();
+                inUse = !realmDAO.findByActionsContaining(implementation).isEmpty();
                 break;
 
             case IdMImplementationType.PROVISION_SORTER:
@@ -214,7 +200,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 break;
 
             case IdMImplementationType.PROPAGATION_ACTIONS:
-                inUse = !resourceDAO.findByPropagationActions(implementation).isEmpty();
+                inUse = !resourceDAO.findByPropagationActionsContaining(implementation).isEmpty();
                 break;
 
             case IdMImplementationType.PULL_ACTIONS:
@@ -250,7 +236,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
             throw sce;
         }
 
-        implementationDAO.delete(key);
+        implementationDAO.deleteById(key);
     }
 
     @Override
@@ -271,7 +257,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
 
         if (StringUtils.isNotBlank(key)) {
             try {
-                return binder.getImplementationTO(implementationDAO.find(key));
+                return binder.getImplementationTO(implementationDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

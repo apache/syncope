@@ -74,7 +74,8 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
     }
 
     protected void setStatus(final String status) {
-        publisher.publishEvent(new JobStatusEvent(this, JobManager.NOTIFICATION_JOB.getName(), status));
+        publisher.publishEvent(new JobStatusEvent(
+                this, AuthContextUtils.getDomain(), JobManager.NOTIFICATION_JOB.getName(), status));
     }
 
     @Override

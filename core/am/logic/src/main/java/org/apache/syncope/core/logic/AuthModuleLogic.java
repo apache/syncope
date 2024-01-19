@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -50,10 +49,8 @@ public class AuthModuleLogic extends AbstractTransactionalLogic<AuthModuleTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_MODULE_UPDATE + "')")
     public AuthModuleTO update(final AuthModuleTO authModuleTO) {
-        AuthModule authModule = authModuleDAO.find(authModuleTO.getKey());
-        if (authModule == null) {
-            throw new NotFoundException("AuthModule " + authModuleTO.getKey() + " not found");
-        }
+        AuthModule authModule = authModuleDAO.findById(authModuleTO.getKey()).
+                orElseThrow(() -> new NotFoundException("AuthModule " + authModuleTO.getKey()));
 
         return binder.getAuthModuleTO(authModuleDAO.save(binder.update(authModule, authModuleTO)));
     }
@@ -61,26 +58,22 @@ public class AuthModuleLogic extends AbstractTransactionalLogic<AuthModuleTO> {
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_MODULE_LIST + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<AuthModuleTO> list() {
-        return authModuleDAO.findAll().stream().map(binder::getAuthModuleTO).collect(Collectors.toList());
+        return authModuleDAO.findAll().stream().map(binder::getAuthModuleTO).toList();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_MODULE_READ + "')")
     @Transactional(readOnly = true)
     public AuthModuleTO read(final String key) {
-        AuthModule authModule = authModuleDAO.find(key);
-        if (authModule == null) {
-            throw new NotFoundException("AuthModule " + key + " not found");
-        }
+        AuthModule authModule = authModuleDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("AuthModule " + key));
 
         return binder.getAuthModuleTO(authModule);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_MODULE_DELETE + "')")
     public AuthModuleTO delete(final String key) {
-        AuthModule authModule = authModuleDAO.find(key);
-        if (authModule == null) {
-            throw new NotFoundException("AuthModule " + key + " not found");
-        }
+        AuthModule authModule = authModuleDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("AuthModule " + key));
 
         AuthModuleTO deleted = binder.getAuthModuleTO(authModule);
         authModuleDAO.delete(authModule);
@@ -98,16 +91,16 @@ public class AuthModuleLogic extends AbstractTransactionalLogic<AuthModuleTO> {
 
         final String key;
 
-        if (args[0] instanceof String) {
-            key = (String) args[0];
-        } else if (args[0] instanceof AuthModuleTO) {
-            key = ((AuthModuleTO) args[0]).getKey();
+        if (args[0] instanceof String string) {
+            key = string;
+        } else if (args[0] instanceof AuthModuleTO authModuleTO) {
+            key = authModuleTO.getKey();
         } else {
             throw new UnresolvedReferenceException();
         }
 
         try {
-            return binder.getAuthModuleTO(authModuleDAO.find(key));
+            return binder.getAuthModuleTO(authModuleDAO.findById(key).orElseThrow());
         } catch (Throwable ignore) {
             LOG.debug("Unresolved reference", ignore);
             throw new UnresolvedReferenceException(ignore);

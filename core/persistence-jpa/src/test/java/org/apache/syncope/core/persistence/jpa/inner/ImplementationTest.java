@@ -33,15 +33,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class ImplementationTest extends AbstractTest {
 
     @Autowired
     private ImplementationDAO implementationDAO;
 
     @Test
+    public void findById() {
+        Implementation impl = implementationDAO.findById("ExpiredBatchCleanup").orElseThrow();
+        assertEquals(IdRepoImplementationType.TASKJOB_DELEGATE, impl.getType());
+        assertEquals(ImplementationEngine.JAVA, impl.getEngine());
+    }
+
+    @Test
     public void findAll() {
-        List<Implementation> implementations = implementationDAO.findAll();
+        List<? extends Implementation> implementations = implementationDAO.findAll();
         assertFalse(implementations.isEmpty());
 
         assertEquals(19, implementations.size());

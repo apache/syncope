@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -143,16 +142,15 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
     protected void setGroupOwners(final GroupPullResultHandler ghandler) {
         ghandler.getGroupOwnerMap().forEach((groupKey, ownerKey) -> {
-            Group group = groupDAO.find(groupKey);
-            if (group == null) {
-                throw new NotFoundException("Group " + groupKey);
-            }
+            Group group = groupDAO.findById(groupKey).
+                    orElseThrow(() -> new NotFoundException("Group " + groupKey));
+
             if (StringUtils.isBlank(ownerKey)) {
                 group.setGroupOwner(null);
                 group.setUserOwner(null);
             } else {
                 Optional<PullMatch> match = inboundMatcher.match(
-                        anyTypeDAO.findUser(),
+                        anyTypeDAO.getUser(),
                         ownerKey,
                         profile.getTask().getResource(),
                         profile.getConnector());
@@ -160,7 +158,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                     group.setUserOwner((User) match.get().getAny());
                 } else {
                     inboundMatcher.match(
-                            anyTypeDAO.findGroup(),
+                            anyTypeDAO.getGroup(),
                             ownerKey,
                             profile.getTask().getResource(),
                             profile.getConnector()).
@@ -307,11 +305,12 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         GroupPullResultHandler ghandler = buildGroupHandler();
         for (Provision provision : pullTask.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
-                collect(Collectors.toList())) {
+                toList()) {
 
             setStatus("Pulling " + provision.getObjectClass());
 
-            AnyType anyType = anyTypeDAO.find(provision.getAnyType());
+            AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
+                    orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));
 
             dispatcher.addHandlerSupplier(provision.getObjectClass(), () -> {
                 SyncopePullResultHandler handler;
@@ -338,7 +337,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                 profile.getActions().forEach(a -> moreAttrsToGet.addAll(a.moreAttrsToGet(profile, provision)));
                 Stream<Item> mapItems = Stream.concat(
                         MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
-                        virSchemaDAO.find(pullTask.getResource().getKey(), anyType.getKey()).stream().
+                        virSchemaDAO.findByResourceAndAnyType(
+                                pullTask.getResource().getKey(), anyType.getKey()).stream().
                                 map(VirSchema::asLinkingMappingItem));
                 OperationOptions options = MappingUtils.buildOperationOptions(
                         mapItems, moreAttrsToGet.toArray(String[]::new));
@@ -392,10 +392,12 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
         for (Provision provision : pullTask.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null && provision.getUidOnCreate() != null).
-                sorted(provisionSorter).collect(Collectors.toList())) {
+                sorted(provisionSorter).toList()) {
 
             try {
-                AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeDAO.find(provision.getAnyType()).getKind());
+                AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
+                        orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));
+                AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
                 profile.getResults().stream().
                         filter(result -> result.getUidValue() != null && result.getKey() != null
                         && result.getOperation() == ResourceOperation.CREATE
@@ -403,7 +405,10 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                         forEach(result -> anyUtils.addAttr(
                         validator,
                         result.getKey(),
-                        plainSchemaDAO.find(provision.getUidOnCreate()), result.getUidValue()));
+                        plainSchemaDAO.findById(provision.getUidOnCreate()).
+                                orElseThrow(() -> new NotFoundException("PlainSchema " + provision.getUidOnCreate())),
+                        result.getUidValue())
+                        );
             } catch (Throwable t) {
                 LOG.error("While setting UID on create", t);
             }

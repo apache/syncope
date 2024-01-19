@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -46,16 +45,18 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -97,16 +98,16 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
 
     @Transactional(readOnly = true)
     public AnyObjectTO read(final String type, final String name) {
-        return Optional.ofNullable(anyObjectDAO.findKey(type, name)).
+        return anyObjectDAO.findKey(type, name).
                 map(binder::getAnyObjectTO).
                 orElseThrow(() -> new NotFoundException("AnyObject " + type + " " + name));
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<Integer, List<AnyObjectTO>> search(
+    public Page<AnyObjectTO> search(
             final SearchCond searchCond,
-            final int page, final int size, final List<OrderByClause> orderBy,
+            final Pageable pageable,
             final String realm,
             final boolean recursive,
             final boolean details) {
@@ -115,22 +116,22 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
             throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
         }
 
-        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+        Realm base = realmDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(AnyEntitlement.SEARCH.getFor(searchCond.hasAnyTypeCond())),
                 realm);
 
-        int count = searchDAO.count(base, recursive, authRealms, searchCond, AnyTypeKind.ANY_OBJECT);
+        long count = searchDAO.count(base, recursive, authRealms, searchCond, AnyTypeKind.ANY_OBJECT);
 
         List<AnyObject> matching = searchDAO.search(
-                base, recursive, authRealms, searchCond, page, size, orderBy, AnyTypeKind.ANY_OBJECT);
+                base, recursive, authRealms, searchCond, pageable, AnyTypeKind.ANY_OBJECT);
         List<AnyObjectTO> result = matching.stream().
                 map(anyObject -> binder.getAnyObjectTO(anyObject, details)).
-                collect(Collectors.toList());
+                toList();
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     public ProvisioningResult<AnyObjectTO> create(final AnyObjectCR createReq, final boolean nullPriorityAsync) {
@@ -215,7 +216,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
                 before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         AnyObjectTO deletedTO;
-        if (anyObjectDAO.find(before.getLeft().getKey()) == null) {
+        if (anyObjectDAO.findById(before.getLeft().getKey()).isEmpty()) {
             deletedTO = new AnyObjectTO();
             deletedTO.setKey(before.getLeft().getKey());
         } else {
@@ -247,7 +248,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
         AnyObjectUR req = new AnyObjectUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 build();
 
         return binder.getAnyObjectTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
@@ -260,7 +261,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
         AnyObjectUR req = new AnyObjectUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 build();
 
         return binder.getAnyObjectTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
@@ -275,7 +276,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
         AnyObjectUR req = new AnyObjectUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 build();
 
         return update(req, nullPriorityAsync);
@@ -294,7 +295,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
         AnyObjectUR req = new AnyObjectUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 build();
         return update(req, nullPriorityAsync);
     }
@@ -341,12 +342,12 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof AnyObjectTO) {
-                    key = ((AnyObjectTO) args[i]).getKey();
-                } else if (args[i] instanceof AnyObjectUR) {
-                    key = ((AnyObjectUR) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof AnyObjectTO anyObjectTO) {
+                    key = anyObjectTO.getKey();
+                } else if (args[i] instanceof AnyObjectUR anyObjectUR) {
+                    key = anyObjectUR.getKey();
                 }
             }
         }

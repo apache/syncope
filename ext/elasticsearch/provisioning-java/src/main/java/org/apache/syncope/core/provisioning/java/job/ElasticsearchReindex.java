@@ -34,17 +34,24 @@ import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Remove and rebuild all Elasticsearch indexes with information from existing users, groups and any objects.
@@ -160,19 +167,20 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
             try {
                 indexManager.createRealmIndex(AuthContextUtils.getDomain(), realmSettings(), realmMapping());
 
-                int realms = realmDAO.count();
+                long realms = realmDAO.count();
                 String rindex = ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain());
                 setStatus("Indexing " + realms + " realms under " + rindex + "...");
 
                 try (BulkIngester<Void> ingester = BulkIngester.of(b -> b.client(client).
                         maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
 
-                    for (int page = 1; page <= (realms / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                        for (String realm : realmDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                    for (int page = 0; page <= (realms / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
+                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DAO.DEFAULT_SORT);
+                        for (Realm realm : realmDAO.findAll(pageable)) {
                             ingester.add(op -> op.index(idx -> idx.
                                     index(rindex).
-                                    id(realm).
-                                    document(utils.document(realmDAO.find(realm)))));
+                                    id(realm.getKey()).
+                                    document(utils.document(realm))));
                         }
                     }
                 } catch (Exception e) {
@@ -182,19 +190,20 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                 indexManager.createAnyIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.USER, userSettings(), userMapping());
 
-                int users = userDAO.count();
+                long users = userDAO.count();
                 String uindex = ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER);
                 setStatus("Indexing " + users + " users under " + uindex + "...");
 
                 try (BulkIngester<Void> ingester = BulkIngester.of(b -> b.client(client).
                         maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
 
-                    for (int page = 1; page <= (users / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                        for (String user : userDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                    for (int page = 0; page <= (users / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
+                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DAO.DEFAULT_SORT);
+                        for (User user : userDAO.findAll(pageable)) {
                             ingester.add(op -> op.index(idx -> idx.
                                     index(uindex).
-                                    id(user).
-                                    document(utils.document(userDAO.find(user)))));
+                                    id(user.getKey()).
+                                    document(utils.document(user))));
                         }
                     }
                 } catch (Exception e) {
@@ -204,19 +213,20 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                 indexManager.createAnyIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.GROUP, groupSettings(), groupMapping());
 
-                int groups = groupDAO.count();
+                long groups = groupDAO.count();
                 String gindex = ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.GROUP);
                 setStatus("Indexing " + groups + " groups under " + gindex + "...");
 
                 try (BulkIngester<Void> ingester = BulkIngester.of(b -> b.client(client).
                         maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
 
-                    for (int page = 1; page <= (groups / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                        for (String group : groupDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                    for (int page = 0; page <= (groups / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
+                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DAO.DEFAULT_SORT);
+                        for (Group group : groupDAO.findAll(pageable)) {
                             ingester.add(op -> op.index(idx -> idx.
                                     index(gindex).
-                                    id(group).
-                                    document(utils.document(groupDAO.find(group)))));
+                                    id(group.getKey()).
+                                    document(utils.document(group))));
                         }
                     }
                 } catch (Exception e) {
@@ -226,19 +236,20 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate<SchedTask
                 indexManager.createAnyIndex(
                         AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT, anyObjectSettings(), anyObjectMapping());
 
-                int anyObjects = anyObjectDAO.count();
+                long anyObjects = anyObjectDAO.count();
                 String aindex = ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.ANY_OBJECT);
                 setStatus("Indexing " + anyObjects + " any objects under " + aindex + "...");
 
                 try (BulkIngester<Void> ingester = BulkIngester.of(b -> b.client(client).
                         maxOperations(AnyDAO.DEFAULT_PAGE_SIZE).listener(ErrorLoggingBulkListener.INSTANCE))) {
 
-                    for (int page = 1; page <= (anyObjects / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                        for (String anyObject : anyObjectDAO.findAllKeys(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
+                    for (int page = 0; page <= (anyObjects / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
+                        Pageable pageable = PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DAO.DEFAULT_SORT);
+                        for (AnyObject anyObject : anyObjectDAO.findAll(pageable)) {
                             ingester.add(op -> op.index(idx -> idx.
                                     index(aindex).
-                                    id(anyObject).
-                                    document(utils.document(anyObjectDAO.find(anyObject)))));
+                                    id(anyObject.getKey()).
+                                    document(utils.document(anyObject))));
                         }
                     }
                 } catch (Exception e) {

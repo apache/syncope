@@ -105,7 +105,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public OIDCRequest createLoginRequest(final String redirectURI, final String opName) {
         // 0. look for OP
-        OIDCC4UIProvider op = Optional.ofNullable(opDAO.findByName(opName)).
+        OIDCC4UIProvider op = opDAO.findByName(opName).
                 orElseThrow(() -> new NotFoundException("OIDC Provider '" + opName + '\''));
 
         // 1. look for OidcClient
@@ -129,7 +129,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public OIDCLoginResponse login(final String redirectURI, final String authorizationCode, final String opName) {
         // 0. look for OP
-        OIDCC4UIProvider op = Optional.ofNullable(opDAO.findByName(opName)).
+        OIDCC4UIProvider op = opDAO.findByName(opName).
                 orElseThrow(() -> new NotFoundException("OIDC Provider '" + opName + '\''));
 
         // 1. look for configured client
@@ -262,7 +262,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         // 1. look for OidcClient
-        OIDCC4UIProvider op = Optional.ofNullable(opDAO.findByName((String) claimsSet.getClaim(JWT_CLAIM_OP_NAME))).
+        OIDCC4UIProvider op = opDAO.findByName((String) claimsSet.getClaim(JWT_CLAIM_OP_NAME)).
                 orElseThrow(() -> new NotFoundException(""
                 + "OIDC Provider '" + claimsSet.getClaim(JWT_CLAIM_OP_NAME) + '\''));
         OidcClient oidcClient = getOidcClient(oidcClientCacheLogout, op, redirectURI);

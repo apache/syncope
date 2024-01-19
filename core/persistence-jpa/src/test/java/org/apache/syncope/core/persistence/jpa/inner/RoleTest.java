@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -34,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class RoleTest extends AbstractTest {
 
     @Autowired
@@ -45,8 +44,7 @@ public class RoleTest extends AbstractTest {
 
     @Test
     public void find() {
-        Role role = roleDAO.find("User manager");
-        assertNotNull(role);
+        Role role = roleDAO.findById("User manager").orElseThrow();
         assertNotNull(role.getKey());
         assertFalse(role.getRealms().isEmpty());
         assertFalse(role.getEntitlements().isEmpty());
@@ -55,7 +53,7 @@ public class RoleTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Role> list = roleDAO.findAll();
+        List<? extends Role> list = roleDAO.findAll();
         assertNotNull(list);
         assertFalse(list.isEmpty());
         list.forEach(Assertions::assertNotNull);
@@ -66,7 +64,7 @@ public class RoleTest extends AbstractTest {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.findByFullPath("/even/two"));
+        role.add(realmDAO.findByFullPath("/even/two").orElseThrow());
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 
@@ -76,9 +74,10 @@ public class RoleTest extends AbstractTest {
 
     @Test
     public void delete() {
-        assertNotNull(roleDAO.find("Other"));
+        assertTrue(roleDAO.findById("Other").isPresent());
 
-        roleDAO.delete("Other");
-        assertNull(roleDAO.find("Other"));
+        roleDAO.deleteById("Other");
+
+        assertTrue(roleDAO.findById("Other").isEmpty());
     }
 }

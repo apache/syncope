@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -56,7 +55,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class SAML2SPEntityTest extends AbstractTest {
 
     private static Certificate createSelfSignedCert(final KeyPair keyPair) throws Exception {
@@ -96,42 +95,6 @@ public class SAML2SPEntityTest extends AbstractTest {
     @Autowired
     private SAML2SPEntityDAO saml2SPEntityDAO;
 
-    @Test
-    public void find() throws Exception {
-        create("Syncope");
-        SAML2SPEntity entity = saml2SPEntityDAO.find("Syncope");
-        assertNotNull(entity);
-
-        entity = saml2SPEntityDAO.find(UUID.randomUUID().toString());
-        assertNull(entity);
-    }
-
-    @Test
-    public void save() throws Exception {
-        SAML2SPEntity created = create("SyncopeCreate");
-
-        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-        char[] pwdArray = "password".toCharArray();
-        ks.load(new ByteArrayInputStream(created.getKeystore()), pwdArray);
-        assertTrue(ks.size() > 0);
-    }
-
-    @Test
-    public void update() throws Exception {
-        SAML2SPEntity entity = create("SyncopeUpdate");
-        assertNotNull(entity);
-        entity.setKey("OtherSyncope");
-
-        entity = saml2SPEntityDAO.save(entity);
-        assertNotNull(entity);
-
-        entityManager().flush();
-
-        SAML2SPEntity found = saml2SPEntityDAO.find(entity.getKey());
-        assertNotNull(found);
-        assertEquals("OtherSyncope", found.getKey());
-    }
-
     private SAML2SPEntity create(final String owner) throws Exception {
         SAML2SPEntity entity = entityFactory.newEntity(SAML2SPEntity.class);
         entity.setKey(owner);
@@ -155,7 +118,41 @@ public class SAML2SPEntityTest extends AbstractTest {
         assertNotNull(entity.getKeystore());
 
         entity = saml2SPEntityDAO.save(entity);
-        assertNotNull(saml2SPEntityDAO.find(entity.getKey()));
+        assertNotNull(saml2SPEntityDAO.findById(entity.getKey()));
         return entity;
+    }
+
+    @Test
+    public void find() throws Exception {
+        create("Syncope");
+
+        assertTrue(saml2SPEntityDAO.findById("Syncope").isPresent());
+
+        assertTrue(saml2SPEntityDAO.findById(UUID.randomUUID().toString()).isEmpty());
+    }
+
+    @Test
+    public void save() throws Exception {
+        SAML2SPEntity created = create("SyncopeCreate");
+
+        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+        char[] pwdArray = "password".toCharArray();
+        ks.load(new ByteArrayInputStream(created.getKeystore()), pwdArray);
+        assertTrue(ks.size() > 0);
+    }
+
+    @Test
+    public void update() throws Exception {
+        SAML2SPEntity entity = create("SyncopeUpdate");
+        assertNotNull(entity);
+        entity.setKey("OtherSyncope");
+
+        entity = saml2SPEntityDAO.save(entity);
+        assertNotNull(entity);
+
+        entityManager.flush();
+
+        SAML2SPEntity found = saml2SPEntityDAO.findById(entity.getKey()).orElseThrow();
+        assertEquals("OtherSyncope", found.getKey());
     }
 }

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -93,7 +94,10 @@ public class JPAJSONUPlainAttr extends AbstractPlainAttr<User> implements UPlain
     @JsonIgnore
     @Override
     public JPAPlainSchema getSchema() {
-        return (JPAPlainSchema) ApplicationContextProvider.getBeanFactory().getBean(PlainSchemaDAO.class).find(schema);
+        return Optional.ofNullable(schema).
+                flatMap(s -> ApplicationContextProvider.getBeanFactory().getBean(PlainSchemaDAO.class).findById(s)).
+                map(JPAPlainSchema.class::cast).
+                orElse(null);
     }
 
     @Override

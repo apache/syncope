@@ -398,7 +398,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                     profile.getExecutor(),
                     getContext());
 
-            LinkedAccountTO created = userDAO.find(req.getKey()).
+            LinkedAccountTO created = userDAO.findById(req.getKey()).
+                    orElseThrow(() -> new IllegalStateException("Could not find the User just updated")).
                     getLinkedAccount(accountTO.getResource(), accountTO.getConnObjectKeyValue()).
                     map(acct -> userDataBinder.getLinkedAccountTO(acct)).
                     orElse(null);
@@ -518,7 +519,8 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         getContext());
                 resultStatus = Result.SUCCESS;
 
-                LinkedAccountTO updated = userDAO.find(userUR.getKey()).
+                LinkedAccountTO updated = userDAO.findById(userUR.getKey()).
+                        orElseThrow(() -> new IllegalStateException("Could not find the User just updated")).
                         getLinkedAccount(account.getResource().getKey(), account.getConnObjectKeyValue()).
                         map(acct -> userDataBinder.getLinkedAccountTO(acct)).
                         orElse(null);

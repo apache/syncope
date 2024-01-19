@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -147,7 +146,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }
 
         ConnInstanceTO deleted = binder.getConnInstanceTO(connInstance);
-        connInstanceDAO.delete(key);
+        connInstanceDAO.deleteById(key);
         return deleted;
     }
 
@@ -156,7 +155,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public List<ConnInstanceTO> list(final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : Locale.of(lang));
 
-        return connInstanceDAO.findAll().stream().map(binder::getConnInstanceTO).collect(Collectors.toList());
+        return connInstanceDAO.findAll().stream().map(binder::getConnInstanceTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
@@ -197,10 +196,10 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                     ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(bundle);
                     connBundleTO.getProperties().addAll(properties.getPropertyNames().stream().
                             map(propName -> binder.build(properties.getProperty(propName))).
-                            collect(Collectors.toList()));
+                            toList());
 
                     return connBundleTO;
-                }).collect(Collectors.toList())));
+                }).toList()));
 
         return connectorBundleTOs;
     }
@@ -209,11 +208,9 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public List<ConnIdObjectClass> buildObjectClassInfo(
             final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
-        ConnInstanceTO actual = connInstanceTO;
-        ConnInstance existing = connInstanceDAO.find(connInstanceTO.getKey());
-        if (existing != null) {
-            actual = binder.getConnInstanceTO(existing);
-        }
+        ConnInstanceTO actual = connInstanceDAO.findById(connInstanceTO.getKey()).
+                map(binder::getConnInstanceTO).
+                orElse(connInstanceTO);
 
         Set<ObjectClassInfo> objectClassInfo = connectorManager.createConnector(
                 connectorManager.buildConnInstanceOverride(actual, connInstanceTO.getConf(), Optional.empty())).
@@ -235,10 +232,10 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                         schema.setType(AttrSchemaType.getAttrSchemaTypeByClass(attrInfo.getType()));
                         return schema;
                     }).
-                    collect(Collectors.toList()));
+                    toList());
 
             return connIdObjectClassTO;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
@@ -256,8 +253,8 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public ConnInstanceTO readByResource(final String resourceName, final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : Locale.of(lang));
 
-        ExternalResource resource = Optional.ofNullable(resourceDAO.find(resourceName)).
-                orElseThrow(() -> new NotFoundException("Resource '" + resourceName + '\''));
+        ExternalResource resource = resourceDAO.findById(resourceName).
+                orElseThrow(() -> new NotFoundException("Resource " + resourceName));
         ConnInstanceTO connInstance = binder.getConnInstanceTO(
                 connectorManager.getConnector(resource).getConnInstance());
         connInstance.setKey(resource.getConnector().getKey());
@@ -279,17 +276,17 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof ConnInstanceTO) {
-                    key = ((ConnInstanceTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof ConnInstanceTO connInstanceTO) {
+                    key = connInstanceTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getConnInstanceTO(connInstanceDAO.find(key));
+                return binder.getConnInstanceTO(connInstanceDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

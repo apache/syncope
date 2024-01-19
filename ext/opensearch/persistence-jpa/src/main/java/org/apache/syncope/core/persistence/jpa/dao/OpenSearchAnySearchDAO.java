@@ -25,13 +25,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -47,7 +46,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
@@ -57,7 +55,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -80,6 +77,8 @@ import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
 import org.opensearch.client.opensearch.core.CountRequest;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.search.Hit;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -135,11 +134,8 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 if (goRealm.isPresent()) {
                     groupOwners.add(goRealm.get().getRight());
                 } else if (realmPath.startsWith("/")) {
-                    Realm realm = Optional.ofNullable(realmDAO.findByFullPath(realmPath)).orElseThrow(() -> {
-                        SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                        noRealm.getElements().add("Invalid realm specified: " + realmPath);
-                        return noRealm;
-                    });
+                    Realm realm = realmDAO.findByFullPath(realmPath).
+                            orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + realmPath));
 
                     realmDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
                             forEach(descendant -> queries.add(
@@ -147,15 +143,14 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                                     field("realm").value(FieldValue.of(descendant)).build()).
                                     build()));
                 } else {
-                    DynRealm dynRealm = dynRealmDAO.find(realmPath);
-                    if (dynRealm == null) {
-                        LOG.warn("Ignoring invalid dynamic realm {}", realmPath);
-                    } else {
-                        dynRealmKeys.add(dynRealm.getKey());
-                        queries.add(new Query.Builder().term(QueryBuilders.term().
-                                field("dynRealm").value(FieldValue.of(dynRealm.getKey())).build()).
-                                build());
-                    }
+                    dynRealmDAO.findById(realmPath).ifPresentOrElse(
+                            dynRealm -> {
+                                dynRealmKeys.add(dynRealm.getKey());
+                                queries.add(new Query.Builder().term(QueryBuilders.term().
+                                        field("dynRealm").value(FieldValue.of(dynRealm.getKey())).build()).
+                                        build());
+                            },
+                            () -> LOG.warn("Ignoring invalid dynamic realm {}", realmPath));
                 }
             });
         } else {
@@ -233,10 +228,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         }
     }
 
-    protected List<SortOptions> sortBuilders(
-            final AnyTypeKind kind,
-            final List<OrderByClause> orderBy) {
-
+    protected List<SortOptions> sortBuilders(final AnyTypeKind kind, final Stream<Sort.Order> orderBy) {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
         List<SortOptions> options = new ArrayList<>();
@@ -244,11 +236,11 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
             String sortName = null;
 
             // Manage difference among external key attribute and internal JPA @Id
-            String fieldName = "key".equals(clause.getField()) ? "id" : clause.getField();
+            String fieldName = "key".equals(clause.getProperty()) ? "id" : clause.getProperty();
 
             Field anyField = anyUtils.getField(fieldName);
             if (anyField == null) {
-                PlainSchema schema = plainSchemaDAO.find(fieldName);
+                PlainSchema schema = plainSchemaDAO.findById(fieldName).orElse(null);
                 if (schema != null) {
                     sortName = fieldName;
                 }
@@ -262,8 +254,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 options.add(new SortOptions.Builder().field(
                         new FieldSort.Builder().
                                 field(sortName).
-                                order(clause.getDirection() == OrderByClause.Direction.ASC
-                                        ? SortOrder.Asc : SortOrder.Desc).
+                                order(clause.getDirection() == Sort.Direction.ASC ? SortOrder.Asc : SortOrder.Desc).
                                 build()).
                         build());
             }
@@ -277,18 +268,16 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
             final boolean recursive,
             final Set<String> adminRealms,
             final SearchCond cond,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderBy,
+            final Pageable pageable,
             final AnyTypeKind kind) {
 
         SearchRequest request = new SearchRequest.Builder().
                 index(OpenSearchUtils.getAnyIndex(AuthContextUtils.getDomain(), kind)).
                 searchType(SearchType.QueryThenFetch).
                 query(getQuery(base, recursive, adminRealms, cond, kind)).
-                from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
-                size(itemsPerPage < 0 ? indexMaxResultWindow : itemsPerPage).
-                sort(sortBuilders(kind, orderBy)).
+                from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * pageable.getPageNumber()).
+                size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
+                sort(sortBuilders(kind, pageable.getSort().get())).
                 build();
         LOG.debug("Search JSON request: {}", request);
 
@@ -457,7 +446,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
                 field("relationships").value(FieldValue.of(key)).build()).
-                build()).collect(Collectors.toList());
+                build()).toList();
 
         return queries.size() == 1
                 ? queries.get(0)
@@ -468,7 +457,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
                 field("memberships").value(FieldValue.of(key)).build()).
-                build()).collect(Collectors.toList());
+                build()).toList();
 
         return queries.size() == 1
                 ? queries.get(0)
@@ -497,7 +486,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
                 field("members").value(FieldValue.of(key)).build()).
-                build()).collect(Collectors.toList());
+                build()).toList();
 
         return queries.size() == 1
                 ? queries.get(0)
@@ -569,12 +558,12 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
             case EQ:
                 FieldValue fieldValue;
-                if (value instanceof Double) {
-                    fieldValue = FieldValue.of((Double) value);
-                } else if (value instanceof Long) {
-                    fieldValue = FieldValue.of((Long) value);
-                } else if (value instanceof Boolean) {
-                    fieldValue = FieldValue.of((Boolean) value);
+                if (value instanceof Double aDouble) {
+                    fieldValue = FieldValue.of(aDouble);
+                } else if (value instanceof Long aLong) {
+                    fieldValue = FieldValue.of(aLong);
+                } else if (value instanceof Boolean aBoolean) {
+                    fieldValue = FieldValue.of(aBoolean);
                 } else {
                     fieldValue = FieldValue.of(value.toString());
                 }
@@ -621,7 +610,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected Query getQuery(final AnyCond cond, final AnyTypeKind kind) {
         if (JAXRSService.PARAM_REALM.equals(cond.getSchema()) && cond.getExpression().startsWith("/")) {
-            Realm realm = Optional.ofNullable(realmDAO.findByFullPath(cond.getExpression())).
+            Realm realm = realmDAO.findByFullPath(cond.getExpression()).
                     orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + cond.getExpression()));
             cond.setExpression(realm.getKey());
         }

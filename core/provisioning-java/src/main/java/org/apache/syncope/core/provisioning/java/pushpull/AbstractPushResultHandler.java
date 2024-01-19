@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.request.AnyUR;
@@ -98,7 +97,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
         boolean changepwd = any instanceof User;
         List<String> ownedResources = getAnyUtils().getAllResources(any).stream().
-                map(ExternalResource::getKey).collect(Collectors.toList());
+                map(ExternalResource::getKey).toList();
 
         List<String> noPropResources = new ArrayList<>(ownedResources);
         noPropResources.remove(profile.getTask().getResource().getKey());

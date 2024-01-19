@@ -32,15 +32,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class ImpersonationLogic extends AbstractAuthProfileLogic {
 
-    protected final EntityFactory entityFactory;
-
     public ImpersonationLogic(
-            final EntityFactory entityFactory,
+            final AuthProfileDataBinder binder,
             final AuthProfileDAO authProfileDAO,
-            final AuthProfileDataBinder binder) {
+            final EntityFactory entityFactory) {
 
-        super(authProfileDAO, binder);
-        this.entityFactory = entityFactory;
+        super(binder, authProfileDAO, entityFactory);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -51,11 +48,7 @@ public class ImpersonationLogic extends AbstractAuthProfileLogic {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public void create(final String owner, final ImpersonationAccount account) {
-        AuthProfile profile = authProfileDAO.findByOwner(owner).orElseGet(() -> {
-            AuthProfile authProfile = entityFactory.newEntity(AuthProfile.class);
-            authProfile.setOwner(owner);
-            return authProfile;
-        });
+        AuthProfile profile = authProfile(owner);
 
         if (profile.getImpersonationAccounts().stream().
                 noneMatch(acct -> acct.getImpersonated().equalsIgnoreCase(account.getImpersonated()))) {

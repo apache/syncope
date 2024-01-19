@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
@@ -49,12 +48,8 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
     @PreAuthorize("hasRole('" + IdRepoEntitlement.RELATIONSHIPTYPE_READ + "')")
     @Transactional(readOnly = true)
     public RelationshipTypeTO read(final String key) {
-        RelationshipType relationshipType = relationshipTypeDAO.find(key);
-        if (relationshipType == null) {
-            LOG.error("Could not find relationshipType '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        RelationshipType relationshipType = relationshipTypeDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("RelationshipType " + key));
 
         return binder.getRelationshipTypeTO(relationshipType);
     }
@@ -62,7 +57,7 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
     @PreAuthorize("hasRole('" + IdRepoEntitlement.RELATIONSHIPTYPE_LIST + "')")
     @Transactional(readOnly = true)
     public List<RelationshipTypeTO> list() {
-        return relationshipTypeDAO.findAll().stream().map(binder::getRelationshipTypeTO).collect(Collectors.toList());
+        return relationshipTypeDAO.findAll().stream().map(binder::getRelationshipTypeTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.RELATIONSHIPTYPE_CREATE + "')")
@@ -72,11 +67,8 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.RELATIONSHIPTYPE_UPDATE + "')")
     public RelationshipTypeTO update(final RelationshipTypeTO relationshipTypeTO) {
-        RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTypeTO.getKey());
-        if (relationshipType == null) {
-            LOG.error("Could not find relationshipType '" + relationshipTypeTO.getKey() + '\'');
-            throw new NotFoundException(relationshipTypeTO.getKey());
-        }
+        RelationshipType relationshipType = relationshipTypeDAO.findById(relationshipTypeTO.getKey()).
+                orElseThrow(() -> new NotFoundException("RelationshipType " + relationshipTypeTO.getKey()));
 
         binder.update(relationshipType, relationshipTypeTO);
         relationshipType = relationshipTypeDAO.save(relationshipType);
@@ -86,16 +78,12 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.RELATIONSHIPTYPE_DELETE + "')")
     public RelationshipTypeTO delete(final String key) {
-        RelationshipType relationshipType = relationshipTypeDAO.find(key);
-        if (relationshipType == null) {
-            LOG.error("Could not find relationshipType '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        RelationshipType relationshipType = relationshipTypeDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("RelationshipType " + key));
 
         RelationshipTypeTO deleted = binder.getRelationshipTypeTO(relationshipType);
 
-        relationshipTypeDAO.delete(key);
+        relationshipTypeDAO.deleteById(key);
 
         return deleted;
     }
@@ -110,15 +98,15 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
             for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof Long) {
                     key = (String) args[i];
-                } else if (args[i] instanceof RelationshipTypeTO) {
-                    key = ((RelationshipTypeTO) args[i]).getKey();
+                } else if (args[i] instanceof RelationshipTypeTO relationshipTypeTO) {
+                    key = relationshipTypeTO.getKey();
                 }
             }
         }
 
         if (StringUtils.isNotBlank(key)) {
             try {
-                return binder.getRelationshipTypeTO(relationshipTypeDAO.find(key));
+                return binder.getRelationshipTypeTO(relationshipTypeDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

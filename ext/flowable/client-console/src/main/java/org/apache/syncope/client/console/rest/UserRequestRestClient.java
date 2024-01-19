@@ -40,7 +40,7 @@ public class UserRequestRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4785231164900813921L;
 
-    public int countRequests(final String keyword) {
+    public long countRequests(final String keyword) {
         try {
             return getService(UserRequestService.class).
                     listRequests(new UserRequestQuery.Builder().user(keyword).page(1).size(0).build()).
@@ -67,7 +67,7 @@ public class UserRequestRestClient extends BaseRestClient {
         getService(UserRequestService.class).cancelRequest(executionId, reason);
     }
 
-    public int countForms(final String keyword) {
+    public long countForms(final String keyword) {
         try {
             return getService(UserRequestService.class).
                     listForms(new UserRequestQuery.Builder().user(keyword).page(1).size(0).build()).

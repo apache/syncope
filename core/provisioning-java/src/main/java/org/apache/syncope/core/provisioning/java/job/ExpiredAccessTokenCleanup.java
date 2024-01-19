@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.quartz.JobExecutionContext;
@@ -34,7 +35,7 @@ public class ExpiredAccessTokenCleanup extends AbstractSchedTaskJobDelegate<Sche
             throws JobExecutionException {
 
         if (!dryRun) {
-            int deleted = accessTokenDAO.deleteExpired();
+            int deleted = accessTokenDAO.deleteExpired(OffsetDateTime.now());
             LOG.debug("Successfully deleted {} expired access tokens", deleted);
         }
 

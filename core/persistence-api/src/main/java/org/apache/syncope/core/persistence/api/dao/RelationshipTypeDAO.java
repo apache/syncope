@@ -18,16 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 
 public interface RelationshipTypeDAO extends DAO<RelationshipType> {
-
-    RelationshipType find(String key);
-
-    List<RelationshipType> findAll();
-
-    RelationshipType save(RelationshipType anyType);
-
-    void delete(String key);
 }

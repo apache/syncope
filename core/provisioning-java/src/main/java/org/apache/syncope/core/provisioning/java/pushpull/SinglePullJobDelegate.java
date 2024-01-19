@@ -20,9 +20,8 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Provision;
@@ -35,6 +34,7 @@ import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -87,40 +87,40 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             task.setPerformUpdate(pullTaskTO.isPerformUpdate());
             task.setPerformDelete(pullTaskTO.isPerformDelete());
             task.setSyncStatus(pullTaskTO.isSyncStatus());
-            task.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()));
+            task.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()).
+                    orElseThrow(() -> new NotFoundException("Realm " + pullTaskTO.getDestinationRealm())));
             task.setRemediation(pullTaskTO.isRemediation());
 
             // validate JEXL expressions from templates and proceed if fine
             TemplateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
-            pullTaskTO.getTemplates().forEach((type, template) -> {
-                AnyType anyType = anyTypeDAO.find(type);
-                if (anyType == null) {
-                    LOG.debug("Invalid AnyType {} specified, ignoring...", type);
-                } else {
-                    AnyTemplatePullTask anyTemplate = task.getTemplate(anyType.getKey()).orElse(null);
-                    if (anyTemplate == null) {
-                        anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
-                        anyTemplate.setAnyType(anyType);
-                        anyTemplate.setPullTask(task);
+            pullTaskTO.getTemplates().forEach((type, template) -> anyTypeDAO.findById(type).ifPresentOrElse(
+                    anyType -> {
+                        AnyTemplatePullTask anyTemplate = task.getTemplate(anyType.getKey()).orElse(null);
+                        if (anyTemplate == null) {
+                            anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
+                            anyTemplate.setAnyType(anyType);
+                            anyTemplate.setPullTask(task);
 
-                        task.add(anyTemplate);
-                    }
-                    anyTemplate.set(template);
-                }
-            });
+                            task.add(anyTemplate);
+                        }
+                        anyTemplate.set(template);
+                    },
+                    () -> LOG.debug("Invalid AnyType {} specified, ignoring...", type)));
 
             profile = new ProvisioningProfile<>(connector, task);
             profile.setDryRun(false);
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
             profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
-                    map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
+                    map(implementationDAO::findById).filter(Optional::isPresent).map(Optional::get).
+                    toList()));
             profile.setExecutor(executor);
 
             for (PullActions action : profile.getActions()) {
                 action.beforeAll(profile);
             }
 
-            AnyType anyType = anyTypeDAO.find(provision.getAnyType());
+            AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
+                    orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));
 
             SyncopePullResultHandler handler;
             GroupPullResultHandler ghandler = buildGroupHandler();
@@ -145,7 +145,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
 
             Stream<Item> mapItems = Stream.concat(
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
-                    virSchemaDAO.find(task.getResource().getKey(), anyType.getKey()).stream().
+                    virSchemaDAO.findByResourceAndAnyType(task.getResource().getKey(), anyType.getKey()).stream().
                             map(VirSchema::asLinkingMappingItem));
 
             connector.filteredReconciliation(

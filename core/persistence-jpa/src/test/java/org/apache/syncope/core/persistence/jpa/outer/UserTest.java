@@ -61,7 +61,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class UserTest extends AbstractTest {
 
     @Autowired
@@ -99,26 +99,26 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void delete() {
-        List<UMembership> memberships = groupDAO.findUMemberships(groupDAO.findByName("managingDirector"));
+        List<UMembership> memberships = groupDAO.findUMemberships(
+                groupDAO.findByName("managingDirector").orElseThrow());
         assertFalse(memberships.isEmpty());
 
-        userDAO.delete("c9b2dec2-00a7-4855-97c0-d854842b4b24");
+        userDAO.deleteById("c9b2dec2-00a7-4855-97c0-d854842b4b24");
 
-        entityManager().flush();
+        entityManager.flush();
 
-        assertNull(userDAO.findByUsername("bellini"));
-        assertNull(findPlainAttr(UUID.randomUUID().toString(), UPlainAttr.class));
-        assertNull(findPlainAttrValue(UUID.randomUUID().toString(), UPlainAttrValue.class));
-        assertNotNull(plainSchemaDAO.find("loginDate"));
+        assertTrue(userDAO.findByUsername("bellini").isEmpty());
+        assertTrue(findPlainAttr(UUID.randomUUID().toString(), UPlainAttr.class).isEmpty());
+        assertTrue(findPlainAttrValue(UUID.randomUUID().toString(), UPlainAttrValue.class).isEmpty());
+        assertTrue(plainSchemaDAO.findById("loginDate").isPresent());
 
-        memberships = groupDAO.findUMemberships(groupDAO.findByName("managingDirector"));
+        memberships = groupDAO.findUMemberships(groupDAO.findByName("managingDirector").orElseThrow());
         assertTrue(memberships.isEmpty());
     }
 
     @Test
     public void ships() {
-        User user = userDAO.findByUsername("bellini");
-        assertNotNull(user);
+        User user = userDAO.findByUsername("bellini").orElseThrow();
         assertEquals(1, user.getMemberships().size());
         assertEquals("bf825fe1-7320-4a54-bd64-143b5c18ab97", user.getMemberships().get(0).getRightEnd().getKey());
 
@@ -126,14 +126,14 @@ public class UserTest extends AbstractTest {
 
         UMembership newM = entityFactory.newEntity(UMembership.class);
         newM.setLeftEnd(user);
-        newM.setRightEnd(groupDAO.find("ba9ed509-b1f5-48ab-a334-c8530a6422dc"));
+        newM.setRightEnd(groupDAO.findById("ba9ed509-b1f5-48ab-a334-c8530a6422dc").orElseThrow());
         user.add(newM);
 
         userDAO.save(user);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        user = userDAO.findByUsername("bellini");
+        user = userDAO.findByUsername("bellini").orElseThrow();
         assertEquals(1, user.getMemberships().size());
         assertEquals(
                 "ba9ed509-b1f5-48ab-a334-c8530a6422dc",
@@ -146,33 +146,33 @@ public class UserTest extends AbstractTest {
         user.getRelationships().remove(0);
 
         URelationship newR = entityFactory.newEntity(URelationship.class);
-        newR.setType(relationshipTypeDAO.find("neighborhood"));
+        newR.setType(relationshipTypeDAO.findById("neighborhood").orElseThrow());
         newR.setLeftEnd(user);
-        newR.setRightEnd(anyObjectDAO.find("8559d14d-58c2-46eb-a2d4-a7d35161e8f8"));
+        newR.setRightEnd(anyObjectDAO.findById("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElseThrow());
         user.add(newR);
 
         userDAO.save(user);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        user = userDAO.findByUsername("bellini");
+        user = userDAO.findByUsername("bellini").orElseThrow();
         assertEquals(1, user.getRelationships().size());
         assertEquals("8559d14d-58c2-46eb-a2d4-a7d35161e8f8", user.getRelationships().get(0).getRightEnd().getKey());
     }
 
     private LinkedAccount newLinkedAccount(final String connObjectKeyValue) {
-        User user = userDAO.findByUsername("vivaldi");
+        User user = userDAO.findByUsername("vivaldi").orElseThrow();
         user.getLinkedAccounts().stream().filter(Objects::nonNull).forEach(account -> account.setOwner(null));
         user.getLinkedAccounts().clear();
-        entityManager().flush();
+        entityManager.flush();
 
         LinkedAccount account = entityFactory.newEntity(LinkedAccount.class);
         account.setOwner(user);
         user.add(account);
 
         account.setConnObjectKeyValue(connObjectKeyValue);
-        account.setResource(resourceDAO.find("resource-ldap"));
-        account.add(applicationDAO.findPrivilege("getMighty"));
+        account.setResource(resourceDAO.findById("resource-ldap").orElseThrow());
+        account.add(applicationDAO.findPrivilege("getMighty").orElseThrow());
 
         account.setUsername(UUID.randomUUID().toString());
         account.setCipherAlgorithm(CipherAlgorithm.AES);
@@ -183,11 +183,11 @@ public class UserTest extends AbstractTest {
         attr.setOwner(user);
         attr.setAccount(account);
         account.add(attr);
-        attr.setSchema(plainSchemaDAO.find("obscure"));
+        attr.setSchema(plainSchemaDAO.findById("obscure").orElseThrow());
         attr.add(validator, "testvalue", anyUtils);
 
         user = userDAO.save(user);
-        entityManager().flush();
+        entityManager.flush();
 
         assertEquals(1, user.getLinkedAccounts().size());
 
@@ -204,11 +204,17 @@ public class UserTest extends AbstractTest {
 
         assertTrue(userDAO.linkedAccountExists(account.getOwner().getKey(), account.getConnObjectKeyValue()));
 
-        List<LinkedAccount> accounts = userDAO.findLinkedAccountsByResource(resourceDAO.find("resource-ldap"));
+        LinkedAccount found = userDAO.findLinkedAccount(
+                resourceDAO.findById("resource-ldap").orElseThrow(), "findLinkedAccount").orElseThrow();
+        assertEquals(account, found);
+
+        List<LinkedAccount> accounts = userDAO.findLinkedAccountsByResource(
+                resourceDAO.findById("resource-ldap").orElseThrow());
         assertEquals(1, accounts.size());
         assertEquals(account, accounts.get(0));
 
-        accounts = userDAO.findLinkedAccountsByPrivilege(applicationDAO.findPrivilege("getMighty"));
+        accounts = userDAO.findLinkedAccountsByPrivilege(
+                applicationDAO.findPrivilege("getMighty").orElseThrow());
         assertEquals(1, accounts.size());
         assertEquals(account, accounts.get(0));
     }
@@ -220,20 +226,20 @@ public class UserTest extends AbstractTest {
         assertNotNull(account.getKey());
 
         LAPlainAttr plainAttr = account.getPlainAttrs().get(0);
-        assertNotNull(entityManager().find(JPALAPlainAttr.class, plainAttr.getKey()));
+        assertNotNull(entityManager.find(JPALAPlainAttr.class, plainAttr.getKey()));
 
         PlainAttrValue plainAttrValue = account.getPlainAttrs().get(0).getValues().get(0);
-        assertNotNull(entityManager().find(JPALAPlainAttrValue.class, plainAttrValue.getKey()));
+        assertNotNull(entityManager.find(JPALAPlainAttrValue.class, plainAttrValue.getKey()));
 
-        LinkedAccount found = entityManager().find(JPALinkedAccount.class, account.getKey());
+        LinkedAccount found = entityManager.find(JPALinkedAccount.class, account.getKey());
         assertEquals(account, found);
 
         userDAO.delete(account.getOwner());
-        entityManager().flush();
+        entityManager.flush();
 
-        assertNull(entityManager().find(JPALinkedAccount.class, account.getKey()));
-        assertNull(entityManager().find(JPALAPlainAttr.class, plainAttr.getKey()));
-        assertNull(entityManager().find(JPALAPlainAttrValue.class, plainAttrValue.getKey()));
+        assertNull(entityManager.find(JPALinkedAccount.class, account.getKey()));
+        assertNull(entityManager.find(JPALAPlainAttr.class, plainAttr.getKey()));
+        assertNull(entityManager.find(JPALAPlainAttrValue.class, plainAttrValue.getKey()));
     }
 
     @Test
@@ -241,21 +247,21 @@ public class UserTest extends AbstractTest {
         LinkedAccount account = newLinkedAccount("deleteLinkedAccountResourceCascade");
         assertNotNull(account.getKey());
 
-        LinkedAccount found = entityManager().find(JPALinkedAccount.class, account.getKey());
+        LinkedAccount found = entityManager.find(JPALinkedAccount.class, account.getKey());
         assertEquals(account, found);
 
-        resourceDAO.delete(account.getResource().getKey());
-        entityManager().flush();
+        resourceDAO.deleteById(account.getResource().getKey());
+        entityManager.flush();
 
-        assertNull(entityManager().find(JPALinkedAccount.class, account.getKey()));
+        assertNull(entityManager.find(JPALinkedAccount.class, account.getKey()));
     }
 
     @Test
     public void deleteCascadeOnDelegations() {
-        User bellini = userDAO.findByUsername("bellini");
-        User rossini = userDAO.findByUsername("rossini");
+        User bellini = userDAO.findByUsername("bellini").orElseThrow();
+        User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
-        Role reviewer = roleDAO.find("User reviewer");
+        Role reviewer = roleDAO.findById("User reviewer").orElseThrow();
 
         Delegation delegation = entityFactory.newEntity(Delegation.class);
         delegation.setDelegating(bellini);
@@ -264,18 +270,18 @@ public class UserTest extends AbstractTest {
         delegation.add(reviewer);
         delegation = delegationDAO.save(delegation);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        delegation = delegationDAO.find(delegation.getKey());
+        delegation = delegationDAO.findById(delegation.getKey()).orElseThrow();
 
         assertEquals(List.of(delegation), delegationDAO.findByDelegating(bellini));
         assertEquals(List.of(delegation), delegationDAO.findByDelegated(rossini));
 
-        userDAO.delete(rossini.getKey());
+        userDAO.deleteById(rossini.getKey());
 
-        entityManager().flush();
+        entityManager.flush();
 
-        assertNull(delegationDAO.find(delegation.getKey()));
+        assertTrue(delegationDAO.findById(delegation.getKey()).isEmpty());
     }
 
     /**
@@ -289,7 +295,7 @@ public class UserTest extends AbstractTest {
         prefix.setExpression("'k' + firstname");
 
         derSchemaDAO.save(prefix);
-        entityManager().flush();
+        entityManager.flush();
 
         // create derived attribute (literal as suffix)
         DerSchema suffix = entityFactory.newEntity(DerSchema.class);
@@ -297,21 +303,21 @@ public class UserTest extends AbstractTest {
         suffix.setExpression("firstname + 'k'");
 
         derSchemaDAO.save(suffix);
-        entityManager().flush();
+        entityManager.flush();
 
         // add derived attributes to user
-        User owner = userDAO.findByUsername("vivaldi");
-        assertNotNull(owner);
+        User owner = userDAO.findByUsername("vivaldi").orElseThrow();
 
         String firstname = owner.getPlainAttr("firstname").get().getValuesAsStrings().iterator().next();
         assertNotNull(firstname);
 
         // search by ksuffix derived attribute
-        List<User> list = userDAO.findByDerAttrValue(derSchemaDAO.find("ksuffix"), firstname + 'k', false);
+        List<User> list = userDAO.findByDerAttrValue(
+                derSchemaDAO.findById("ksuffix").orElseThrow(), firstname + 'k', false);
         assertEquals(1, list.size());
 
         // search by kprefix derived attribute
-        list = userDAO.findByDerAttrValue(derSchemaDAO.find("kprefix"), 'k' + firstname, false);
+        list = userDAO.findByDerAttrValue(derSchemaDAO.findById("kprefix").orElseThrow(), 'k' + firstname, false);
         assertEquals(1, list.size());
     }
 }

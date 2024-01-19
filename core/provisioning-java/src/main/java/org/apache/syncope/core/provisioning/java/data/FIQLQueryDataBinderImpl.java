@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.data;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.FIQLQueryTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -56,7 +57,8 @@ public class FIQLQueryDataBinderImpl implements FIQLQueryDataBinder {
     public FIQLQuery create(final FIQLQueryTO fiqlQueryTO) {
         FIQLQuery fiqlQuery = entityFactory.newEntity(FIQLQuery.class);
 
-        fiqlQuery.setOwner(userDAO.findByUsername(AuthContextUtils.getUsername()));
+        fiqlQuery.setOwner(userDAO.findByUsername(AuthContextUtils.getUsername()).
+                orElseThrow(() -> new NotFoundException("User " + AuthContextUtils.getUsername())));
 
         return update(fiqlQuery, fiqlQueryTO);
     }

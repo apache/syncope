@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.job;
 
 import java.time.OffsetDateTime;
-import java.util.Objects;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -35,6 +34,7 @@ import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobExecutionContext;
@@ -98,8 +98,8 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
     protected boolean interrupted;
 
     protected void setStatus(final String status) {
-        Objects.requireNonNull(task, "Task cannot be undefined");
-        publisher.publishEvent(new JobStatusEvent(this, taskDataBinder.buildRefDesc(task), status));
+        publisher.publishEvent(new JobStatusEvent(
+                this, AuthContextUtils.getDomain(), taskDataBinder.buildRefDesc(task), status));
     }
 
     @Override
@@ -123,10 +123,8 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
             throws JobExecutionException {
 
         this.taskType = taskType;
-        task = (T) taskDAO.find(taskType, taskKey);
-        if (task == null) {
-            throw new JobExecutionException("Task " + taskKey + " not found");
-        }
+        task = (T) taskDAO.findById(taskType, taskKey).
+                orElseThrow(() -> new JobExecutionException("Not found: " + taskType + " Task " + taskKey));
 
         if (!task.isActive()) {
             LOG.info("Task {} not active, aborting...", taskKey);
@@ -168,7 +166,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
         if (hasToBeRegistered(execution)) {
             register(execution);
         }
-        task = (T) taskDAO.save(task);
+        task = taskDAO.save(task);
 
         setStatus(null);
 

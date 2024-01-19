@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.Response;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
@@ -101,7 +100,7 @@ public class ApplicationITCase extends AbstractITCase {
         RoleTO role = new RoleTO();
         role.setKey("privileged");
         role.getPrivileges().addAll(
-                application.getPrivileges().stream().map(PrivilegeTO::getKey).collect(Collectors.toList()));
+                application.getPrivileges().stream().map(PrivilegeTO::getKey).toList());
 
         response = ROLE_SERVICE.create(role);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());

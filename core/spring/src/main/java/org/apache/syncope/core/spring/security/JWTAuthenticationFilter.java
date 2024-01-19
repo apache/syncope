@@ -94,7 +94,7 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
 
             // 0. parse JWT
             SignedJWT jwt = SignedJWT.parse(stringToken);
-            
+
             // 1. check signature
             JWTSSOProvider jwtSSOProvider = dataAccessor.getJWTSSOProvider(jwt.getJWTClaimsSet().getIssuer());
             if (!jwt.verify(jwtSSOProvider)) {
@@ -121,11 +121,10 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
             JWTAuthentication jwtAuthentication =
                     new JWTAuthentication(claims, authenticationDetailsSource.buildDetails(request));
             jwtAuthentication.setAuthenticated(true);
-            AuthContextUtils.callAsAdmin(jwtAuthentication.getDetails().getDomain(), () -> {
+            AuthContextUtils.runAsAdmin(jwtAuthentication.getDetails().getDomain(), () -> {
                 Pair<String, Set<SyncopeGrantedAuthority>> authenticated = dataAccessor.authenticate(jwtAuthentication);
                 jwtAuthentication.setUsername(authenticated.getLeft());
                 jwtAuthentication.getAuthorities().addAll(authenticated.getRight());
-                return null;
             });
             SecurityContextHolder.getContext().setAuthentication(jwtAuthentication);
 

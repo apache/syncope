@@ -77,11 +77,11 @@ public class IntAttrNameParser {
     }
 
     protected Pair<Schema, SchemaType> find(final String key) {
-        Schema schema = plainSchemaDAO.find(key);
+        Schema schema = plainSchemaDAO.findById(key).orElse(null);
         if (schema == null) {
-            schema = derSchemaDAO.find(key);
+            schema = derSchemaDAO.findById(key).orElse(null);
             if (schema == null) {
-                schema = virSchemaDAO.find(key);
+                schema = virSchemaDAO.findById(key).orElse(null);
                 if (schema == null) {
                     return null;
                 } else {

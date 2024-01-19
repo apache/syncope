@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -40,6 +39,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -106,7 +106,7 @@ public class SAML2SP4UIUserManager {
 
     @Transactional(readOnly = true)
     public List<String> findMatchingUser(final String connObjectKeyValue, final String idpKey) {
-        SAML2SP4UIIdP idp = idpDAO.find(idpKey);
+        SAML2SP4UIIdP idp = idpDAO.findById(idpKey).orElse(null);
         if (idp == null) {
             LOG.warn("Invalid IdP: {}", idpKey);
             return List.of();
@@ -119,7 +119,7 @@ public class SAML2SP4UIUserManager {
                 idp.getConnObjectKeyItem().get(), connObjectKeyValue, AnyTypeKind.USER, false, null).stream().
                 filter(match -> match.getAny() != null).
                 map(match -> ((User) match.getAny()).getUsername()).
-                collect(Collectors.toList());
+                toList();
     }
 
     protected List<SAML2SP4UIIdPActions> getActions(final SAML2SP4UIIdP idp) {
@@ -141,13 +141,14 @@ public class SAML2SP4UIUserManager {
 
     protected List<Implementation> getTransformers(final Item item) {
         return item.getTransformers().stream().
-                map(implementationDAO::find).
-                filter(Objects::nonNull).
+                map(implementationDAO::findById).
+                filter(Optional::isPresent).
+                map(Optional::get).
                 collect(Collectors.toList());
     }
 
     public void fill(final String idpKey, final SAML2LoginResponse loginResponse, final UserTO userTO) {
-        SAML2SP4UIIdP idp = idpDAO.find(idpKey);
+        SAML2SP4UIIdP idp = idpDAO.findById(idpKey).orElse(null);
         if (idp == null) {
             LOG.warn("Invalid IdP: {}", idpKey);
             return;
@@ -178,13 +179,13 @@ public class SAML2SP4UIUserManager {
 
             if (intAttrName != null && intAttrName.getField() != null) {
                 switch (intAttrName.getField()) {
-                    case "username":
+                    case "username" -> {
                         if (!values.isEmpty()) {
                             userTO.setUsername(values.get(0));
                         }
-                        break;
+                    }
 
-                    default:
+                    default ->
                         LOG.warn("Unsupported: {}", intAttrName.getField());
                 }
             } else if (intAttrName != null && intAttrName.getSchemaType() != null) {
@@ -247,7 +248,8 @@ public class SAML2SP4UIUserManager {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String update(final String username, final SAML2SP4UIIdP idp, final SAML2LoginResponse loginResponse) {
-        UserTO userTO = binder.getUserTO(userDAO.findKey(username));
+        UserTO userTO = binder.getUserTO(userDAO.findKey(username).
+                orElseThrow(() -> new NotFoundException("User " + username)));
         UserTO original = SerializationUtils.clone(userTO);
 
         fill(idp.getKey(), loginResponse, userTO);

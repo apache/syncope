@@ -20,9 +20,8 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 
-public interface PlainAttrValueDAO extends DAO<PlainAttrValue> {
+public interface PlainAttrValueDAO {
 
     /**
      * Deletes and remove all values of the given attribute.

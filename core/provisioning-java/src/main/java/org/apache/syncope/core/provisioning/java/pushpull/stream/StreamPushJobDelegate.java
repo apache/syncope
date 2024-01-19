@@ -19,8 +19,7 @@
 package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.Provision;
@@ -103,7 +102,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
         resource.getProvisions().add(provision);
 
         propagationActions.forEach(key -> {
-            Implementation impl = implementationDAO.find(key);
+            Implementation impl = implementationDAO.findById(key).orElse(null);
             if (impl == null || !IdMImplementationType.PROPAGATION_ACTIONS.equals(impl.getType())) {
                 LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key);
             } else {
@@ -142,7 +141,8 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             profile = new ProvisioningProfile<>(connector, task);
             profile.setExecutor(executor);
             profile.getActions().addAll(getPushActions(pushTaskTO.getActions().stream().
-                    map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
+                    map(implementationDAO::findById).filter(Optional::isPresent).map(Optional::get).
+                    toList()));
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 
             PushResultHandlerDispatcher dispatcher = new PushResultHandlerDispatcher(profile, this);

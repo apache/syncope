@@ -22,7 +22,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -39,6 +38,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
@@ -107,7 +107,7 @@ public class OIDCUserManager {
                 connObjectKeyItem, connObjectKeyValue, AnyTypeKind.USER, false, null).stream().
                 filter(match -> match.getAny() != null).
                 map(match -> ((User) match.getAny()).getUsername()).
-                collect(Collectors.toList());
+                toList();
     }
 
     protected List<OIDCC4UIProviderActions> getActions(final OIDCC4UIProvider op) {
@@ -129,8 +129,9 @@ public class OIDCUserManager {
 
     protected List<Implementation> getTransformers(final Item item) {
         return item.getTransformers().stream().
-                map(implementationDAO::find).
-                filter(Objects::nonNull).
+                map(implementationDAO::findById).
+                filter(Optional::isPresent).
+                map(Optional::get).
                 collect(Collectors.toList());
     }
 
@@ -162,13 +163,13 @@ public class OIDCUserManager {
 
             if (intAttrName != null && intAttrName.getField() != null) {
                 switch (intAttrName.getField()) {
-                    case "username":
+                    case "username" -> {
                         if (!values.isEmpty()) {
                             userTO.setUsername(values.get(0));
                         }
-                        break;
+                    }
 
-                    default:
+                    default ->
                         LOG.warn("Unsupported: {}", intAttrName.getField());
                 }
             } else if (intAttrName != null && intAttrName.getSchemaType() != null) {
@@ -231,7 +232,8 @@ public class OIDCUserManager {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String update(final String username, final OIDCC4UIProvider op, final OIDCLoginResponse responseTO) {
-        UserTO userTO = binder.getUserTO(userDAO.findKey(username));
+        UserTO userTO = binder.getUserTO(userDAO.findKey(username).
+                orElseThrow(() -> new NotFoundException("User " + username)));
         UserTO original = SerializationUtils.clone(userTO);
 
         fill(op, responseTO, userTO);

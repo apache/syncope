@@ -22,28 +22,18 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.Objects;
 import javax.sql.DataSource;
-import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
-import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
-import org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jndi.JndiObjectFactoryBean;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 @EnableConfigurationProperties(PersistenceProperties.class)
 @Configuration(proxyBeanMethods = false)
@@ -85,56 +75,6 @@ public class MasterDomain {
         dataSourceInitializer.setEnabled(true);
         dataSourceInitializer.setDatabasePopulator(databasePopulator);
         return dataSourceInitializer;
-    }
-
-    @ConditionalOnMissingBean(name = "MasterEntityManagerFactory")
-    @DependsOn("commonEMFConf")
-    @Bean(name = "MasterEntityManagerFactory")
-    public DomainEntityManagerFactoryBean masterEntityManagerFactory(
-            final PersistenceProperties props,
-            @Qualifier("MasterDataSource")
-            final JndiObjectFactoryBean masterDataSource,
-            final CommonEntityManagerFactoryConf commonEMFConf) {
-
-        OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
-        vendorAdapter.setShowSql(false);
-        vendorAdapter.setGenerateDdl(true);
-        vendorAdapter.setDatabasePlatform(props.getDomain().get(0).getDatabasePlatform());
-
-        DomainEntityManagerFactoryBean masterEntityManagerFactory = new DomainEntityManagerFactoryBean();
-        masterEntityManagerFactory.setMappingResources(props.getDomain().get(0).getOrm());
-        masterEntityManagerFactory.setPersistenceUnitName(SyncopeConstants.MASTER_DOMAIN);
-        masterEntityManagerFactory.setDataSource(Objects.requireNonNull((DataSource) masterDataSource.getObject()));
-        masterEntityManagerFactory.setJpaVendorAdapter(vendorAdapter);
-        masterEntityManagerFactory.setCommonEntityManagerFactoryConf(commonEMFConf);
-        masterEntityManagerFactory.setConnectorManagerRemoteCommitListener(
-                new ConnectorManagerRemoteCommitListener(SyncopeConstants.MASTER_DOMAIN));
-
-        if (props.getMetaDataFactory() != null) {
-            masterEntityManagerFactory.setJpaPropertyMap(Map.of(
-                    "openjpa.MetaDataFactory",
-                    props.getMetaDataFactory().replace("##orm##", props.getDomain().get(0).getOrm())));
-        }
-
-        return masterEntityManagerFactory;
-    }
-
-    @ConditionalOnMissingBean(name = "MasterTransactionManager")
-    @Bean(name = { "MasterTransactionManager", "Master" })
-    public PlatformTransactionManager transactionManager(
-            @Qualifier("MasterEntityManagerFactory")
-            final DomainEntityManagerFactoryBean masterEntityManagerFactory) {
-
-        return new JpaTransactionManager(Objects.requireNonNull(masterEntityManagerFactory.getObject()));
-    }
-
-    @ConditionalOnMissingBean(name = "MasterTransactionTemplate")
-    @Bean(name = "MasterTransactionTemplate")
-    public TransactionTemplate transactionTemplate(
-            @Qualifier("MasterTransactionManager")
-            final PlatformTransactionManager masterTransactionManager) {
-
-        return new TransactionTemplate(masterTransactionManager);
     }
 
     @Bean(name = "MasterContentXML")

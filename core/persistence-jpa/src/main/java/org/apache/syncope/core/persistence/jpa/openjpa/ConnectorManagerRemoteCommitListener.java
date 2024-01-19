@@ -51,26 +51,24 @@ public class ConnectorManagerRemoteCommitListener implements RemoteCommitListene
     }
 
     protected void registerForExternalResource(final String resourceKey) {
-        AuthContextUtils.callAsAdmin(domain, () -> {
+        AuthContextUtils.runAsAdmin(domain, () -> {
             ExternalResource resource = ApplicationContextProvider.getApplicationContext().
-                    getBean(ExternalResourceDAO.class).find(resourceKey);
+                    getBean(ExternalResourceDAO.class).findById(resourceKey).orElse(null);
             if (resource == null) {
                 LOG.debug("No resource found for '{}', ignoring", resourceKey);
+            } else {
+                try {
+                    ApplicationContextProvider.getApplicationContext().
+                            getBean(ConnectorManager.class).registerConnector(resource);
+                } catch (Exception e) {
+                    LOG.error("While registering connector for resource {}", resourceKey, e);
+                }
             }
-
-            try {
-                ApplicationContextProvider.getApplicationContext().
-                        getBean(ConnectorManager.class).registerConnector(resource);
-            } catch (Exception e) {
-                LOG.error("While registering connector for resource {}", resourceKey, e);
-            }
-
-            return null;
         });
     }
 
     protected void registerForConnInstance(final String connInstanceKey) {
-        AuthContextUtils.callAsAdmin(domain, () -> {
+        AuthContextUtils.runAsAdmin(domain, () -> {
             List<ExternalResource> resources = ApplicationContextProvider.getApplicationContext().
                     getBean(ExternalResourceDAO.class).findByConnInstance(connInstanceKey);
             if (resources.isEmpty()) {
@@ -85,27 +83,23 @@ public class ConnectorManagerRemoteCommitListener implements RemoteCommitListene
                     LOG.error("While registering connector {} for resource {}", connInstanceKey, resource, e);
                 }
             });
-
-            return null;
         });
     }
 
     protected void unregister(final String resourceKey) {
-        AuthContextUtils.callAsAdmin(domain, () -> {
+        AuthContextUtils.runAsAdmin(domain, () -> {
             ExternalResource resource = ApplicationContextProvider.getApplicationContext().
-                    getBean(ExternalResourceDAO.class).find(resourceKey);
+                    getBean(ExternalResourceDAO.class).findById(resourceKey).orElse(null);
             if (resource == null) {
                 LOG.debug("No resource found for '{}', ignoring", resourceKey);
+            } else {
+                try {
+                    ApplicationContextProvider.getApplicationContext().
+                            getBean(ConnectorManager.class).unregisterConnector(resource);
+                } catch (Exception e) {
+                    LOG.error("While unregistering connector for resource {}", resourceKey, e);
+                }
             }
-
-            try {
-                ApplicationContextProvider.getApplicationContext().
-                        getBean(ConnectorManager.class).unregisterConnector(resource);
-            } catch (Exception e) {
-                LOG.error("While unregistering connector for resource {}", resourceKey, e);
-            }
-
-            return null;
         });
     }
 

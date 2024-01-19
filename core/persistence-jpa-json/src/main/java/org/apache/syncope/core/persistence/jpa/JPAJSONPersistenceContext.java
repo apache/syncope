@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import jakarta.persistence.EntityManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -28,88 +29,103 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
-import org.apache.syncope.core.persistence.jpa.dao.JPAJSONAnyObjectDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAJSONGroupDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainAttrDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAJSONPlainAttrValueDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAJSONUserDAO;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepoExt;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AnyObjectRepoExtJSONImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.GroupRepoExt;
+import org.apache.syncope.core.persistence.jpa.dao.repo.GroupRepoExtJSONImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.JSONAnyObjectRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.JSONGroupRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.JSONUserRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExt;
+import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExtJSONImpl;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 
 @Configuration(proxyBeanMethods = false)
 public abstract class JPAJSONPersistenceContext {
 
-    @Autowired
-    protected SecurityProperties securityProperties;
-
-    @ConditionalOnMissingBean(name = "jpaJSONAnyObjectDAO")
+    @ConditionalOnMissingBean(name = "jpaJSONAnyObjectRepoExt")
     @Bean
-    public AnyObjectDAO anyObjectDAO(
+    public AnyObjectRepoExt anyObjectRepoExt(
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
-            final @Lazy JPAJSONAnyDAO anyDAO) {
+            final @Lazy JPAJSONAnyDAO anyDAO,
+            final EntityManager entityManager) {
 
-        return new JPAJSONAnyObjectDAO(
+        return new AnyObjectRepoExtJSONImpl(
                 anyUtilsFactory,
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
                 userDAO,
                 groupDAO,
-                anyDAO);
+                anyDAO,
+                entityManager);
     }
 
-    @ConditionalOnMissingBean(name = "jpaJSONGroupDAO")
+    @ConditionalOnMissingBean(name = "jpaJSONAnyObjectDAO")
     @Bean
-    public GroupDAO groupDAO(
+    public AnyObjectDAO anyObjectDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final AnyObjectRepoExt anyObjectRepoExt) {
+
+        return jpaRepositoryFactory.getRepository(JSONAnyObjectRepo.class, anyObjectRepoExt);
+    }
+
+    @ConditionalOnMissingBean(name = "jpaJSONGroupRepoExt")
+    @Bean
+    public GroupRepoExt groupRepoExt(
             final AnyUtilsFactory anyUtilsFactory,
             final ApplicationEventPublisher publisher,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy AnyMatchDAO anyMatchDAO,
-            final @Lazy PlainAttrDAO plainAttrDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
             final @Lazy AnySearchDAO anySearchDAO,
+            final @Lazy JPAJSONAnyDAO anyDAO,
             final SearchCondVisitor searchCondVisitor,
-            final @Lazy JPAJSONAnyDAO anyDAO) {
+            final EntityManager entityManager) {
 
-        return new JPAJSONGroupDAO(
+        return new GroupRepoExtJSONImpl(
                 anyUtilsFactory,
                 publisher,
                 plainSchemaDAO,
                 derSchemaDAO,
                 dynRealmDAO,
                 anyMatchDAO,
-                plainAttrDAO,
                 userDAO,
                 anyObjectDAO,
                 anySearchDAO,
+                anyDAO,
                 searchCondVisitor,
-                anyDAO);
+                entityManager);
     }
 
-    @ConditionalOnMissingBean(name = "jpaJSONPlainAttrDAO")
+    @ConditionalOnMissingBean(name = "jpaJSONGroupDAO")
     @Bean
-    public PlainAttrDAO plainAttrDAO() {
-        return new JPAJSONPlainAttrDAO();
+    public GroupDAO groupDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final GroupRepoExt groupRepoExt) {
+
+        return jpaRepositoryFactory.getRepository(JSONGroupRepo.class, groupRepoExt);
     }
 
     @ConditionalOnMissingBean(name = "jpaJSONPlainAttrValueDAO")
@@ -118,9 +134,9 @@ public abstract class JPAJSONPersistenceContext {
         return new JPAJSONPlainAttrValueDAO();
     }
 
-    @ConditionalOnMissingBean(name = "jpaJSONUserDAO")
+    @ConditionalOnMissingBean(name = "jpaJSONUserRepoExt")
     @Bean
-    public UserDAO userDAO(
+    public UserRepoExt userRepoExt(
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
@@ -130,9 +146,11 @@ public abstract class JPAJSONPersistenceContext {
             final @Lazy GroupDAO groupDAO,
             final @Lazy DelegationDAO delegationDAO,
             final @Lazy FIQLQueryDAO fiqlQueryDAO,
-            final @Lazy JPAJSONAnyDAO anyDAO) {
+            final @Lazy JPAJSONAnyDAO anyDAO,
+            final SecurityProperties securityProperties,
+            final EntityManager entityManager) {
 
-        return new JPAJSONUserDAO(
+        return new UserRepoExtJSONImpl(
                 anyUtilsFactory,
                 plainSchemaDAO,
                 derSchemaDAO,
@@ -142,7 +160,17 @@ public abstract class JPAJSONPersistenceContext {
                 groupDAO,
                 delegationDAO,
                 fiqlQueryDAO,
+                anyDAO,
                 securityProperties,
-                anyDAO);
+                entityManager);
+    }
+
+    @ConditionalOnMissingBean(name = "jpaJSONUserDAO")
+    @Bean
+    public UserDAO userDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final UserRepoExt userRepoExt) {
+
+        return jpaRepositoryFactory.getRepository(JSONUserRepo.class, userRepoExt);
     }
 }

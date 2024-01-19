@@ -21,10 +21,7 @@ package org.apache.syncope.core.logic;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -40,13 +37,15 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,13 +97,12 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public Pair<Integer, List<GroupTO>> searchAssignableGroups(
+    public Page<GroupTO> searchAssignableGroups(
             final String realm,
             final String term,
-            final int page,
-            final int size) {
+            final Pageable pageable) {
 
-        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+        Realm base = realmDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         AnyCond termCond;
@@ -118,38 +116,30 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
         }
         SearchCond searchCond = SearchCond.getLeaf(termCond);
 
-        int count = anySearchDAO.count(base, true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.GROUP);
+        long count = anySearchDAO.count(base, true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.GROUP);
 
-        OrderByClause orderByClause = new OrderByClause();
-        orderByClause.setField("name");
-        orderByClause.setDirection(OrderByClause.Direction.ASC);
         List<Group> matching = anySearchDAO.search(
                 base,
                 true,
                 SyncopeConstants.FULL_ADMIN_REALMS,
                 searchCond,
-                page,
-                size,
-                List.of(orderByClause),
+                pageable,
                 AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
-                map(group -> groupDataBinder.getGroupTO(group, false)).collect(Collectors.toList());
+                map(group -> groupDataBinder.getGroupTO(group, false)).toList();
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("isAuthenticated()")
     public TypeExtensionTO readTypeExtension(final String groupName) {
-        Group group = groupDAO.findByName(groupName);
-        if (group == null) {
-            throw new NotFoundException("Group " + groupName);
-        }
-        Optional<? extends TypeExtension> typeExt = group.getTypeExtension(anyTypeDAO.findUser());
-        if (typeExt.isEmpty()) {
-            throw new NotFoundException("TypeExtension in " + groupName + " for users");
-        }
+        Group group = groupDAO.findByName(groupName).
+                orElseThrow(() -> new NotFoundException("Group " + groupName));
 
-        return groupDataBinder.getTypeExtensionTO(typeExt.get());
+        TypeExtension typeExt = group.getTypeExtension(anyTypeDAO.getUser()).
+                orElseThrow(() -> new NotFoundException("TypeExtension in " + groupName + " for users"));
+
+        return groupDataBinder.getTypeExtensionTO(typeExt);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.KEYMASTER + "')")

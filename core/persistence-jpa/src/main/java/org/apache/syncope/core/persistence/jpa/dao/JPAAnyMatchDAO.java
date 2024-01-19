@@ -41,6 +41,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrVal
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -66,10 +67,14 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
+public class JPAAnyMatchDAO implements AnyMatchDAO {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(AnyMatchDAO.class);
 
     protected final UserDAO userDAO;
 
@@ -116,8 +121,7 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
     public <T extends Any<?>> boolean matches(final T any, final SearchCond cond) {
         boolean not = cond.getType() == SearchCond.Type.NOT_LEAF;
         switch (cond.getType()) {
-            case LEAF:
-            case NOT_LEAF:
+            case LEAF, NOT_LEAF -> {
                 Boolean match = cond.getLeaf(AnyTypeCond.class).
                         filter(leaf -> AnyTypeKind.ANY_OBJECT == any.getType().getKind()).
                         map(leaf -> matches(any, leaf, not)).
@@ -185,14 +189,17 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                 }
 
                 return BooleanUtils.toBoolean(match);
-
-            case AND:
+            }
+            case AND -> {
                 return matches(any, cond.getLeft()) && matches(any, cond.getRight());
+            }
 
-            case OR:
+            case OR -> {
                 return matches(any, cond.getLeft()) || matches(any, cond.getRight());
+            }
 
-            default:
+            default -> {
+            }
         }
 
         return false;
@@ -232,7 +239,8 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
 
         final String group = SyncopeConstants.UUID_PATTERN.matcher(cond.getGroup()).matches()
                 ? cond.getGroup()
-                : groupDAO.findKey(cond.getGroup());
+                : groupDAO.findKey(cond.getGroup()).
+                        orElseThrow(() -> new NotFoundException("Group " + cond.getGroup()));
 
         boolean found = any.getMembership(group).isPresent()
                 || (any instanceof User
@@ -256,9 +264,9 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
     protected boolean matches(final Group group, final MemberCond cond, final boolean not) {
         boolean found = false;
 
-        GroupableRelatable<?, ?, ?, ?, ?> any = userDAO.find(cond.getMember());
+        GroupableRelatable<?, ?, ?, ?, ?> any = userDAO.findById(cond.getMember()).orElse(null);
         if (any == null) {
-            any = anyObjectDAO.find(cond.getMember());
+            any = anyObjectDAO.findById(cond.getMember()).orElse(null);
             if (any != null) {
                 found = groupDAO.findAMemberships(group).stream().
                         anyMatch(memb -> memb.getLeftEnd().getKey().equals(cond.getMember()))
@@ -288,19 +296,20 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
 
         return anyAttrValues.stream().anyMatch(item -> {
             switch (cond.getType()) {
-                case EQ:
+                case EQ -> {
                     return attrValue.getValue().equals(item.getValue());
+                }
 
-                case IEQ:
+                case IEQ -> {
                     if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
                         return attrValue.getStringValue().equalsIgnoreCase(item.getStringValue());
                     } else {
                         LOG.error("IEQ is only compatible with string or enum schemas");
                         return false;
                     }
+                }
 
-                case LIKE:
-                case ILIKE:
+                case LIKE, ILIKE -> {
                     if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
                         StringBuilder output = new StringBuilder();
                         for (char c : cond.getExpression().toLowerCase().toCharArray()) {
@@ -323,27 +332,32 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
                         LOG.error("LIKE is only compatible with string or enum schemas");
                         return false;
                     }
-
-                case GT:
+                }
+                case GT -> {
                     return item.<Comparable>getValue().compareTo(attrValue.getValue()) > 0;
+                }
 
-                case GE:
+                case GE -> {
                     return item.<Comparable>getValue().compareTo(attrValue.getValue()) >= 0;
+                }
 
-                case LT:
+                case LT -> {
                     return item.<Comparable>getValue().compareTo(attrValue.getValue()) < 0;
+                }
 
-                case LE:
+                case LE -> {
                     return item.<Comparable>getValue().compareTo(attrValue.getValue()) <= 0;
+                }
 
-                default:
+                default -> {
                     return false;
+                }
             }
         });
     }
 
     protected boolean matches(final Any<?> any, final AttrCond cond, final boolean not) {
-        PlainSchema schema = plainSchemaDAO.find(cond.getSchema());
+        PlainSchema schema = plainSchemaDAO.findById(cond.getSchema()).orElse(null);
         if (schema == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             return false;
@@ -471,21 +485,25 @@ public class JPAAnyMatchDAO extends AbstractDAO<Any<?>> implements AnyMatchDAO {
 
                 List<PlainAttrValue> anyAttrValues = new ArrayList<>();
                 anyAttrValues.add(anyUtils.newPlainAttrValue());
-                if (anyAttrValue instanceof String) {
-                    anyAttrValues.get(0).setStringValue((String) anyAttrValue);
-                } else if (anyAttrValue instanceof Long) {
-                    anyAttrValues.get(0).setLongValue((Long) anyAttrValue);
-                } else if (anyAttrValue instanceof Double) {
-                    anyAttrValues.get(0).setDoubleValue((Double) anyAttrValue);
-                } else if (anyAttrValue instanceof Boolean) {
-                    anyAttrValues.get(0).setBooleanValue((Boolean) anyAttrValue);
-                } else if (anyAttrValue instanceof OffsetDateTime) {
-                    anyAttrValues.get(0).setDateValue((OffsetDateTime) anyAttrValue);
-                } else if (anyAttrValue instanceof byte[]) {
-                    anyAttrValues.get(0).setBinaryValue((byte[]) anyAttrValue);
+                switch (anyAttrValue) {
+                    case String aString ->
+                        anyAttrValues.get(0).setStringValue(aString);
+                    case Long aLong ->
+                        anyAttrValues.get(0).setLongValue(aLong);
+                    case Double aDouble ->
+                        anyAttrValues.get(0).setDoubleValue(aDouble);
+                    case Boolean aBoolean ->
+                        anyAttrValues.get(0).setBooleanValue(aBoolean);
+                    case OffsetDateTime offsetDateTime ->
+                        anyAttrValues.get(0).setDateValue(offsetDateTime);
+                    case byte[] bytea ->
+                        anyAttrValues.get(0).setBinaryValue(bytea);
+                    default -> {
+                    }
                 }
 
                 found = matches(anyAttrValues, attrValue, schema, cond);
+
         }
         return not ? !found : found;
     }

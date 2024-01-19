@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.outer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -33,7 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class RealmTest extends AbstractTest {
 
     @Autowired
@@ -47,25 +46,23 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void test() {
-        Realm realm = realmDAO.findByFullPath("/odd");
-        assertNotNull(realm);
+        Realm realm = realmDAO.findByFullPath("/odd").orElseThrow();
 
         // need to remove this group in order to remove the realm, which is otherwise empty
-        Group group = groupDAO.findByName("fake");
-        assertNotNull(group);
+        Group group = groupDAO.findByName("fake").orElseThrow();
         assertEquals(realm, group.getRealm());
         groupDAO.delete(group);
 
-        Role role = roleDAO.find("User reviewer");
+        Role role = roleDAO.findById("User reviewer").orElseThrow();
         assertTrue(role.getRealms().contains(realm));
 
         int beforeSize = role.getRealms().size();
 
         realmDAO.delete(realm);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        role = roleDAO.find("User reviewer");
+        role = roleDAO.findById("User reviewer").orElseThrow();
         assertEquals(beforeSize - 1, role.getRealms().size());
     }
 }

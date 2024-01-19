@@ -44,6 +44,7 @@ import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.persistence.api.search.FilterVisitor;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.filter.Filter;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -141,7 +142,7 @@ public class ResourceServiceImpl extends AbstractService implements ResourceServ
                 anyTypeKey,
                 query.getSize(),
                 query.getPagedResultsCookie(),
-                getOrderByClauses(query.getOrderBy()));
+                sort(query.getOrderBy(), Sort.unsorted()).get().toList());
 
         PagedConnObjectResult result = new PagedConnObjectResult();
         if (list.getLeft() != null) {

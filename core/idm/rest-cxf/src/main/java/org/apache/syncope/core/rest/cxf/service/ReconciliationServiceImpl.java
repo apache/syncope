@@ -155,9 +155,7 @@ public class ReconciliationServiceImpl extends AbstractSearchService implements 
 
         StreamingOutput sout = os -> logic.push(
                 searchCond,
-                query.getPage(),
-                query.getSize(),
-                getOrderByClauses(query.getOrderBy()),
+                pageable(query),
                 realm,
                 spec,
                 os);

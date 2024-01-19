@@ -23,9 +23,7 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -54,13 +52,13 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
@@ -72,6 +70,8 @@ import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobDataMap;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -153,21 +153,23 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             return List.of();
         }
 
-        return userDAO.findAllGroups(userDAO.findByUsername(AuthContextUtils.getUsername())).stream().
-                map(group -> binder.getGroupTO(group, true)).collect(Collectors.toList());
+        return userDAO.findAllGroups(
+                userDAO.findByUsername(AuthContextUtils.getUsername()).
+                        orElseThrow(() -> new NotFoundException("User " + AuthContextUtils.getUsername()))).stream().
+                map(group -> binder.getGroupTO(group, true)).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
-    public Pair<Integer, List<GroupTO>> search(
+    public Page<GroupTO> search(
             final SearchCond searchCond,
-            final int page, final int size, final List<OrderByClause> orderBy,
+            final Pageable pageable,
             final String realm,
             final boolean recursive,
             final boolean details) {
 
-        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+        Realm base = realmDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> authRealms = RealmUtils.getEffective(
@@ -175,15 +177,15 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
         SearchCond effectiveCond = searchCond == null ? groupDAO.getAllMatchingCond() : searchCond;
 
-        int count = searchDAO.count(base, recursive, authRealms, effectiveCond, AnyTypeKind.GROUP);
+        long count = searchDAO.count(base, recursive, authRealms, effectiveCond, AnyTypeKind.GROUP);
 
         List<Group> matching = searchDAO.search(
-                base, recursive, authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.GROUP);
+                base, recursive, authRealms, effectiveCond, pageable, AnyTypeKind.GROUP);
         List<GroupTO> result = matching.stream().
                 map(group -> binder.getGroupTO(group, details)).
-                collect(Collectors.toList());
+                toList();
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_CREATE + "')")
@@ -260,7 +262,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
             sce.getElements().addAll(ownedGroups.stream().
-                    map(g -> g.getKey() + ' ' + g.getName()).collect(Collectors.toList()));
+                    map(g -> g.getKey() + ' ' + g.getName()).toList());
             throw sce;
         }
 
@@ -295,7 +297,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         GroupUR req = new GroupUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 udynMembershipCond(groupTO.getUDynMembershipCond()).
                 adynMembershipConds(groupTO.getADynMembershipConds()).
                 build();
@@ -311,7 +313,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         GroupUR req = new GroupUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 udynMembershipCond(groupTO.getUDynMembershipCond()).
                 adynMembershipConds(groupTO.getADynMembershipConds()).
                 build();
@@ -329,7 +331,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         GroupUR req = new GroupUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 udynMembershipCond(groupTO.getUDynMembershipCond()).
                 adynMembershipConds(groupTO.getADynMembershipConds()).
                 build();
@@ -351,7 +353,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         GroupUR req = new GroupUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 udynMembershipCond(groupTO.getUDynMembershipCond()).
                 adynMembershipConds(groupTO.getADynMembershipConds()).
                 build();
@@ -399,10 +401,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             + "and hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     @Transactional
     public ExecTO provisionMembers(final String key, final ProvisionAction action) {
-        Group group = groupDAO.find(key);
-        if (group == null) {
-            throw new NotFoundException("Group " + key);
-        }
+        Group group = groupDAO.findById(key).orElseThrow(() -> new NotFoundException("Group " + key));
 
         Implementation jobDelegate = implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                 filter(impl -> GroupMemberProvisionTaskJobDelegate.class.getName().equals(impl.getBody())).
@@ -466,12 +465,12 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof GroupTO) {
-                    key = ((GroupTO) args[i]).getKey();
-                } else if (args[i] instanceof GroupUR) {
-                    key = ((GroupUR) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof GroupTO groupTO) {
+                    key = groupTO.getKey();
+                } else if (args[i] instanceof GroupUR groupUR) {
+                    key = groupUR.getKey();
                 }
             }
         }

@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.to.AuditConfTO;
@@ -27,6 +26,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.core.logic.AuditLogic;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -70,10 +70,8 @@ public class AuditServiceImpl extends AbstractService implements AuditService {
 
     @Override
     public PagedResult<AuditEntry> search(final AuditQuery auditQuery) {
-        Pair<Integer, List<AuditEntry>> result = logic.search(
+        Page<AuditEntry> result = logic.search(
                 auditQuery.getEntityKey(),
-                auditQuery.getPage(),
-                auditQuery.getSize(),
                 auditQuery.getType(),
                 auditQuery.getCategory(),
                 auditQuery.getSubcategory(),
@@ -81,8 +79,8 @@ public class AuditServiceImpl extends AbstractService implements AuditService {
                 auditQuery.getResult(),
                 auditQuery.getBefore(),
                 auditQuery.getAfter(),
-                getOrderByClauses(auditQuery.getOrderBy()));
+                pageable(auditQuery));
 
-        return buildPagedResult(result.getRight(), auditQuery.getPage(), auditQuery.getSize(), result.getLeft());
+        return buildPagedResult(result);
     }
 }

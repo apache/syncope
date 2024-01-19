@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class ConnInstanceDataBinderTest extends AbstractTest {
 
     @Autowired
@@ -42,7 +42,7 @@ public class ConnInstanceDataBinderTest extends AbstractTest {
     @Test
     public void working() {
         ConnInstanceTO connInstance = binder.getConnInstanceTO(
-                connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8"));
+                connInstanceDAO.findById("88a7a819-dab5-46b4-9b90-0b9769eabdb8").orElseThrow());
         assertNotNull(connInstance);
         assertFalse(connInstance.isErrored());
         assertNotNull(connInstance.getLocation());
@@ -52,7 +52,7 @@ public class ConnInstanceDataBinderTest extends AbstractTest {
     @Test
     public void errored() {
         ConnInstanceTO connInstance = binder.getConnInstanceTO(
-                connInstanceDAO.find("413bf072-678a-41d3-9d20-8c453b3a39d1"));
+                connInstanceDAO.findById("413bf072-678a-41d3-9d20-8c453b3a39d1").orElseThrow());
         assertNotNull(connInstance);
         assertTrue(connInstance.isErrored());
         assertNotNull(connInstance.getLocation());

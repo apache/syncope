@@ -134,7 +134,8 @@ public class OutboundMatcher {
                 && userDAO.linkedAccountExists(taskInfo.getEntityKey(), connObjectKeyValue);
         Any<?> any = null;
         if (!isLinkedAccount) {
-            any = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind()).dao().find(taskInfo.getEntityKey());
+            any = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind()).dao().findById(taskInfo.getEntityKey()).
+                    orElse(null);
         }
 
         Set<String> moreAttrsToGet = new HashSet<>();
@@ -256,7 +257,7 @@ public class OutboundMatcher {
                 provision.getMapping().getItems().stream(),
                 linkingItems.isPresent()
                 ? linkingItems.get().stream()
-                : virSchemaDAO.find(resource.getKey(), provision.getAnyType()).stream().
+                : virSchemaDAO.findByResourceAndAnyType(resource.getKey(), provision.getAnyType()).stream().
                         map(VirSchema::asLinkingMappingItem));
 
         List<ConnectorObject> objs = new ArrayList<>();
@@ -298,7 +299,7 @@ public class OutboundMatcher {
                 provision.getMapping().getItems().stream(),
                 linkingItems.isPresent()
                 ? linkingItems.get().stream()
-                : virSchemaDAO.find(resource.getKey(), provision.getAnyType()).stream().
+                : virSchemaDAO.findByResourceAndAnyType(resource.getKey(), provision.getAnyType()).stream().
                         map(VirSchema::asLinkingMappingItem));
 
         ConnectorObject obj = null;

@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
+import jakarta.persistence.MappedSuperclass;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractExec;
 
+@MappedSuperclass
 public abstract class AbstractTaskExec<T extends Task<T>> extends AbstractExec implements TaskExec<T> {
 
     private static final long serialVersionUID = 1909033231464074554L;

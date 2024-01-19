@@ -36,7 +36,7 @@ public interface ExecutionRestClient extends RestClient {
 
     List<ExecTO> listExecutions(String taskKey, int page, int size, SortParam<String> sort);
 
-    int countExecutions(String taskKey);
+    long countExecutions(String taskKey);
 
     Map<String, String> batch(BatchRequest batchRequest);
 }

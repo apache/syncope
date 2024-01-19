@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.yubico.data.CredentialRegistration;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -95,7 +94,7 @@ public class WAWebAuthnCredentialRepository extends BaseWebAuthnCredentialReposi
                                 identifier(record.getCredential().getCredentialId().getHex()).
                                 build();
                     })).
-                    collect(Collectors.toList());
+                    toList();
 
             WebAuthnAccount account = service().read(username);
             if (account != null) {
@@ -120,7 +119,7 @@ public class WAWebAuthnCredentialRepository extends BaseWebAuthnCredentialReposi
                                 .readValue(json, new TypeReference<CredentialRegistration>() {
                                 });
                     })).
-                    collect(Collectors.toList());
+                    toList();
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
                 LOG.info("Could not locate account for {}", username);

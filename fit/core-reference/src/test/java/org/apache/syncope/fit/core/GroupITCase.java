@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core;
 
-import static de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome5IconTypeBuilder.FontAwesome5Brand.java;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -933,8 +932,7 @@ public class GroupITCase extends AbstractITCase {
         assumeFalse(IS_EXT_SEARCH_ENABLED);
 
         // 1. create group without resources
-        GroupCR groupCR = getBasicSample("forProvision");
-        GroupTO groupTO = createGroup(groupCR).getEntity();
+        GroupTO groupTO = createGroup(getBasicSample("forProvision")).getEntity();
 
         // 2. create user with such group assigned
         UserCR userCR = UserITCase.getUniqueSample("forProvision@syncope.apache.org");

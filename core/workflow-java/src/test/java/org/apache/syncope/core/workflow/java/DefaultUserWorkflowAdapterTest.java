@@ -19,7 +19,6 @@
 package org.apache.syncope.core.workflow.java;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
@@ -46,7 +45,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringJUnitConfig(classes = { WorkflowTestContext.class })
-@Transactional("Master")
+@Transactional
 public class DefaultUserWorkflowAdapterTest {
 
     @BeforeAll
@@ -102,8 +101,7 @@ public class DefaultUserWorkflowAdapterTest {
 
         UserWorkflowResult<Pair<String, Boolean>> result = uwfAdapter.create(userCR, "admin", "test");
 
-        User user = userDAO.find(result.getResult().getLeft());
-        assertNotNull(user);
+        User user = userDAO.findById(result.getResult().getLeft()).orElseThrow();
         assertEquals(1, user.getPasswordHistory().size());
     }
 }

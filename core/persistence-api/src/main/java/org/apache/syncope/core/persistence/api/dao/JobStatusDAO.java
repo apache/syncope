@@ -21,10 +21,4 @@ package org.apache.syncope.core.persistence.api.dao;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
 
 public interface JobStatusDAO extends DAO<JobStatus> {
-
-    JobStatus find(String key);
-
-    JobStatus save(JobStatus jobStatus);
-
-    void delete(String key);
 }

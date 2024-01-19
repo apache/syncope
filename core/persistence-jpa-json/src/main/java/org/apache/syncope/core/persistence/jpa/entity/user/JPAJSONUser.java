@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -97,7 +96,7 @@ public class JPAJSONUser extends JPAUser implements JSONAttributable<User>, User
     public List<? extends UPlainAttr> getPlainAttrs() {
         return plainAttrList.stream().
                 filter(attr -> attr.getMembershipKey() == null).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override
@@ -142,7 +141,7 @@ public class JPAJSONUser extends JPAUser implements JSONAttributable<User>, User
     public List<? extends LinkedAccount> getLinkedAccounts(final String resource) {
         return linkedAccounts.stream().
                 filter(account -> account.getResource().getKey().equals(resource)).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override

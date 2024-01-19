@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.ApplicationTO;
 import org.apache.syncope.common.lib.to.PrivilegeTO;
@@ -47,12 +46,8 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_READ + "')")
     @Transactional(readOnly = true)
     public ApplicationTO read(final String key) {
-        Application application = applicationDAO.find(key);
-        if (application == null) {
-            LOG.error("Could not find application '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        Application application = applicationDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Application " + key));
 
         return binder.getApplicationTO(application);
     }
@@ -60,12 +55,8 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_READ + "')")
     @Transactional(readOnly = true)
     public PrivilegeTO readPrivilege(final String key) {
-        Privilege privilege = applicationDAO.findPrivilege(key);
-        if (privilege == null) {
-            LOG.error("Could not find privilege '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        Privilege privilege = applicationDAO.findPrivilege(key).
+                orElseThrow(() -> new NotFoundException("Privilege " + key));
 
         return binder.getPrivilegeTO(privilege);
     }
@@ -73,7 +64,7 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_LIST + "')")
     @Transactional(readOnly = true)
     public List<ApplicationTO> list() {
-        return applicationDAO.findAll().stream().map(binder::getApplicationTO).collect(Collectors.toList());
+        return applicationDAO.findAll().stream().map(binder::getApplicationTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_CREATE + "')")
@@ -83,26 +74,19 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_UPDATE + "')")
     public ApplicationTO update(final ApplicationTO applicationTO) {
-        Application application = applicationDAO.find(applicationTO.getKey());
-        if (application == null) {
-            LOG.error("Could not find application '" + applicationTO.getKey() + '\'');
-            throw new NotFoundException(applicationTO.getKey());
-        }
+        Application application = applicationDAO.findById(applicationTO.getKey()).
+                orElseThrow(() -> new NotFoundException("Application " + applicationTO.getKey()));
 
         return binder.getApplicationTO(applicationDAO.save(binder.update(application, applicationTO)));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.APPLICATION_DELETE + "')")
     public ApplicationTO delete(final String key) {
-        Application application = applicationDAO.find(key);
-        if (application == null) {
-            LOG.error("Could not find application '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        Application application = applicationDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Application " + key));
 
         ApplicationTO deleted = binder.getApplicationTO(application);
-        applicationDAO.delete(key);
+        applicationDAO.delete(application);
         return deleted;
     }
 
@@ -114,17 +98,17 @@ public class ApplicationLogic extends AbstractTransactionalLogic<ApplicationTO> 
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof ApplicationTO) {
-                    key = ((ApplicationTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof ApplicationTO applicationTO) {
+                    key = applicationTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getApplicationTO(applicationDAO.find(key));
+                return binder.getApplicationTO(applicationDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

@@ -38,7 +38,7 @@ public class EntitlementAccessor {
     @Transactional(readOnly = true)
     public void addEntitlementsForAnyTypes() {
         anyTypeDAO.findAll().stream().
-                filter(anyType -> anyType != anyTypeDAO.findUser() && anyType != anyTypeDAO.findGroup()).
+                filter(anyType -> anyType != anyTypeDAO.getUser() && anyType != anyTypeDAO.getGroup()).
                 forEach(anyType -> EntitlementsHolder.getInstance().addFor(anyType.getKey()));
     }
 }

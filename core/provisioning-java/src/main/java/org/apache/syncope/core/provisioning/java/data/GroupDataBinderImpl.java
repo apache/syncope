@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -41,7 +40,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -86,7 +84,6 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrDAO plainAttrDAO,
             final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
@@ -107,7 +104,6 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrDAO,
                 plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
@@ -169,7 +165,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         // realm
-        Realm realm = realmDAO.findByFullPath(groupCR.getRealm());
+        Realm realm = realmDAO.findByFullPath(groupCR.getRealm()).orElse(null);
         if (realm == null) {
             SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             noRealm.getElements().add("Invalid or null realm specified: " + groupCR.getRealm());
@@ -182,61 +178,42 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         // owner
         if (groupCR.getUserOwner() != null) {
-            User owner = userDAO.find(groupCR.getUserOwner());
-            if (owner == null) {
-                LOG.warn("Ignoring invalid user specified as owner: {}", groupCR.getUserOwner());
-            } else {
-                group.setUserOwner(owner);
-            }
+            userDAO.findById(groupCR.getUserOwner()).ifPresentOrElse(
+                    group::setUserOwner,
+                    () -> LOG.warn("Ignoring invalid user specified as owner: {}", groupCR.getUserOwner()));
         }
         if (groupCR.getGroupOwner() != null) {
-            Group owner = groupDAO.find(groupCR.getGroupOwner());
-            if (owner == null) {
-                LOG.warn("Ignoring invalid group specified as owner: {}", groupCR.getGroupOwner());
-            } else {
-                group.setGroupOwner(owner);
-            }
+            groupDAO.findById(groupCR.getGroupOwner()).ifPresentOrElse(
+                    group::setGroupOwner,
+                    () -> LOG.warn("Ignoring invalid group specified as owner: {}", groupCR.getGroupOwner()));
         }
 
         // dynamic membership
         if (groupCR.getUDynMembershipCond() != null) {
-            setDynMembership(group, anyTypeDAO.findUser(), groupCR.getUDynMembershipCond());
+            setDynMembership(group, anyTypeDAO.getUser(), groupCR.getUDynMembershipCond());
         }
-        groupCR.getADynMembershipConds().forEach((type, fiql) -> {
-            AnyType anyType = anyTypeDAO.find(type);
-            if (anyType == null) {
-                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), type);
-            } else {
-                setDynMembership(group, anyType, fiql);
-            }
-        });
+        groupCR.getADynMembershipConds().forEach((type, fiql) -> anyTypeDAO.findById(type).ifPresentOrElse(
+                anyType -> setDynMembership(group, anyType, fiql),
+                () -> LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), type)));
 
         // type extensions
-        groupCR.getTypeExtensions().forEach(typeExtTO -> {
-            AnyType anyType = anyTypeDAO.find(typeExtTO.getAnyType());
-            if (anyType == null) {
-                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType());
-            } else {
-                TypeExtension typeExt = entityFactory.newEntity(TypeExtension.class);
-                typeExt.setAnyType(anyType);
-                typeExt.setGroup(group);
-                group.add(typeExt);
+        groupCR.getTypeExtensions().forEach(typeExtTO -> anyTypeDAO.findById(typeExtTO.getAnyType()).ifPresentOrElse(
+                anyType -> {
+                    TypeExtension typeExt = entityFactory.newEntity(TypeExtension.class);
+                    typeExt.setAnyType(anyType);
+                    typeExt.setGroup(group);
+                    group.add(typeExt);
 
-                typeExtTO.getAuxClasses().forEach(name -> {
-                    AnyTypeClass anyTypeClass = anyTypeClassDAO.find(name);
-                    if (anyTypeClass == null) {
-                        LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), name);
-                    } else {
-                        typeExt.add(anyTypeClass);
+                    typeExtTO.getAuxClasses().forEach(name -> anyTypeClassDAO.findById(name).ifPresentOrElse(
+                    typeExt::add,
+                    () -> LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), name)));
+
+                    if (typeExt.getAuxClasses().isEmpty()) {
+                        group.getTypeExtensions().remove(typeExt);
+                        typeExt.setGroup(null);
                     }
-                });
-
-                if (typeExt.getAuxClasses().isEmpty()) {
-                    group.getTypeExtensions().remove(typeExt);
-                    typeExt.setGroup(null);
-                }
-            }
-        });
+                },
+                () -> LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType())));
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -272,7 +249,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                     ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
                 }
             } else {
-                User userOwner = userDAO.find(groupUR.getUserOwner().getValue());
+                User userOwner = userDAO.findById(groupUR.getUserOwner().getValue()).orElse(null);
                 if (userOwner == null) {
                     LOG.debug("Unable to find user owner for group {} by key {}",
                             group.getKey(), groupUR.getUserOwner().getValue());
@@ -290,7 +267,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                     ownerPropByRes.addAll(ResourceOperation.UPDATE, groupDAO.findAllResourceKeys(group.getKey()));
                 }
             } else {
-                Group groupOwner = groupDAO.find(groupUR.getGroupOwner().getValue());
+                Group groupOwner = groupDAO.findById(groupUR.getGroupOwner().getValue()).orElse(null);
                 if (groupOwner == null) {
                     LOG.debug("Unable to find group owner for group {} by key {}",
                             group.getKey(), groupUR.getGroupOwner().getValue());
@@ -315,7 +292,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 groupDAO.clearUDynMembers(group);
             }
         } else {
-            setDynMembership(group, anyTypeDAO.findUser(), groupUR.getUDynMembershipCond());
+            setDynMembership(group, anyTypeDAO.getUser(), groupUR.getUDynMembershipCond());
         }
         for (Iterator<? extends ADynGroupMembership> itor = group.getADynMemberships().iterator(); itor.hasNext();) {
             ADynGroupMembership memb = itor.next();
@@ -324,7 +301,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
         groupDAO.clearADynMembers(group);
         for (Map.Entry<String, String> entry : groupUR.getADynMembershipConds().entrySet()) {
-            AnyType anyType = anyTypeDAO.find(entry.getKey());
+            AnyType anyType = anyTypeDAO.findById(entry.getKey()).orElse(null);
             if (anyType == null) {
                 LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), entry.getKey());
             } else {
@@ -336,7 +313,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         // type extensions
         for (TypeExtensionTO typeExtTO : groupUR.getTypeExtensions()) {
-            AnyType anyType = anyTypeDAO.find(typeExtTO.getAnyType());
+            AnyType anyType = anyTypeDAO.findById(typeExtTO.getAnyType()).orElse(null);
             if (anyType == null) {
                 LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType());
             } else {
@@ -349,10 +326,10 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 }
 
                 // add all classes contained in the TO
-                for (String name : typeExtTO.getAuxClasses()) {
-                    AnyTypeClass anyTypeClass = anyTypeClassDAO.find(name);
+                for (String key : typeExtTO.getAuxClasses()) {
+                    AnyTypeClass anyTypeClass = anyTypeClassDAO.findById(key).orElse(null);
                     if (anyTypeClass == null) {
-                        LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), name);
+                        LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), key);
                     } else {
                         typeExt.add(anyTypeClass);
                     }
@@ -392,7 +369,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         TypeExtensionTO typeExtTO = new TypeExtensionTO();
         typeExtTO.setAnyType(typeExt.getAnyType().getKey());
         typeExtTO.getAuxClasses().addAll(
-                typeExt.getAuxClasses().stream().map(AnyTypeClass::getKey).collect(Collectors.toList()));
+                typeExt.getAuxClasses().stream().map(AnyTypeClass::getKey).toList());
         return typeExtTO;
     }
 

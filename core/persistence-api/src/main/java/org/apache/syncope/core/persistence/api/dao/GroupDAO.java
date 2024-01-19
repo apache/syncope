@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -33,9 +34,9 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface GroupDAO extends AnyDAO<Group> {
 
-    String findKey(String name);
+    Optional<String> findKey(String name);
 
-    Group findByName(String name);
+    Optional<? extends Group> findByName(String name);
 
     /**
      * Checks if the calling user is authorized to access the Group matching the provided key, under the given
@@ -47,7 +48,7 @@ public interface GroupDAO extends AnyDAO<Group> {
      */
     void securityChecks(Set<String> authRealms, String key, String realm);
 
-    Map<String, Integer> countByRealm();
+    Map<String, Long> countByRealm();
 
     List<String> findKeysByNamePattern(String pattern);
 
@@ -59,28 +60,23 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     List<UMembership> findUMemberships(Group group);
 
-    List<TypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
+    List<String> findAMembers(String groupKey);
+
+    List<String> findUMembers(String groupKey);
 
     boolean existsAMembership(String anyObjectKey, String groupKey);
 
     boolean existsUMembership(String userKey, String groupKey);
 
-    List<String> findAMembers(String groupKey);
-
-    List<String> findUMembers(String groupKey);
-
     List<String> findADynMembers(Group group);
 
-    int countAMembers(String groupKey);
+    long countAMembers(String groupKey);
 
-    int countUMembers(String groupKey);
+    long countUMembers(String groupKey);
 
-    int countADynMembers(Group group);
+    long countADynMembers(Group group);
 
-    int countUDynMembers(Group group);
-
-    @Override
-    Collection<String> findAllResourceKeys(String key);
+    long countUDynMembers(Group group);
 
     void clearADynMembers(Group group);
 
@@ -127,4 +123,9 @@ public interface GroupDAO extends AnyDAO<Group> {
      * @return merged group
      */
     Group saveAndRefreshDynMemberships(Group group);
+
+    List<TypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
+
+    @Override
+    Collection<String> findAllResourceKeys(String key);
 }

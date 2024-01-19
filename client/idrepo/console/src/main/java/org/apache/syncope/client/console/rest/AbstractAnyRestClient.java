@@ -54,7 +54,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestCl
 
     protected abstract Class<? extends AnyService<TO>> getAnyServiceClass();
 
-    public abstract int count(String realm, String fiql, String type);
+    public abstract long count(String realm, String fiql, String type);
 
     public abstract List<TO> search(String realm, String fiql, int page, int size, SortParam<String> sort, String type);
 

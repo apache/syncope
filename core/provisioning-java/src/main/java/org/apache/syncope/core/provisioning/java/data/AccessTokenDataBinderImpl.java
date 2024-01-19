@@ -135,20 +135,24 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             final byte[] authorities,
             final boolean replace) {
 
-        AccessToken accessToken = accessTokenDAO.findByOwner(subject);
-        if (accessToken == null) {
-            // no AccessToken found: create new
-            accessToken = entityFactory.newEntity(AccessToken.class);
-            accessToken.setKey(SecureRandomUtils.generateRandomUUID().toString());
+        AccessToken accessToken = accessTokenDAO.findByOwner(subject).
+                map(at -> {
+                    if (replace
+                            || at.getExpirationTime() == null
+                            || at.getExpirationTime().isBefore(OffsetDateTime.now())) {
 
-            accessToken = replace(subject, claims, authorities, accessToken);
-        } else if (replace
-                || accessToken.getExpirationTime() == null
-                || accessToken.getExpirationTime().isBefore(OffsetDateTime.now())) {
+                        // AccessToken found, but either replace was requested or it is expired: update existing
+                        return replace(subject, claims, authorities, at);
+                    }
+                    return at;
+                }).
+                orElseGet(() -> {
+                    // no AccessToken found: create new
+                    AccessToken at = entityFactory.newEntity(AccessToken.class);
+                    at.setKey(SecureRandomUtils.generateRandomUUID().toString());
 
-            // AccessToken found, but either replace was requested or it is expired: update existing
-            accessToken = replace(subject, claims, authorities, accessToken);
-        }
+                    return replace(subject, claims, authorities, at);
+                });
 
         return Pair.of(accessToken.getBody(), accessToken.getExpirationTime());
     }

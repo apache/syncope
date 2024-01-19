@@ -21,12 +21,13 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
-public interface AnySearchDAO extends DAO<Any<?>> {
+public interface AnySearchDAO {
 
     /**
      * @param base Realm to start searching from
@@ -58,16 +59,14 @@ public interface AnySearchDAO extends DAO<Any<?>> {
      * @param <T> any
      * @return the list of any objects matching the given search condition
      */
-    <T extends Any<?>> List<T> search(SearchCond searchCondition, List<OrderByClause> orderBy, AnyTypeKind kind);
+    <T extends Any<?>> List<T> search(SearchCond searchCondition, List<Sort.Order> orderBy, AnyTypeKind kind);
 
     /**
      * @param base Realm to start searching from
      * @param recursive whether search should recursively include results from child Realms
      * @param adminRealms realms for which the caller owns the proper entitlement(s)
      * @param searchCondition the search condition
-     * @param page position of the first result, start from 1
-     * @param itemsPerPage number of results per page
-     * @param orderBy list of ordering clauses
+     * @param pageable paging information
      * @param kind any object
      * @param <T> any
      * @return the list of any objects matching the given search condition (in the given page)
@@ -77,8 +76,6 @@ public interface AnySearchDAO extends DAO<Any<?>> {
             boolean recursive,
             Set<String> adminRealms,
             SearchCond searchCondition,
-            int page,
-            int itemsPerPage,
-            List<OrderByClause> orderBy,
+            Pageable pageable,
             AnyTypeKind kind);
 }

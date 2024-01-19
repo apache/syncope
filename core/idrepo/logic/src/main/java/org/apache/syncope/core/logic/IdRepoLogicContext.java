@@ -276,9 +276,10 @@ public class IdRepoLogicContext {
     public FIQLQueryLogic fiqlQueryLogic(
             final FIQLQueryDataBinder binder,
             final UserDAO userDAO,
-            final FIQLQueryDAO fiqlQueryDAO) {
+            final FIQLQueryDAO fiqlQueryDAO,
+            final SecurityProperties securityProperties) {
 
-        return new FIQLQueryLogic(binder, fiqlQueryDAO, userDAO);
+        return new FIQLQueryLogic(binder, fiqlQueryDAO, userDAO, securityProperties);
     }
 
     @ConditionalOnMissingBean

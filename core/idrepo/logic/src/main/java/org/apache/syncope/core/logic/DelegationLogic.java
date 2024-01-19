@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -57,7 +56,8 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
 
     protected void securityChecks(final String delegating, final String entitlement) {
         if (!AuthContextUtils.getAuthorizations().keySet().contains(entitlement)
-                && (delegating == null || !delegating.equals(userDAO.findKey(AuthContextUtils.getUsername())))) {
+                && (delegating == null || !delegating.equals(userDAO.findKey(AuthContextUtils.getUsername()).
+                        orElseThrow(() -> new NotFoundException("Could not find authenticated user"))))) {
 
             throw new DelegatedAdministrationException(
                     SyncopeConstants.ROOT_REALM, AnyTypeKind.USER.name(), delegating);
@@ -67,11 +67,8 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public DelegationTO read(final String key) {
-        Delegation delegation = delegationDAO.find(key);
-        if (delegation == null) {
-            LOG.error("Could not find delegation '" + key + "'");
-            throw new NotFoundException(key);
-        }
+        Delegation delegation = delegationDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Delegation " + key));
 
         securityChecks(delegation.getDelegating().getKey(), IdRepoEntitlement.DELEGATION_READ);
 
@@ -84,11 +81,11 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
         Stream<DelegationTO> delegations = delegationDAO.findAll().stream().map(binder::getDelegationTO);
 
         if (!AuthContextUtils.getAuthorizations().keySet().contains(IdRepoEntitlement.DELEGATION_LIST)) {
-            String authUserKey = userDAO.findKey(AuthContextUtils.getUsername());
+            String authUserKey = userDAO.findKey(AuthContextUtils.getUsername()).orElse(null);
             delegations = delegations.filter(delegation -> delegation.getDelegating().equals(authUserKey));
         }
 
-        return delegations.collect(Collectors.toList());
+        return delegations.toList();
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -96,12 +93,12 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
         if (delegationTO.getDelegating() != null
                 && !SyncopeConstants.UUID_PATTERN.matcher(delegationTO.getDelegating()).matches()) {
 
-            delegationTO.setDelegating(userDAO.findKey(delegationTO.getDelegating()));
+            delegationTO.setDelegating(userDAO.findKey(delegationTO.getDelegating()).orElse(null));
         }
         if (delegationTO.getDelegated() != null
                 && !SyncopeConstants.UUID_PATTERN.matcher(delegationTO.getDelegated()).matches()) {
 
-            delegationTO.setDelegated(userDAO.findKey(delegationTO.getDelegated()));
+            delegationTO.setDelegated(userDAO.findKey(delegationTO.getDelegated()).orElse(null));
         }
 
         securityChecks(delegationTO.getDelegating(), IdRepoEntitlement.DELEGATION_CREATE);
@@ -111,11 +108,8 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
 
     @PreAuthorize("isAuthenticated()")
     public DelegationTO update(final DelegationTO delegationTO) {
-        Delegation delegation = delegationDAO.find(delegationTO.getKey());
-        if (delegation == null) {
-            LOG.error("Could not find delegation '" + delegationTO.getKey() + "'");
-            throw new NotFoundException(delegationTO.getKey());
-        }
+        Delegation delegation = delegationDAO.findById(delegationTO.getKey()).
+                orElseThrow(() -> new NotFoundException("Delegation " + delegationTO.getKey()));
 
         securityChecks(delegation.getDelegating().getKey(), IdRepoEntitlement.DELEGATION_UPDATE);
 
@@ -124,16 +118,13 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
 
     @PreAuthorize("isAuthenticated()")
     public DelegationTO delete(final String key) {
-        Delegation delegation = delegationDAO.find(key);
-        if (delegation == null) {
-            LOG.error("Could not find delegation '" + key + "'");
-            throw new NotFoundException(key);
-        }
+        Delegation delegation = delegationDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Delegation " + key));
 
         securityChecks(delegation.getDelegating().getKey(), IdRepoEntitlement.DELEGATION_DELETE);
 
         DelegationTO deleted = binder.getDelegationTO(delegation);
-        delegationDAO.delete(key);
+        delegationDAO.deleteById(key);
         return deleted;
     }
 
@@ -145,17 +136,17 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof DelegationTO) {
-                    key = ((DelegationTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof DelegationTO delegationTO) {
+                    key = delegationTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getDelegationTO(delegationDAO.find(key));
+                return binder.getDelegationTO(delegationDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

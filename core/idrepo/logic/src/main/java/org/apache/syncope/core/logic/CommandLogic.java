@@ -25,11 +25,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.command.CommandTO;
@@ -42,7 +39,10 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntit
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,14 +61,14 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_LIST + "')")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<CommandTO>> search(final int page, final int size, final String keyword) {
+    public Page<CommandTO> search(final String keyword, final Pageable pageable) {
         List<Implementation> result = implementationDAO.findByTypeAndKeyword(IdRepoImplementationType.COMMAND, keyword);
 
-        int count = result.size();
+        long count = result.size();
 
         List<CommandTO> commands = result.stream().
-                skip((page - 1) * size).
-                limit(size).
+                skip(pageable.getPageSize() * pageable.getPageNumber()).
+                limit(pageable.getPageSize()).
                 map(command -> {
                     try {
                         return new CommandTO.Builder(command.getKey()).
@@ -79,15 +79,15 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
                     }
                 }).
                 filter(Objects::nonNull).
-                collect(Collectors.toList());
+                toList();
 
-        return Pair.of(count, commands);
+        return new SyncopePage<>(commands, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.IMPLEMENTATION_READ + "')")
     @Transactional(readOnly = true)
     public CommandTO read(final String key) {
-        Implementation impl = Optional.ofNullable(implementationDAO.find(key)).
+        Implementation impl = implementationDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Implementation " + key));
 
         try {
@@ -103,7 +103,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.COMMAND_RUN + "')")
     @SuppressWarnings("unchecked")
     public String run(final CommandTO command) {
-        Implementation impl = Optional.ofNullable(implementationDAO.find(command.getKey())).
+        Implementation impl = implementationDAO.findById(command.getKey()).
                 orElseThrow(() -> new NotFoundException("Implementation " + command.getKey()));
 
         Command<CommandArgs> runnable;

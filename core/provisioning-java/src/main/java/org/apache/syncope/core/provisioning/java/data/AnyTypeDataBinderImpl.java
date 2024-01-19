@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.data;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -32,6 +31,7 @@ import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -83,7 +83,8 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
         Set<String> added = EntitlementsHolder.getInstance().addFor(anyType.getKey());
 
         if (!securityProperties.getAdminUser().equals(AuthContextUtils.getUsername())) {
-            AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername());
+            AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername()).
+                    orElseThrow(() -> new NotFoundException("AccessToken for " + AuthContextUtils.getUsername()));
             try {
                 Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
                         ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
@@ -119,14 +120,9 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
             throw sce;
         }
 
-        anyTypeTO.getClasses().forEach(anyTypeClassName -> {
-            AnyTypeClass anyTypeClass = anyTypeClassDAO.find(anyTypeClassName);
-            if (anyTypeClass == null) {
-                LOG.debug("Invalid {} {}, ignoring...", AnyTypeClass.class.getSimpleName(), anyTypeClassName);
-            } else {
-                anyType.add(anyTypeClass);
-            }
-        });
+        anyTypeTO.getClasses().forEach(anyTypeClassName -> anyTypeClassDAO.findById(anyTypeClassName).ifPresentOrElse(
+                anyType::add,
+                () -> LOG.debug("Invalid {} {}, ignoring...", AnyTypeClass.class.getSimpleName(), anyTypeClassName)));
         anyType.getClasses().removeIf(c -> c == null || !anyTypeTO.getClasses().contains(c.getKey()));
     }
 
@@ -134,12 +130,13 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
     public AnyTypeTO delete(final AnyType anyType) {
         AnyTypeTO deleted = getAnyTypeTO(anyType);
 
-        anyTypeDAO.delete(anyType.getKey());
+        anyTypeDAO.deleteById(anyType.getKey());
 
         Set<String> removed = EntitlementsHolder.getInstance().removeFor(deleted.getKey());
 
         if (!securityProperties.getAdminUser().equals(AuthContextUtils.getUsername())) {
-            AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername());
+            AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername()).
+                    orElseThrow(() -> new NotFoundException("AccessToken for " + AuthContextUtils.getUsername()));
             try {
                 Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
                         ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
@@ -147,7 +144,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                 }));
 
                 authorities.removeAll(authorities.stream().
-                        filter(authority -> removed.contains(authority.getAuthority())).collect(Collectors.toList()));
+                        filter(authority -> removed.contains(authority.getAuthority())).toList());
 
                 accessToken.setAuthorities(ENCRYPTOR.encode(
                         POJOHelper.serialize(authorities), CipherAlgorithm.AES).
@@ -168,7 +165,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
         anyTypeTO.setKey(anyType.getKey());
         anyTypeTO.setKind(anyType.getKind());
         anyTypeTO.getClasses().addAll(anyType.getClasses().stream().
-                map(AnyTypeClass::getKey).collect(Collectors.toList()));
+                map(AnyTypeClass::getKey).toList());
         return anyTypeTO;
     }
 }

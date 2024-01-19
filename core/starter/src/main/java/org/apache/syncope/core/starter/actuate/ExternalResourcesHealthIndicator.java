@@ -65,7 +65,7 @@ public class ExternalResourcesHealthIndicator implements HealthIndicator {
         AtomicReference<Boolean> anyDown = new AtomicReference<>(Boolean.FALSE);
 
         Stream.concat(Stream.of(SyncopeConstants.MASTER_DOMAIN), domainOps.list().stream().map(Domain::getKey)).
-                forEach(domain -> AuthContextUtils.callAsAdmin(domain, () -> {
+                forEach(domain -> AuthContextUtils.runAsAdmin(domain, () -> {
 
             resourceDAO.findAll().forEach(resource -> {
                 Status status;
@@ -88,7 +88,6 @@ public class ExternalResourcesHealthIndicator implements HealthIndicator {
                     anyDown.set(true);
                 }
             });
-            return null;
         }));
 
         builder.status(anyDown.get() ? Status.DOWN : Status.UP);

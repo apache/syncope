@@ -28,7 +28,6 @@ import java.security.Principal;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,7 +181,7 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
     public Enumeration<String> getHeaders(final String name) {
         return batchItem.getHeaders().containsKey(name)
                 ? Collections.enumeration(batchItem.getHeaders().get(name).stream().
-                        map(Object::toString).collect(Collectors.toList()))
+                        map(Object::toString).toList())
                 : HttpHeaders.CONTENT_TYPE.equals(name) || HttpHeaders.ACCEPT.equals(name)
                 ? Collections.enumeration(List.of(MediaType.ALL_VALUE))
                 : commonRequest.getHeaders(name);

@@ -319,7 +319,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             return result;
         });
 
-        AuthContextUtils.callAsAdmin(domain, () -> {
+        AuthContextUtils.runAsAdmin(domain, () -> {
             // 1. jobs for SchedTasks
             Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
             tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PULL));
@@ -340,7 +340,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 LOG.debug("Errors while loading job instances for tasks, aborting");
             } else {
                 // 2. jobs for Reports
-                for (Iterator<Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
+                for (Iterator<? extends Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
                     Report report = it.next();
                     try {
                         register(report, null, securityProperties.getAdminUser());
@@ -354,8 +354,6 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                     LOG.debug("Errors while loading job instances for reports, aborting");
                 }
             }
-
-            return null;
         });
 
         if (SyncopeConstants.MASTER_DOMAIN.equals(domain)) {
@@ -398,7 +396,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
     @Override
     public void unload(final String domain) {
-        AuthContextUtils.callAsAdmin(domain, () -> {
+        AuthContextUtils.runAsAdmin(domain, () -> {
             // 1. jobs for SchedTasks
             Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
             tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PULL));
@@ -420,8 +418,6 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                     LOG.error("While unloading job instance for report " + report.getName(), e);
                 }
             });
-
-            return null;
         });
     }
 }

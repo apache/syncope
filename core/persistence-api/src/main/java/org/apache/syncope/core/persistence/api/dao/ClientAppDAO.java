@@ -19,13 +19,18 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.am.ClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 
 public interface ClientAppDAO<C extends ClientApp> extends DAO<C> {
 
-    List<C> findByPolicy(Policy policy);
+    Optional<? extends C> findByClientAppId(Long clientAppId);
 
-    List<C> findByRealm(Realm realm);
+    Optional<? extends C> findByName(String name);
+
+    List<C> findAllByPolicy(Policy policy);
+
+    List<C> findAllByRealm(Realm realm);
 }

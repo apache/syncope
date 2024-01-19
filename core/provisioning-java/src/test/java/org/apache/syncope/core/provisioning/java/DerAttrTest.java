@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class DerAttrTest extends AbstractTest {
 
     @Autowired
@@ -46,10 +46,10 @@ public class DerAttrTest extends AbstractTest {
 
     @Test
     public void derAttrFromSpecialAttrs() {
-        DerSchema info = derSchemaDAO.find("info");
+        DerSchema info = derSchemaDAO.findById("info").orElseThrow();
         assertEquals("username + ' - ' + creationDate + '[' + failedLogins + ']'", info.getExpression());
 
-        User user = userDAO.findByUsername("vivaldi");
+        User user = userDAO.findByUsername("vivaldi").orElseThrow();
         assertNotNull(user);
 
         String value = derAttrHandler.getValue(user, info);

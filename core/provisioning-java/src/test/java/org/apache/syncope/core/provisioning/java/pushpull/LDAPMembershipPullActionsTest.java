@@ -51,6 +51,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -140,7 +141,8 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         membershipsAfter = new HashMap<>();
         ReflectionTestUtils.setField(ldapMembershipPullActions, "membershipsAfter", membershipsAfter);
 
-        lenient().when(groupDAO.findUMemberships(groupDAO.find(anyString()))).thenReturn(List.of(uMembership));
+        lenient().when(groupDAO.findById(anyString())).thenAnswer(ic -> Optional.of(mock(Group.class)));
+        lenient().when(groupDAO.findUMemberships(any(Group.class))).thenReturn(List.of(uMembership));
 
         ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
         connConfPropSchema.setName("testSchemaName");
@@ -152,7 +154,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         lenient().when(pullTask.getResource()).thenReturn(resource);
         lenient().when(resource.getProvisionByAnyType(anyString())).thenReturn(Optional.of(provision));
         lenient().when(provision.getMapping()).thenReturn(new Mapping());
-        lenient().when(anyTypeDAO.findUser()).thenAnswer(ic -> {
+        lenient().when(anyTypeDAO.getUser()).thenAnswer(ic -> {
             AnyType userAnyType = mock(AnyType.class);
             lenient().when(userAnyType.getKey()).thenReturn(AnyTypeKind.USER.name());
             return userAnyType;

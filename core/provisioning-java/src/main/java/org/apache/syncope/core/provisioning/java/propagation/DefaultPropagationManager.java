@@ -41,6 +41,7 @@ import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -257,7 +258,7 @@ public class DefaultPropagationManager implements PropagationManager {
             if (!pwdWFResult.getPropByRes().isEmpty()) {
                 Set<String> toBeExcluded = new HashSet<>(allResourceNames);
                 toBeExcluded.addAll(userUR.getResources().stream().
-                        map(AbstractPatchItem::getValue).collect(Collectors.toList()));
+                        map(AbstractPatchItem::getValue).toList());
                 toBeExcluded.removeAll(pwdResourceNames);
 
                 tasks.addAll(getUserUpdateTasks(pwdWFResult, true, toBeExcluded));
@@ -276,7 +277,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 tasks.addAll(getUserUpdateTasks(noPwdWFResult, false, pwdResourceNames));
             }
 
-            tasks = tasks.stream().distinct().collect(Collectors.toList());
+            tasks = tasks.stream().distinct().toList();
         }
 
         return tasks;
@@ -443,7 +444,7 @@ public class DefaultPropagationManager implements PropagationManager {
         Map<String, Set<Attribute>> vAttrMap = new HashMap<>();
         if (vAttrs != null) {
             vAttrs.forEach(vAttr -> {
-                VirSchema schema = virSchemaDAO.find(vAttr.getSchema());
+                VirSchema schema = virSchemaDAO.findById(vAttr.getSchema()).orElse(null);
                 if (schema == null) {
                     LOG.warn("Ignoring invalid {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
                 } else if (schema.isReadonly()) {
@@ -472,7 +473,7 @@ public class DefaultPropagationManager implements PropagationManager {
         List<PropagationTaskInfo> tasks = new ArrayList<>();
 
         propByRes.asMap().forEach((resourceKey, operation) -> {
-            ExternalResource resource = resourceDAO.find(resourceKey);
+            ExternalResource resource = resourceDAO.findById(resourceKey).orElse(null);
             Provision provision = Optional.ofNullable(resource).
                     flatMap(r -> r.getProvisionByAnyType(any.getType().getKey())).orElse(null);
             Stream<Item> mappingItems = provision == null
@@ -515,7 +516,10 @@ public class DefaultPropagationManager implements PropagationManager {
                         orElse(null);
                 if (account == null && operation == ResourceOperation.DELETE) {
                     account = new DeletingLinkedAccount(
-                            user, resourceDAO.find(accountInfo.getLeft()), accountInfo.getRight());
+                            user,
+                            resourceDAO.findById(accountInfo.getLeft()).
+                                    orElseThrow(() -> new NotFoundException("Resource " + accountInfo.getLeft())),
+                            accountInfo.getRight());
                 }
 
                 Provision provision = account == null || account.getResource() == null
@@ -577,7 +581,8 @@ public class DefaultPropagationManager implements PropagationManager {
         List<PropagationTaskInfo> tasks = new ArrayList<>();
 
         propByRes.asMap().forEach((resourceKey, operation) -> {
-            ExternalResource resource = resourceDAO.find(resourceKey);
+            ExternalResource resource = resourceDAO.findById(resourceKey).
+                    orElseThrow(() -> new NotFoundException("Resource " + resourceKey));
             OrgUnit orgUnit = Optional.ofNullable(resource).map(ExternalResource::getOrgUnit).orElse(null);
 
             if (resource == null) {
@@ -625,7 +630,8 @@ public class DefaultPropagationManager implements PropagationManager {
         Any<?> any = anyUtilsFactory.getInstance(kind).dao().authFind(key);
 
         anyUtilsFactory.getInstance(kind).dao().findAllResourceKeys(key).stream().
-                map(resourceDAO::find).
+                map(resourceDAO::findById).
+                filter(Optional::isPresent).map(Optional::get).
                 filter(resource -> !excludedResources.contains(resource.getKey())
                 && resource.getProvisionByAnyType(any.getType().getKey()).isPresent()
                 && resource.getPropagationPolicy() != null && resource.getPropagationPolicy().isUpdateDelta()).
@@ -642,15 +648,14 @@ public class DefaultPropagationManager implements PropagationManager {
                             preparedAttrs.getRight());
                 });
 
-        if (any instanceof User) {
-            ((User) any).getLinkedAccounts().stream().
+        if (any instanceof User user) {
+            user.getLinkedAccounts().stream().
                     filter(account -> !excludedResources.contains(account.getResource().getKey())
                     && account.getResource().getProvisionByAnyType(any.getType().getKey()).isPresent()
                     && account.getResource().getPropagationPolicy() != null
                     && account.getResource().getPropagationPolicy().isUpdateDelta()).
                     forEach(account -> {
-                        Set<Attribute> preparedAttrs = mappingManager.prepareAttrsFromLinkedAccount(
-                                (User) any,
+                        Set<Attribute> preparedAttrs = mappingManager.prepareAttrsFromLinkedAccount(user,
                                 account,
                                 password,
                                 true,

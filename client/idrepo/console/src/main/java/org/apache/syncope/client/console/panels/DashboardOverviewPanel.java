@@ -71,7 +71,7 @@ public class DashboardOverviewPanel extends Panel {
                 new ResourceModel("groups").getObject(), "ion ion-person-stalker");
         container.add(totalGroups);
 
-        Triple<Integer, String, String> built = buildTotalAny1OrRoles(numbers);
+        Triple<Long, String, String> built = buildTotalAny1OrRoles(numbers);
         totalAny1OrRoles = new NumberWidget(
                 "totalAny1OrRoles", "text-bg-success", built.getLeft(), built.getMiddle(), built.getRight());
         container.add(totalAny1OrRoles);
@@ -115,7 +115,7 @@ public class DashboardOverviewPanel extends Panel {
                     target.add(totalGroups);
                 }
 
-                Triple<Integer, String, String> updatedBuild = buildTotalAny1OrRoles(numbers);
+                Triple<Long, String, String> updatedBuild = buildTotalAny1OrRoles(numbers);
                 if (totalAny1OrRoles.refresh(updatedBuild.getLeft())) {
                     target.add(totalAny1OrRoles);
                 }
@@ -149,8 +149,8 @@ public class DashboardOverviewPanel extends Panel {
         });
     }
 
-    private static Triple<Integer, String, String> buildTotalAny1OrRoles(final NumbersInfo numbers) {
-        int number;
+    private static Triple<Long, String, String> buildTotalAny1OrRoles(final NumbersInfo numbers) {
+        long number;
         String label;
         String icon;
         if (numbers.getAnyType1() == null) {
@@ -165,8 +165,8 @@ public class DashboardOverviewPanel extends Panel {
         return Triple.of(number, label, icon);
     }
 
-    private static Triple<Integer, String, String> buildTotalAny2OrResources(final NumbersInfo numbers) {
-        int number;
+    private static Triple<Long, String, String> buildTotalAny2OrResources(final NumbersInfo numbers) {
+        long number;
         String label;
         String icon;
         if (numbers.getAnyType2() == null) {

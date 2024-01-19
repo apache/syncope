@@ -20,7 +20,6 @@ package org.apache.syncope.wa.starter.surrogate;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
@@ -58,6 +57,6 @@ public class WASurrogateAuthenticationService implements SurrogateAuthentication
         return waRestClient.getService(ImpersonationService.class).read(username).
                 stream().
                 map(ImpersonationAccount::getImpersonated).
-                collect(Collectors.toList());
+                toList();
     }
 }

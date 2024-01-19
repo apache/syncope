@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
@@ -67,8 +66,8 @@ public class DBPasswordPullActions implements PullActions {
             final SyncDelta delta,
             final AnyCR anyCR) throws JobExecutionException {
 
-        if (anyCR instanceof UserCR) {
-            String password = ((UserCR) anyCR).getPassword();
+        if (anyCR instanceof UserCR userCR) {
+            String password = userCR.getPassword();
             parseEncodedPassword(password, profile.getConnector());
         }
     }
@@ -81,8 +80,8 @@ public class DBPasswordPullActions implements PullActions {
             final EntityTO entityTO,
             final AnyUR anyUR) throws JobExecutionException {
 
-        if (anyUR instanceof UserUR) {
-            PasswordPatch modPassword = ((UserUR) anyUR).getPassword();
+        if (anyUR instanceof UserUR userUR) {
+            PasswordPatch modPassword = userUR.getPassword();
             parseEncodedPassword(Optional.ofNullable(modPassword)
                     .map(AbstractPatchItem::getValue).orElse(null), profile.getConnector());
         }
@@ -122,10 +121,8 @@ public class DBPasswordPullActions implements PullActions {
             final ProvisioningReport result) throws JobExecutionException {
 
         if (any instanceof UserTO && encodedPassword != null && cipher != null) {
-            User user = userDAO.find(any.getKey());
-            if (user != null) {
-                user.setEncodedPassword(encodedPassword.toUpperCase(), cipher);
-            }
+            userDAO.findById(any.getKey()).
+                    ifPresent(user -> user.setEncodedPassword(encodedPassword.toUpperCase(), cipher));
             encodedPassword = null;
             cipher = null;
         }

@@ -19,6 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -59,9 +60,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -69,6 +68,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
@@ -79,6 +79,8 @@ import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -148,7 +150,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         return Triple.of(
                 POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
-                POJOHelper.serialize(delegationDAO.findValidDelegating(authenticatedUser.getKey())), authenticatedUser);
+                POJOHelper.serialize(delegationDAO.findValidDelegating(
+                        authenticatedUser.getKey(), OffsetDateTime.now())),
+                authenticatedUser);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_READ + "')")
@@ -161,14 +165,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
-    public Pair<Integer, List<UserTO>> search(
+    public Page<UserTO> search(
             final SearchCond searchCond,
-            final int page, final int size, final List<OrderByClause> orderBy,
+            final Pageable pageable,
             final String realm,
             final boolean recursive,
             final boolean details) {
 
-        Realm base = Optional.ofNullable(realmDAO.findByFullPath(realm)).
+        Realm base = realmDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> authRealms = RealmUtils.getEffective(
@@ -176,15 +180,15 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         SearchCond effectiveCond = searchCond == null ? userDAO.getAllMatchingCond() : searchCond;
 
-        int count = searchDAO.count(base, recursive, authRealms, effectiveCond, AnyTypeKind.USER);
+        long count = searchDAO.count(base, recursive, authRealms, effectiveCond, AnyTypeKind.USER);
 
         List<User> matching = searchDAO.search(
-                base, recursive, authRealms, effectiveCond, page, size, orderBy, AnyTypeKind.USER);
+                base, recursive, authRealms, effectiveCond, pageable, AnyTypeKind.USER);
         List<UserTO> result = matching.stream().
                 map(user -> binder.getUserTO(user, details)).
-                collect(Collectors.toList());
+                toList();
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -240,8 +244,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         List<String> authStatuses = List.of(confParamOps.get(AuthContextUtils.getDomain(),
                 "authentication.statuses", new String[] {}, String[].class));
         if (!authStatuses.contains(updated.getEntity().getStatus())) {
-            Optional.ofNullable(accessTokenDAO.findByOwner(updated.getEntity().getUsername())).
-                    map(AccessToken::getKey).ifPresent(accessTokenDAO::delete);
+            accessTokenDAO.findByOwner(updated.getEntity().getUsername()).ifPresent(accessTokenDAO::delete);
         }
 
         return updated;
@@ -347,7 +350,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
     public ProvisioningResult<UserTO> selfStatus(final StatusR statusR, final boolean nullPriorityAsync) {
-        statusR.setKey(userDAO.findKey(AuthContextUtils.getUsername()));
+        statusR.setKey(userDAO.findKey(AuthContextUtils.getUsername()).
+                orElseThrow(() -> new NotFoundException("Could not find authenticated user")));
         Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusR, nullPriorityAsync);
 
         return afterUpdate(
@@ -372,8 +376,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 build();
         ProvisioningResult<UserTO> result = selfUpdate(userUR, nullPriorityAsync);
 
-        Optional.ofNullable(accessTokenDAO.findByOwner(result.getEntity().getUsername())).
-                map(AccessToken::getKey).ifPresent(accessTokenDAO::delete);
+        accessTokenDAO.findByOwner(result.getEntity().getUsername()).ifPresent(accessTokenDAO::delete);
 
         return result;
     }
@@ -390,11 +393,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         Realm realm = null;
         if (StringUtils.isNotBlank(query.getRealm())) {
-            realm = Optional.ofNullable(realmDAO.findByFullPath(query.getRealm())).
+            realm = realmDAO.findByFullPath(query.getRealm()).
                     orElseThrow(() -> new NotFoundException("Realm " + query.getRealm()));
         }
         Set<ExternalResource> resources = query.getResources().stream().
-                map(resourceDAO::find).filter(Objects::nonNull).collect(Collectors.toSet());
+                map(resourceDAO::findById).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
         if (realm == null && resources.isEmpty()) {
             sce.getElements().add("Nothing to check");
             throw sce;
@@ -432,7 +435,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional
     public void requestPasswordReset(final String username, final String securityAnswer) {
-        User user = Optional.ofNullable(userDAO.findByUsername(username)).
+        User user = userDAO.findByUsername(username).
                 orElseThrow(() -> new NotFoundException("User " + username));
 
         if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
@@ -448,7 +451,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional
     public void confirmPasswordReset(final String token, final String password) {
-        User user = Optional.ofNullable(userDAO.findByToken(token)).
+        User user = userDAO.findByToken(token).
                 orElseThrow(() -> new NotFoundException("User with token " + token));
 
         provisioningManager.confirmPasswordReset(
@@ -488,7 +491,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
             sce.getElements().addAll(ownedGroups.stream().
-                    map(group -> group.getKey() + ' ' + group.getName()).collect(Collectors.toList()));
+                    map(group -> group.getKey() + ' ' + group.getName()).toList());
             throw sce;
         }
 
@@ -496,7 +499,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         UserTO deletedTO;
-        if (userDAO.find(before.getLeft().getKey()) == null) {
+        if (userDAO.findById(before.getLeft().getKey()).isEmpty()) {
             deletedTO = new UserTO();
             deletedTO.setKey(before.getLeft().getKey());
         } else {
@@ -529,7 +532,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         UserUR req = new UserUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 build();
 
         return binder.getUserTO(provisioningManager.unlink(req, AuthContextUtils.getUsername(), REST_CONTEXT));
@@ -543,7 +546,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         UserUR req = new UserUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 build();
 
         return binder.getUserTO(provisioningManager.link(req, AuthContextUtils.getUsername(), REST_CONTEXT));
@@ -559,7 +562,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         UserUR req = new UserUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 build();
 
         return update(req, nullPriorityAsync);
@@ -579,7 +582,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         UserUR req = new UserUR.Builder(key).
                 resources(resources.stream().
                         map(r -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(r).build()).
-                        collect(Collectors.toList())).
+                        toList()).
                 build();
 
         if (changepwd) {
@@ -631,17 +634,17 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         String key = null;
 
         if ("requestPasswordReset".equals(method.getName())) {
-            key = userDAO.findKey((String) args[0]);
+            key = userDAO.findKey((String) args[0]).orElse(null);
         } else if (!"confirmPasswordReset".equals(method.getName()) && ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof UserTO) {
-                    key = ((UserTO) args[i]).getKey();
-                } else if (args[i] instanceof UserUR) {
-                    key = ((UserUR) args[i]).getKey();
-                } else if (args[i] instanceof StatusR) {
-                    key = ((StatusR) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof UserTO userTO) {
+                    key = userTO.getKey();
+                } else if (args[i] instanceof UserUR userUR) {
+                    key = userUR.getKey();
+                } else if (args[i] instanceof StatusR statusR) {
+                    key = statusR.getKey();
                 }
             }
         }

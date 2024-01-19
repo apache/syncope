@@ -30,4 +30,6 @@ public interface PlainSchemaDAO extends SchemaDAO<PlainSchema> {
     <T extends PlainAttr<?>> boolean hasAttrs(PlainSchema schema, Class<T> reference);
 
     List<PlainSchema> findByValidator(Implementation validator);
+
+    <T extends PlainAttr<?>> void delete(T plainAttr);
 }

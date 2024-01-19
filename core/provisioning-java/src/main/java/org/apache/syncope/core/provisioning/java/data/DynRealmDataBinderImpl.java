@@ -95,14 +95,9 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
             itor.remove();
         }
 
-        dynRealmTO.getDynMembershipConds().forEach((type, fiql) -> {
-            AnyType anyType = anyTypeDAO.find(type);
-            if (anyType == null) {
-                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), type);
-            } else {
-                setDynMembership(dynRealm, anyType, fiql);
-            }
-        });
+        dynRealmTO.getDynMembershipConds().forEach((type, fiql) -> anyTypeDAO.findById(type).ifPresentOrElse(
+                anyType -> setDynMembership(dynRealm, anyType, fiql),
+                () -> LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), type)));
 
         return dynRealmDAO.saveAndRefreshDynMemberships(dynRealm);
     }

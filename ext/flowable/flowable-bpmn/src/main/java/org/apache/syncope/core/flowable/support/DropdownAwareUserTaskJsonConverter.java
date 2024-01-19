@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.flowable.support;
 
-import static org.flowable.editor.language.json.converter.util.JsonConverterUtil.getProperty;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,12 +29,13 @@ import org.flowable.bpmn.model.StartEvent;
 import org.flowable.bpmn.model.UserTask;
 import org.flowable.editor.language.json.converter.BpmnJsonConverterUtil;
 import org.flowable.editor.language.json.converter.UserTaskJsonConverter;
+import org.flowable.editor.language.json.converter.util.JsonConverterUtil;
 
 public class DropdownAwareUserTaskJsonConverter extends UserTaskJsonConverter {
 
     @Override
     protected void convertJsonToFormProperties(final JsonNode objectNode, final BaseElement element) {
-        JsonNode formPropertiesNode = getProperty(PROPERTY_FORM_PROPERTIES, objectNode);
+        JsonNode formPropertiesNode = JsonConverterUtil.getProperty(PROPERTY_FORM_PROPERTIES, objectNode);
         if (formPropertiesNode != null) {
             formPropertiesNode = BpmnJsonConverterUtil.validateIfNodeIsTextual(formPropertiesNode);
             JsonNode propertiesArray = formPropertiesNode.get("formProperties");
@@ -87,10 +86,10 @@ public class DropdownAwareUserTaskJsonConverter extends UserTaskJsonConverter {
                         formProperty.setReadable(getValueAsBoolean(PROPERTY_FORM_READABLE, formNode));
                         formProperty.setWriteable(getValueAsBoolean(PROPERTY_FORM_WRITABLE, formNode));
 
-                        if (element instanceof StartEvent) {
-                            ((StartEvent) element).getFormProperties().add(formProperty);
-                        } else if (element instanceof UserTask) {
-                            ((UserTask) element).getFormProperties().add(formProperty);
+                        if (element instanceof StartEvent startEvent) {
+                            startEvent.getFormProperties().add(formProperty);
+                        } else if (element instanceof UserTask userTask) {
+                            userTask.getFormProperties().add(formProperty);
                         }
                     }
                 }

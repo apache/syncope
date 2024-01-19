@@ -25,11 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -53,7 +50,6 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
@@ -64,6 +60,7 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
@@ -79,6 +76,8 @@ import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -167,10 +166,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_UPDATE + "')")
     public <T extends SchedTaskTO> T updateSchedTask(final TaskType type, final SchedTaskTO taskTO) {
-        SchedTask task = taskDAO.find(type, taskTO.getKey());
-        if (task == null) {
-            throw new NotFoundException("Task " + taskTO.getKey());
-        }
+        SchedTask task = taskDAO.<SchedTask>findById(type, taskTO.getKey()).
+                orElseThrow(() -> new NotFoundException("Task " + taskTO.getKey()));
 
         TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
         if (taskUtils.getType() != type) {
@@ -204,15 +201,13 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")
     @Transactional(readOnly = true)
-    public <T extends TaskTO> Pair<Integer, List<T>> search(
+    public <T extends TaskTO> Page<T> search(
             final TaskType type,
             final String resource,
             final String notification,
             final AnyTypeKind anyTypeKind,
             final String entityKey,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses,
+            final Pageable pageable,
             final boolean details) {
 
         try {
@@ -220,17 +215,17 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 throw new IllegalArgumentException("type is required");
             }
 
-            ExternalResource resourceObj = resourceDAO.find(resource);
-            if (resource != null && resourceObj == null) {
-                throw new IllegalArgumentException("Missing External Resource: " + resource);
-            }
+            ExternalResource resourceObj = resource == null
+                    ? null
+                    : resourceDAO.findById(resource).
+                            orElseThrow(() -> new IllegalArgumentException("Missing ExternalResource: " + resource));
 
-            Notification notificationObj = notificationDAO.find(notification);
-            if (notification != null && notificationObj == null) {
-                throw new IllegalArgumentException("Missing Notification: " + notification);
-            }
+            Notification notificationObj = notification == null
+                    ? null
+                    : notificationDAO.findById(notification).
+                            orElseThrow(() -> new IllegalArgumentException("Missing Notification: " + notification));
 
-            int count = taskDAO.count(
+            long count = taskDAO.count(
                     type,
                     resourceObj,
                     notificationObj,
@@ -243,13 +238,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     notificationObj,
                     anyTypeKind,
                     entityKey,
-                    page,
-                    size,
-                    orderByClauses).stream().
+                    pageable).stream().
                     <T>map(task -> binder.getTaskTO(task, taskUtilsFactory.getInstance(type), details)).
-                    collect(Collectors.toList());
+                    toList();
 
-            return Pair.of(count, result);
+            return new SyncopePage<>(result, pageable, count);
         } catch (IllegalArgumentException | InvalidDataAccessApiUsageException e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
             sce.getElements().add(e.getMessage());
@@ -260,10 +253,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
     @Transactional(readOnly = true)
     public <T extends TaskTO> T read(final TaskType type, final String key, final boolean details) {
-        Task<?> task = taskDAO.find(type, key);
-        if (task == null) {
-            throw new NotFoundException("Task " + key);
-        }
+        Task<?> task = taskDAO.findById(type, key).
+                orElseThrow(() -> new NotFoundException("Task " + key));
 
         TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
         if (type != null && taskUtils.getType() != type) {
@@ -282,7 +273,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     @Override
     public ExecTO execute(final String key, final OffsetDateTime startAt, final boolean dryRun) {
-        Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
+        Task<?> task = taskDAO.findById(key).orElseThrow(() -> new NotFoundException("Task " + key));
         if (startAt != null && startAt.isBefore(OffsetDateTime.now())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add("Cannot schedule in the past");
@@ -369,10 +360,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")
     public <T extends TaskTO> T delete(final TaskType type, final String key) {
-        Task<?> task = taskDAO.find(type, key);
-        if (task == null) {
-            throw new NotFoundException("Task " + key);
-        }
+        Task<?> task = taskDAO.findById(type, key).
+                orElseThrow(() -> new NotFoundException("Task " + key));
 
         TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
         if (type != null && taskUtils.getType() != type) {
@@ -400,26 +389,24 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
     @Override
-    public Pair<Integer, List<ExecTO>> listExecutions(
+    public Page<ExecTO> listExecutions(
             final String key,
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses) {
+            final Pageable pageable) {
 
-        Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
+        Task<?> task = taskDAO.findById(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
-        if (task instanceof MacroTask) {
-            securityChecks(IdRepoEntitlement.TASK_READ, ((MacroTask) task).getRealm().getFullPath());
+        if (task instanceof MacroTask macroTask) {
+            securityChecks(IdRepoEntitlement.TASK_READ, macroTask.getRealm().getFullPath());
         }
 
-        Integer count = taskExecDAO.count(task, before, after);
+        long count = taskExecDAO.count(task, before, after);
 
-        List<ExecTO> result = taskExecDAO.findAll(task, before, after, page, size, orderByClauses).stream().
-                map(exec -> binder.getExecTO(exec)).collect(Collectors.toList());
+        List<ExecTO> result = taskExecDAO.findAll(task, before, after, pageable).stream().
+                map(exec -> binder.getExecTO(exec)).toList();
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")
@@ -428,9 +415,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         return taskExecDAO.findRecent(max).stream().
                 map(exec -> {
                     try {
-                        if (exec.getTask() instanceof MacroTask) {
-                            securityChecks(IdRepoEntitlement.TASK_DELETE,
-                                    ((MacroTask) exec.getTask()).getRealm().getFullPath());
+                        if (exec.getTask() instanceof MacroTask macroTask) {
+                            securityChecks(IdRepoEntitlement.TASK_DELETE, macroTask.getRealm().getFullPath());
                         }
 
                         return binder.getExecTO(exec);
@@ -440,17 +426,17 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     }
                 }).
                 filter(Objects::nonNull).
-                collect(Collectors.toList());
+                toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")
     @Override
     public ExecTO deleteExecution(final String execKey) {
-        TaskExec<?> exec = taskExecDAO.find(execKey).
+        TaskExec<?> exec = taskExecDAO.findById(execKey).
                 orElseThrow(() -> new NotFoundException("Task execution " + execKey));
 
-        if (exec.getTask() instanceof MacroTask) {
-            securityChecks(IdRepoEntitlement.TASK_DELETE, ((MacroTask) exec.getTask()).getRealm().getFullPath());
+        if (exec.getTask() instanceof MacroTask macroTask) {
+            securityChecks(IdRepoEntitlement.TASK_DELETE, macroTask.getRealm().getFullPath());
         }
 
         ExecTO executionToDelete = binder.getExecTO(exec);
@@ -465,19 +451,18 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             final OffsetDateTime before,
             final OffsetDateTime after) {
 
-        Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
+        Task<?> task = taskDAO.findById(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
         List<BatchResponseItem> batchResponseItems = new ArrayList<>();
 
-        taskExecDAO.findAll(task, before, after, -1, -1, List.of()).forEach(exec -> {
+        taskExecDAO.findAll(task, before, after, Pageable.unpaged()).forEach(exec -> {
             BatchResponseItem item = new BatchResponseItem();
             item.getHeaders().put(RESTHeaders.RESOURCE_KEY, List.of(exec.getKey()));
             batchResponseItems.add(item);
 
             try {
-                if (exec.getTask() instanceof MacroTask) {
-                    securityChecks(IdRepoEntitlement.TASK_DELETE,
-                            ((MacroTask) exec.getTask()).getRealm().getFullPath());
+                if (exec.getTask() instanceof MacroTask macroTask) {
+                    securityChecks(IdRepoEntitlement.TASK_DELETE, macroTask.getRealm().getFullPath());
                 }
 
                 taskExecDAO.delete(exec);
@@ -496,7 +481,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
         String key = JobNamer.getTaskKeyFromJobName(jobKey.getName());
 
-        Task<?> task = taskDAO.find(key).orElse(null);
+        Task<?> task = taskDAO.findById(key).orElse(null);
         return task == null || !(task instanceof SchedTask)
                 ? null
                 : Triple.of(JobType.TASK, key, binder.buildRefDesc(task));
@@ -511,10 +496,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
     @Override
     public JobTO getJob(final String key) {
-        Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
+        Task<?> task = taskDAO.findById(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
-        if (task instanceof MacroTask) {
-            securityChecks(IdRepoEntitlement.TASK_READ, ((MacroTask) task).getRealm().getFullPath());
+        if (task instanceof MacroTask macroTask) {
+            securityChecks(IdRepoEntitlement.TASK_READ, macroTask.getRealm().getFullPath());
         }
 
         JobTO jobTO = null;
@@ -536,10 +521,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
     @Override
     public void actionJob(final String key, final JobAction action) {
-        Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
+        Task<?> task = taskDAO.findById(key).orElseThrow(() -> new NotFoundException("Task " + key));
 
-        if (task instanceof MacroTask) {
-            securityChecks(IdRepoEntitlement.TASK_EXECUTE, ((MacroTask) task).getRealm().getFullPath());
+        if (task instanceof MacroTask macroTask) {
+            securityChecks(IdRepoEntitlement.TASK_EXECUTE, macroTask.getRealm().getFullPath());
         }
 
         doActionJob(JobNamer.getJobKey(task), action);
@@ -551,10 +536,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             final List<ExecStatus> statuses,
             final List<String> resources) {
 
-        return taskDAO.purgePropagations(since, statuses, Optional.ofNullable(resources).
-                map(r -> r.stream().map(resourceDAO::find).
-                filter(Objects::nonNull).collect(Collectors.toList())).
-                orElse(null));
+        return taskDAO.purgePropagations(since, statuses, resources);
     }
 
     @Override
@@ -567,10 +549,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 && !"deleteExecution".equals(method.getName()) && !"readExecution".equals(method.getName())) {
 
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof TaskTO) {
-                    key = ((TaskTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof TaskTO taskTO) {
+                    key = taskTO.getKey();
                 }
             }
         }
@@ -578,7 +560,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         if (key != null) {
             String taskKey = key;
             try {
-                Task<?> task = taskDAO.find(taskKey).orElseThrow(() -> new NotFoundException("Task " + taskKey));
+                Task<?> task = taskDAO.findById(taskKey).orElseThrow(() -> new NotFoundException("Task " + taskKey));
                 return binder.getTaskTO(task, taskUtilsFactory.getInstance(task), false);
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);

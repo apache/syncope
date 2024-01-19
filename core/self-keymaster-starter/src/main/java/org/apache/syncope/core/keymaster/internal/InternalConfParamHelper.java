@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Map;
-import java.util.Optional;
 import java.util.TreeMap;
 import org.apache.syncope.core.persistence.api.dao.ConfParamDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -62,9 +61,7 @@ public class InternalConfParamHelper {
 
     @Transactional(readOnly = true)
     public JsonNode get(final String key) {
-        ConfParam param = confParamDAO.find(key);
-
-        return Optional.ofNullable(param).map(ConfParam::getValue).orElse(null);
+        return confParamDAO.findById(key).map(ConfParam::getValue).orElse(null);
     }
 
     @Transactional
@@ -73,7 +70,7 @@ public class InternalConfParamHelper {
             throw new NotFoundException("No value provided for " + key);
         }
 
-        ConfParam param = confParamDAO.find(key);
+        ConfParam param = confParamDAO.findById(key).orElse(null);
         if (param == null) {
             param = entityFactory.newConfParam();
             param.setKey(key);
@@ -84,6 +81,6 @@ public class InternalConfParamHelper {
 
     @Transactional
     public void remove(final String key) {
-        confParamDAO.delete(key);
+        confParamDAO.deleteById(key);
     }
 }

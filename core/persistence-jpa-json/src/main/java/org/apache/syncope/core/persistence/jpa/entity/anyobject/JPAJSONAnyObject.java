@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -91,7 +90,7 @@ public class JPAJSONAnyObject extends JPAAnyObject implements JSONAttributable<A
     public List<? extends APlainAttr> getPlainAttrs() {
         return plainAttrList.stream().
                 filter(attr -> attr.getMembershipKey() == null).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override

@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
@@ -44,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -128,7 +128,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.setKey(resourceTO.getKey());
 
         if (resourceTO.getConnector() != null) {
-            ConnInstance connector = connInstanceDAO.find(resourceTO.getConnector());
+            ConnInstance connector = connInstanceDAO.findById(resourceTO.getConnector()).
+                    orElseThrow(() -> new NotFoundException("ConnInstance " + resourceTO.getConnector()));
             resource.setConnector(connector);
 
             if (!connector.getResources().contains(resource)) {
@@ -142,7 +143,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         // 1. add or update all (valid) provisions from TO
         resourceTO.getProvisions().forEach(provisionTO -> {
-            AnyType anyType = anyTypeDAO.find(provisionTO.getAnyType());
+            AnyType anyType = anyTypeDAO.findById(provisionTO.getAnyType()).orElse(null);
             if (anyType == null) {
                 LOG.debug("Invalid {} specified {}, ignoring...",
                         AnyType.class.getSimpleName(), provisionTO.getAnyType());
@@ -163,7 +164,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                 // add all classes contained in the TO
                 for (String name : provisionTO.getAuxClasses()) {
-                    AnyTypeClass anyTypeClass = anyTypeClassDAO.find(name);
+                    AnyTypeClass anyTypeClass = anyTypeClassDAO.findById(name).orElse(null);
                     if (anyTypeClass == null || provision.getAuxClasses().contains(name)) {
                         LOG.warn("Ignoring invalid or already present {}: {}",
                                 AnyTypeClass.class.getSimpleName(), name);
@@ -180,7 +181,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 if (StringUtils.isBlank(provisionTO.getUidOnCreate())) {
                     provision.setUidOnCreate(null);
                 } else {
-                    PlainSchema uidOnCreate = plainSchemaDAO.find(provisionTO.getUidOnCreate());
+                    PlainSchema uidOnCreate = plainSchemaDAO.findById(provisionTO.getUidOnCreate()).orElse(null);
                     if (uidOnCreate == null) {
                         LOG.warn("Ignoring invalid schema for uidOnCreate: {}", provisionTO.getUidOnCreate());
                         provision.setUidOnCreate(null);
@@ -203,14 +204,15 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     AnyTypeClassTO allowedSchemas = new AnyTypeClassTO();
                     Stream.concat(
                             anyType.getClasses().stream(),
-                            provision.getAuxClasses().stream().map(anyTypeClassDAO::find)).forEach(anyTypeClass -> {
+                            provision.getAuxClasses().stream().map(anyTypeClassDAO::findById).
+                                    filter(Optional::isPresent).map(Optional::get)).forEach(anyTypeClass -> {
 
                         allowedSchemas.getPlainSchemas().addAll(anyTypeClass.getPlainSchemas().stream().
-                                map(PlainSchema::getKey).collect(Collectors.toList()));
+                                map(PlainSchema::getKey).toList());
                         allowedSchemas.getDerSchemas().addAll(anyTypeClass.getDerSchemas().stream().
-                                map(DerSchema::getKey).collect(Collectors.toList()));
+                                map(DerSchema::getKey).toList());
                         allowedSchemas.getVirSchemas().addAll(anyTypeClass.getVirSchemas().stream().
-                                map(VirSchema::getKey).collect(Collectors.toList()));
+                                map(VirSchema::getKey).toList());
                     });
 
                     populateMapping(
@@ -222,18 +224,18 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 }
 
                 if (provisionTO.getVirSchemas().isEmpty()) {
-                    for (VirSchema schema : virSchemaDAO.find(resource.getKey(), anyType.getKey())) {
-                        virSchemaDAO.delete(schema.getKey());
+                    for (VirSchema s : virSchemaDAO.findByResourceAndAnyType(resource.getKey(), anyType.getKey())) {
+                        virSchemaDAO.delete(s);
                     }
                 } else {
                     for (String schemaName : provisionTO.getVirSchemas()) {
-                        VirSchema schema = virSchemaDAO.find(schemaName);
+                        VirSchema schema = virSchemaDAO.findById(schemaName).orElse(null);
                         if (schema == null) {
                             LOG.debug("Invalid {} specified: {}, ignoring...",
                                     VirSchema.class.getSimpleName(), schemaName);
                         } else {
                             schema.setResource(resource);
-                            schema.setAnyType(anyTypeDAO.find(provision.getAnyType()));
+                            schema.setAnyType(anyType);
                         }
                     }
                 }
@@ -244,8 +246,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         for (Iterator<Provision> itor = resource.getProvisions().iterator(); itor.hasNext();) {
             Provision provision = itor.next();
             if (resourceTO.getProvision(provision.getAnyType()).isEmpty()) {
-                virSchemaDAO.find(resource.getKey(), provision.getAnyType()).
-                        forEach(schema -> virSchemaDAO.delete(schema.getKey()));
+                virSchemaDAO.findByResourceAndAnyType(resource.getKey(), provision.getAnyType()).
+                        forEach(virSchemaDAO::delete);
 
                 itor.remove();
             }
@@ -314,15 +316,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
                         item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
 
-                        itemTO.getTransformers().forEach(transformerKey -> {
-                            Implementation transformer = implementationDAO.find(transformerKey);
-                            if (transformer == null) {
-                                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                                        transformerKey);
-                            } else {
-                                item.getTransformers().add(transformer.getKey());
-                            }
-                        });
+                        itemTO.getTransformers().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
+                                transformer -> item.getTransformers().add(transformer.getKey()),
+                                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                                        key)));
                         // remove all implementations not contained in the TO
                         item.getTransformers().
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
@@ -351,10 +348,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.setProvisioningTraceLevel(resourceTO.getProvisioningTraceLevel());
 
         resource.setPasswordPolicy(resourceTO.getPasswordPolicy() == null
-                ? null : policyDAO.<PasswordPolicy>find(resourceTO.getPasswordPolicy()));
+                ? null : policyDAO.findById(resourceTO.getPasswordPolicy(), PasswordPolicy.class).orElse(null));
 
         resource.setAccountPolicy(resourceTO.getAccountPolicy() == null
-                ? null : policyDAO.<AccountPolicy>find(resourceTO.getAccountPolicy()));
+                ? null : policyDAO.findById(resourceTO.getAccountPolicy(), AccountPolicy.class).orElse(null));
 
         if (resource.getPropagationPolicy() != null
                 && !resource.getPropagationPolicy().getKey().equals(resourceTO.getPropagationPolicy())) {
@@ -362,24 +359,21 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             propagationTaskExecutor.expireRetryTemplate(resource.getKey());
         }
         resource.setPropagationPolicy(resourceTO.getPropagationPolicy() == null
-                ? null : policyDAO.<PropagationPolicy>find(resourceTO.getPropagationPolicy()));
+                ? null : policyDAO.findById(resourceTO.getPropagationPolicy(), PropagationPolicy.class).orElse(null));
 
         resource.setPullPolicy(resourceTO.getPullPolicy() == null
-                ? null : policyDAO.<PullPolicy>find(resourceTO.getPullPolicy()));
+                ? null : policyDAO.findById(resourceTO.getPullPolicy(), PullPolicy.class).orElse(null));
 
         resource.setPushPolicy(resourceTO.getPushPolicy() == null
-                ? null : policyDAO.<PushPolicy>find(resourceTO.getPushPolicy()));
+                ? null : policyDAO.findById(resourceTO.getPushPolicy(), PushPolicy.class).orElse(null));
 
         if (resourceTO.getProvisionSorter() == null) {
             resource.setProvisionSorter(null);
         } else {
-            Implementation provisionSorter = implementationDAO.find(resourceTO.getProvisionSorter());
-            if (provisionSorter == null) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                        resourceTO.getProvisionSorter());
-            } else {
-                resource.setProvisionSorter(provisionSorter);
-            }
+            implementationDAO.findById(resourceTO.getProvisionSorter()).
+                    ifPresentOrElse(resource::setProvisionSorter,
+                            () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                                    resourceTO.getProvisionSorter()));
         }
 
         resource.setConfOverride(new HashSet<>(resourceTO.getConfOverride()));
@@ -388,14 +382,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.getCapabilitiesOverride().clear();
         resource.getCapabilitiesOverride().addAll(resourceTO.getCapabilitiesOverride());
 
-        resourceTO.getPropagationActions().forEach(propagationActionKey -> {
-            Implementation propagationAction = implementationDAO.find(propagationActionKey);
-            if (propagationAction == null) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", propagationActionKey);
-            } else {
-                resource.add(propagationAction);
-            }
-        });
+        resourceTO.getPropagationActions().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
+                resource::add,
+                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key)));
         // remove all implementations not contained in the TO
         resource.getPropagationActions().
                 removeIf(propActions -> !resourceTO.getPropagationActions().contains(propActions.getKey()));
@@ -484,15 +473,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         item.setPropagationJEXLTransformer(itemTO.getPropagationJEXLTransformer());
                         item.setPullJEXLTransformer(itemTO.getPullJEXLTransformer());
 
-                        itemTO.getTransformers().forEach(transformerKey -> {
-                            Implementation transformer = implementationDAO.find(transformerKey);
-                            if (transformer == null) {
-                                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                                        transformerKey);
-                            } else {
-                                item.getTransformers().add(transformer.getKey());
-                            }
-                        });
+                        itemTO.getTransformers().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
+                                transformer -> item.getTransformers().add(transformer.getKey()),
+                                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                                        key)));
                         // remove all implementations not contained in the TO
                         item.getTransformers().
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
@@ -545,7 +529,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                                         "Only " + MappingPurpose.PROPAGATION.name() + " allowed for virtual");
                             }
 
-                            VirSchema schema = virSchemaDAO.find(item.getIntAttrName());
+                            VirSchema schema = virSchemaDAO.findById(item.getIntAttrName()).orElse(null);
                             if (schema != null && schema.getResource().equals(resource)) {
                                 invalidMapping.getElements().add(
                                         "No need to map virtual schema on linking resource");
@@ -637,10 +621,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             resourceTO.getProvisions().add(provisionTO);
         });
         resourceTO.getProvisions().
-                forEach(provisionTO -> virSchemaDAO.find(resource.getKey(), provisionTO.getAnyType()).
+                forEach(provision -> virSchemaDAO.findByResourceAndAnyType(resource.getKey(), provision.getAnyType()).
                 forEach(virSchema -> {
-                    provisionTO.getVirSchemas().add(virSchema.getKey());
-                    provisionTO.getMapping().getLinkingItems().add(virSchema.asLinkingMappingItem());
+                    provision.getVirSchemas().add(virSchema.getKey());
+                    provision.getMapping().getLinkingItems().add(virSchema.asLinkingMappingItem());
                 }));
 
         if (resource.getOrgUnit() != null) {
@@ -690,7 +674,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.getCapabilitiesOverride().addAll(resource.getCapabilitiesOverride());
 
         resourceTO.getPropagationActions().addAll(
-                resource.getPropagationActions().stream().map(Implementation::getKey).collect(Collectors.toList()));
+                resource.getPropagationActions().stream().map(Implementation::getKey).toList());
 
         return resourceTO;
     }

@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -54,18 +53,14 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<SecurityQuestionTO> list() {
-        return securityQuestionDAO.findAll().stream().map(binder::getSecurityQuestionTO).collect(Collectors.toList());
+        return securityQuestionDAO.findAll().stream().map(binder::getSecurityQuestionTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.SECURITY_QUESTION_READ + "')")
     @Transactional(readOnly = true)
     public SecurityQuestionTO read(final String key) {
-        SecurityQuestion securityQuestion = securityQuestionDAO.find(key);
-        if (securityQuestion == null) {
-            LOG.error("Could not find security question '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        SecurityQuestion securityQuestion = securityQuestionDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("SecurityQuestion " + key));
 
         return binder.getSecurityQuestionTO(securityQuestion);
     }
@@ -77,12 +72,8 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.SECURITY_QUESTION_UPDATE + "')")
     public SecurityQuestionTO update(final SecurityQuestionTO securityQuestionTO) {
-        SecurityQuestion securityQuestion = securityQuestionDAO.find(securityQuestionTO.getKey());
-        if (securityQuestion == null) {
-            LOG.error("Could not find security question '" + securityQuestionTO.getKey() + '\'');
-
-            throw new NotFoundException(securityQuestionTO.getKey());
-        }
+        SecurityQuestion securityQuestion = securityQuestionDAO.findById(securityQuestionTO.getKey()).
+                orElseThrow(() -> new NotFoundException("SecurityQuestion " + securityQuestionTO.getKey()));
 
         binder.update(securityQuestion, securityQuestionTO);
         securityQuestion = securityQuestionDAO.save(securityQuestion);
@@ -92,15 +83,11 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.SECURITY_QUESTION_DELETE + "')")
     public SecurityQuestionTO delete(final String key) {
-        SecurityQuestion securityQuestion = securityQuestionDAO.find(key);
-        if (securityQuestion == null) {
-            LOG.error("Could not find security question '" + key + '\'');
-
-            throw new NotFoundException(key);
-        }
+        SecurityQuestion securityQuestion = securityQuestionDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("SecurityQuestion " + key));
 
         SecurityQuestionTO deleted = binder.getSecurityQuestionTO(securityQuestion);
-        securityQuestionDAO.delete(key);
+        securityQuestionDAO.deleteById(key);
         return deleted;
     }
 
@@ -109,10 +96,8 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         if (username == null) {
             throw new NotFoundException("Null username");
         }
-        User user = userDAO.findByUsername(username);
-        if (user == null) {
-            throw new NotFoundException("User " + username);
-        }
+        User user = userDAO.findByUsername(username).
+                orElseThrow(() -> new NotFoundException("User " + username));
 
         if (user.getSecurityQuestion() == null) {
             LOG.error("Could not find security question for user '" + username + '\'');
@@ -131,17 +116,17 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof SecurityQuestionTO) {
-                    key = ((SecurityQuestionTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof SecurityQuestionTO securityQuestionTO) {
+                    key = securityQuestionTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getSecurityQuestionTO(securityQuestionDAO.find(key));
+                return binder.getSecurityQuestionTO(securityQuestionDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

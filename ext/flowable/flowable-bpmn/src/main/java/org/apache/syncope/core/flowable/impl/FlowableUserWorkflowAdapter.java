@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -480,7 +479,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         if (engine.getRuntimeService().createProcessInstanceQuery().
                 processInstanceId(procInstID).active().list().isEmpty()) {
 
-            userDAO.delete(user.getKey());
+            userDAO.deleteById(user.getKey());
 
             publisher.publishEvent(
                     new EntityLifecycleEvent<>(this, SyncDeltaType.DELETE, user, AuthContextUtils.getDomain()));
@@ -536,7 +535,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         if (engine.getRuntimeService().createProcessInstanceQuery().
                 processInstanceId(procInstID).active().list().isEmpty()) {
 
-            userDAO.delete(user.getKey());
+            userDAO.deleteById(user.getKey());
 
             publisher.publishEvent(
                     new EntityLifecycleEvent<>(this, SyncDeltaType.DELETE, user, AuthContextUtils.getDomain()));
@@ -568,10 +567,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     }
 
     protected static void navigateAvailableTasks(final FlowElement flow, final List<String> availableTasks) {
-        if (flow instanceof Gateway) {
-            ((Gateway) flow).getOutgoingFlows().forEach(subflow -> navigateAvailableTasks(subflow, availableTasks));
-        } else if (flow instanceof SequenceFlow) {
-            navigateAvailableTasks(((SequenceFlow) flow).getTargetFlowElement(), availableTasks);
+        if (flow instanceof Gateway gateway) {
+            gateway.getOutgoingFlows().forEach(subflow -> navigateAvailableTasks(subflow, availableTasks));
+        } else if (flow instanceof SequenceFlow sequenceFlow) {
+            navigateAvailableTasks(sequenceFlow.getTargetFlowElement(), availableTasks);
         } else if (flow instanceof org.flowable.bpmn.model.Task) {
             availableTasks.add(flow.getId());
         } else {
@@ -604,6 +603,6 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             WorkflowTask workflowTaskTO = new WorkflowTask();
             workflowTaskTO.setName(input);
             return workflowTaskTO;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 }

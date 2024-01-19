@@ -21,11 +21,8 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
@@ -39,9 +36,11 @@ import org.apache.syncope.common.lib.to.RemediationTO;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.data.RemediationDataBinder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,26 +72,24 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_LIST + "')")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<RemediationTO>> list(
+    public Page<RemediationTO> list(
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses) {
+            final Pageable pageable) {
 
-        int count = remediationDAO.count(before, after);
+        long count = remediationDAO.count(before, after);
 
-        List<RemediationTO> result = remediationDAO.findAll(before, after, page, size, orderByClauses).stream().
-                map(binder::getRemediationTO).collect(Collectors.toList());
+        List<RemediationTO> result = remediationDAO.findAll(before, after, pageable).stream().
+                map(binder::getRemediationTO).toList();
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_READ + "')")
     @Transactional(readOnly = true)
     public RemediationTO read(final String key) {
-        Remediation remediation = Optional.ofNullable(remediationDAO.find(key)).
-                orElseThrow(() -> new NotFoundException(key));
+        Remediation remediation = remediationDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Remediation " + key));
 
         return binder.getRemediationTO(remediation);
     }
@@ -100,10 +97,9 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_DELETE + "')")
     @Transactional
     public void delete(final String key) {
-        Optional.ofNullable(remediationDAO.find(key)).
-                orElseThrow(() -> new NotFoundException(key));
+        remediationDAO.findById(key).orElseThrow(() -> new NotFoundException("Remediation " + key));
 
-        remediationDAO.delete(key);
+        remediationDAO.deleteById(key);
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.REMEDIATION_REMEDY + "')")
@@ -122,7 +118,7 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
                 result = anyObjectLogic.create((AnyObjectCR) anyCR, nullPriorityAsync);
         }
 
-        remediationDAO.delete(key);
+        remediationDAO.deleteById(key);
 
         return result;
     }
@@ -143,7 +139,7 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
                 result = anyObjectLogic.update((AnyObjectUR) anyUR, nullPriorityAsync);
         }
 
-        remediationDAO.delete(key);
+        remediationDAO.deleteById(key);
 
         return result;
     }
@@ -164,7 +160,7 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
                 result = anyObjectLogic.delete(anyKey, nullPriorityAsync);
         }
 
-        remediationDAO.delete(key);
+        remediationDAO.deleteById(key);
 
         return result;
     }
@@ -177,17 +173,17 @@ public class RemediationLogic extends AbstractLogic<RemediationTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof RemediationTO) {
-                    key = ((RemediationTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof RemediationTO remediationTO) {
+                    key = remediationTO.getKey();
                 }
             }
         }
 
         if (StringUtils.isNotBlank(key)) {
             try {
-                return binder.getRemediationTO(remediationDAO.find(key));
+                return binder.getRemediationTO(remediationDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

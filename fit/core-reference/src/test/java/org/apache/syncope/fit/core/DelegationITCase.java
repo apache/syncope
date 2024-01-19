@@ -219,7 +219,7 @@ public class DelegationITCase extends AbstractITCase {
 
         // 2. search users as bellini
         SyncopeClient bellini = CLIENT_FACTORY.create("bellini", "password");
-        int forBellini = bellini.getService(UserService.class).search(
+        long forBellini = bellini.getService(UserService.class).search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).getTotalCount();
 
         SyncopeClient rossini = CLIENT_FACTORY.create("rossini", "password");
@@ -238,7 +238,7 @@ public class DelegationITCase extends AbstractITCase {
         }
 
         // 3b. search users as rossini with delegation -> SUCCESS
-        int forRossini = rossini.delegatedBy("bellini").getService(UserService.class).search(
+        long forRossini = rossini.delegatedBy("bellini").getService(UserService.class).search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).getTotalCount();
         if (!IS_EXT_SEARCH_ENABLED) {
             assertEquals(forBellini, forRossini);

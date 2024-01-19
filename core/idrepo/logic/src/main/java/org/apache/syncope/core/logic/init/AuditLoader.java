@@ -92,9 +92,6 @@ public class AuditLoader implements SyncopeCoreLoader {
                     }
                 }));
 
-        AuthContextUtils.callAsAdmin(domain, () -> {
-            auditAccessor.synchronizeLoggingWithAudit();
-            return null;
-        });
+        AuthContextUtils.runAsAdmin(domain, () -> auditAccessor.synchronizeLoggingWithAudit());
     }
 }

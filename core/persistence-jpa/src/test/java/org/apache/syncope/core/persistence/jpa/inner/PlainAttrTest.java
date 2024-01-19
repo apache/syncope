@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -53,14 +52,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class PlainAttrTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;
-
-    @Autowired
-    private PlainAttrDAO plainAttrDAO;
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
@@ -74,27 +70,23 @@ public class PlainAttrTest extends AbstractTest {
     @Tag("plainAttrTable")
     @Test
     public void findByKey() {
-        UPlainAttr attribute = findPlainAttr("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class);
-        assertNotNull(attribute);
-        attribute = findPlainAttr("9d0d9e40-1b18-488e-9482-37dab82163c9", UPlainAttr.class);
-        assertNotNull(attribute);
+        assertTrue(findPlainAttr("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class).isPresent());
+        assertTrue(findPlainAttr("9d0d9e40-1b18-488e-9482-37dab82163c9", UPlainAttr.class).isPresent());
     }
 
     @Tag("plainAttrTable")
     @Test
     public void read() {
-        UPlainAttr attribute = findPlainAttr("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class);
-        assertNotNull(attribute);
+        UPlainAttr attribute = findPlainAttr("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class).orElseThrow();
         assertTrue(attribute.getValues().isEmpty());
         assertNotNull(attribute.getUniqueValue());
     }
 
     @Test
     public void save() throws ClassNotFoundException {
-        User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
+        User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
-        PlainSchema emailSchema = plainSchemaDAO.find("email");
-        assertNotNull(emailSchema);
+        PlainSchema emailSchema = plainSchemaDAO.findById("email").orElseThrow();
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
@@ -119,11 +111,9 @@ public class PlainAttrTest extends AbstractTest {
 
     @Test
     public void saveWithEnum() throws ClassNotFoundException {
-        User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
-        assertNotNull(user);
+        User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
-        PlainSchema gender = plainSchemaDAO.find("gender");
-        assertNotNull(gender);
+        PlainSchema gender = plainSchemaDAO.findById("gender").orElseThrow();
         assertNotNull(gender.getType());
         assertNotNull(gender.getEnumerationValues());
 
@@ -153,13 +143,9 @@ public class PlainAttrTest extends AbstractTest {
 
     @Test
     public void invalidValueList() {
-        User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
+        User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
-        PlainSchema emailSchema = plainSchemaDAO.find("email");
-        assertNotNull(emailSchema);
-
-        PlainSchema fullnameSchema = plainSchemaDAO.find("fullname");
-        assertNotNull(fullnameSchema);
+        PlainSchema emailSchema = plainSchemaDAO.findById("email").orElseThrow();
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
@@ -182,13 +168,11 @@ public class PlainAttrTest extends AbstractTest {
     @Tag("plainAttrTable")
     @Test
     public void invalidPlainAttr() {
-        User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
+        User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
-        PlainSchema emailSchema = plainSchemaDAO.find("email");
-        assertNotNull(emailSchema);
+        PlainSchema emailSchema = plainSchemaDAO.findById("email").orElseThrow();
 
-        PlainSchema fullnameSchema = plainSchemaDAO.find("fullname");
-        assertNotNull(fullnameSchema);
+        PlainSchema fullnameSchema = plainSchemaDAO.findById("fullname").orElseThrow();
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
@@ -219,10 +203,9 @@ public class PlainAttrTest extends AbstractTest {
 
     @Test
     public void saveWithEncrypted() throws Exception {
-        User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
+        User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
-        PlainSchema obscureSchema = plainSchemaDAO.find("obscure");
-        assertNotNull(obscureSchema);
+        PlainSchema obscureSchema = plainSchemaDAO.findById("obscure").orElseThrow();
         assertNotNull(obscureSchema.getSecretKey());
         assertNotNull(obscureSchema.getCipherAlgorithm());
 
@@ -243,8 +226,7 @@ public class PlainAttrTest extends AbstractTest {
 
     @Test
     public void encryptedWithKeyAsSysProp() throws Exception {
-        PlainSchema obscureSchema = plainSchemaDAO.find("obscure");
-        assertNotNull(obscureSchema);
+        PlainSchema obscureSchema = plainSchemaDAO.findById("obscure").orElseThrow();
 
         PlainSchema obscureWithKeyAsSysprop = entityFactory.newEntity(PlainSchema.class);
         obscureWithKeyAsSysprop.setKey("obscureWithKeyAsSysprop");
@@ -269,7 +251,7 @@ public class PlainAttrTest extends AbstractTest {
     public void encryptedWithDecodeConversionPattern() throws Exception {
         PlainSchema obscureWithDecodeConversionPattern = entityFactory.newEntity(PlainSchema.class);
         obscureWithDecodeConversionPattern.setKey("obscureWithDecodeConversionPattern");
-        obscureWithDecodeConversionPattern.setAnyTypeClass(anyTypeClassDAO.find("other"));
+        obscureWithDecodeConversionPattern.setAnyTypeClass(anyTypeClassDAO.findById("other").orElseThrow());
         obscureWithDecodeConversionPattern.setType(AttrSchemaType.Encrypted);
         obscureWithDecodeConversionPattern.setCipherAlgorithm(CipherAlgorithm.AES);
         obscureWithDecodeConversionPattern.setSecretKey(SecureRandomUtils.generateRandomUUID().toString());
@@ -293,10 +275,9 @@ public class PlainAttrTest extends AbstractTest {
 
     @Test
     public void saveWithBinary() throws UnsupportedEncodingException {
-        User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
+        User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
-        PlainSchema photoSchema = plainSchemaDAO.find("photo");
-        assertNotNull(photoSchema);
+        PlainSchema photoSchema = plainSchemaDAO.findById("photo").orElseThrow();
         assertNotNull(photoSchema.getMimeType());
 
         byte[] bytes = new byte[20];
@@ -320,12 +301,11 @@ public class PlainAttrTest extends AbstractTest {
     @Tag("plainAttrTable")
     @Test
     public void delete() {
-        UPlainAttr attribute = findPlainAttr("9d0d9e40-1b18-488e-9482-37dab82163c9", UPlainAttr.class);
+        UPlainAttr attribute = findPlainAttr("9d0d9e40-1b18-488e-9482-37dab82163c9", UPlainAttr.class).orElseThrow();
         String attrSchemaName = attribute.getSchema().getKey();
 
-        plainAttrDAO.delete(attribute);
+        plainSchemaDAO.delete(attribute);
 
-        PlainSchema schema = plainSchemaDAO.find(attrSchemaName);
-        assertNotNull(schema);
+        assertTrue(plainSchemaDAO.findById(attrSchemaName).isPresent());
     }
 }

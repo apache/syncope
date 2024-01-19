@@ -20,14 +20,13 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
+import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +55,7 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
     @Transactional(readOnly = true)
     public List<NetworkService> list(final NetworkService.Type serviceType) {
         return serviceDAO.findAll(serviceType).stream().
-                map(service -> toNetworkService(serviceType, service)).collect(Collectors.toList());
+                map(service -> toNetworkService(serviceType, service)).toList();
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
@@ -69,7 +68,7 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
 
         return list.size() == 1
                 ? list.get(0)
-                : list.get(RandomUtils.nextInt(0, list.size()));
+                : list.get(SecureRandomUtils.generateRandomInt(0, list.size()));
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")

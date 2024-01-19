@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -262,7 +261,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
             result.getResult().addAll(tokens.entrySet().stream().
                     filter(to -> to.getKey().equalsIgnoreCase(user)).
                     map(Map.Entry::getValue).
-                    collect(Collectors.toList()));
+                    toList());
             result.setSize(result.getResult().size());
             result.setTotalCount(result.getSize());
             return result;

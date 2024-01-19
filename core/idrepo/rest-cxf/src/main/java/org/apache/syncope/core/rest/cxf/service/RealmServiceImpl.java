@@ -20,10 +20,8 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
-import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -32,6 +30,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.core.logic.RealmLogic;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -45,12 +44,11 @@ public class RealmServiceImpl extends AbstractService implements RealmService {
 
     @Override
     public PagedResult<RealmTO> search(final RealmQuery query) {
-        Pair<Integer, List<RealmTO>> result = logic.search(
+        Page<RealmTO> result = logic.search(
                 Optional.ofNullable(query.getKeyword()).map(k -> k.replace('*', '%')).orElse(null),
                 query.getBase(),
-                query.getPage(),
-                query.getSize());
-        return buildPagedResult(result.getRight(), 1, result.getRight().size(), result.getLeft());
+                pageable(query));
+        return buildPagedResult(result);
     }
 
     @Override

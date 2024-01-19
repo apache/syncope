@@ -22,8 +22,6 @@ import com.nimbusds.oauth2.sdk.ParseException;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.Item;
@@ -91,22 +89,22 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<OIDCC4UIProviderTO> list() {
-        return opDAO.findAll().stream().map(binder::getOIDCProviderTO).collect(Collectors.toList());
+        return opDAO.findAll().stream().map(binder::getOIDCProviderTO).toList();
     }
 
     @PreAuthorize("hasRole('" + OIDCC4UIEntitlement.OP_READ + "')")
     @Transactional(readOnly = true)
     public OIDCC4UIProviderTO read(final String key) {
-        OIDCC4UIProvider op = Optional.ofNullable(opDAO.find(key)).
-                orElseThrow(() -> new NotFoundException("OIDC Provider '" + key + '\''));
+        OIDCC4UIProvider op = opDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("OIDC Provider "));
 
         return binder.getOIDCProviderTO(op);
     }
 
     @PreAuthorize("hasRole('" + OIDCC4UIEntitlement.OP_UPDATE + "')")
     public void update(final OIDCC4UIProviderTO opTO) {
-        OIDCC4UIProvider op = Optional.ofNullable(opDAO.find(opTO.getKey())).
-                orElseThrow(() -> new NotFoundException("OIDC Provider '" + opTO.getKey() + '\''));
+        OIDCC4UIProvider op = opDAO.findById(opTO.getKey()).
+                orElseThrow(() -> new NotFoundException("OIDC Provider " + opTO.getKey()));
 
         if (!op.getIssuer().equals(opTO.getIssuer())) {
             LOG.error("Issuers do not match: expected {}, found {}",
@@ -123,10 +121,10 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
 
     @PreAuthorize("hasRole('" + OIDCC4UIEntitlement.OP_DELETE + "')")
     public void delete(final String key) {
-        OIDCC4UIProvider op = Optional.ofNullable(opDAO.find(key)).
-                orElseThrow(() -> new NotFoundException("OIDC Provider '" + key + '\''));
+        OIDCC4UIProvider op = opDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("OIDC Provider " + key));
 
-        opDAO.delete(key);
+        opDAO.deleteById(key);
         oidcClientCacheLogin.removeAll(op.getName());
         oidcClientCacheLogout.removeAll(op.getName());
     }
@@ -149,7 +147,7 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
 
         if (key != null) {
             try {
-                return binder.getOIDCProviderTO(opDAO.find(key));
+                return binder.getOIDCProviderTO(opDAO.findById(key).orElseThrow());
             } catch (final Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

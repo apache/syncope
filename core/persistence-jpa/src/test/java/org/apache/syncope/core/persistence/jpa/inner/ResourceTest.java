@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -52,7 +51,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class ResourceTest extends AbstractTest {
 
     @Autowired
@@ -60,8 +59,7 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void findById() {
-        ExternalResource resource = resourceDAO.find("ws-target-resource-1");
-        assertNotNull(resource);
+        ExternalResource resource = resourceDAO.findById("ws-target-resource-1").orElseThrow();
 
         ConnInstance connector = resource.getConnector();
         assertNotNull(connector);
@@ -83,16 +81,8 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void findByConnInstance() {
-        List<ExternalResource> resources = resourceDAO.findByConnInstance("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
-        assertEquals(6, resources.size());
-        assertTrue(resources.contains(resourceDAO.find("ws-target-resource-1")));
-    }
-
-    @Test
     public void findWithOrgUnit() {
-        ExternalResource resource = resourceDAO.find("resource-ldap-orgunit");
-        assertNotNull(resource);
+        ExternalResource resource = resourceDAO.findById("resource-ldap-orgunit").orElseThrow();
         assertNotNull(resource.getOrgUnit());
     }
 
@@ -109,7 +99,7 @@ public class ResourceTest extends AbstractTest {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         try {
-            List<ExternalResource> resources = resourceDAO.findAll();
+            List<? extends ExternalResource> resources = resourceDAO.findAll();
             assertNotNull(resources);
             assertFalse(resources.isEmpty());
         } finally {
@@ -119,8 +109,7 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void getConnObjectKey() {
-        ExternalResource resource = resourceDAO.find("ws-target-resource-2");
-        assertNotNull(resource);
+        ExternalResource resource = resourceDAO.findById("ws-target-resource-2").orElseThrow();
         assertEquals("fullname", resource.getProvisionByAnyType(AnyTypeKind.USER.name()).get().
                 getMapping().getConnObjectKeyItem().get().getIntAttrName());
     }
@@ -145,12 +134,12 @@ public class ResourceTest extends AbstractTest {
         connObjectKey.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(connObjectKey);
 
-        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
+        ConnInstance connector = resourceDAO.findById("ws-target-resource-1").orElseThrow().getConnector();
         resource.setConnector(connector);
 
         // save the resource
         ExternalResource actual = resourceDAO.save(resource);
-        entityManager().flush();
+        entityManager.flush();
         assertNotNull(actual);
         assertNotNull(actual.getConnector());
         assertNotNull(actual.getProvisionByAnyType(AnyTypeKind.USER.name()).
@@ -166,7 +155,7 @@ public class ResourceTest extends AbstractTest {
             ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
             resource.setKey("ws-target-resource-basic-save-invalid");
 
-            ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
+            ConnInstance connector = resourceDAO.findById("ws-target-resource-1").orElseThrow().getConnector();
             resource.setConnector(connector);
 
             Provision provision = new Provision();
@@ -192,7 +181,7 @@ public class ResourceTest extends AbstractTest {
             ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
             resource.setKey("ws-target-resource-basic-save-invalid");
 
-            ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
+            ConnInstance connector = resourceDAO.findById("ws-target-resource-1").orElseThrow().getConnector();
             resource.setConnector(connector);
 
             Provision provision = new Provision();
@@ -241,7 +230,7 @@ public class ResourceTest extends AbstractTest {
             provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
             resource.getProvisions().add(provision);
 
-            ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
+            ConnInstance connector = resourceDAO.findById("ws-target-resource-1").orElseThrow().getConnector();
             resource.setConnector(connector);
 
             // save the resource
@@ -275,7 +264,7 @@ public class ResourceTest extends AbstractTest {
         virtualMapItem.setPurpose(MappingPurpose.PROPAGATION);
         mapping.add(virtualMapItem);
 
-        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
+        ConnInstance connector = resourceDAO.findById("ws-target-resource-1").orElseThrow().getConnector();
         resource.setConnector(connector);
 
         resourceDAO.save(resource);
@@ -286,7 +275,7 @@ public class ResourceTest extends AbstractTest {
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-basic-save-invalid");
 
-        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
+        ConnInstance connector = resourceDAO.findById("ws-target-resource-1").orElseThrow().getConnector();
         resource.setConnector(connector);
 
         Provision provision = new Provision();
@@ -317,7 +306,7 @@ public class ResourceTest extends AbstractTest {
 
         // save the resource
         ExternalResource actual = resourceDAO.save(resource);
-        entityManager().flush();
+        entityManager.flush();
         assertNotNull(actual);
 
         assertEquals(3, actual.getProvisionByAnyType(AnyTypeKind.USER.name()).
@@ -326,13 +315,11 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void delete() {
-        ExternalResource resource = resourceDAO.find("ws-target-resource-2");
-        assertNotNull(resource);
+        ExternalResource resource = resourceDAO.findById("ws-target-resource-2").orElseThrow();
 
-        resourceDAO.delete(resource.getKey());
+        resourceDAO.deleteById(resource.getKey());
 
-        ExternalResource actual = resourceDAO.find("ws-target-resource-2");
-        assertNull(actual);
+        assertTrue(resourceDAO.findById("ws-target-resource-2").isEmpty());
     }
 
     @Test

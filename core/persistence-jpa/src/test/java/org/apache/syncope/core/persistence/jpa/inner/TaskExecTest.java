@@ -34,9 +34,10 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class TaskExecTest extends AbstractTest {
 
     @Autowired
@@ -50,29 +51,31 @@ public class TaskExecTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = (PropagationTask) taskDAO.findById(
+                TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
         OffsetDateTime startedBefore = OffsetDateTime.of(2015, 12, 18, 0, 0, 0, 0, FormatUtils.DEFAULT_OFFSET);
 
-        List<TaskExec<?>> execs = taskExecDAO.findAll(task, startedBefore, null, -1, -1, List.of());
+        List<TaskExec<?>> execs = taskExecDAO.findAll(task, startedBefore, null, Pageable.unpaged());
         assertNotNull(execs);
         assertEquals(1, execs.size());
     }
 
     @Test
     public void findLatestStarted() {
-        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = (PropagationTask) taskDAO.findById(
+                TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
-        TaskExec<?> latestStarted = taskExecDAO.findLatestStarted(TaskType.PROPAGATION, task);
-        assertNotNull(latestStarted);
+        TaskExec<?> latestStarted = taskExecDAO.findLatestStarted(TaskType.PROPAGATION, task).orElseThrow();
         assertEquals("e58ca1c7-178a-4012-8a71-8aa14eaf0655", latestStarted.getKey());
     }
 
     @Test
     public void issueSYNCOPE214() {
-        PropagationTask task = taskDAO.find(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c");
+        PropagationTask task = (PropagationTask) taskDAO.findById(
+                TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
         String faultyMessage = "A faulty message";

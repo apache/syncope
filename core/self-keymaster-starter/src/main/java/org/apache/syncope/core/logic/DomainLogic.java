@@ -21,8 +21,6 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -56,12 +54,12 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public List<Domain> list() {
-        return domainDAO.findAll().stream().map(DomainEntity::get).collect(Collectors.toList());
+        return domainDAO.findAll().stream().map(DomainEntity::get).toList();
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public Domain read(final String key) {
-        DomainEntity domain = Optional.ofNullable(domainDAO.find(key)).
+        DomainEntity domain = domainDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Domain " + key));
 
         return domain.get();
@@ -73,7 +71,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
             throw new KeymasterException("Cannot create domain " + SyncopeConstants.MASTER_DOMAIN);
         }
 
-        if (domainDAO.find(domain.getKey()) != null) {
+        if (domainDAO.findById(domain.getKey()).isPresent()) {
             throw new DuplicateException("Domain " + domain.getKey() + " already existing");
         }
 
@@ -89,7 +87,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void changeAdminPassword(final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
-        DomainEntity domain = Optional.ofNullable(domainDAO.find(key)).
+        DomainEntity domain = domainDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Domain " + key));
 
         Domain domainObj = domain.get();
@@ -101,7 +99,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void adjustPoolSize(final String key, final int poolMaxActive, final int poolMinIdle) {
-        DomainEntity domain = Optional.ofNullable(domainDAO.find(key)).
+        DomainEntity domain = domainDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Domain " + key));
 
         Domain domainObj = domain.get();
@@ -113,7 +111,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void delete(final String key) {
-        domainDAO.delete(key);
+        domainDAO.deleteById(key);
 
         domainWatcher.removed(key);
     }

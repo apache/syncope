@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class SecurityQuestionTest extends AbstractTest {
 
     @Autowired
@@ -38,15 +38,13 @@ public class SecurityQuestionTest extends AbstractTest {
 
     @Test
     public void find() {
-        SecurityQuestion securityQuestion = securityQuestionDAO.find(
-                "887028ea-66fc-41e7-b397-620d7ea6dfbb");
-        assertNotNull(securityQuestion);
-        assertNotNull(securityQuestion.getContent());
+        SecurityQuestion question = securityQuestionDAO.findById("887028ea-66fc-41e7-b397-620d7ea6dfbb").orElseThrow();
+        assertNotNull(question.getContent());
     }
 
     @Test
     public void findAll() {
-        List<SecurityQuestion> securityQuestions = securityQuestionDAO.findAll();
+        List<? extends SecurityQuestion> securityQuestions = securityQuestionDAO.findAll();
         assertNotNull(securityQuestions);
         assertFalse(securityQuestions.isEmpty());
     }
@@ -63,7 +61,10 @@ public class SecurityQuestionTest extends AbstractTest {
 
     @Test
     public void delete() {
-        securityQuestionDAO.delete("887028ea-66fc-41e7-b397-620d7ea6dfbb");
-        assertNull(securityQuestionDAO.find("887028ea-66fc-41e7-b397-620d7ea6dfbb"));
+        assertTrue(securityQuestionDAO.findById("887028ea-66fc-41e7-b397-620d7ea6dfbb").isPresent());
+
+        securityQuestionDAO.deleteById("887028ea-66fc-41e7-b397-620d7ea6dfbb");
+
+        assertTrue(securityQuestionDAO.findById("887028ea-66fc-41e7-b397-620d7ea6dfbb").isEmpty());
     }
 }

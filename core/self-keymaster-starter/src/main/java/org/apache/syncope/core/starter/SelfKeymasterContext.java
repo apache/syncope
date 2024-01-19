@@ -21,6 +21,7 @@ package org.apache.syncope.core.starter;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,9 +61,10 @@ import org.apache.syncope.core.persistence.api.dao.ConfParamDAO;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
 import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
-import org.apache.syncope.core.persistence.jpa.dao.JPAConfParamDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPADomainDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPANetworkServiceDAO;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ConfParamRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.DomainRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.NetworkServiceRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.NetworkServiceRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.entity.JPASelfKeymasterEntityFactory;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.rest.cxf.JavaDocUtils;
@@ -85,6 +87,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 
 @EnableConfigurationProperties(KeymasterProperties.class)
 @Configuration(proxyBeanMethods = false)
@@ -258,18 +261,23 @@ public class SelfKeymasterContext {
     }
 
     @Bean
-    public ConfParamDAO confParamDAO() {
-        return new JPAConfParamDAO();
+    public ConfParamDAO confParamDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(ConfParamRepo.class);
     }
 
     @Bean
-    public DomainDAO domainDAO() {
-        return new JPADomainDAO();
+    public DomainDAO domainDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(DomainRepo.class);
     }
 
     @Bean
-    public NetworkServiceDAO networkServiceDAO() {
-        return new JPANetworkServiceDAO();
+    public NetworkServiceDAO networkServiceDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final EntityManager entityManager) {
+
+        return jpaRepositoryFactory.getRepository(
+                NetworkServiceRepo.class,
+                new NetworkServiceRepoExtImpl(entityManager));
     }
 
     @Bean

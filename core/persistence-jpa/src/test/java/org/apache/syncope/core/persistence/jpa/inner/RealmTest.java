@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -40,9 +39,10 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class RealmTest extends AbstractTest {
 
     @Autowired
@@ -58,20 +58,17 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void find() {
-        Realm realm = realmDAO.find("e4c28e7a-9dbf-4ee7-9441-93812a0d4a28");
-        assertNotNull(realm);
+        Realm realm = realmDAO.findById("e4c28e7a-9dbf-4ee7-9441-93812a0d4a28").orElseThrow();
         assertEquals(SyncopeConstants.ROOT_REALM, realm.getName());
         assertEquals(SyncopeConstants.ROOT_REALM, realm.getFullPath());
 
-        realm = realmDAO.find("c5b75db1-fce7-470f-b780-3b9934d82a9d");
-        assertNotNull(realm);
+        realm = realmDAO.findById("c5b75db1-fce7-470f-b780-3b9934d82a9d").orElseThrow();
         assertEquals("even", realm.getName());
         assertEquals("/even", realm.getFullPath());
         assertEquals("e4c28e7a-9dbf-4ee7-9441-93812a0d4a28", realm.getParent().getKey());
         assertEquals(realmDAO.getRoot(), realm.getParent());
 
-        realm = realmDAO.findByFullPath("/even/two");
-        assertNotNull(realm);
+        realm = realmDAO.findByFullPath("/even/two").orElseThrow();
         assertEquals("0679e069-7355-4b20-bd11-a5a0a5453c7c", realm.getKey());
         assertEquals("two", realm.getName());
         assertEquals("/even/two", realm.getFullPath());
@@ -84,40 +81,45 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void findChildren() {
-        List<Realm> children = realmDAO.findChildren(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM));
+        List<Realm> children = realmDAO.findChildren(
+                realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
         assertEquals(2, children.size());
-        assertTrue(children.contains(realmDAO.findByFullPath("/odd")));
-        assertTrue(children.contains(realmDAO.findByFullPath("/even")));
+        assertTrue(children.contains(realmDAO.findByFullPath("/odd").orElseThrow()));
+        assertTrue(children.contains(realmDAO.findByFullPath("/even").orElseThrow()));
 
-        children = realmDAO.findChildren(realmDAO.findByFullPath("/odd"));
+        children = realmDAO.findChildren(realmDAO.findByFullPath("/odd").orElseThrow());
         assertTrue(children.isEmpty());
     }
 
     @Test
     public void findAll() {
-        List<Realm> list = realmDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, -1, -1);
+        List<Realm> list = realmDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged());
         assertNotNull(list);
         assertFalse(list.isEmpty());
         list.forEach(Assertions::assertNotNull);
+
+        assertEquals(4, realmDAO.findAll(Pageable.unpaged()).stream().count());
     }
 
     @Test
     public void save() {
         Realm realm = entityFactory.newEntity(Realm.class);
         realm.setName("last");
-        realm.setParent(realmDAO.findByFullPath("/even/two"));
+        realm.setParent(realmDAO.findByFullPath("/even/two").orElseThrow());
 
         Realm actual = realmDAO.save(realm);
         assertNotNull(actual.getKey());
         assertEquals("last", actual.getName());
         assertEquals("/even/two/last", actual.getFullPath());
-        assertEquals(realmDAO.findByFullPath("/even/two"), actual.getParent());
+        assertEquals(realmDAO.findByFullPath("/even/two").orElseThrow(), actual.getParent());
         assertEquals("20ab5a8c-4b0c-432c-b957-f7fb9784d9f7", realm.getAccountPolicy().getKey());
         assertEquals("ce93fcda-dc3a-4369-a7b0-a6108c261c85", realm.getPasswordPolicy().getKey());
 
         realm = actual;
-        realm.setAccountPolicy((AccountPolicy) policyDAO.find("06e2ed52-6966-44aa-a177-a0ca7434201f"));
-        realm.setPasswordPolicy((PasswordPolicy) policyDAO.find("986d1236-3ac5-4a19-810c-5ab21d79cba1"));
+        realm.setAccountPolicy(policyDAO.findById(
+                "06e2ed52-6966-44aa-a177-a0ca7434201f", AccountPolicy.class).orElseThrow());
+        realm.setPasswordPolicy(policyDAO.findById(
+                "986d1236-3ac5-4a19-810c-5ab21d79cba1", PasswordPolicy.class).orElseThrow());
 
         actual = realmDAO.save(realm);
         assertEquals("06e2ed52-6966-44aa-a177-a0ca7434201f", actual.getAccountPolicy().getKey());
@@ -161,10 +163,10 @@ public class RealmTest extends AbstractTest {
         Realm actual = realmDAO.save(realm);
         assertNotNull(actual);
 
-        actual = realmDAO.find(actual.getKey());
+        actual = realmDAO.findById(actual.getKey()).orElseThrow();
         assertNotNull(actual);
 
         realmDAO.delete(actual);
-        assertNull(realmDAO.find(actual.getKey()));
+        assertTrue(realmDAO.findById(actual.getKey()).isEmpty());
     }
 }

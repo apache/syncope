@@ -42,6 +42,7 @@ import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -58,6 +59,7 @@ import org.apache.syncope.ext.scimv2.api.type.ErrorType;
 import org.apache.syncope.ext.scimv2.api.type.PatchOp;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.apache.syncope.ext.scimv2.api.type.SortOrder;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.util.CollectionUtils;
 
 public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> implements SCIMGroupService {
@@ -122,17 +124,16 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
         MembershipCond membCond = new MembershipCond();
         membCond.setGroup(group);
         SearchCond searchCond = SearchCond.getLeaf(membCond);
-        int count = userLogic.search(searchCond, 1, 1, List.of(), SyncopeConstants.ROOT_REALM, true, false).getLeft();
-        for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+        long count = userLogic.search(
+                searchCond, PageRequest.of(0, 1), SyncopeConstants.ROOT_REALM, true, false).getTotalElements();
+        for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {
             members.addAll(userLogic.search(
                     searchCond,
-                    page,
-                    AnyDAO.DEFAULT_PAGE_SIZE,
-                    List.of(),
+                    PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE, DAO.DEFAULT_SORT),
                     SyncopeConstants.ROOT_REALM,
                     true,
                     false).
-                    getRight().stream().map(UserTO::getKey).collect(Collectors.toSet()));
+                    get().map(UserTO::getKey).collect(Collectors.toSet()));
         }
 
         return members;

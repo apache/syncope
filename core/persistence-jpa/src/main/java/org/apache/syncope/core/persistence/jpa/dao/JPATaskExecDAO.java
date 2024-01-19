@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -25,65 +26,76 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTaskExec;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
-public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExecDAO {
+public class JPATaskExecDAO implements TaskExecDAO {
 
     protected final TaskDAO taskDAO;
 
     protected final TaskUtilsFactory taskUtilsFactory;
 
-    public JPATaskExecDAO(final TaskDAO taskDAO, final TaskUtilsFactory taskUtilsFactory) {
+    protected final EntityManager entityManager;
+
+    public JPATaskExecDAO(
+            final TaskDAO taskDAO,
+            final TaskUtilsFactory taskUtilsFactory,
+            final EntityManager entityManager) {
+
         this.taskDAO = taskDAO;
         this.taskUtilsFactory = taskUtilsFactory;
+        this.entityManager = entityManager;
     }
 
+    @Override
     @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Task<T>> TaskExec<T> find(final TaskType type, final String key) {
-        return (TaskExec<T>) entityManager().find(taskUtilsFactory.getInstance(type).getTaskExecEntity(), key);
+    public <T extends Task<T>> Optional<TaskExec<T>> findById(final TaskType type, final String key) {
+        return Optional.ofNullable(
+                (TaskExec<T>) entityManager.find(taskUtilsFactory.getInstance(type).getTaskExecEntity(), key));
     }
 
     @Override
-    public Optional<TaskExec<?>> find(final String key) {
-        TaskExec<?> task = find(TaskType.SCHEDULED, key);
-        if (task == null) {
-            task = find(TaskType.PULL, key);
+    public Optional<? extends TaskExec<?>> findById(final String key) {
+        Optional<? extends TaskExec<?>> task = findById(TaskType.SCHEDULED, key);
+        if (task.isEmpty()) {
+            task = findById(TaskType.PULL, key);
         }
-        if (task == null) {
-            task = find(TaskType.PUSH, key);
+        if (task.isEmpty()) {
+            task = findById(TaskType.PUSH, key);
         }
-        if (task == null) {
-            task = find(TaskType.MACRO, key);
+        if (task.isEmpty()) {
+            task = findById(TaskType.MACRO, key);
         }
-        if (task == null) {
-            task = find(TaskType.PROPAGATION, key);
+        if (task.isEmpty()) {
+            task = findById(TaskType.PROPAGATION, key);
         }
-        if (task == null) {
-            task = find(TaskType.NOTIFICATION, key);
+        if (task.isEmpty()) {
+            task = findById(TaskType.NOTIFICATION, key);
         }
 
-        return Optional.ofNullable(task);
+        return task;
     }
 
     @SuppressWarnings("unchecked")
     protected <T extends Task<T>> List<TaskExec<T>> findRecent(final TaskType type, final int max) {
-        Query query = entityManager().createQuery(
+        Query query = entityManager.createQuery(
                 "SELECT e FROM " + taskUtilsFactory.getInstance(type).getTaskExecEntity().getSimpleName() + " e "
                 + "WHERE e.end IS NOT NULL ORDER BY e.end DESC");
         query.setMaxResults(max);
 
         List<Object> result = query.getResultList();
-        return result.stream().map(e -> (TaskExec<T>) e).collect(Collectors.toList());
+        return result.stream().map(e -> (TaskExec<T>) e).toList();
     }
 
     @Override
@@ -97,30 +109,30 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
         return recent.stream().
                 sorted(Comparator.comparing(TaskExec<?>::getEnd).reversed()).
                 limit(max).
-                collect(Collectors.toList());
+                toList();
     }
 
     @SuppressWarnings("unchecked")
-    protected TaskExec<?> findLatest(final TaskType type, final Task<?> task, final String field) {
-        Query query = entityManager().createQuery(
+    protected Optional<? extends TaskExec<?>> findLatest(final TaskType type, final Task<?> task, final String field) {
+        Query query = entityManager.createQuery(
                 "SELECT e FROM " + taskUtilsFactory.getInstance(type).getTaskExecEntity().getSimpleName() + " e "
-                + "WHERE e.task=:task ORDER BY e." + field + " DESC");
-        query.setParameter("task", task);
+                + "WHERE e.task.id=:task ORDER BY e." + field + " DESC");
+        query.setParameter("task", task.getKey());
         query.setMaxResults(1);
 
         List<Object> result = query.getResultList();
-        return result == null || result.isEmpty()
-                ? null
-                : (TaskExec<?>) result.get(0);
+        return CollectionUtils.isEmpty(result)
+                ? Optional.empty()
+                : Optional.of((TaskExec<?>) result.get(0));
     }
 
     @Override
-    public TaskExec<?> findLatestStarted(final TaskType type, final Task<?> task) {
+    public Optional<? extends TaskExec<?>> findLatestStarted(final TaskType type, final Task<?> task) {
         return findLatest(type, task, "start");
     }
 
     @Override
-    public TaskExec<?> findLatestEnded(final TaskType type, final Task<?> task) {
+    public Optional<? extends TaskExec<?>> findLatestEnded(final TaskType type, final Task<?> task) {
         return findLatest(type, task, "end");
     }
 
@@ -143,14 +155,19 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
     }
 
     @Override
-    public int count(
+    public long count() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long count(
             final Task<?> task,
             final OffsetDateTime before,
             final OffsetDateTime after) {
 
         StringBuilder queryString = query(new StringBuilder("SELECT COUNT(e) FROM "), task, before, after);
 
-        Query query = entityManager().createQuery(queryString.toString());
+        Query query = entityManager.createQuery(queryString.toString());
         query.setParameter("task", task);
         if (before != null) {
             query.setParameter("before", before);
@@ -159,14 +176,14 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
             query.setParameter("after", after);
         }
 
-        return ((Number) query.getSingleResult()).intValue();
+        return ((Number) query.getSingleResult()).longValue();
     }
 
-    protected String toOrderByStatement(final List<OrderByClause> orderByClauses) {
+    protected String toOrderByStatement(final Stream<Sort.Order> orderByClauses) {
         StringBuilder statement = new StringBuilder();
 
         orderByClauses.forEach(clause -> {
-            String field = clause.getField().trim();
+            String field = clause.getProperty().trim();
             if (ReflectionUtils.findField(AbstractTaskExec.class, field) != null) {
                 statement.append("e.").append(field).append(' ').append(clause.getDirection().name());
             }
@@ -180,20 +197,23 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
         return statement.toString();
     }
 
+    @Override
+    public List<? extends TaskExec<?>> findAll() {
+        throw new UnsupportedOperationException();
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public List<TaskExec<?>> findAll(
             final Task<?> task,
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderByClauses) {
+            final Pageable pageable) {
 
         StringBuilder queryString = query(new StringBuilder("SELECT e FROM "), task, before, after).
-                append(toOrderByStatement(orderByClauses));
+                append(toOrderByStatement(pageable.getSort().stream()));
 
-        Query query = entityManager().createQuery(queryString.toString());
+        Query query = entityManager.createQuery(queryString.toString());
         query.setParameter("task", task);
         if (before != null) {
             query.setParameter("before", before);
@@ -202,11 +222,9 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
             query.setParameter("after", after);
         }
 
-        // page starts from 1, while setFirtResult() starts from 0
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-        if (itemsPerPage >= 0) {
-            query.setMaxResults(itemsPerPage);
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
+            query.setMaxResults(pageable.getPageSize());
         }
 
         List<Object> result = query.getResultList();
@@ -215,8 +233,8 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
 
     @Transactional(rollbackFor = { Throwable.class })
     @Override
-    public <T extends Task<T>> TaskExec<T> save(final TaskExec<T> execution) {
-        return entityManager().merge(execution);
+    public <S extends TaskExec<?>> S save(final S execution) {
+        return entityManager.merge(execution);
     }
 
     @Transactional(rollbackFor = { Throwable.class })
@@ -224,27 +242,27 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec<?>> implements TaskExec
     public <T extends Task<T>> void saveAndAdd(
             final TaskType taskType, final String taskKey, final TaskExec<T> execution) {
 
-        T task = taskDAO.find(taskType, taskKey);
-        task.add(execution);
-        taskDAO.save(task);
+        Optional<T> task = taskDAO.findById(taskType, taskKey);
+        if (task.isPresent()) {
+            task.get().add(execution);
+            taskDAO.save(task.get());
+        }
     }
 
     @Override
     public <T extends Task<T>> void delete(final TaskType taskType, final String key) {
-        TaskExec<T> execution = find(taskType, key);
-        if (execution == null) {
-            return;
-        }
-
-        delete(execution);
+        findById(taskType, key).ifPresent(this::delete);
     }
 
     @Override
-    public <T extends Task<T>> void delete(final TaskExec<T> execution) {
-        if (execution.getTask() != null) {
-            execution.getTask().getExecs().remove(execution);
-        }
+    public void delete(final TaskExec<?> execution) {
+        Optional.ofNullable(execution.getTask()).ifPresent(task -> task.getExecs().remove(execution));
 
-        entityManager().remove(execution);
+        entityManager.remove(execution);
+    }
+
+    @Override
+    public void deleteById(final String key) {
+        findById(key).ifPresent(this::delete);
     }
 }

@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -144,7 +145,7 @@ public class DBPasswordPullActionsTest extends AbstractTest {
 
     @Test
     public void after(final @Mock User user) throws JobExecutionException {
-        when(userDAO.find(user.getKey())).thenReturn(user);
+        when(userDAO.findById(user.getKey())).thenAnswer(ic -> Optional.of(user));
 
         dBPasswordPullActions.after(profile, syncDelta, userTO, result);
 

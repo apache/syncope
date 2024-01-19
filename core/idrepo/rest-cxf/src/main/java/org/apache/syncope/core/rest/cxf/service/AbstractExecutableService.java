@@ -20,7 +20,6 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import jakarta.ws.rs.core.Response;
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -34,6 +33,7 @@ import org.apache.syncope.common.rest.api.service.ExecutableService;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
+import org.springframework.data.domain.Page;
 
 public abstract class AbstractExecutableService extends AbstractService implements ExecutableService {
 
@@ -41,14 +41,12 @@ public abstract class AbstractExecutableService extends AbstractService implemen
 
     @Override
     public PagedResult<ExecTO> listExecutions(final ExecQuery query) {
-        Pair<Integer, List<ExecTO>> result = getExecutableLogic().listExecutions(
+        Page<ExecTO> result = getExecutableLogic().listExecutions(
                 query.getKey(),
                 query.getBefore(),
                 query.getAfter(),
-                query.getPage(),
-                query.getSize(),
-                getOrderByClauses(query.getOrderBy()));
-        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
+                pageable(query));
+        return buildPagedResult(result);
     }
 
     @Override

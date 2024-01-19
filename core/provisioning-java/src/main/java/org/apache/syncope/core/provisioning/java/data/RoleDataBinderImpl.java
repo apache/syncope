@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -105,22 +104,16 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
         role.getRealms().clear();
         for (String realmFullPath : roleTO.getRealms()) {
-            Realm realm = realmDAO.findByFullPath(realmFullPath);
-            if (realm == null) {
-                LOG.debug("Invalid realm full path {}, ignoring", realmFullPath);
-            } else {
-                role.add(realm);
-            }
+            realmDAO.findByFullPath(realmFullPath).ifPresentOrElse(
+                    role::add,
+                    () -> LOG.debug("Invalid realm full path {}, ignoring", realmFullPath));
         }
 
         role.getDynRealms().clear();
         for (String key : roleTO.getDynRealms()) {
-            DynRealm dynRealm = dynRealmDAO.find(key);
-            if (dynRealm == null) {
-                LOG.debug("Invalid dynamic ream {}, ignoring", key);
-            } else {
-                role.add(dynRealm);
-            }
+            dynRealmDAO.findById(key).ifPresentOrElse(
+                    role::add,
+                    () -> LOG.debug("Invalid dynamic ream {}, ignoring", key));
         }
 
         role = roleDAO.save(role);
@@ -141,12 +134,9 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
         role.getPrivileges().clear();
         for (String key : roleTO.getPrivileges()) {
-            Privilege privilege = applicationDAO.findPrivilege(key);
-            if (privilege == null) {
-                LOG.debug("Invalid privilege {}, ignoring", key);
-            } else {
-                role.add(privilege);
-            }
+            applicationDAO.findPrivilege(key).ifPresentOrElse(
+                    role::add,
+                    () -> LOG.debug("Invalid privilege {}, ignoring", key));
         }
 
         return roleDAO.saveAndRefreshDynMemberships(role);
@@ -160,17 +150,17 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         roleTO.getEntitlements().addAll(role.getEntitlements());
 
         roleTO.getRealms().addAll(role.getRealms().stream().
-                map(Realm::getFullPath).collect(Collectors.toList()));
+                map(Realm::getFullPath).toList());
 
         roleTO.getDynRealms().addAll(role.getDynRealms().stream().
-                map(DynRealm::getKey).collect(Collectors.toList()));
+                map(DynRealm::getKey).toList());
 
         if (role.getDynMembership() != null) {
             roleTO.setDynMembershipCond(role.getDynMembership().getFIQLCond());
         }
 
         roleTO.getPrivileges().addAll(role.getPrivileges().stream().
-                map(Privilege::getKey).collect(Collectors.toList()));
+                map(Privilege::getKey).toList());
 
         return roleTO;
     }

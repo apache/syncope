@@ -27,10 +27,10 @@ public class SearchViewSupport extends SearchSupport {
     }
 
     public SearchView attr() {
-        return new SearchView("sva", field().name + "_attr");
+        return new SearchView("sva", field().name() + "_attr");
     }
 
     public SearchView uniqueAttr() {
-        return new SearchView("svua", field().name + "_unique_attr");
+        return new SearchView("svua", field().name() + "_unique_attr");
     }
 }

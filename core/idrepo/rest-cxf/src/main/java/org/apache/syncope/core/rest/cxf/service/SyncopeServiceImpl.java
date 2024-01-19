@@ -28,9 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.Bus;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.http.DestinationRegistry;
@@ -54,13 +52,14 @@ import org.apache.syncope.core.rest.cxf.batch.BatchProcess;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.task.VirtualThreadPoolTaskExecutor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SyncopeServiceImpl extends AbstractService implements SyncopeService {
-
-    private static final String CONTENT_XML = "Content.xml";
 
     protected final SyncopeLogic logic;
 
@@ -90,9 +89,11 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
     public PagedResult<GroupTO> searchAssignableGroups(
             final String realm, final String term, final int page, final int size) {
 
-        Pair<Integer, List<GroupTO>> result = logic.searchAssignableGroups(
-                StringUtils.prependIfMissing(realm, SyncopeConstants.ROOT_REALM), term, page, size);
-        return buildPagedResult(result.getRight(), page, size, result.getLeft());
+        Page<GroupTO> result = logic.searchAssignableGroups(
+                StringUtils.prependIfMissing(realm, SyncopeConstants.ROOT_REALM),
+                term,
+                PageRequest.of(page < 1 ? 0 : page - 1, size < 1 ? 1 : size, Sort.by(Sort.Direction.ASC, "name")));
+        return buildPagedResult(result);
     }
 
     @Override
@@ -117,7 +118,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
         MediaType mediaType = MediaType.valueOf(messageContext.getHttpServletRequest().getContentType());
         String boundary = mediaType.getParameters().get(RESTHeaders.BOUNDARY_PARAMETER);
 
-        if (batchDAO.find(boundary) != null) {
+        if (batchDAO.findById(boundary).isPresent()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.EntityExists);
             sce.getElements().add("Batch with boundary " + boundary + " already processing");
             throw sce;
@@ -170,7 +171,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
         MediaType mediaType = MediaType.valueOf(messageContext.getHttpServletRequest().getContentType());
         String boundary = mediaType.getParameters().get(RESTHeaders.BOUNDARY_PARAMETER);
 
-        Batch batch = Optional.ofNullable(batchDAO.find(boundary)).
+        Batch batch = batchDAO.findById(boundary).
                 orElseThrow(() -> new NotFoundException("Batch " + boundary));
 
         if (batch.getResults() == null) {
@@ -185,7 +186,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
                 type(RESTHeaders.multipartMixedWith(boundary)).
                 build();
 
-        batchDAO.delete(boundary);
+        batchDAO.deleteById(boundary);
 
         return response;
     }
@@ -197,7 +198,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
         return Response.ok(sout).
                 type(MediaType.TEXT_XML).
                 header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=" + AuthContextUtils.getDomain() + CONTENT_XML).
+                        "attachment; filename=" + AuthContextUtils.getDomain() + "Content.xml").
                 build();
     }
 }

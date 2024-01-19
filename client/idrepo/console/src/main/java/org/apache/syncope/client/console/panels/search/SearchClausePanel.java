@@ -150,7 +150,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     protected final IModel<Map<String, PlainSchemaTO>> dnames;
 
-    protected final Pair<IModel<List<String>>, IModel<Integer>> groupInfo;
+    protected final Pair<IModel<List<String>>, IModel<Long>> groupInfo;
 
     protected final IModel<List<String>> roleNames;
 
@@ -186,7 +186,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final Customizer customizer,
             final IModel<Map<String, PlainSchemaTO>> anames,
             final IModel<Map<String, PlainSchemaTO>> dnames,
-            final Pair<IModel<List<String>>, IModel<Integer>> groupInfo,
+            final Pair<IModel<List<String>>, IModel<Long>> groupInfo,
             final IModel<List<String>> roleNames,
             final IModel<List<String>> privilegeNames,
             final IModel<List<String>> auxClassNames,

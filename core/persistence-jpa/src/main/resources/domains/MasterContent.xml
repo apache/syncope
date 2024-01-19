@@ -28,14 +28,13 @@ under the License.
   <AnyTypeClass id="BaseGroup"/>
   <AnyType_AnyTypeClass anyType_id="GROUP" anyTypeClass_id="BaseGroup"/>
         
-  <!-- Actual plain schemas -->
   <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
                   body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
   <SyncopeSchema id="email"/>
   <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                validator_id="EmailAddressValidator"/>
-  
+
   <Implementation id="BinaryValidator" type="VALIDATOR" engine="JAVA"
                   body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator"/>
 

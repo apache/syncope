@@ -18,21 +18,12 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 
 public interface DynRealmDAO extends DAO<DynRealm> {
 
-    DynRealm find(String key);
-
-    List<DynRealm> findAll();
-
-    DynRealm save(DynRealm dynRealm);
-
     DynRealm saveAndRefreshDynMemberships(DynRealm dynRealm);
-
-    void delete(String key);
 
     void refreshDynMemberships(Any<?> any);
 

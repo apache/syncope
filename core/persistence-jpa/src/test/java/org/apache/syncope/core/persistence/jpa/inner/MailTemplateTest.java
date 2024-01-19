@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
@@ -30,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class MailTemplateTest extends AbstractTest {
 
     @Autowired
@@ -38,15 +39,14 @@ public class MailTemplateTest extends AbstractTest {
 
     @Test
     public void find() {
-        MailTemplate optin = mailTemplateDAO.find("optin");
-        assertNotNull(optin);
+        MailTemplate optin = mailTemplateDAO.findById("optin").orElseThrow();
         assertNotNull(optin.getTextTemplate());
         assertNotNull(optin.getHTMLTemplate());
     }
 
     @Test
     public void findAll() {
-        List<MailTemplate> templates = mailTemplateDAO.findAll();
+        List<? extends MailTemplate> templates = mailTemplateDAO.findAll();
         assertNotNull(templates);
         assertFalse(templates.isEmpty());
     }
@@ -71,7 +71,7 @@ public class MailTemplateTest extends AbstractTest {
 
     @Test
     public void delete() {
-        mailTemplateDAO.delete("optin");
-        assertNull(mailTemplateDAO.find("optin"));
+        mailTemplateDAO.deleteById("optin");
+        assertTrue(mailTemplateDAO.findById("optin").isEmpty());
     }
 }

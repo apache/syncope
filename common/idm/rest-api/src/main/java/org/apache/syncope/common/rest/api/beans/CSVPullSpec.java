@@ -23,7 +23,6 @@ import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.QueryParam;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -50,7 +49,7 @@ public class CSVPullSpec extends AbstractCSVSpec {
         }
 
         public Builder ignoreColumns(final String... ignoreColumns) {
-            instance.getIgnoreColumns().addAll(Stream.of(ignoreColumns).collect(Collectors.toList()));
+            instance.getIgnoreColumns().addAll(Stream.of(ignoreColumns).toList());
             return this;
         }
 

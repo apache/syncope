@@ -43,6 +43,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -199,7 +200,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                                 ? missing.getValue()
                                 : missing.getValue().stream().
                                         filter(v -> !OperationalAttributes.PASSWORD_NAME.equals(v)).
-                                        collect(Collectors.toList()));
+                                        toList());
                     }
                 });
         Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, attrs)).
@@ -234,12 +235,16 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     anyUtils.addAttr(
                             validator,
                             taskInfo.getEntityKey(),
-                            plainSchemaDAO.find(provision.getUidOnCreate()),
+                            plainSchemaDAO.findById(provision.getUidOnCreate()).
+                                    orElseThrow(() -> new NotFoundException(
+                                    "PlainSchema " + (provision.getUidOnCreate()))),
                             result.getUidValue());
                     publisher.publishEvent(new EntityLifecycleEvent<>(
                             this,
                             SyncDeltaType.UPDATE,
-                            anyUtils.dao().find(taskInfo.getEntityKey()),
+                            anyUtils.dao().findById(taskInfo.getEntityKey()).
+                                    orElseThrow(() -> new NotFoundException(
+                                    anyUtils.anyTypeKind() + "" + taskInfo.getEntityKey())),
                             AuthContextUtils.getDomain()));
                 });
 
@@ -754,36 +759,32 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ExternalResource resource = taskInfo.getResource();
 
         boolean result;
-        switch (taskInfo.getOperation()) {
-
-            case CREATE:
-                result = (failed && resource.getCreateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                        || resource.getCreateTraceLevel() == TraceLevel.ALL;
-                break;
-
-            case UPDATE:
-                result = (failed && resource.getUpdateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                        || resource.getUpdateTraceLevel() == TraceLevel.ALL;
-                break;
-
-            case DELETE:
-                result = (failed && resource.getDeleteTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                        || resource.getDeleteTraceLevel() == TraceLevel.ALL;
-                break;
-
-            default:
-                result = false;
-        }
+        result =
+                switch (taskInfo.getOperation()) {
+            case CREATE ->
+                (failed && resource.getCreateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+                || resource.getCreateTraceLevel() == TraceLevel.ALL;
+            case UPDATE ->
+                (failed && resource.getUpdateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+                || resource.getUpdateTraceLevel() == TraceLevel.ALL;
+            case DELETE ->
+                (failed && resource.getDeleteTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+                || resource.getDeleteTraceLevel() == TraceLevel.ALL;
+            default ->
+                false;
+        };
 
         if (!result) {
             return Optional.empty();
         }
 
         PropagationTask task = Optional.ofNullable(taskInfo.getKey()).
-                map(key -> taskDAO.<PropagationTask>find(TaskType.PROPAGATION, key)).
+                flatMap(key -> taskDAO.findById(TaskType.PROPAGATION, key)).
+                map(PropagationTask.class::cast).
                 orElseGet(() -> {
                     PropagationTask t = taskUtilsFactory.getInstance(TaskType.PROPAGATION).newTask();
-                    t.setResource(resourceDAO.find(resource.getKey()));
+                    t.setResource(resourceDAO.findById(resource.getKey()).
+                            orElseThrow(() -> new NotFoundException("Resource " + resource.getKey())));
                     t.setObjectClassName(taskInfo.getObjectClass().getObjectClassValue());
                     t.setAnyTypeKind(taskInfo.getAnyTypeKind());
                     t.setAnyType(taskInfo.getAnyType());

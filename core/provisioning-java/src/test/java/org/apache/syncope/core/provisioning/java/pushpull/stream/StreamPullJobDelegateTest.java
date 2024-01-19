@@ -47,7 +47,7 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class StreamPullJobDelegateTest extends AbstractTest {
 
     @Autowired
@@ -106,7 +106,7 @@ public class StreamPullJobDelegateTest extends AbstractTest {
                 assertEquals(columns, csvColumns);
 
                 return executor().pull(
-                        anyTypeDAO.findUser(),
+                        anyTypeDAO.getUser(),
                         "username",
                         columns,
                         ConflictResolutionAction.IGNORE,
@@ -127,7 +127,7 @@ public class StreamPullJobDelegateTest extends AbstractTest {
         assertEquals(ResourceOperation.CREATE, results.get(0).getOperation());
         assertEquals(ProvisioningReport.Status.SUCCESS, results.get(0).getStatus());
 
-        User donizetti = userDAO.find(results.get(0).getKey());
+        User donizetti = userDAO.findById(results.get(0).getKey()).orElseThrow();
         assertNotNull(donizetti);
         assertEquals("donizetti", donizetti.getUsername());
         assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValuesAsStrings().get(0));

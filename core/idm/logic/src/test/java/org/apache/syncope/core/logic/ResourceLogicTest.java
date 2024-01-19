@@ -57,7 +57,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class ResourceLogicTest extends AbstractTest {
 
     @BeforeAll
@@ -172,7 +172,7 @@ public class ResourceLogicTest extends AbstractTest {
         assertNull(resourceTO.getPropagationPriority());
 
         resourceTO = logic.create(resourceTO);
-        entityManager().flush();
+        entityManager.flush();
         assertNull(resourceTO.getOrgUnit());
 
         OrgUnit orgUnit = new OrgUnit();
@@ -188,7 +188,7 @@ public class ResourceLogicTest extends AbstractTest {
 
         resourceTO.setOrgUnit(orgUnit);
         logic.update(resourceTO);
-        entityManager().flush();
+        entityManager.flush();
         assertNull(resourceTO.getPropagationPriority());
 
         resourceTO = logic.read("ws-orgunit");
@@ -197,7 +197,7 @@ public class ResourceLogicTest extends AbstractTest {
         resourceTO.setOrgUnit(null);
         resourceTO.setPropagationPriority(11);
         logic.update(resourceTO);
-        entityManager().flush();
+        entityManager.flush();
 
         resourceTO = logic.read("ws-orgunit");
         assertNull(resourceTO.getOrgUnit());
@@ -221,7 +221,7 @@ public class ResourceLogicTest extends AbstractTest {
                 resourceDAO, anyTypeDAO, null, null, null, null, null, null, null, connectorManager, null);
 
         resourceLogic.setLatestSyncToken(resourceTO.getKey(), AnyTypeKind.USER.name());
-        entityManager().flush();
+        entityManager.flush();
 
         resourceTO = logic.read(resourceTO.getKey());
         assertNotNull(resourceTO.getProvision(AnyTypeKind.USER.name()).get().getSyncToken());

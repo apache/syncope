@@ -405,12 +405,12 @@ public class UserITCase extends AbstractITCase {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
 
-        UserCR userCR = getSample("qqgf.z@nn.com");
-
+        UserCR userCR = getUniqueSample("qqgf.z@nn.com");
         // specify a propagation
         userCR.getResources().add(RESOURCE_NAME_TESTDB);
 
         UserTO userTO = createUser(userCR).getEntity();
+        assertEquals(Set.of(RESOURCE_NAME_TESTDB), userTO.getResources());
 
         String key = userTO.getKey();
 
@@ -603,7 +603,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void updatePasswordOnly() {
-        int beforeTasks = TASK_SERVICE.search(
+        long beforeTasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build()).getTotalCount();
         assertFalse(beforeTasks <= 0);
 
@@ -621,7 +621,7 @@ public class UserITCase extends AbstractITCase {
         // check for changePwdDate
         assertNotNull(userTO.getChangePwdDate());
 
-        int afterTasks = TASK_SERVICE.search(
+        long afterTasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build()).getTotalCount();
         assertFalse(afterTasks <= 0);
 

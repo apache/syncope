@@ -32,7 +32,6 @@ import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
-import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,12 +132,12 @@ public class BatchProcess implements Runnable {
 
         String results = BatchPayloadGenerator.generate(batchResponseItems, JAXRSService.DOUBLE_DASH + boundary);
 
-        Batch batch = batchDAO.find(boundary);
-        if (batch == null) {
-            LOG.error("Could not find batch {}, cannot save results hence reporting here:\n{}", boundary, results);
-        } else {
-            batch.setResults(results);
-            batchDAO.save(batch);
-        }
+        batchDAO.findById(boundary).ifPresentOrElse(
+                batch -> {
+                    batch.setResults(results);
+                    batchDAO.save(batch);
+                },
+                () -> LOG.error("Could not find batch {}, cannot save results hence reporting here:\n{}",
+                        boundary, results));
     }
 }

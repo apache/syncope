@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -93,7 +92,7 @@ public final class JavaDocUtils {
         }
 
         LOG.debug("JavaDoc paths found: {}",
-                result == null ? List.of() : Arrays.stream(result).collect(Collectors.toList()));
+                result == null ? List.of() : Arrays.stream(result).toList());
         return Optional.ofNullable(result);
     }
 

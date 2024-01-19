@@ -19,8 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.command.CommandArgs;
@@ -47,7 +45,6 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
@@ -127,7 +124,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                             filter(impl -> PushJobDelegate.class.getSimpleName().equals(impl.getKey())).
                             findFirst().orElse(null)
-                    : implementationDAO.find(pushTaskTO.getJobDelegate());
+                    : implementationDAO.findById(pushTaskTO.getJobDelegate()).orElse(null);
             if (jobDelegate == null) {
                 jobDelegate = entityFactory.newEntity(Implementation.class);
                 jobDelegate.setKey(PushJobDelegate.class.getSimpleName());
@@ -138,21 +135,17 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             }
             pushTask.setJobDelegate(jobDelegate);
 
-            pushTask.setSourceRealm(realmDAO.findByFullPath(pushTaskTO.getSourceRealm()));
+            pushTask.setSourceRealm(realmDAO.findByFullPath(pushTaskTO.getSourceRealm()).
+                    orElseThrow(() -> new NotFoundException("Realm " + pushTaskTO.getSourceRealm())));
 
             pushTask.setMatchingRule(pushTaskTO.getMatchingRule() == null
                     ? MatchingRule.LINK : pushTaskTO.getMatchingRule());
             pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
                     ? UnmatchingRule.ASSIGN : pushTaskTO.getUnmatchingRule());
 
-            pushTaskTO.getFilters().forEach((type, fiql) -> {
-                AnyType anyType = anyTypeDAO.find(type);
-                if (anyType == null) {
-                    LOG.debug("Invalid AnyType {} specified, ignoring...", type);
-                } else {
-                    pushTask.getFilters().put(anyType.getKey(), fiql);
-                }
-            });
+            pushTaskTO.getFilters().forEach((type, fiql) -> anyTypeDAO.findById(type).ifPresentOrElse(
+                    anyType -> pushTask.getFilters().put(anyType.getKey(), fiql),
+                    () -> LOG.debug("Invalid AnyType {} specified, ignoring...", type)));
             // remove all filters not contained in the TO
             pushTask.getFilters().entrySet().
                     removeIf(filter -> !pushTaskTO.getFilters().containsKey(filter.getKey()));
@@ -164,7 +157,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                             filter(impl -> PullJobDelegate.class.getSimpleName().equals(impl.getKey())).
                             findFirst().orElse(null)
-                    : implementationDAO.find(pullTaskTO.getJobDelegate());
+                    : implementationDAO.findById(pullTaskTO.getJobDelegate()).orElse(null);
             if (jobDelegate == null) {
                 jobDelegate = entityFactory.newEntity(Implementation.class);
                 jobDelegate.setKey(PullJobDelegate.class.getSimpleName());
@@ -180,12 +173,13 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             if (pullTaskTO.getReconFilterBuilder() == null) {
                 pullTask.setReconFilterBuilder(null);
             } else {
-                Optional.ofNullable(implementationDAO.find(pullTaskTO.getReconFilterBuilder())).ifPresentOrElse(
+                implementationDAO.findById(pullTaskTO.getReconFilterBuilder()).ifPresentOrElse(
                         pullTask::setReconFilterBuilder,
                         () -> LOG.debug("Invalid Implementation {}, ignoring...", pullTaskTO.getReconFilterBuilder()));
             }
 
-            pullTask.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()));
+            pullTask.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()).
+                    orElseThrow(() -> new NotFoundException("Realm " + pullTaskTO.getDestinationRealm())));
 
             pullTask.setMatchingRule(pullTaskTO.getMatchingRule() == null
                     ? MatchingRule.UPDATE : pullTaskTO.getMatchingRule());
@@ -194,22 +188,19 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
             // validate JEXL expressions from templates and proceed if fine
             TemplateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
-            pullTaskTO.getTemplates().forEach((type, template) -> {
-                AnyType anyType = anyTypeDAO.find(type);
-                if (anyType == null) {
-                    LOG.debug("Invalid AnyType {} specified, ignoring...", type);
-                } else {
-                    AnyTemplatePullTask anyTemplate = pullTask.getTemplate(anyType.getKey()).orElse(null);
-                    if (anyTemplate == null) {
-                        anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
-                        anyTemplate.setAnyType(anyType);
-                        anyTemplate.setPullTask(pullTask);
+            pullTaskTO.getTemplates().forEach((type, template) -> anyTypeDAO.findById(type).ifPresentOrElse(
+                    anyType -> {
+                        AnyTemplatePullTask anyTemplate = pullTask.getTemplate(anyType.getKey()).orElse(null);
+                        if (anyTemplate == null) {
+                            anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
+                            anyTemplate.setAnyType(anyType);
+                            anyTemplate.setPullTask(pullTask);
 
-                        pullTask.add(anyTemplate);
-                    }
-                    anyTemplate.set(template);
-                }
-            });
+                            pullTask.add(anyTemplate);
+                        }
+                        anyTemplate.set(template);
+                    },
+                    () -> LOG.debug("Invalid AnyType {} specified, ignoring...", type)));
             // remove all templates not contained in the TO
             pullTask.getTemplates().
                     removeIf(anyTemplate -> !pullTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey()));
@@ -223,10 +214,9 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         provisioningTask.setPerformDelete(provisioningTaskTO.isPerformDelete());
         provisioningTask.setSyncStatus(provisioningTaskTO.isSyncStatus());
 
-        provisioningTaskTO.getActions().forEach(
-                action -> Optional.ofNullable(implementationDAO.find(action)).ifPresentOrElse(
-                        provisioningTask::add,
-                        () -> LOG.debug("Invalid Implementation {}, ignoring...", action)));
+        provisioningTaskTO.getActions().forEach(action -> implementationDAO.findById(action).ifPresentOrElse(
+                provisioningTask::add,
+                () -> LOG.debug("Invalid Implementation {}, ignoring...", action)));
         // remove all implementations not contained in the TO
         provisioningTask.getActions().removeIf(impl -> !provisioningTaskTO.getActions().contains(impl.getKey()));
 
@@ -234,11 +224,11 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
     }
 
     protected void fill(final MacroTask macroTask, final MacroTaskTO macroTaskTO) {
-        macroTask.setRealm(Optional.ofNullable(realmDAO.findByFullPath(macroTaskTO.getRealm())).
+        macroTask.setRealm(realmDAO.findByFullPath(macroTaskTO.getRealm()).
                 orElseThrow(() -> new NotFoundException("Realm " + macroTaskTO.getRealm())));
 
         macroTaskTO.getCommands().
-                forEach(command -> Optional.ofNullable(implementationDAO.find(command.getKey())).ifPresentOrElse(
+                forEach(command -> implementationDAO.findById(command.getKey()).ifPresentOrElse(
                 impl -> {
                     try {
                         CommandArgs args = command.getArgs();
@@ -277,16 +267,17 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         task.setActive(taskTO.isActive());
 
         if (taskUtils.getType() == TaskType.SCHEDULED) {
-            task.setJobDelegate(Optional.ofNullable(implementationDAO.find(taskTO.getJobDelegate())).
+            task.setJobDelegate(implementationDAO.findById(taskTO.getJobDelegate()).
                     orElseThrow(() -> new NotFoundException("JobDelegate " + taskTO.getJobDelegate())));
         } else if (taskTO instanceof MacroTaskTO macroTaskTO) {
             MacroTask macroTask = (MacroTask) task;
 
-            Implementation jobDelegate = macroTaskTO.getJobDelegate() == null
+            Implementation jobDelegate = (macroTaskTO.getJobDelegate() == null
                     ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
                             filter(impl -> MACRO_RUN_JOB_DELEGATE.equals(impl.getBody())).
-                            findFirst().orElse(null)
-                    : implementationDAO.find(macroTaskTO.getJobDelegate());
+                            findFirst()
+                    : implementationDAO.findById(macroTaskTO.getJobDelegate())).
+                    orElse(null);
             if (jobDelegate == null) {
                 jobDelegate = entityFactory.newEntity(Implementation.class);
                 jobDelegate.setKey(StringUtils.substringAfterLast(MACRO_RUN_JOB_DELEGATE, "."));
@@ -297,14 +288,14 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             }
             macroTask.setJobDelegate(jobDelegate);
 
-            macroTask.setRealm(Optional.ofNullable(realmDAO.findByFullPath(macroTaskTO.getRealm())).
+            macroTask.setRealm(realmDAO.findByFullPath(macroTaskTO.getRealm()).
                     orElseThrow(() -> new NotFoundException("Realm " + macroTaskTO.getRealm())));
 
             fill(macroTask, macroTaskTO);
         } else if (taskTO instanceof ProvisioningTaskTO provisioningTaskTO) {
             ProvisioningTask<?> provisioningTask = (ProvisioningTask<?>) task;
 
-            provisioningTask.setResource(Optional.ofNullable(resourceDAO.find(provisioningTaskTO.getResource())).
+            provisioningTask.setResource(resourceDAO.findById(provisioningTaskTO.getResource()).
                     orElseThrow(() -> new NotFoundException("Resource " + provisioningTaskTO.getResource())));
 
             fill(provisioningTask, provisioningTaskTO);
@@ -331,15 +322,21 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         task.setCronExpression(taskTO.getCronExpression());
         task.setActive(taskTO.isActive());
 
-        if (task instanceof MacroTask macroTask) {
-            MacroTaskTO macroTaskTO = (MacroTaskTO) taskTO;
+        switch (task) {
+            case MacroTask macroTask -> {
+                MacroTaskTO macroTaskTO = (MacroTaskTO) taskTO;
 
-            macroTask.getCommands().clear();
-            macroTask.getCommandArgs().clear();
+                macroTask.getCommands().clear();
+                macroTask.getCommandArgs().clear();
 
-            fill(macroTask, macroTaskTO);
-        } else if (task instanceof ProvisioningTask<?> provisioningTask) {
-            fill(provisioningTask, (ProvisioningTaskTO) taskTO);
+                fill(macroTask, macroTaskTO);
+            }
+
+            case ProvisioningTask<?> provisioningTask ->
+                fill(provisioningTask, (ProvisioningTaskTO) taskTO);
+
+            default -> {
+            }
         }
     }
 
@@ -400,7 +397,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             provisioningTaskTO.setResource(provisioningTask.getResource().getKey());
 
             provisioningTaskTO.getActions().addAll(
-                    provisioningTask.getActions().stream().map(Implementation::getKey).collect(Collectors.toList()));
+                    provisioningTask.getActions().stream().map(Implementation::getKey).toList());
 
             provisioningTaskTO.setPerformCreate(provisioningTask.isPerformCreate());
             provisioningTaskTO.setPerformUpdate(provisioningTask.isPerformUpdate());
@@ -416,7 +413,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         T taskTO = taskUtils.newTaskTO();
         taskTO.setKey(task.getKey());
 
-        Optional.ofNullable(taskExecDAO.findLatestStarted(taskUtils.getType(), task)).ifPresentOrElse(
+        taskExecDAO.findLatestStarted(taskUtils.getType(), task).ifPresentOrElse(
                 latestExec -> {
                     taskTO.setLatestExecStatus(latestExec.getStatus());
                     taskTO.setStart(latestExec.getStart());

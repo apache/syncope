@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -127,12 +126,12 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             List<PropagationTaskInfo> prioritizedTasks = taskInfos.stream().
                     filter(task -> task.getResource().getPropagationPriority() != null).
                     sorted(Comparator.comparing(task -> task.getResource().getPropagationPriority())).
-                    collect(Collectors.toList());
+                    toList();
             LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
 
             List<PropagationTaskInfo> concurrentTasks = taskInfos.stream().
                     filter(task -> !prioritizedTasks.contains(task)).
-                    collect(Collectors.toList());
+                    toList();
             LOG.debug("Propagation tasks for concurrent execution: {}", concurrentTasks);
 
             // first process priority resources sequentially and fail as soon as any propagation failure is reported

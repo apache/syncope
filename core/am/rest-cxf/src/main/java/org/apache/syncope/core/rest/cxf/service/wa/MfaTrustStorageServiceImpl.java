@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.core.rest.cxf.service.wa;
 
-import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.wa.MfaTrustedDevice;
 import org.apache.syncope.common.rest.api.beans.MfaTrustedDeviceQuery;
 import org.apache.syncope.common.rest.api.service.wa.MfaTrustStorageService;
 import org.apache.syncope.core.logic.wa.MfaTrusStorageLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractService;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,14 +38,12 @@ public class MfaTrustStorageServiceImpl extends AbstractService implements MfaTr
 
     @Override
     public PagedResult<MfaTrustedDevice> search(final MfaTrustedDeviceQuery query) {
-        Pair<Integer, List<MfaTrustedDevice>> result = logic.search(
-                query.getPage(),
-                query.getSize(),
+        Page<MfaTrustedDevice> result = logic.search(
                 query.getPrincipal(),
                 query.getId(),
                 query.getRecordDate(),
-                getOrderByClauses(query.getOrderBy()));
-        return buildPagedResult(result.getRight(), query.getPage(), query.getSize(), result.getLeft());
+                pageable(query));
+        return buildPagedResult(result);
     }
 
     @Override

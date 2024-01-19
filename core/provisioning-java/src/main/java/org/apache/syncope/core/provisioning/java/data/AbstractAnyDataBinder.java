@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -54,7 +53,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -73,7 +71,6 @@ import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.AccountGetter;
@@ -100,6 +97,58 @@ abstract class AbstractAnyDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAnyDataBinder.class);
 
+    protected static void fillTO(
+            final AnyTO anyTO,
+            final String realmFullPath,
+            final Collection<? extends AnyTypeClass> auxClasses,
+            final Collection<? extends PlainAttr<?>> plainAttrs,
+            final Map<DerSchema, String> derAttrs,
+            final Map<VirSchema, List<String>> virAttrs,
+            final Collection<? extends ExternalResource> resources) {
+
+        anyTO.setRealm(realmFullPath);
+
+        anyTO.getAuxClasses().addAll(auxClasses.stream().map(AnyTypeClass::getKey).toList());
+
+        plainAttrs.forEach(plainAttr -> anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
+                values(plainAttr.getValuesAsStrings()).build()));
+
+        derAttrs.forEach((schema, value) -> anyTO.getDerAttrs().
+                add(new Attr.Builder(schema.getKey()).value(value).build()));
+
+        virAttrs.forEach((schema, values) -> anyTO.getVirAttrs().
+                add(new Attr.Builder(schema.getKey()).values(values).build()));
+
+        anyTO.getResources().addAll(resources.stream().map(ExternalResource::getKey).collect(Collectors.toSet()));
+    }
+
+    protected static RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
+        return new RelationshipTO.Builder(relationshipType).
+                otherEnd(otherEnd.getType().getKey(), otherEnd.getKey(), otherEnd.getName()).
+                build();
+    }
+
+    protected static MembershipTO getMembershipTO(
+            final Collection<? extends PlainAttr<?>> plainAttrs,
+            final Map<DerSchema, String> derAttrs,
+            final Map<VirSchema, List<String>> virAttrs,
+            final Membership<? extends Any<?>> membership) {
+
+        MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey()).
+                groupName(membership.getRightEnd().getName()).build();
+
+        plainAttrs.forEach(plainAttr -> membershipTO.getPlainAttrs().
+                add(new Attr.Builder(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
+
+        derAttrs.forEach((schema, value) -> membershipTO.getDerAttrs().
+                add(new Attr.Builder(schema.getKey()).value(value).build()));
+
+        virAttrs.forEach((schema, values) -> membershipTO.getVirAttrs().
+                add(new Attr.Builder(schema.getKey()).values(values).build()));
+
+        return membershipTO;
+    }
+
     protected final AnyTypeDAO anyTypeDAO;
 
     protected final RealmDAO realmDAO;
@@ -113,8 +162,6 @@ abstract class AbstractAnyDataBinder {
     protected final GroupDAO groupDAO;
 
     protected final PlainSchemaDAO plainSchemaDAO;
-
-    protected final PlainAttrDAO plainAttrDAO;
 
     protected final PlainAttrValueDAO plainAttrValueDAO;
 
@@ -146,7 +193,6 @@ abstract class AbstractAnyDataBinder {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrDAO plainAttrDAO,
             final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
@@ -166,7 +212,6 @@ abstract class AbstractAnyDataBinder {
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.plainSchemaDAO = plainSchemaDAO;
-        this.plainAttrDAO = plainAttrDAO;
         this.plainAttrValueDAO = plainAttrValueDAO;
         this.resourceDAO = resourceDAO;
         this.relationshipTypeDAO = relationshipTypeDAO;
@@ -182,12 +227,9 @@ abstract class AbstractAnyDataBinder {
 
     protected void setRealm(final Any<?> any, final AnyUR anyUR) {
         if (anyUR.getRealm() != null && StringUtils.isNotBlank(anyUR.getRealm().getValue())) {
-            Realm newRealm = realmDAO.findByFullPath(anyUR.getRealm().getValue());
-            if (newRealm == null) {
-                LOG.debug("Invalid realm specified: {}, ignoring", anyUR.getRealm().getValue());
-            } else {
-                any.setRealm(newRealm);
-            }
+            realmDAO.findByFullPath(anyUR.getRealm().getValue()).ifPresentOrElse(
+                    newRealm -> any.setRealm(newRealm),
+                    () -> LOG.debug("Invalid realm specified: {}, ignoring", anyUR.getRealm().getValue()));
         }
     }
 
@@ -199,31 +241,30 @@ abstract class AbstractAnyDataBinder {
 
         Map<String, ConnObject> onResources = new HashMap<>();
 
-        resources.stream().map(resourceDAO::find).filter(Objects::nonNull).forEach(resource -> {
-            resource.getProvisionByAnyType(any.getType().getKey()).
-                    ifPresent(provision -> MappingUtils.getConnObjectKeyItem(provision).ifPresent(keyItem -> {
+        resources.stream().map(resourceDAO::findById).filter(Optional::isPresent).map(Optional::get).
+                forEach(resource -> resource.getProvisionByAnyType(any.getType().getKey()).
+                ifPresent(provision -> MappingUtils.getConnObjectKeyItem(provision).ifPresent(keyItem -> {
 
-                Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
-                        any, password, changePwd, true, resource, provision);
+            Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
+                    any, password, changePwd, true, resource, provision);
 
-                ConnObject connObjectTO;
-                if (StringUtils.isBlank(prepared.getLeft())) {
-                    connObjectTO = ConnObjectUtils.getConnObjectTO(null, prepared.getRight());
-                } else {
-                    ConnectorObject connectorObject = new ConnectorObjectBuilder().
-                            addAttributes(prepared.getRight()).
-                            addAttribute(new Uid(prepared.getLeft())).
-                            addAttribute(AttributeBuilder.build(keyItem.getExtAttrName(), prepared.getLeft())).
-                            build();
+            ConnObject connObjectTO;
+            if (StringUtils.isBlank(prepared.getLeft())) {
+                connObjectTO = ConnObjectUtils.getConnObjectTO(null, prepared.getRight());
+            } else {
+                ConnectorObject connectorObject = new ConnectorObjectBuilder().
+                        addAttributes(prepared.getRight()).
+                        addAttribute(new Uid(prepared.getLeft())).
+                        addAttribute(AttributeBuilder.build(keyItem.getExtAttrName(), prepared.getLeft())).
+                        build();
 
-                    connObjectTO = ConnObjectUtils.getConnObjectTO(
-                            outboundMatcher.getFIQL(connectorObject, resource, provision),
-                            connectorObject.getAttributes());
-                }
+                connObjectTO = ConnObjectUtils.getConnObjectTO(
+                        outboundMatcher.getFIQL(connectorObject, resource, provision),
+                        connectorObject.getAttributes());
+            }
 
-                onResources.put(resource.getKey(), connObjectTO);
-            }));
-        });
+            onResources.put(resource.getKey(), connObjectTO);
+        })));
 
         return onResources;
     }
@@ -231,7 +272,7 @@ abstract class AbstractAnyDataBinder {
     protected PlainSchema getPlainSchema(final String schemaName) {
         PlainSchema schema = null;
         if (StringUtils.isNotBlank(schemaName)) {
-            schema = plainSchemaDAO.find(schemaName);
+            schema = plainSchemaDAO.findById(schemaName).orElse(null);
 
             // safely ignore invalid schemas from Attr
             if (schema == null) {
@@ -405,14 +446,14 @@ abstract class AbstractAnyDataBinder {
 
                 // if no values are in, the attribute can be safely removed
                 if (attr.getValuesAsStrings().isEmpty()) {
-                    plainAttrDAO.delete(attr);
+                    plainSchemaDAO.delete(attr);
                 }
                 break;
 
             case DELETE:
             default:
                 any.remove(attr);
-                plainAttrDAO.delete(attr);
+                plainSchemaDAO.delete(attr);
         }
     }
 
@@ -425,38 +466,38 @@ abstract class AbstractAnyDataBinder {
 
         // 1. anyTypeClasses
         for (StringPatchItem patch : anyUR.getAuxClasses()) {
-            AnyTypeClass auxClass = anyTypeClassDAO.find(patch.getValue());
-            if (auxClass == null) {
-                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...", patch.getValue());
-            } else {
-                switch (patch.getOperation()) {
-                    case ADD_REPLACE:
-                        any.add(auxClass);
-                        break;
+            anyTypeClassDAO.findById(patch.getValue()).ifPresentOrElse(
+                    auxClass -> {
+                        switch (patch.getOperation()) {
+                            case ADD_REPLACE:
+                                any.add(auxClass);
+                                break;
 
-                    case DELETE:
-                    default:
-                        any.getAuxClasses().remove(auxClass);
-                }
-            }
+                            case DELETE:
+                            default:
+                                any.getAuxClasses().remove(auxClass);
+                        }
+                    },
+                    () -> LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...",
+                            patch.getValue()));
         }
 
         // 2. resources
         for (StringPatchItem patch : anyUR.getResources()) {
-            ExternalResource resource = resourceDAO.find(patch.getValue());
-            if (resource == null) {
-                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...", patch.getValue());
-            } else {
-                switch (patch.getOperation()) {
-                    case ADD_REPLACE:
-                        any.add(resource);
-                        break;
+            resourceDAO.findById(patch.getValue()).ifPresentOrElse(
+                    resource -> {
+                        switch (patch.getOperation()) {
+                            case ADD_REPLACE:
+                                any.add(resource);
+                                break;
 
-                    case DELETE:
-                    default:
-                        any.getResources().remove(resource);
-                }
-            }
+                            case DELETE:
+                            default:
+                                any.getResources().remove(resource);
+                        }
+                    },
+                    () -> LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...",
+                            patch.getValue()));
         }
 
         Set<ExternalResource> resources = anyUtils.getAllResources(any);
@@ -535,7 +576,8 @@ abstract class AbstractAnyDataBinder {
         // 0. aux classes
         any.getAuxClasses().clear();
         anyCR.getAuxClasses().stream().
-                map(className -> anyTypeClassDAO.find(className)).
+                map(className -> anyTypeClassDAO.findById(className)).
+                filter(Optional::isPresent).map(Optional::get).
                 forEach(auxClass -> {
                     if (auxClass == null) {
                         LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...", auxClass);
@@ -578,14 +620,9 @@ abstract class AbstractAnyDataBinder {
         }
 
         // 2. resources
-        anyCR.getResources().forEach(resourceKey -> {
-            ExternalResource resource = resourceDAO.find(resourceKey);
-            if (resource == null) {
-                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...", resourceKey);
-            } else {
-                any.add(resource);
-            }
-        });
+        anyCR.getResources().forEach(resource -> resourceDAO.findById(resource).ifPresentOrElse(
+                any::add,
+                () -> LOG.debug("Invalid {} {}, ignoring...", ExternalResource.class.getSimpleName(), resource)));
 
         requiredValuesMissing = checkMandatoryOnResources(any, anyUtils.getAllResources(any));
         if (!requiredValuesMissing.isEmpty()) {
@@ -628,63 +665,5 @@ abstract class AbstractAnyDataBinder {
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
         }
-    }
-
-    protected static void fillTO(
-            final AnyTO anyTO,
-            final String realmFullPath,
-            final Collection<? extends AnyTypeClass> auxClasses,
-            final Collection<? extends PlainAttr<?>> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
-            final Map<VirSchema, List<String>> virAttrs,
-            final Collection<? extends ExternalResource> resources) {
-
-        anyTO.setRealm(realmFullPath);
-
-        anyTO.getAuxClasses().addAll(auxClasses.stream().map(AnyTypeClass::getKey).collect(Collectors.toList()));
-
-        plainAttrs
-                .forEach(plainAttr -> anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey())
-                .values(plainAttr.getValuesAsStrings()).build()));
-
-        derAttrs.forEach((schema, value) -> anyTO.getDerAttrs()
-                .add(new Attr.Builder(schema.getKey()).value(value).build()));
-
-        virAttrs.forEach((schema, values) -> anyTO.getVirAttrs()
-                .add(new Attr.Builder(schema.getKey()).values(values).build()));
-
-        anyTO.getResources().addAll(resources.stream().map(ExternalResource::getKey).collect(Collectors.toSet()));
-    }
-
-    protected static RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
-        return new RelationshipTO.Builder(relationshipType).
-                otherEnd(otherEnd.getType().getKey(), otherEnd.getKey(), otherEnd.getName()).
-                build();
-    }
-
-    protected static MembershipTO getMembershipTO(
-            final Collection<? extends PlainAttr<?>> plainAttrs,
-            final Map<DerSchema, String> derAttrs,
-            final Map<VirSchema, List<String>> virAttrs,
-            final Membership<? extends Any<?>> membership) {
-
-        MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey())
-                .groupName(membership.getRightEnd().getName())
-                .build();
-
-        plainAttrs.forEach(plainAttr -> membershipTO.getPlainAttrs()
-                .add(new Attr.Builder(plainAttr.getSchema().getKey())
-                        .values(plainAttr.getValuesAsStrings()).
-                        build()));
-
-        derAttrs.forEach((schema, value) -> membershipTO.getDerAttrs().add(new Attr.Builder(schema.getKey()).
-                value(value).
-                build()));
-
-        virAttrs.forEach((schema, values) -> membershipTO.getVirAttrs().add(new Attr.Builder(schema.getKey()).
-                values(values).
-                build()));
-
-        return membershipTO;
     }
 }

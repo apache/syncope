@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.JavaImplInfo;
@@ -199,7 +198,7 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
                 PLATFORM_INFO = new PlatformInfo();
 
                 PLATFORM_INFO.getConnIdLocations().addAll(bundleManager.getLocations().stream().
-                        map(URI::toASCIIString).collect(Collectors.toList()));
+                        map(URI::toASCIIString).toList());
 
                 ImplementationTypesHolder.getInstance().getValues().forEach((typeName, typeInterface) -> {
                     Set<String> classNames = implLookup.getClassNames(typeName);
@@ -223,23 +222,22 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             PLATFORM_INFO.getImplementationTypes().clear();
             PLATFORM_INFO.getImplementationTypes().addAll(ImplementationTypesHolder.getInstance().getValues().keySet());
 
-            AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(), () -> {
+            AuthContextUtils.runAsAdmin(AuthContextUtils.getDomain(), () -> {
                 PLATFORM_INFO.getAnyTypes().clear();
                 PLATFORM_INFO.getAnyTypes().addAll(anyTypeDAO.findAll().stream().
-                        map(AnyType::getKey).collect(Collectors.toList()));
+                        map(AnyType::getKey).toList());
 
                 PLATFORM_INFO.getUserClasses().clear();
-                PLATFORM_INFO.getUserClasses().addAll(anyTypeDAO.findUser().getClasses().stream().
-                        map(AnyTypeClass::getKey).collect(Collectors.toList()));
+                PLATFORM_INFO.getUserClasses().addAll(anyTypeDAO.getUser().getClasses().stream().
+                        map(AnyTypeClass::getKey).toList());
 
                 PLATFORM_INFO.getAnyTypeClasses().clear();
                 PLATFORM_INFO.getAnyTypeClasses().addAll(anyTypeClassDAO.findAll().stream().
-                        map(AnyTypeClass::getKey).collect(Collectors.toList()));
+                        map(AnyTypeClass::getKey).toList());
 
                 PLATFORM_INFO.getResources().clear();
                 PLATFORM_INFO.getResources().addAll(resourceDAO.findAll().stream().
-                        map(ExternalResource::getKey).collect(Collectors.toList()));
-                return null;
+                        map(ExternalResource::getKey).toList());
             });
         }
     }
@@ -255,12 +253,12 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             numbersInfo.setTotalGroups(groupDAO.count());
             numbersInfo.getGroupsByRealm().putAll(groupDAO.countByRealm());
 
-            Map<AnyType, Integer> anyObjectNumbers = anyObjectDAO.countByType();
+            Map<AnyType, Long> anyObjectNumbers = anyObjectDAO.countByType();
             int i = 0;
-            for (Iterator<Map.Entry<AnyType, Integer>> itor = anyObjectNumbers.entrySet().iterator();
+            for (Iterator<Map.Entry<AnyType, Long>> itor = anyObjectNumbers.entrySet().iterator();
                     i < 2 && itor.hasNext(); i++) {
 
-                Map.Entry<AnyType, Integer> entry = itor.next();
+                Map.Entry<AnyType, Long> entry = itor.next();
                 if (i == 0) {
                     numbersInfo.setAnyType1(entry.getKey().getKey());
                     numbersInfo.setTotalAny1(entry.getValue());
@@ -279,9 +277,9 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             numbersInfo.getConfCompleteness().put(
                     NumbersInfo.ConfItem.RESOURCE.name(), numbersInfo.getTotalResources() > 0);
             numbersInfo.getConfCompleteness().put(
-                    NumbersInfo.ConfItem.ACCOUNT_POLICY.name(), !policyDAO.find(AccountPolicy.class).isEmpty());
+                    NumbersInfo.ConfItem.ACCOUNT_POLICY.name(), !policyDAO.findAll(AccountPolicy.class).isEmpty());
             numbersInfo.getConfCompleteness().put(
-                    NumbersInfo.ConfItem.PASSWORD_POLICY.name(), !policyDAO.find(PasswordPolicy.class).isEmpty());
+                    NumbersInfo.ConfItem.PASSWORD_POLICY.name(), !policyDAO.findAll(PasswordPolicy.class).isEmpty());
             numbersInfo.getConfCompleteness().put(
                     NumbersInfo.ConfItem.NOTIFICATION.name(), !notificationDAO.findAll().isEmpty());
             numbersInfo.getConfCompleteness().put(

@@ -46,16 +46,15 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
@@ -306,39 +305,39 @@ public class DefaultNotificationManager implements NotificationManager {
 
         String currentEvent = AuditLoggerName.buildEvent(type, category, subcategory, event, condition);
 
-        Any<?> any = null;
+        Optional<? extends Any<?>> any = Optional.empty();
 
-        if (before instanceof UserTO) {
-            any = userDAO.find(((UserTO) before).getKey());
-        } else if (output instanceof UserTO) {
-            any = userDAO.find(((UserTO) output).getKey());
+        if (before instanceof UserTO userTO) {
+            any = userDAO.findById(userTO.getKey());
+        } else if (output instanceof UserTO userTO) {
+            any = userDAO.findById(userTO.getKey());
         } else if (output instanceof Pair
                 && ((Pair) output).getRight() instanceof UserTO) {
 
-            any = userDAO.find(((UserTO) ((Pair) output).getRight()).getKey());
+            any = userDAO.findById(((UserTO) ((Pair) output).getRight()).getKey());
         } else if (output instanceof ProvisioningResult
                 && ((ProvisioningResult) output).getEntity() instanceof UserTO) {
 
-            any = userDAO.find(((ProvisioningResult) output).getEntity().getKey());
-        } else if (before instanceof AnyObjectTO) {
-            any = anyObjectDAO.find(((AnyObjectTO) before).getKey());
-        } else if (output instanceof AnyObjectTO) {
-            any = anyObjectDAO.find(((AnyObjectTO) output).getKey());
+            any = userDAO.findById(((ProvisioningResult) output).getEntity().getKey());
+        } else if (before instanceof AnyObjectTO anyObjectTO) {
+            any = anyObjectDAO.findById(anyObjectTO.getKey());
+        } else if (output instanceof AnyObjectTO anyObjectTO) {
+            any = anyObjectDAO.findById(anyObjectTO.getKey());
         } else if (output instanceof ProvisioningResult
                 && ((ProvisioningResult) output).getEntity() instanceof AnyObjectTO) {
 
-            any = anyObjectDAO.find(((ProvisioningResult) output).getEntity().getKey());
-        } else if (before instanceof GroupTO) {
-            any = groupDAO.find(((GroupTO) before).getKey());
-        } else if (output instanceof GroupTO) {
-            any = groupDAO.find(((GroupTO) output).getKey());
+            any = anyObjectDAO.findById(((ProvisioningResult) output).getEntity().getKey());
+        } else if (before instanceof GroupTO groupTO) {
+            any = groupDAO.findById(groupTO.getKey());
+        } else if (output instanceof GroupTO groupTO) {
+            any = groupDAO.findById(groupTO.getKey());
         } else if (output instanceof ProvisioningResult
                 && ((ProvisioningResult) output).getEntity() instanceof GroupTO) {
 
-            any = groupDAO.find(((ProvisioningResult) output).getEntity().getKey());
+            any = groupDAO.findById(((ProvisioningResult) output).getEntity().getKey());
         }
 
-        AnyType anyType = Optional.ofNullable(any).map(Any::getType).orElse(null);
+        AnyType anyType = any.map(Any::getType).orElse(null);
         LOG.debug("Search notification for [{}]{}", anyType, any);
 
         List<NotificationTask> notifications = new ArrayList<>();
@@ -351,9 +350,9 @@ public class DefaultNotificationManager implements NotificationManager {
             if (notification.isActive()) {
                 if (!notification.getEvents().contains(currentEvent)) {
                     LOG.debug("No events found about {}", any);
-                } else if (anyType == null || any == null
+                } else if (anyType == null || any.isEmpty()
                         || notification.getAbout(anyType).isEmpty()
-                        || anyMatchDAO.matches(any, SearchCondConverter.convert(
+                        || anyMatchDAO.matches(any.get(), SearchCondConverter.convert(
                                 searchCondVisitor, notification.getAbout(anyType).get().get()))) {
 
                     LOG.debug("Creating notification task for event {} about {}", currentEvent, any);
@@ -369,15 +368,20 @@ public class DefaultNotificationManager implements NotificationManager {
                     model.put("output", output);
                     model.put("input", input);
 
-                    if (any instanceof User) {
-                        model.put("user", userDataBinder.getUserTO((User) any, true));
-                    } else if (any instanceof Group) {
-                        model.put("group", groupDataBinder.getGroupTO((Group) any, true));
-                    } else if (any instanceof AnyObject) {
-                        model.put("anyObject", anyObjectDataBinder.getAnyObjectTO((AnyObject) any, true));
-                    }
+                    any.ifPresent(a -> {
+                        switch (a) {
+                            case User user ->
+                                model.put("user", userDataBinder.getUserTO(user, true));
+                            case Group group ->
+                                model.put("group", groupDataBinder.getGroupTO(group, true));
+                            case AnyObject anyObject ->
+                                model.put("anyObject", anyObjectDataBinder.getAnyObjectTO(anyObject, true));
+                            default -> {
+                            }
+                        }
+                    });
 
-                    NotificationTask notificationTask = getNotificationTask(notification, any, model);
+                    NotificationTask notificationTask = getNotificationTask(notification, any.orElse(null), model);
                     notificationTask = taskDAO.save(notificationTask);
                     notifications.add(notificationTask);
                 }
@@ -402,16 +406,14 @@ public class DefaultNotificationManager implements NotificationManager {
         if ("username".equals(intAttrName.getField())) {
             email = user.getUsername();
         } else if (intAttrName.getSchemaType() != null) {
-            UMembership membership = null;
-            if (intAttrName.getMembershipOfGroup() != null) {
-                Group group = groupDAO.findByName(intAttrName.getMembershipOfGroup());
-                if (group != null) {
-                    membership = user.getMembership(group.getKey()).orElse(null);
-                }
-            }
+            UMembership membership = intAttrName.getMembershipOfGroup() == null
+                    ? null
+                    : groupDAO.findByName(intAttrName.getMembershipOfGroup()).
+                            flatMap(group -> user.getMembership(group.getKey())).
+                            orElse(null);
 
             switch (intAttrName.getSchemaType()) {
-                case PLAIN:
+                case PLAIN -> {
                     Optional<? extends UPlainAttr> attr = membership == null
                             ? user.getPlainAttr(recipientAttrName)
                             : user.getPlainAttr(recipientAttrName, membership);
@@ -419,32 +421,29 @@ public class DefaultNotificationManager implements NotificationManager {
                             ? null
                             : a.getValuesAsStrings().get(0)).
                             orElse(null);
-                    break;
+                }
 
-                case DERIVED:
-                    DerSchema schema = derSchemaDAO.find(recipientAttrName);
-                    if (schema == null) {
-                        LOG.warn("Ignoring non existing {} {}", DerSchema.class.getSimpleName(), recipientAttrName);
-                    } else {
-                        email = membership == null
-                                ? derAttrHandler.getValue(user, schema)
-                                : derAttrHandler.getValue(user, membership, schema);
-                    }
-                    break;
+                case DERIVED -> {
+                    email = derSchemaDAO.findById(recipientAttrName).
+                            map(derSchema -> membership == null
+                            ? derAttrHandler.getValue(user, derSchema)
+                            : derAttrHandler.getValue(user, membership, derSchema)).
+                            orElse(null);
+                }
 
-                case VIRTUAL:
-                    VirSchema virSchema = virSchemaDAO.find(recipientAttrName);
-                    if (virSchema == null) {
-                        LOG.warn("Ignoring non existing {} {}", VirSchema.class.getSimpleName(), recipientAttrName);
-                    } else {
-                        List<String> virAttrValues = membership == null
-                                ? virAttrHandler.getValues(user, virSchema)
-                                : virAttrHandler.getValues(user, membership, virSchema);
-                        email = virAttrValues.isEmpty() ? null : virAttrValues.get(0);
-                    }
-                    break;
+                case VIRTUAL -> {
+                    email = virSchemaDAO.findById(recipientAttrName).
+                            map(virSchema -> {
+                                List<String> virAttrValues = membership == null
+                                        ? virAttrHandler.getValues(user, virSchema)
+                                        : virAttrHandler.getValues(user, membership, virSchema);
+                                return virAttrValues.isEmpty() ? null : virAttrValues.get(0);
+                            }).
+                            orElse(null);
+                }
 
-                default:
+                default -> {
+                }
             }
         }
 
@@ -453,7 +452,9 @@ public class DefaultNotificationManager implements NotificationManager {
 
     @Override
     public TaskExec<NotificationTask> storeExec(final TaskExec<NotificationTask> execution) {
-        NotificationTask task = taskDAO.find(TaskType.NOTIFICATION, execution.getTask().getKey());
+        NotificationTask task = taskDAO.findById(TaskType.NOTIFICATION, execution.getTask().getKey()).
+                map(NotificationTask.class::cast).
+                orElseThrow(() -> new NotFoundException("NotificationTask " + execution.getTask().getKey()));
         task.add(execution);
         task.setExecuted(true);
         taskDAO.save(task);
@@ -462,14 +463,18 @@ public class DefaultNotificationManager implements NotificationManager {
 
     @Override
     public void setTaskExecuted(final String taskKey, final boolean executed) {
-        NotificationTask task = taskDAO.find(TaskType.NOTIFICATION, taskKey);
+        NotificationTask task = taskDAO.findById(TaskType.NOTIFICATION, taskKey).
+                map(NotificationTask.class::cast).
+                orElseThrow(() -> new NotFoundException("NotificationTask " + taskKey));
         task.setExecuted(executed);
         taskDAO.save(task);
     }
 
     @Override
     public long countExecutionsWithStatus(final String taskKey, final String status) {
-        NotificationTask task = taskDAO.find(TaskType.NOTIFICATION, taskKey);
+        NotificationTask task = taskDAO.findById(TaskType.NOTIFICATION, taskKey).
+                map(NotificationTask.class::cast).
+                orElseThrow(() -> new NotFoundException("NotificationTask " + taskKey));
         long count = 0;
         for (TaskExec<NotificationTask> taskExec : task.getExecs()) {
             if (status == null) {

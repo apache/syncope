@@ -19,11 +19,14 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface RealmDAO extends DAO<Realm> {
 
@@ -33,33 +36,25 @@ public interface RealmDAO extends DAO<Realm> {
 
     Realm getRoot();
 
-    Realm find(String key);
-
-    Realm findByFullPath(String fullPath);
+    Optional<Realm> findByFullPath(String fullPath);
 
     List<Realm> findByName(String name);
 
-    List<Realm> findByResource(ExternalResource resource);
+    List<Realm> findByResources(ExternalResource resource);
 
-    int countDescendants(String base, String keyword);
+    long countDescendants(String base, String keyword);
 
-    List<Realm> findDescendants(String base, String keyword, int page, int itemsPerPage);
+    List<Realm> findDescendants(String base, String keyword, Pageable pageable);
 
     List<String> findDescendants(String base, String prefix);
-    
+
     <T extends Policy> List<Realm> findByPolicy(T policy);
 
-    List<Realm> findByLogicActions(Implementation logicActions);
+    List<Realm> findByActionsContaining(Implementation logicActions);
 
     List<Realm> findAncestors(Realm realm);
 
     List<Realm> findChildren(Realm realm);
 
-    int count();
-
-    List<String> findAllKeys(int page, int itemsPerPage);
-
-    Realm save(Realm realm);
-
-    void delete(Realm realm);
+    Page<? extends Realm> findAll(Pageable pageable);
 }

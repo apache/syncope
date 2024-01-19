@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -44,10 +43,10 @@ import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -73,6 +72,9 @@ import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -135,9 +137,9 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         UserRequest userRequest = new UserRequest();
         userRequest.setBpmnProcess(split.getLeft());
         userRequest.setStartTime(procInst.getStartTime());
-        userRequest.setUsername(userDAO.find(split.getRight()).getUsername());
+        userDAO.findUsername(split.getRight()).ifPresent(userRequest::setUsername);
         userRequest.setExecutionId(procInst.getId());
-        final Task task = engine.getTaskService().createTaskQuery()
+        Task task = engine.getTaskService().createTaskQuery()
                 .processInstanceId(procInst.getProcessInstanceId()).singleResult();
         userRequest.setActivityId(task.getTaskDefinitionKey());
         userRequest.setTaskId(task.getId());
@@ -147,39 +149,32 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<Integer, List<UserRequest>> getUserRequests(
-            final String userKey,
-            final int page,
-            final int size,
-            final List<OrderByClause> orderByClauses) {
-
+    public Page<UserRequest> getUserRequests(final String userKey, final Pageable pageable) {
         StringBuilder query = createProcessInstanceQuery(userKey);
         Integer count = countProcessInstances(query);
 
-        if (!orderByClauses.isEmpty()) {
+        if (!pageable.getSort().isEmpty()) {
             query.append(" ORDER BY");
 
-            for (OrderByClause clause : orderByClauses) {
+            for (Sort.Order clause : pageable.getSort()) {
                 boolean sorted = true;
-                switch (clause.getField().trim()) {
-                    case "bpmnProcess":
+                switch (clause.getProperty().trim()) {
+                    case "bpmnProcess" ->
                         query.append(" PROC_DEF_ID_");
-                        break;
 
-                    case "startTime":
+                    case "startTime" ->
                         query.append(" START_TIME_");
-                        break;
 
-                    case "executionId":
+                    case "executionId" ->
                         query.append(" PROC_INST_ID_");
-                        break;
 
-                    default:
-                        LOG.warn("User request sort request by {}: unsupported, ignoring", clause.getField().trim());
+                    default -> {
+                        LOG.warn("User request sort request by {}: unsupported, ignoring", clause.getProperty().trim());
                         sorted = false;
+                    }
                 }
                 if (sorted) {
-                    if (clause.getDirection() == OrderByClause.Direction.ASC) {
+                    if (clause.getDirection() == Sort.Direction.ASC) {
                         query.append(" ASC,");
                     } else {
                         query.append(" DESC,");
@@ -191,12 +186,13 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         }
 
         List<UserRequest> result = engine.getRuntimeService().createNativeProcessInstanceQuery().
-                sql(query.toString()).
-                listPage(size * (page <= 0 ? 0 : page - 1), size).stream().
+                sql(query.toString()).listPage(
+                pageable.getPageSize() * pageable.getPageNumber(),
+                pageable.getPageSize()).stream().
                 map(this::getUserRequest).
-                collect(Collectors.toList());
+                toList();
 
-        return Pair.of(count, result);
+        return new SyncopePage<>(result, pageable, count);
     }
 
     protected User lazyLoad(final User user) {
@@ -340,7 +336,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                 createHistoricDetailQuery().taskId(task.getId()).list().stream().
                 filter(HistoricFormPropertyEntity.class::isInstance).
                 map(HistoricFormPropertyEntity.class::cast).
-                collect(Collectors.toList());
+                toList();
 
         UserRequestForm formTO = getHistoricFormTO(
                 task.getProcessInstanceId(), task.getId(), task.getFormKey(), props);
@@ -380,10 +376,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         formTO.setBpmnProcess(engine.getRuntimeService().createProcessInstanceQuery().
                 processInstanceId(procInstId).singleResult().getProcessDefinitionKey());
 
-        User user = userDAO.find(getUserKey(procInstId));
-        if (user == null) {
-            throw new NotFoundException("User for process instance id " + procInstId);
-        }
+        User user = userDAO.findById(getUserKey(procInstId)).
+                orElseThrow(() -> new NotFoundException("User for process instance id " + procInstId));
         formTO.setUsername(user.getUsername());
 
         formTO.setTaskId(taskId);
@@ -400,7 +394,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             propertyTO.setName(prop.getPropertyId());
             propertyTO.setValue(prop.getPropertyValue());
             return propertyTO;
-        }).collect(Collectors.toList()));
+        }).toList());
 
         return formTO;
     }
@@ -417,10 +411,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         formTO.setBpmnProcess(engine.getRuntimeService().createProcessInstanceQuery().
                 processInstanceId(procInstId).singleResult().getProcessDefinitionKey());
 
-        User user = userDAO.find(getUserKey(procInstId));
-        if (user == null) {
-            throw new NotFoundException("User for process instance id " + procInstId);
-        }
+        User user = userDAO.findById(getUserKey(procInstId)).
+                orElseThrow(() -> new NotFoundException("User for process instance id " + procInstId));
         formTO.setUsername(user.getUsername());
 
         formTO.setTaskId(taskId);
@@ -441,34 +433,32 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             propertyTO.setValue(fProp.getValue());
             propertyTO.setType(fromFlowableFormType(fProp.getType()));
             switch (propertyTO.getType()) {
-                case Date:
+                case Date ->
                     propertyTO.setDatePattern((String) fProp.getType().getInformation("datePattern"));
-                    break;
 
-                case Enum:
-                    ((Map<String, String>) fProp.getType().getInformation("values")).forEach((key, value) -> {
-                        propertyTO.getEnumValues().add(new UserRequestFormPropertyValue(key, value));
-                    });
-                    break;
+                case Enum ->
+                    ((Map<String, String>) fProp.getType().getInformation("values")).
+                            forEach((key, value) -> propertyTO.getEnumValues().add(
+                            new UserRequestFormPropertyValue(key, value)));
 
-                case Dropdown:
+                case Dropdown -> {
                     String valueProviderBean = (String) fProp.getType().getInformation(DropdownValueProvider.NAME);
                     try {
                         DropdownValueProvider valueProvider = ApplicationContextProvider.getApplicationContext().
                                 getBean(valueProviderBean, DropdownValueProvider.class);
-                        valueProvider.getValues().forEach((key, value) -> {
-                            propertyTO.getDropdownValues().add(new UserRequestFormPropertyValue(key, value));
-                        });
+                        valueProvider.getValues().forEach((key, value) -> propertyTO.getDropdownValues().add(
+                                new UserRequestFormPropertyValue(key, value)));
                     } catch (Exception e) {
                         LOG.error("Could not find bean {} of type {} for form property {}",
                                 valueProviderBean, DropdownValueProvider.class.getName(), propertyTO.getId(), e);
                     }
-                    break;
+                }
 
-                default:
+                default -> {
+                }
             }
             return propertyTO;
-        }).collect(Collectors.toList()));
+        }).toList());
 
         return formTO;
     }
@@ -489,12 +479,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<Integer, List<UserRequestForm>> getForms(
-            final String userKey,
-            final int page,
-            final int size,
-            final List<OrderByClause> ob) {
-
+    public Page<UserRequestForm> getForms(final String userKey, final Pageable pageable) {
         TaskQuery query = engine.getTaskService().createTaskQuery().taskWithFormKey();
         if (userKey != null) {
             query.processInstanceBusinessKeyLike(FlowableRuntimeUtils.getProcBusinessKey("%", userKey));
@@ -502,16 +487,14 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
         String authUser = AuthContextUtils.getUsername();
         return adminUser.equals(authUser)
-                ? getForms(query, page, size, ob)
-                : getForms(query.or().taskCandidateUser(authUser).taskAssignee(authUser).endOr(), page, size, ob);
+                ? getForms(query, pageable)
+                : getForms(query.or().taskCandidateUser(authUser).taskAssignee(authUser).endOr(), pageable);
     }
 
-    protected Pair<Integer, List<UserRequestForm>> getForms(
-            final TaskQuery query, final int page, final int size, final List<OrderByClause> orderByClauses) {
-
-        for (OrderByClause clause : orderByClauses) {
+    protected Page<UserRequestForm> getForms(final TaskQuery query, final Pageable pageable) {
+        for (Sort.Order clause : pageable.getSort()) {
             boolean sorted = true;
-            switch (clause.getField().trim()) {
+            switch (clause.getProperty().trim()) {
                 case "bpmnProcess":
                     query.orderByProcessDefinitionId();
                     break;
@@ -537,11 +520,11 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                     break;
 
                 default:
-                    LOG.warn("Form sort request by {}: unsupported, ignoring", clause.getField().trim());
+                    LOG.warn("Form sort request by {}: unsupported, ignoring", clause.getProperty().trim());
                     sorted = false;
             }
             if (sorted) {
-                if (clause.getDirection() == OrderByClause.Direction.ASC) {
+                if (clause.getDirection() == Sort.Direction.ASC) {
                     query.asc();
                 } else {
                     query.desc();
@@ -549,13 +532,15 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             }
         }
 
-        List<UserRequestForm> result = query.listPage(size * (page <= 0 ? 0 : page - 1), size).stream().
+        List<UserRequestForm> result = query.listPage(
+                pageable.getPageSize() * pageable.getPageNumber(),
+                pageable.getPageSize()).stream().
                 map(task -> task instanceof HistoricTaskInstance
                 ? FlowableUserRequestHandler.this.getForm((HistoricTaskInstance) task)
                 : FlowableUserRequestHandler.this.getForm(task)).
-                collect(Collectors.toList());
+                toList();
 
-        return Pair.of((int) query.count(), result);
+        return new SyncopePage<>(result, pageable, query.count());
     }
 
     protected Pair<Task, TaskFormData> parseTask(final String taskId) {
@@ -661,28 +646,26 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                     + parsed.getLeft().getAssignee() + " but submitted by " + authUser));
         }
 
-        String procInstID = parsed.getLeft().getProcessInstanceId();
+        String procInstId = parsed.getLeft().getProcessInstanceId();
 
-        User user = userDAO.find(getUserKey(procInstID));
-        if (user == null) {
-            throw new NotFoundException("User with key " + getUserKey(procInstID));
-        }
+        User user = userDAO.findById(getUserKey(procInstId)).
+                orElseThrow(() -> new NotFoundException("User for process instance id " + procInstId));
 
-        Set<String> preTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID);
+        Set<String> preTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstId);
 
-        engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.TASK, "submit");
-        engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.FORM_SUBMITTER, authUser);
-        engine.getRuntimeService().setVariable(procInstID, FlowableRuntimeUtils.USER, lazyLoad(user));
+        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.TASK, "submit");
+        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.FORM_SUBMITTER, authUser);
+        engine.getRuntimeService().setVariable(procInstId, FlowableRuntimeUtils.USER, lazyLoad(user));
         try {
             engine.getFormService().submitTaskFormData(form.getTaskId(), getPropertiesForSubmit(form));
         } catch (FlowableException e) {
             FlowableRuntimeUtils.throwException(e, "While submitting form for task " + form.getTaskId());
         }
-        Set<String> postTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID);
+        Set<String> postTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstId);
         postTasks.removeAll(preTasks);
         postTasks.add(form.getTaskId());
-        if (procInstID.equals(FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey()))) {
-            FlowableRuntimeUtils.updateStatus(engine, procInstID, user);
+        if (procInstId.equals(FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey()))) {
+            FlowableRuntimeUtils.updateStatus(engine, procInstId, user);
         }
 
         user = userDAO.save(user);
@@ -692,10 +675,10 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         String clearPassword = null;
         UserUR userUR;
         if (engine.getRuntimeService().
-                createProcessInstanceQuery().processInstanceId(procInstID).singleResult() == null) {
+                createProcessInstanceQuery().processInstanceId(procInstId).singleResult() == null) {
 
             List<HistoricVariableInstance> historicVariables = engine.getHistoryService().
-                    createHistoricVariableInstanceQuery().processInstanceId(procInstID).list();
+                    createHistoricVariableInstanceQuery().processInstanceId(procInstId).list();
 
             // see if there is any propagation to be done
             propByRes = getHistoricVariable(
@@ -712,35 +695,35 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
             userUR = getHistoricVariable(historicVariables, FlowableRuntimeUtils.USER_UR, UserUR.class);
         } else {
-            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.TASK);
-            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.FORM_SUBMITTER);
-            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER);
-            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER_TO);
+            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.TASK);
+            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.FORM_SUBMITTER);
+            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.USER);
+            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.USER_TO);
 
             // see if there is any propagation to be done
             propByRes = engine.getRuntimeService().getVariable(
-                    procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
-            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE);
+                    procInstId, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
+            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.PROP_BY_RESOURCE);
             propByLinkedAccount = engine.getRuntimeService().getVariable(
-                    procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, PropagationByResource.class);
-            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT);
+                    procInstId, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, PropagationByResource.class);
+            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT);
 
             // fetch - if available - the encrypted password
             String encryptedPwd = engine.getRuntimeService().getVariable(
-                    procInstID, FlowableRuntimeUtils.ENCRYPTED_PWD, String.class);
-            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.ENCRYPTED_PWD);
+                    procInstId, FlowableRuntimeUtils.ENCRYPTED_PWD, String.class);
+            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.ENCRYPTED_PWD);
             if (StringUtils.isNotBlank(encryptedPwd)) {
                 clearPassword = FlowableRuntimeUtils.decrypt(encryptedPwd);
             }
 
             Boolean enabled = engine.getRuntimeService().getVariable(
-                    procInstID, FlowableRuntimeUtils.ENABLED, Boolean.class);
-            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.ENABLED);
+                    procInstId, FlowableRuntimeUtils.ENABLED, Boolean.class);
+            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.ENABLED);
 
             // supports approval chains
             FlowableRuntimeUtils.saveForFormSubmit(
                     engine,
-                    procInstID,
+                    procInstId,
                     dataBinder.getUserTO(user, true),
                     clearPassword,
                     enabled,
@@ -748,8 +731,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                     propByLinkedAccount);
 
             userUR = engine.getRuntimeService().getVariable(
-                    procInstID, FlowableRuntimeUtils.USER_UR, UserUR.class);
-            engine.getRuntimeService().removeVariable(procInstID, FlowableRuntimeUtils.USER_UR);
+                    procInstId, FlowableRuntimeUtils.USER_UR, UserUR.class);
+            engine.getRuntimeService().removeVariable(procInstId, FlowableRuntimeUtils.USER_UR);
         }
 
         if (userUR == null) {
@@ -763,7 +746,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             }
             if (propByLinkedAccount != null) {
                 pwdResources.addAll(propByLinkedAccount.get(ResourceOperation.CREATE).stream().
-                        map(Pair::getLeft).collect(Collectors.toList()));
+                        map(Pair::getLeft).toList());
             }
             userUR.getPassword().getResources().addAll(pwdResources);
         }

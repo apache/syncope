@@ -18,11 +18,24 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.springframework.data.domain.Sort;
 
 public interface DAO<E extends Entity> {
 
-    void refresh(E entity);
+    Sort DEFAULT_SORT = Sort.by("id");
 
-    void detach(E entity);
+    Optional<? extends E> findById(String key);
+
+    long count();
+
+    List<? extends E> findAll();
+
+    <S extends E> S save(S entity);
+
+    void delete(E entity);
+
+    void deleteById(String key);
 }

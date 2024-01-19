@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
@@ -66,10 +67,10 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     private LDAPPasswordPullActions actions;
 
     @Test
-    public void afterWithNullUser() throws JobExecutionException {
+    public void afterWithNoUser() throws JobExecutionException {
         UserTO userTO = new UserTO();
         userTO.setKey(UUID.randomUUID().toString());
-        when(userDAO.find(userTO.getKey())).thenReturn(null);
+        when(userDAO.findById(userTO.getKey())).thenReturn(Optional.empty());
 
         assertDoesNotThrow(() -> actions.after(profile, null, userTO, result));
     }
@@ -78,7 +79,7 @@ public class LDAPPasswordPullActionsTest extends AbstractTest {
     public void after(final @Mock User user) throws JobExecutionException {
         UserTO userTO = new UserTO();
         userTO.setKey(UUID.randomUUID().toString());
-        when(userDAO.find(userTO.getKey())).thenReturn(user);
+        when(userDAO.findById(userTO.getKey())).thenAnswer(ic -> Optional.of(user));
 
         Set<Attribute> attributes = new HashSet<>();
         attributes.add(new Uid(UUID.randomUUID().toString()));

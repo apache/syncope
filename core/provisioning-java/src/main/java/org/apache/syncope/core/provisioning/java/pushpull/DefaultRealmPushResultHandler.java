@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -67,6 +68,41 @@ public class DefaultRealmPushResultHandler
         extends AbstractRealmResultHandler<PushTask, PushActions>
         implements RealmPushResultHandler {
 
+    protected static ResourceOperation toResourceOperation(final UnmatchingRule rule) {
+        return switch (rule) {
+            case ASSIGN, PROVISION ->
+                ResourceOperation.CREATE;
+            default ->
+                ResourceOperation.NONE;
+        };
+    }
+
+    protected static ResourceOperation toResourceOperation(final MatchingRule rule) {
+        return switch (rule) {
+            case UPDATE ->
+                ResourceOperation.UPDATE;
+            case DEPROVISION, UNASSIGN ->
+                ResourceOperation.DELETE;
+            default ->
+                ResourceOperation.NONE;
+        };
+    }
+
+    protected static ProvisioningReport.Status toProvisioningReportStatus(final ExecStatus status) {
+        switch (status) {
+            case FAILURE:
+                return ProvisioningReport.Status.FAILURE;
+
+            case SUCCESS:
+                return ProvisioningReport.Status.SUCCESS;
+
+            case CREATED:
+            case NOT_ATTEMPTED:
+            default:
+                return ProvisioningReport.Status.IGNORE;
+        }
+    }
+
     @Autowired
     private MappingManager mappingManager;
 
@@ -78,7 +114,7 @@ public class DefaultRealmPushResultHandler
     public boolean handle(final String realmKey) {
         Realm realm = null;
         try {
-            realm = realmDAO.find(realmKey);
+            realm = realmDAO.findById(realmKey).orElseThrow(() -> new NotFoundException("Realm " + realmKey));
             doHandle(realm);
             return true;
         } catch (IgnoreProvisionException e) {
@@ -105,7 +141,8 @@ public class DefaultRealmPushResultHandler
     }
 
     private Realm update(final RealmTO realmTO, final ConnectorObject beforeObj, final ProvisioningReport result) {
-        Realm realm = realmDAO.findByFullPath(realmTO.getFullPath());
+        Realm realm = realmDAO.findByFullPath(realmTO.getFullPath()).
+                orElseThrow(() -> new NotFoundException("Realm " + realmTO.getFullPath()));
 
         Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(realm);
 
@@ -262,7 +299,7 @@ public class DefaultRealmPushResultHandler
                     result.setOperation(toResourceOperation(profile.getTask().getUnmatchingRule()));
 
                     switch (profile.getTask().getUnmatchingRule()) {
-                        case ASSIGN:
+                        case ASSIGN -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeAssign(profile, realm);
                             }
@@ -273,10 +310,9 @@ public class DefaultRealmPushResultHandler
                             } else {
                                 assign(realm, result);
                             }
+                        }
 
-                            break;
-
-                        case PROVISION:
+                        case PROVISION -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeProvision(profile, realm);
                             }
@@ -287,10 +323,9 @@ public class DefaultRealmPushResultHandler
                             } else {
                                 provision(realm, result);
                             }
+                        }
 
-                            break;
-
-                        case UNLINK:
+                        case UNLINK -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeUnlink(profile, realm);
                             }
@@ -301,22 +336,22 @@ public class DefaultRealmPushResultHandler
                             } else {
                                 link(realm, true, result);
                             }
+                        }
 
-                            break;
-
-                        case IGNORE:
+                        case IGNORE -> {
                             LOG.debug("Ignored any: {}", realm);
                             result.setStatus(ProvisioningReport.Status.IGNORE);
-                            break;
+                        }
 
-                        default:
-                        // do nothing
+                        default -> {
+                        }
                     }
+                    // do nothing
                 } else {
                     result.setOperation(toResourceOperation(profile.getTask().getMatchingRule()));
 
                     switch (profile.getTask().getMatchingRule()) {
-                        case UPDATE:
+                        case UPDATE -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeUpdate(profile, realm);
                             }
@@ -326,10 +361,9 @@ public class DefaultRealmPushResultHandler
                             } else {
                                 update(binder.getRealmTO(realm, true), beforeObj, result);
                             }
+                        }
 
-                            break;
-
-                        case DEPROVISION:
+                        case DEPROVISION -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeDeprovision(profile, realm);
                             }
@@ -340,10 +374,9 @@ public class DefaultRealmPushResultHandler
                             } else {
                                 deprovision(realm, beforeObj, result);
                             }
+                        }
 
-                            break;
-
-                        case UNASSIGN:
+                        case UNASSIGN -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeUnassign(profile, realm);
                             }
@@ -354,10 +387,9 @@ public class DefaultRealmPushResultHandler
                             } else {
                                 unassign(realm, beforeObj, result);
                             }
+                        }
 
-                            break;
-
-                        case LINK:
+                        case LINK -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeLink(profile, realm);
                             }
@@ -368,10 +400,9 @@ public class DefaultRealmPushResultHandler
                             } else {
                                 link(realm, false, result);
                             }
+                        }
 
-                            break;
-
-                        case UNLINK:
+                        case UNLINK -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeUnlink(profile, realm);
                             }
@@ -382,17 +413,17 @@ public class DefaultRealmPushResultHandler
                             } else {
                                 link(realm, true, result);
                             }
+                        }
 
-                            break;
-
-                        case IGNORE:
+                        case IGNORE -> {
                             LOG.debug("Ignored any: {}", realm);
                             result.setStatus(ProvisioningReport.Status.IGNORE);
-                            break;
+                        }
 
-                        default:
-                        // do nothing
+                        default -> {
+                        }
                     }
+                    // do nothing
                 }
 
                 for (PushActions action : profile.getActions()) {
@@ -448,43 +479,6 @@ public class DefaultRealmPushResultHandler
                     AfterHandlingJob.schedule(scheduler, jobMap);
                 }
             }
-        }
-    }
-
-    private static ResourceOperation toResourceOperation(final UnmatchingRule rule) {
-        switch (rule) {
-            case ASSIGN:
-            case PROVISION:
-                return ResourceOperation.CREATE;
-            default:
-                return ResourceOperation.NONE;
-        }
-    }
-
-    private static ResourceOperation toResourceOperation(final MatchingRule rule) {
-        switch (rule) {
-            case UPDATE:
-                return ResourceOperation.UPDATE;
-            case DEPROVISION:
-            case UNASSIGN:
-                return ResourceOperation.DELETE;
-            default:
-                return ResourceOperation.NONE;
-        }
-    }
-
-    private static ProvisioningReport.Status toProvisioningReportStatus(final ExecStatus status) {
-        switch (status) {
-            case FAILURE:
-                return ProvisioningReport.Status.FAILURE;
-
-            case SUCCESS:
-                return ProvisioningReport.Status.SUCCESS;
-
-            case CREATED:
-            case NOT_ATTEMPTED:
-            default:
-                return ProvisioningReport.Status.IGNORE;
         }
     }
 }

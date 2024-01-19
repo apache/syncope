@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class VirSchemaTest extends AbstractTest {
 
     @Autowired
@@ -49,31 +49,31 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void deal() {
-        ExternalResource resource = resourceDAO.find("ws-target-resource-1");
-        assertNotNull(resource);
-        assertTrue(virSchemaDAO.find(resource).isEmpty());
-        assertTrue(virSchemaDAO.find(resource.getKey(), AnyTypeKind.USER.name()).isEmpty());
+        ExternalResource resource = resourceDAO.findById("ws-target-resource-1").orElseThrow();
+        assertTrue(virSchemaDAO.findByResource(resource).isEmpty());
+        assertTrue(virSchemaDAO.findByResourceAndAnyType(resource.getKey(), AnyTypeKind.USER.name()).isEmpty());
 
         VirSchema virSchema = entityFactory.newEntity(VirSchema.class);
         virSchema.setKey("vSchema");
         virSchema.setReadonly(true);
         virSchema.setExtAttrName("EXT_ATTR");
         virSchema.setResource(resource);
-        virSchema.setAnyType(anyTypeDAO.findUser());
+        virSchema.setAnyType(anyTypeDAO.getUser());
 
         virSchemaDAO.save(virSchema);
-        entityManager().flush();
+        entityManager.flush();
 
-        virSchema = virSchemaDAO.find("vSchema");
-        assertNotNull(virSchema);
+        virSchema = virSchemaDAO.findById("vSchema").orElseThrow();
         assertTrue(virSchema.isReadonly());
         assertEquals("EXT_ATTR", virSchema.getExtAttrName());
 
-        assertFalse(virSchemaDAO.find(resource).isEmpty());
-        assertTrue(virSchemaDAO.find(resource).contains(virSchema.getKey()));
+        assertFalse(virSchemaDAO.findByResource(resource).isEmpty());
+        assertTrue(virSchemaDAO.findByResource(resource).contains(virSchema));
 
-        assertFalse(virSchemaDAO.find(resource.getKey(), AnyTypeKind.USER.name()).isEmpty());
-        assertTrue(virSchemaDAO.find(resource.getKey(), AnyTypeKind.USER.name()).contains(virSchema));
+        assertFalse(virSchemaDAO.findByResourceAndAnyType(
+                resource.getKey(), AnyTypeKind.USER.name()).isEmpty());
+        assertTrue(virSchemaDAO.findByResourceAndAnyType(
+                resource.getKey(), AnyTypeKind.USER.name()).contains(virSchema));
 
         Item item = virSchema.asLinkingMappingItem();
         assertNotNull(item);

@@ -115,7 +115,7 @@ public class ElasticsearchAnySearchDAOTest {
         Realm root = mock(Realm.class);
         when(root.getFullPath()).thenReturn(SyncopeConstants.ROOT_REALM);
 
-        when(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenReturn(root);
+        when(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenAnswer(ic -> Optional.of(root));
         when(realmDAO.findDescendants(eq(SyncopeConstants.ROOT_REALM), anyString())).thenReturn(List.of("rootKey"));
 
         // 2. test
@@ -137,7 +137,7 @@ public class ElasticsearchAnySearchDAOTest {
         DynRealm dyn = mock(DynRealm.class);
         when(dyn.getKey()).thenReturn("dyn");
 
-        when(dynRealmDAO.find("dyn")).thenReturn(dyn);
+        when(dynRealmDAO.findById("dyn")).thenAnswer(ic -> Optional.of(dyn));
 
         // 2. test
         Set<String> adminRealms = Set.of("dyn");
@@ -169,7 +169,7 @@ public class ElasticsearchAnySearchDAOTest {
 
         when(entityFactory.newEntity(PlainSchema.class)).thenReturn(new JPAPlainSchema());
 
-        when(groupDAO.findKey("groupKey")).thenReturn("groupKey");
+        when(groupDAO.findKey("groupKey")).thenReturn(Optional.of("groupKey"));
 
         try (MockedStatic<ElasticsearchUtils> utils = Mockito.mockStatic(ElasticsearchUtils.class)) {
             utils.when(() -> ElasticsearchUtils.getAnyIndex(
@@ -184,7 +184,7 @@ public class ElasticsearchAnySearchDAOTest {
             SearchRequest request = new SearchRequest.Builder().
                     index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                     searchType(SearchType.QueryThenFetch).
-                    query(searchDAO.getQuery(realmDAO.findByFullPath("/any"), true,
+                    query(searchDAO.getQuery(mock(Realm.class), true,
                             adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER)).
                     from(1).
                     size(10).

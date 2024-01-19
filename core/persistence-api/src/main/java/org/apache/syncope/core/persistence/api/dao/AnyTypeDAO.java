@@ -24,17 +24,9 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 
 public interface AnyTypeDAO extends DAO<AnyType> {
 
-    AnyType find(String key);
+    AnyType getUser();
 
-    AnyType findUser();
+    AnyType getGroup();
 
-    AnyType findGroup();
-
-    List<AnyType> findByTypeClass(AnyTypeClass anyTypeClass);
-
-    List<AnyType> findAll();
-
-    AnyType save(AnyType anyType);
-
-    void delete(String key);
+    List<AnyType> findByClassesContaining(AnyTypeClass anyTypeClass);
 }

@@ -18,36 +18,48 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCJWKS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
-public class JPAOIDCJWKSDAO extends AbstractDAO<OIDCJWKS> implements OIDCJWKSDAO {
+public class JPAOIDCJWKSDAO implements OIDCJWKSDAO {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OIDCJWKSDAO.class);
+
+    protected final EntityManager entityManager;
+
+    public JPAOIDCJWKSDAO(final EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Transactional(readOnly = true)
     @Override
-    public OIDCJWKS get() {
+    public Optional<OIDCJWKS> get() {
         try {
-            TypedQuery<OIDCJWKS> query = entityManager().
+            TypedQuery<OIDCJWKS> query = entityManager.
                     createQuery("SELECT e FROM " + JPAOIDCJWKS.class.getSimpleName() + " e", OIDCJWKS.class);
-            return query.getSingleResult();
-        } catch (final NoResultException e) {
-            LOG.debug(e.getMessage());
+            return Optional.ofNullable(query.getSingleResult());
+        } catch (NoResultException e) {
+            LOG.debug("No OIDC JWKS found", e);
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
     public OIDCJWKS save(final OIDCJWKS jwks) {
-        return entityManager().merge(jwks);
+        return entityManager.merge(jwks);
     }
 
     @Override
     public void delete() {
-        entityManager().
+        entityManager.
                 createQuery("DELETE FROM " + JPAOIDCJWKS.class.getSimpleName()).
                 executeUpdate();
     }

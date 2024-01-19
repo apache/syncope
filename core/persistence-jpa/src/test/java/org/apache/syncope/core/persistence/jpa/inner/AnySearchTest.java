@@ -49,7 +49,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
@@ -71,11 +70,14 @@ import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class AnySearchTest extends AbstractTest {
 
     private static final String LOGIN_DATE_VALUE = "2009-05-26";
@@ -103,7 +105,7 @@ public class AnySearchTest extends AbstractTest {
 
     @BeforeEach
     public void adjustLoginDateForLocalSystem() throws ParseException {
-        User rossini = userDAO.findByUsername("rossini");
+        User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
         UPlainAttr loginDate = rossini.getPlainAttr("loginDate").get();
         loginDate.getValues().get(0).setDateValue(FormatUtils.parseDate(LOGIN_DATE_VALUE, "yyyy-MM-dd"));
@@ -278,12 +280,14 @@ public class AnySearchTest extends AbstractTest {
         assertEquals(1, count);
 
         List<User> users = searchDAO.search(
-                realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, cond, 1, 2, List.of(), AnyTypeKind.USER);
+                realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, cond,
+                PageRequest.of(0, 2), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 
         users = searchDAO.search(
-                realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, cond, 2, 2, List.of(), AnyTypeKind.USER);
+                realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, cond,
+                PageRequest.of(2, 2), AnyTypeKind.USER);
         assertNotNull(users);
         assertTrue(users.isEmpty());
     }
@@ -317,7 +321,7 @@ public class AnySearchTest extends AbstractTest {
         assertEquals(union, matchingStar.stream().map(User::getUsername).collect(Collectors.toSet()));
 
         matchingStar = searchDAO.search(realmDAO.getRoot(), false, SyncopeConstants.FULL_ADMIN_REALMS,
-                SearchCond.getLeaf(groupCond), -1, -1, List.of(), AnyTypeKind.USER);
+                SearchCond.getLeaf(groupCond), Pageable.unpaged(), AnyTypeKind.USER);
         assertNotNull(matchingStar);
         assertTrue(matchingStar.stream().anyMatch(user -> "verdi".equals(user.getUsername())));
         assertTrue(matchingStar.stream().noneMatch(user -> "rossini".equals(user.getUsername())));
@@ -580,15 +584,9 @@ public class AnySearchTest extends AbstractTest {
         SearchCond searchCondition = SearchCond.getOr(
                 SearchCond.getLeaf(usernameLeafCond), SearchCond.getLeaf(idRightCond));
 
-        List<OrderByClause> orderByClauses = new ArrayList<>();
-        OrderByClause orderByClause = new OrderByClause();
-        orderByClause.setField("username");
-        orderByClause.setDirection(OrderByClause.Direction.DESC);
-        orderByClauses.add(orderByClause);
-        orderByClause = new OrderByClause();
-        orderByClause.setField("fullname");
-        orderByClause.setDirection(OrderByClause.Direction.ASC);
-        orderByClauses.add(orderByClause);
+        List<Sort.Order> orderByClauses = new ArrayList<>();
+        orderByClauses.add(new Sort.Order(Sort.Direction.DESC, "username"));
+        orderByClauses.add(new Sort.Order(Sort.Direction.ASC, "fullname"));
 
         List<User> users = searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);
         assertEquals(
@@ -606,8 +604,7 @@ public class AnySearchTest extends AbstractTest {
         SearchCond searchCondition = SearchCond.getLeaf(idLeafCond);
         assertTrue(searchCondition.isValid());
 
-        OrderByClause orderByClause = new OrderByClause();
-        orderByClause.setField("name");
+        Sort.Order orderByClause = new Sort.Order(Sort.DEFAULT_DIRECTION, "name");
 
         List<Group> groups = searchDAO.search(
                 searchCondition, List.of(orderByClause), AnyTypeKind.GROUP);
@@ -627,15 +624,15 @@ public class AnySearchTest extends AbstractTest {
 
         List<Group> groups = searchDAO.search(searchCondition, AnyTypeKind.GROUP);
         assertEquals(2, groups.size());
-        assertTrue(groups.contains(groupDAO.findByName("root")));
-        assertTrue(groups.contains(groupDAO.findByName("otherchild")));
+        assertTrue(groups.contains(groupDAO.findByName("root").orElseThrow()));
+        assertTrue(groups.contains(groupDAO.findByName("otherchild").orElseThrow()));
     }
 
     @Test
     public void asGroupOwner() {
         // prepare authentication
         Map<String, Set<String>> entForRealms = new HashMap<>();
-        roleDAO.find(AuthDataAccessor.GROUP_OWNER_ROLE).getEntitlements().forEach(entitlement -> {
+        roleDAO.findById(AuthDataAccessor.GROUP_OWNER_ROLE).orElseThrow().getEntitlements().forEach(entitlement -> {
             Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                 Set<String> r = new HashSet<>();
                 entForRealms.put(entitlement, r);
@@ -675,9 +672,7 @@ public class AnySearchTest extends AbstractTest {
                     true,
                     authRealms,
                     groupDAO.getAllMatchingCond(),
-                    1,
-                    10,
-                    List.of(),
+                    PageRequest.of(0, 10),
                     AnyTypeKind.GROUP);
             assertEquals(1, groups.size());
             assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.get(0).getKey());
@@ -796,13 +791,13 @@ public class AnySearchTest extends AbstractTest {
         service.setKind(AnyTypeKind.ANY_OBJECT);
         service = anyTypeDAO.save(service);
 
-        Group citizen = groupDAO.findByName("citizen");
+        Group citizen = groupDAO.findByName("citizen").orElseThrow();
         assertNotNull(citizen);
 
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         anyObject.setName("one");
         anyObject.setType(service);
-        anyObject.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM));
+        anyObject.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
 
         AMembership membership = entityFactory.newEntity(AMembership.class);
         membership.setRightEnd(citizen);
@@ -811,14 +806,14 @@ public class AnySearchTest extends AbstractTest {
         anyObject.add(membership);
         anyObjectDAO.save(anyObject);
 
-        anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
+        anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
         membership = entityFactory.newEntity(AMembership.class);
         membership.setRightEnd(citizen);
         membership.setLeftEnd(anyObject);
         anyObject.add(membership);
         anyObjectDAO.save(anyObject);
 
-        entityManager().flush();
+        entityManager.flush();
 
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroup("citizen");
@@ -843,24 +838,16 @@ public class AnySearchTest extends AbstractTest {
         fullnameLeafCond.setSchema("surname");
         fullnameLeafCond.setExpression("%o%");
 
-        List<OrderByClause> orderByClauses = new ArrayList<>();
-        OrderByClause orderByClause = new OrderByClause();
-        orderByClause.setField("surname");
-        orderByClause.setDirection(OrderByClause.Direction.ASC);
-        orderByClauses.add(orderByClause);
-        orderByClause = new OrderByClause();
-        orderByClause.setField("username");
-        orderByClause.setDirection(OrderByClause.Direction.DESC);
-        orderByClauses.add(orderByClause);
+        List<Sort.Order> orderByClauses = new ArrayList<>();
+        orderByClauses.add(new Sort.Order(Sort.Direction.ASC, "surname"));
+        orderByClauses.add(new Sort.Order(Sort.Direction.DESC, "username"));
 
         List<User> users = searchDAO.search(
                 realmDAO.getRoot(),
                 true,
                 SyncopeConstants.FULL_ADMIN_REALMS,
                 SearchCond.getLeaf(fullnameLeafCond),
-                -1,
-                -1,
-                orderByClauses,
+                Pageable.unpaged(Sort.by(orderByClauses)),
                 AnyTypeKind.USER);
         assertFalse(users.isEmpty());
     }
@@ -875,11 +862,7 @@ public class AnySearchTest extends AbstractTest {
 
         SearchCond searchCondition = SearchCond.getAnd(SearchCond.getLeaf(idLeftCond), SearchCond.getLeaf(idRightCond));
 
-        List<OrderByClause> orderByClauses = new ArrayList<>();
-        OrderByClause orderByClause = new OrderByClause();
-        orderByClause.setField("ctype");
-        orderByClause.setDirection(OrderByClause.Direction.ASC);
-        orderByClauses.add(orderByClause);
+        List<Sort.Order> orderByClauses = List.of(new Sort.Order(Sort.Direction.ASC, "ctype"));
 
         List<User> users = searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);
         assertEquals(searchDAO.count(

@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -62,7 +61,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class PolicyTest extends AbstractTest {
 
     @Autowired
@@ -76,24 +75,23 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Policy> policies = policyDAO.findAll();
+        List<? extends Policy> policies = policyDAO.findAll();
         assertNotNull(policies);
         assertFalse(policies.isEmpty());
     }
 
     @Test
     public void findByKey() {
-        PropagationPolicy propagationPolicy = policyDAO.find("89d322db-9878-420c-b49c-67be13df9a12");
-        assertNotNull(propagationPolicy);
+        PropagationPolicy propagationPolicy = policyDAO.findById(
+                "89d322db-9878-420c-b49c-67be13df9a12", PropagationPolicy.class).orElseThrow();
         assertEquals(BackOffStrategy.FIXED, propagationPolicy.getBackOffStrategy());
         assertEquals("10000", propagationPolicy.getBackOffParams());
         assertEquals(5, propagationPolicy.getMaxAttempts());
 
-        PullPolicy pullPolicy = policyDAO.find("880f8553-069b-4aed-9930-2cd53873f544");
-        assertNotNull(pullPolicy);
+        PullPolicy pullPolicy = policyDAO.findById(
+                "880f8553-069b-4aed-9930-2cd53873f544", PullPolicy.class).orElseThrow();
 
         PullCorrelationRuleEntity pullCR = pullPolicy.getCorrelationRule(AnyTypeKind.USER.name()).orElse(null);
-        assertNotNull(pullCR);
         DefaultPullCorrelationRuleConf pullCRConf =
                 POJOHelper.deserialize(pullCR.getImplementation().getBody(), DefaultPullCorrelationRuleConf.class);
         assertNotNull(pullCRConf);
@@ -101,62 +99,52 @@ public class PolicyTest extends AbstractTest {
         assertTrue(pullCRConf.getSchemas().contains("username"));
         assertTrue(pullCRConf.getSchemas().contains("firstname"));
 
-        PushPolicy pushPolicy = policyDAO.find("fb6530e5-892d-4f47-a46b-180c5b6c5c83");
-        assertNotNull(pushPolicy);
+        PushPolicy pushPolicy = policyDAO.findById(
+                "fb6530e5-892d-4f47-a46b-180c5b6c5c83", PushPolicy.class).orElseThrow();
 
         PushCorrelationRuleEntity pushCR = pushPolicy.getCorrelationRule(AnyTypeKind.USER.name()).orElse(null);
-        assertNotNull(pushCR);
         DefaultPushCorrelationRuleConf pushCRConf =
                 POJOHelper.deserialize(pushCR.getImplementation().getBody(), DefaultPushCorrelationRuleConf.class);
         assertNotNull(pushCRConf);
         assertEquals(1, pushCRConf.getSchemas().size());
         assertTrue(pushCRConf.getSchemas().contains("surname"));
 
-        AccessPolicy accessPolicy = policyDAO.find("617735c7-deb3-40b3-8a9a-683037e523a2");
-        assertNull(accessPolicy);
-        accessPolicy = policyDAO.find("419935c7-deb3-40b3-8a9a-683037e523a2");
-        assertNotNull(accessPolicy);
-        accessPolicy = policyDAO.find(UUID.randomUUID().toString());
-        assertNull(accessPolicy);
+        assertTrue(policyDAO.findById("617735c7-deb3-40b3-8a9a-683037e523a2", AccessPolicy.class).isEmpty());
+        assertTrue(policyDAO.findById("419935c7-deb3-40b3-8a9a-683037e523a2", AccessPolicy.class).isPresent());
+        assertTrue(policyDAO.findById(UUID.randomUUID().toString(), AccessPolicy.class).isEmpty());
 
-        AuthPolicy authPolicy = policyDAO.find("b912a0d4-a890-416f-9ab8-84ab077eb028");
-        assertNotNull(authPolicy);
-        authPolicy = policyDAO.find("659b9906-4b6e-4bc0-aca0-6809dff346d4");
-        assertNotNull(authPolicy);
-        authPolicy = policyDAO.find(UUID.randomUUID().toString());
-        assertNull(authPolicy);
+        assertTrue(policyDAO.findById("b912a0d4-a890-416f-9ab8-84ab077eb028", AuthPolicy.class).isPresent());
+        assertTrue(policyDAO.findById("659b9906-4b6e-4bc0-aca0-6809dff346d4", AuthPolicy.class).isPresent());
+        assertTrue(policyDAO.findById(UUID.randomUUID().toString(), AuthPolicy.class).isEmpty());
 
-        AttrReleasePolicy attrReleasePolicy = policyDAO.find("019935c7-deb3-40b3-8a9a-683037e523a2");
-        assertNull(attrReleasePolicy);
-        attrReleasePolicy = policyDAO.find("319935c7-deb3-40b3-8a9a-683037e523a2");
-        assertNotNull(attrReleasePolicy);
-        attrReleasePolicy = policyDAO.find(UUID.randomUUID().toString());
-        assertNull(attrReleasePolicy);
+        assertTrue(policyDAO.findById("019935c7-deb3-40b3-8a9a-683037e523a2", AttrReleasePolicy.class).isEmpty());
+        assertTrue(policyDAO.findById("319935c7-deb3-40b3-8a9a-683037e523a2", AttrReleasePolicy.class).isPresent());
+        assertTrue(policyDAO.findById(UUID.randomUUID().toString(), AttrReleasePolicy.class).isEmpty());
     }
 
     @Test
     public void findByType() {
-        List<PropagationPolicy> propagationPolicies = policyDAO.find(PropagationPolicy.class);
+        List<PropagationPolicy> propagationPolicies = policyDAO.findAll(PropagationPolicy.class);
         assertNotNull(propagationPolicies);
         assertFalse(propagationPolicies.isEmpty());
 
-        List<PullPolicy> pullPolicies = policyDAO.find(PullPolicy.class);
+        List<PullPolicy> pullPolicies = policyDAO.findAll(PullPolicy.class);
         assertNotNull(pullPolicies);
         assertFalse(pullPolicies.isEmpty());
 
-        List<AccessPolicy> accessPolicies = policyDAO.find(AccessPolicy.class);
+        List<AccessPolicy> accessPolicies = policyDAO.findAll(AccessPolicy.class);
         assertNotNull(accessPolicies);
         assertEquals(1, accessPolicies.size());
 
-        List<AuthPolicy> authPolicies = policyDAO.find(AuthPolicy.class);
+        List<AuthPolicy> authPolicies = policyDAO.findAll(AuthPolicy.class);
         assertNotNull(authPolicies);
         assertEquals(2, authPolicies.size());
 
-        List<AttrReleasePolicy> attrReleasePolicies = policyDAO.find(AttrReleasePolicy.class);
+        List<AttrReleasePolicy> attrReleasePolicies = policyDAO.findAll(AttrReleasePolicy.class);
         assertNotNull(attrReleasePolicies);
         assertEquals(2, attrReleasePolicies.size());
 
-        List<TicketExpirationPolicy> ticketExpirationPolicies = policyDAO.find(TicketExpirationPolicy.class);
+        List<TicketExpirationPolicy> ticketExpirationPolicies = policyDAO.findAll(TicketExpirationPolicy.class);
         assertNotNull(ticketExpirationPolicies);
         assertEquals(0, ticketExpirationPolicies.size());
     }
@@ -198,7 +186,7 @@ public class PolicyTest extends AbstractTest {
         impl1 = implementationDAO.save(impl1);
 
         PullCorrelationRuleEntity rule1 = entityFactory.newEntity(PullCorrelationRuleEntity.class);
-        rule1.setAnyType(anyTypeDAO.findUser());
+        rule1.setAnyType(anyTypeDAO.getUser());
         rule1.setPullPolicy(pullPolicy);
         rule1.setImplementation(impl1);
         pullPolicy.add(rule1);
@@ -211,7 +199,7 @@ public class PolicyTest extends AbstractTest {
         impl2 = implementationDAO.save(impl2);
 
         PullCorrelationRuleEntity rule2 = entityFactory.newEntity(PullCorrelationRuleEntity.class);
-        rule2.setAnyType(anyTypeDAO.findGroup());
+        rule2.setAnyType(anyTypeDAO.getGroup());
         rule2.setPullPolicy(pullPolicy);
         rule2.setImplementation(impl2);
         pullPolicy.add(rule2);
@@ -242,7 +230,7 @@ public class PolicyTest extends AbstractTest {
         impl1 = implementationDAO.save(impl1);
 
         PushCorrelationRuleEntity rule1 = entityFactory.newEntity(PushCorrelationRuleEntity.class);
-        rule1.setAnyType(anyTypeDAO.findUser());
+        rule1.setAnyType(anyTypeDAO.getUser());
         rule1.setPushPolicy(pushPolicy);
         rule1.setImplementation(impl1);
         pushPolicy.add(rule1);
@@ -255,7 +243,7 @@ public class PolicyTest extends AbstractTest {
         impl2 = implementationDAO.save(impl2);
 
         PushCorrelationRuleEntity rule2 = entityFactory.newEntity(PushCorrelationRuleEntity.class);
-        rule2.setAnyType(anyTypeDAO.findGroup());
+        rule2.setAnyType(anyTypeDAO.getGroup());
         rule2.setPushPolicy(pushPolicy);
         rule2.setImplementation(impl2);
         pushPolicy.add(rule2);
@@ -364,8 +352,8 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void update() {
-        PasswordPolicy policy = policyDAO.find("ce93fcda-dc3a-4369-a7b0-a6108c261c85");
-        assertNotNull(policy);
+        PasswordPolicy policy = policyDAO.findById(
+                "ce93fcda-dc3a-4369-a7b0-a6108c261c85", PasswordPolicy.class).orElseThrow();
         assertEquals(1, policy.getRules().size());
 
         DefaultPasswordRuleConf ruleConf = new DefaultPasswordRuleConf();
@@ -394,30 +382,26 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void delete() {
-        Policy policy = policyDAO.find("66691e96-285f-4464-bc19-e68384ea4c85");
-        assertNotNull(policy);
-
+        Policy policy = policyDAO.findById("66691e96-285f-4464-bc19-e68384ea4c85").orElseThrow();
         policyDAO.delete(policy);
+        assertTrue(policyDAO.findById("66691e96-285f-4464-bc19-e68384ea4c85").isEmpty());
 
-        Policy actual = policyDAO.find("66691e96-285f-4464-bc19-e68384ea4c85");
-        assertNull(actual);
-
-        AccessPolicy accessPolicy = policyDAO.find("419935c7-deb3-40b3-8a9a-683037e523a2");
-        assertNotNull(accessPolicy);
+        AccessPolicy accessPolicy = policyDAO.findById(
+                "419935c7-deb3-40b3-8a9a-683037e523a2", AccessPolicy.class).orElseThrow();
         policyDAO.delete(accessPolicy);
-        accessPolicy = policyDAO.find("419935c7-deb3-40b3-8a9a-683037e523a2");
-        assertNull(accessPolicy);
+        assertTrue(policyDAO.findById("419935c7-deb3-40b3-8a9a-683037e523a2").isEmpty());
+        assertTrue(policyDAO.findById("419935c7-deb3-40b3-8a9a-683037e523a2", AccessPolicy.class).isEmpty());
 
-        AuthPolicy authPolicy = policyDAO.find("b912a0d4-a890-416f-9ab8-84ab077eb028");
-        assertNotNull(authPolicy);
+        AuthPolicy authPolicy = policyDAO.findById(
+                "b912a0d4-a890-416f-9ab8-84ab077eb028", AuthPolicy.class).orElseThrow();
         policyDAO.delete(authPolicy);
-        authPolicy = policyDAO.find("b912a0d4-a890-416f-9ab8-84ab077eb028");
-        assertNull(authPolicy);
+        assertTrue(policyDAO.findById("b912a0d4-a890-416f-9ab8-84ab077eb028").isEmpty());
+        assertTrue(policyDAO.findById("b912a0d4-a890-416f-9ab8-84ab077eb028", AuthPolicy.class).isEmpty());
 
-        AttrReleasePolicy attrReleasepolicy = policyDAO.find("319935c7-deb3-40b3-8a9a-683037e523a2");
-        assertNotNull(attrReleasepolicy);
+        AttrReleasePolicy attrReleasepolicy = policyDAO.findById(
+                "319935c7-deb3-40b3-8a9a-683037e523a2", AttrReleasePolicy.class).orElseThrow();
         policyDAO.delete(attrReleasepolicy);
-        attrReleasepolicy = policyDAO.find("319935c7-deb3-40b3-8a9a-683037e523a2");
-        assertNull(attrReleasepolicy);
+        assertTrue(policyDAO.findById("319935c7-deb3-40b3-8a9a-683037e523a2").isEmpty());
+        assertTrue(policyDAO.findById("319935c7-deb3-40b3-8a9a-683037e523a2", AttrReleasePolicy.class).isEmpty());
     }
 }

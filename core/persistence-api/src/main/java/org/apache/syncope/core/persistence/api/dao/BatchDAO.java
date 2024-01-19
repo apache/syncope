@@ -22,11 +22,5 @@ import org.apache.syncope.core.persistence.api.entity.Batch;
 
 public interface BatchDAO extends DAO<Batch> {
 
-    Batch find(String key);
-
-    Batch save(Batch batch);
-
-    void delete(String key);
-
-    int deleteExpired();
+    long deleteExpired();
 }

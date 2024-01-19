@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.EntityManagerFactory;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -28,21 +29,27 @@ import org.apache.openjpa.datacache.CacheStatisticsSPI;
 import org.apache.openjpa.datacache.QueryKey;
 import org.apache.openjpa.kernel.QueryStatistics;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
-import org.apache.openjpa.persistence.OpenJPAPersistence;
 import org.apache.openjpa.persistence.QueryResultCacheImpl;
 import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 
-public class JPAEntityCacheDAO extends AbstractDAO<Entity> implements EntityCacheDAO {
+public class JPAEntityCacheDAO implements EntityCacheDAO {
+
+    protected final EntityManagerFactory entityManagerFactory;
+
+    public JPAEntityCacheDAO(final EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
+    }
 
     protected CacheStatisticsSPI cacheStatisticsSPI() {
-        return (CacheStatisticsSPI) OpenJPAPersistence.cast(entityManagerFactory()).getStoreCache().getStatistics();
+        return (CacheStatisticsSPI) entityManagerFactory.unwrap(OpenJPAEntityManagerFactory.class).
+                getStoreCache().getStatistics();
     }
 
     protected QueryStatistics<QueryKey> queryStatistics() {
-        return ((QueryResultCacheImpl) OpenJPAPersistence.cast(
-                entityManagerFactory()).getQueryResultCache()).getDelegate().getStatistics();
+        return ((QueryResultCacheImpl) entityManagerFactory.unwrap(OpenJPAEntityManagerFactory.class).
+                getQueryResultCache()).getDelegate().getStatistics();
     }
 
     @Override
@@ -130,14 +137,12 @@ public class JPAEntityCacheDAO extends AbstractDAO<Entity> implements EntityCach
 
     @Override
     public void evict(final Class<? extends Entity> entityClass, final String key) {
-        OpenJPAEntityManagerFactory emf = OpenJPAPersistence.cast(entityManagerFactory());
-
-        emf.getStoreCache().evict(entityClass, key);
+        entityManagerFactory.unwrap(OpenJPAEntityManagerFactory.class).getStoreCache().evict(entityClass, key);
     }
 
     @Override
     public void clearCache() {
-        OpenJPAEntityManagerFactory emf = OpenJPAPersistence.cast(entityManagerFactory());
+        OpenJPAEntityManagerFactory emf = entityManagerFactory.unwrap(OpenJPAEntityManagerFactory.class);
 
         emf.getStoreCache().evictAll();
         emf.getQueryResultCache().evictAll();

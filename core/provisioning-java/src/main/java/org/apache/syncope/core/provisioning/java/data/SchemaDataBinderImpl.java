@@ -23,7 +23,6 @@ import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -117,17 +116,14 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
         schema.getLabels().clear();
         schema.getLabels().putAll(schemaTO.getLabels());
-        
+
         if (schemaTO.getValidator() == null) {
             schema.setValidator(null);
         } else {
-            Implementation validator = implementationDAO.find(schemaTO.getValidator());
-            if (validator == null) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                        schemaTO.getValidator());
-            } else {
-                schema.setValidator(validator);
-            }
+            implementationDAO.findById(schemaTO.getValidator()).ifPresentOrElse(
+                    schema::setValidator,
+                    () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                            schemaTO.getValidator()));
         }
 
         PlainSchema merged = plainSchemaDAO.save(schema);
@@ -136,14 +132,13 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                 && (merged.getAnyTypeClass() == null
                 || !schemaTO.getAnyTypeClass().equals(merged.getAnyTypeClass().getKey()))) {
 
-            AnyTypeClass anyTypeClass = anyTypeClassDAO.find(schemaTO.getAnyTypeClass());
-            if (anyTypeClass == null) {
-                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName()
-                        + "{}, ignoring...", schemaTO.getAnyTypeClass());
-            } else {
-                anyTypeClass.add(merged);
-                merged.setAnyTypeClass(anyTypeClass);
-            }
+            anyTypeClassDAO.findById(schemaTO.getAnyTypeClass()).ifPresentOrElse(
+                    anyTypeClass -> {
+                        anyTypeClass.add(merged);
+                        merged.setAnyTypeClass(anyTypeClass);
+                    },
+                    () -> LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...",
+                            schemaTO.getAnyTypeClass()));
         } else if (schemaTO.getAnyTypeClass() == null && merged.getAnyTypeClass() != null) {
             merged.getAnyTypeClass().getPlainSchemas().remove(merged);
             merged.setAnyTypeClass(null);
@@ -191,10 +186,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     @Override
     public PlainSchemaTO getPlainSchemaTO(final String key) {
-        PlainSchema schema = plainSchemaDAO.find(key);
-        if (schema == null) {
-            throw new NotFoundException("Schema '" + key + '\'');
-        }
+        PlainSchema schema = plainSchemaDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("PlainSchema " + key));
 
         PlainSchemaTO schemaTO = new PlainSchemaTO();
         schemaTO.setKey(schema.getKey());
@@ -251,14 +244,13 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                 && (merged.getAnyTypeClass() == null
                 || !schemaTO.getAnyTypeClass().equals(merged.getAnyTypeClass().getKey()))) {
 
-            AnyTypeClass anyTypeClass = anyTypeClassDAO.find(schemaTO.getAnyTypeClass());
-            if (anyTypeClass == null) {
-                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName()
-                        + "{}, ignoring...", schemaTO.getAnyTypeClass());
-            } else {
-                anyTypeClass.add(merged);
-                merged.setAnyTypeClass(anyTypeClass);
-            }
+            anyTypeClassDAO.findById(schemaTO.getAnyTypeClass()).ifPresentOrElse(
+                    anyTypeClass -> {
+                        anyTypeClass.add(merged);
+                        merged.setAnyTypeClass(anyTypeClass);
+                    },
+                    () -> LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...",
+                            schemaTO.getAnyTypeClass()));
         } else if (schemaTO.getAnyTypeClass() == null && merged.getAnyTypeClass() != null) {
             merged.getAnyTypeClass().getDerSchemas().remove(merged);
             merged.setAnyTypeClass(null);
@@ -279,10 +271,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     @Override
     public DerSchemaTO getDerSchemaTO(final String key) {
-        DerSchema schema = derSchemaDAO.find(key);
-        if (schema == null) {
-            throw new NotFoundException("Derived schema '" + key + '\'');
-        }
+        DerSchema schema = derSchemaDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("DerSchema " + key));
 
         DerSchemaTO schemaTO = new DerSchemaTO();
         schemaTO.setKey(schema.getKey());
@@ -305,38 +295,35 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                 && (schema.getAnyTypeClass() == null
                 || !schemaTO.getAnyTypeClass().equals(schema.getAnyTypeClass().getKey()))) {
 
-            AnyTypeClass anyTypeClass = anyTypeClassDAO.find(schemaTO.getAnyTypeClass());
-            if (anyTypeClass == null) {
-                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName()
-                        + "{}, ignoring...", schemaTO.getAnyTypeClass());
-            } else {
-                anyTypeClass.add(schema);
-                schema.setAnyTypeClass(anyTypeClass);
-            }
+            anyTypeClassDAO.findById(schemaTO.getAnyTypeClass()).ifPresentOrElse(
+                    anyTypeClass -> {
+                        anyTypeClass.add(schema);
+                        schema.setAnyTypeClass(anyTypeClass);
+                    },
+                    () -> LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...",
+                            schemaTO.getAnyTypeClass()));
         } else if (schemaTO.getAnyTypeClass() == null && schema.getAnyTypeClass() != null) {
             schema.getAnyTypeClass().getVirSchemas().remove(schema);
             schema.setAnyTypeClass(null);
         }
 
-        ExternalResource resource = resourceDAO.find(schemaTO.getResource());
-        if (resource == null) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSchemaDefinition);
+        ExternalResource resource = resourceDAO.findById(schemaTO.getResource()).orElseThrow(() -> {
+            SyncopeClientException sce = SyncopeClientException.build(
+                    ClientExceptionType.InvalidSchemaDefinition);
             sce.getElements().add("Resource " + schemaTO.getResource() + " not found");
-            throw sce;
-        }
-        AnyType anyType = anyTypeDAO.find(schemaTO.getAnyType());
-        if (anyType == null) {
+            return sce;
+        });
+        AnyType anyType = anyTypeDAO.findById(schemaTO.getAnyType()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSchemaDefinition);
             sce.getElements().add("AnyType " + schemaTO.getAnyType() + " not found");
-            throw sce;
-        }
-        Provision provision = resource.getProvisionByAnyType(anyType.getKey()).orElse(null);
-        if (provision == null) {
+            return sce;
+        });
+        resource.getProvisionByAnyType(anyType.getKey()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSchemaDefinition);
             sce.getElements().add("Provision for AnyType" + schemaTO.getAnyType()
                     + " not found in " + schemaTO.getResource());
-            throw sce;
-        }
+            return sce;
+        });
         schema.setResource(resource);
         schema.setAnyType(anyType);
 
@@ -355,10 +342,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     @Override
     public VirSchemaTO getVirSchemaTO(final String key) {
-        VirSchema schema = virSchemaDAO.find(key);
-        if (schema == null) {
-            throw new NotFoundException("Virtual Schema '" + key + '\'');
-        }
+        VirSchema schema = virSchemaDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("VirSchema " + key));
 
         VirSchemaTO schemaTO = new VirSchemaTO();
         schemaTO.setKey(schema.getKey());

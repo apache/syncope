@@ -27,6 +27,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.core.logic.SchemaLogic;
+import org.identityconnectors.common.CollectionUtil;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -56,7 +57,7 @@ public class SchemaServiceImpl extends AbstractService implements SchemaService 
     @Override
     public <T extends SchemaTO> List<T> search(final SchemaQuery query) {
         String keyword = query.getKeyword() == null ? null : query.getKeyword().replace('*', '%');
-        return logic.search(query.getType(), query.getAnyTypeClasses(), keyword);
+        return logic.search(query.getType(), CollectionUtil.nullAsEmpty(query.getAnyTypeClasses()), keyword);
     }
 
     @Override

@@ -18,18 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
 
 public interface AttrRepoDAO extends DAO<AttrRepo> {
-
-    AttrRepo find(String key);
-
-    List<AttrRepo> findAll();
-
-    AttrRepo save(AttrRepo attrRepo);
-
-    void delete(String key);
-
-    void delete(AttrRepo attrRepo);
 }

@@ -530,7 +530,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // read forms *before* any operation
         PagedResult<UserRequestForm> forms = USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
-        int preForms = forms.getTotalCount();
+        long preForms = forms.getTotalCount();
 
         UserCR userCR = UserITCase.getUniqueSample("createWithApproval@syncope.apache.org");
         userCR.getResources().add(RESOURCE_NAME_TESTDB);
@@ -618,7 +618,7 @@ public class UserSelfITCase extends AbstractITCase {
         // read forms *before* any operation
         PagedResult<UserRequestForm> forms = USER_REQUEST_SERVICE.listForms(
                 new UserRequestQuery.Builder().build());
-        int preForms = forms.getTotalCount();
+        long preForms = forms.getTotalCount();
 
         UserTO created = createUser(UserITCase.getUniqueSample("updateApproval@syncope.apache.org")).getEntity();
         assertNotNull(created);
@@ -694,7 +694,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // read forms *before* any operation
         PagedResult<UserRequestForm> forms = USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
-        int preForms = forms.getTotalCount();
+        long preForms = forms.getTotalCount();
 
         UserCR userCR = UserITCase.getUniqueSample("issueSYNCOPE15@syncope.apache.org");
         userCR.getResources().clear();

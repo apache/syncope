@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -34,8 +34,10 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONAnySearchDAO;
-import org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONAuditConfDAO;
-import org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONPlainSchemaDAO;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepoExt;
+import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepoExtMyJSONImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExtMyJSONImpl;
 import org.apache.syncope.core.persistence.jpa.entity.MyJPAJSONEntityFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -53,8 +55,8 @@ public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
 
     @ConditionalOnMissingBean(name = "myJPAJSONAnyDAO")
     @Bean
-    public JPAJSONAnyDAO anyDAO(final @Lazy PlainSchemaDAO plainSchemaDAO) {
-        return new MyJPAJSONAnyDAO(plainSchemaDAO);
+    public JPAJSONAnyDAO anyDAO(final @Lazy PlainSchemaDAO plainSchemaDAO, final EntityManager entityManager) {
+        return new MyJPAJSONAnyDAO(plainSchemaDAO, entityManager);
     }
 
     @ConditionalOnMissingBean(name = "myJPAJSONAnySearchDAO")
@@ -68,7 +70,9 @@ public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
             final @Lazy PlainSchemaDAO schemaDAO,
             final @Lazy EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final EntityManagerFactory entityManagerFactory,
+            final EntityManager entityManager) {
 
         return new MyJPAJSONAnySearchDAO(
                 realmDAO,
@@ -79,22 +83,24 @@ public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
                 schemaDAO,
                 entityFactory,
                 anyUtilsFactory,
-                validator);
+                validator,
+                entityManagerFactory,
+                entityManager);
     }
 
-    @ConditionalOnMissingBean(name = "myJPAJSONAuditConfDAO")
+    @ConditionalOnMissingBean(name = "myJPAJSONAuditConRepoExt")
     @Bean
-    public AuditConfDAO auditConfDAO() {
-        return new MyJPAJSONAuditConfDAO();
+    public AuditConfRepoExt auditConfRepoExt(final EntityManager entityManager) {
+        return new AuditConfRepoExtMyJSONImpl(entityManager);
     }
 
-    @ConditionalOnMissingBean(name = "myJPAJSONPlainSchemaDAO")
+    @ConditionalOnMissingBean(name = "myJPAJSONPlainSchemaRepoExt")
     @Bean
-    public PlainSchemaDAO plainSchemaDAO(
+    public PlainSchemaRepoExt plainSchemaRepoExt(
             final AnyUtilsFactory anyUtilsFactory,
-            final @Lazy PlainAttrDAO plainAttrDAO,
-            final @Lazy ExternalResourceDAO resourceDAO) {
+            final @Lazy ExternalResourceDAO resourceDAO,
+            final EntityManager entityManager) {
 
-        return new MyJPAJSONPlainSchemaDAO(anyUtilsFactory, plainAttrDAO, resourceDAO);
+        return new PlainSchemaRepoExtMyJSONImpl(anyUtilsFactory, resourceDAO, entityManager);
     }
 }

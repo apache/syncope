@@ -18,16 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
 
 public interface WAConfigDAO extends DAO<WAConfigEntry> {
-
-    WAConfigEntry find(String key);
-
-    List<WAConfigEntry> findAll();
-
-    WAConfigEntry save(WAConfigEntry configEntry);
-
-    void delete(String key);
 }

@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -89,7 +88,7 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
                 stream = saml2SPClientAppDAO.findAll().stream().map(binder::getClientAppTO);
         }
 
-        return stream.collect(Collectors.toList());
+        return stream.toList();
     }
 
     protected void checkType(final ClientAppType type, final ClientAppUtils clientAppUtils) {
@@ -105,29 +104,25 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
     public <T extends ClientAppTO> T read(final ClientAppType type, final String key) {
         switch (type) {
             case OIDCRP:
-                OIDCRPClientApp oidcrp = oidcRPClientAppDAO.find(key);
-                if (oidcrp == null) {
-                    throw new NotFoundException("Client app " + key + " not found");
-                }
+                OIDCRPClientApp oidcrp = oidcRPClientAppDAO.findById(key).
+                        orElseThrow(() -> new NotFoundException("OIDCRPClientApp " + key));
 
                 checkType(type, clientAppUtilsFactory.getInstance(oidcrp));
 
                 return binder.getClientAppTO(oidcrp);
+
             case CASSP:
-                CASSPClientApp cassp = casSPClientAppDAO.find(key);
-                if (cassp == null) {
-                    throw new NotFoundException("Client app " + key + " not found");
-                }
+                CASSPClientApp cassp = casSPClientAppDAO.findById(key).
+                        orElseThrow(() -> new NotFoundException("CASSPClientApp " + key));
 
                 checkType(type, clientAppUtilsFactory.getInstance(cassp));
 
                 return binder.getClientAppTO(cassp);
+
             case SAML2SP:
             default:
-                SAML2SPClientApp saml2sp = saml2SPClientAppDAO.find(key);
-                if (saml2sp == null) {
-                    throw new NotFoundException("Client app " + key + " not found");
-                }
+                SAML2SPClientApp saml2sp = saml2SPClientAppDAO.findById(key).
+                        orElseThrow(() -> new NotFoundException("SAML2SPClientApp " + key));
 
                 checkType(type, clientAppUtilsFactory.getInstance(saml2sp));
 
@@ -156,25 +151,24 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
 
         switch (type) {
             case OIDCRP:
-                OIDCRPClientApp oidcrp = oidcRPClientAppDAO.find(clientAppTO.getKey());
-                if (oidcrp == null) {
-                    throw new NotFoundException("Client app " + clientAppTO.getKey() + " not found");
-                }
+                OIDCRPClientApp oidcrp = oidcRPClientAppDAO.findById(clientAppTO.getKey()).
+                        orElseThrow(() -> new NotFoundException("OIDCRPClientApp " + clientAppTO.getKey()));
+
                 binder.update(oidcrp, clientAppTO);
                 return binder.getClientAppTO(oidcRPClientAppDAO.save(oidcrp));
+
             case CASSP:
-                CASSPClientApp cassp = casSPClientAppDAO.find(clientAppTO.getKey());
-                if (cassp == null) {
-                    throw new NotFoundException("Client app " + clientAppTO.getKey() + " not found");
-                }
+                CASSPClientApp cassp = casSPClientAppDAO.findById(clientAppTO.getKey()).
+                        orElseThrow(() -> new NotFoundException("CASSPClientApp " + clientAppTO.getKey()));
+
                 binder.update(cassp, clientAppTO);
                 return binder.getClientAppTO(casSPClientAppDAO.save(cassp));
+
             case SAML2SP:
             default:
-                SAML2SPClientApp saml2sp = saml2SPClientAppDAO.find(clientAppTO.getKey());
-                if (saml2sp == null) {
-                    throw new NotFoundException("Client app " + clientAppTO.getKey() + " not found");
-                }
+                SAML2SPClientApp saml2sp = saml2SPClientAppDAO.findById(clientAppTO.getKey()).
+                        orElseThrow(() -> new NotFoundException("SAML2SPClientApp " + clientAppTO.getKey()));
+
                 binder.update(saml2sp, clientAppTO);
                 return binder.getClientAppTO(saml2SPClientAppDAO.save(saml2sp));
         }
@@ -185,27 +179,26 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
         final T deleted;
         switch (type) {
             case OIDCRP:
-                OIDCRPClientApp oidcrp = oidcRPClientAppDAO.find(key);
-                if (oidcrp == null) {
-                    throw new NotFoundException("Client app " + key + " not found");
-                }
+                OIDCRPClientApp oidcrp = oidcRPClientAppDAO.findById(key).
+                        orElseThrow(() -> new NotFoundException("OIDCRPClientApp " + key));
+
                 oidcRPClientAppDAO.delete(oidcrp);
                 deleted = binder.getClientAppTO(oidcrp);
                 break;
+
             case CASSP:
-                CASSPClientApp cassp = casSPClientAppDAO.find(key);
-                if (cassp == null) {
-                    throw new NotFoundException("Client app " + key + " not found");
-                }
+                CASSPClientApp cassp = casSPClientAppDAO.findById(key).
+                        orElseThrow(() -> new NotFoundException("CASSPClientApp " + key));
+
                 casSPClientAppDAO.delete(cassp);
                 deleted = binder.getClientAppTO(cassp);
                 break;
+
             case SAML2SP:
             default:
-                SAML2SPClientApp saml2sp = saml2SPClientAppDAO.find(key);
-                if (saml2sp == null) {
-                    throw new NotFoundException("Client app " + key + " not found");
-                }
+                SAML2SPClientApp saml2sp = saml2SPClientAppDAO.findById(key).
+                        orElseThrow(() -> new NotFoundException("SAML2SPClientApp " + key));
+
                 saml2SPClientAppDAO.delete(saml2sp);
                 deleted = binder.getClientAppTO(saml2sp);
         }
@@ -242,13 +235,13 @@ public class ClientAppLogic extends AbstractTransactionalLogic<ClientAppTO> {
             final ClientApp clientApp;
             switch (type) {
                 case CASSP:
-                    clientApp = casSPClientAppDAO.find(key);
+                    clientApp = casSPClientAppDAO.findById(key).orElseThrow();
                     break;
                 case SAML2SP:
-                    clientApp = saml2SPClientAppDAO.find(key);
+                    clientApp = saml2SPClientAppDAO.findById(key).orElseThrow();
                     break;
                 case OIDCRP:
-                    clientApp = oidcRPClientAppDAO.find(key);
+                    clientApp = oidcRPClientAppDAO.findById(key).orElseThrow();
                     break;
                 default:
                     throw new RuntimeException("Unexpected ClientApp type");

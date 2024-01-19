@@ -22,8 +22,8 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
+import org.springframework.data.domain.Pageable;
 
 public interface AuditConfDAO extends DAO<AuditConf> {
 
@@ -33,15 +33,7 @@ public interface AuditConfDAO extends DAO<AuditConf> {
 
     String AUDIT_ENTRY_EVENT_DATE_COLUMN = "EVENT_DATE";
 
-    AuditConf find(String key);
-
-    List<AuditConf> findAll();
-
-    AuditConf save(AuditConf auditConf);
-
-    void delete(AuditConf auditConf);
-
-    int countEntries(
+    long countEntries(
             String entityKey,
             AuditElements.EventCategoryType type,
             String category,
@@ -53,8 +45,6 @@ public interface AuditConfDAO extends DAO<AuditConf> {
 
     List<AuditEntry> searchEntries(
             String entityKey,
-            int page,
-            int itemsPerPage,
             AuditElements.EventCategoryType type,
             String category,
             String subcategory,
@@ -62,5 +52,5 @@ public interface AuditConfDAO extends DAO<AuditConf> {
             AuditElements.Result result,
             OffsetDateTime before,
             OffsetDateTime after,
-            List<OrderByClause> orderBy);
+            Pageable pageable);
 }

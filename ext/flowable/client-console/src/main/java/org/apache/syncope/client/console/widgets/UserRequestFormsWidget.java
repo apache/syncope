@@ -75,7 +75,7 @@ public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
         latestAlerts.getObject().clear();
         latestAlerts.getObject().addAll(lastForms);
 
-        int latestAlertSize = getLatestAlertsSize();
+        long latestAlertSize = getLatestAlertsSize();
         linkAlertsNumber.setDefaultModelObject(latestAlertSize);
         target.add(linkAlertsNumber);
 
@@ -89,10 +89,10 @@ public class UserRequestFormsWidget extends ExtAlertWidget<UserRequestForm> {
     }
 
     @Override
-    protected int getLatestAlertsSize() {
+    protected long getLatestAlertsSize() {
         return SyncopeConsoleSession.get().owns(FlowableEntitlement.USER_REQUEST_FORM_LIST)
                 ? userRequestRestClient.countForms(null)
-                : 0;
+                : 0L;
     }
 
     @Override

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.OneToMany;
@@ -28,9 +29,9 @@ import java.lang.reflect.Field;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -40,7 +41,6 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -62,11 +62,17 @@ import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 
-public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
+public class JPATaskDAO implements TaskDAO {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(TaskDAO.class);
 
     protected final RealmDAO realmDAO;
 
@@ -76,42 +82,35 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
 
     protected final SecurityProperties securityProperties;
 
+    protected final EntityManager entityManager;
+
     public JPATaskDAO(
             final RealmDAO realmDAO,
             final RemediationDAO remediationDAO,
             final TaskUtilsFactory taskUtilsFactory,
-            final SecurityProperties securityProperties) {
+            final SecurityProperties securityProperties,
+            final EntityManager entityManager) {
 
         this.realmDAO = realmDAO;
         this.remediationDAO = remediationDAO;
         this.taskUtilsFactory = taskUtilsFactory;
         this.securityProperties = securityProperties;
+        this.entityManager = entityManager;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public boolean exists(final TaskType type, final String key) {
-        Query query = entityManager().createNativeQuery("SELECT id FROM "
-                + taskUtilsFactory.getInstance(type).getTaskTable()
-                + " WHERE id=?");
-        query.setParameter(1, key);
-
-        return !query.getResultList().isEmpty();
-    }
-
-    @Transactional(readOnly = true)
     @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Task<T>> T find(final TaskType type, final String key) {
-        return (T) entityManager().find(taskUtilsFactory.getInstance(type).getTaskEntity(), key);
+    public <T extends Task<T>> Optional<T> findById(final TaskType type, final String key) {
+        return Optional.ofNullable((T) entityManager.find(taskUtilsFactory.getInstance(type).getTaskEntity(), key));
     }
 
     @Transactional(readOnly = true)
-    @SuppressWarnings("unchecked")
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends SchedTask> Optional<T> findByName(final TaskType type, final String name) {
         TaskUtils taskUtils = taskUtilsFactory.getInstance(type);
-        TypedQuery<T> query = (TypedQuery<T>) entityManager().createQuery(
+        TypedQuery<T> query = (TypedQuery<T>) entityManager.createQuery(
                 "SELECT e FROM " + taskUtils.getTaskEntity().getSimpleName() + " e WHERE e.name = :name",
                 taskUtils.getTaskEntity());
         query.setParameter("name", name);
@@ -125,30 +124,30 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
     }
 
     @Override
-    public Optional<Task<?>> find(final String key) {
-        Task<?> task = find(TaskType.SCHEDULED, key);
-        if (task == null) {
-            task = find(TaskType.PULL, key);
+    public Optional<? extends Task<?>> findById(final String key) {
+        Optional<? extends Task<?>> task = findById(TaskType.SCHEDULED, key);
+        if (task.isEmpty()) {
+            task = findById(TaskType.PULL, key);
         }
-        if (task == null) {
-            task = find(TaskType.PUSH, key);
+        if (task.isEmpty()) {
+            task = findById(TaskType.PUSH, key);
         }
-        if (task == null) {
-            task = find(TaskType.MACRO, key);
+        if (task.isEmpty()) {
+            task = findById(TaskType.MACRO, key);
         }
-        if (task == null) {
-            task = find(TaskType.PROPAGATION, key);
+        if (task.isEmpty()) {
+            task = findById(TaskType.PROPAGATION, key);
         }
-        if (task == null) {
-            task = find(TaskType.NOTIFICATION, key);
+        if (task.isEmpty()) {
+            task = findById(TaskType.NOTIFICATION, key);
         }
 
-        return Optional.ofNullable(task);
+        return task;
     }
 
     @Override
     public List<SchedTask> findByDelegate(final Implementation delegate) {
-        TypedQuery<SchedTask> query = entityManager().createQuery(
+        TypedQuery<SchedTask> query = entityManager.createQuery(
                 "SELECT e FROM " + JPASchedTask.class.getSimpleName()
                 + " e WHERE e.jobDelegate=:delegate", SchedTask.class);
         query.setParameter("delegate", delegate);
@@ -158,7 +157,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
 
     @Override
     public List<PullTask> findByReconFilterBuilder(final Implementation reconFilterBuilder) {
-        TypedQuery<PullTask> query = entityManager().createQuery(
+        TypedQuery<PullTask> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAPullTask.class.getSimpleName()
                 + " e WHERE e.reconFilterBuilder=:reconFilterBuilder", PullTask.class);
         query.setParameter("reconFilterBuilder", reconFilterBuilder);
@@ -168,7 +167,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
 
     @Override
     public List<PullTask> findByPullActions(final Implementation pullActions) {
-        TypedQuery<PullTask> query = entityManager().createQuery(
+        TypedQuery<PullTask> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAPullTask.class.getSimpleName() + " e "
                 + "WHERE :pullActions MEMBER OF e.actions", PullTask.class);
         query.setParameter("pullActions", pullActions);
@@ -178,7 +177,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
 
     @Override
     public List<PushTask> findByPushActions(final Implementation pushActions) {
-        TypedQuery<PushTask> query = entityManager().createQuery(
+        TypedQuery<PushTask> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAPushTask.class.getSimpleName() + " e "
                 + "WHERE :pushActions MEMBER OF e.actions", PushTask.class);
         query.setParameter("pushActions", pushActions);
@@ -188,7 +187,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
 
     @Override
     public List<MacroTask> findByRealm(final Realm realm) {
-        TypedQuery<MacroTask> query = entityManager().createQuery(
+        TypedQuery<MacroTask> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAMacroTask.class.getSimpleName() + " e "
                 + "WHERE e.realm=:realm", MacroTask.class);
         query.setParameter("realm", realm);
@@ -198,7 +197,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
 
     @Override
     public List<MacroTask> findByCommand(final Implementation command) {
-        TypedQuery<MacroTask> query = entityManager().createQuery("SELECT e FROM " + JPAMacroTask.class.getSimpleName()
+        TypedQuery<MacroTask> query = entityManager.createQuery("SELECT e FROM " + JPAMacroTask.class.getSimpleName()
                 + " e WHERE :command MEMBER OF e.commands", MacroTask.class);
         query.setParameter("command", command);
 
@@ -234,14 +233,19 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
         }
         queryString.append("ORDER BY t.id DESC");
 
-        Query query = entityManager().createQuery(queryString.toString());
+        Query query = entityManager.createQuery(queryString.toString());
         return query.getResultList();
+    }
+
+    @Override
+    public List<? extends Task<?>> findAll() {
+        throw new UnsupportedOperationException();
     }
 
     @Transactional(readOnly = true)
     @Override
     public <T extends Task<T>> List<T> findAll(final TaskType type) {
-        return findAll(type, null, null, null, null, -1, -1, List.of());
+        return findAll(type, null, null, null, null, Pageable.unpaged());
     }
 
     protected int setParameter(final List<Object> parameters, final Object parameter) {
@@ -322,8 +326,8 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
 
             String realmKeysArg = AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.TASK_LIST).stream().
                     map(realmDAO::findByFullPath).
-                    filter(Objects::nonNull).
-                    flatMap(r -> realmDAO.findDescendants(r.getFullPath(), null, -1, -1).stream()).
+                    filter(Optional::isPresent).
+                    flatMap(r -> realmDAO.findDescendants(r.get().getFullPath(), null, Pageable.unpaged()).stream()).
                     map(Realm::getKey).
                     distinct().
                     map(realmKey -> "?" + setParameter(parameters, realmKey)).
@@ -337,7 +341,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
 
     protected String toOrderByStatement(
             final Class<? extends Task<?>> beanClass,
-            final List<OrderByClause> orderByClauses) {
+            final Stream<Sort.Order> orderByClauses) {
 
         StringBuilder statement = new StringBuilder();
 
@@ -345,7 +349,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
 
         StringBuilder subStatement = new StringBuilder();
         orderByClauses.forEach(clause -> {
-            String field = clause.getField().trim();
+            String field = clause.getProperty().trim();
             switch (field) {
                 case "latestExecStatus":
                     field = "status";
@@ -383,6 +387,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
         return statement.toString();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends Task<T>> List<T> findAll(
             final TaskType type,
@@ -390,17 +395,15 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
             final Notification notification,
             final AnyTypeKind anyTypeKind,
             final String entityKey,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderByClauses) {
+            final Pageable pageable) {
 
         List<Object> parameters = new ArrayList<>();
 
-        boolean orderByTaskExecInfo = orderByClauses.stream().
-                anyMatch(clause -> clause.getField().equals("start")
-                || clause.getField().equals("end")
-                || clause.getField().equals("latestExecStatus")
-                || clause.getField().equals("status"));
+        boolean orderByTaskExecInfo = pageable.getSort().stream().
+                anyMatch(clause -> clause.getProperty().equals("start")
+                || clause.getProperty().equals("end")
+                || clause.getProperty().equals("latestExecStatus")
+                || clause.getProperty().equals("status"));
 
         StringBuilder queryString = buildFindAllQuery(
                 type,
@@ -431,41 +434,38 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
             queryString.insert(0, "SELECT T.id FROM (").append(") T");
         }
 
-        queryString.append(toOrderByStatement(taskUtilsFactory.getInstance(type).getTaskEntity(), orderByClauses));
+        queryString.append(toOrderByStatement(
+                taskUtilsFactory.getInstance(type).getTaskEntity(), pageable.getSort().get()));
 
-        Query query = entityManager().createNativeQuery(queryString.toString());
+        Query query = entityManager.createNativeQuery(queryString.toString());
 
         for (int i = 1; i <= parameters.size(); i++) {
             query.setParameter(i, parameters.get(i - 1));
         }
 
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-        if (itemsPerPage > 0) {
-            query.setMaxResults(itemsPerPage);
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
+            query.setMaxResults(pageable.getPageSize());
         }
 
         List<T> result = new ArrayList<>();
 
         @SuppressWarnings("unchecked")
         List<Object> raw = query.getResultList();
-        raw.stream().map(key -> key instanceof Object[]
-                ? (String) ((Object[]) key)[0]
-                : ((String) key)).forEach(key -> {
-
-            T task = find(type, key);
-            if (task == null) {
-                LOG.error("Could not find task with key {}, even if returned by native query", key);
-            } else if (!result.contains(task)) {
-                result.add(task);
-            }
-        });
+        raw.forEach(key -> findById(type, key.toString()).ifPresentOrElse(
+                task -> result.add((T) task),
+                () -> LOG.error("Could not find task with key {}, even if returned by native query", key)));
 
         return result;
     }
 
     @Override
-    public int count(
+    public long count() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long count(
             final TaskType type,
             final ExternalResource resource,
             final Notification notification,
@@ -478,7 +478,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
                 buildFindAllQuery(type, resource, notification, anyTypeKind, entityKey, false, parameters);
 
         String table = taskUtilsFactory.getInstance(type).getTaskTable();
-        Query query = entityManager().createNativeQuery(StringUtils.replaceOnce(
+        Query query = entityManager.createNativeQuery(StringUtils.replaceOnce(
                 queryString.toString(),
                 "SELECT " + table + ".*, null AS startDate, null AS endDate, null AS status",
                 "SELECT COUNT(" + table + ".id)"));
@@ -487,42 +487,45 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
             query.setParameter(i, parameters.get(i - 1));
         }
 
-        return ((Number) query.getSingleResult()).intValue();
+        return ((Number) query.getSingleResult()).longValue();
     }
 
     @Transactional(rollbackFor = { Throwable.class })
     @Override
-    public <T extends Task<T>> T save(final T task) {
-        if (task instanceof JPANotificationTask) {
-            ((JPANotificationTask) task).list2json();
-        } else if (task instanceof JPAPushTask) {
-            ((JPAPushTask) task).map2json();
+    public <T extends Task<?>> T save(final T task) {
+        switch (task) {
+            case JPANotificationTask jpaNotificationTask ->
+                jpaNotificationTask.list2json();
+            case JPAPushTask jpaPushTask ->
+                jpaPushTask.map2json();
+            default -> {
+            }
         }
-        return entityManager().merge(task);
+        return entityManager.merge(task);
     }
 
     @Override
-    public void delete(final TaskType type, final String id) {
-        Task<?> task = find(type, id);
-        if (task == null) {
-            return;
-        }
+    public void delete(final TaskType type, final String key) {
+        findById(type, key).ifPresent(this::delete);
+    }
 
-        delete(task);
+    @Override
+    public void deleteById(final String key) {
+        findById(key).ifPresent(this::delete);
     }
 
     @Override
     public void delete(final Task<?> task) {
-        if (task instanceof PullTask) {
-            remediationDAO.findByPullTask((PullTask) task).forEach(remediation -> remediation.setPullTask(null));
+        if (task instanceof PullTask pullTask) {
+            remediationDAO.findByPullTask(pullTask).forEach(remediation -> remediation.setPullTask(null));
         }
 
-        entityManager().remove(task);
+        entityManager.remove(task);
     }
 
     @Override
     public void deleteAll(final ExternalResource resource, final TaskType type) {
-        findAll(type, resource, null, null, null, -1, -1, List.of()).
+        findAll(type, resource, null, null, null, Pageable.unpaged()).
                 stream().map(Task<?>::getKey).forEach(key -> delete(type, key));
     }
 
@@ -530,7 +533,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
     public List<PropagationTaskTO> purgePropagations(
             final OffsetDateTime since,
             final List<ExecStatus> statuses,
-            final List<ExternalResource> externalResources) {
+            final List<String> resources) {
 
         StringBuilder queryString = new StringBuilder("SELECT t.task_id "
                 + "FROM " + JPAPropagationTaskExec.TABLE + " t "
@@ -552,16 +555,16 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
                     }).collect(Collectors.joining(" OR "))).
                     append(")");
         }
-        if (!CollectionUtils.isEmpty(externalResources)) {
+        if (!CollectionUtils.isEmpty(resources)) {
             queryString.append("AND (").
-                    append(externalResources.stream().map(externalResource -> {
-                        queryParameters.add(externalResource.getKey());
+                    append(resources.stream().map(r -> {
+                        queryParameters.add(r);
                         return "z.resource_id = ?" + queryParameters.size();
                     }).collect(Collectors.joining(" OR "))).
                     append(")");
         }
 
-        Query query = entityManager().createNativeQuery(queryString.toString());
+        Query query = entityManager.createNativeQuery(queryString.toString());
         for (int i = 1; i <= queryParameters.size(); i++) {
             query.setParameter(i, queryParameters.get(i - 1));
         }
@@ -570,26 +573,25 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
         List<Object> raw = query.getResultList();
 
         List<PropagationTaskTO> purged = new ArrayList<>();
-        raw.stream().map(Object::toString).distinct().forEach(key -> {
-            PropagationTask task = find(TaskType.PROPAGATION, key);
-            if (task != null) {
-                PropagationTaskTO taskTO = new PropagationTaskTO();
+        raw.stream().map(Object::toString).distinct().forEach(key -> findById(TaskType.PROPAGATION, key).
+                map(PropagationTask.class::cast).ifPresent(task -> {
 
-                taskTO.setOperation(task.getOperation());
-                taskTO.setConnObjectKey(task.getConnObjectKey());
-                taskTO.setOldConnObjectKey(task.getOldConnObjectKey());
-                taskTO.setPropagationData(task.getSerializedPropagationData());
-                taskTO.setResource(task.getResource().getKey());
-                taskTO.setObjectClassName(task.getObjectClassName());
-                taskTO.setAnyTypeKind(task.getAnyTypeKind());
-                taskTO.setAnyType(task.getAnyType());
-                taskTO.setEntityKey(task.getEntityKey());
+            PropagationTaskTO taskTO = new PropagationTaskTO();
 
-                purged.add(taskTO);
+            taskTO.setOperation(task.getOperation());
+            taskTO.setConnObjectKey(task.getConnObjectKey());
+            taskTO.setOldConnObjectKey(task.getOldConnObjectKey());
+            taskTO.setPropagationData(task.getSerializedPropagationData());
+            taskTO.setResource(task.getResource().getKey());
+            taskTO.setObjectClassName(task.getObjectClassName());
+            taskTO.setAnyTypeKind(task.getAnyTypeKind());
+            taskTO.setAnyType(task.getAnyType());
+            taskTO.setEntityKey(task.getEntityKey());
 
-                delete(task);
-            }
-        });
+            purged.add(taskTO);
+
+            delete(task);
+        }));
 
         return purged;
     }

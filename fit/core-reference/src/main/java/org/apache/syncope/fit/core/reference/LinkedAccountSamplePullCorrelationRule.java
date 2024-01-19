@@ -78,6 +78,6 @@ public class LinkedAccountSamplePullCorrelationRule implements PullCorrelationRu
     @Override
     public Optional<PullMatch> unmatching(final SyncDelta syncDelta, final Provision provision) {
         // if no match with internal user was found, link account to vivaldi instead of creating new user
-        return Optional.of(new PullMatch(MatchType.LINKED_ACCOUNT, userDAO.find(VIVALDI_KEY)));
+        return Optional.of(new PullMatch(MatchType.LINKED_ACCOUNT, userDAO.findById(VIVALDI_KEY).orElseThrow()));
     }
 }

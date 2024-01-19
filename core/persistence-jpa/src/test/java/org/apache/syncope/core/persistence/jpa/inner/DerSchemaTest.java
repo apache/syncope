@@ -19,8 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -34,7 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class DerSchemaTest extends AbstractTest {
 
     @Autowired
@@ -42,20 +40,19 @@ public class DerSchemaTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<DerSchema> list = derSchemaDAO.findAll();
+        List<? extends DerSchema> list = derSchemaDAO.findAll();
         assertEquals(10, list.size());
     }
 
     @Test
     public void search() {
-        List<DerSchema> schemas = derSchemaDAO.findByKeyword("mderivedd%");
+        List<? extends DerSchema> schemas = derSchemaDAO.findByIdLike("mderivedd%");
         assertEquals(1, schemas.size());
     }
 
     @Test
     public void findByName() {
-        DerSchema attributeSchema = derSchemaDAO.find("cn");
-        assertNotNull(attributeSchema);
+        assertTrue(derSchemaDAO.findById("cn").isPresent());
     }
 
     @Test
@@ -66,29 +63,24 @@ public class DerSchemaTest extends AbstractTest {
 
         derSchemaDAO.save(derivedAttributeSchema);
 
-        DerSchema actual = derSchemaDAO.find("cn2");
-        assertNotNull(actual);
+        DerSchema actual = derSchemaDAO.findById("cn2").orElseThrow();
         assertEquals(derivedAttributeSchema, actual);
     }
 
     @Test
     public void delete() {
-        DerSchema cn = derSchemaDAO.find("cn");
-        assertNotNull(cn);
+        DerSchema cn = derSchemaDAO.findById("cn").orElseThrow();
 
-        derSchemaDAO.delete(cn.getKey());
+        derSchemaDAO.deleteById(cn.getKey());
 
-        DerSchema actual = derSchemaDAO.find("cn");
-        assertNull(actual);
+        assertTrue(derSchemaDAO.findById("cn").isEmpty());
 
         // ------------- //
-        DerSchema rderiveddata = derSchemaDAO.find("rderiveddata");
-        assertNotNull(rderiveddata);
+        DerSchema rderiveddata = derSchemaDAO.findById("rderiveddata").orElseThrow();
 
-        derSchemaDAO.delete(rderiveddata.getKey());
+        derSchemaDAO.deleteById(rderiveddata.getKey());
 
-        actual = derSchemaDAO.find("rderiveddata");
-        assertNull(actual);
+        assertTrue(derSchemaDAO.findById("rderiveddata").isEmpty());
     }
 
     @Test

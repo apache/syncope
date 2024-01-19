@@ -24,11 +24,8 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -50,9 +47,9 @@ import org.apache.syncope.core.logic.init.AuditLoader;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
@@ -66,6 +63,8 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
@@ -110,24 +109,23 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "')")
     @Transactional(readOnly = true)
     public List<AuditConfTO> list() {
-        return auditConfDAO.findAll().stream().map(binder::getAuditTO).collect(Collectors.toList());
+        return auditConfDAO.findAll().stream().map(binder::getAuditTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_READ + "')")
     @Transactional(readOnly = true)
     public AuditConfTO read(final String key) {
-        return Optional.ofNullable(auditConfDAO.find(key)).map(binder::getAuditTO).
+        return auditConfDAO.findById(key).map(binder::getAuditTO).
                 orElseThrow(() -> new NotFoundException("Audit " + key));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_SET + "')")
     public void set(final AuditConfTO auditTO) {
-        AuditConf audit = Optional.ofNullable(auditConfDAO.find(auditTO.getKey())).
-                orElseGet(() -> {
-                    AuditConf ac = entityFactory.newEntity(AuditConf.class);
-                    ac.setKey(auditTO.getKey());
-                    return ac;
-                });
+        AuditConf audit = auditConfDAO.findById(auditTO.getKey()).orElse(null);
+        if (audit == null) {
+            audit = entityFactory.newEntity(AuditConf.class);
+            audit.setKey(auditTO.getKey());
+        }
         audit.setActive(auditTO.isActive());
         audit = auditConfDAO.save(audit);
 
@@ -136,7 +134,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_DELETE + "')")
     public void delete(final String key) {
-        AuditConf audit = Optional.ofNullable(auditConfDAO.find(key)).
+        AuditConf audit = auditConfDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Audit " + key));
         auditConfDAO.delete(audit);
 
@@ -261,10 +259,8 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_SEARCH + "')")
     @Transactional(readOnly = true)
-    public Pair<Integer, List<AuditEntry>> search(
+    public Page<AuditEntry> search(
             final String entityKey,
-            final int page,
-            final int size,
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
@@ -272,12 +268,14 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             final AuditElements.Result result,
             final OffsetDateTime before,
             final OffsetDateTime after,
-            final List<OrderByClause> orderBy) {
+            final Pageable pageable) {
 
-        int count = auditConfDAO.countEntries(entityKey, type, category, subcategory, events, result, before, after);
+        long count = auditConfDAO.countEntries(entityKey, type, category, subcategory, events, result, before, after);
+
         List<AuditEntry> matching = auditConfDAO.searchEntries(
-                entityKey, page, size, type, category, subcategory, events, result, before, after, orderBy);
-        return Pair.of(count, matching);
+                entityKey, type, category, subcategory, events, result, before, after, pageable);
+
+        return new SyncopePage<>(matching, pageable, count);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -312,17 +310,17 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof AuditConfTO) {
-                    key = ((AuditConfTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof AuditConfTO auditConfTO) {
+                    key = auditConfTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getAuditTO(auditConfDAO.find(key));
+                return binder.getAuditTO(auditConfDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

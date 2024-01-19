@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 
-public interface AnyMatchDAO extends DAO<Any<?>> {
+public interface AnyMatchDAO {
 
     /**
      * Verify if any matches the given search condition.

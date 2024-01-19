@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.FIQLQueryTO;
@@ -32,6 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.FIQLQuery;
 import org.apache.syncope.core.provisioning.api.data.FIQLQueryDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
+import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,14 +43,23 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
 
     protected final UserDAO userDAO;
 
+    protected final SecurityProperties securityProperties;
+
     public FIQLQueryLogic(
             final FIQLQueryDataBinder binder,
             final FIQLQueryDAO fiqlQueryDAO,
-            final UserDAO userDAO) {
+            final UserDAO userDAO,
+            final SecurityProperties securityProperties) {
 
         this.binder = binder;
         this.fiqlQueryDAO = fiqlQueryDAO;
         this.userDAO = userDAO;
+        this.securityProperties = securityProperties;
+    }
+
+    protected boolean skip() {
+        return securityProperties.getAdminUser().equals(AuthContextUtils.getUsername())
+                || securityProperties.getAnonymousUser().equals(AuthContextUtils.getUsername());
     }
 
     protected void securityChecks(final String owner) {
@@ -62,11 +71,12 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public FIQLQueryTO read(final String key) {
-        FIQLQuery fiqlQuery = fiqlQueryDAO.find(key);
-        if (fiqlQuery == null) {
-            LOG.error("Could not find fiqlQuery '" + key + "'");
-            throw new NotFoundException(key);
+        if (skip()) {
+            throw new NotFoundException("FIQLQuery " + key);
         }
+
+        FIQLQuery fiqlQuery = fiqlQueryDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("FIQLQuery " + key));
 
         securityChecks(fiqlQuery.getOwner().getUsername());
 
@@ -76,22 +86,34 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<FIQLQueryTO> list(final String target) {
-        return fiqlQueryDAO.findByOwner(userDAO.findByUsername(AuthContextUtils.getUsername()), target).stream().
-                map(binder::getFIQLQueryTO).collect(Collectors.toList());
+        if (skip()) {
+            return List.of();
+        }
+
+        return fiqlQueryDAO.findByOwner(
+                userDAO.findByUsername(AuthContextUtils.getUsername()).
+                        orElseThrow(() -> new NotFoundException("User " + AuthContextUtils.getUsername())), target).
+                stream().
+                map(binder::getFIQLQueryTO).toList();
     }
 
     @PreAuthorize("isAuthenticated()")
     public FIQLQueryTO create(final FIQLQueryTO fiqlQueryTO) {
+        if (skip()) {
+            throw new NotFoundException("FIQLQuery " + fiqlQueryTO.getKey());
+        }
+
         return binder.getFIQLQueryTO(fiqlQueryDAO.save(binder.create(fiqlQueryTO)));
     }
 
     @PreAuthorize("isAuthenticated()")
     public FIQLQueryTO update(final FIQLQueryTO fiqlQueryTO) {
-        FIQLQuery fiqlQuery = fiqlQueryDAO.find(fiqlQueryTO.getKey());
-        if (fiqlQuery == null) {
-            LOG.error("Could not find fiqlQuery '" + fiqlQueryTO.getKey() + "'");
-            throw new NotFoundException(fiqlQueryTO.getKey());
+        if (skip()) {
+            throw new NotFoundException("FIQLQuery " + fiqlQueryTO.getKey());
         }
+
+        FIQLQuery fiqlQuery = fiqlQueryDAO.findById(fiqlQueryTO.getKey()).
+                orElseThrow(() -> new NotFoundException("FIQLQuery " + fiqlQueryTO.getKey()));
 
         securityChecks(fiqlQuery.getOwner().getUsername());
 
@@ -100,16 +122,17 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
 
     @PreAuthorize("isAuthenticated()")
     public FIQLQueryTO delete(final String key) {
-        FIQLQuery fiqlQuery = fiqlQueryDAO.find(key);
-        if (fiqlQuery == null) {
-            LOG.error("Could not find fiqlQuery '" + key + "'");
-            throw new NotFoundException(key);
+        if (skip()) {
+            throw new NotFoundException("FIQLQuery " + key);
         }
+
+        FIQLQuery fiqlQuery = fiqlQueryDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("FIQLQuery " + key));
 
         securityChecks(fiqlQuery.getOwner().getUsername());
 
         FIQLQueryTO deleted = binder.getFIQLQueryTO(fiqlQuery);
-        fiqlQueryDAO.delete(key);
+        fiqlQueryDAO.deleteById(key);
         return deleted;
     }
 
@@ -121,17 +144,17 @@ public class FIQLQueryLogic extends AbstractTransactionalLogic<FIQLQueryTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof FIQLQueryTO) {
-                    key = ((FIQLQueryTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof FIQLQueryTO fIQLQueryTO) {
+                    key = fIQLQueryTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getFIQLQueryTO(fiqlQueryDAO.find(key));
+                return binder.getFIQLQueryTO(fiqlQueryDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

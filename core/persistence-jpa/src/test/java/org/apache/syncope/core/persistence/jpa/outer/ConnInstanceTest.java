@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.outer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -35,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class ConnInstanceTest extends AbstractTest {
 
     @Autowired
@@ -46,29 +45,26 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Test
     public void deleteCascade() {
-        ConnInstance connInstance = connInstanceDAO.find("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b");
-        assertNotNull(connInstance);
+        ConnInstance connInstance = connInstanceDAO.findById("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b").orElseThrow();
 
         List<? extends ExternalResource> resources = connInstance.getResources();
         assertNotNull(resources);
         assertFalse(resources.isEmpty());
 
-        connInstanceDAO.delete(connInstance.getKey());
+        connInstanceDAO.deleteById(connInstance.getKey());
 
-        entityManager().flush();
+        entityManager.flush();
 
-        ConnInstance actual = connInstanceDAO.find("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b");
-        assertNull(actual);
+        assertTrue(connInstanceDAO.findById("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b").isEmpty());
 
         for (ExternalResource resource : resources) {
-            assertNull(resourceDAO.find(resource.getKey()));
+            assertTrue(resourceDAO.findById(resource.getKey()).isEmpty());
         }
     }
 
     @Test
     public void issue176() {
-        ConnInstance connInstance = connInstanceDAO.find("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b");
-        assertNotNull(connInstance);
+        ConnInstance connInstance = connInstanceDAO.findById("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b").orElseThrow();
         assertTrue(connInstance.getCapabilities().isEmpty());
 
         List<? extends ExternalResource> resources = connInstance.getResources();

@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class GroupTest extends AbstractTest {
 
     @Autowired
@@ -47,44 +47,42 @@ public class GroupTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Group> groups = groupDAO.findAll(1, 100);
+        List<? extends Group> groups = groupDAO.findAll();
         assertEquals(16, groups.size());
-
-        List<String> groupKeys = groupDAO.findAllKeys(1, 100);
-        assertNotNull(groupKeys);
-
-        assertEquals(groups.size(), groupKeys.size());
     }
 
     @Test
     public void find() {
-        Group group = groupDAO.findByName("root");
-        assertNotNull(group);
-
-        group = groupDAO.findByName("additional");
+        Group group = groupDAO.findByName("additional").orElseThrow();
         assertNotNull(group);
         assertEquals(1, group.getTypeExtensions().size());
-        assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).get().getAuxClasses().size());
+        assertEquals(2, group.getTypeExtension(anyTypeDAO.getUser()).get().getAuxClasses().size());
+    }
+
+    @Test
+    public void findKeysByNamePattern() {
+        List<String> groups = groupDAO.findKeysByNamePattern("%child");
+        assertEquals(2, groups.size());
+        assertTrue(groups.contains("b1f7c12d-ec83-441f-a50e-1691daaedf3b"));
+        assertTrue(groups.contains("f779c0d4-633b-4be5-8f57-32eb478a3ca5"));
     }
 
     @Test
     public void save() {
         Group group = entityFactory.newEntity(Group.class);
         group.setName("secondChild");
-        group.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM));
+        group.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
 
         group = groupDAO.save(group);
 
-        Group actual = groupDAO.find(group.getKey());
-        assertNotNull(actual);
+        assertTrue(groupDAO.findById(group.getKey()).isPresent());
     }
 
     @Test
     public void delete() {
-        Group group = groupDAO.find("8fb2d51e-c605-4e80-a72b-13ffecf1aa9a");
-        groupDAO.delete(group.getKey());
+        Group group = groupDAO.findById("8fb2d51e-c605-4e80-a72b-13ffecf1aa9a").orElseThrow();
+        groupDAO.deleteById(group.getKey());
 
-        Group actual = groupDAO.find("8fb2d51e-c605-4e80-a72b-13ffecf1aa9a");
-        assertNull(actual);
+        assertTrue(groupDAO.findById("8fb2d51e-c605-4e80-a72b-13ffecf1aa9a").isEmpty());
     }
 }

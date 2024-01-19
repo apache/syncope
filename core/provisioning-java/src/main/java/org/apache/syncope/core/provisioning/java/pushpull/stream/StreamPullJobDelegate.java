@@ -20,9 +20,8 @@ package org.apache.syncope.core.provisioning.java.pushpull.stream;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
@@ -35,12 +34,12 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
@@ -73,7 +72,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
         PullCorrelationRuleEntity pullCorrelationRuleEntity = null;
         if (pullCorrelationRule != null) {
-            Implementation impl = implementationDAO.find(pullCorrelationRule);
+            Implementation impl = implementationDAO.findById(pullCorrelationRule).orElse(null);
             if (impl == null || !IdMImplementationType.PULL_CORRELATION_RULE.equals(impl.getType())) {
                 LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", pullCorrelationRule);
             } else {
@@ -108,10 +107,8 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
         if (anyUtils.getField(keyColumn) == null) {
-            PlainSchema keyColumnSchema = plainSchemaDAO.find(keyColumn);
-            if (keyColumnSchema == null) {
-                throw new JobExecutionException("Plain Schema for key column not found: " + keyColumn);
-            }
+            plainSchemaDAO.findById(keyColumn).
+                    orElseThrow(() -> new JobExecutionException("Plain Schema for key column not found: " + keyColumn));
         }
 
         Item connObjectKeyItem = new Item();
@@ -122,7 +119,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
         columns.stream().
                 filter(column -> anyUtils.getField(column) != null
-                || plainSchemaDAO.find(column) != null || virSchemaDAO.find(column) != null).
+                || plainSchemaDAO.findById(column).isPresent() || virSchemaDAO.findById(column).isPresent()).
                 map(column -> {
                     Item item = new Item();
                     item.setExtAttrName(column);
@@ -181,14 +178,16 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             task.setPerformUpdate(true);
             task.setPerformDelete(false);
             task.setSyncStatus(false);
-            task.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()));
+            task.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()).
+                    orElseThrow(() -> new NotFoundException("Realm " + pullTaskTO.getDestinationRealm())));
             task.setRemediation(pullTaskTO.isRemediation());
 
             profile = new ProvisioningProfile<>(connector, task);
             profile.setDryRun(false);
             profile.setConflictResolutionAction(conflictResolutionAction);
             profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
-                    map(implementationDAO::find).filter(Objects::nonNull).collect(Collectors.toList())));
+                    map(implementationDAO::findById).filter(Optional::isPresent).map(Optional::get).
+                    toList()));
             profile.setExecutor(executor);
 
             for (PullActions action : profile.getActions()) {
@@ -218,7 +217,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
             Stream<Item> mapItems = Stream.concat(
                     MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
-                    virSchemaDAO.find(resource.getKey(), anyType.getKey()).stream().
+                    virSchemaDAO.findByResourceAndAnyType(resource.getKey(), anyType.getKey()).stream().
                             map(VirSchema::asLinkingMappingItem));
 
             connector.fullReconciliation(

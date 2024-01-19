@@ -20,8 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -59,7 +57,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_READ + "')")
     @Transactional(readOnly = true)
     public AnyTypeTO read(final String key) {
-        AnyType anyType = Optional.ofNullable(anyTypeDAO.find(key)).
+        AnyType anyType = anyTypeDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("AnyType " + key));
 
         return binder.getAnyTypeTO(anyType);
@@ -68,7 +66,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_LIST + "')")
     @Transactional(readOnly = true)
     public List<AnyTypeTO> list() {
-        return anyTypeDAO.findAll().stream().map(binder::getAnyTypeTO).collect(Collectors.toList());
+        return anyTypeDAO.findAll().stream().map(binder::getAnyTypeTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_CREATE + "')")
@@ -78,7 +76,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
             sce.getElements().add(AnyType.class.getSimpleName() + " key");
             throw sce;
         }
-        if (anyTypeDAO.find(anyTypeTO.getKey()) != null) {
+        if (anyTypeDAO.findById(anyTypeTO.getKey()).isPresent()) {
             throw new DuplicateException(anyTypeTO.getKey());
         }
 
@@ -87,7 +85,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_UPDATE + "')")
     public void update(final AnyTypeTO anyTypeTO) {
-        AnyType anyType = Optional.ofNullable(anyTypeDAO.find(anyTypeTO.getKey())).
+        AnyType anyType = anyTypeDAO.findById(anyTypeTO.getKey()).
                 orElseThrow(() -> new NotFoundException("AnyType " + anyTypeTO.getKey()));
 
         binder.update(anyType, anyTypeTO);
@@ -96,10 +94,10 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_DELETE + "')")
     public AnyTypeTO delete(final String key) {
-        AnyType anyType = Optional.ofNullable(anyTypeDAO.find(key)).
+        AnyType anyType = anyTypeDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("AnyType " + key));
 
-        Integer anyObjects = anyObjectDAO.countByType().get(anyType);
+        Long anyObjects = anyObjectDAO.countByType().get(anyType);
         if (anyObjects != null && anyObjects > 0) {
             LOG.error("{} AnyObject instances found for {}, aborting", anyObjects, anyType);
 
@@ -125,17 +123,17 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof AnyTypeTO) {
-                    key = ((AnyTypeTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof AnyTypeTO anyTypeTO) {
+                    key = anyTypeTO.getKey();
                 }
             }
         }
 
         if (StringUtils.isNotBlank(key)) {
             try {
-                return binder.getAnyTypeTO(anyTypeDAO.find(key));
+                return binder.getAnyTypeTO(anyTypeDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

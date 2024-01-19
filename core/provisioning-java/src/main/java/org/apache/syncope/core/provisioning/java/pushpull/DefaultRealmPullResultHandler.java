@@ -578,9 +578,9 @@ public class DefaultRealmPullResultHandler
                         int anyObjects = searchDAO.count(
                                 realmDAO.getRoot(), true, adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
                         int macroTasks = taskDAO.findByRealm(realm).size();
-                        int clientApps = casSPClientAppDAO.findByRealm(realm).size()
-                                + saml2SPClientAppDAO.findByRealm(realm).size()
-                                + oidcRPClientAppDAO.findByRealm(realm).size();
+                        int clientApps = casSPClientAppDAO.findAllByRealm(realm).size()
+                                + saml2SPClientAppDAO.findAllByRealm(realm).size()
+                                + oidcRPClientAppDAO.findAllByRealm(realm).size();
 
                         if (users + groups + anyObjects + macroTasks + clientApps > 0) {
                             SyncopeClientException realmContains =

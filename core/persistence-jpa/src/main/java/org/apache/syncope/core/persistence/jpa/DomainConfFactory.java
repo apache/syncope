@@ -20,22 +20,15 @@ package org.apache.syncope.core.persistence.jpa;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import jakarta.persistence.EntityManagerFactory;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Objects;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
-import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
-import org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean;
+import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.beans.factory.support.AutowireCandidateQualifier;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -43,9 +36,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jndi.JndiObjectFactoryBean;
-import org.springframework.orm.jpa.JpaTransactionManager;
-import org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter;
-import org.springframework.transaction.support.TransactionTemplate;
 
 public class DomainConfFactory implements DomainRegistry {
 
@@ -72,17 +62,6 @@ public class DomainConfFactory implements DomainRegistry {
         beanFactory().registerSingleton(name, bean);
     }
 
-    protected void unregisterBeanDefinition(final String name) {
-        if (beanFactory().containsBeanDefinition(name)) {
-            beanFactory().removeBeanDefinition(name);
-        }
-    }
-
-    protected void registerBeanDefinition(final String name, final BeanDefinition beanDefinition) {
-        unregisterBeanDefinition(name);
-        beanFactory().registerBeanDefinition(name, beanDefinition);
-    }
-
     @Override
     public void register(final Domain domain) {
         HikariConfig hikariConfig = new HikariConfig();
@@ -96,13 +75,15 @@ public class DomainConfFactory implements DomainRegistry {
         hikariConfig.setMinimumIdle(domain.getPoolMinIdle());
 
         // domainDataSource
-        registerBeanDefinition(
+        beanFactory().registerBeanDefinition(
                 domain.getKey() + "DataSource",
                 BeanDefinitionBuilder.rootBeanDefinition(JndiObjectFactoryBean.class).
                         addPropertyValue("jndiName", "java:comp/env/jdbc/syncope" + domain.getKey() + "DataSource").
                         addPropertyValue("defaultObject", new HikariDataSource(hikariConfig)).
                         getBeanDefinition());
         DataSource initedDataSource = beanFactory().getBean(domain.getKey() + "DataSource", DataSource.class);
+
+        beanFactory().getBean(DomainHolder.class).getDomains().put(domain.getKey(), initedDataSource);
 
         // domainResourceDatabasePopulator
         ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
@@ -119,54 +100,18 @@ public class DomainConfFactory implements DomainRegistry {
         dataSourceInitializer.setDatabasePopulator(databasePopulator);
         registerSingleton(domain.getKey().toLowerCase() + "DataSourceInitializer", dataSourceInitializer);
 
-        // domainEntityManagerFactory
-        OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
-        vendorAdapter.setShowSql(false);
-        vendorAdapter.setGenerateDdl(true);
-        vendorAdapter.setDatabasePlatform(domain.getDatabasePlatform());
-
-        ConnectorManagerRemoteCommitListener connectorManagerRemoteCommitListener =
-                new ConnectorManagerRemoteCommitListener(domain.getKey());
-
-        BeanDefinitionBuilder emf = BeanDefinitionBuilder.rootBeanDefinition(DomainEntityManagerFactoryBean.class).
-                addPropertyValue("mappingResources", domain.getOrm()).
-                addPropertyValue("persistenceUnitName", domain.getKey()).
-                addPropertyReference("dataSource", domain.getKey() + "DataSource").
-                addPropertyValue("jpaVendorAdapter", vendorAdapter).
-                addPropertyReference("commonEntityManagerFactoryConf", "commonEMFConf").
-                addPropertyValue("connectorManagerRemoteCommitListener", connectorManagerRemoteCommitListener);
-        if (ctx.getEnvironment().containsProperty("openjpaMetaDataFactory")) {
-            emf.addPropertyValue("jpaPropertyMap", Map.of(
-                    "openjpa.MetaDataFactory",
-                    Objects.requireNonNull(ctx.getEnvironment().getProperty("openjpaMetaDataFactory")).
-                            replace("##orm##", domain.getOrm())));
-        }
-        registerBeanDefinition(domain.getKey() + "EntityManagerFactory", emf.getBeanDefinition());
-        beanFactory().getBean(domain.getKey() + "EntityManagerFactory");
-
-        // domainTransactionManager
-        AbstractBeanDefinition domainTransactionManager =
-                BeanDefinitionBuilder.rootBeanDefinition(JpaTransactionManager.class).
-                        addPropertyReference("entityManagerFactory", domain.getKey() + "EntityManagerFactory").
-                        getBeanDefinition();
-        domainTransactionManager.addQualifier(new AutowireCandidateQualifier(Qualifier.class, domain.getKey()));
-        registerBeanDefinition(domain.getKey() + "TransactionManager", domainTransactionManager);
-
-        // domainTransactionTemplate
-        AbstractBeanDefinition domainTransactionTemplate =
-                BeanDefinitionBuilder.rootBeanDefinition(TransactionTemplate.class).
-                        addPropertyReference("transactionManager", domain.getKey() + "TransactionManager").
-                        getBeanDefinition();
-        registerBeanDefinition(domain.getKey() + "TransactionTemplate", domainTransactionTemplate);
+        // DomainRoutingEntityManagerFactory#domain
+        beanFactory().getBean(DomainRoutingEntityManagerFactory.class).
+                domain(domain, initedDataSource, ctx.getEnvironment().getProperty("openjpaMetaDataFactory"));
 
         // domainContentXML
-        registerBeanDefinition(domain.getKey() + "ContentXML",
+        beanFactory().registerBeanDefinition(domain.getKey() + "ContentXML",
                 BeanDefinitionBuilder.rootBeanDefinition(ByteArrayInputStream.class).
                         addConstructorArgValue(domain.getContent().getBytes()).
                         getBeanDefinition());
 
         // domainKeymasterConfParamsJSON
-        registerBeanDefinition(domain.getKey() + "KeymasterConfParamsJSON",
+        beanFactory().registerBeanDefinition(domain.getKey() + "KeymasterConfParamsJSON",
                 BeanDefinitionBuilder.rootBeanDefinition(ByteArrayInputStream.class).
                         addConstructorArgValue(domain.getKeymasterConfParams().getBytes()).
                         getBeanDefinition());
@@ -176,26 +121,14 @@ public class DomainConfFactory implements DomainRegistry {
     public void unregister(final String domain) {
         // domainKeymasterConfParamsJSON
         unregisterSingleton(domain + "KeymasterConfParamsJSON");
-        unregisterBeanDefinition(domain + "KeymasterConfParamsJSON");
+        beanFactory().removeBeanDefinition(domain + "KeymasterConfParamsJSON");
 
         // domainContentXML
         unregisterSingleton(domain + "ContentXML");
-        unregisterBeanDefinition(domain + "ContentXML");
+        beanFactory().removeBeanDefinition(domain + "ContentXML");
 
-        // domainEntityManagerFactory
-        try {
-            EntityManagerFactory emf = beanFactory().
-                    getBean(domain + "EntityManagerFactory", EntityManagerFactory.class);
-            emf.close();
-        } catch (Exception e) {
-            LOG.error("Could not close EntityManagerFactory for Domain {}", domain, e);
-        }
-        unregisterSingleton(domain + "EntityManagerFactory");
-        unregisterBeanDefinition(domain + "EntityManagerFactory");
-
-        // domainTransactionManager
-        unregisterSingleton(domain + "TransactionManager");
-        unregisterBeanDefinition(domain + "TransactionManager");
+        // DomainRoutingEntityManagerFactory#remove
+        beanFactory().getBean(DomainRoutingEntityManagerFactory.class).remove(domain);
 
         // domainDataSourceInitializer
         unregisterSingleton(domain.toLowerCase() + "DataSourceInitializer");
@@ -205,6 +138,8 @@ public class DomainConfFactory implements DomainRegistry {
 
         // domainDataSource
         unregisterSingleton(domain + "DataSource");
-        unregisterBeanDefinition(domain + "DataSource");
+        beanFactory().removeBeanDefinition(domain + "DataSource");
+
+        beanFactory().getBean(DomainHolder.class).getDomains().remove(domain);
     }
 }

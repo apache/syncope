@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -29,23 +30,17 @@ import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 
 public interface PolicyDAO extends DAO<Policy> {
 
-    <T extends Policy> T find(String key);
+    <T extends Policy> Optional<T> findById(String key, Class<T> reference);
 
-    <T extends Policy> List<T> find(Class<T> reference);
+    <T extends Policy> List<T> findAll(Class<T> reference);
 
-    List<AccountPolicy> findByAccountRule(Implementation accountRule);
+    List<? extends AccountPolicy> findByAccountRule(Implementation accountRule);
 
-    List<PasswordPolicy> findByPasswordRule(Implementation passwordRule);
+    List<? extends PasswordPolicy> findByPasswordRule(Implementation passwordRule);
 
-    List<PullPolicy> findByPullCorrelationRule(Implementation correlationRule);
+    List<? extends PullPolicy> findByPullCorrelationRule(Implementation correlationRule);
 
-    List<PushPolicy> findByPushCorrelationRule(Implementation correlationRule);
+    List<? extends PushPolicy> findByPushCorrelationRule(Implementation correlationRule);
 
-    List<AccountPolicy> findByResource(ExternalResource resource);
-
-    List<Policy> findAll();
-
-    <T extends Policy> T save(T policy);
-
-    <T extends Policy> void delete(T policy);
+    List<? extends AccountPolicy> findByResource(ExternalResource resource);
 }

@@ -199,7 +199,7 @@ public class DefaultPasswordRule implements PasswordRule {
                         filter(Objects::nonNull).
                         filter(values -> !CollectionUtils.isEmpty(values)).
                         flatMap(Collection::stream).
-                        collect(Collectors.toList()));
+                        toList());
 
         if (account.getPassword() != null) {
             String clear = null;

@@ -37,7 +37,7 @@ public class UserRequestRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -4785231164900813921L;
 
-    public int countRequests() {
+    public long countRequests() {
         return getService(UserRequestService.class).
                 listRequests(new UserRequestQuery.Builder()
                         .user(SyncopeEnduserSession.get().getSelfTO().getUsername())
@@ -63,7 +63,7 @@ public class UserRequestRestClient extends BaseRestClient {
         getService(UserRequestService.class).cancelRequest(executionId, reason);
     }
 
-    public int countForms() {
+    public long countForms() {
         return getService(UserRequestService.class).
                 listForms(new UserRequestQuery.Builder().page(1).size(0).build()).
                 getTotalCount();

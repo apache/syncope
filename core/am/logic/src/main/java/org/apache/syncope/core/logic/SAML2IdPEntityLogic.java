@@ -20,8 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -37,26 +35,26 @@ public class SAML2IdPEntityLogic extends AbstractTransactionalLogic<SAML2IdPEnti
 
     protected final SAML2IdPEntityDataBinder binder;
 
-    protected final SAML2IdPEntityDAO entityDAO;
+    protected final SAML2IdPEntityDAO saml2IdPEntityDAO;
 
-    public SAML2IdPEntityLogic(final SAML2IdPEntityDataBinder binder, final SAML2IdPEntityDAO entityDAO) {
+    public SAML2IdPEntityLogic(final SAML2IdPEntityDataBinder binder, final SAML2IdPEntityDAO saml2IdPEntityDAO) {
         this.binder = binder;
-        this.entityDAO = entityDAO;
+        this.saml2IdPEntityDAO = saml2IdPEntityDAO;
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_IDP_ENTITY_LIST + "')")
     @Transactional(readOnly = true)
     public List<SAML2IdPEntityTO> list() {
-        return entityDAO.findAll().stream().
+        return saml2IdPEntityDAO.findAll().stream().
                 map(binder::getSAML2IdPEntityTO).
-                collect(Collectors.toList());
+                toList();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_IDP_ENTITY_GET + "') "
             + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public SAML2IdPEntityTO get(final String key) {
-        return Optional.ofNullable(entityDAO.find(key)).
+        return saml2IdPEntityDAO.findById(key).
                 map(binder::getSAML2IdPEntityTO).
                 orElseThrow(() -> new NotFoundException(key + " not found"));
     }
@@ -64,10 +62,10 @@ public class SAML2IdPEntityLogic extends AbstractTransactionalLogic<SAML2IdPEnti
     @PreAuthorize("hasRole('" + AMEntitlement.SAML2_IDP_ENTITY_SET + "') "
             + "or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     public SAML2IdPEntityTO set(final SAML2IdPEntityTO entityTO) {
-        SAML2IdPEntity entity = Optional.ofNullable(entityDAO.find(entityTO.getKey())).
+        SAML2IdPEntity entity = saml2IdPEntityDAO.findById(entityTO.getKey()).
                 map(metadata -> binder.update(metadata, entityTO)).
                 orElseGet(() -> binder.create(entityTO));
-        return binder.getSAML2IdPEntityTO(entityDAO.save(entity));
+        return binder.getSAML2IdPEntityTO(saml2IdPEntityDAO.save(entity));
     }
 
     @Override
@@ -87,7 +85,7 @@ public class SAML2IdPEntityLogic extends AbstractTransactionalLogic<SAML2IdPEnti
 
         if (key != null) {
             try {
-                return binder.getSAML2IdPEntityTO(entityDAO.find(key));
+                return binder.getSAML2IdPEntityTO(saml2IdPEntityDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

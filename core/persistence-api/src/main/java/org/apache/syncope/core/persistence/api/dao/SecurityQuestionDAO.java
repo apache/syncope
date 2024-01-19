@@ -18,17 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 
 public interface SecurityQuestionDAO extends DAO<SecurityQuestion> {
-
-    SecurityQuestion find(String key);
-
-    List<SecurityQuestion> findAll();
-
-    SecurityQuestion save(SecurityQuestion securityQuestion);
-
-    void delete(String key);
-
 }

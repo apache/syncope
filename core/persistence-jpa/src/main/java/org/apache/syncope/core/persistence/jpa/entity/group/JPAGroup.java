@@ -114,7 +114,7 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
 
     @Override
     public AnyType getType() {
-        return ApplicationContextProvider.getBeanFactory().getBean(AnyTypeDAO.class).findGroup();
+        return ApplicationContextProvider.getBeanFactory().getBean(AnyTypeDAO.class).getGroup();
     }
 
     @Override

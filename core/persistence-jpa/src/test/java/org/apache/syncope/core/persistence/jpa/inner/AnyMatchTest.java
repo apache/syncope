@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
@@ -42,7 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class AnyMatchTest extends AbstractTest {
 
     @Autowired
@@ -59,8 +58,7 @@ public class AnyMatchTest extends AbstractTest {
 
     @Test
     public void byResourceCond() {
-        User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
-        assertNotNull(user);
+        User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
         ResourceCond resourceCond = new ResourceCond();
         resourceCond.setResource("resource-testdb2");
@@ -72,8 +70,7 @@ public class AnyMatchTest extends AbstractTest {
 
     @Test
     public void anyObjectMatch() {
-        AnyObject anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
-        assertNotNull(anyObject);
+        AnyObject anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
 
         RelationshipCond relationshipCond = new RelationshipCond();
         relationshipCond.setAnyObject("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
@@ -86,8 +83,7 @@ public class AnyMatchTest extends AbstractTest {
 
     @Test
     public void userMatch() {
-        User user = userDAO.find("1417acbe-cbf6-4277-9372-e75e04f97000");
-        assertNotNull(user);
+        User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroup("secretary");
@@ -100,8 +96,7 @@ public class AnyMatchTest extends AbstractTest {
         roleCond.setRole("Other");
         assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(roleCond)));
 
-        user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
-        assertNotNull(user);
+        user = userDAO.findById("c9b2dec2-00a7-4855-97c0-d854842b4b24").orElseThrow();
 
         RelationshipCond relationshipCond = new RelationshipCond();
         relationshipCond.setAnyObject("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
@@ -114,8 +109,7 @@ public class AnyMatchTest extends AbstractTest {
 
     @Test
     public void groupMatch() {
-        Group group = groupDAO.find("37d15e4c-cdc1-460b-a591-8505c8133806");
-        assertNotNull(group);
+        Group group = groupDAO.findById("37d15e4c-cdc1-460b-a591-8505c8133806").orElseThrow();
 
         AnyCond anyCond = new AnyCond();
         anyCond.setSchema("name");

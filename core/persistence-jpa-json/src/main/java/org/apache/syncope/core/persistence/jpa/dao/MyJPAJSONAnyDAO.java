@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -31,8 +32,8 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
 
-    public MyJPAJSONAnyDAO(final PlainSchemaDAO plainSchemaDAO) {
-        super(plainSchemaDAO);
+    public MyJPAJSONAnyDAO(final PlainSchemaDAO plainSchemaDAO, final EntityManager entityManager) {
+        super(plainSchemaDAO, entityManager);
     }
 
     @Override
@@ -63,8 +64,8 @@ public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
         } else {
             PlainAttr<?> container = anyUtils.newPlainAttr();
             container.setSchema(schema);
-            if (attrValue instanceof PlainAttrUniqueValue) {
-                container.setUniqueValue((PlainAttrUniqueValue) attrValue);
+            if (attrValue instanceof PlainAttrUniqueValue plainAttrUniqueValue) {
+                container.setUniqueValue(plainAttrUniqueValue);
             } else {
                 ((JSONPlainAttr) container).add(attrValue);
             }

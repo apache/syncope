@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.text.ParseException;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.Item;
@@ -124,13 +123,10 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
                     item.setPurpose(MappingPurpose.NONE);
 
                     itemTO.getTransformers().forEach(transformerKey -> {
-                        Implementation transformer = implementationDAO.find(transformerKey);
-                        if (transformer == null) {
-                            LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                                    transformerKey);
-                        } else {
-                            item.getTransformers().add(transformer.getKey());
-                        }
+                        implementationDAO.findById(transformerKey).ifPresentOrElse(
+                                transformer -> item.getTransformers().add(transformer.getKey()),
+                                () -> LOG.debug("Invalid {} {}, ignoring...",
+                                        Implementation.class.getSimpleName(), transformerKey));
                         // remove all implementations not contained in the TO
                         item.getTransformers().
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
@@ -185,7 +181,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
             OIDCC4UIUserTemplate userTemplate = op.getUserTemplate();
             if (userTemplate == null) {
                 userTemplate = entityFactory.newEntity(OIDCC4UIUserTemplate.class);
-                userTemplate.setAnyType(anyTypeDAO.findUser());
+                userTemplate.setAnyType(anyTypeDAO.getUser());
                 userTemplate.setOP(op);
                 op.setUserTemplate(userTemplate);
             }
@@ -195,14 +191,9 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
         op.getItems().clear();
         populateItems(opTO, op);
 
-        opTO.getActions().forEach(action -> {
-            Implementation implementation = implementationDAO.find(action);
-            if (implementation == null) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", action);
-            } else {
-                op.add(implementation);
-            }
-        });
+        opTO.getActions().forEach(action -> implementationDAO.findById(action).ifPresentOrElse(
+                op::add,
+                () -> LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), action)));
         // remove all implementations not contained in the TO
         op.getActions().removeIf(impl -> !opTO.getActions().contains(impl.getKey()));
 
@@ -256,7 +247,7 @@ public class OIDCC4UIProviderDataBinderImpl implements OIDCC4UIProviderDataBinde
 
         populateItems(op, opTO);
 
-        opTO.getActions().addAll(op.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
+        opTO.getActions().addAll(op.getActions().stream().map(Entity::getKey).toList());
 
         return opTO;
     }

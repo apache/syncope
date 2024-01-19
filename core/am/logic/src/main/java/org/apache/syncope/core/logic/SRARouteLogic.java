@@ -25,7 +25,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
@@ -70,7 +69,7 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
 
     @PreAuthorize("isAuthenticated()")
     public List<SRARouteTO> list() {
-        return routeDAO.findAll().stream().map(binder::getSRARouteTO).collect(Collectors.toList());
+        return routeDAO.findAll().stream().map(binder::getSRARouteTO).toList();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.SRA_ROUTE_CREATE + "')")
@@ -83,19 +82,16 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
 
     @PreAuthorize("isAuthenticated()")
     public SRARouteTO read(final String key) {
-        SRARoute route = routeDAO.find(key);
-        if (route == null) {
-            throw new NotFoundException("SRARoute " + key);
-        }
+        SRARoute route = routeDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("SRARoute " + key));
+
         return binder.getSRARouteTO(route);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.SRA_ROUTE_UPDATE + "')")
     public SRARouteTO update(final SRARouteTO routeTO) {
-        SRARoute route = routeDAO.find(routeTO.getKey());
-        if (route == null) {
-            throw new NotFoundException("SRARoute " + routeTO.getKey());
-        }
+        SRARoute route = routeDAO.findById(routeTO.getKey()).
+                orElseThrow(() -> new NotFoundException("SRARoute " + routeTO.getKey()));
 
         binder.getSRARoute(route, routeTO);
 
@@ -104,10 +100,8 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.SRA_ROUTE_DELETE + "')")
     public SRARouteTO delete(final String key) {
-        SRARoute route = routeDAO.find(key);
-        if (route == null) {
-            throw new NotFoundException("SRARoute " + key);
-        }
+        SRARoute route = routeDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("SRARoute " + key));
 
         SRARouteTO deleted = binder.getSRARouteTO(route);
         routeDAO.delete(route);
@@ -138,9 +132,11 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
 
         String key = null;
 
-        if (ArrayUtils.isNotEmpty(args) && ("create".equals(method.getName())
+        if (ArrayUtils.isNotEmpty(args)
+                && ("create".equals(method.getName())
                 || "update".equals(method.getName())
                 || "delete".equals(method.getName()))) {
+
             for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof String string) {
                     key = string;
@@ -152,7 +148,7 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
 
         if (key != null) {
             try {
-                return binder.getSRARouteTO(routeDAO.find(key));
+                return binder.getSRARouteTO(routeDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

@@ -24,7 +24,9 @@ import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
+import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
@@ -38,13 +40,17 @@ public class RuntimeDomainLoader implements DomainWatcher {
 
     protected final DomainRegistry domainRegistry;
 
+    protected final DomainRoutingEntityManagerFactory entityManagerFactory;
+
     public RuntimeDomainLoader(
             final DomainHolder domainHolder,
             final DomainRegistry domainRegistry,
+            final DomainRoutingEntityManagerFactory entityManagerFactory,
             final ConfigurableApplicationContext ctx) {
 
         this.domainHolder = domainHolder;
         this.domainRegistry = domainRegistry;
+        this.entityManagerFactory = entityManagerFactory;
 
         // only needed by ZookeeperDomainOps' early init on afterPropertiesSet
         if (ApplicationContextProvider.getApplicationContext() == null) {
@@ -61,13 +67,19 @@ public class RuntimeDomainLoader implements DomainWatcher {
 
             domainRegistry.register(domain);
 
+            AuthContextUtils.runAsAdmin(domain.getKey(), () -> entityManagerFactory.initJPASchema());
+
             ApplicationContextProvider.getBeanFactory().getBeansOfType(SyncopeCoreLoader.class).values().
                     stream().sorted(Comparator.comparing(SyncopeCoreLoader::getOrder)).
                     forEachOrdered(loader -> {
                         String loaderName = AopUtils.getTargetClass(loader).getName();
 
                         LOG.debug("[{}] Starting on domain '{}'", loaderName, domain);
-                        loader.load(domain.getKey(), domainHolder.getDomains().get(domain.getKey()));
+
+                        AuthContextUtils.runAsAdmin(
+                                domain.getKey(),
+                                () -> loader.load(domain.getKey(), domainHolder.getDomains().get(domain.getKey())));
+
                         LOG.debug("[{}] Completed on domain '{}'", loaderName, domain);
                     });
 

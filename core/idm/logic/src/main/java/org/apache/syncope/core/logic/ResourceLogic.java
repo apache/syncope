@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +42,6 @@ import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -68,6 +66,7 @@ import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -200,8 +199,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             resource.getOrgUnit().setSyncToken(ConnObjectUtils.toString(
                     connector.getLatestSyncToken(new ObjectClass(resource.getOrgUnit().getObjectClass()))));
         } else {
-            AnyType anyType = Optional.ofNullable(anyTypeDAO.find(anyTypeKey)).
-                    orElseThrow(() -> new NotFoundException("AnyType '" + anyTypeKey + '\''));
+            AnyType anyType = anyTypeDAO.findById(anyTypeKey).
+                    orElseThrow(() -> new NotFoundException("AnyType " + anyTypeKey));
             Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                     orElseThrow(() -> new NotFoundException(
                     "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
@@ -229,8 +228,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
             resource.getOrgUnit().setSyncToken(null);
         } else {
-            AnyType anyType = Optional.ofNullable(anyTypeDAO.find(anyTypeKey)).
-                    orElseThrow(() -> new NotFoundException("AnyType '" + anyTypeKey + '\''));
+            AnyType anyType = anyTypeDAO.findById(anyTypeKey).
+                    orElseThrow(() -> new NotFoundException("AnyType " + anyTypeKey));
             Provision provision = resource.getProvisionByAnyType(anyType.getKey()).
                     orElseThrow(() -> new NotFoundException(
                     "Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + '\''));
@@ -259,7 +258,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         connectorManager.unregisterConnector(resource);
 
         ResourceTO deleted = binder.getResourceTO(resource);
-        resourceDAO.delete(key);
+        resourceDAO.deleteById(key);
         return deleted;
     }
 
@@ -275,14 +274,14 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_LIST + "')")
     @Transactional(readOnly = true)
     public List<ResourceTO> list() {
-        return resourceDAO.findAll().stream().map(binder::getResourceTO).collect(Collectors.toList());
+        return resourceDAO.findAll().stream().map(binder::getResourceTO).toList();
     }
 
     protected Triple<AnyType, ExternalResource, Provision> getProvision(
             final String anyTypeKey, final String resourceKey) {
 
-        AnyType anyType = Optional.ofNullable(anyTypeDAO.find(anyTypeKey)).
-                orElseThrow(() -> new NotFoundException("AnyType '" + anyTypeKey + '\''));
+        AnyType anyType = anyTypeDAO.findById(anyTypeKey).
+                orElseThrow(() -> new NotFoundException("AnyType " + anyTypeKey));
 
         ExternalResource resource = Optional.ofNullable(resourceDAO.authFind(resourceKey)).
                 orElseThrow(() -> new NotFoundException("Resource '" + resourceKey + '\''));
@@ -393,17 +392,15 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             final String anyTypeKey,
             final int size,
             final String pagedResultsCookie,
-            final List<OrderByClause> orderBy) {
+            final List<Sort.Order> sort) {
 
         ExternalResource resource;
         Provision provision;
         ObjectClass objectClass;
         OperationOptions options;
         if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
-            resource = resourceDAO.find(key);
-            if (resource == null) {
-                throw new NotFoundException("Resource '" + key + '\'');
-            }
+            resource = resourceDAO.findById(key).
+                    orElseThrow(() -> new NotFoundException("Resource " + key));
             if (resource.getOrgUnit() == null) {
                 throw new NotFoundException("Realm provisioning for resource '" + key + '\'');
             }
@@ -421,7 +418,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
             Stream<Item> mapItems = Stream.concat(
                     provision.getMapping().getItems().stream(),
-                    virSchemaDAO.find(resource.getKey(), triple.getLeft().getKey()).
+                    virSchemaDAO.findByResourceAndAnyType(resource.getKey(), triple.getLeft().getKey()).
                             stream().map(VirSchema::asLinkingMappingItem));
             options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new));
         }
@@ -447,7 +444,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                     public void handleResult(final SearchResult sr) {
                         // do nothing
                     }
-                }, size, pagedResultsCookie, orderBy, options);
+                }, size, pagedResultsCookie, sort, options);
 
         return Pair.of(searchResult, connObjects);
     }
@@ -455,8 +452,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + IdMEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public void check(final ResourceTO resourceTO) {
-        ConnInstance connInstance = Optional.ofNullable(connInstanceDAO.find(resourceTO.getConnector())).
-                orElseThrow(() -> new NotFoundException("Connector '" + resourceTO.getConnector() + '\''));
+        ConnInstance connInstance = connInstanceDAO.findById(resourceTO.getConnector()).
+                orElseThrow(() -> new NotFoundException("Connector " + resourceTO.getConnector()));
 
         connectorManager.createConnector(
                 connectorManager.buildConnInstanceOverride(
@@ -475,17 +472,17 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof ResourceTO) {
-                    key = ((ResourceTO) args[i]).getKey();
+                if (args[i] instanceof String string) {
+                    key = string;
+                } else if (args[i] instanceof ResourceTO resourceTO) {
+                    key = resourceTO.getKey();
                 }
             }
         }
 
         if (key != null) {
             try {
-                return binder.getResourceTO(resourceDAO.find(key));
+                return binder.getResourceTO(resourceDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

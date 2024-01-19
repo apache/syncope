@@ -537,7 +537,7 @@ public class ConnectorITCase extends AbstractITCase {
         // check for resource
         List<ResourceTO> resources = RESOURCE_SERVICE.list().stream().
                 filter(resource -> "fcf9f2b0-f7d6-42c9-84a6-61b28255a42b".equals(resource.getConnector())).
-                collect(Collectors.toList());
+                toList();
         assertEquals(4, resources.size());
 
         // Retrieve a resource TO template.
@@ -578,7 +578,7 @@ public class ConnectorITCase extends AbstractITCase {
         assertNotNull(resourceTO);
 
         resources = RESOURCE_SERVICE.list().stream().
-                filter(resource -> connKey.equals(resource.getConnector())).collect(Collectors.toList());
+                filter(resource -> connKey.equals(resource.getConnector())).toList();
         assertEquals(1, resources.size());
         // ----------------------------------
 

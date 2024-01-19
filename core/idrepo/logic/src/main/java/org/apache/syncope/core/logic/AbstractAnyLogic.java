@@ -36,12 +36,13 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.logic.api.LogicActions;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U extends AnyUR>
         extends AbstractResourceAssociator<TO> {
@@ -85,20 +86,19 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     @SuppressWarnings("unchecked")
     protected Pair<C, List<LogicActions>> beforeCreate(final C input) {
-        Realm realm = realmDAO.findByFullPath(input.getRealm());
-        if (realm == null) {
+        Realm realm = realmDAO.findByFullPath(input.getRealm()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(input.getRealm());
-            throw sce;
-        }
+            return sce;
+        });
 
         AnyType anyType = null;
         if (input instanceof UserCR) {
-            anyType = anyTypeDAO.findUser();
+            anyType = anyTypeDAO.getUser();
         } else if (input instanceof GroupCR) {
-            anyType = anyTypeDAO.findGroup();
-        } else if (input instanceof AnyObjectCR) {
-            anyType = anyTypeDAO.find(((AnyObjectCR) input).getType());
+            anyType = anyTypeDAO.getGroup();
+        } else if (input instanceof AnyObjectCR anyObjectCR) {
+            anyType = anyTypeDAO.findById(anyObjectCR.getType()).orElse(null);
         }
         if (anyType == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
@@ -121,12 +121,11 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     @SuppressWarnings("unchecked")
     protected Pair<U, List<LogicActions>> beforeUpdate(final U input, final String realmPath) {
-        Realm realm = realmDAO.findByFullPath(realmPath);
-        if (realm == null) {
+        Realm realm = realmDAO.findByFullPath(realmPath).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(realmPath);
-            throw sce;
-        }
+            return sce;
+        });
 
         U update = input;
 
@@ -142,12 +141,11 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     @SuppressWarnings("unchecked")
     protected Pair<TO, List<LogicActions>> beforeDelete(final TO input) {
-        Realm realm = realmDAO.findByFullPath(input.getRealm());
-        if (realm == null) {
+        Realm realm = realmDAO.findByFullPath(input.getRealm()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(input.getRealm());
-            throw sce;
-        }
+            return sce;
+        });
 
         TO any = input;
 
@@ -215,9 +213,9 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     public abstract TO read(String key);
 
-    public abstract Pair<Integer, List<TO>> search(
+    public abstract Page<TO> search(
             SearchCond searchCond,
-            int page, int size, List<OrderByClause> orderBy,
+            Pageable pageable,
             String realm,
             boolean recursive,
             boolean details);

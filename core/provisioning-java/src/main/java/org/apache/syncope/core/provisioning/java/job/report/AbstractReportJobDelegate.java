@@ -40,6 +40,7 @@ import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -101,7 +102,8 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
 
     protected void setStatus(final String status) {
         Objects.requireNonNull(report, "Report cannot be undefined");
-        publisher.publishEvent(new JobStatusEvent(this, reportDataBinder.buildRefDesc(report), status));
+        publisher.publishEvent(new JobStatusEvent(
+                this, AuthContextUtils.getDomain(), reportDataBinder.buildRefDesc(report), status));
     }
 
     @Override
@@ -121,10 +123,8 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
             final boolean dryRun,
             final JobExecutionContext context) throws JobExecutionException {
 
-        report = reportDAO.find(reportKey);
-        if (report == null) {
-            throw new JobExecutionException("Report " + reportKey + " not found");
-        }
+        report = reportDAO.findById(reportKey).
+                orElseThrow(() -> new JobExecutionException("Report " + reportKey + " not found"));
 
         if (!report.isActive()) {
             LOG.info("Report {} not active, aborting...", reportKey);

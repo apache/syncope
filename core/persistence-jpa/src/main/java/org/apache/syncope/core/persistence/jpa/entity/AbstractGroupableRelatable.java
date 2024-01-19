@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
@@ -67,7 +66,7 @@ public abstract class AbstractGroupableRelatable<
     public List<? extends P> getPlainAttrs() {
         return internalGetPlainAttrs().stream().
                 filter(attr -> attr != null && attr.getSchema() != null && attr.getMembership() == null).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override
@@ -75,14 +74,14 @@ public abstract class AbstractGroupableRelatable<
         return internalGetPlainAttrs().stream().
                 filter(attr -> attr != null && attr.getSchema() != null
                 && plainSchema.equals(attr.getSchema().getKey())).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override
     public Collection<? extends P> getPlainAttrs(final Membership<?> membership) {
         return internalGetPlainAttrs().stream().
                 filter(attr -> attr != null && attr.getSchema() != null && membership.equals(attr.getMembership())).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override
@@ -96,13 +95,13 @@ public abstract class AbstractGroupableRelatable<
     public Collection<? extends REL> getRelationships(final RelationshipType relationshipType) {
         return getRelationships().stream().
                 filter(relationship -> relationshipType != null && relationshipType.equals(relationship.getType())).
-                collect(Collectors.toList());
+                toList();
     }
 
     @Override
     public Collection<? extends REL> getRelationships(final String otherEndKey) {
         return getRelationships().stream().
                 filter(relationship -> otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())).
-                collect(Collectors.toList());
+                toList();
     }
 }

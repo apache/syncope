@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class AnyTypeClassTest extends AbstractTest {
 
     @Autowired
@@ -49,10 +49,9 @@ public class AnyTypeClassTest extends AbstractTest {
 
         plainSchemaDAO.save(newSchema);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        newSchema = plainSchemaDAO.find(newSchema.getKey());
-        assertNotNull(newSchema);
+        newSchema = plainSchemaDAO.findById(newSchema.getKey()).orElseThrow();
 
         AnyTypeClass newClass = entityFactory.newEntity(AnyTypeClass.class);
         newClass.setKey("new class");
@@ -60,34 +59,30 @@ public class AnyTypeClassTest extends AbstractTest {
 
         anyTypeClassDAO.save(newClass);
 
-        entityManager().flush();
+        entityManager.flush();
 
-        newClass = anyTypeClassDAO.find(newClass.getKey());
+        newClass = anyTypeClassDAO.findById(newClass.getKey()).orElseThrow();
         assertNotNull(newClass);
         assertEquals(1, newClass.getPlainSchemas().size());
         assertEquals(newSchema, newClass.getPlainSchemas().get(0));
         assertEquals(newClass, newClass.getPlainSchemas().get(0).getAnyTypeClass());
 
-        newSchema = plainSchemaDAO.find(newSchema.getKey());
-        assertNotNull(newSchema.getAnyTypeClass());
+        assertTrue(plainSchemaDAO.findById(newSchema.getKey()).isPresent());
     }
 
     @Test
     public void delete() {
-        AnyTypeClass minimalUser = anyTypeClassDAO.find("minimal user");
-        assertNotNull(minimalUser);
+        AnyTypeClass minimalUser = anyTypeClassDAO.findById("minimal user").orElseThrow();
 
-        PlainSchema surname = plainSchemaDAO.find("surname");
-        assertNotNull(surname);
+        PlainSchema surname = plainSchemaDAO.findById("surname").orElseThrow();
         assertTrue(minimalUser.getPlainSchemas().contains(surname));
         int before = minimalUser.getPlainSchemas().size();
 
-        plainSchemaDAO.delete("surname");
+        plainSchemaDAO.deleteById("surname");
 
-        entityManager().flush();
+        entityManager.flush();
 
-        minimalUser = anyTypeClassDAO.find("minimal user");
-        assertNotNull(minimalUser);
+        minimalUser = anyTypeClassDAO.findById("minimal user").orElseThrow();
         assertEquals(before, minimalUser.getPlainSchemas().size() + 1);
     }
 }

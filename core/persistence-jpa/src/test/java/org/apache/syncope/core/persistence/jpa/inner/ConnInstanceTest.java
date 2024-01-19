@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -46,7 +46,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class ConnInstanceTest extends AbstractTest {
 
     @Autowired
@@ -65,7 +65,7 @@ public class ConnInstanceTest extends AbstractTest {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         try {
-            List<ConnInstance> connectors = connInstanceDAO.findAll();
+            List<? extends ConnInstance> connectors = connInstanceDAO.findAll();
             assertNotNull(connectors);
             assertFalse(connectors.isEmpty());
         } finally {
@@ -75,7 +75,7 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Test
     public void findById() {
-        ConnInstance connInstance = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
+        ConnInstance connInstance = connInstanceDAO.findById("88a7a819-dab5-46b4-9b90-0b9769eabdb8").orElseThrow();
         assertNotNull(connInstance);
         assertEquals("net.tirasa.connid.bundles.soap.WebServiceConnector", connInstance.getConnectorName());
         assertEquals("net.tirasa.connid.bundles.soap", connInstance.getBundleName());
@@ -157,12 +157,10 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Test
     public void delete() {
-        ConnInstance connInstance = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
-        assertNotNull(connInstance);
+        ConnInstance connInstance = connInstanceDAO.findById("88a7a819-dab5-46b4-9b90-0b9769eabdb8").orElseThrow();
 
-        connInstanceDAO.delete(connInstance.getKey());
+        connInstanceDAO.deleteById(connInstance.getKey());
 
-        ConnInstance actual = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
-        assertNull(actual);
+        assertTrue(connInstanceDAO.findById("88a7a819-dab5-46b4-9b90-0b9769eabdb8").isEmpty());
     }
 }

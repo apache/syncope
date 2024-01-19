@@ -20,13 +20,11 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import org.springframework.data.domain.Pageable;
 
 public interface ReportExecDAO extends DAO<ReportExec> {
-
-    ReportExec find(String key);
 
     List<ReportExec> findRecent(int max);
 
@@ -34,19 +32,11 @@ public interface ReportExecDAO extends DAO<ReportExec> {
 
     ReportExec findLatestEnded(Report report);
 
-    int count(Report report, OffsetDateTime before, OffsetDateTime after);
+    long count(Report report, OffsetDateTime before, OffsetDateTime after);
 
     List<ReportExec> findAll(
             Report report,
             OffsetDateTime before,
             OffsetDateTime after,
-            int page,
-            int itemsPerPage,
-            List<OrderByClause> orderByClauses);
-
-    ReportExec save(ReportExec execution);
-
-    void delete(String key);
-
-    void delete(ReportExec execution);
+            Pageable pageable);
 }

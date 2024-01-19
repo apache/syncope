@@ -38,7 +38,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
@@ -87,7 +86,7 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
             Schema<String> schema = new Schema<>();
             schema.setDescription("Domains are built to facilitate multitenancy.");
             schema.setExternalDocs(extDoc);
-            schema.setEnum(domainHolder.getDomains().keySet().stream().sorted().collect(Collectors.toList()));
+            schema.setEnum(domainHolder.getDomains().keySet().stream().sorted().toList());
             schema.setDefault(SyncopeConstants.MASTER_DOMAIN);
             parameter.setSchema(schema);
 
@@ -147,7 +146,7 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
         errorSchema.example(sampleError).
                 addProperty("status", new IntegerSchema().description("HTTP status code")).
                 addProperty("type", new StringSchema().
-                        _enum(Stream.of(ClientExceptionType.values()).map(Enum::name).collect(Collectors.toList())).
+                        _enum(Stream.of(ClientExceptionType.values()).map(Enum::name).toList()).
                         description("Error code")).
                 addProperty("elements", new ArraySchema().type("string").description("Error message(s)"));
 

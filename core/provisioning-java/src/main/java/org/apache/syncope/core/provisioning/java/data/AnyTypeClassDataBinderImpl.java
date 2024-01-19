@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -80,11 +79,10 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
                 forEach(schema -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getPlainSchemas().clear();
-        anyTypeClassTO.getPlainSchemas().forEach(schemaName -> {
-            PlainSchema schema = plainSchemaDAO.find(schemaName);
+        anyTypeClassTO.getPlainSchemas().forEach(key -> {
+            PlainSchema schema = plainSchemaDAO.findById(key).orElse(null);
             if (schema == null || schema.getAnyTypeClass() != null) {
-                LOG.debug("Invalid or already in use" + PlainSchema.class.getSimpleName()
-                        + "{}, ignoring...", schemaName);
+                LOG.debug("Invalid or already in use: {} {}, ignoring...", PlainSchema.class.getSimpleName(), key);
             } else {
                 anyTypeClass.add(schema);
             }
@@ -94,11 +92,10 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
                 forEach((schema) -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getDerSchemas().clear();
-        anyTypeClassTO.getDerSchemas().forEach(schemaName -> {
-            DerSchema schema = derSchemaDAO.find(schemaName);
+        anyTypeClassTO.getDerSchemas().forEach(key -> {
+            DerSchema schema = derSchemaDAO.findById(key).orElse(null);
             if (schema == null || schema.getAnyTypeClass() != null) {
-                LOG.debug("Invalid or already in use" + DerSchema.class.getSimpleName()
-                        + "{}, ignoring...", schemaName);
+                LOG.debug("Invalid or already in use: {} {}, ignoring...", DerSchema.class.getSimpleName(), key);
             } else {
                 anyTypeClass.add(schema);
             }
@@ -108,11 +105,10 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
                 forEach(schema -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getVirSchemas().clear();
-        anyTypeClassTO.getVirSchemas().forEach(schemaName -> {
-            VirSchema schema = virSchemaDAO.find(schemaName);
+        anyTypeClassTO.getVirSchemas().forEach(key -> {
+            VirSchema schema = virSchemaDAO.findById(key).orElse(null);
             if (schema == null || schema.getAnyTypeClass() != null) {
-                LOG.debug("Invalid or already in use" + VirSchema.class.getSimpleName()
-                        + "{}, ignoring...", schemaName);
+                LOG.debug("Invalid or already in use: {} {}, ignoring...", VirSchema.class.getSimpleName(), key);
             } else {
                 anyTypeClass.add(schema);
             }
@@ -126,14 +122,15 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
         anyTypeClassTO.setKey(anyTypeClass.getKey());
 
         anyTypeClassTO.getInUseByTypes().addAll(
-                anyTypeDAO.findByTypeClass(anyTypeClass).stream().map(AnyType::getKey).collect(Collectors.toList()));
+                anyTypeDAO.findByClassesContaining(anyTypeClass).stream().
+                        map(AnyType::getKey).toList());
 
         anyTypeClassTO.getPlainSchemas().addAll(
-                anyTypeClass.getPlainSchemas().stream().map(PlainSchema::getKey).collect(Collectors.toList()));
+                anyTypeClass.getPlainSchemas().stream().map(PlainSchema::getKey).toList());
         anyTypeClassTO.getDerSchemas().addAll(
-                anyTypeClass.getDerSchemas().stream().map(DerSchema::getKey).collect(Collectors.toList()));
+                anyTypeClass.getDerSchemas().stream().map(DerSchema::getKey).toList());
         anyTypeClassTO.getVirSchemas().addAll(
-                anyTypeClass.getVirSchemas().stream().map(VirSchema::getKey).collect(Collectors.toList()));
+                anyTypeClass.getVirSchemas().stream().map(VirSchema::getKey).toList());
 
         return anyTypeClassTO;
     }

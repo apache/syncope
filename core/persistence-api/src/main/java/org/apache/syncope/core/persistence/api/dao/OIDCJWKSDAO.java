@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
 
-public interface OIDCJWKSDAO extends DAO<OIDCJWKS> {
-    OIDCJWKS get();
+public interface OIDCJWKSDAO {
+
+    Optional<OIDCJWKS> get();
 
     OIDCJWKS save(OIDCJWKS jwks);
 

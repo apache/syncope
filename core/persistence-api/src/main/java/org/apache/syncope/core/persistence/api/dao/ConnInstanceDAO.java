@@ -18,18 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 
 public interface ConnInstanceDAO extends DAO<ConnInstance> {
 
-    ConnInstance find(String key);
-
     ConnInstance authFind(String key);
-
-    List<ConnInstance> findAll();
-
-    ConnInstance save(ConnInstance connector);
-
-    void delete(String key);
 }

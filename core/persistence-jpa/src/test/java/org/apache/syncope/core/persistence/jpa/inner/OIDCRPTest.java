@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class OIDCRPTest extends AbstractClientAppTest {
 
     @Autowired
@@ -68,17 +68,15 @@ public class OIDCRPTest extends AbstractClientAppTest {
         int afterCount = oidcrpDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
 
-        rp = oidcrpDAO.findByClientId("clientid");
-        assertNotNull(rp);
+        rp = oidcrpDAO.findByClientId("clientid").orElseThrow();
         assertNotNull(rp.getAuthPolicy());
 
-        rp = oidcrpDAO.findByName("OIDC");
-        assertNotNull(rp);
+        rp = oidcrpDAO.findByName("OIDC").orElseThrow();
 
-        rp = oidcrpDAO.findByClientAppId(rp.getClientAppId());
-        assertNotNull(rp);
+        assertTrue(oidcrpDAO.findByClientAppId(rp.getClientAppId()).isPresent());
 
         oidcrpDAO.deleteByClientId("clientid");
-        assertNull(oidcrpDAO.findByName("OIDC"));
+
+        assertTrue(oidcrpDAO.findByName("OIDC").isEmpty());
     }
 }

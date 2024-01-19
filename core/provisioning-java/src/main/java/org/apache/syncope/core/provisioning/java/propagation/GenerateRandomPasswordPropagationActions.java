@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
@@ -68,7 +69,9 @@ public class GenerateRandomPasswordPropagationActions implements PropagationActi
             // generate random password
             attrs.add(AttributeBuilder.buildPassword(passwordGenerator.generate(
                     taskInfo.getResource(),
-                    realmDAO.findAncestors(userDAO.find(taskInfo.getEntityKey()).getRealm())).toCharArray()));
+                    realmDAO.findAncestors(userDAO.findById(taskInfo.getEntityKey()).
+                            orElseThrow(() -> new NotFoundException("User " + taskInfo.getEntityKey())).getRealm())).
+                    toCharArray()));
 
             // remove __PASSWORD__ from MANDATORY_MISSING attribute
             Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs)).

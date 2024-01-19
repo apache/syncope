@@ -112,7 +112,7 @@ public class MSEntraJWTSSOProvider implements JWTSSOProvider {
     @Transactional(readOnly = true)
     @Override
     public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JWTClaimsSet jwtClaims) {
-        User authUser = userDAO.findByUsername(authUsername);
+        User authUser = userDAO.findByUsername(authUsername).orElse(null);
         Set<SyncopeGrantedAuthority> authorities = Set.of();
 
         Instant now = OffsetDateTime.now(ZoneOffset.UTC).toInstant();

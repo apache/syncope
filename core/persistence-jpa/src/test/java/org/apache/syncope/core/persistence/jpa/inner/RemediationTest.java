@@ -40,9 +40,10 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional("Master")
+@Transactional
 public class RemediationTest extends AbstractTest {
 
     @Autowired
@@ -56,19 +57,20 @@ public class RemediationTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<Remediation> remediations = remediationDAO.findAll(null, null, 1, 1, List.of());
+        List<Remediation> remediations = remediationDAO.findAll(null, null, Pageable.unpaged());
         assertTrue(remediations.isEmpty());
     }
 
     @Test
     public void createMissingPayload() {
         Remediation remediation = entityFactory.newEntity(Remediation.class);
-        remediation.setAnyType(anyTypeDAO.find("PRINTER"));
+        remediation.setAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
         remediation.setOperation(ResourceOperation.CREATE);
         remediation.setError("Error");
         remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName("remote");
-        remediation.setPullTask((PullTask) taskDAO.find(TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
+        remediation.setPullTask((PullTask) taskDAO.findById(
+                TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1").orElseThrow());
 
         // missing payload
         try {
@@ -84,12 +86,13 @@ public class RemediationTest extends AbstractTest {
     @Test
     public void createWrongPayload() {
         Remediation remediation = entityFactory.newEntity(Remediation.class);
-        remediation.setAnyType(anyTypeDAO.find("PRINTER"));
+        remediation.setAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
         remediation.setOperation(ResourceOperation.CREATE);
         remediation.setError("Error");
         remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName("remote");
-        remediation.setPullTask((PullTask) taskDAO.find(TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
+        remediation.setPullTask((PullTask) taskDAO.findById(
+                TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1").orElseThrow());
         remediation.setPayload(UUID.randomUUID().toString());
 
         // wrong payload for operation
@@ -106,12 +109,13 @@ public class RemediationTest extends AbstractTest {
     @Test
     public void create() {
         Remediation remediation = entityFactory.newEntity(Remediation.class);
-        remediation.setAnyType(anyTypeDAO.find("PRINTER"));
+        remediation.setAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
         remediation.setOperation(ResourceOperation.CREATE);
         remediation.setError("Error");
         remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName("remote");
-        remediation.setPullTask((PullTask) taskDAO.find(TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1"));
+        remediation.setPullTask((PullTask) taskDAO.findById(
+                TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1").orElseThrow());
         remediation.setPayload(UUID.randomUUID().toString());
         remediation.setOperation(ResourceOperation.DELETE);
 
@@ -121,9 +125,9 @@ public class RemediationTest extends AbstractTest {
 
         taskDAO.delete(remediation.getPullTask());
 
-        entityManager().flush();
+        entityManager.flush();
 
-        remediation = remediationDAO.find(remediation.getKey());
+        remediation = remediationDAO.findById(remediation.getKey()).orElseThrow();
         assertNull(remediation.getPullTask());
     }
 }

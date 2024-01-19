@@ -18,88 +18,71 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 public class JPAAnyUtilsFactory implements AnyUtilsFactory {
 
-    protected final UserDAO userDAO;
+    protected final AnyUtils userAnyUtils;
 
-    protected final GroupDAO groupDAO;
+    protected final AnyUtils linkedAccountAnyUtils;
 
-    protected final AnyObjectDAO anyObjectDAO;
+    protected final AnyUtils groupAnyUtils;
 
-    protected final EntityFactory entityFactory;
-
-    protected final Map<AnyTypeKind, AnyUtils> instances = new HashMap<>(3);
-
-    protected AnyUtils linkedAccountInstance;
+    protected final AnyUtils anyObjectAnyUtils;
 
     public JPAAnyUtilsFactory(
-            final UserDAO userDAO,
-            final GroupDAO groupDAO,
-            final AnyObjectDAO anyObjectDAO,
-            final EntityFactory entityFactory) {
+            final AnyUtils userAnyUtils,
+            final AnyUtils linkedAccountAnyUtils,
+            final AnyUtils groupAnyUtils,
+            final AnyUtils anyObjectAnyUtils) {
 
-        this.userDAO = userDAO;
-        this.groupDAO = groupDAO;
-        this.anyObjectDAO = anyObjectDAO;
-        this.entityFactory = entityFactory;
+        this.userAnyUtils = userAnyUtils;
+        this.linkedAccountAnyUtils = linkedAccountAnyUtils;
+        this.groupAnyUtils = groupAnyUtils;
+        this.anyObjectAnyUtils = anyObjectAnyUtils;
     }
 
     @Override
     public AnyUtils getInstance(final AnyTypeKind anyTypeKind) {
-        AnyUtils instance;
-        synchronized (instances) {
-            instance = instances.get(anyTypeKind);
-            if (instance == null) {
-                instance = new JPAAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, anyTypeKind, false);
-                ApplicationContextProvider.getBeanFactory().autowireBean(instance);
-                instances.put(anyTypeKind, instance);
-            }
-        }
+        switch (anyTypeKind) {
+            case ANY_OBJECT:
+                return anyObjectAnyUtils;
 
-        return instance;
+            case GROUP:
+                return groupAnyUtils;
+
+            case USER:
+            default:
+                return userAnyUtils;
+        }
     }
 
     @Override
     public AnyUtils getInstance(final Any<?> any) {
-        AnyTypeKind type = null;
+        AnyTypeKind anyTypeKind = null;
         if (any instanceof User) {
-            type = AnyTypeKind.USER;
+            anyTypeKind = AnyTypeKind.USER;
         } else if (any instanceof Group) {
-            type = AnyTypeKind.GROUP;
+            anyTypeKind = AnyTypeKind.GROUP;
         } else if (any instanceof AnyObject) {
-            type = AnyTypeKind.ANY_OBJECT;
+            anyTypeKind = AnyTypeKind.ANY_OBJECT;
         }
 
-        if (type == null) {
+        if (anyTypeKind == null) {
             throw new IllegalArgumentException("Any type not supported: " + any.getClass().getName());
         }
 
-        return getInstance(type);
+        return getInstance(anyTypeKind);
     }
 
     @Override
     public AnyUtils getLinkedAccountInstance() {
-        synchronized (this) {
-            if (linkedAccountInstance == null) {
-                linkedAccountInstance = new JPAAnyUtils(
-                        userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.USER, true);
-            }
-        }
-        return linkedAccountInstance;
+        return linkedAccountAnyUtils;
     }
 }

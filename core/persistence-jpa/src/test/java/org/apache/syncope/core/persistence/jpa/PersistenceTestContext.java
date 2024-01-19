@@ -18,18 +18,23 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import jakarta.persistence.EntityManagerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
+import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
+import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -38,10 +43,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
+import org.springframework.jndi.JndiObjectFactoryBean;
 
 @Import(PersistenceContext.class)
 @Configuration(proxyBeanMethods = false)
 public class PersistenceTestContext {
+
+    public static final ThreadLocal<String> TEST_DOMAIN = ThreadLocal.withInitial(() -> SyncopeConstants.MASTER_DOMAIN);
 
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
@@ -79,9 +87,10 @@ public class PersistenceTestContext {
             final StartupDomainLoader domainLoader,
             final DomainHolder domainHolder,
             final ContentLoader contentLoader,
+            final DomainRoutingEntityManagerFactory entityManagerFactory,
             final ConfigurableApplicationContext ctx) {
 
-        return new TestInitializer(domainLoader, domainHolder, contentLoader, ctx);
+        return new TestInitializer(domainLoader, domainHolder, contentLoader, entityManagerFactory, ctx);
     }
 
     @Bean
@@ -112,5 +121,25 @@ public class PersistenceTestContext {
     @Bean
     public ConnectorManager connectorManager() {
         return new DummyConnectorManager();
+    }
+
+    @Bean
+    public DomainRoutingEntityManagerFactory entityManagerFactory(
+            final PersistenceProperties props,
+            @Qualifier("MasterDataSource")
+            final JndiObjectFactoryBean masterDataSource,
+            final CommonEntityManagerFactoryConf commonEMFConf) {
+
+        DomainRoutingEntityManagerFactory emf = new DomainRoutingEntityManagerFactory(commonEMFConf) {
+
+            @Override
+            protected EntityManagerFactory delegate() {
+                return delegates.getOrDefault(
+                        TEST_DOMAIN.get(),
+                        delegates.get(SyncopeConstants.MASTER_DOMAIN));
+            }
+        };
+        emf.master(props, masterDataSource);
+        return emf;
     }
 }
