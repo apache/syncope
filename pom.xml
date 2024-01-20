@@ -422,7 +422,7 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>4.0.16</groovy.version>
+    <groovy.version>4.0.18</groovy.version>
 
     <flowable.version>6.8.0</flowable.version>
 
