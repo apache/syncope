@@ -98,7 +98,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
             passwordPolicyTO.getRules().forEach(ruleKey -> implementationDAO.findById(ruleKey).ifPresentOrElse(
                     passwordPolicy::add,
-                    () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", ruleKey)));
+                    () -> LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), ruleKey)));
             // remove all implementations not contained in the TO
             passwordPolicy.getRules().
                     removeIf(implementation -> !passwordPolicyTO.getRules().contains(implementation.getKey()));

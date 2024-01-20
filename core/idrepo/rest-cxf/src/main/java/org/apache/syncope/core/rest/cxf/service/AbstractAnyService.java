@@ -127,7 +127,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                 : getSearchCond(anyQuery.getFiql(), realm);
         try {
             Page<TO> result = getAnyLogic().search(
-                    searchCond, pageable(anyQuery),
+                    searchCond,
+                    pageable(anyQuery),
                     realm,
                     anyQuery.getRecursive(),
                     anyQuery.getDetails());

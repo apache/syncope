@@ -116,6 +116,11 @@ public class JPAPolicyDAO implements PolicyDAO {
     }
 
     @Override
+    public boolean existsById(final String key) {
+        return findById(key).isPresent();
+    }
+
+    @Override
     public Optional<? extends Policy> findById(final String key) {
         return Optional.ofNullable(entityManager.find(AbstractPolicy.class, key));
     }

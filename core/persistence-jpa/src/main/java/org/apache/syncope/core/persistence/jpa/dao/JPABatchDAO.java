@@ -40,6 +40,12 @@ public class JPABatchDAO implements BatchDAO {
 
     @Transactional(readOnly = true)
     @Override
+    public boolean existsById(final String key) {
+        return findById(key).isPresent();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public Optional<Batch> findById(final String key) {
         return Optional.ofNullable(entityManager.find(JPABatch.class, key));
     }

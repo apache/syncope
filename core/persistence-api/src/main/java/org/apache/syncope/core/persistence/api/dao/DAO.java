@@ -27,6 +27,8 @@ public interface DAO<E extends Entity> {
 
     Sort DEFAULT_SORT = Sort.by("id");
 
+    boolean existsById(String key);
+
     Optional<? extends E> findById(String key);
 
     long count();

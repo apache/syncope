@@ -499,11 +499,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         UserTO deletedTO;
-        if (userDAO.findById(before.getLeft().getKey()).isEmpty()) {
+        if (userDAO.existsById(before.getLeft().getKey())) {
+            deletedTO = binder.getUserTO(before.getLeft().getKey());
+        } else {
             deletedTO = new UserTO();
             deletedTO.setKey(before.getLeft().getKey());
-        } else {
-            deletedTO = binder.getUserTO(before.getLeft().getKey());
         }
 
         return afterDelete(deletedTO, statuses, before.getRight());

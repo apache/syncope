@@ -130,7 +130,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
 
         checkType(implementationTO.getType());
 
-        if (implementationDAO.findById(implementationTO.getKey()).isPresent()) {
+        if (implementationDAO.existsById(implementationTO.getKey())) {
             throw new DuplicateException(implementationTO.getKey());
         }
 

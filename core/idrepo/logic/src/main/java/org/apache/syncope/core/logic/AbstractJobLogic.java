@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -101,8 +100,7 @@ abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactiona
                 jobTO.setStatus("UNKNOWN");
                 if (jobTO.isRunning()) {
                     try {
-                        jobTO.setStatus(Optional.ofNullable(jobStatusDAO.findById(jobTO.getRefDesc())).
-                                filter(Optional::isPresent).map(Optional::get).
+                        jobTO.setStatus(jobStatusDAO.findById(jobTO.getRefDesc()).
                                 map(JobStatus::getStatus).
                                 orElse(jobTO.getStatus()));
                     } catch (NoSuchBeanDefinitionException e) {

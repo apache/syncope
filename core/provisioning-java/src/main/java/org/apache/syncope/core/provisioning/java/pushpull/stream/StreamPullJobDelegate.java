@@ -119,7 +119,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
         columns.stream().
                 filter(column -> anyUtils.getField(column) != null
-                || plainSchemaDAO.findById(column).isPresent() || virSchemaDAO.findById(column).isPresent()).
+                || plainSchemaDAO.existsById(column) || virSchemaDAO.existsById(column)).
                 map(column -> {
                     Item item = new Item();
                     item.setExtAttrName(column);

@@ -124,8 +124,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         return query;
     }
 
-    protected int countProcessInstances(final StringBuilder processInstanceQuery) {
-        return (int) engine.getRuntimeService().createNativeProcessInstanceQuery().
+    protected long countProcessInstances(final StringBuilder processInstanceQuery) {
+        return engine.getRuntimeService().createNativeProcessInstanceQuery().
                 sql("SELECT COUNT(ID_) FROM "
                         + StringUtils.substringAfter(processInstanceQuery.toString(), " FROM ")).
                 count();
@@ -151,7 +151,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     @Override
     public Page<UserRequest> getUserRequests(final String userKey, final Pageable pageable) {
         StringBuilder query = createProcessInstanceQuery(userKey);
-        Integer count = countProcessInstances(query);
+        long count = countProcessInstances(query);
 
         if (!pageable.getSort().isEmpty()) {
             query.append(" ORDER BY");

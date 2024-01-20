@@ -638,24 +638,24 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             }
         });
         spec.getPlainAttrs().forEach(item -> {
-            if (plainSchemaDAO.findById(item) == null) {
-                LOG.warn("Ignoring invalid plain schema {}", item);
-            } else {
+            if (plainSchemaDAO.existsById(item)) {
                 columns.add(item);
+            } else {
+                LOG.warn("Ignoring invalid plain schema {}", item);
             }
         });
         spec.getDerAttrs().forEach(item -> {
-            if (derSchemaDAO.findById(item) == null) {
-                LOG.warn("Ignoring invalid derived schema {}", item);
-            } else {
+            if (derSchemaDAO.existsById(item)) {
                 columns.add(item);
+            } else {
+                LOG.warn("Ignoring invalid derived schema {}", item);
             }
         });
-        spec.getVirAttrs().forEach(item -> {
-            if (virSchemaDAO.findById(item) == null) {
-                LOG.warn("Ignoring invalid virtual schema {}", item);
-            } else {
+        spec.getDerAttrs().forEach(item -> {
+            if (virSchemaDAO.existsById(item)) {
                 columns.add(item);
+            } else {
+                LOG.warn("Ignoring invalid virtual schema {}", item);
             }
         });
 

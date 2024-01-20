@@ -98,6 +98,11 @@ public class JPATaskDAO implements TaskDAO {
         this.entityManager = entityManager;
     }
 
+    @Override
+    public boolean existsById(final String key) {
+        return findById(key).isPresent();
+    }
+
     @Transactional(readOnly = true)
     @Override
     @SuppressWarnings("unchecked")

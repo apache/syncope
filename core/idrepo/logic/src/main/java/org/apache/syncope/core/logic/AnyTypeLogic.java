@@ -76,7 +76,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
             sce.getElements().add(AnyType.class.getSimpleName() + " key");
             throw sce;
         }
-        if (anyTypeDAO.findById(anyTypeTO.getKey()).isPresent()) {
+        if (anyTypeDAO.existsById(anyTypeTO.getKey())) {
             throw new DuplicateException(anyTypeTO.getKey());
         }
 

@@ -59,6 +59,11 @@ public class JPATaskExecDAO implements TaskExecDAO {
     }
 
     @Override
+    public boolean existsById(final String key) {
+        return findById(key).isPresent();
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <T extends Task<T>> Optional<TaskExec<T>> findById(final TaskType type, final String key) {
         return Optional.ofNullable(

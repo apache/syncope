@@ -79,7 +79,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.MAIL_TEMPLATE_CREATE + "')")
     public MailTemplateTO create(final String key) {
-        if (mailTemplateDAO.findById(key).isPresent()) {
+        if (mailTemplateDAO.existsById(key)) {
             throw new DuplicateException(key);
         }
 

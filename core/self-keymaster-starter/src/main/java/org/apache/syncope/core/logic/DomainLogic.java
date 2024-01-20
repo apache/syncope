@@ -71,7 +71,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
             throw new KeymasterException("Cannot create domain " + SyncopeConstants.MASTER_DOMAIN);
         }
 
-        if (domainDAO.findById(domain.getKey()).isPresent()) {
+        if (domainDAO.existsById(domain.getKey())) {
             throw new DuplicateException("Domain " + domain.getKey() + " already existing");
         }
 

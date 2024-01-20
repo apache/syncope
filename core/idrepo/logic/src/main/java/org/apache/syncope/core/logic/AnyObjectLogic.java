@@ -216,11 +216,11 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
                 before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
         AnyObjectTO deletedTO;
-        if (anyObjectDAO.findById(before.getLeft().getKey()).isEmpty()) {
+        if (anyObjectDAO.existsById(before.getLeft().getKey())) {
+            deletedTO = binder.getAnyObjectTO(before.getLeft().getKey());
+        } else {
             deletedTO = new AnyObjectTO();
             deletedTO.setKey(before.getLeft().getKey());
-        } else {
-            deletedTO = binder.getAnyObjectTO(before.getLeft().getKey());
         }
 
         return afterDelete(deletedTO, statuses, before.getRight());

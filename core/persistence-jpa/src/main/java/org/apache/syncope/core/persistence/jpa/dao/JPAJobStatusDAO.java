@@ -37,6 +37,11 @@ public class JPAJobStatusDAO implements JobStatusDAO {
         this.entityManager = entityManager;
     }
 
+    @Override
+    public boolean existsById(final String key) {
+        return findById(key).isPresent();
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Optional<? extends JobStatus> findById(final String key) {

@@ -118,7 +118,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
         MediaType mediaType = MediaType.valueOf(messageContext.getHttpServletRequest().getContentType());
         String boundary = mediaType.getParameters().get(RESTHeaders.BOUNDARY_PARAMETER);
 
-        if (batchDAO.findById(boundary).isPresent()) {
+        if (batchDAO.existsById(boundary)) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.EntityExists);
             sce.getElements().add("Batch with boundary " + boundary + " already processing");
             throw sce;
