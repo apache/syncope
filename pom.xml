@@ -495,7 +495,7 @@ under the License.
 
     <tomcat.version>10.1.18</tomcat.version>
     <wildfly.version>30.0.1.Final</wildfly.version>
-    <payara.version>6.2023.9</payara.version>
+    <payara.version>6.2023.11</payara.version>
     <jakarta.faces.version>4.0.5</jakarta.faces.version>
 
     <docker.postgresql.version>16</docker.postgresql.version>
@@ -602,7 +602,7 @@ under the License.
       </dependency>
       <dependency>
         <groupId>io.swagger.core.v3</groupId>
-        <artifactId>swagger-jaxrs2</artifactId>
+        <artifactId>swagger-jaxrs2-jakarta</artifactId>
         <version>${swagger-core.version}</version>
       </dependency>
       <dependency>
