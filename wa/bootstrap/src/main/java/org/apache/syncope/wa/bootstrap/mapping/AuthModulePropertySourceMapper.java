@@ -280,6 +280,10 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setBlockedSignatureSigningAlgorithms(conf.getBlockedSignatureSigningAlgorithms());
         props.setDestinationBinding(conf.getDestinationBinding().getUri());
         props.setIdentityProviderMetadataPath(conf.getIdentityProviderMetadataPath());
+        props.setServiceProviderMetadataPath(conf.getServiceProviderMetadataPath());
+        props.setKeystorePath(conf.getKeystorePath());
+        props.setWantsAssertionsSigned(conf.isWantsAssertionsSigned());
+        props.setWantsResponsesSigned(conf.isResponsesSigned());
         props.setKeystoreAlias(conf.getKeystoreAlias());
         props.setKeystorePassword(conf.getKeystorePassword());
         props.setMaximumAuthenticationLifetime(conf.getMaximumAuthenticationLifetime());
