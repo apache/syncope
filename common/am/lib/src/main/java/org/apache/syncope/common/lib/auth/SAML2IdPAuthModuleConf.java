@@ -42,6 +42,16 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
     protected SAML2BindingType destinationBinding = SAML2BindingType.REDIRECT;
 
     /**
+     * The Service Provider metadata path.
+     */
+    protected String serviceProviderMetadataPath;
+
+    /**
+     * The path to the keystore.
+     */
+    protected String keystorePath;
+
+    /**
      * The password to use when generating the SP keystore.
      */
     protected String keystorePassword;
@@ -117,6 +127,11 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
      * NameID policy to request in the authentication requests.
      */
     protected String nameIdPolicyFormat;
+
+    /**
+     * Whether metadata should be marked to request response signed.
+     */
+    protected boolean responsesSigned;
 
     /**
      * Whether metadata should be marked to request sign assertions.
@@ -200,6 +215,22 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
 
     public void setDestinationBinding(final SAML2BindingType destinationBinding) {
         this.destinationBinding = destinationBinding;
+    }
+
+    public String getServiceProviderMetadataPath() {
+        return serviceProviderMetadataPath;
+    }
+
+    public void setServiceProviderMetadataPath(final String serviceProviderMetadataPath) {
+        this.serviceProviderMetadataPath = serviceProviderMetadataPath;
+    }
+
+    public String getKeystorePath() {
+        return keystorePath;
+    }
+
+    public void setKeystorePath(final String keystorePath) {
+        this.keystorePath = keystorePath;
     }
 
     public String getKeystorePassword() {
@@ -300,6 +331,14 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
 
     public void setNameIdPolicyFormat(final String nameIdPolicyFormat) {
         this.nameIdPolicyFormat = nameIdPolicyFormat;
+    }
+
+    public boolean isResponsesSigned() {
+        return responsesSigned;
+    }
+
+    public void setResponsesSigned(final boolean responsesSigned) {
+        this.responsesSigned = responsesSigned;
     }
 
     public boolean isWantsAssertionsSigned() {
