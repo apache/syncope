@@ -505,7 +505,7 @@ under the License.
     <jdbc.postgresql.version>42.7.1</jdbc.postgresql.version>
     <jdbc.mysql.version>8.3.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.3.2</jdbc.mariadb.version>
-    <jdbc.mssql.version>12.4.2.jre</jdbc.mssql.version>
+    <jdbc.mssql.version>12.6.0.jre11</jdbc.mssql.version>
     <jdbc.oracle.version>23.3.0.23.09</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
