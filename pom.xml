@@ -1573,7 +1573,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.11</version>
+          <version>1.10.12</version>
           <configuration>
             <container>
               <log>${project.build.directory}/log/cargo.log</log>
