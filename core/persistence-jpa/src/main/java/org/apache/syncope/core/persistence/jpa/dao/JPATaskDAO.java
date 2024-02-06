@@ -205,7 +205,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
         return query.getResultList();
     }
 
-    protected final <T extends Task<T>> StringBuilder buildFindAllQueryJPA(final TaskType type) {
+    protected final <T extends Task<T>> StringBuilder buildFindAllQuery(final TaskType type) {
         StringBuilder builder = new StringBuilder("SELECT t FROM ").
                 append(taskUtilsFactory.getInstance(type).getTaskEntity().getSimpleName()).
                 append(" t WHERE ");
@@ -225,7 +225,7 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Task<T>> List<T> findToExec(final TaskType type) {
-        StringBuilder queryString = buildFindAllQueryJPA(type).append("AND ");
+        StringBuilder queryString = buildFindAllQuery(type).append("AND ");
 
         if (type == TaskType.NOTIFICATION) {
             queryString.append("t.executed = false ");
@@ -497,6 +497,8 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
             ((JPANotificationTask) task).list2json();
         } else if (task instanceof JPAPushTask) {
             ((JPAPushTask) task).map2json();
+        } else if (task instanceof JPAMacroTask) {
+            ((JPAMacroTask) task).list2json();
         }
         return entityManager().merge(task);
     }
