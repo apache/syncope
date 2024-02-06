@@ -428,7 +428,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.12.0</elasticsearch.version>
+    <elasticsearch.version>8.12.1</elasticsearch.version>
     <elasticsearch-rest.version>8.10.4</elasticsearch-rest.version>
     <opensearch.version>2.11.1</opensearch.version>
     <opensearch-java.version>2.8.1</opensearch-java.version>
