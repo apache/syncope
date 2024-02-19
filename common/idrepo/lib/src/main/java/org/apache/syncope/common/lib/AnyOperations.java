@@ -198,12 +198,7 @@ public final class AnyOperations {
                     operation(PatchOperation.ADD_REPLACE).build();
 
             diff(value, membershipPatch);
-
-            if (!originalMembs.containsKey(key)
-                    || (!membershipPatch.getPlainAttrs().isEmpty() || !membershipPatch.getVirAttrs().isEmpty())) {
-
-                result.getMemberships().add(membershipPatch);
-            }
+            result.getMemberships().add(membershipPatch);
         });
 
         if (!incremental) {
@@ -309,12 +304,7 @@ public final class AnyOperations {
                     operation(PatchOperation.ADD_REPLACE).build();
 
             diff(value, membershipPatch);
-
-            if (!originalMembs.containsKey(key)
-                    || (!membershipPatch.getPlainAttrs().isEmpty() || !membershipPatch.getVirAttrs().isEmpty())) {
-
-                result.getMemberships().add(membershipPatch);
-            }
+            result.getMemberships().add(membershipPatch);
         });
 
         if (!incremental) {
