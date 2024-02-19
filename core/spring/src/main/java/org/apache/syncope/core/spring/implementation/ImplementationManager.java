@@ -46,7 +46,6 @@ import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 public final class ImplementationManager {
 
@@ -192,7 +191,7 @@ public final class ImplementationManager {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static Class<? extends CommandArgs> findCommandArgsClass(final Type type) {
         if (type.getTypeName().startsWith(
                 ImplementationTypesHolder.getInstance().getValues().get(IdRepoImplementationType.COMMAND) + "<")) {
@@ -254,8 +253,7 @@ public final class ImplementationManager {
 
     @SuppressWarnings("unchecked")
     public static <T> T build(final Implementation impl) throws ClassNotFoundException {
-        return (T) ApplicationContextProvider.getBeanFactory().
-                createBean(getClass(impl).getLeft(), AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+        return (T) ApplicationContextProvider.getBeanFactory().createBean(getClass(impl).getLeft());
     }
 
     @SuppressWarnings("unchecked")
@@ -273,8 +271,7 @@ public final class ImplementationManager {
             instance = cacheGetter.get();
         }
         if (instance == null) {
-            instance = (T) ApplicationContextProvider.getBeanFactory().
-                    createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+            instance = ApplicationContextProvider.getBeanFactory().createBean(clazz);
 
             if (perContext) {
                 cachePutter.accept(instance);

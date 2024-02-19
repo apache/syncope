@@ -38,28 +38,23 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true)
 @Configuration(proxyBeanMethods = false)
 public class WebSecurityContext {
-
-    public WebSecurityContext() {
-        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-    }
 
     @Bean
     public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
@@ -77,15 +72,15 @@ public class WebSecurityContext {
     public SecurityFilterChain filterChain(
             final HttpSecurity http,
             final UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider,
-            final JWTAuthenticationProvider jwtAuthenticationProvider,
-            final SecurityProperties securityProperties,
-            final AuthDataAccessor authDataAccessor,
+            final AccessDeniedHandler accessDeniedHandler,
+            final AuthDataAccessor dataAccessor,
             final DefaultCredentialChecker defaultCredentialChecker) throws Exception {
 
         AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManagerBuilder.class).
+                parentAuthenticationManager(null).
                 authenticationProvider(usernamePasswordAuthenticationProvider).
-                authenticationProvider(jwtAuthenticationProvider).
                 build();
+        http.authenticationManager(authenticationManager);
 
         SyncopeAuthenticationDetailsSource authenticationDetailsSource =
                 new SyncopeAuthenticationDetailsSource();
@@ -93,29 +88,30 @@ public class WebSecurityContext {
         SyncopeBasicAuthenticationEntryPoint basicAuthenticationEntryPoint =
                 new SyncopeBasicAuthenticationEntryPoint();
         basicAuthenticationEntryPoint.setRealmName("Apache Syncope authentication");
+        http.httpBasic(customizer -> customizer.
+                authenticationEntryPoint(basicAuthenticationEntryPoint).
+                authenticationDetailsSource(authenticationDetailsSource));
 
         JWTAuthenticationFilter jwtAuthenticationFilter = new JWTAuthenticationFilter(
                 authenticationManager,
                 basicAuthenticationEntryPoint,
                 authenticationDetailsSource,
-                authDataAccessor,
+                dataAccessor,
                 defaultCredentialChecker);
+        http.addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
 
         MustChangePasswordFilter mustChangePasswordFilter = new MustChangePasswordFilter();
+        http.addFilterBefore(mustChangePasswordFilter, AuthorizationFilter.class);
 
-        http.authenticationManager(authenticationManager).
-                authorizeRequests().
-                antMatchers("/actuator/**").hasRole(IdRepoEntitlement.ANONYMOUS).
-                antMatchers("/**").permitAll().and().
-                sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().
-                securityContext().securityContextRepository(new NullSecurityContextRepository()).and().
-                httpBasic().authenticationEntryPoint(basicAuthenticationEntryPoint).
-                authenticationDetailsSource(authenticationDetailsSource).and().
-                exceptionHandling().accessDeniedHandler(accessDeniedHandler()).and().
-                addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class).
-                addFilterBefore(mustChangePasswordFilter, FilterSecurityInterceptor.class).
-                headers().disable().
-                csrf().disable();
+        http.authorizeHttpRequests(customizer -> customizer.
+                requestMatchers(AntPathRequestMatcher.antMatcher("/actuator/**")).
+                hasAuthority(IdRepoEntitlement.ANONYMOUS).
+                requestMatchers(AntPathRequestMatcher.antMatcher("/**")).permitAll());
+        http.securityContext(AbstractHttpConfigurer::disable);
+        http.sessionManagement(AbstractHttpConfigurer::disable);
+        http.headers(AbstractHttpConfigurer::disable);
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.exceptionHandling(customizer -> customizer.accessDeniedHandler(accessDeniedHandler));
 
         return http.build();
     }
@@ -135,12 +131,6 @@ public class WebSecurityContext {
                 provisioningManager,
                 credentialChecker,
                 securityProperties);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public JWTAuthenticationProvider jwtAuthenticationProvider(final AuthDataAccessor authDataAccessor) {
-        return new JWTAuthenticationProvider(authDataAccessor);
     }
 
     @Bean

@@ -95,7 +95,7 @@ public class MSEntraAccessTokenJWSVerifier implements JWSVerifier {
 
                     @Override
                     public JWSVerifier load(final String key) {
-                        return loadAll(List.of(key)).get(key);
+                        return loadAll(Set.of(key)).get(key);
                     }
 
                     @Override
