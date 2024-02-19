@@ -19,21 +19,24 @@
 package org.apache.syncope.core.spring.security;
 
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.HttpHeaders;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -89,14 +92,35 @@ public class JWTAuthenticationFilter extends BasicAuthenticationFilter {
         try {
             credentialChecker.checkIsDefaultJWSKeyInUse();
 
+            // 0. parse JWT
             SignedJWT jwt = SignedJWT.parse(stringToken);
+
+            // 1. check signature
             JWTSSOProvider jwtSSOProvider = dataAccessor.getJWTSSOProvider(jwt.getJWTClaimsSet().getIssuer());
             if (!jwt.verify(jwtSSOProvider)) {
                 throw new BadCredentialsException("Invalid signature found in JWT");
             }
 
+            JWTClaimsSet claims = jwt.getJWTClaimsSet();
+            long referenceTime = System.currentTimeMillis();
+
+            // 2. check expiration
+            Date expirationTime = claims.getExpirationTime();
+            if (expirationTime != null && expirationTime.getTime() < referenceTime) {
+                dataAccessor.removeExpired(claims.getJWTID());
+                throw new CredentialsExpiredException("JWT is expired");
+            }
+
+            // 3. check not before
+            Date notBefore = claims.getNotBeforeTime();
+            if (notBefore != null && notBefore.getTime() > referenceTime) {
+                throw new CredentialsExpiredException("JWT not valid yet");
+            }
+
+            // 4. generate and set the authentication object
             JWTAuthentication jwtAuthentication =
-                    new JWTAuthentication(jwt.getJWTClaimsSet(), authenticationDetailsSource.buildDetails(request));
+                    new JWTAuthentication(claims, authenticationDetailsSource.buildDetails(request));
+            jwtAuthentication.setAuthenticated(true);
             AuthContextUtils.callAsAdmin(jwtAuthentication.getDetails().getDomain(), () -> {
                 Pair<String, Set<SyncopeGrantedAuthority>> authenticated = dataAccessor.authenticate(jwtAuthentication);
                 jwtAuthentication.setUsername(authenticated.getLeft());

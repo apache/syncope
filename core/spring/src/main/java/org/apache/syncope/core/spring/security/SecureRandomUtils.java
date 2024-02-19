@@ -78,6 +78,10 @@ public final class SecureRandomUtils {
                 }).build().generate(1);
     }
 
+    public static int generateRandomInt(final int startInclusive, final int endExclusive) {
+        return startInclusive + RANDOM.nextInt(endExclusive - startInclusive);
+    }
+
     public static UUID generateRandomUUID() {
         return UUID_GENERATOR.generate();
     }

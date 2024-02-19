@@ -35,6 +35,27 @@ under the License.
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>${spring-framework.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-bom</artifactId>
+        <version>${spring-security.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>org.apereo.cas</groupId>
         <artifactId>cas-server-support-bom</artifactId>
         <version>${cas.version}</version>
@@ -42,6 +63,12 @@ under the License.
         <scope>import</scope>
       </dependency>
 
+      <!-- Spring Boot 2.7.x pulls Thymeleaf Layout Dialect 3.0.0 -->
+      <dependency>
+        <groupId>nz.net.ultraq.thymeleaf</groupId>
+        <artifactId>thymeleaf-layout-dialect</artifactId>
+        <version>${thymeleaf-layout-dialect.version}</version>
+      </dependency>
       <!-- CAS 6.6.x pulls CXF 3.5.3 -->
       <dependency>
         <groupId>org.apache.cxf</groupId>
