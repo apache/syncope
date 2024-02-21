@@ -670,6 +670,7 @@ under the License.
                       <cluster.routing.allocation.disk.threshold_enabled>false</cluster.routing.allocation.disk.threshold_enabled>
                       <plugins.security.disabled>true</plugins.security.disabled>
                       <OPENSEARCH_JAVA_OPTS>-Xms750m -Xmx750m</OPENSEARCH_JAVA_OPTS>
+                      <OPENSEARCH_INITIAL_ADMIN_PASSWORD>z[x@%~CS7Vn}</OPENSEARCH_INITIAL_ADMIN_PASSWORD>
                     </env>
                     <ports>
                       <port>9200:9200</port>
