@@ -428,8 +428,8 @@ under the License.
     <disruptor.version>3.4.4</disruptor.version>
 
     <elasticsearch.version>8.12.1</elasticsearch.version>
-    <opensearch.version>2.11.1</opensearch.version>
-    <opensearch-java.version>2.8.3</opensearch-java.version>
+    <opensearch.version>2.12.0</opensearch.version>
+    <opensearch-java.version>2.8.4</opensearch-java.version>
 
     <commons-lang3.version>3.14.0</commons-lang3.version>
     <commons-jexl.version>3.3</commons-jexl.version>
@@ -493,7 +493,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>10.1.18</tomcat.version>
+    <tomcat.version>10.1.19</tomcat.version>
     <wildfly.version>30.0.1.Final</wildfly.version>
     <payara.version>6.2023.11</payara.version>
     <jakarta.faces.version>4.0.5</jakarta.faces.version>
@@ -502,10 +502,10 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.7.1</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.2</jdbc.postgresql.version>
     <jdbc.mysql.version>8.3.0</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.3.2</jdbc.mariadb.version>
-    <jdbc.mssql.version>12.6.0.jre11</jdbc.mssql.version>
+    <jdbc.mariadb.version>3.3.3</jdbc.mariadb.version>
+    <jdbc.mssql.version>12.6.1.jre11</jdbc.mssql.version>
     <jdbc.oracle.version>23.3.0.23.09</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
