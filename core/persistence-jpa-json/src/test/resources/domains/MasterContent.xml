@@ -344,7 +344,7 @@ under the License.
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
-                plainAttrs='[{"values":[{"stringValue":"niceIcon"}],"schema":"icon"},{"uniqueValue":{"booleanValue":true},"schema":"show"},{"values":[{"stringValue":"sx"}],"schema":"rderived_sx"},{"values":[{"stringValue":"dx"}],"schema":"rderived_dx"}]'/>
+                plainAttrs='[{"values":[{"stringValue":"niceIcon"}],"schema":"icon"},{"values":[{"booleanValue":true}],"schema":"show"},{"values":[{"stringValue":"sx"}],"schema":"rderived_sx"},{"values":[{"stringValue":"dx"}],"schema":"rderived_dx"}]'/>
   <SyncopeGroup id="b1f7c12d-ec83-441f-a50e-1691daaedf3b" name="child"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 creator="admin" lastModifier="admin" 
